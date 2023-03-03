@@ -206,12 +206,12 @@ import stat
 import time
 import datetime
 import calendar
-import csv
+# import csv
 import array
 import shutil
 import math
 import struct
-import ftfy
+# import ftfy
 import fnmatch
 
 

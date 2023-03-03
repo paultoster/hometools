@@ -32,13 +32,13 @@ start_dir_vorschlag="D:\\RTAS_work\\RPECU_CUBE_JP1_PHAD2018\\linked_build\\app\\
 start_dir_vorschlag="D:\\RTAS_work\\RPECU_CUBE_1_PHAD2018\\linked_build\\app\\tricore_1793\\prj\\phad2018_rtas_cube"
 
 old_name_list = ["rpecu_b8_ad_tz"]
-new_name_list = ["thomaspaulberthold"]
+new_name_list = ["thomaspaulberthold"] 2022-07-20-11-25-21-250_F-TZ_9900_HUD_
  """
 
 
-start_dir_vorschlag="D:\\GitGrid"
-old_name_list = ["D:\\ton\\mp3"]
-new_name_list = ["D:\\media\\ton\\mp3"]
+start_dir_vorschlag="T:/mess/ecal/PHAD_Passat9900/2022/220700_LateralSafety_1012kmh_Stefan_Mueller"
+old_name_list = ["Driver: Stefan Müller","Driver:"]
+new_name_list = ["Driver: Stefan Müller"]
 
 change_path_name    = 0
 change_file_name    = 0
