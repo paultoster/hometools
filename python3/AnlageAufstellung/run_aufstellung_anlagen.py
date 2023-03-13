@@ -9,8 +9,6 @@ from auswahl_liste import auswahl_liste
 from daten_laden import daten_laden
 from ausgabe_excel import ausgabe_excel
 
-
-
 CONFIG_FILE = "config.ini"
 
 # Einlesen der Config-Datei
@@ -40,22 +38,30 @@ for anlage in anlagen_liste:
 INDEX_DATEN_LADEN   = 0
 INDEX_AUSGABE_EXCEL = 1
 INDEX_ENDE          = 2
-liste = ['Daten einladen','Ausgabe Excel erstellen','Ende']
+liste = ['Buchungsdaten einlesen','Ausgabe Excel erstellen','Ende']
 
 
 index = 0
 while( index >= 0):
 
+  # Gui Auswahl von Liste
+  #----------------------
   (a,index) = auswahl_liste(liste)
 
+  # Daten einlesen
+  #---------------
   if( index == INDEX_DATEN_LADEN ):
       
       a_liste = daten_laden(a_liste)
     
+  # Daten in excel ausgeben
+  #------------------------
   elif( index == INDEX_AUSGABE_EXCEL ):
       
       a_liste = ausgabe_excel(a_liste)
     
+  # abbrechen
+  #----------
   else:
       
       index = -1 
