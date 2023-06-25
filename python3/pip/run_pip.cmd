@@ -7,7 +7,9 @@ python -m pip install --upgrade pip
 
 rem python -m pip install numpy matplot
 
-python -m pip install matplotlib
+rem python -m pip install matplotlib
+
+python -m pip install scipy
 
 rem python -m pip install pymupdf
 

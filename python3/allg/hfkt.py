@@ -101,6 +101,7 @@
 # def build_path(pathname): erstellt Pfad wenn nicht vorhanden
 # def clear_path(pathname): löscht Inhalt des Pfades
 # def find_file_pattern(pattern, path): find_file_pattern(pattern, path) returns a list of file: find('*.txt', 'D:\\temp') => ["D:\\temp\\filea.txt","D:\\temp\\filea.txt"]
+# def get_last_subdir_name(fullpathname): gebe letzte Ebene des Unterpfadsnamen zurück
 ###################################################################################
 # Eingabe/Ausgabe
 ###################################################################################
@@ -1660,12 +1661,40 @@ def get_pfe(full_file):
 
     return path,fbody,ext
 
+def set_pfe(p="",b="",e=""):
+    """
+
+    :param p: path
+    :param b: bodyname
+    :param e: extention
+    :return: full_file_name
+    """
+    if( len(p) ):
+        full_file_name = p
+    else:
+        full_file_name = ""
+
+    i0 = such(e, ".")
+
+    if( i0 >= 0 ):
+        ext = e[i0+1:]
+    else:
+        ext = e
+
+    full_file_name = join(full_file_name,os.sep)
+
+    full_file_name = os.path.join(full_file_name,b+"."+ext)
+
+
+    return full_file_name
+
+
 def remove_dir_all(dir_name):
 
     try:
         liste   = os.listdir(dir_name)
     except WindowsError:
-        print("remove_dir_all.error: os.listdir(\"%s\") not found" % dir_name)
+        print("remove_dir_all.error: os.listdir(\"%s\") not found" % dir_nam)
         return
 
     for aname in liste:
@@ -2036,7 +2065,20 @@ def find_file_pattern(pattern, path):
                 result.append(os.path.join(root, name))
     return result
 
+def get_last_subdir_name(fullpathname):
+    """
+    gebe letzte Ebene des Unterpfadsnamen zurück
+    :param fullpathname:
+    :return: last subdirname
+    """
+    pname = join(fullpathname, os.sep)
 
+    liste = pname.split(os.sep)
+
+    if( len(liste) ):
+        return liste[-1]
+    else:
+        return ""
 ###################################################################################
 # Eingabe/Ausgabe
 ###################################################################################
@@ -4085,6 +4127,8 @@ def add_constant(ll,value):
 # testen mit main
 ###########################################################################
 if __name__ == '__main__':
+    fullpathname = 'https://files.realpython.com/media/haversine_formula_150.fb2b87d122a4.png'
+    t = get_last_subdir_name(fullpathname)
 
     (p,b,e) = get_pfe('https://files.realpython.com/media/haversine_formula_150.fb2b87d122a4.png')
     str_replace("abcdefghi","12",8,2)
