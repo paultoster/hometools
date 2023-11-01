@@ -9,7 +9,7 @@ rem python -m pip install numpy matplot
 
 rem python -m pip install matplotlib
 
-python -m pip install scipy
+rem python -m pip install scipy
 
 rem python -m pip install pymupdf
 
@@ -30,6 +30,10 @@ rem python -m pip install pandas
 
 rem python -m pip install xlwt
 
-python -m pip install pandas
+rem python -m pip install pandas
+
+python -m pip install PythonTurtle
+
+python -m pip install svg.path
 
 pause
