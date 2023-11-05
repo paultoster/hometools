@@ -1,5 +1,5 @@
 ﻿[PyScripter]
-Version=4.3.1.0
+Version=4.3.3.0
 
 [Project]
 ClassName=TProjectRootNode
@@ -15,29 +15,77 @@ FileName=K:\tools\hometools\python3\allg\hfkt_file_path.py
 
 [Project\ChildNodes\Node0\ChildNodes\Node1]
 ClassName=TProjectFileNode
-FileName=K:\tools\hometools\python3\allg\hfkt_str.py
+FileName=K:\tools\hometools\python3\allg\hfkt_list.py
 
 [Project\ChildNodes\Node0\ChildNodes\Node2]
 ClassName=TProjectFileNode
-FileName=$[Project-Path]run_kleine_zeichnung.py
+FileName=K:\tools\hometools\python3\allg\hfkt_str.py
 
 [Project\ChildNodes\Node0\ChildNodes\Node3]
 ClassName=TProjectFileNode
-FileName=$[Project-Path]small_vector_graphic.py
+FileName=$[Project-Path]run_kleine_zeichnung.py
 
 [Project\ChildNodes\Node0\ChildNodes\Node4]
 ClassName=TProjectFileNode
-FileName=$[Project-Path]small_vector_graphic_classes.py
+FileName=$[Project-Path]small_vector_graphic.py
 
 [Project\ChildNodes\Node0\ChildNodes\Node5]
 ClassName=TProjectFileNode
+FileName=$[Project-Path]small_vector_graphic_Base.py
+
+[Project\ChildNodes\Node0\ChildNodes\Node6]
+ClassName=TProjectFileNode
+FileName=$[Project-Path]small_vector_graphic_classes.py
+
+[Project\ChildNodes\Node0\ChildNodes\Node7]
+ClassName=TProjectFileNode
+FileName=$[Project-Path]small_vector_graphic_CoordSys.py
+
+[Project\ChildNodes\Node0\ChildNodes\Node8]
+ClassName=TProjectFileNode
 FileName=$[Project-Path]small_vector_graphic_defines.py
 
+[Project\ChildNodes\Node0\ChildNodes\Node9]
+ClassName=TProjectFileNode
+FileName=$[Project-Path]small_vector_graphic_Geo.py
+
+[Project\ChildNodes\Node0\ChildNodes\Node10]
+ClassName=TProjectFileNode
+FileName=$[Project-Path]small_vector_graphic_helper.py
+
+[Project\ChildNodes\Node0\ChildNodes\Node11]
+ClassName=TProjectFileNode
+FileName=$[Project-Path]small_vector_graphic_Plot.py
+
 [Project\ChildNodes\Node0\ChildNodes]
-Count=6
+Count=12
 
 [Project\ChildNodes\Node1]
 ClassName=TProjectRunConfiguationsNode
+
+[Project\ChildNodes\Node1\ChildNodes\Node0]
+ClassName=TProjectRunConfiguationNode
+Name=run1
+
+[Project\ChildNodes\Node1\ChildNodes\Node0\RunConfig]
+ScriptName=K:\tools\hometools\python3\projects\kleine_zeichnung\run_kleine_zeichnung.py
+Description=run Zeichnungstools
+EngineType=peRemote
+ReinitializeBeforeRun=TRUE
+WorkingDir=K:\tools\hometools\python3\projects\kleine_zeichnung
+WriteOutputToFile=FALSE
+OutputFileName=$[ActiveScript-NoExt].log
+AppendToFile=FALSE
+
+[Project\ChildNodes\Node1\ChildNodes\Node0\RunConfig\ExternalRun]
+Caption=External Run
+Description=Run script using an external Python Interpreter
+ApplicationName=$[PythonExe-Short]
+Parameters=$[ActiveScript-Short]
+WorkingDirectory=$[ActiveScript-Dir]
+
+[Project\ChildNodes\Node1\ChildNodes]
+Count=1
 
 [Project\ChildNodes]
 Count=2

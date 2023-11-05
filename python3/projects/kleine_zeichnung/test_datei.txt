@@ -1,2 +1,37 @@
-Base(X0=0.0,Y0=0.0,Dir0=0.0,PointsPerUnit=100)
+#
+#
+Base( UnitWidth = 100, UnitHeight = 80 , PointWidth=1000,PointHeight=800)
+CoordSys(Name=coord1,X0=2.0,Y0=2.0,
+Dir0=90)
+#
+# Text
+#
+Point( Name=P1, X0=10.0, Y0=0.0)
+Point( Name=P2, X0=20.0, Y0=0.0)
+Line(Name=L1,P0=P1,P1=P2)
+
+CoordSys(Name=coord2,X0=2.0,Y0=2.0,Dir0=0)
+Point( Name=P3, X0=10.0, Y0=0.0)
+Point( Name=P4, X0=10.0, Y0=0.0)
+Line(Name=L2,P0=P3,P1=P4)
+
+PlotLine(Line=L1,LineColor=r,LineWidth=2,LineType=0)
+PlotLine(Line=L2,LineColor=k,LineWidth=5,LineType=1)
+
+#  PlotCoordSys(DefName=coord1,NameX=x,NameY=y,LineWidth=1,ArrowWidth=10,
+#              ArrowLength=10,LineColor=k)
+#  PlotLine(DefName=L1,LineColor=r,LineWidth=2,LineType=0)
+# PlotPoint(DefName=L1,NameP=,PointColor=r,PointWidth=2)
+#  PlotRectAngle(DefName=RA1,LineColor=b,LineWidth=2,LineType=0)
+# PlotText(DefName=T1,TextColor=k)
+
+
+
+
+
+
+
+
+
+
 

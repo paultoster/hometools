@@ -2,10 +2,12 @@
 # Kommentar
 # Grafikbefehle als Beispiele
 
-Base( X0=0.0,Y0=0.0,Dir0=0.0,PointsPerUnit=100,PointWidth=1000,PointHeight=800)
-Coordsys(Name=coord1,X0=2.0,Y0=2.0,Dir0=90)
+Base( UnitWidth=10.0,UnitHeight=10.0,PointWidth=800,PointHeight=800)
+
+CoordSys(Name=coord1,X0=2.0,Y0=2.0,Dir0=90)
+
 Point( Name=P1, X0=10.0, Y0=0.0)
-Line(Name=L1,POName=P1,P1Name=P2)
+Line(Name=L1,PO=P1,P1=P2)
 #
 RectAngleDef(Name=RADef1,XWidth=10,YWidth=10)
 TextDef(Name=TDef1,Text=abcdef\nijjk)
@@ -30,40 +32,49 @@ from typing import List
 
 import small_vector_graphic_classes as c
 import small_vector_graphic_defines as d
+import small_vector_graphic_Base as base
+import small_vector_graphic_CoordSys as coordsys
+import small_vector_graphic_Plot as plot
+import small_vector_graphic_Geo as geo
 
 import hfkt_str as hs
+import hfkt_list as hl
+
+
 
 
 def build_and_proof_input(input_liste: List[str]) -> (bool, str,List[c.CBasic]):
 
-  flag_okay = True
-  errtext   = ""
-  command_list = []
 
    # eleminiere Komentare und leere Zeilen und füge mehrzeilge kommandos zusammen
-  (okay,errtext,liste) = prepare_input(input_liste)
+  (okay,errtext,csd) = prepare_input_lines(input_liste)
 
   if( not okay ):
-    return (okay,errtext,liste)
+    return (okay,errtext,[])
   #endif
 
+  (okay,errtext,command_liste) = prepare_commands(csd)
 
-  item = c.CCoordSys("test")
-  b = [item]
+  if( not okay ):
+    return (okay,errtext,[])
+  #endif
 
-  return (flag_okay,errtext,command_list)
+  return (okay,errtext,command_liste)
 
 
-def prepare_input(input_liste: List[str]) -> (bool, str,List[str]):
+def prepare_input_lines(input_liste: List[str]) -> (bool, str,c.CCommandStrData):
 
-  okay = True
+  okay    = True
   errtext = ""
-  liste = []
+  csd     = c.CCommandStrData()
 
   # reduce Kommentar und Leerzeile und hänge mehrzeilige Befehle zusammen (concat_line)
   concat_line = ""
+  concat_line_number = ""
   count = 0
   for i,line in enumerate(input_liste):
+
+    iline = i + 1
 
     # elim Kommentar
     line = hs.elim_comment_not_quoted(line,[d.KOMMENTAR_ZEICHEN],d.QUOT0_FUNCTION,d.QUOT1_FUNCTION)
@@ -82,18 +93,20 @@ def prepare_input(input_liste: List[str]) -> (bool, str,List[str]):
         if( type == 0 ):
 
           concat_line = concat_line + line
+          concat_line_number = concat_line_number + "/" + str(iline)
 
         elif( type < 0 ):
 
           concat_line = concat_line + line
+          concat_line_number = concat_line_number + "/" + str(iline)
           count = count + type
 
           if( count != 0 ):
             errtext = f"in Linie {i} sind Funktions-Quots {d.QUOT0_FUNCTION} falsch line: {concat_line}"
             okay = False
-            return (okay,errtext,liste)
+            return (okay,errtext,csd)
           else:
-            liste.append(concat_line)
+            csd.add(command_str=concat_line,linenum_str=concat_line_number)
           #endif
         #endif
       else:
@@ -101,16 +114,73 @@ def prepare_input(input_liste: List[str]) -> (bool, str,List[str]):
         if( type > 0 ):
 
           concat_line = line
+          concat_line_number = str(iline)
           count = type
         elif( type < 0 ):
           errtext = f"in Linie {i} sind Funktions-Quots {d.QUOT0_FUNCTION} falsch line: {line}"
           okay = False
-          return (okay,errtext,liste)
+          return (okay,errtext,csd)
         else:
 
-          liste.append(line)
+          csd.add(command_str=line,linenum_str=str(iline))
         #endif
       #endif
     #endif
   #endfor
-  return (okay,errtext,liste)
+  return (okay,errtext,csd)
+
+
+def prepare_commands(csd: c.CCommandStrData) -> (bool, str,List[c.CBasic]):
+
+  okay = True
+  errtext = ""
+  command_liste = []
+
+  #--------------------------------------------------------------------------------------------
+  # Base definition
+  #--------------------------------------------------------------------------------------------
+
+  (okay,errtext,base_obj,index_liste) = base.build_base_object(csd)
+
+  if( not okay ):
+    return (okay,errtext,command_liste)
+  #endif
+  csd.erase(index_liste)
+
+  command_liste = [base_obj]
+
+  #---------------------------------------------------------------------------------------------
+  # seperate all Plot Demands
+  #-----------------------------------------------------------------------------------------------
+  index_liste = plot.find_plot_commands(csd)
+
+  csdplot = csd.move(index_liste)
+
+  #--------------------------------------------------------------------------------------------
+  # find coordinate systems, read and devide definition
+  #--------------------------------------------------------------------------------------------
+
+  (okay,errtext,list_coordsys_obj,line_index_tuple_liste) = coordsys.build_coordsys_object_list(csd)
+  if( not okay ):
+    return (okay,errtext,command_liste)
+  #endif
+
+  #--------------------------------------------------------------------------------------------
+  # loop over list of coordsy and line demands, read geometric function, proof and
+  # add to command_liste
+  #--------------------------------------------------------------------------------------------
+
+  for i,obj in enumerate(list_coordsys_obj):
+
+    command_liste.append(obj)
+    csdgeo = csd.cpy_i0_i1(line_index_tuple_liste[i][0],line_index_tuple_liste[i][1])
+    coordsysname = obj.Name
+
+    (okay,errtext,command_liste) = geo.build_geo_objects(csdgeo,command_liste,coordsysname)
+
+    if( not okay ):
+      return (okay,errtext,command_liste)
+
+  #endfor
+
+  return (okay,errtext,command_liste)

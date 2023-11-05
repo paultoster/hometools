@@ -11,6 +11,7 @@ class CBaseData:
     '''Store all base datas'''
     filepathname: str = ''
     command_liste: List[s.c.CBasic] = field(default_factory=list)
+    # line_text_liste: List[str] = field(default_factory=list)
     x0: float = 0.0
     y0: float = 0.0
 
@@ -69,11 +70,13 @@ def proof_graph():
 
     input_liste = text.split("\n")
 
-    (flag,errtext,BaseData.command_liste) = s.build_and_proof_input(input_liste)
+    (okay,errtext,BaseData.command_liste) = s.build_and_proof_input(input_liste)
 
 
-    if( not flag ):
-       tk.messagebox.showerror(title="ErrorWhileBuildAndProofCommand",message=errtext)
+    if( okay ):
+      tk.messagebox.showinfo(title="InfoProofCommand",message="Commands are okay")
+    else:
+      tk.messagebox.showerror(title="ErrorWhileBuildAndProofCommand",message=errtext)
     #endif
 
     # print(f"{BaseData.command_liste}")
