@@ -10,55 +10,66 @@ ShowFileExtensions=FALSE
 ClassName=TProjectFilesNode
 
 [Project\ChildNodes\Node0\ChildNodes\Node0]
+ClassName=TProjectFolderNode
+Name=hfkt
+
+[Project\ChildNodes\Node0\ChildNodes\Node0\ChildNodes\Node0]
 ClassName=TProjectFileNode
-FileName=K:\tools\hometools\python3\allg\hfkt_file_path.py
+FileName=K:\tools\hometools\python3\projects\hfkt\hfkt_file_path.py
+
+[Project\ChildNodes\Node0\ChildNodes\Node0\ChildNodes\Node1]
+ClassName=TProjectFileNode
+FileName=K:\tools\hometools\python3\projects\hfkt\hfkt_list.py
+
+[Project\ChildNodes\Node0\ChildNodes\Node0\ChildNodes\Node2]
+ClassName=TProjectFileNode
+FileName=K:\tools\hometools\python3\projects\hfkt\hfkt_str.py
+
+[Project\ChildNodes\Node0\ChildNodes\Node0\ChildNodes]
+Count=3
 
 [Project\ChildNodes\Node0\ChildNodes\Node1]
 ClassName=TProjectFileNode
-FileName=K:\tools\hometools\python3\allg\hfkt_list.py
+FileName=$[Project-Path]run_kleine_zeichnung.py
 
 [Project\ChildNodes\Node0\ChildNodes\Node2]
 ClassName=TProjectFileNode
-FileName=K:\tools\hometools\python3\allg\hfkt_str.py
+FileName=$[Project-Path]small_vector_graphic.py
 
 [Project\ChildNodes\Node0\ChildNodes\Node3]
 ClassName=TProjectFileNode
-FileName=$[Project-Path]run_kleine_zeichnung.py
+FileName=$[Project-Path]small_vector_graphic_Base.py
 
 [Project\ChildNodes\Node0\ChildNodes\Node4]
 ClassName=TProjectFileNode
-FileName=$[Project-Path]small_vector_graphic.py
+FileName=$[Project-Path]small_vector_graphic_Canvas.py
 
 [Project\ChildNodes\Node0\ChildNodes\Node5]
 ClassName=TProjectFileNode
-FileName=$[Project-Path]small_vector_graphic_Base.py
+FileName=$[Project-Path]small_vector_graphic_classes.py
 
 [Project\ChildNodes\Node0\ChildNodes\Node6]
 ClassName=TProjectFileNode
-FileName=$[Project-Path]small_vector_graphic_classes.py
+FileName=$[Project-Path]small_vector_graphic_CoordSys.py
 
 [Project\ChildNodes\Node0\ChildNodes\Node7]
 ClassName=TProjectFileNode
-FileName=$[Project-Path]small_vector_graphic_CoordSys.py
+FileName=$[Project-Path]small_vector_graphic_defines.py
 
 [Project\ChildNodes\Node0\ChildNodes\Node8]
 ClassName=TProjectFileNode
-FileName=$[Project-Path]small_vector_graphic_defines.py
+FileName=$[Project-Path]small_vector_graphic_Geo.py
 
 [Project\ChildNodes\Node0\ChildNodes\Node9]
 ClassName=TProjectFileNode
-FileName=$[Project-Path]small_vector_graphic_Geo.py
-
-[Project\ChildNodes\Node0\ChildNodes\Node10]
-ClassName=TProjectFileNode
 FileName=$[Project-Path]small_vector_graphic_helper.py
 
-[Project\ChildNodes\Node0\ChildNodes\Node11]
+[Project\ChildNodes\Node0\ChildNodes\Node10]
 ClassName=TProjectFileNode
 FileName=$[Project-Path]small_vector_graphic_Plot.py
 
 [Project\ChildNodes\Node0\ChildNodes]
-Count=12
+Count=11
 
 [Project\ChildNodes\Node1]
 ClassName=TProjectRunConfiguationsNode

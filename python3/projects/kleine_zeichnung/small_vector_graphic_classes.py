@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import List
 
-import hfkt_list as hl
+from hfkt import hfkt_list as hl
 
 @dataclass
 class CCommandStrData:
@@ -55,14 +55,26 @@ class CBase(CBasic):
   def __post_init__(self):
 
     self.TypeName = "Base"
+    self.Name     = "Base"
 
     self.UnitWidth = max(self.UnitWidth,1e-3)
     self.UnitHeight = max(self.UnitHeight,1e-3)
+    self.PointWidth = max(self.PointWidth,1)
+    self.PointHeight = max(self.PointHeight,1)
 
-    scalw = self.PointWidth/self.UnitWidth
-    scalh = self.PointHeight/self.UnitHeight
+    scalw = self.UnitWidth/float(self.PointWidth)
+    scalh = self.UnitHeight/float(self.PointHeight)
 
-    self.PointsPerUnit = min(scalw,scalh)
+    if( scalw > scalh ):
+      self.PointsPerUnit = 1/scalw
+
+      self.UnitHeight = self.PointHeight*scalw
+    else:
+      self.PointsPerUnit = 1/scalh
+
+      self.UnitWidth = self.PointWidth*scalh;
+    #endif
+
   #enddef
 @dataclass
 class CCoordSys(CBasic):
@@ -89,6 +101,8 @@ class CLine(CBasic):
   '''Coordinate System'''
   P0: str  = ""               # Name first point
   P1: str  = ""               # Name second point
+  iP0: int = -1               # index of point 0 obj in comand_liste
+  iP1: int = -1               # index of point 1 obj in command_liste
   CoordSysName: str = ""
   def __post_init__(self):
     self.TypeName = "Line"
@@ -115,12 +129,14 @@ class CPlotCoordSys(CBasic):
 @dataclass
 class CPlotLine(CBasic):
   '''plot line'''
-  NameLine: str = ""          # Name to plot on line
-  LineColor: str = 'k'        # ['k','r','g',...] line color
-  LineWidth: float = 1        # [width] line width
-  LineType: str = ""          # [straight, arrow+straight, straight+arrow] type of line
+  Line: str = ""          # Name to plot on line
+  Color: str = 'k'        # ['k','r','g',...] line color
+  Width: float = 1        # [width] line width
+  Type: str = ""          # [straight, arrow+straight, straight+arrow] type of line
   ArrowWidth: float = 10      # [width] arrow width compared to line width
   ArrowLength: float = 10     # [width] arrow length compared to line width
+  indexLine: int = -1         # index of line definition
+  indexCoordSys: int = -1     # index of CoordSys definition
 
 @dataclass
 class CPlotPoint(CBasic):

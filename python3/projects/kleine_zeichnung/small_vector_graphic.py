@@ -9,15 +9,18 @@ CoordSys(Name=coord1,X0=2.0,Y0=2.0,Dir0=90)
 Point( Name=P1, X0=10.0, Y0=0.0)
 Line(Name=L1,PO=P1,P1=P2)
 #
+PlotLine(Line=L1,Color=r,Width=2,Type=0)
+#
 RectAngleDef(Name=RADef1,XWidth=10,YWidth=10)
 TextDef(Name=TDef1,Text=abcdef\nijjk)
 #
 RectAngle(Name=RA1,RectAbgleName=RADef1,X0=5.0,Y0=20.0,Dir0=0)
 Text(Name=T1,TextName=TDef1,X0=5.0,Y0=20.0,Dir0=0)
 
+
 PlotCoordSys(DefName=coord1,NameX=x,NameY=y,LineWidth=1,ArrowWidth=10,
              ArrowLength=10,LineColor=k)
-PlotLine(DefName=L1,LineColor=r,LineWidth=2,LineType=0)
+
 PlotPoint(DefName=L1,NameP=,PointColor=r,PointWidth=2)
 PlotRectAngle(DefName=RA1,LineColor=b,LineWidth=2,LineType=0)
 PlotText(DefName=T1,TextColor=k)
@@ -30,15 +33,25 @@ PlotText(DefName=T1,TextColor=k)
 from dataclasses import dataclass
 from typing import List
 
+import os, sys
+
+tools_path = os.getcwd() + "//.."
+if( tools_path not in sys.path ):
+    sys.path.append(tools_path)
+
+from hfkt import hfkt_str as hs
+from hfkt import hfkt_list as hl
+
 import small_vector_graphic_classes as c
 import small_vector_graphic_defines as d
+import small_vector_graphic_helper  as h
 import small_vector_graphic_Base as base
 import small_vector_graphic_CoordSys as coordsys
 import small_vector_graphic_Plot as plot
 import small_vector_graphic_Geo as geo
+import small_vector_graphic_Canvas as canvas
 
-import hfkt_str as hs
-import hfkt_list as hl
+
 
 
 
@@ -47,7 +60,7 @@ def build_and_proof_input(input_liste: List[str]) -> (bool, str,List[c.CBasic]):
 
 
    # eleminiere Komentare und leere Zeilen und füge mehrzeilge kommandos zusammen
-  (okay,errtext,csd) = prepare_input_lines(input_liste)
+  (okay,errtext,csd) = h.prepare_input_lines(input_liste)
 
   if( not okay ):
     return (okay,errtext,[])
@@ -62,72 +75,6 @@ def build_and_proof_input(input_liste: List[str]) -> (bool, str,List[c.CBasic]):
   return (okay,errtext,command_liste)
 
 
-def prepare_input_lines(input_liste: List[str]) -> (bool, str,c.CCommandStrData):
-
-  okay    = True
-  errtext = ""
-  csd     = c.CCommandStrData()
-
-  # reduce Kommentar und Leerzeile und hänge mehrzeilige Befehle zusammen (concat_line)
-  concat_line = ""
-  concat_line_number = ""
-  count = 0
-  for i,line in enumerate(input_liste):
-
-    iline = i + 1
-
-    # elim Kommentar
-    line = hs.elim_comment_not_quoted(line,[d.KOMMENTAR_ZEICHEN],d.QUOT0_FUNCTION,d.QUOT1_FUNCTION)
-
-    # elim Leerzeichen
-    line = hs.elim_ae_liste(line, [" ","\t"])
-
-    # bearbeite wenn nicht leer
-    if( len(line) > 0 ):
-
-      # Anzahl quots, type=0 qouts passen > 0 quot nicht geschlossen, < 0 quot nicht geöffnet
-      (num,type) = hs.has_quots(line,d.QUOT0_FUNCTION,d.QUOT1_FUNCTION)
-
-      if( count > 0):
-
-        if( type == 0 ):
-
-          concat_line = concat_line + line
-          concat_line_number = concat_line_number + "/" + str(iline)
-
-        elif( type < 0 ):
-
-          concat_line = concat_line + line
-          concat_line_number = concat_line_number + "/" + str(iline)
-          count = count + type
-
-          if( count != 0 ):
-            errtext = f"in Linie {i} sind Funktions-Quots {d.QUOT0_FUNCTION} falsch line: {concat_line}"
-            okay = False
-            return (okay,errtext,csd)
-          else:
-            csd.add(command_str=concat_line,linenum_str=concat_line_number)
-          #endif
-        #endif
-      else:
-
-        if( type > 0 ):
-
-          concat_line = line
-          concat_line_number = str(iline)
-          count = type
-        elif( type < 0 ):
-          errtext = f"in Linie {i} sind Funktions-Quots {d.QUOT0_FUNCTION} falsch line: {line}"
-          okay = False
-          return (okay,errtext,csd)
-        else:
-
-          csd.add(command_str=line,linenum_str=str(iline))
-        #endif
-      #endif
-    #endif
-  #endfor
-  return (okay,errtext,csd)
 
 
 def prepare_commands(csd: c.CCommandStrData) -> (bool, str,List[c.CBasic]):
@@ -183,4 +130,20 @@ def prepare_commands(csd: c.CCommandStrData) -> (bool, str,List[c.CBasic]):
 
   #endfor
 
+  #-------------------------------------------------------------------------------------------
+  # plot demands
+  #-------------------------------------------------------------------------------------------
+
+  (okay,errtext,command_liste) = plot.build_plot_commands(csdplot,command_liste)
+
   return (okay,errtext,command_liste)
+#enddef
+def paint_command_liste(command_liste: List[c.CBasic]) -> (bool, str):
+
+  (okay,errtext,tkcanvas) = canvas.plot_on_cnavas(command_liste)
+
+  tkcanvas.quit()
+
+  return(okay,errtext)
+#endif
+

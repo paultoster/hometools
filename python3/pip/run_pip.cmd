@@ -32,8 +32,10 @@ rem python -m pip install xlwt
 
 rem python -m pip install pandas
 
-python -m pip install PythonTurtle
+rem python -m pip install PythonTurtle
 
-python -m pip install svg.path
+rem python -m pip install svg.path
+
+python -m pip install ConfigParser
 
 pause

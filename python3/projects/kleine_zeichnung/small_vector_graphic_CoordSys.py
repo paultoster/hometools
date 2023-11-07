@@ -17,7 +17,7 @@ import small_vector_graphic_defines as d
 import small_vector_graphic_helper  as h
 
 
-import hfkt_str as hs
+from hfkt import hfkt_str as hs
 
 
 def build_coordsys_object_list(csd: c.CCommandStrData) -> (bool, str,List[c.CBase],List[list]):

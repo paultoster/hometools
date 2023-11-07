@@ -17,7 +17,7 @@ import small_vector_graphic_defines as d
 import small_vector_graphic_helper  as h
 
 
-import hfkt_str as hs
+from hfkt import hfkt_str as hs
 
 def build_geo_objects(csd: c.CCommandStrData,command_liste: List[c.CBasic],coordsysname: str) -> (bool, str,List[c.CBasic]):
   """
@@ -137,7 +137,7 @@ def getLine(dfuncdef: dict,command_liste: List[c.CBasic],linenum: str,coordsysna
   if( not okay ):
     return (okay,errtext,command_liste)
   #endif
-  (okay,errtext1) = h.find_name_in_command_liste("Point",P0,linenum,command_liste)
+  (okay,errtext1,iP0) = h.get_index_of_name_in_command_liste("Point",P0,linenum,command_liste)
   if( not okay ):
     errtext = f"Line Dfeinition in linenum {linenum} has errro: {errtext1}"
     return (okay,errtext,command_liste)
@@ -148,14 +148,15 @@ def getLine(dfuncdef: dict,command_liste: List[c.CBasic],linenum: str,coordsysna
   if( not okay ):
     return (okay,errtext,command_liste)
   #endif
-  (okay,errtext1) = h.find_name_in_command_liste("Point",P1,linenum,command_liste)
+  (okay,errtext1,iP1) = h.get_index_of_name_in_command_liste("Point",P1,linenum,command_liste)
   if( not okay ):
     errtext = f"Line Dfeinition in linenum {linenum} has errro: {errtext1}"
     return (okay,errtext,command_liste)
   #endif
 
 
-  lineobj = c.CLine(Name=DefName,P0=P0,P1=P1,LineNum=linenum,CoordSysName=coordsysname)
+  lineobj = c.CLine(Name=DefName,P0=P0,P1=P1,iP0=iP0,iP1=iP1
+                   ,LineNum=linenum,CoordSysName=coordsysname)
 
   command_liste.append(lineobj)
 
