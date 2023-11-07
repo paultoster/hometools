@@ -155,7 +155,7 @@ def getLine(dfuncdef: dict,command_liste: List[c.CBasic],linenum: str,coordsysna
   #endif
 
 
-  lineobj = c.CLine(Name=DefName,P0=P0,P1=P1,iP0=iP0,iP1=iP1
+  lineobj = c.CLine(Name=DefName,P0=P0,P1=P1,indexP0=iP0,indexP1=iP1
                    ,LineNum=linenum,CoordSysName=coordsysname)
 
   command_liste.append(lineobj)

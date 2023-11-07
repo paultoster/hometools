@@ -81,7 +81,9 @@ class CCoordSys(CBasic):
   '''Coordinate System'''
   X0: float = 0.0             # [unit] Base position X
   Y0: float = 0.0             # [unit] Base position Y
-  Dir0: float = 0.0           # [rad]  Bas direction 0.0 is in x-axis direction pi/2 in y-direction
+  Dir0: float = 0.0           # [rad]  Base direction 0.0 is in x-axis direction pi/2 in y-direction
+  CosDir0: float = 0.0        # [-]   cosinus of dir0
+  SinDir0: float = 0.0        # [-]   sinus of dir0
   def __post_init__(self):
     self.TypeName = "CoordSys"
   #enddef
@@ -101,8 +103,8 @@ class CLine(CBasic):
   '''Coordinate System'''
   P0: str  = ""               # Name first point
   P1: str  = ""               # Name second point
-  iP0: int = -1               # index of point 0 obj in comand_liste
-  iP1: int = -1               # index of point 1 obj in command_liste
+  indexP0: int = -1           # index of point 0 obj in comand_liste
+  indexP1: int = -1           # index of point 1 obj in command_liste
   CoordSysName: str = ""
   def __post_init__(self):
     self.TypeName = "Line"
@@ -115,6 +117,9 @@ class CRectAngle(CBasic):
   XWidth: float = 0.0              # [unit] x-width of rectangle
   YWidth: float = 0.0              # [unit] y-width of rectangle
   Dir0: float = 0.0           # [rad] direction 0.0 is in x-axis direction pi/2 in y-direction
+  def __post_init__(self):
+    self.TypeName = "RectAngle"
+  #enddef
 
 @dataclass
 class CPlotCoordSys(CBasic):
@@ -125,18 +130,26 @@ class CPlotCoordSys(CBasic):
   ArrowWidth: float = 10      # [width] arrow width compared to line width
   ArrowLength: float = 10     # [width] arrow length compared to line width
   LineColor: str = 'k'        # ['k','r','g',...] line color
+  def __post_init__(self):
+    self.TypeName = "PlotCoordSys"
+    self.Name     = "PlotCoordSys"
+  #enddef
 
 @dataclass
 class CPlotLine(CBasic):
   '''plot line'''
   Line: str = ""          # Name to plot on line
-  Color: str = 'k'        # ['k','r','g',...] line color
+  Color: str = 'black'    # ['black','red','green',...] line color
   Width: float = 1        # [width] line width
   Type: str = ""          # [straight, arrow+straight, straight+arrow] type of line
   ArrowWidth: float = 10      # [width] arrow width compared to line width
   ArrowLength: float = 10     # [width] arrow length compared to line width
   indexLine: int = -1         # index of line definition
   indexCoordSys: int = -1     # index of CoordSys definition
+  def __post_init__(self):
+    self.TypeName = "PlotLine"
+    self.Name     = "PlotLine"
+  #enddef
 
 @dataclass
 class CPlotPoint(CBasic):
@@ -145,9 +158,17 @@ class CPlotPoint(CBasic):
   PointColor: str = 'k'       # ['k','r','g',...] line color
   PointWidth: float = 10      # [width] width of the point compared to line width
   PontType: str = ""          # ['o',+',*',',...] type of point
+  def __post_init__(self):
+    self.TypeName = "PlotPoint"
+    self.Name     = "PlotPoint"
+  #enddef
 
 @dataclass
 class CPlotRectAngle(CBasic):
   '''plot ploint'''
   LineColor: str = 'k'        # ['k','r','g',...] line color
   LineWidth: float = 1        # [width] line width
+  def __post_init__(self):
+    self.TypeName = "PlotRectAngle"
+    self.Name     = "PlotRectAngle"
+  #enddef

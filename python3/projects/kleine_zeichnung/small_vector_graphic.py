@@ -29,7 +29,7 @@ PlotText(DefName=T1,TextColor=k)
 
 """
 
-
+import tkinter as tk
 from dataclasses import dataclass
 from typing import List
 
@@ -52,7 +52,12 @@ import small_vector_graphic_Geo as geo
 import small_vector_graphic_Canvas as canvas
 
 
-
+def static_vars(**kwargs):
+  def decorate(func):
+    for k in kwargs:
+      setattr(func, k, kwargs[k])
+    return func
+  return decorate
 
 
 
@@ -138,11 +143,42 @@ def prepare_commands(csd: c.CCommandStrData) -> (bool, str,List[c.CBasic]):
 
   return (okay,errtext,command_liste)
 #enddef
+
+@static_vars(TkMaster=0)
+@static_vars(TkCanvas=0)
 def paint_command_liste(command_liste: List[c.CBasic]) -> (bool, str):
 
-  (okay,errtext,tkcanvas) = canvas.plot_on_cnavas(command_liste)
+  nTkMaster=nTkCanvas=0
+  if( isinstance(paint_command_liste.TkMaster,tk.Tk) ):
 
-  tkcanvas.quit()
+    try:
+      nTkMaster = paint_command_liste.TkMaster.winfo_exists()
+      nTkCanvas = paint_command_liste.TkCanvas.winfo_exists()
+    except:
+      print(f"Crash")
+
+    print(f"paint_command_liste.TkMaster.winfo_exists(): {nTkMaster}")
+    print(f"paint_command_liste.TkCanvas.winfo_exists(): {nTkCanvas}")
+  #endif
+
+  if( nTkMaster > 0 and nTkCanvas > 0):
+    paint_command_liste.TkCanvas.delete('all')
+    tkcanvas = paint_command_liste.TkCanvas
+  else:
+     # Canvas anlegen
+    (okay,errtext,tkmaster,tkcanvas) = canvas.define_plot_on_cnavas(command_liste)
+    if( not okay ):
+      return (okay,errtext)
+
+    paint_command_liste.TkMaster = tkmaster
+    paint_command_liste.TkCanvas = tkcanvas
+  #endif
+
+
+  (okay,errtext) = canvas.plot_commands_on_cnavas(tkcanvas,command_liste)
+  if( not okay ):
+    return (okay,errtext)
+
 
   return(okay,errtext)
 #endif

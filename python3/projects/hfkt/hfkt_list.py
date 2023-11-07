@@ -29,6 +29,21 @@
 
  list_out = erase_from_list(list_in,index/index_list) löscht index oder indexliste von list_in
 
+
+ list_moved =  list_move_items(list_in,index_liste,index_end = -1):
+                list_move_items(list_in,[0,1,2,10,12])    moves index 0,1,2,10,12 to new list
+                list_move_items(list_in,1,12)             moves index 1,2,... 10,11,12 to new list
+    csd = CCommandStrData()
+    for i in index_liste:
+      if( i < self.n ):
+        csd.add(self.command_str_list[i],self.linenum_str_list[i])
+      #endif
+    #endfor
+    self.erase(index_liste)
+    self.n = len(self.command_str_list)
+    return csd
+
+
 '''
 ###################################################################################
 # Fileoperating
@@ -1246,7 +1261,30 @@ def erase_from_list(list_in,index_list):
 
   return list_in
 
+def list_move_items(list_in,index_liste,index_end = -1):
+  """
+    list_moved = list_move_items(list_in,[0,1,2,10,12])    moves index 0,1,2,10,12 to new list
+    list_moved = list_move_items(list_in,1,12)             moves index 1,2,... 10,11,12 to new list
+  """
+  list_moved = []
+  if( index_end > -1 and not isinstance(index_liste,list)):
+    i0 = int(index_liste)
+    i1 = int(index_end)
+    index_liste = [*range(i0,i1+1,1)]
+  elif(not isinstance(index_liste,list)):
+    index_liste = [index_liste]
+  #endif
 
+  for i in index_liste:
+    if( i < len(list_in) ):
+      list_moved.append(list_in[i])
+    #endif
+  #endfor
+
+  list_in = erase_from_list(list_in,index_liste)
+
+  return list_moved
+#enddef
 ###########################################################################
 # testen mit main
 ###########################################################################

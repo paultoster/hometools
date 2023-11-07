@@ -291,3 +291,23 @@ def calculat_screen_width_height(canvas_width: int,canvas_height: int,screen_wid
 
   return (screen_width,screen_height,ratio_canvas_to_screen)
 #enddef
+
+def transform_from_coord_to_base( tuple_list,cobj):
+  """
+  [(x0,y0),(x1,y1)]
+  """
+  tuple_list_out = []
+  for tup in tuple_list:
+
+    X0 = cobj.CosDir0 * tup[0]  - cobj.SinDir0 * tup[1] + cobj.X0
+    Y0 = cobj.SinDir0 * tup[0]  + cobj.CosDir0 * tup[1] + cobj.Y0
+    tuple_list_out.append((X0,Y0))
+
+  #endfor
+
+  return tuple_list_out
+#enddef
+
+
+
+  return tuple_list

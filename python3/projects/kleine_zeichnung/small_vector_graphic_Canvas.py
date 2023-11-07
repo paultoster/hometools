@@ -20,6 +20,7 @@ import small_vector_graphic_helper  as h
 
 
 from hfkt import hfkt_str as hs
+from hfkt import hfkt_list as hl
 
 @dataclass
 class CCanvasData:
@@ -68,7 +69,7 @@ class CCanvasData:
 CanvasData = CCanvasData()
 
 
-def plot_on_cnavas(command_liste: List[c.CBasic]) -> (bool, str,tk.Tk):
+def define_plot_on_cnavas(command_liste: List[c.CBasic]) -> (bool, str,tk.Tk,tk.Canvas):
 
   okay    = True
   errtext = ""
@@ -78,7 +79,7 @@ def plot_on_cnavas(command_liste: List[c.CBasic]) -> (bool, str,tk.Tk):
   (okay,errtext1,baseobj) = h.get_object_from_command_liste("Base","Base","",command_liste)
 
   if( not okay ):
-    return(okay,errtext)
+    return(okay,errtext,master,tk.Canvas())
   #endif
 
   CanvasData.point_width  = baseobj.PointWidth
@@ -103,38 +104,123 @@ def plot_on_cnavas(command_liste: List[c.CBasic]) -> (bool, str,tk.Tk):
   widget = tk.Canvas(master,width=CanvasData.screen_width,height=CanvasData.screen_height,bg="white")
   widget.pack()
 
-  x0,y0 = 0.0, 0.0
-  x1,y1 = CanvasData.unit_width , CanvasData.unit_height
+  return (okay,errtext, master, widget )
+#enddef
 
-
-  (X0INT,Y0INT) = CanvasData.scale_unit_to_screen(x0,y0)
-  (X1INT,Y1INT) = CanvasData.scale_unit_to_screen(x1,y1)
-
-
-  widget.create_line(X0INT, Y0INT, X1INT, Y1INT, fill="black")
-
-  rr = CanvasData.resolution_unit * 10
-  x0,y0 = -rr, -rr
-  x1,y1 = rr,rr
-
-  (X0INT,Y0INT) = CanvasData.scale_unit_to_screen(x0,y0)
-  (X1INT,Y1INT) = CanvasData.scale_unit_to_screen(x1,y1)
-
-  widget.create_oval(X0INT, Y0INT, X1INT, Y1INT,fill="black")
-
-  rr = CanvasData.resolution_unit * 2
-
-  x0,y0 = CanvasData.unit_width/2. - rr, CanvasData.unit_height/2. - rr
-  x1,y1 = x0 + 2*rr,y0 + 2*rr
-
-  (X0INT,Y0INT) = CanvasData.scale_unit_to_screen(x0,y0)
-  (X1INT,Y1INT) = CanvasData.scale_unit_to_screen(x1,y1)
-
-  widget.create_oval(X0INT, Y0INT, X1INT, Y1INT,fill="red")
+##  x0,y0 = 0.0, 0.0
+##  x1,y1 = CanvasData.unit_width , CanvasData.unit_height
+##
+##
+##  (X0INT,Y0INT) = CanvasData.scale_unit_to_screen(x0,y0)
+##  (X1INT,Y1INT) = CanvasData.scale_unit_to_screen(x1,y1)
+##
+##
+##  widget.create_line(X0INT, Y0INT, X1INT, Y1INT, fill="black")
+##
+##  rr = CanvasData.resolution_unit * 10
+##  x0,y0 = -rr, -rr
+##  x1,y1 = rr,rr
+##
+##  (X0INT,Y0INT) = CanvasData.scale_unit_to_screen(x0,y0)
+##  (X1INT,Y1INT) = CanvasData.scale_unit_to_screen(x1,y1)
+##
+##  widget.create_oval(X0INT, Y0INT, X1INT, Y1INT,fill="black")
+##
+##  rr = CanvasData.resolution_unit * 2
+##
+##  x0,y0 = CanvasData.unit_width/2. - rr, CanvasData.unit_height/2. - rr
+##  x1,y1 = x0 + 2*rr,y0 + 2*rr
+##
+##  (X0INT,Y0INT) = CanvasData.scale_unit_to_screen(x0,y0)
+##  (X1INT,Y1INT) = CanvasData.scale_unit_to_screen(x1,y1)
+##
+##  widget.create_oval(X0INT, Y0INT, X1INT, Y1INT,fill="red")
 
 
   tk.mainloop()
 
   return (okay,errtext,master)
 
+#enddef
+
+
+def plot_commands_on_cnavas(tkcanvas: tk.Canvas,command_liste: List[c.CBasic])  -> (bool, str):
+
+  (okay,errtext) = (True,"")
+
+  #---------------------------------------------------------------------------------------------
+  # seperate all Plot Demands
+  #-----------------------------------------------------------------------------------------------
+  index_list = []
+  for i,obj in enumerate(command_liste):
+    index = hs.such(obj.TypeName,'Plot','vs')
+    if( index == 0 ):
+      index_list.append(i)
+    #endif
+  #endfor
+
+
+  plot_command_liste = hl.list_move_items(command_liste,index_list)
+
+
+  # loop over plot command list
+  for pobj in plot_command_liste:
+
+
+    match pobj.Name:
+      case "PlotLine":
+
+        (okay,errtext) = plot_line_on_cnavas(tkcanvas,command_liste,pobj)
+        if( not okay ):
+          return (okay,errtext)
+
+      case _:
+        okay = False
+        errtext = f"The function Name for Plot: {pobj.Name} in line {pobj.LineNum} is not valid"
+        return (okay,errtext)
+    #endmatch
+  #endfor
+  return (okay,errtext)
+#enddef
+
+def plot_line_on_cnavas(tkcanvas: tk.Canvas,command_liste: List[c.CBasic],pobj: c.CBasic) -> (bool, str):
+
+  (okay,errtext) = (True,"")
+
+
+  # point indeces of Line command
+  iP0 = command_liste[pobj.indexLine].indexP0
+  iP1 = command_liste[pobj.indexLine].indexP1
+
+  # x,y positions of two point commands
+  x0  = command_liste[iP0].X0
+  y0  = command_liste[iP0].Y0
+  x1  = command_liste[iP1].X0
+  y1  = command_liste[iP1].Y0
+
+  tuple_list = h.transform_from_coord_to_base( [(x0,y0),(x1,y1)],command_liste[pobj.indexCoordSys])
+
+  X0 = tuple_list[0][0]
+  Y0 = tuple_list[0][1]
+  X1 = tuple_list[1][0]
+  Y1 = tuple_list[1][1]
+
+  (X0INT,Y0INT) = CanvasData.scale_unit_to_screen(X0,Y0)
+  (X1INT,Y1INT) = CanvasData.scale_unit_to_screen(X1,Y1)
+
+  # dash
+  if( pobj.Type == 0 ):
+    tkcanvas.create_line(X0INT, Y0INT, X1INT, Y1INT, fill=pobj.Color, width=pobj.Width)
+  else:
+    if( pobj.Type == 1):
+       ddash = (1*pobj.Width,1)
+    elif( pobj.Type == 2):
+       ddash = (5*pobj.Width,1)
+    else:     #if( pobj.Type == 3)
+       ddash = (5*pobj.Width,1,1,1)
+    #endif
+    tkcanvas.create_line(X0INT, Y0INT, X1INT, Y1INT, fill=pobj.Color, width=pobj.Width,dash=ddash)
+  #endif
+
+  return (okay,errtext)
 #enddef

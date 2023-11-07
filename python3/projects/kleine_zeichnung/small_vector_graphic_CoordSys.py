@@ -11,6 +11,7 @@
 
 from dataclasses import dataclass
 from typing import List
+import math
 
 import small_vector_graphic_classes as c
 import small_vector_graphic_defines as d
@@ -124,9 +125,10 @@ def build_coordsys(line: str,line_number: str,defaul_name: str) -> (bool, str,c.
 
   # transform from deg to rad
   Dir0 = Dir0 * d.FACTOR_GRAD_TO_RAD
+  CDir0 = math.cos(Dir0)
+  SDir0 = math.sin(Dir0)
 
-
-  coordsys = c.CCoordSys(Name=DefName,X0=X0,Y0=Y0,Dir0=Dir0,LineNum=line_number)
+  coordsys = c.CCoordSys(Name=DefName,X0=X0,Y0=Y0,Dir0=Dir0,CosDir0=CDir0,SinDir0=SDir0,LineNum=line_number)
 
   return (okay,errtext,coordsys)
 #enddef
