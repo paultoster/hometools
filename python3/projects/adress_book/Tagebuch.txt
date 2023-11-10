@@ -1,0 +1,9 @@
+
+7.11.10
+
+Es dürfen für eine Adresse mehrere Gruppen verwendet werden (Outlook)
+deshalb wird für die Gruppe eine Liste in dem Addressen-dict geführt
+=> umstellen
+Ausserdem ist ein Gruppe mit Leerzeichen bei Import aus Outlook aufgetaucht => suchen
+
+csv- Dateien einlesen muß später nachgezogen werden.

@@ -1,0 +1,1610 @@
+dn: cn=Vera Berthold,mail=vera.berthold@web.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Vera
+sn: Berthold
+cn: Vera Berthold
+mail: vera.berthold@web.de
+modifytimestamp: 4b30a136
+
+dn: cn=Kirsten Schonert,mail=Kirsten.Schonert@contiteves.com
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Kirsten
+sn: Schonert
+cn: Kirsten Schonert
+mail: Kirsten.Schonert@contiteves.com
+modifytimestamp: 47931c20
+
+dn:: Y249RG9yaXMgS8O2bHNjaC1CZXJ0aG9sZCxtYWlsPXRkZy16dWhhdXNlQGdteC5kZQ==
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Doris
+sn:: S8O2bHNjaC1CZXJ0aG9sZA==
+cn:: RG9yaXMgS8O2bHNjaC1CZXJ0aG9sZA==
+mail: tdg-zuhause@gmx.de
+modifytimestamp: 1279045482
+
+dn: mail=walterbornscheuer@web.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+mail: walterbornscheuer@web.de
+modifytimestamp: 4a755399
+
+dn: cn=Alfred Will,mail=alfred-will@t-online.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Alfred
+sn: Will
+cn: Alfred Will
+mail: alfred-will@t-online.de
+modifytimestamp: 1275659000
+
+dn: cn=Gerhard Aubele,mail=g.aubele@gmx.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Gerhard
+sn: Aubele
+cn: Gerhard Aubele
+mail: g.aubele@gmx.de
+modifytimestamp: 1273435047
+
+dn: cn=Joannis Tsobanouglu,mail=meier.tsob@web.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Joannis
+sn: Tsobanouglu
+cn: Joannis Tsobanouglu
+mail: meier.tsob@web.de
+modifytimestamp: 1273435047
+
+dn: cn=Fritz Ludwig,mail=Krokkoa@aol.com
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Fritz
+sn: Ludwig
+cn: Fritz Ludwig
+mail: Krokkoa@aol.com
+modifytimestamp: 1279569057
+telephoneNumber: 06151 /54464
+homePhone: 06073 /980458
+mozillaHomeStreet: Alte Molkerei, Lindenstr. 21
+mozillaHomeState: Schaafheim
+mozillaHomePostalCode: 64850
+
+dn:: Y249R8O8bnRoZXIgSMOkcnRlbCxtYWlsPWhhZXJ0ZWwuZ0B0LW9ubGluZS5kZQ==
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName:: R8O8bnRoZXI=
+sn:: SMOkcnRlbA==
+cn:: R8O8bnRoZXIgSMOkcnRlbA==
+mail: haertel.g@t-online.de
+modifytimestamp: 4a755399
+
+dn: cn=Bettina Goebels,mail=bettina.goebels@web.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Bettina
+sn: Goebels
+cn: Bettina Goebels
+mail: bettina.goebels@web.de
+modifytimestamp: 4a755375
+
+dn: cn=Marcel Harke,mail=marcelharke@T-Online.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Marcel
+sn: Harke
+cn: Marcel Harke
+mail: marcelharke@T-Online.de
+modifytimestamp: 47ebeaf4
+
+dn: cn=ThomasPaulBerthold,mail=ThomasPaulBerthold@web.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: ThomasPaulBerthold
+cn: ThomasPaulBerthold
+mail: ThomasPaulBerthold@web.de
+modifytimestamp: 479315b5
+
+dn: cn=Martina Kempf,mail=m.kempf@bg-ang-oekologie.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Martina
+sn: Kempf
+cn: Martina Kempf
+mail: m.kempf@bg-ang-oekologie.de
+mozillaSecondEmail: ba-oekologie.da@t-online.de
+modifytimestamp: 1281520797
+
+dn: cn=Alfred Dieler,mail=alfreddieler@t-online.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Alfred
+sn: Dieler
+cn: Alfred Dieler
+mail: alfreddieler@t-online.de
+mozillaSecondEmail: alidielerhmp@t-online.de
+modifytimestamp: 1273435047
+description: ali-di@gmx.net
+
+dn: cn=Chris_Hesse@t-online.de,mail=Chris_Hesse@t-online.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Chris_Hesse@t-online.de
+cn: Chris_Hesse@t-online.de
+mail: Chris_Hesse@t-online.de
+modifytimestamp: 47ebeaf4
+
+dn: cn=Anke Brettnich,mail=a.brettnich@textour.eu
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Anke
+sn: Brettnich
+cn: Anke Brettnich
+mail: a.brettnich@textour.eu
+mozillaSecondEmail: a.brettnich@t-online.de
+modifytimestamp: 4ac8981e
+
+dn: mail=Thomas.Raste@contiautomotive.com
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+mail: Thomas.Raste@contiautomotive.com
+modifytimestamp: 4aa48fcc
+
+dn: cn=Gloria Berthold,mail=lucky102@web.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Gloria
+sn: Berthold
+cn: Gloria Berthold
+mail: lucky102@web.de
+modifytimestamp: 1277700092
+
+dn: cn=Barbara Wirtz,mail=barbara-wirtz@web.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Barbara
+sn: Wirtz
+cn: Barbara Wirtz
+mail: barbara-wirtz@web.de
+modifytimestamp: 4a755399
+
+dn: mail=jessicacoates@genion.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+mail: jessicacoates@genion.de
+modifytimestamp: 47ebeaf4
+
+dn: mail=kristina.sinemus@genius.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+mail: kristina.sinemus@genius.de
+modifytimestamp: 47ebeaf4
+
+dn: mail=Georg.Roll@contiautomotive.com
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+mail: Georg.Roll@contiautomotive.com
+modifytimestamp: 0
+
+dn: cn=Gottfried Berthold,mail=g-berthold@arcor.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Gottfried
+sn: Berthold
+cn: Gottfried Berthold
+mail: g-berthold@arcor.de
+modifytimestamp: 1266771030
+
+dn: cn=Alexander Michaelopoulos,mail=michaelo@rasterfront.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Alexander
+sn: Michaelopoulos
+cn: Alexander Michaelopoulos
+mail: michaelo@rasterfront.de
+modifytimestamp: 47e3c3db
+
+dn: cn=Barbara Bux,mail=buxwerke@web.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Barbara
+sn: Bux
+cn: Barbara Bux
+mail: buxwerke@web.de
+modifytimestamp: 48303c08
+
+dn: cn=Joachim Romero,mail=salsa-jojito@web.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Joachim
+sn: Romero
+cn: Joachim Romero
+mail: salsa-jojito@web.de
+modifytimestamp: 1276896405
+
+dn: mail=David.Hallermann@gmx.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+mail: David.Hallermann@gmx.de
+modifytimestamp: 1273435047
+
+dn: mail=Enrico.Rueck@contiautomotive.com
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+mail: Enrico.Rueck@contiautomotive.com
+modifytimestamp: 0
+
+dn: cn=Claudia Brand,mail=Brand_Claudia@web.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Claudia
+sn: Brand
+cn: Claudia Brand
+mail: Brand_Claudia@web.de
+modifytimestamp: 0
+
+dn: cn=Brigitte Weinzierl,mail=brigitteweinzierl@hotmail.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Brigitte
+sn: Weinzierl
+cn: Brigitte Weinzierl
+mail: brigitteweinzierl@hotmail.de
+modifytimestamp: 498eacb1
+
+dn: cn=Mietverein DArmstadt,mail=info@mieterverein-darmstadt.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Mietverein
+sn: DArmstadt
+cn: Mietverein DArmstadt
+mail: info@mieterverein-darmstadt.de
+modifytimestamp: 4a755055
+
+dn: cn=Holzbaur, Dennis,mail=dennis@holzbaur.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Holzbaur,
+sn: Dennis
+cn: Holzbaur, Dennis
+mail: dennis@holzbaur.de
+modifytimestamp: 49c2a32f
+
+dn: cn=armela mack,mail=armela10@hotmail.com
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: armela
+sn: mack
+cn: armela mack
+mail: armela10@hotmail.com
+modifytimestamp: 4a755399
+
+dn: cn=PaulToster mail.de,mail=PaulToster@mailde.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: PaulToster
+sn: mail.de
+cn: PaulToster mail.de
+mail: PaulToster@mailde.de
+modifytimestamp: 4a75510b
+
+dn: cn=kundenservice entega,mail=kundenservice@entega.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: kundenservice
+sn: entega
+cn: kundenservice entega
+mail: kundenservice@entega.de
+modifytimestamp: 4a7550b8
+
+dn: cn=Susanne + Michael Stein,mail=SusanneStein1@t-online.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Susanne + Michael
+sn: Stein
+cn: Susanne + Michael Stein
+mail: SusanneStein1@t-online.de
+modifytimestamp: 4a75c1fe
+
+dn:: Y249R8O8bnRoZXIgdW5kIFNpZ3JpZCxtYWlsPUhlbm5lc0FsaXNjaGFAdC1vbmxpbmUuZGU=
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName:: R8O8bnRoZXIgdW5kIFNpZ3JpZA==
+cn:: R8O8bnRoZXIgdW5kIFNpZ3JpZA==
+mail: HennesAlischa@t-online.de
+modifytimestamp: 4b2a4353
+
+dn:: Y249SnV0dGEgT2JlcsO8YmVyLG1haWw9Sm93ZWhAd2ViLmRl
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Jutta
+sn:: T2JlcsO8YmVy
+cn:: SnV0dGEgT2JlcsO8YmVy
+mail: Joweh@web.de
+modifytimestamp: 1273432967
+homePhone: 06154/668560
+mobile: 17620162966
+mozillaHomeStreet: Schwanengasse 27
+mozillaHomeLocalityName: Rossdorf
+mozillaHomePostalCode: 64380
+description: Salsatanzen
+
+dn: mail=t.b.email@web.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+mail: t.b.email@web.de
+modifytimestamp: 4b0b78e8
+
+dn: cn=Thomas Berthold,mail=thomas.berthold@continental-corporation.com
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+cn: Thomas Berthold
+mail: thomas.berthold@continental-corporation.com
+modifytimestamp: 1279302426
+
+dn: mail=service@vhv.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+mail: service@vhv.de
+modifytimestamp: 4a79e3bd
+
+dn: mail=mbv-4@tk-online.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+mail: mbv-4@tk-online.de
+modifytimestamp: 0
+
+dn: cn=Gloria Bertholt,mail=lucky102@web.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+cn: Gloria Bertholt
+mail: lucky102@web.de
+modifytimestamp: 4a8669c9
+
+dn:: Y249c2ltb25lIG1lacOfbmVyLG1haWw9Z2lzbW8yMDAzXzFAaG90bWFpbC5jb20=
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: simone
+sn:: bWVpw59uZXI=
+cn:: c2ltb25lIG1lacOfbmVy
+mail: gismo2003_1@hotmail.com
+modifytimestamp: 4a9416f5
+
+dn: mail=janine.mueller@strabag.com
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+mail: janine.mueller@strabag.com
+modifytimestamp: 0
+
+dn: cn=Gerda Scherz,mail=freizeit02@gmx.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Gerda
+sn: Scherz
+cn: Gerda Scherz
+mail: freizeit02@gmx.de
+modifytimestamp: 1273435047
+
+dn: mail=deutschlandcomic@fr-online.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+mail: deutschlandcomic@fr-online.de
+modifytimestamp: 0
+
+dn: mail=granini.86q@gmx.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+mail: granini.86q@gmx.de
+modifytimestamp: 0
+
+dn: mail=Lebensversicherung@allianz.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+mail: Lebensversicherung@allianz.de
+modifytimestamp: 0
+
+dn: mail=info@ski-schroecken.com
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+mail: info@ski-schroecken.com
+modifytimestamp: 0
+
+dn: cn=Gudrun,mail=bike.fee@web.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Gudrun
+cn: Gudrun
+mail: bike.fee@web.de
+modifytimestamp: 4b2a4353
+
+dn: mail=anmeldung@fabiana.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+mail: anmeldung@fabiana.de
+modifytimestamp: 0
+
+dn: cn=Wolfgang Appl,mail=Wolfgang.Appl@t-online.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Wolfgang
+sn: Appl
+cn: Wolfgang Appl
+mail: Wolfgang.Appl@t-online.de
+modifytimestamp: 1273435047
+telephoneNumber: 069/3660129-71
+homePhone: 06182 /65647
+mozillaHomeStreet: Schlesienstr. 5
+mozillaHomeState: Hainburg
+mozillaHomePostalCode: 63512
+description:: Q29yaW5hIHVuZCBNb25hCmtvbnplcnRlIGluIGRlciBTYW5kZ2Fzc2UK
+
+dn: cn=Bettina Spycher,mail=email@bspycher.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Bettina
+sn: Spycher
+cn: Bettina Spycher
+mozillaNickname: Tine
+mail: email@bspycher.de
+modifytimestamp: 1273435047
+description: Schwester von Jutta
+
+dn: mail=uwelehnert@t-online.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Uwe Lehnert
+mail: uwelehnert@t-online.de
+mozillaSecondEmail: uwelehnert@t-online.de
+modifytimestamp: 0
+homePhone: 06150 /990025
+mobile: 0173 /3104796
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Michael
+sn:: RHIuIEzDtmJpZw==
+modifytimestamp: 0
+telephoneNumber: 06151 /23024
+description:: UHN5Y2hvdGhlcmFwZXV0DQp0ZWxlZm9uaXNjaGUgVGVybWluYWJzcHJhY2hlDQpEaSwgRnI6IDktMTE=
+
+dn: mail=Alfred-Will@t-online.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Alfred Will
+mail: Alfred-Will@t-online.de
+mozillaSecondEmail: Alfred-Will@t-online.de
+modifytimestamp: 1281974691
+telephoneNumber: 06151 /3007259
+homePhone: 06151 /317445
+mobile: 1772121016
+street: Berliner Allee 14a
+l: Darmstadt
+postalCode: 64295
+
+dn: cn=Fax,mail=aummenhofer@t-online.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Alfred Ummenhofer
+cn: Fax
+mail: aummenhofer@t-online.de
+mozillaSecondEmail: aummenhofer@t-online.de
+nsAIMid:: VGVsZWZvbiBnZXNjaMOkZnRsaWNo
+modifytimestamp: 0
+homePhone: 06154 /9420
+pager: Telefon privat
+mobile: 15127175998
+mozillaHomeStreet2: Mobiltelefon
+street: An der Birkehe
+mozillaWorkStreet2: E-Mail: Angezeigter Name
+l:: Um/Dn2RvcmY=
+st: Konto
+postalCode: 64380
+c: Deutschland
+title: Notizen
+
+dn: mail=alidielerhmp@t-online.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Ali Dieler
+mail: alidielerhmp@t-online.de
+mozillaSecondEmail: alidielerhmp@t-online.de
+modifytimestamp: 0
+telephoneNumber: 06151 /670462
+homePhone: 06151 /291657
+mobile: 0171 /7213027
+mozillaHomeStreet: Landwehrstrasse 11a
+mozillaHomeLocalityName: Darmstadt
+mozillaHomePostalCode: 64293
+mozillaHomeCountryName: Deutschland
+street:: TGllYmlnc3RyYcOfZSA1MA==
+l: Darmstadt
+postalCode: 64293
+c: Deutschland
+o: Handmade Pictures
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Andreas Lemme
+modifytimestamp: 0
+telephoneNumber: 069 /8004242
+homePhone: 069 /831488
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Anke Brettnich
+modifytimestamp: 0
+mobile: 1773235196
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Anke
+sn: Brettnich
+modifytimestamp: 0
+homePhone: O61928079585
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Anke
+sn: Stumpf
+modifytimestamp: 0
+homePhone: 06151 /9515644
+
+dn: cn=Alfred-Will@t-online.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Annelise Kramer
+cn: Alfred-Will@t-online.de
+nsAIMid: Alfred-Will@t-online.de
+modifytimestamp: 0
+homePhone: 03721 /85375
+street: Schulstrasse 11
+l: Tahlheim
+postalCode: 9380
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Anni Tante
+modifytimestamp: 0
+homePhone: 06186 /1746
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Appl Obertshausen
+modifytimestamp: 0
+homePhone: 06104 /44371
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Arne
+modifytimestamp: 0
+homePhone: 06023 /32171
+title: 03721 /85375
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn:: QmV0dGluYSBHw7ZiZWxz
+modifytimestamp: 0
+homePhone: 611561711
+l: Wiesbaden
+c: Deutschland
+
+dn: mail=Bodoeladio@t-online.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Bodo
+mail: Bodoeladio@t-online.de
+mozillaSecondEmail: Bodoeladio@t-online.de
+modifytimestamp: 0
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Brigitte Czepan
+modifytimestamp: 0
+homePhone: 06151 /663340
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Caroline Saamer
+nsAIMid: 08106/7585
+modifytimestamp: 0
+homePhone: 735503
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Carsten Franzen
+modifytimestamp: 0
+homePhone: 02594 /963161
+description: 02594 /993161
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Christiane
+sn: Bornscheuer
+modifytimestamp: 0
+homePhone: 08106/7585
+mozillaHomeLocalityName: Vaterstetten
+mozillaHomeCountryName: Deutschland
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Christiane Felger
+modifytimestamp: 0
+telephoneNumber: 06151 /297533
+homePhone: 06151 /718663
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Christiane, Lukas
+sn: Ulli Wehrmann
+modifytimestamp: 0
+homePhone: 06151 /21699
+street: Landwehrstrasse 1
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: David Hallermann
+modifytimestamp: 0
+mobile: 0157/75200281
+street: ?
+l: Darmstadt
+postalCode: 64285
+c: Deutschland
+description:: U3RhdGlvbiAxLiBTdG9jayBTdGF0aW9uIDQuMiANCjQwMyA0NDI2IGdlbWVpbnNhbWVzIFRlbGVmb24NCjQwMzAgU3RhdGlvbiA0LzIgU2Nod2VzdGVybnppbW1lcg0KDQpBbHRlIE51bW1lciBiaXMgMjIuMDUuMDggMDE2MzYyMTExNTgNCkFsdGUgbnVtbWVyIDAxNzczNjM4OTIy
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Dieter Fornhof
+modifytimestamp: 0
+telephoneNumber: 06151 /898302
+homePhone: 06151 /41686
+mobile: 0177 /3248171
+street:: TW9zZXJzdHJhw59lIDE=
+l: Darmstadt
+postalCode: 64285
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn:: RG9yaXMgS8O2bHNjaC1CZXJ0aG9sZA==
+modifytimestamp: 0
+telephoneNumber: 06151 /3964772
+homePhone: 06151 /25160
+mobile: 0151 /12857112
+mozillaHomeStreet:: QmFja2hhdXNzdHJhw59lIDcw
+mozillaHomeLocalityName: Darmstadt
+mozillaHomePostalCode: 64285
+mozillaHomeCountryName: Deutschland
+o: Schuchardstrasse 10
+mozillaCustom1: 100896249/50850150
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Doris Lahn
+modifytimestamp: 0
+homePhone: 06151 /715303
+street: Martin Strasse 81b
+l: Darmstadt
+postalCode: 64285
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn:: RWxpc2FiZXRoIEvDtmxzY2g=
+modifytimestamp: 0
+homePhone: 06151 /57224
+street: Oberstrasse 21
+l: Darmstadt
+postalCode: 64297
+c: Deutschland
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn:: RWxsZW4gRMOkdXNlcg==
+modifytimestamp: 0
+homePhone: 06150 /81394
+mozillaWorkStreet2: 06151 /57224
+
+dn:: Y249TWl0dHdvY2ggMTQtMTggVWhyDQpTYSA5LTEyIFVociAoMS4gU2EgaW0gTW9udGEsbWFpbD1HLUJlcnRob2xkQGFyY29yLmRl
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Eltern
+cn:: TWl0dHdvY2ggMTQtMTggVWhyDQpTYSA5LTEyIFVociAoMS4gU2EgaW0gTW9udGE=
+mail: G-Berthold@arcor.de
+mozillaSecondEmail: G-Berthold@arcor.de
+modifytimestamp: 0
+homePhone: 06104 /41487
+facsimiletelephonenumber: 06104 /941913
+mobile: 0151 /14129513
+street: Biebererstr. 17 Postfach 1272
+l: Obertshausen
+postalCode: 63179
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Evelyn
+sn: Manasian
+modifytimestamp: 0
+homePhone: 06151 /711132
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Gabriela Ladinger+Amet
+modifytimestamp: 0
+homePhone: 069 /443632
+
+dn: mail=georg.roll@contiteves.com
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Georg Roll
+mail: georg.roll@contiteves.com
+mozillaSecondEmail: georg.roll@contiteves.com
+modifytimestamp: 0
+telephoneNumber: 069 /7603-3186
+street: Guerickestrasse 7
+l: Frankfurt
+postalCode: 60488
+o: Continental Teves
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Gerda Scherz
+modifytimestamp: 0
+telephoneNumber: 06151/423102
+
+dn: cn=Gerhard Aubele,mail=g.aubele@gmx.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Gerhard
+sn: Aubele
+cn: Gerhard Aubele
+mail: g.aubele@gmx.de
+mozillaSecondEmail: g.aubele@gmx.de
+modifytimestamp: 1281974691
+homePhone: 06154 /631499
+mobile: 0170 /2343079
+street: Odenwaldstr. 61
+l: Ober-Ramstadt
+postalCode: 64272
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Gerti Tante
+modifytimestamp: 0
+homePhone: 06108 /69275
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Gisela Georg
+modifytimestamp: 0
+homePhone: 069 /749311?
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn:: R8O8bnRoZXIgSMOkcnRlbA==
+modifytimestamp: 0
+homePhone: 06151 /537278
+
+dn: cn=Stolli
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName:: SGFucyBKw7xyZ2Vu
+sn: Stoll
+cn: Stolli
+mozillaNickname: Stolli
+modifytimestamp: 1276418310
+telephoneNumber: 08382/2607604
+homePhone: 08389 /8600
+street: Rothkreuz 11
+l:: V2Vpw59lbmJlcmc=
+postalCode: 88138
+description: Babara
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Hilde
+modifytimestamp: 0
+homePhone: 06151/719661
+
+dn: cn=06151 /670462
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Iris Maier
+cn: 06151 /670462
+nsAIMid: 06151 /291657
+modifytimestamp: 0
+homePhone: 06151 /9671900
+facsimiletelephonenumber: 06151 /9671901
+pager: 0171 /7213027
+mobile: 0178 /8242872
+mozillaHomeStreet2: alidielerhmp@t-online.de
+street:: UGZhbm5lbm3DvGxsZXJ3ZWcgMTdh
+l: Darmstadt
+postalCode: 64288
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Joannis Eltern in Eleftheres
+modifytimestamp: 0
+homePhone: +0030 (0) 594 /41129
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Joannis Tsobanopoulos
+modifytimestamp: 0
+homePhone: 06151 /784214
+facsimiletelephonenumber: 06151 /714574
+street:: TGF1dGVuc2NobMOkZ2Vyc3RyLiA1
+l: Darmstadt
+postalCode: 64289
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Jutta Hallermann
+modifytimestamp: 0
+homePhone: 06151 /664257
+mobile: 1635959300
+street: Ahastr. 4
+l: Darmstadt
+postalCode: 64285
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Kalli Roth
+modifytimestamp: 0
+homePhone: 069 /612914
+mobile: 0173 /6551007
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Karin
+sn: Arndt
+modifytimestamp: 0
+homePhone: 06192/900308
+mobile: 0160/5345761
+mozillaHomeStreet:: V29sZmZzdHJhw59lIDE=
+mozillaHomeLocalityName: Hofheim
+mozillaHomePostalCode: 65917
+mozillaHomeCountryName: Deutschland
+description:: Vm9sa3NiYW5rIE1haW4tVGF1bnVzIGVHDQpLdG8uOiA3MDAxNTA5DQpCTFo6IDUwMDkyMjAw
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Karin Arndt
+sn: Vermieter Martinstr.
+modifytimestamp: 0
+homePhone: 06192/900308
+mobile: 0160/5345761
+mozillaHomeStreet: Wolffstrasse 1
+mozillaHomeLocalityName: Hofheim am Taunus
+mozillaHomePostalCode: 65917
+mozillaHomeCountryName: Deutschland
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Karin Ewald
+modifytimestamp: 0
+homePhone: 06154 /83388
+street: Auf der Schmelz 28
+l:: Um/Dn2RvcmY=
+postalCode: 64380
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Karin
+sn: Meuser
+modifytimestamp: 0
+homePhone: 069 /5970453
+description: Alte Freundin
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Lindi Appl
+modifytimestamp: 0
+homePhone: 06104 /971131
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn:: THVjaSsgSGVpbmVyICBCcsOkc2NoZXI=
+modifytimestamp: 0
+homePhone: 06108 /67890
+street:: S2lyc2Noc3RyYcOfZSAyNA==
+l:: TcO8aGxoZWlt
+postalCode: 63165
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Mack
+sn: Armela + Vollchard Kanter
+modifytimestamp: 0
+homePhone: 06109/507530
+mozillaHomeStreet: Neuer Weg 21
+mozillaHomeLocalityName: Frankfurt a. M.
+mozillaHomePostalCode: 60388
+mozillaHomeCountryName: Deutschland
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Mango
+modifytimestamp: 0
+homePhone: 069 /821613
+street: Arthur Zitscherstr. 4
+l: Offenbach
+postalCode: 63065
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Marcel
+modifytimestamp: 0
+homePhone: 06151 /23399
+mobile: 1714106666
+street: Gardistenstr. 5
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Maren Hamman
+modifytimestamp: 0
+homePhone: 06151 /61271
+mobile: 0170 /4914952
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Marlene Vogt
+modifytimestamp: 0
+homePhone: 06151 /55237
+mobile: 1634042064
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Martin,Piu
+sn:: U2FiaW5lIE3DvGxsZXI=
+modifytimestamp: 0
+street:: Q2F2YW5pbGxlcyAyMS0xwrAgRGNoYQ==
+l: Madrid
+postalCode: 28007
+
+dn: cn=Martina Kempf,mail=m.kempf@bg-ang-oekologie.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Martina
+sn: Kempf
+cn: Martina Kempf
+mail: m.kempf@bg-ang-oekologie.de
+mozillaSecondEmail: m.kempf@bg-ang-oekologie.de
+modifytimestamp: 1273435047
+homePhone: 06151/292440
+pager: Riegerplatz 13
+mobile: 0160/4222483
+mozillaHomeStreet: Viktoriastrasse 95
+mozillaHomeStreet2: Darmstadt
+mozillaHomeLocalityName: Darmstadt
+mozillaHomePostalCode: 64293
+mozillaHomeCountryName: Deutschland
+birthmonth: 06151 /593210
+birthday: 0171 /6878166
+mozillaCustom2: koellhofer@t-online.de
+mozillaCustom3: koellhofer@t-online.de
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn:: TWF0aGlhcyBLw7Zsc2No
+modifytimestamp: 0
+mobile: 1745653503
+
+dn: mail=info@comedy-show.com
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Nick Schuhmacher
+mail: info@comedy-show.com
+mozillaSecondEmail: info@comedy-show.com
+modifytimestamp: 0
+homePhone: 06151 /9671900
+facsimiletelephonenumber: 06151 /9671901
+mobile: 1786175053
+street:: UGZhdW5tw7xsbGVyd2VnIDE3YQ==
+l: Darmstadt
+postalCode: 64289
+
+dn: cn=06151 /670462,mail=otto.determann@t-online.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Otto
+sn: Determann
+cn: 06151 /670462
+mail: otto.determann@t-online.de
+mozillaSecondEmail: otto.determann@t-online.de
+nsAIMid: 06151 /291657
+modifytimestamp: 0
+telephoneNumber: 069 /7603/2177
+homePhone: 06151 /714322
+pager: 0171 /7213027
+mozillaHomeStreet2: alidielerhmp@t-online.de
+
+dn: mail=p.kranz@kranzundko.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Phillip Kranz
+mail: p.kranz@kranzundko.de
+mozillaSecondEmail: p.kranz@kranzundko.de
+modifytimestamp: 0
+telephoneNumber: 06221 /896255
+homePhone: 06221 /896257
+facsimiletelephonenumber: 06221 /896256
+mobile: 0177 /7824750
+street: In-der-Unteren-Rombach 6a
+l: Heidelberg
+postalCode: 69118
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Rainer Poppe
+modifytimestamp: 0
+homePhone: 06151/22838
+mobile: 0163/8450518
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Rainer Weigand-Toms
+nsAIMid: m.kempf@bg-ang-oekologie.de
+modifytimestamp: 0
+homePhone: 06353 /989144
+pager: m.kempf@bg-ang-oekologie.de
+street: Bachweg 8
+l: Weisenheim am Berg
+postalCode: 67273
+
+dn: cn=0177 /7824750
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Reinhardt
+sn: Ingelmann
+cn: 0177 /7824750
+nsAIMid: p.kranz@kranzundko.de
+modifytimestamp: 0
+homePhone: 06151 /715303
+pager: p.kranz@kranzundko.de
+street: Martin Strasse 81b
+l: Darmstadt
+st: In-der-Unteren-Rombach 6a
+postalCode: 64285
+title: Heidelberg
+ou: 69118
+mozillaCustom2: 06221 /896256
+mozillaCustom3: 06221 /896255
+mozillaCustom4: 06221 /896257
+
+dn: mail=surekha@t-online.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Surekha Misra
+mail: surekha@t-online.de
+mozillaSecondEmail: surekha@t-online.de
+modifytimestamp: 0
+homePhone: 06151 /291057 (282660)
+
+dn: mail=t.breitenbuecher@kranzundko.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn:: VGFuamEgQnJlaXRlbmLDvGNoZXI=
+mail: t.breitenbuecher@kranzundko.de
+mozillaSecondEmail: t.breitenbuecher@kranzundko.de
+modifytimestamp: 0
+homePhone: 06221 /896257
+facsimiletelephonenumber: 06221 /896256
+mobile: 0177 /7824751
+street: In-der-Unteren-Rombach 6a
+l: Heidelberg
+postalCode: 69118
+
+dn: mail=tdg-zuhause@web.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Thomas Berthold
+mail: tdg-zuhause@web.de
+mozillaSecondEmail: tdg-zuhause@web.de
+modifytimestamp: 0
+telephoneNumber: 069 /7603/3052
+homePhone: 06151 /3608910
+facsimiletelephonenumber: 06151 /2790350
+mobile: 0160/95934673
+street: Sieboldstr. 16
+l: Darmstadt
+postalCode: 64293
+description:: MDE2MDM1ODU2NTIgYWx0ZSBILU51bW1lcg0KMDE3NS85ODA1MTg0IGFsdGYgSC1OdW1tZXINCkNvbnRpbmVudGFsOg0KDQpLcmVkaXRrYXJ0ZTogNDI3NyA0MTMzIDgxMDQgMzIzNA0KMDMvMDgNCg0KQmFobmNhcmQ6IHF1ZXIgMDIuMDcNCkfDnExUSUcgVk9NOjIwLjAyLjA2IEJJUzoxOS4wMi4wN0hYDQpUaG9tYXMgQmVydGhvbGQgIDk0Nw0KNzA4MSA0MTAxIDU3ODMgNTc2OA==
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn:: VGhvcnN0ZW4gUsO8dHRlbg==
+modifytimestamp: 0
+telephoneNumber: 06282 /95156
+homePhone: 06282 /7398
+street: Eisenbahnstrasse 33
+l:: V2FsbGTDvHJu
+postalCode: 74731
+description:: bmV1ZXJlIE51bW1lcm46DQowNjI4Mi85NTE1Ng==
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Ulrike Zimmermann
+modifytimestamp: 0
+homePhone: 069 /433170
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Uschi
+modifytimestamp: 0
+homePhone: 06151/9519996
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn: Vera Berthold
+modifytimestamp: 0
+homePhone: 0611/1712075
+mobile: 0176/64063335
+mozillaHomeStreet:: QmzDvGNoZXJwbGF0eiA1
+mozillaHomeLocalityName: Wiesbaden
+mozillaHomePostalCode: 65195
+mozillaHomeCountryName: Deutschland
+c: Deutschland
+description:: MDE3NzE3MjQ4ODUNCjA2MTEgLzk1OTAzNjQNCg0KMDYxMS8zMDgzNzgzIGFsdGUgTnVtbWVyDQoNClBldGVyIFJvYmVydHMNCk5vcnRoIE1lbGJvdXJuZQ0KMy8xMDcgTG90bmlhbnN0ciBWaWt0b3JpYQ0KQXVzdHJhbGlhIDMwNTENCjAxMDc5IG9kZXIgMDEwODENCjAwNjE0MzQwNzQyNDgNCg0KWmVpdHZlcnNjaGllYnVuZyArMTAgU3QuICgrOCkNCg0KMDYxMS8xMzcyNDM4IGFsdGUgTzItTnVtbWVy
+
+dn: mail=vd-design@t-online.de
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+sn:: Vm9sa2VyIERyw7ZnZQ==
+mail: vd-design@t-online.de
+mozillaSecondEmail: vd-design@t-online.de
+modifytimestamp: 0
+telephoneNumber: 06181 /255851
+homePhone: 01681 /13860
+facsimiletelephonenumber: 06181 /255852
+mobile: 0171 /4953570
+street:: R3LDvG5ld2FsZHN0ci4=
+l: Hanau
+postalCode: 63452
+o: vd-design/Salisweg 76
+
+dn: 
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: Walter
+sn: Bornscheuer
+modifytimestamp: 1270326429
+telephoneNumber: 01712202489 (Treo)
+homePhone: 06458/509693
+mobile: +49 (174) 1021042
+mozillaHomeStreet: Schwedensteinweg 27
+mozillaHomeLocalityName: Frankenberg
+mozillaHomePostalCode: 35066
+mozillaHomeCountryName: Deutschland
+o: Viessmann
+description: Firmenhandy Treo: 0171/2202489
+

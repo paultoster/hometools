@@ -20,7 +20,7 @@
 # index = list_find_closest_value(list1,value)
 #      list1 = [1,2,5,6]   value = 4  => index=2
 ###################################################################################
-import copy
+import sys,os,copy
 #-------------------------------------------------------------------------------
 t_path, _ = os.path.split(__file__)
 if( t_path == os.getcwd() ):

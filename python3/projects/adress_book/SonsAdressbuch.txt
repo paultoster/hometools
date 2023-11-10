@@ -1,0 +1,88 @@
+Vorname;Nachname;Anzeigename;Spitzname;Primäre E-Mail;Sekundäre E-Mail;Anzeigename;Tel. dienstlich;Tel. privat;Fax-Nummer;Pager-Nummer;Mobil-Tel.-Nr.;Privat: Adresse;Privat: Adresse 2;Privat: Ort;Privat: Bundesland;Privat: PLZ;Privat: Land;Dienstlich: Adresse;Dienstlich: Adresse 2;Dienstlich: Ort;Dienstlich: Bundesland;Dienstlich: PLZ;Dienstlich: Land;Arbeitstitel;Abteilung;Organisation;Webseite 1;Webseite 2;Geburtsjahr;Geburtsmonat;Geburtstag;Benutzerdef. 1;Benutzerdef. 2;Benutzerdef. 3;Benutzerdef. 4;Notizen;
+Herma;Müller-Lütgenau;Herma Müller-Lütgenau;;Herma.M-L@t-online.de;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;Postbank Missbrauch;;missbrauch@postbank.de;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;stadtbibliothek.mahnabt@darmstadt.de;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Tango Academia Anmeldung;Tango Academia Anmeldung;;anmeldung@fabiana.de;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;Nadine.Hannawald@contiteves.com;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;zweitakt@gmx.de;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;Polizei EC-Betrug;;Annerose.Siegler@polizei.hessen.de;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ALF BanCo;Support;ALF BanCo Support;;support@alf-banco.de;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Anmeldung;Fabiana;Anmeldung Fabiana;;anmeldung@fabiana.de;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;meissnermueller@aol.com;;meissnermueller;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;tango-darmstadt-subscribe@yahoogroups.com;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Uschi;Orte-für-Kinder;Uschi Orte-für-Kinder;;Leist.Ploetz@t-online.de;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Adam;Swoboda;;;;;;;;;;0177 /5672333;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Alfred Eckert;;;;;;;06135 /8605;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(Gloria);Janine;;;;;;;;;;0179 /1012420;;;;;;;Schubertweg 8;;Darmstadt;;64287;;;;;;;;;;;;;;;
+;Brendan Soors;;;brendan_soors@hotmail.com;brendan_soors@hotmail.com;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Christian arbeit;;;;;;;;;;15123808030;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Christine Köllhofer;;;koellhofer@t-online.de;;;;06151 /593210;;;0171 /6878166;;;;;;;;;;;64298;;;;;;;;;;;;;;Kindergarten Gloria;
+;Chwalek;;;;;;069 /7603/2351;06151 /933535;;;;;;;;;;;;;;;;;;;;;;;;;;;;Kollege Conti;
+;Clara Schanz;;;;;;;06151 /77370;;;;;;;;;;Viktoriastr. 64;;Darmstadt;;64293;;;;;;;;;;;;;;;
+;Debora;;;;;Station 1. Stock Station 4.2 ;;0178 /1705534;;;;;;;;;;;;;;;;;;;;;;;;;;;;"Kindermädchen
+1.1.2007: 6 ?/h";
+;Emely Giguere;;;;;;;272044;;;;;;;;;;;;Viktoriastraße;;;Deutschland;;;;;;;;;;;;;Christiane 0175/6402461 oder 0172/7883761;
+Erich;Prochino;;;prochnio@r5.mnd.fh-wiesbaden.de;prochnio@r5.mnd.fh-wiesbaden.de;;06142 /898-422;;06142 /898-421;;;;;;;;;Am Brückenweg 26;;Rüsselsheim;;65428;;;;Fachhochschule Wiesbaden MND;;;;;;;;;;"privat: Rodensteiner Weg 12, D-64853 Otzberg
+Prof. FH Regelungstechnik, EDV
+Diplomarbeit rekuperatives Bremsen";
+;Ernst Zang;;;;;;;06150 /85452;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Fred Galkowski;"Mittwoch 14-18 Uhr
+Sa 9-12 Uhr (1. Sa im Montag)";;Galkowski.Wasem@t-online.de;Galkowski.Wasem@t-online.de;;069 /7603-4126;06732 /932532;;;0151/55547136;;;;;;;Silvanerstr. 10;;Gabsheim;;55288;;;;;;;;;;;;;;;
+;Gerhard Kölsch;;;;;;;06151 /593581;;;;;;;;;;Oberstrasse 21;;Darmstadt-Eberstadt;;64297;;;;;;;;;;;;;;;
+;Jochen Leideck;;;;;;;0700 /53433255;;;1703525760;;;;;;;;;;;;;;;;;;;;;;;;;;
+Kai-Uwe;Köhne;;;kai-uwe.koehne@conti.de;kai-uwe.koehne@conti.de;;0511 /976-4134;;;;;;;;;;;Stoe 2/326;;Hannover;;;;;;Continental;;;;;;;;;;;
+;Kai-Uwe Schocke;;;;;;;06151 /933520;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Knut Andil;;;;;;;06151 /295653;;;0173 /6959914;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Kristian;;;;;;;;;;0179 /5006613;;;;;;;;;;;;;;;;;;;;;;;;;Ehemaliger Kollege;
+;Ludwig Jürgen;;;;;;069 /7603/2092;06151 /593359;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Marlene;(Gloria);;;;;;;;;;01797068799 (Jessica);;;;;;;;;;;;;;;;;;;;;;;;;;
+;Martina Zängerlein;06151 /670462;;mazang@freenet.de;mazang@freenet.de;06151 /291657;;06151 /21163;;0171 /7213027;;;alidielerhmp@t-online.de;;;;;Parcusstr 15a;;Darmstadt;;64293;;;;;;;;;;;;;;;
+;Meißner;;;;;;06155/868187-0;;615561455;;;;;;;;;Eulerweg 5;;Griesheim;;64347;Deutschland;;;;;;;;;;;;;"Herr Hassholt 714099 Gärtner Efeu weg
+Architekt Winkelmann 06151/424925
+Fax 06151/424926
+
+Mieternummer: 515120015s
+
+Kundendienst /hr. Maibaum 0176/22685322
+
+Alte Nummer:
+06151 /37979";
+Olszewski;;;;;;;;;;;0177/7470117;;;;;;;;;;;;;;;;;;;;;;;;;"Handy letzte Nummer von ihm Mai 08
+
+altes Handy
+0151/56279258";
+Olu;;;;;;;;;;;1744753799;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Othmar;;;;;;;06151-374748;;;0174 /2963122;;;;;;;;;;;;;;;Spielegruppe;;;;;;;;;;;
+;Peter Lauer;;;peter.lauer@epost.de;peter.lauer@epost.de;;069 /7603-2111;06039 /934156;;;0179 /5279805;;;;;;;Nordweg 8;;;;61184 Karben;;;;;;;;;;;;;;;
+;Robin Steege + Anne Stroot;;;;;;;06131 /508357;;;;;m.kempf@bg-ang-oekologie.de;;;;;Heuerstr. 90A;;Mainz;;55129;;;;;;;;;;;;;;;
+;Sandra Miceli;;;s.miceli@freenet.de;s.miceli@freenet.de;;;06151 /716211;;;;;;;;;;Gardistenstr. 16;;Darmstadt;;64289;;;;;;;;;;;;;;;
+;Sascha Semmler;;;sascha.semmler@contiteves.com;sascha.semmler@contiteves.com;;069 /7603/5566;;069 /7603/;;0170 /8941828;;;;;;;;;;;;;;;Teves;;;;;;;;;;;
+;Schanz (Mutter Clara);Reinheim;;;;;;;;;;;;;;;;Viktoriastr. 64;;;;;;;;;;;;;;;;;;;
+;Sergio;;;;;;;06151 /273133;;;;;;;;;;Elissabethenstrasse 43 1.OG;;;;;;;;;;;;;;;;;;;
+;Seubert;;;seubert@Maschinenbau.FH-Wiesbaden.de;seubert@Maschinenbau.FH-Wiesbaden.de;;06142 /898388;;;;;;;;;;;;;;;;;;;Fh-Wiesbaden;;;;;;;;;;"Prof an FH-Wiesbaden, Studien- und Diplomarbeit ADAMS";
+;SK8 Skates;;;;;m.kempf@bg-ang-oekologie.de;06150 /542988;;;m.kempf@bg-ang-oekologie.de;;;;;;;;Schulstraße 36;;Weiterstadt/Schneppenhausen;;;;;;;;;;;;;;;;;
+;Sofie (Gloria);;;;;;;;;;17651020056;;;;;;;;;;;;;;;;;;;;;;;;;;
+Sofie;(Gloria);;;;;;;;;;17651020056;;;;;;;;;;;;;;;;;;;;;;;;;;
+Stefan;Brosig;Brosig;;;;;05361 /9-44678;;;;05361 /9-83624;;;;;;;;;;;;;;;VW;;;;;;;;;;Slagnes Code 4729;
+;Talkline th;;;;;;0180-5-3838;;04121-414950;;;;;;;;;;;;;;;;;;;;;;;;;;;"Kundennr.: 226868039
+
+Tel.-Nr.:01603585652
+
+Änderung Freie Kontingente:
+018054245
+(z.B.: freiePacketWeekendoption)";
+;Tech. Unterstützung;;;support@handspring.com;support@handspring.com;;www.handspring.com;;;;;;;;;;;;;;;;;;;"Handspring, Inc.";;;;;;;;;;"Hinweise zur Problembehehung finden Sie im Benutzerhandbuch auf der CD-ROM.
+
+Neueste Informationen der Technischen Unterstützung finden Sie unter www.handspring.com.";
+Theresa;(Gloria);;;;;;;06151/23638;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Thomas Raste;;;;;;069 /7603-4334;;1755770123;;0163 /4171963;;;;;;;;;;;;;;;;;;;;;;;;;;
+;TZ Sekreteriat;;;;;;069 /7603-3265;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;TZP-Handy;;;;;;;;;;0170 /3548315;;;;;;;;;;;;;;;;;;;;;;;;;;
+;TZS Handy;;;;;;;;;;0171 /8930125;;;;;;;;;;;;;;;;;;;;;;;;;;
+Ursula;;;;;;;165102;664591;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Ursula Kretschmer;tdg-zuhause@web.de;;;;tdg-zuhause@web.de;0761 /203-3802;0761 /3837594;;;;;01603585652 alte H-Nummer;;;;;;Sieboldstr. 16;;Darmstadt;;;64293;;;;;;;06151 /2790350;;069 /7603/3052;06151 /3608910;0160/95934673;Jochen Ackermann 06162/3966;
+;Uwe Lehnert;;;uwelehnert@t-online.de;uwelehnert@t-online.de;;;06150 /990025;;;0173 /3104796;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Uwe Schwedhelm;;;;;;;06151 /963994;;;;;Jochen Ackermann 06162/3966;;;;;;;;;;;;;;;;;;;;;;;;
+Wolfgang;Deußer;;;;;;291079;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Wolfram Seibert;+49 (174) 1021042;;w.seibert@forgis.de;w.seibert@forgis.de;;;06359 /890683;;;;;;;;;;;Bornscheuer;;Viessmann;;;;;;;;Schwedensteinweg 27;Frankenberg;35066;;Deutschland;;01712202489 (Treo);;
+;Zhenfu Chen;;;;;;;;;;1798675400;;;;;;;;;;;;;;;;;;;;;;;;;;

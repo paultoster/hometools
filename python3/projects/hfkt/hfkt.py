@@ -28,13 +28,13 @@
 # split_not_quoted(text,split,quot0,quot1,elim_leer) Trennt nicht gequoteten text mit split auf
 #                                                    elim_leer=0/1 eliminiert leere zelle (def 0)
 # split_with_quot(text,quot0,quot1) Trennt text mit quots
-# join_list(list,delim)                  fügt textlist mit delim zusammen             
+# join_list(list,delim)                  fügt textlist mit delim zusammen
 # slice(text,length) Zerlegt text in Stücke von l1-Länge
 # change(text,muster_alt,muster_neu) Ersetzt in text alt gegen neu (einmal durch)
 # change_max(text,muster_alt,muster_neu) Ersetzt in text alt gegen neu (solange geht)
 # str_replace(text,textreplace,i0,l) löscht in text von position i0 l Zeichen und fügt textreplace ein
 # def str_insert(text,textinsert,i0) insert at i0 textinsert
-# str_elim(text,i0,l) löscht in text von position i0 l Zeichen 
+# str_elim(text,i0,l) löscht in text von position i0 l Zeichen
 # (body,ext) = file_splitext(file_name) Trennt in Pfad, Bodyname und Extension (ohne .)
 # (path,body,ext) = file_split(file_name) Trennt in Pfad, Bodyname und Extension (ohne .)
 # search_file_extension(file)             Sucht Fileextension in string file und gibt ihn zurÃ¼ck
@@ -890,7 +890,7 @@ def str_insert(text,textinsert,i0):
     return t
 def str_elim(text,i0,l):
 
-    """ löscht in text von position i0 l Zeichen 
+    """ löscht in text von position i0 l Zeichen
     """
     n = len(text)
     if( i0 < n):
@@ -1476,9 +1476,9 @@ def get_liste_of_subdir_files(Path,liste=[],search_ext=[],exlude_main_path=False
         oder
         liste = get_liste_of_subdir_files("d:\\abc",search_ext=['mp3','wav']): Alle mp3- und wav-Datein
 
-        liste = get_liste_of_subdir_files("d:\\abc",search_ext=['mp3','wav'],exlude_main_path=True): 
+        liste = get_liste_of_subdir_files("d:\\abc",search_ext=['mp3','wav'],exlude_main_path=True):
                 Alle mp3- und wav-Datein, aber nicht in d:\\abc
-        
+
     """
     if(  isinstance(search_ext, str) ):
       search_ext = [search_ext]
@@ -2007,9 +2007,9 @@ def change_text_in_file(filename,textsearch,textreplace):
   if(  isinstance(textsearch, str) \
     and isinstance(textreplace, str) ):
     with open(filename,"r") as f:
-    
+
       lines = f.readlines()
-    
+
     flag = False
     for i in range(len(lines)):
       if( such(lines[i],textsearch,'vs') > -1 ):
@@ -2019,10 +2019,10 @@ def change_text_in_file(filename,textsearch,textreplace):
 
     if( flag ):
       with open(filename,"w") as f:
-      
+
         for line in lines:
           f.write("%s" % line )
-      
+
 # check_path(pathname)
 # check if exist, if not build path
 def check_path(pathname):
@@ -3219,7 +3219,7 @@ def read_ascii_build_list_of_lines(file_name):
     return (okay,lines)
 
 def read_ascii(file_name):
- 
+
     okay  = NOT_OK
     if( os.path.isfile(file_name) ):
         with open(file_name) as f:
@@ -3251,7 +3251,7 @@ def html_write_Ueberschrift(f,text,size=100,font='verdana'):
          f.write(text_to_write(tt))
 def html_write_text(f,text,size=100,font='verdana'):
     if( f.closed != 1 ):
-        tt = "\n<body><p style=\"font-size:%i%%;font-family:%s;\">%s</p></body>" % (size,font,text)     
+        tt = "\n<body><p style=\"font-size:%i%%;font-family:%s;\">%s</p></body>" % (size,font,text)
         f.write(text_to_write(tt))
 
 def html_write_start_tab(f,title):
@@ -3344,7 +3344,7 @@ def html_write_tab_zelle(f,h_flag,fett_flag,farbe,inhalt):
             try:
                 f.write(word)
             except:
-                
+
                 for w in word:
                     try:
                         f.write(w)
@@ -3447,7 +3447,7 @@ def int_to_dec36(int_val,digits=0):
         if( int_val > 35 ):
 
             liste.append(int_val%36)
-            int_val = int_val/36
+            int_val = int(int_val/36)
         else:
             liste.append(int_val)
             break
@@ -3636,7 +3636,7 @@ def str_datum(int_dat):
 def datum_str_make_correction(str_dat,delim="."):
     """
     string datum muss tt.mm.jjjj sein
-    Korrigiert tt.mm.jj zu tt.mm.jjjj 
+    Korrigiert tt.mm.jj zu tt.mm.jjjj
     """
 
 
@@ -3649,7 +3649,7 @@ def datum_str_make_correction(str_dat,delim="."):
 def datum_intliste_make_correction(intliste):
     """
     intliste datum mit [tt,mm,jjjj] wird
-    korrigiert 
+    korrigiert
     """
 
     if( len(intliste) >= 3 ):
@@ -3657,10 +3657,10 @@ def datum_intliste_make_correction(intliste):
         # Monat
         if( intliste[1] > 12 ):
             intliste[1] = 12
-        
+
         # Jahr
         liste_akt = intliste_akt_datum()
-        
+
         ty_akt = math.floor(liste_akt[2]/100)*100
         ty = math.floor(intliste[2]/100)*100
 
@@ -3679,7 +3679,7 @@ def datum_intliste_make_correction(intliste):
     #endif
 
     return intliste
-#enddef        
+#enddef
 def days_of_month(mon,year):
     """
      gibt anzahl Tage für den Monat

@@ -1,0 +1,182 @@
+Vorname;Nachname;Anzeigename;Spitzname;Primäre E-Mail;Sekundäre E-Mail;Anzeigename;Tel. dienstlich;Tel. privat;Fax-Nummer;Pager-Nummer;Mobil-Tel.-Nr.;Privat: Adresse;Privat: Adresse 2;Privat: Ort;Privat: Bundesland;Privat: PLZ;Privat: Land;Dienstlich: Adresse;Dienstlich: Adresse 2;Dienstlich: Ort;Dienstlich: Bundesland;Dienstlich: PLZ;Dienstlich: Land;Arbeitstitel;Abteilung;Organisation;Webseite 1;Webseite 2;Geburtsjahr;Geburtsmonat;Geburtstag;Benutzerdef. 1;Benutzerdef. 2;Benutzerdef. 3;Benutzerdef. 4;Notizen;
+;Dr. Hoppe;;;;;;06151 /79656;;06151 /74502;;;;;;;;;Schlossgartenstr. 67;;Darmstadt;;64288;;;;;;;;;;;;;;"Hausarzt,
+Telefonische Beratungen
+
+Di. Mi, Do, 8:30 - 9 Uhr
+
+Öffnungszeiten
+
+7:30 - 13 Uhr
+14:30 - 18 Uhr";
+Michael;Dr. Löbig;Michael Dr. Löbig;;;;;06151/23024;;;;;;;;;;;Wilhelm-Glässing-Straße 29;;Darmstadt;;64283;;;;;;;;;;;;;;Postbank Ffm Konto-Nr. 1451 32-607 BLZ 500 100 60;
+;Aktivspielplatz im Herrengarten;;;;;;06151 /712022;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Allesmacher;Alfred-Will@t-onli;;;;Alfred-Will@t-online.de;21300;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Hausmeistertätigkeiten in der Sieboldstraße;
+;Arhöna;;;mail@arhoena.de;mail@arhoena.de;;06676 /8562;;06676 /918302;;;;;;;;;;;;;;;;;;;;;;;;;;;"Reiterhof bei Fulda
+Methode Horsemenship oder so ähnlich";
+;Autorecycling S. Manke;;;;;;069 /499993;;;;;;;;;;;Franziusstr. 6;;Ffm.-Osthafen;;;;;;;;;;;;;;;;;
+;Autovermietung Anhänger-Punkt;;;;;;06151 /892000;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;"Autovermietung,Auto-Design SK GmbH";;;;;;06151 /664776;;;;;;;;;;;"Noackstr. 15
+64285 Darmstadt";;;;;;;;;;;;;;;;;;;
+;Autoverwertung Fischer;;;;;;06151 /824261;;;;;;;;;;;Pallaswiesen-199;;;;;;;;;;;;;;;;;;;
+;Bessunger Knabenschule;;;;;;61650;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Blitz Pizzeria;;;;;;06151 /896250;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Brigitte;Wagner;;;;;;069-553185;;069-5972455;;;;;;;;;Stralsunder Straße 13;;Frankfurt;;60323;Deutschland;;;Steuerberaterin;;;;;;;;;;;
+;Brotfabrik Zentrum;;;;;;069 /7895701;;;;;;;;;;;;;;;;;06151 /664776;;;;;;;;;;;;;
+;Bundesversicherungsanstalt f. Arbeit (Verlauf);;;;;;030 /8651;;;;;;H;;;;;Ruhrstr. 2;;Berlin;;10704;;;;;;;;;;;;;;;
+;Car Sharing;Deutschland;;;;;596243;;;;;;08106/7585;;;;;;;;;;;;;;;;;;;;;;;;
+;Caribe;;;;;;292422;;;;;;;;;;;;;Darmstadt;;;Deutschland;;;;;;;;;;;;;;
+Cinemaxx;Kinos;;;;;;06151/8705868;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Continental Teves AG&Co. oHG;;;;;;;;;;;;;;;;;Guerickestrasse 7;;Frankfurt a.M.;Kindergarten Gloria;60488;;;;;;;;;;;;;;;
+;DJH Service GmbH;;;;;;05231 /7401-0;;05231 /7401-49;;;;H;;;;;Bismarckstraße 8;;Detmold;;32756;;;;;;;;;;;;;;;
+;Dr. Blümler/Schäfer;0177 /3248171;;;;;06151 /713331;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Dr. Chinta;06151 /3964772;;;;06151 /25160;06151 /178766;;06151 /178760;0151 /12857112;;;;;;;;;100896249/50850150;;;;;;;"Chiropraktik,Orthopädie";;;;;;;;;;;
+;Dr. Frankenberger (Orthopäde);;;;;;06151 /311834;;06151/360750;;;;;;;;;Eschollbrücker Str. 26;;Darmstadt;;64295;Deutschland;;;;;;;;;;;;;Gloria hat Rücken untersucht bekommen;
+;Dr. Janeck;;;;;;26217;;;;;;;;;;;Luisenplatz;;Darmstadt;;;Deutschland;;;;;;;;;;;;;"Hautarzt,
+x";
+;Dr. Klockenkemper;"8:30 - 9 Uhr
+
+Öffnungszeiten
+
+7:30 - 13 Uhr
+14:30 - 18 Uhr";;;;;06151 /23466;;;;;;;;;;;Luisenplatz 4;;Darmstadt;;;;;;Facharzt für Radiologie;;;;;;;;;;;
+;Dr. Pra;;;;;;21735;;;;;;;;;;;;;;;;;;;;;;;;;;;;;"Zahnrazt, Gloria geht dort hin";
+;Dr. Weckenmann;;;;;;06151 /955555;06257 /7301;;;0171 /4758288;;;;;;;;06151 /311834;;;;;;;;;;Gloria hat Rücken untersucht bekommen;;;;;;;Kinderarzt;
+;Dr. Zienau;;;;;;293443;;;;;;;;;;;Frankfurter 4;;;;;;;;;;;;;;;;;;"Hautarzt
+Dezember 06, Behandlung Fußzehen";
+;EAD Sperrmüll;;;;;;0180 /3133310;;;;;;;;;;;;;;;;;;;;;;;;;;;;;"Abgabe Reifen : Niersteinerstr. 6 , Mittwochs 14-18 Uhr
+
+Elektro-Schrott
+Rheinstr. 48, 64367 Mühltal
+Niederramstadt
+Mo 7:30-15:30
+Fr 7:30-13:30
+Sa 9:00-13:00
+
+Kühlschrank: Niersteinerstr. 6, Mittwoch 14-18 Uhr
+
+Metall: Firma Thyssen (Müksch) 8-16 Uhr
+
+Farben: Niersteinerstr. 6,
+Mittwoch 14-18 Uhr
+Sa 9-12 Uhr (1. Sa im Montag)";
+;EC-Kartenverlust;;;;;;0180-3040600;0180-3040700 (neu);;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Endokrinologie;;;;;;06151/402-3100;;;;;;;;;;;;;;;;;;;Kinderklinik/Ambulanz;;;;;;;;;;;
+;Euler-Leuthner;;;;;;06154 /800111;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Heizung und Sanitär;
+;Eurocardverlust;;;;;;06966571-333;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Flughafen Auskunft;;;;;;069 /69030511;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Freie Walldorfschule;Galkowski.Wasem@t-online.de;;;;;06151 /95550;;;;;;;;;;;Arndtstraße 6;;Darmstadt;;64297;;;;;;;;;;;;;;;
+;Freund (Tierverwertung);;;;;;06151 /77233;;;;;;;;;;;Phillip-Reis 7;;;;;;;;;;;;;;;;;;"Öffnungszeiten:
+mo,di,mi,do,fr 7-13
+do 15-18
+Rattenverwertung";
+Ganss&Seitz;Vergölst Darmstadt;;;;;;06151 /871318;;;;;;;;;;;Heidelberger Straße 67;;Darmstadt;;64285;;;;;;;;;;;;;;;
+;Gemüsekiste;;;;;;319443;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Gesundheitsamt Darmstadt;;;;;;06151 /33090;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Goetheschule;;;;;;;06151/132548;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Harlekin Balletstudio;;;;;georg.roll@contiteves.com;06151 /20020;;;georg.roll@contiteves.com;;;;;;;;Ludwigstr. 10A;;Da;;64283;;;;;;;;;;;;;;;
+;Heag Medianet;;;;;;0800-709 9999;;;;;;;;;;;;;;;;;;;;;;;;;;;;;"Support 06151-709-2900
+
+Weipert Elektronik 06151/96560
+
+kundennummer für 3608910:
+NN1008318";
+;Hessemag;;;;;;06151 /8793-0;;;;;;;;;;;Haasstr. 9-11;;Darmstadt;;64293;;;;;;;;;;;;;;"Wand 8.30x3.60 m = 30m2
+Bimssteinhohlblockstein";
+Hoora Watersport;Heeg Bootsverleih;;;;;;0515-442715;;;;;;;;;;;Gouden Bodem 10;;Heeg;;8621;;;;;;;;;;;;;;"Bei Jugendherberge 67,5 ?/Tag bezahlt";
+;HP Kundendienst;;;;;;0180 /5652180;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;HP Service;;;;;;0180 /5652180;;;;;;;;;;;;;;;;;;;;;;;;;;;;;"HP Pavillion ze2000
+s/n cnf533085t
+p/n eh708ea#abd";
+It Beaken;Heeg Jugendherberge;;;;;;0031 /5154/42258;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Jazz-Institut;;;;;;13-2877-3309-0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Job- und Studentenvermittlung;Agentur für Arbeit;;;;;;06151 /304-304;;;;;;;;;;;"citybüro
+Ludwigstraße 20";;Darmstadt;;;Deutschland;;;;;;;;;;;;;;
+Kiga;Kochsches Haus;;;;;;06151 /25071;;;;;;;;;;;Viktoriastr. 49;;Darmstadt;;64293;;;;;;;;;;;;;;;
+;Kikeriki-Theater;;;;;;06151 /65593;;06151 /661748;;;;;;;;;Bessunger-Str. 88;;;;64293 Darmstadt;;;;;;;;;;;;;;;
+Klaus;"Dr. Gißler, Dr. Heithmann";06151 /670462;;;;06151 /291657;06151 /25576;;;0171 /7213027;;;alidielerhmp@t-online.de;;;;;Rheinstraße 7;;Darmstadt;;64283;;;;Hautarzt;;;;;;;;;;Hautarzt;
+;Krankenhaus Prinzess Magret Ambulanz;;;;;;06151/4023100;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Kreditkarte verlust;Mastercard;;;;;;069 /66571-333;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Logopädin;Schneider;;;;;;06151 /981034;;;;;;Reinheim;;;;;;;;;;;;;;;;;;;;;;;;
+;Lui Pauswang;;;;;;06151 /64264;;;;;;;;;;;;;;;;;;;Autowerkstatt;;;;;;;;;;;
+;Mam Möbel-Abholmarkt;;;;;;;;;;;;;;;;;Hans-Böckler-Str. 9;;Neu Isenburg;;;;;;;;;;;;;;;;;
+Michael;Dr. Löbig;;;;;;06151 /23024;;;;;;;;;;;;;;;;;;;;;;;;;;;;;"Psychotherapeut
+telefonische Terminabsprache
+Di, Fr: 9-11";
+;Mietverein;;;;;;06151 /48032;;;;;;;;;;;;;;;;;;;;;;;;;;;;;"Hotline 06151/4979949
+
+mitgliedsnummer 20075
+
+Telefonsprechzeit 
+Mo 9:30-        14-15
+Di   11-12       12-13
+Do  11-            12-13
+Fr 9:30-            11-12
+
+Jetzt Mo-Fr zwischen 12-13 Uhr";
+;Mini Campingplatz Holland;m.kempf@bg-ang-oekologie.de;;;;;0224-581292;;0224-583886;;06-50553883;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Mitwohn-Agentur;;;;;;0180 /5353364;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Mitwohnzentrals;;;info@mwz-darmstadt.de;info@mwz-darmstadt.de;;06151 /897564;0180 /5353364;;;;;;;;;;Im Niederfeld 8;;;;;;;;;;;;;;;;;;;
+;Mobilbox-Abfrage;;;;;;;;;;+49 177 3311;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Mousonturm;;;;;;069 /405895-0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Müksch Schrott;06-50553883;;;;;98040;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Nachhilfe;;;;;;;;;;;;Elisabethenstr. 17;;;;;Deutschland;;;;;;;;;Mathe Helfer;;;;;;;;;;;
+;Nagelstudio;;;;;;06151 /296992;;;;;;;;;;;Wilhelm-Leuschner-Str. 2;;;;;;;;;;;;;;;;;;"Fusspflege, Fußpflege";
+Naturata;GmbH;;;;;;07551 /64524;;951633;;;;;;;;;Rengoldshauser Str. 21;;Überlingen;;88662;;;;Naturata GmbH;;;;;;;;;;Hotel und Lebensmittelladen;
+;Naturcamping Braunsbach;;;info@camping-braunsbach.de;info@camping-braunsbach.de;;07906 /940673;;;;0151/15611510;;;;;;;Im Brühl 1;;Braunsbach;;74542;;;;;;;;;;;;;;Wohnwagenvermietung 36 EUR;
+;Nordbad;;;;;;06151/13-2851;;;;;;;;;;;Alsfelderstr. 33;;Darmstadt;;64289;Deutschland;;;;;;;;;;;;;Herr Müller von DLRG 06151/372019 ab 17 Uhr?;
+;Notebook-Shop;;;info@notebook-shop.de;info@notebook-shop.de;;06151 /91827-0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Luca Iezzi;
+"Oer't hout, N.J.H.C. -herberg";Grouw Jugendherberge;;;;;;0031 /(0)566-621528;;0031 /(0)566-621005;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Opelwerkstatt;Autohaus Renker;;;;;;06151 /9350-0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Orte;Hort für Kinder;;;;;;06151 /1526400;;;;;;;;;;;Emilstraße 26;;;;64283;;;;;;;;;;;;;;"Bestätigung Kosten 421408
+Ab Do 21.6";
+;Ove Westin;;;;;;;0046 /960-10749;;;0046 /70-2281416;;;;;;;;;Arvidsjaur;;;;;;;;;;;;;;;;;
+;Pizza Hallo Papi;;;;;;06192 /21876;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Postbankdirektservice;;;;;;0180 /3040600;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Fax EC-Betrug: 040 6383 4860;
+;Reisebüro La Paloma;;;;;;0034-922-806043;;0034-922-805685;;;;;;;;;;;Valle Gran Rey Vueltas;;38870;Spanien;;;;;;;;;;;;;;
+Reiten;Eitemüller Georg;;;;;;06164 /1572;;;;;;;;;;;Im Eck 5;;Oberostern;;64385;;;;Reiterhof  Fjordpferde;;;;;;;;;;Vemietung  Pferde Fjordpferde Odenwald;
+;Reiten Ostern Eickmann;;;;;;;06164 /1572;;;;;0034-922-806043;;;;;;;;;;;;;;;;;;;;;;;;
+;Riwwelmaddes;;;;;;06151 /25652;;;;;;;;;;;Wilhelm-Leuschner-24;06164 /1572;;;;;;;;;;Vemietung  Pferde Fjordpferde Odenwald;;;;;;;;
+;Sabine Stephan (Gloria);;;;;;;06154 /693636;;;1703455844;;;;;;;;;;;;;;;;;;;;;Sparkasse Dieburg/50852651/41101262;;;;Reinheim;
+;Sachsencar;;;;;;06155 /62049;;;;;;;;;;;;;;;;;;;Autovermietung;;;;;;;;;;;
+;Sardegna;;;;;Reinheim;06151 /23029;;;;;;;;;;;Kahlertstr. 1;;;;;;;;;;;;;;;;;;;
+;Seeger Comerzbank;;;;;;06151 /299-128;;;;;;Reinheim;;;;;;;;;;;;;;;;;;;;;;;;
+;Sperrmüll bestellen;;;;;;06151 /133323;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Stadtverwaltung Darmstadt;;;;;;06151 /13-1;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Studenwerk Darmstadt;;;;;;06151 /16-2210;;;m.kempf@bg-ang-oekologie.de;;;m.kempf@bg-ang-oekologie.de;;;;;Alexanderstr. 4;;Darmstadt;;64283;;;;;;;;;;;;;;;
+Tango;Academia;;;;;;069/811234;;;;;Sonnemannstr. 3;;Frankfurt Ostend;;;Deutschland;;;;;;;;;;;;;;;;;;;Mo.+Di.+Mi.+Fr. 10-13:30 Do.17-20:30;
+Tango-Tanzschule;Academia;;;;;;069/811234;;;;;;;;;;;Sonnemannstr. 3-5;;Frankfurt;;60314;Deutschland;;;;;;;;;;;;;"Tangoschule Mo.Di.Mi.Fr. 10-13:30 uhr Do.17-20:30 Telefonisch 
+
+Nachholtermin 26.7.07 21:30
+
+Urlaub 9.,16. Juli, 6. August";
+;Taxi Flughafen Apollo;;;;;;06154 /19410;;;;;;;;;;;;;;;;;;;;;;;;;;;;;"Hinweise für Flughafenabholfahrten:
+Terminal 1:  Ausgang B6 auf der Abflugebene!
+Terminal 2:  Ausgang E9
+
+Rufen Sie bitte am Gepäckband
+061 54/631093 an,
+damit wir Ihnen sagen können, welches
+Fahrzeug Sie wann abholt!";
+;Techniker-Krankenkasse;;;;;;06151 /29870;Geschäftsstelle 01802-8585;;;;;;;;;;Rheinstr. 95-97;;Darmstadt;;64295;;;;;;;;;;;;;;;
+;Tenert;;;eternet@yahoo.se;eternet@yahoo.se;;;;;;0046 /70/2363323;;;;;;;Nygatan 16B;;Arvidsjaur;;;Schweden;;;;;;;;;;;;;Unterkunft Arvidsjauer Souterain Einzel;
+Thomas;Dr. Appel (Zahn);;;;;;06151 /294647;;;;;;;;;;;Alicenstr. 25;;;;;;;;;;;;;;;;;;;
+;Tierarzt Dr. Hartel;;;;;;06151 /55445;;;;;;;;;;;Im Hirtengrund 7;;Darmstadt;;64297;;;;Kleintierpraxis;;;;;;;;;;Darmstadt-Eberstadt;
+Tierheim;Tann;;;;;;06151/891470;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Kann eventuell Hasen aufnehmen;
+;Tiersitter Express;;;;;;06151/3549137;;;;;;;;;;;;;;;;;;;;;;;;;;;;;"6 ? Käfig zu jemanden bringen
+12 ? zuhause füttern lassen";
+;Vermittlung;;;;;;;;;;+49 177 2555;;Jochen Ackermann 06162/3966;;;;;;;;;;;;;;;;;;;;;;;;
+;Versicherung Auto Krug;;;;;;06151 /27029-11;;06151 /27029-26;;;;;;;;;;;;;;;;;VNP-Versicherungsmakler Pkw;;;;;;;;;;;
+;Villa Aurora (Durga);;;;;;0034 /922805053;;;;;;;;;;;;;;;;;;;;;;;;;;;;;"Haus Aurora, Frau Durga in Gomera / Valle Gran Rei
+0034
+922-805053";
+;Wassersportbedarf Anja;;;;;;0031 /0566-621373;0031 /058-2551585;623341;;;;;;;;;;;Grouw;;;Holland;;;;;;;;;;;;;Vermietung von Valks in Grow;
+;Weitzel;;;;;;06061 /2041;;;;;;;;;;;;;;;;;;;Hoschbachhof;;;;;;;;;;Vermietung Ferienwohnungen in Mossau;
+;Wellen- und Freibad Pfungstadt;;;;;;06157 /930196;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+WSD-Sicherheitstraining;;;;;;;06151/6692147;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Wüstenrot (H. Koplin);;;;;;06151 /2702751;;;;;;;;;;;Rheinstr. 22;;;;;;;;;;;;;;;;;;"Vertragsnummer:
+284242750
+415934815";
+;Xtra Karte;;;;;;;0160 /95107572;;;;;;;;;;;;;;;;;;;;;;;;;;;;Kontoservice +49 177 2000;
+;xxlHandy.de;;;;;;0351 /3743173;;035243 /45509;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Zweiradshop Suzuki+Vespa;;;;;;06151 /21140;;;;;;;;;;;Adelungstr. 17-21;;;;;;;;;;;;;;;;;;;
+;Tierarztpraxis Kniese Martin ;Tierarztpraxis Kniese Martin ;;;;;06151/21112;0800/8437362;;;;;;;;;;Wilhelm-Glässing-Str. 2;;Darmstadt;;64283;;;;Kleintierpraxis;;;;;;;;;;;
