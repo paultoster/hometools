@@ -174,12 +174,68 @@ def plot_commands_on_cnavas(tkcanvas: tk.Canvas,command_liste: List[c.CBasic])  
         if( not okay ):
           return (okay,errtext)
 
+      case "PlotPoint":
+
+        (okay,errtext) = plot_point_on_cnavas(tkcanvas,command_liste,pobj)
+        if( not okay ):
+          return (okay,errtext)
+
       case _:
         okay = False
         errtext = f"The function Name for Plot: {pobj.Name} in line {pobj.LineNum} is not valid"
         return (okay,errtext)
     #endmatch
   #endfor
+  return (okay,errtext)
+#enddef
+
+def plot_point_on_cnavas(tkcanvas: tk.Canvas,command_liste: List[c.CBasic],pobj: c.CBasic) -> (bool, str):
+
+  (okay,errtext) = (True,"")
+
+
+  # x,y positions of point commands
+  x00  = command_liste[pobj.indexPoint].X0
+  y00  = command_liste[pobj.indexPoint].Y0
+
+  # type
+  if( pobj.Type == 0):
+    dxy = pobj.Width * CanvasData.resolution_unit
+  else:
+    dxy = pobj.Radius * CanvasData.resolution_unit
+  #endif
+
+  x0 = x00 - dxy/2
+  y0 = y00 - dxy/2
+  x1 = x00 + dxy/2
+  y1 = y00 + dxy/2
+
+  tuple_list = h.transform_from_coord_to_base( [(x0,y0),(x1,y1)],command_liste[pobj.indexCoordSys])
+
+  X0 = tuple_list[0][0]
+  Y0 = tuple_list[0][1]
+  X1 = tuple_list[1][0]
+  Y1 = tuple_list[1][1]
+
+  (X0INT,Y0INT) = CanvasData.scale_unit_to_screen(X0,Y0)
+  (X1INT,Y1INT) = CanvasData.scale_unit_to_screen(X1,Y1)
+
+  # type
+  if( pobj.Type == 0):
+
+
+    # paint
+    tkcanvas.create_oval(X0INT, Y0INT, X1INT, Y1INT, fill=pobj.Color, width=0)
+
+  else:     #if( pobj.Type == 1)
+
+    # paint
+    tkcanvas.create_oval(X0INT, Y0INT, X1INT, Y1INT, outline=pobj.Color, width=pobj.Width)
+  #endif
+
+
+
+
   return (okay,errtext)
 #enddef
 
@@ -209,18 +265,44 @@ def plot_line_on_cnavas(tkcanvas: tk.Canvas,command_liste: List[c.CBasic],pobj: 
   (X1INT,Y1INT) = CanvasData.scale_unit_to_screen(X1,Y1)
 
   # dash
-  if( pobj.Type == 0 ):
-    tkcanvas.create_line(X0INT, Y0INT, X1INT, Y1INT, fill=pobj.Color, width=pobj.Width)
-  else:
-    if( pobj.Type == 1):
-       ddash = (1*pobj.Width,1)
-    elif( pobj.Type == 2):
-       ddash = (5*pobj.Width,1)
-    else:     #if( pobj.Type == 3)
-       ddash = (5*pobj.Width,1,1,1)
-    #endif
-    tkcanvas.create_line(X0INT, Y0INT, X1INT, Y1INT, fill=pobj.Color, width=pobj.Width,dash=ddash)
+  if( pobj.Type == 0):
+    ddash = None
+  elif( pobj.Type == 1):
+     ddash = (1*pobj.Width,1)
+  elif( pobj.Type == 2):
+     ddash = (5*pobj.Width,1)
+  else:     #if( pobj.Type == 3)
+     ddash = (5*pobj.Width,1,1,1)
   #endif
+
+
+  #arrow
+  if( pobj.Arrow == 0):
+    arrow = None
+    arrowshape = None
+  else:
+
+    start  = int(pobj.Arrow/10)
+    end    = pobj.Arrow - start*10
+
+    if( start > 0 and end > 0):
+      arrow = tk.BOTH
+    elif( start > 0 ):
+      arrow = tk.FIRST
+    else:
+      arrow = tk.LAST
+    #endif
+    v = max(start,end)
+
+    if( v == 1 ):
+      arrowshape = (8*pobj.Width,8*pobj.Width,2*pobj.Width)
+    else:
+      arrowshape = (4*pobj.Width,8*pobj.Width,2*pobj.Width)
+    #endif
+  #endif
+
+  # paint
+  tkcanvas.create_line(X0INT, Y0INT, X1INT, Y1INT, fill=pobj.Color, width=pobj.Width,dash=ddash,arrow=arrow,arrowshape=arrowshape)
 
   return (okay,errtext)
 #enddef

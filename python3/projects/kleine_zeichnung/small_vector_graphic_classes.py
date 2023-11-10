@@ -141,9 +141,8 @@ class CPlotLine(CBasic):
   Line: str = ""          # Name to plot on line
   Color: str = 'black'    # ['black','red','green',...] line color
   Width: float = 1        # [width] line width
-  Type: str = ""          # [straight, arrow+straight, straight+arrow] type of line
-  ArrowWidth: float = 10      # [width] arrow width compared to line width
-  ArrowLength: float = 10     # [width] arrow length compared to line width
+  Type: str = ""          # [straight, dashed, double dashed] type of line
+  Arrow: int = 00         # [00: no, 10: start perpendicular triangled, 02: end sharper]
   indexLine: int = -1         # index of line definition
   indexCoordSys: int = -1     # index of CoordSys definition
   def __post_init__(self):
@@ -154,10 +153,13 @@ class CPlotLine(CBasic):
 @dataclass
 class CPlotPoint(CBasic):
   '''plot ploint'''
-  NamePoint: str = ""         # Name to plot on point
-  PointColor: str = 'k'       # ['k','r','g',...] line color
-  PointWidth: float = 10      # [width] width of the point compared to line width
-  PontType: str = ""          # ['o',+',*',',...] type of point
+  Point: str = ""         # Name to plot on point
+  Color: str = 'k'        # ['black','red','green',...] line color
+  Width: float = 1        # [width] point width
+  Type: str = ""          # [full, lined] type of line
+  indexPoint: int = -1    # index of line definition
+  indexCoordSys: int = -1 # index of CoordSys definition
+  Radius: int = 10         # Radius in points for type == 1
   def __post_init__(self):
     self.TypeName = "PlotPoint"
     self.Name     = "PlotPoint"
