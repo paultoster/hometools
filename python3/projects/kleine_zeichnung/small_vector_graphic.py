@@ -1,12 +1,10 @@
 """
 # Kommentar
 # Grafikbefehle als Beispiele
-
+--------------------------------------------------------------------------------
 Base( UnitWidth=10.0,UnitHeight=10.0,PointWidth=800,PointHeight=800)
-
+--------------------------------------------------------------------------------
 CoordSys(Name=coord1,X0=2.0,Y0=2.0,Dir0=90)
-
-
 --------------------------------------------------------------------------------
 Point( Name=P1, X0=10.0, Y0=0.0)
 Name=P1    Name of Point
@@ -20,13 +18,13 @@ SCALERIGHT [float] add scale perpendicular right to PO,P1
 DIST       [unit]  P = P0 + DIST * dir(P0,P1)
 DISTLEFT   [unit]  add distance perpendicular left to PO,P1
 DISTRIGHT  [unit]  add distance perpendicular right to PO,P1
-
 --------------------------------------------------------------------------------
 Line(Name=L1,PO=P1,P1=P2)
 Name=L1   Name of line
 PO=P1     First Point
 P1=P2     second point definition
 --------------------------------------------------------------------------------
+RectAngle(Name=RA1,DX=10,DY=10,Anchor='m',P0=PName,X0=2,Y0=3,Dir0=0)
 #
 --------------------------------------------------------------------------------
 PlotLine(Line=L1,Color=red,Width=2,Type=0,Arrow=11)
@@ -40,7 +38,7 @@ Arrow=11   arrow left digit is start (Xo,Y0), right digit is end (X1,Y1)
                  [00: no arrow],11: eckiger Pfeil, 22: spitzer Pfeil
 --------------------------------------------------------------------------------
 #
-RectAngleDef(Name=RADef1,XWidth=10,YWidth=10)
+
 TextDef(Name=TDef1,Text=abcdef\nijjk)
 #
 RectAngle(Name=RA1,RectAbgleName=RADef1,X0=5.0,Y0=20.0,Dir0=0)

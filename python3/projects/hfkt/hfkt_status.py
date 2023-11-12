@@ -1,9 +1,9 @@
-
+import os, sys
 #-------------------------------------------------------------------------------
 t_path, _ = os.path.split(__file__)
 if( t_path == os.getcwd() ):
 
-  import hfkt_def as h_def
+  import hfkt_def as hdef
 
 else:
   p_list     = os.path.normpath(t_path).split(os.sep)
@@ -12,7 +12,7 @@ else:
   for i,item in enumerate(p_list): t_path += item + os.sep
   if( os.path.normpath(t_path) not in sys.path ): sys.path.append(t_path)
 
-  from hfkt import hfkt_def as h_def
+  from hfkt import hfkt_def as hdef
 
 #endif--------------------------------------------------------------------------
 

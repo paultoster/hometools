@@ -31,7 +31,9 @@ class steuerung:
     self.log.write_e(text="AASteuerung Init done",screen=0)
   #enddef
 
-
+  #-----------------------------------------------------------------------------
+  # handle first level of Gui
+  #-----------------------------------------------------------------------------
   def runStart(self):
 
     LISTE0 = ["Anlagekonto","Anlage","Ende"]
@@ -72,6 +74,9 @@ class steuerung:
         return
 
   #enddef
+  #-----------------------------------------------------------------------------
+  # Bearbeitung Anlagenkonto
+  #-----------------------------------------------------------------------------
   def runAnlagenkonto(self):
 
     LISTE0 = ["Anlagenkonto bearbeiten","Umsatz csv einlesen","Ende"]

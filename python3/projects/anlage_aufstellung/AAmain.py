@@ -73,20 +73,28 @@ class AAMain:
 
     self.steu = AASteuerung.steuerung(self.log,self.db,self.commands,self.stat)
 
-  def __del__(self):
-
-    self.db.__del__()
-
-    self.log.close()
-
-
-
+  #enddef
   def run(self):
 
     # Start Sequence
     #=============================
     self.steu.runStart()
 
+  #enddef
+  def close(self):
+
+    self.db.__del__()
+
+    print(f"Close logfile: {self.par.logfilename}")
+    self.log.close()
+
+  #enddef
+  def __del__(self):
+
+    self.db.__del__()
+
+    print(f"Close logfile: {self.par.logfilename}")
+    self.log.close()
   #enddef
 #endclass
 
@@ -103,5 +111,5 @@ if __name__ == '__main__':
 
 
   aa = AAMain()
-
   aa.run()
+  aa.close()

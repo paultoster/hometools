@@ -1,5 +1,5 @@
 ﻿[PyScripter]
-Version=4.3.3.0
+Version=4.3.4.0
 
 [Project]
 ClassName=TProjectRootNode
@@ -11,45 +11,122 @@ ClassName=TProjectFilesNode
 
 [Project\ChildNodes\Node0\ChildNodes\Node0]
 ClassName=TProjectFolderNode
-Name=AASteuerung
+Name=AADatabase
 
 [Project\ChildNodes\Node0\ChildNodes\Node0\ChildNodes\Node0]
 ClassName=TProjectFileNode
-FileName=$[Project-Path]AASteuerung\FktSteuAnlageKontoGetCsvKeywords.py
+FileName=$[Project-Path]AADatabase\__init__.py
 
 [Project\ChildNodes\Node0\ChildNodes\Node0\ChildNodes\Node1]
 ClassName=TProjectFileNode
-FileName=$[Project-Path]AASteuerung\FktSteuAnlagekontoGetKonto.py
+FileName=$[Project-Path]AADatabase\Database.py
 
 [Project\ChildNodes\Node0\ChildNodes\Node0\ChildNodes\Node2]
 ClassName=TProjectFileNode
-FileName=$[Project-Path]AASteuerung\FktSteuerungAnlage.py
+FileName=$[Project-Path]AADatabase\DatabaseDef.py
 
 [Project\ChildNodes\Node0\ChildNodes\Node0\ChildNodes\Node3]
 ClassName=TProjectFileNode
-FileName=$[Project-Path]AASteuerung\FktSteuerungAnlagekonto.py
+FileName=$[Project-Path]AADatabase\FktDatabaseGetAnlagekontenListe.py
 
 [Project\ChildNodes\Node0\ChildNodes\Node0\ChildNodes\Node4]
 ClassName=TProjectFileNode
-FileName=$[Project-Path]AASteuerung\FktSteuerungAnlagekontoBearbeiten.py
+FileName=$[Project-Path]AADatabase\FktDatabaseGetAnlagekontoDaten.py
 
 [Project\ChildNodes\Node0\ChildNodes\Node0\ChildNodes\Node5]
 ClassName=TProjectFileNode
-FileName=$[Project-Path]AASteuerung\FktSteuerungAnlagekontoUmsatzCSV.py
+FileName=$[Project-Path]AADatabase\FktDatabaseLoescheAnlagenkonto.py
 
 [Project\ChildNodes\Node0\ChildNodes\Node0\ChildNodes\Node6]
 ClassName=TProjectFileNode
-FileName=$[Project-Path]AASteuerung\Steuerung.py
+FileName=$[Project-Path]AADatabase\FktDatabaseSetAnlagenkontoDaten.py
+
+[Project\ChildNodes\Node0\ChildNodes\Node0\ChildNodes\Node7]
+ClassName=TProjectFileNode
+FileName=$[Project-Path]AADatabase\TestJson.py
 
 [Project\ChildNodes\Node0\ChildNodes\Node0\ChildNodes]
-Count=7
+Count=8
 
 [Project\ChildNodes\Node0\ChildNodes\Node1]
+ClassName=TProjectFolderNode
+Name=AADataCalc
+
+[Project\ChildNodes\Node0\ChildNodes\Node1\ChildNodes\Node0]
+ClassName=TProjectFileNode
+FileName=$[Project-Path]AADataCalc\__init__.py
+
+[Project\ChildNodes\Node0\ChildNodes\Node1\ChildNodes\Node1]
+ClassName=TProjectFileNode
+FileName=$[Project-Path]AADataCalc\AADataCalc.py
+
+[Project\ChildNodes\Node0\ChildNodes\Node1\ChildNodes\Node2]
+ClassName=TProjectFileNode
+FileName=$[Project-Path]AADataCalc\FktDataCalcReadUmsatzCsv.py
+
+[Project\ChildNodes\Node0\ChildNodes\Node1\ChildNodes\Node3]
+ClassName=TProjectFileNode
+FileName=$[Project-Path]AADataCalc\test_pandas.py
+
+[Project\ChildNodes\Node0\ChildNodes\Node1\ChildNodes]
+Count=4
+
+[Project\ChildNodes\Node0\ChildNodes\Node2]
+ClassName=TProjectFolderNode
+Name=AAPar
+
+[Project\ChildNodes\Node0\ChildNodes\Node2\ChildNodes\Node0]
+ClassName=TProjectFileNode
+FileName=$[Project-Path]AAPar\__init__.py
+
+[Project\ChildNodes\Node0\ChildNodes\Node2\ChildNodes\Node1]
+ClassName=TProjectFileNode
+FileName=$[Project-Path]AAPar\AAPar.py
+
+[Project\ChildNodes\Node0\ChildNodes\Node2\ChildNodes]
+Count=2
+
+[Project\ChildNodes\Node0\ChildNodes\Node3]
+ClassName=TProjectFolderNode
+Name=AASteuerung
+
+[Project\ChildNodes\Node0\ChildNodes\Node3\ChildNodes\Node0]
+ClassName=TProjectFileNode
+FileName=$[Project-Path]AASteuerung\FktSteuAnlageKontoGetCsvKeywords.py
+
+[Project\ChildNodes\Node0\ChildNodes\Node3\ChildNodes\Node1]
+ClassName=TProjectFileNode
+FileName=$[Project-Path]AASteuerung\FktSteuAnlagekontoGetKonto.py
+
+[Project\ChildNodes\Node0\ChildNodes\Node3\ChildNodes\Node2]
+ClassName=TProjectFileNode
+FileName=$[Project-Path]AASteuerung\FktSteuerungAnlage.py
+
+[Project\ChildNodes\Node0\ChildNodes\Node3\ChildNodes\Node3]
+ClassName=TProjectFileNode
+FileName=$[Project-Path]AASteuerung\FktSteuerungAnlagekonto.py
+
+[Project\ChildNodes\Node0\ChildNodes\Node3\ChildNodes\Node4]
+ClassName=TProjectFileNode
+FileName=$[Project-Path]AASteuerung\FktSteuerungAnlagekontoBearbeiten.py
+
+[Project\ChildNodes\Node0\ChildNodes\Node3\ChildNodes\Node5]
+ClassName=TProjectFileNode
+FileName=$[Project-Path]AASteuerung\FktSteuerungAnlagekontoUmsatzCSV.py
+
+[Project\ChildNodes\Node0\ChildNodes\Node3\ChildNodes\Node6]
+ClassName=TProjectFileNode
+FileName=$[Project-Path]AASteuerung\Steuerung.py
+
+[Project\ChildNodes\Node0\ChildNodes\Node3\ChildNodes]
+Count=7
+
+[Project\ChildNodes\Node0\ChildNodes\Node4]
 ClassName=TProjectFileNode
 FileName=$[Project-Path]AAmain.py
 
 [Project\ChildNodes\Node0\ChildNodes]
-Count=2
+Count=5
 
 [Project\ChildNodes\Node1]
 ClassName=TProjectRunConfiguationsNode

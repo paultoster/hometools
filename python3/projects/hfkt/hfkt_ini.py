@@ -12,10 +12,10 @@
 #              ]
 #              varname           Variablenname
 #              section           Sektion in [] geschrieben
-#              typ               hfkt_def.DEF_FLOAT    float-Wert
-#                                hfkt_def.DEF_INT      interger-Wert
-#                                hfkt_def.DEF_STR      string-Wert
-#                                hfkt_def.DEF_VEC      Vektor als Liste 1,2,3.2,-0.1
+#              typ               hdef.DEF_FLOAT    float-Wert
+#                                hdef.DEF_INT      interger-Wert
+#                                hdef.DEF_STR      string-Wert
+#                                hdef.DEF_VEC      Vektor als Liste 1,2,3.2,-0.1
 #                                                   oder   [1,2,3.2,-0.1]
 #              default           '' kein default m�glich
 #                                '1.0' immer als Text
@@ -48,7 +48,7 @@ def readini( ini_file, dliste=None ):
   if( not os.path.isfile(ini_file ) ):
     actpath = os.path.abspath(".")
     outtext = "ini-file <%s> konnte nicht gefunden werden (actpath: <%s> " % (ini_file,actpath)
-    return (hfkt_def.NOT_OK,outtext,out)
+    return (hdef.NOT_OK,outtext,out)
 
   config = configparser.RawConfigParser()
   #try:
@@ -56,7 +56,7 @@ def readini( ini_file, dliste=None ):
   f = config.read(ini_file)
   #except:
   #  outtext = "Error configparser read file <%s>" % ini_file
-  #  return (hfkt_def.NOT_OK,outtext,out)
+  #  return (hdef.NOT_OK,outtext,out)
   if(len(f) == 0):
     hfkt_log.write_e("Error configparser read file <%s>" % ini_file)
     return out
@@ -83,7 +83,7 @@ def readini( ini_file, dliste=None ):
       ii += 1
       if( len(liste) < 4 ):
         outtext = "%i. Variable in ini-Liste ddlist hat nicht gen�gend Werte < 4 (['name','section',typ,'defaul'])" % ii
-        return (hfkt_def.NOT_OK,outtext,out)
+        return (hdef.NOT_OK,outtext,out)
 
       sect = liste[0]
       name = liste[1]
@@ -95,26 +95,26 @@ def readini( ini_file, dliste=None ):
         val = defa
       else:
         outtext = "%i. Variable ist nicht in ini-File <%s> " % (ii,ini_file)
-        return (hfkt_def.NOT_OK,outtext,out)
+        return (hdef.NOT_OK,outtext,out)
 
-      if( typ == hfkt_def.DEF_FLT ):
+      if( typ == hdef.DEF_FLT ):
         try:
           v = float(val)
         except:
           outtext = "Fehler bei Wandlung Wert zu float aus ini-File <%s> [%s]%s =  %s " % (ini_file,sect,name,val)
-          return (hfkt_def.NOT_OK,outtext,out)
-      elif( typ == hfkt_def.DEF_INT ):
+          return (hdef.NOT_OK,outtext,out)
+      elif( typ == hdef.DEF_INT ):
         try:
           v = int(val)
         except:
           outtext = "Fehler bei Wandlung Wert zu integer aus ini-File <%s> [%s]%s =  %s " % (ini_file,sect,name,val)
-          return (hfkt_def.NOT_OK,outtext,out)
-      elif( typ == hfkt_def.DEF_VEC ):
+          return (hdef.NOT_OK,outtext,out)
+      elif( typ == hdef.DEF_VEC ):
         try:
           v = h.string_to_num_list(val)
         except:
           outtext = "Fehler bei Wandlung Wert zu vektor aus ini-File <%s> [%s]%s =  %s " % (ini_file,sect,name,val)
-          return (hfkt_def.NOT_OK,outtext,out)
+          return (hdef.NOT_OK,outtext,out)
       else:
         v = val
 
@@ -127,4 +127,4 @@ def readini( ini_file, dliste=None ):
       out[sect][name] = v
 
 
-  return (hfkt_def.OK,outtext,out)
+  return (hdef.OK,outtext,out)

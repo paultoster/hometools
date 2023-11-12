@@ -1,26 +1,21 @@
 import sys
 
-tools_path = "D:\\tools\\tools_tb\\python3"
-
-if( tools_path not in sys.path ):
-    sys.path.append(tools_path)
-
 from AADatabase import DatabaseDef as dbdef
 
 # Hilfsfunktionen
 
 
 #------------------------------------------------------------
-# Anlage bearbeiten
+# Anlagenkonto bearbeiten
 #------------------------------------------------------------
 def fkt_steu_anlage_konto_get_csv_keywords(obj,anlagenkontoname):
-   
+
   okay     = 1
 
   rliste = [dbdef.CELL_CSV_HEAD_NAME,dbdef.CELL_CSV_HEAD_IBAN \
            ,dbdef.CELL_CSV_HEAD_BIC,dbdef.CELL_CSV_HEAD_WERT \
           ,dbdef.CELL_CSV_HEAD_DATUM,dbdef.CELL_CSV_HEAD_KOMMENTAR]
-  
+
   d = obj.db.dbh.get_tab_data_with_value_in_dict(dbdef.TAB_ANLAGEKONTO,dbdef.CELL_KONTONAME,anlagenkontoname,rliste)
 
   return (d,okay)

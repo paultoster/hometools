@@ -72,7 +72,7 @@
 # index = db.get_data_type_number(datatypename) liest index aus Datatype-Liste
 #
 #
-import os, types, sqlite3
+import os, sys, types, sqlite3
 import re
 import random
 
@@ -80,7 +80,7 @@ import random
 t_path, _ = os.path.split(__file__)
 if( t_path == os.getcwd() ):
 
-  import hfkt_def as hfkt_def
+  import hfkt_def as hdef
   import hfkt as h
 else:
   p_list     = os.path.normpath(t_path).split(os.sep)
@@ -89,7 +89,7 @@ else:
   for i,item in enumerate(p_list): t_path += item + os.sep
   if( os.path.normpath(t_path) not in sys.path ): sys.path.append(t_path)
 
-  from hfkt import hfkt_def as hfkt_def
+  from hfkt import hfkt_def as hdef
   from hfkt import hfkt as h
 #endif--------------------------------------------------------------------------
 
