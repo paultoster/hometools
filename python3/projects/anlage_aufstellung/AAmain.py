@@ -42,23 +42,31 @@ class AAMain:
 
     # Open Logfile
     # ==========================
-    self.log = hlog.log(self.par.logfilename)
+    self.log = hlog.log(self.par.allg.logfilename)
 
     if( self.log.state != hdef.OK):
       print("Logfile not working !!!!")
       exit()
     else:
       self.log.write_e('Parameter: from ini-File %s' % INIFILENAME)
-      self.log.write_e(self.par.logtext)
+      self.log.write_e(self.log.errtext)
     #endif
 
 
     # Start Database
     # ==========================
-    self.db = AADatabase.db(self.log,self.par.dbdatafilename,backup_flag=self.par.backup_flag, backup_dir=self.par.backup_dir)
+    self.db = AADatabase.db(self.log,self.par.allg.dbdatafilename,backup_flag=self.par.allg.backup_flag, backup_dir=self.par.allg.backup_dir)
 
     if( self.db.status != hdef.OK):
       self.log.write_e("see Logfile database not working !!!!",1)
+      exit()
+    #endif
+
+
+    self.db.pruefeAnlagenkontoTabelle(self.par)
+
+    if( self.db.status != hdef.OK):
+      self.log.write_e("see Logfile database table not working !!!!",1)
       exit()
     #endif
 
@@ -71,7 +79,7 @@ class AAMain:
 
     # print(dir(Steuerung.steu))
 
-    self.steu = AASteuerung.steuerung(self.log,self.db,self.commands,self.stat)
+    self.steu = AASteuerung.steuerung(self.log,self.db,self.commands,self.stat,self.par)
 
   #enddef
   def run(self):
@@ -83,7 +91,8 @@ class AAMain:
   #enddef
   def close(self):
 
-    self.db.__del__()
+    if( hasattr(self, 'db') ):
+      self.db.__del__()
 
     print(f"Close logfile: {self.par.logfilename}")
     self.log.close()
@@ -91,10 +100,12 @@ class AAMain:
   #enddef
   def __del__(self):
 
-    self.db.__del__()
+    if( hasattr(self, 'db') ):
+      self.db.__del__()
 
-    print(f"Close logfile: {self.par.logfilename}")
-    self.log.close()
+    if( hasattr(self, 'log') ):
+      print(f"Close logfile: {self.par.logfilename}")
+      self.log.close()
   #enddef
 #endclass
 

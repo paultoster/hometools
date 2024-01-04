@@ -7,6 +7,8 @@ tools_path = "D:\\tools\\tools_tb\\python3"
 if( tools_path not in sys.path ):
     sys.path.append(tools_path)
 
+from dataclasses import make_dataclass
+
 # Hilfsfunktionen
 #from hfkt import hfkt as h
 from hfkt import hfkt_def as hdef
@@ -24,28 +26,46 @@ class AAPar:
   DEBUG_FLAG = False
 
 
-  INIVARLIST = [[u'allg',        u'logfilename',          hdef.DEF_STR,         u'log.txt'      ] \
-               ,[u'allg',        u'dbdatafilename',       hdef.DEF_STR,         u'dbdata.sql'   ] \
-               ,[u'allg',        u'backup_flag',          hdef.DEF_INT,         0               ] \
-               ,[u'allg',        u'backup_dir',           hdef.DEF_STR,         u'.'            ] \
+  SECTION_ALLG      = u'allg'
+  SECTION_KPOSTBANK = u'konto_postbank'
+
+  INIVARLIST = [[SECTION_ALLG,        u'logfilename',              hdef.DEF_STR,    1,     u'log.txt'      ,''] \
+               ,[SECTION_ALLG,        u'dbdatafilename',           hdef.DEF_STR,    1,     u'dbdata.sql'   ,''] \
+               ,[SECTION_ALLG,        u'backup_flag',              hdef.DEF_INT,    1,     0               ,''] \
+               ,[SECTION_ALLG,        u'backup_dir',               hdef.DEF_STR,    1,     u'.'            ,''] \
+               ,[SECTION_ALLG,        u'restore_par_file',         hdef.DEF_STR,    1,     u'restore_ini.dat'             ,'if restore_par_file has a file name it stores parameter after read in this file with all defaults'] \
+               ,[SECTION_KPOSTBANK,   u'iban',                     hdef.DEF_STR,    1,     u''] \
+               ,[SECTION_KPOSTBANK,   u'start_wert',               hdef.DEF_FLT,    1,     0.] \
+               ,[SECTION_KPOSTBANK,   u'start_datum',              hdef.DEF_STR,    1,     u''] \
+               ,[SECTION_KPOSTBANK,   u'csv_header_name',          hdef.DEF_STR,    1,     u''] \
+               ,[SECTION_KPOSTBANK,   u'csv_header_datum',         hdef.DEF_STR,    1,     u''] \
+               ,[SECTION_KPOSTBANK,   u'csv_header_wert',          hdef.DEF_STR,    1,     u''] \
+               ,[SECTION_KPOSTBANK,   u'csv_header_kommentar',     hdef.DEF_STR,    1,     u''] \
+               ,[SECTION_KPOSTBANK,   u'csv_header_iban',          hdef.DEF_STR,    1,     u''] \
+               ,[SECTION_KPOSTBANK,   u'csv_header_waehrung',      hdef.DEF_STR,    1,     u''] \
                ]
 
+
+
   def __init__(self):
-    self.logfilename       = ""      # log-filename to write log file
-    self.dbdatafilename    = ""      # data-base-file-name
-    self.backup_flag       = 0
-    self.backup_dir        = ""
     self.status            = hdef.OK
     self.errtext           = ""
     self.logtext           = ""
+    self.list_konto_name   = []   # list of all konto names see down
 
   def read_ini_file(self,inifile):
     """
     read ini-File to get
-    self.logfilename            Logfilename
-    self.dbdatafilename         Datenbasis-Dateiname
-    self.backup_flag            flag if back to write
-    self.backup_dir             directory for backup
+    self.allg.logfilename            Logfilename
+    self.allg.dbdatafilename         Datenbasis-Dateiname
+    self.allg.backup_flag            flag if back to write
+    self.allg.backup_dir             directory for backup
+
+    self.kname1.iban                 first konto iban
+    .
+    .
+    .
+
     """
     (self.status,self.errtext,out) = hini.readini(inifile,self.INIVARLIST)
 
@@ -53,21 +73,34 @@ class AAPar:
       self.errtext = "Fehler Einlesen Ini-DAtei: <%s>  %s" % (inifile,self.errtext)
       return self.status
 
+    # build dataclas allg
+    Allg = make_dataclass(self.SECTION_ALLG,out[self.SECTION_ALLG])
+    self.allg = Allg(**out[self.SECTION_ALLG])
+
+    # build dataclass kont_postbank
+    Kpostbank = make_dataclass(self.SECTION_KPOSTBANK,out[self.SECTION_KPOSTBANK])
+    self.konto_postbank = Kpostbank(**out[self.SECTION_KPOSTBANK])
 
 
-    self.logfilename     = out['allg']['logfilename']
-    self.dbdatafilename  = out['allg']['dbdatafilename']
-    self.backup_flag     = out['allg']['backup_flag']
-    self.backup_dir      = out['allg']['backup_dir']
+    # build lidt of all kontos
+    self.list_konto_name = [self.SECTION_KPOSTBANK]
 
-    if( self.backup_flag and (len(self.backup_dir)==0) ):
-      self.backup_flag = 0
+    if( self.allg.backup_flag and (len(self.allg.backup_dir)==0) ):
+      self.allg.backup_flag = 0
+    #endif
+
+    if( len(self.allg.restore_par_file) > 0 ):
+      hini.writeini(self.allg.restore_par_file,out)
+    #endif
+
+
 
     self.logtext = "================================================================================\n"+ \
-                   "%-20s: %s\n" % ("Logfilename",self.logfilename) + \
-                   "%-20s: %s\n" % ("Datbasefilename",self.dbdatafilename) + \
-                   "%-20s: %i\n" % ("BackupFlag",self.backup_flag) + \
-                   "%-20s: %s\n" % ("Backuppath",self.backup_dir) + \
+                   "%-20s: %s\n" % ("Logfilename",self.allg.logfilename) + \
+                   "%-20s: %s\n" % ("Datbasefilename",self.allg.dbdatafilename) + \
+                   "%-20s: %i\n" % ("BackupFlag",self.allg.backup_flag) + \
+                   "%-20s: %s\n" % ("Backuppath",self.allg.backup_dir) + \
+                   "%-20s: %s\n" % ("RestoreParFile",self.allg.restore_par_file) + \
                    "================================================================================\n"
 
     return self.status

@@ -7,7 +7,6 @@ from hfkt import hfkt_log as hlog
 from hfkt import sguicommand
 
 from .FktSteuerungAnlage import fkt_steu_anlage
-from .FktSteuerungAnlagekonto import fkt_steu_anlage_konto
 from .FktSteuerungAnlagekontoUmsatzCSV import fkt_steu_anlage_konto_umsatz_csv
 
 
@@ -20,13 +19,13 @@ class steuerung:
   DEBUG_FLAG = False
   #-------------------------------------------------------------------------------
   #-------------------------------------------------------------------------------
-  def __init__(self,log,db,commands,stat):
+  def __init__(self,log,db,commands,stat,par):
 
     self.stat     = stat
     self.log      = log
     self.db       = db
     self.commands = commands
-
+    self.par      = par
 
     self.log.write_e(text="AASteuerung Init done",screen=0)
   #enddef
@@ -36,14 +35,14 @@ class steuerung:
   #-----------------------------------------------------------------------------
   def runStart(self):
 
-    LISTE0 = ["Anlagekonto","Anlage","Ende"]
+
 
     while(True ):
 
       #------------------------------------------------------------
       # Abfrage LIST0
       #------------------------------------------------------------
-      index  = sguicommand.abfrage_liste_index(LISTE0,self.commands)
+      index  = sguicommand.abfrage_liste_index(["Anlagekonto","Anlage","Ende"],self.commands)
 
       #------------------------------------------------------------
       # Anlagekonto
@@ -79,33 +78,21 @@ class steuerung:
   #-----------------------------------------------------------------------------
   def runAnlagenkonto(self):
 
-    LISTE0 = ["Anlagenkonto bearbeiten","Umsatz csv einlesen","Ende"]
 
     while(True ):
 
       #------------------------------------------------------------
       # Abfrage LIST0
       #------------------------------------------------------------
-      index  = sguicommand.abfrage_liste_index(LISTE0,self.commands)
-
-     #------------------------------------------------------------
-      # bearbeiten
-      #------------------------------------------------------------
-      if( index == 0 ):
-
-        fkt_steu_anlage_konto(self)
-
-        if( self.stat.is_NOT_OKAY() ):
-
-          self.stat.setErrTextFront("Error fkt_steu_anlage_konto:")
-
-        #endif
+      index  = sguicommand.abfrage_liste_index(["Umsatz csv einlesen","Ende"],self.commands)
 
       #------------------------------------------------------------
       # umsatz csv abfrage
       #------------------------------------------------------------
-      elif( index == 1 ):
+      if( index == 0 ):
+
         fkt_steu_anlage_konto_umsatz_csv(self)
+
         if( self.stat.is_NOT_OKAY() ):
           self.stat.setErrTextFront("Error fkt_steu_anlage_konto_umsatz_csv:")
           t = self.stat.getErrText()

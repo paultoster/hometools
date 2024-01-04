@@ -34,6 +34,7 @@ else:
 #endif--------------------------------------------------------------------------
 class log:
   state            = hfkt_def.OKAY
+  errtext          = ""
   logfile_out_flag = False
   log_message      = []
   def __init__(self,log_file=None):
@@ -67,7 +68,8 @@ class log:
       self.logfile_out_flag = True
 
     except IOError:
-      print("IO-error of opening log_file <%s>" % log_file)
+      self.errtext = "IO-error of opening log_file <%s>" % log_file
+      print(self.errtext)
       self.state            = hfkt_def.NOT_OK
       self.logfile_out_flag = False
       self.fid              = 0

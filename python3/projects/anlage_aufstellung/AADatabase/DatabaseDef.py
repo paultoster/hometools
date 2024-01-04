@@ -27,13 +27,6 @@ CELL_KONTONR        = 'Kontonummer'
 CELL_KONTOBLZ       = 'Kontobankleitzahl'
 CELL_KONTOIBAN      = 'KontoIBAN'
 CELL_KONTOSTAND     = 'Kontstand'
-CELL_ANFANGSDATUM   = 'Anfangsdatum'
-CELL_CSV_HEAD_NAME       = 'CsvHeadName'
-CELL_CSV_HEAD_DATUM      = 'CsvHeadDatum'
-CELL_CSV_HEAD_WERT       = 'CsvHeadWert'
-CELL_CSV_HEAD_KOMMENTAR  = 'CsvHeadKommentar'
-CELL_CSV_HEAD_IBAN       = 'CsvHeadIBAN'
-CELL_CSV_HEAD_BIC        = 'CsvHeadBIC'
 
 
 
@@ -75,13 +68,6 @@ DBDEFLISTE = {TAB_ANLAGEKONTO:  {'type':hdbh.DB_TAB_TYPE_BUILD,'comment':'Tabell
                                           ,CELL_KONTOBLZ:  {'type':hdb.DB_DATA_TYPE_STR,'unit':'[]','comment':'Kontobankleitzahl'} \
                                           ,CELL_KONTOIBAN: {'type':hdb.DB_DATA_TYPE_STR,'unit':'[]','comment':'Konto IBAN Nummer'} \
                                           ,CELL_KONTOSTAND: {'type':hdb.DB_DATA_TYPE_CENT,'unit':'[Cent]','comment':'Kontoanfangsstand'} \
-                                          ,CELL_ANFANGSDATUM: {'type':hdb.DB_DATA_TYPE_DATUM,'unit':'[]','comment':'Konto Datum Anfangsstand'}\
-                                          ,CELL_CSV_HEAD_NAME: {'type':hdb.DB_DATA_TYPE_STR,'unit':'[]','comment':'csv Header String Variable für Name'}\
-                                          ,CELL_CSV_HEAD_DATUM: {'type':hdb.DB_DATA_TYPE_STR,'unit':'[]','comment':'csv Header String Variable für Datum'}\
-                                          ,CELL_CSV_HEAD_WERT: {'type':hdb.DB_DATA_TYPE_STR,'unit':'[]','comment':'csv Header String Variable für Wert'}\
-                                          ,CELL_CSV_HEAD_KOMMENTAR: {'type':hdb.DB_DATA_TYPE_STR,'unit':'[]','comment':'csv Header String Variable für Kommentar'}\
-                                          ,CELL_CSV_HEAD_IBAN: {'type':hdb.DB_DATA_TYPE_STR,'unit':'[]','comment':'csv Header String Variable für IBAN'}\
-                                          ,CELL_CSV_HEAD_BIC: {'type':hdb.DB_DATA_TYPE_STR,'unit':'[]','comment':'csv Header String Variable für BIC'}\
                                           } \
                                 } \
               ,TAB_BUCHUNG:      {'type':hdbh.DB_TAB_TYPE_BUILD,'comment':'einzelne Buchung eines Anlagenkontos'   \

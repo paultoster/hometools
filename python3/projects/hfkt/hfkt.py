@@ -91,6 +91,7 @@
 # def get_size_of_dir(Path,size=0): Gibt Größe des gesamten Unterverzeichnispfad an
 # def join(part0="",part1="",part2="",part3="",part4="",part5=""):Setzt Dateiname zusammen
 # (path,fbody,ext) = get_pfe(full_file): Gibt Pfad,Filebody und Extension zurück
+# full_file = set_pfe(path,fbody,ext): bildet ein Filename
 # def remove_dir_all(dir_name): Löscht den Pfad
 # def remove_named_dir(dir_name,delete_name,recursive): Loescht von dir_name die Ordber delete_name rekursiv oder nicht weg
 # def is_textfile(filename, blocksize = 512) checks if file is an text-file
@@ -169,12 +170,14 @@
 # def datum_intliste_to_int(dat_l):  Wandelt Liste in ein int
 # def datum_int_to_intliste(intval): int -> liste
 # def datum_str_to_int(str_dat,delim="."): Wandelt string in ein int
+# def datum_int_to_str(intval,delim="."):
 # def datum_intliste_to_str(int_liste,delim="."):
 # def datum_str_to_year_int(str_dat,delim="."):
 # def datum_str_to_month_int(str_dat,delim="."):
 # def datum_str_to_day_int(str_dat,delim="."):
 # def secs_time_epoch_find_next_day(secs,idaynext):
 # flag =  is_datum_str(str_dat,delim=".")   flag = True/False
+# flag =  is_datum_int(intval)
 # def get_name_by_dat_time(pre_text,post_text) Gibt Name gebildet aus localtime und text
 # def diff_days_from_time_tuples(time_tuple_start,time_tuple_end) Bildet die Differenz der Tage über 0:00
 # def string_cent_in_euro(cents):
@@ -3824,6 +3827,12 @@ def datum_str_to_int(str_dat,delim="."):
     """
     return datum_intliste_to_int(datum_str_to_intliste(str_dat,delim))
 
+def datum_int_to_str(intval,delim="."):
+    """ Die Zahle intval wird in string 20040512 =>
+        in "tag.monat.jahr" um "12.05.2004"
+    """
+    return datum_intliste_to_str(datum_int_to_intliste(intval))
+
 def datum_intliste_to_str(int_liste,delim="."):
     """ Wandelt Datumliste z.B (12,5,2004) in
         in "tag.monat.jahr" um "12.05.2004"
@@ -3899,6 +3908,25 @@ def is_datum_str(str_dat,delim="."):
     except:
         flag = False
     return flag
+
+def is_datum_int(intval):
+  """ Prüft, ob intval ein Datum wie 20050301 ist
+    """
+
+  flag = False
+
+  liste = datum_int_to_intliste(intval)
+
+  if( (liste[0] > 0) and (liste[0] < 32)
+    and (liste[1] > 0) and (liste[1] < 13)
+    and ( ((liste[2] > 1970) and (liste[2] < 2100)) or ((liste[2] > 0) and (liste[2] < 21))) ):
+      flag = True
+  #endif
+
+  return flag
+#enddo
+
+
 def get_name_by_dat_time(pre_text="",post_text="",form_type=0):
     """
     Gibt Name gebildet aus localtime und pre_text und post_text

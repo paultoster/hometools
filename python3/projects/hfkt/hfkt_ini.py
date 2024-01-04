@@ -7,8 +7,8 @@
 #
 #     ini_file                   Name des ini-Files
 #     dlist                     doppelte liste mit zu erwartenden Variablen
-#     dlist  = [['section1','varname1',typ1,'default1'] \
-#              ,['section2','varname2',typ2,'default2'] \
+#     dlist  = [['section1','varname1',typ1,set_default1,'default1'] \
+#              ,['section2','varname2',typ2,set_default2,'default2'] \
 #              ]
 #              varname           Variablenname
 #              section           Sektion in [] geschrieben
@@ -17,11 +17,13 @@
 #                                hdef.DEF_STR      string-Wert
 #                                hdef.DEF_VEC      Vektor als Liste 1,2,3.2,-0.1
 #                                                   oder   [1,2,3.2,-0.1]
+#              set_default       0/1  not set/set default
 #              default           '' kein default m�glich
 #                                '1.0' immer als Text
 import os
 import configparser
 import sys
+
 
 #-------------------------------------------------------------------------------
 t_path, _ = os.path.split(__file__)
@@ -88,13 +90,14 @@ def readini( ini_file, dliste=None ):
       sect = liste[0]
       name = liste[1]
       typ  = liste[2]
-      defa = liste[3]
+      setdef = liste[3]
+      defa = liste[4]
       if( config.has_section(sect) and config.has_option(sect,name) ):
         val = config.get(sect, name)
-      elif( not h.isempty(defa) ):
+      elif( setdef != 0 ):
         val = defa
       else:
-        outtext = "%i. Variable ist nicht in ini-File <%s> " % (ii,ini_file)
+        outtext = "%i. Variable <%s.%s> ist nicht in ini-File <%s> " % (ii,sect,name,ini_file)
         return (hdef.NOT_OK,outtext,out)
 
       if( typ == hdef.DEF_FLT ):
@@ -128,3 +131,16 @@ def readini( ini_file, dliste=None ):
 
 
   return (hdef.OK,outtext,out)
+#enddef
+def writeini(ini_file_name,out):
+  config = configparser.ConfigParser()
+
+  for key1 in out.keys():
+    config[key1] = out[key1]
+  #endfor
+
+  with open(ini_file_name, 'w') as configfile:
+
+    config.write(configfile)
+  #endwith
+#enddef

@@ -14,7 +14,7 @@ from AADatabase import DatabaseDef as dbdef,Database
 
 cells_which_must_be_filled = [dbdef.CELL_KONTONAME,dbdef.CELL_KONTONR \
                              ,dbdef.CELL_KONTOBLZ,dbdef.CELL_KONTOIBAN \
-                            ,dbdef.CELL_KONTOSTAND,dbdef.CELL_ANFANGSDATUM]
+                            ,dbdef.CELL_KONTOSTAND]
 
 #------------------------------------------------------------
 # Anlage bearbeiten

@@ -16,12 +16,9 @@ from hfkt import hfkt as h
 from hfkt import hfkt_db_handle  as hdbh
 from hfkt import hfkt_status as hstatus
 
+
 from AADatabase import DatabaseDef as dbdef
-from .FktDatabaseGetAnlagekontoDaten import fkt_db_get_anlage_konto_daten
-from .FktDatabaseGetAnlagekontoDaten import fkt_db_get_anlage_konto_header_liste
-from .FktDatabaseGetAnlagekontenListe import fkt_db_get_anlagen_konten_liste
-from .FktDatabaseLoescheAnlagenkonto import fkt_db_loesche_anlagen_konto
-from .FktDatabaseSetAnlagenkontoDaten import fkt_db_set_anlagen_konto_daten
+from AADatabase import fkt_db_anlagen_konto
 
 #===============================================================================
 #===============================================================================
@@ -73,16 +70,39 @@ class db:
   #enddef
   #-------------------------------------------------------------------------------
   #-------------------------------------------------------------------------------
+  def pruefeAnlagenkontoTabelle(self,par):
+  #-------------------------------------------------------------------------------
+  #-------------------------------------------------------------------------------
+
+    self.status = hdef.OK
+
+    (status,okay,errText) = fkt_db_anlagen_konto.proof_table(self.dbh,par.list_konto_name)
+
+
+
+    if( status != self.dbh.OKAY ):
+      self.status = dbdef.NOT_OKAY
+      self.errText = f"Error fkt_db_loesche_anlagen_konto: {errText}"
+      self.log.write_err(errText,1)
+    else:
+      self.status = dbdef.OKAY
+      self.errText = ""
+    #endif
+
+    return flag
+  #enddef
+  #-------------------------------------------------------------------------------
+  #-------------------------------------------------------------------------------
   def getAnlagenkontenHeaderList(self):
 
-    (header_liste,status,errText) = fkt_db_get_anlage_konto_header_liste(self.dbh)
+    (header_liste,status,errText) = fkt_db_anlagen_konto.get_header_list(self.dbh)
 
     return header_liste
   #-------------------------------------------------------------------------------
   #-------------------------------------------------------------------------------
   def getAnlagenkontenDaten(self,anlagekontoname: str):
 
-    (d,status,errText) = fkt_db_get_anlage_konto_daten(self.dbh,anlagekontoname)
+    (d,status,errText) = fkt_db_anlagen_konto.get_data(self.dbh,anlagekontoname)
 
     if( status == self.dbh.NOT_OKAY ):
 
@@ -103,7 +123,7 @@ class db:
   #-------------------------------------------------------------------------------
   def getAnlagekontenListe(self):
 
-    (r,status,errText) = fkt_db_get_anlagen_konten_liste(self.dbh)
+    (r,status,errText) = fkt_db_anlagen_konto.get_name_list(self.dbh)
 
     if( status != self.dbh.OKAY ):
       self.status = dbdef.NOT_OKAY
@@ -120,7 +140,7 @@ class db:
   #-------------------------------------------------------------------------------
   def setAnlagenkontoDaten(self,kontoname: str,dout: dict):
 
-    (status,errText) = fkt_db_set_anlagen_konto_daten(self.dbh,kontoname,dout)
+    (status,errText) = fkt_db_anlagen_konto.set_data(self.dbh,kontoname,dout)
 
     if( status != self.dbh.OKAY ):
       self.status = dbdef.NOT_OKAY
@@ -139,7 +159,7 @@ class db:
   def loescheAnlagenkonto(self,kontoname: str):
   #-------------------------------------------------------------------------------
   #-------------------------------------------------------------------------------
-    (flag,status,errText) = fkt_db_loesche_anlagen_konto(self.dbh,kontoname)
+    (flag,status,errText) = fkt_db_anlagen_konto.erase_konto(self.dbh,kontoname)
 
     if( status != self.dbh.OKAY ):
       self.status = dbdef.NOT_OKAY

@@ -36,6 +36,9 @@ rem python -m pip install PythonTurtle
 
 rem python -m pip install svg.path
 
-python -m pip install ConfigParser
+rem python -m pip install ConfigParser
+
+python -m pip install munch
+
 
 pause

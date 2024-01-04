@@ -594,7 +594,7 @@ class db:
 #============================================================================================================================
   def del_cell_in_table(self,deftabname,defcellname):
     """
-    Lï¿½scht eine Zelle in Tablle
+    Löscht eine Zelle in Tablle
     """
     try:
       columns = [ c[1] for c in self.cur.execute("PRAGMA table_info(%s)" % deftabname) ]
@@ -622,7 +622,7 @@ class db:
       self.cur.execute("DROP TABLE %s" % temp)
       self.modify_flag = True
 
-    except (sqlite3.Error, e):
+    except Exception as e:
       self.errText = "Tabelle: <%s> gibt Fehler:<%s>" % (deftabname,e.args[0])
       self.status  = self.NOT_OKAY
     #endtry
