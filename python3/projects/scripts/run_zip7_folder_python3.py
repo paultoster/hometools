@@ -7,7 +7,11 @@ from tkinter.constants import *
 import tkinter.filedialog
 import py7zr
 
-import hfkt as h
+tools_path = os.getcwd() + "\\.."
+if( tools_path not in sys.path ):
+    sys.path.append(tools_path)
+
+from tools import hfkt as h
 
 
   

@@ -9,17 +9,15 @@
 # Copyright:   (c) tom 2023
 # Licence:     <your licence>
 # -------------------------------------------------------------------------------
-import os
-import sys
 
-sys.path.append('K:/tools/python3/allg')
+import sys, os
 
-import hfkt as h
+tools_path = os.getcwd() + "\\.."
+if( tools_path not in sys.path ):
+    sys.path.append(tools_path)
+
+from tools import hfkt as h
 from markdownify import markdownify
-
-
-
-
 
 
 if __name__ == '__main__':

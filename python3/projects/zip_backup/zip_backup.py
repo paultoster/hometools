@@ -80,13 +80,17 @@
 #
 
 import os, sys, time, string, zipfile, types
-import gzip, cPickle
+import gzip, pickle
 import sys
 from stat import *
 
-from hfkt import hfkt as h
-from hfkt import hfkt2 as h2
-from hfkt import nzipfile
+tools_path = os.getcwd() + "\\.."
+if (tools_path not in sys.path):
+    sys.path.append(tools_path)
+
+from tools import hfkt as h
+from tools import hfkt2 as h2
+from tools import nzipfile
 
 OKAY     = 1
 NOT_OKAY = 0
@@ -140,9 +144,9 @@ class Proof:
         #-----------------------
         found_flag = False
         if( target_path ):
-            if( type(target_path) is types.StringType ):
+            if( isinstance(target_path, str)):
                 self.TARGET_PATH = target_path
-            elif( type(target_path) is types.ListType ):
+            elif(  isinstance(target_path, list)):
                 self.TARGET_PATH = target_path[0]
 
 
@@ -324,9 +328,9 @@ class Clean:
         #-----------------------
         found_flag = False
         if( target_path ):
-            if( type(target_path) is types.StringType ):
+            if( isinstance(target_path, str)):
                 self.TARGET_PATH = target_path
-            elif( type(target_path) is types.ListType ):
+            elif( isinstance(target_path, list) ):
                 self.TARGET_PATH = target_path[0]
 
 
@@ -770,9 +774,11 @@ class Restore:
                 if( zip_name ):
 
                     full_zip_name  = os.path.join(rs_path,zip_name)
-                    full_rest_name = os.path.join(rt_path,key)
+                    # full_rest_name = os.path.join(rt_path,key)
+                    rest_name      = key
 
-                    self.restore_file(full_zip_name,full_rest_name,rt_path)
+#                    self.restore_file(full_zip_name,full_rest_name,rt_path)
+                    self.restore_file(full_zip_name,rest_name,rt_path)
             else:
                 print(key)
 
@@ -844,18 +850,20 @@ class Restore:
         return None
 
 ############################################################################
-    def restore_file(self,full_zip_name,full_rest_name,rest_path):
+    def restore_file(self,full_zip_name,rest_name,rest_path):
         """ Holt File aus dem zip-File und schreibt zurueck
         """
         if( os.path.exists(full_zip_name) ):
 
-            print("res: %s -> %s" % (full_zip_name,full_rest_name))
-            if( nzipfile.ZipFile.UnzipSimple(full_zip_name,rest_path) != 1 ):
-                try:
-                    i = os.system("unzip -qo \"" + full_zip_name + "\" -d \"" + rest_path + "\"" )
-                    print("!!! unzip.exe verwendet")
-                except:
-                    print(">>>>>> restore from zip-file failed !!!!!")
+            print("res: %s -> %s" % (full_zip_name,rest_name))
+            with zipfile.ZipFile(full_zip_name, mode="r") as archive:
+                archive.extract(rest_name,path=rest_path)
+
+##                try:
+##                    i = os.system("unzip -qo \"" + full_zip_name + "\" -d \"" + rest_path + "\"" )
+##                    print("!!! unzip.exe verwendet")
+##                except:
+##                    print(">>>>>> restore from zip-file failed !!!!!")
 
 #            print "unzip -qo " + full_zip_name + " -d " + rest_path
             # os.system("unzip -qo " + full_zip_name + " -d " + rest_path )
@@ -874,7 +882,7 @@ class Restore:
 ##            f.write(erg)
 ##            f.close()
         else:
-            print("err:  %s -> %s" % (full_zip_name,full_rest_name))
+            print("err:  %s -> %s" % (full_zip_name,rest_name))
             print("File does not exist")
 
 
@@ -1022,9 +1030,9 @@ class Backup:
             self.STATUS = NOT_OKAY
             return self.STATUS
         else:
-            if( type(liste) is types.StringType ):
+            if( isinstance(liste, str) ):
                 self.SOURCE_PATH = liste
-            elif( type(liste) is types.ListType ):
+            elif( isinstance(liste, list)):
                 self.SOURCE_PATH = liste[0]
 
         #---------------
@@ -1037,9 +1045,9 @@ class Backup:
             self.STATUS = NOT_OKAY
             return self.STATUS
         else:
-            if( type(liste) is types.StringType ):
+            if( isinstance(liste, str)):
                 self.TARGET_PATH = liste
-            elif( type(liste) is types.ListType ):
+            elif( isinstance(liste, list) ):
                 self.TARGET_PATH = liste[0]
 
         #----------------------
@@ -1051,7 +1059,7 @@ class Backup:
         else:
             self.EXCLUDE_REL_PATH_LIST = []
 
-        if( type(self.EXCLUDE_REL_PATH_LIST) is not types.ListType ):
+        if( not isinstance(self.EXCLUDE_REL_PATH_LIST, list) ):
             print("ZipBackup.error: <%s> aus Eingabe dictionary ist kein Liste [] " % A_EXCLUDE_REL_PATH)
             self.STATUS = NOT_OKAY
             return
@@ -1088,11 +1096,11 @@ class Backup:
         #-------------------
         liste = dict.get(A_MAX_BACKUPS)
         if( liste != None):
-            if( type(liste) is types.StringType ):
+            if( isinstance(liste,str)  ):
                 self.MAX_BACKUPS = int(liste)
-            elif( type(liste) is types.ListType ):
+            elif( isinstance(liste,list) ):
                 liste            = liste[0]
-                if( type(liste) is types.StringType ):
+                if( isinstance(liste,str) ):
                     self.MAX_BACKUPS = int(liste)
                 else:
                     self.MAX_BACKUPS = liste
@@ -1106,11 +1114,11 @@ class Backup:
         #============================
         liste = dict.get(A_PROOF_TAR_PATH)
         if( liste != None):
-            if( type(liste) is types.StringType ):
+            if( isinstance(liste,str) ):
                 self.PROOF_TAR_PATH = int(liste)
-            elif( type(liste) is types.ListType ):
+            elif( isinstance(liste,list) ):
                 liste            = liste[0]
-                if( type(liste) is types.StringType ):
+                if( isinstance(liste,str) ):
                     self.PROOF_TAR_PATH = int(liste)
                 else:
                     self.PROOF_TAR_PATH = liste
@@ -1835,7 +1843,11 @@ class Backup:
         else:
             print("New Ver(%i): %s" % (int(self.D[A_ACT_VERSION]), zip_full_file_name))
 
-        okay = zipfile.ZipSimple(zip_full_file_name,full_file_name,filename)
+
+        with zipfile.ZipFile(zip_full_file_name, 'w') as new_zip:
+            new_zip.write(full_file_name,arcname=filename, compress_type=zipfile.ZIP_DEFLATED)
+
+        okay = True  # zipfile.ZipFile(zip_full_file_name,full_file_name,filename)
 
 ##        if( self.count == 170 ):
 ##            okay = okay

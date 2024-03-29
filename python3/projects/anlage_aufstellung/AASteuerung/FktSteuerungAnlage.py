@@ -1,10 +1,10 @@
 import sys
 
 # Hilfsfunktionen
-from hfkt import hfkt as h
-from hfkt import hfkt_def as hdef
-from hfkt import hfkt_log as hlog
-from hfkt import sguicommand
+from tools import hfkt as h
+from tools import hfkt_def as hdef
+from tools import hfkt_log as hlog
+from tools import sguicommand
 
 #------------------------------------------------------------
 # Anlage bearbeiten

@@ -6,12 +6,12 @@ if( tools_path not in sys.path ):
   sys.path.append(tools_path)
 
 # Hilfsfunktionen
-from hfkt import hfkt as h
-from hfkt import hfkt_def as hdef
-from hfkt import hfkt_log as hlog
-from hfkt import hfkt_status as status
-from hfkt import sguicommand
-from hfkt import hfkt_commands as hcommand
+from tools import hfkt as h
+from tools import hfkt_def as hdef
+from tools import hfkt_log as hlog
+from tools import hfkt_status as status
+from tools import sguicommand
+from tools import hfkt_commands as hcommand
 
 from .FktSteuerungAnlagekontoBearbeiten import fkt_steu_anlage_konto_bearbeit
 

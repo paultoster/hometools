@@ -12,7 +12,7 @@
 from dataclasses import dataclass
 from typing import List
 
-from hfkt import hfkt_str as hs
+from tools import hfkt_str as hs
 
 import small_vector_graphic_classes as c
 import small_vector_graphic_defines as d

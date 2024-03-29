@@ -1,8 +1,7 @@
 import os,sys
 
-tools_path = "K:\\tools\\python3\\projects"
-
-if( tools_path not in sys.path ):
+tools_path = os.getcwd()
+if (tools_path not in sys.path):
     sys.path.append(tools_path)
 
 import zip_backup as zb

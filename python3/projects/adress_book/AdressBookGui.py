@@ -16,10 +16,11 @@ import tkinter.messagebox as tkMessageBox
 import os
 import sys
 
-if("D:\\tools\\python" not in sys.path):
-    sys.path.append("D:\\tools\\python")
+tools_path = os.getcwd() + "\\.."
+if( tools_path not in sys.path ):
+    sys.path.append(tools_path)
 
-import hfkt as h
+from tools import hfkt as h
 
 GROUP_NAME_ID       = 1
 ADRESS_LIST_ID      = 2

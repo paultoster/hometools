@@ -2,46 +2,31 @@
 # rename path and filenames and content
 #
 import os
-import hfkt as h
+import sys
+
+tools_path = os.getcwd() + "\\.."
+if (tools_path not in sys.path):
+    sys.path.append(tools_path)
+
+from tools import hfkt as h
 
 
 
-""" old_name_list = ["admotioncontrol"]
-new_name_list = ["thomaspaulberthold"]
-old_name_list = ["thomaspaulberthold"]
-new_name_list = ["admotioncontrolvehicle"]
-old_name_list = ["ADMotionControl"]
-new_name_list = ["ThomasPaulBerthold"]
-old_name_list = ["ThomasPaulBerthold"]
-new_name_list = ["ADMotionControlVehicle"]
+"""
+start_dir_vorschlag="K:/media/ton/mp3/m3u"
+old_name_list = ["K:\\media\ton"]
+new_name_list = ["K:\\media\\ton"]
+extension_list = ["m3u"]
+"""
 
 
-start_dir_vorschlag="D:\\RTAS_modules\\mod"
-
-old_name_list = ["admotioncontrol"]
-new_name_list = ["thomaspaulberthold"]
-old_name_list = ["thomaspaulberthold"]
-new_name_list = ["admotioncontrolcube"]
-old_name_list = ["ADMotionControl"]
-new_name_list = ["ThomasPaulBerthold"]
-old_name_list = ["ThomasPaulBerthold"]
-new_name_list = ["ADMotionControlCubE"]
-
-start_dir_vorschlag="D:\\RTAS_work\\RPECU_B8_HUD_SAI\\linked_build\\app\\tc1793_dana\\prj\\phad2018_rtas_b8"
-start_dir_vorschlag="D:\\RTAS_work\\RPECU_CUBE_JP1_PHAD2018\\linked_build\\app\\tricore_1793\\prj\\phad2018_rtas_cube"
-start_dir_vorschlag="D:\\RTAS_work\\RPECU_CUBE_1_PHAD2018\\linked_build\\app\\tricore_1793\\prj\\phad2018_rtas_cube"
-
-old_name_list = ["rpecu_b8_ad_tz"]
-new_name_list = ["thomaspaulberthold"] 2022-07-20-11-25-21-250_F-TZ_9900_HUD_
- """
-
-
-start_dir_vorschlag="D:/GitContiDriver/ContiDriver_branch/src/MotionReqTestTraj/algorithm"
-old_name_list = ["TrackHandling"]
-new_name_list = ["TrackTrigger"]
+start_dir_vorschlag="C:\\Users\\lino\\AppData\\Roaming\\foobar2000"
+old_name_list = ["D:\\ton"]
+new_name_list = ["K:\\media\\ton"]
+extension_list = ["fpl","cfg","flg"]
 
 change_path_name    = 0
-change_file_name    = 1
+change_file_name    = 0
 change_file_content = 1
 
 n = min(len(old_name_list),len(new_name_list))
@@ -80,7 +65,7 @@ for i in range(n):
 
 
   liste = []
-  liste = h.get_liste_of_subdir_files(start_dir,liste=liste)
+  liste = h.get_liste_of_subdir_files(start_dir,liste=liste,search_ext=extension_list)
 
   for item in liste:
 

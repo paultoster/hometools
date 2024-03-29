@@ -38,7 +38,8 @@ rem python -m pip install svg.path
 
 rem python -m pip install ConfigParser
 
-python -m pip install munch
+rem python -m pip install munch
 
+python -m pip install pywin32
 
 pause

@@ -8,9 +8,15 @@
 # Copyright:   (c) lino 2023
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
-import hfkt_io as hio
-import hfkt_file_path as hfp
-import hfkt_str as hstr
+import sys, os
+
+tools_path = os.getcwd() + "\\.."
+if (tools_path not in sys.path):
+    sys.path.append(tools_path)
+
+from tools import hfkt_io as hio
+from tools import hfkt_file_path as hfp
+from tools import hfkt_str as hstr
 
 EXT_LISTE = ["png","jpg","jpeg"]
 

@@ -17,7 +17,7 @@ import small_vector_graphic_defines as d
 import small_vector_graphic_helper  as h
 
 
-from hfkt import hfkt_str as hs
+from tools import hfkt_str as hs
 
 
 def find_plot_commands(csd: c.CCommandStrData) -> List[list]:

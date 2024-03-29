@@ -18,7 +18,7 @@ import small_vector_graphic_defines as d
 import small_vector_graphic_helper  as h
 
 
-from hfkt import hfkt_str as hs
+from tools import hfkt_str as hs
 
 def build_geo_objects(csd: c.CCommandStrData,command_liste: List[c.CBasic],coordsysname: str) -> (bool, str,List[c.CBasic]):
   """

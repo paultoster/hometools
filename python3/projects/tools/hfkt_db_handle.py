@@ -282,10 +282,10 @@ else:
   for i,item in enumerate(p_list): t_path += item + os.sep
   if( os.path.normpath(t_path) not in sys.path ): sys.path.append(t_path)
 
-  from hfkt import hfkt     as h
-  from hfkt import hfkt_def as hdef
-  from hfkt import hfkt_ini as hini
-  from hfkt import hfkt_db  as hdb
+  from tools import hfkt     as h
+  from tools import hfkt_def as hdef
+  from tools import hfkt_ini as hini
+  from tools import hfkt_db  as hdb
 #endif--------------------------------------------------------------------------
 
 

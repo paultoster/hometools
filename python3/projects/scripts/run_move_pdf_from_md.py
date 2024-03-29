@@ -10,12 +10,15 @@
 #-------------------------------------------------------------------------------
 
 import sys
-sys.path.append('K:/tools/hometools/python3/allg')
 import os
 import shutil
 
-import hfkt_file_path as hfp
-import hfkt_str as hs
+tools_path = os.getcwd() + "\\.."
+if( tools_path not in sys.path ):
+    sys.path.append(tools_path)
+
+from tools import hfkt_file_path as hfp
+from tools import hfkt_str as hs
 
 md_dir = "K:/data/md/"
 nmd_dir = len(md_dir)

@@ -9,7 +9,7 @@ tools_path = os.getcwd() + "\\.."
 if( tools_path not in sys.path ):
     sys.path.append(tools_path)
 
-from hfkt import hfkt_file_path as hf
+from tools import hfkt_file_path as hf
 
 import small_vector_graphic as s
 import small_vector_graphic_defines as d

@@ -19,8 +19,8 @@ import small_vector_graphic_defines as d
 import small_vector_graphic_helper  as h
 
 
-from hfkt import hfkt_str as hs
-from hfkt import hfkt_list as hl
+from tools import hfkt_str as hs
+from tools import hfkt_list as hl
 
 @dataclass
 class CCanvasData:

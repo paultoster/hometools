@@ -1,7 +1,7 @@
 import sys
 
 # Hilfsfunktionen
-from hfkt import sguicommand
+from tools import sguicommand
 
 #------------------------------------------------------------
 # Anlage bearbeiten

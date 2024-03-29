@@ -5,10 +5,10 @@ if( tools_path not in sys.path ):
     sys.path.append(tools_path)
 
 # Hilfsfunktionen
-from hfkt import hfkt_def as hdef
-from hfkt import hfkt_log as hlog
-from hfkt import hfkt_commands as hcommand
-from hfkt import hfkt_status as hstatus
+from tools import hfkt_def as hdef
+from tools import hfkt_log as hlog
+from tools import hfkt_commands as hcommand
+from tools import hfkt_status as hstatus
 
 from AAPar import AAPar
 import AADatabase

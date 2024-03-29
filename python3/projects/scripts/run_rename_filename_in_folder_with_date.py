@@ -2,7 +2,7 @@
 # rename path and filenames and content
 #
 import os,re
-from hfkt import hfkt as h
+from hfkt_func import hfkt as h
 
 def find_date(fbody):
 

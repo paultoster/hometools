@@ -2,11 +2,11 @@ import sys
 
 
 # Hilfsfunktionen
-from hfkt import hfkt as h
-from hfkt import hfkt_def as hdef
-from hfkt import sguicommand
-from hfkt import hfkt_status as status
-from hfkt import hfkt_commands as hcommand
+from tools import hfkt as h
+from tools import hfkt_def as hdef
+from tools import sguicommand
+from tools import hfkt_status as status
+from tools import hfkt_commands as hcommand
 
 
 from AADatabase import DatabaseDef as dbdef,Database

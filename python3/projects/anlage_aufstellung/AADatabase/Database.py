@@ -12,9 +12,9 @@ if( tools_path not in sys.path ):
   sys.path.append(tools_path)
 
 # Hilfsfunktionen
-from hfkt import hfkt as h
-from hfkt import hfkt_db_handle  as hdbh
-from hfkt import hfkt_status as hstatus
+from tools import hfkt as h
+from tools import hfkt_db_handle  as hdbh
+from tools import hfkt_status as hstatus
 
 
 from AADatabase import DatabaseDef as dbdef

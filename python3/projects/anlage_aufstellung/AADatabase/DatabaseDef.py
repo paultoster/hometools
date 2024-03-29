@@ -1,9 +1,9 @@
 import sys
 
 # Hilfsfunktionen
-from hfkt import hfkt_def as hdef
-from hfkt import hfkt_db_handle  as hdbh
-from hfkt import hfkt_db         as hdb
+from tools import hfkt_def as hdef
+from tools import hfkt_db_handle  as hdbh
+from tools import hfkt_db         as hdb
 
 OKAY       = hdef.OK
 NOT_OKAY   = hdef.NOT_OK

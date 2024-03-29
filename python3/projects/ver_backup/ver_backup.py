@@ -4,7 +4,13 @@
 ############################################################################
 import os, shutil, sys, time, string
 import gzip, pickle
-import hfkt as h
+
+tools_path = os.getcwd() + "\\.."
+if (tools_path not in sys.path):
+    sys.path.append(tools_path)
+
+from tools import hfkt as h
+
 from stat import *
 #import nzipfile
 import zipfile

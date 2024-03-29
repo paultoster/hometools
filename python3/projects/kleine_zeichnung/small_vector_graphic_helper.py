@@ -14,7 +14,7 @@ from typing import List
 import small_vector_graphic_classes as c
 import small_vector_graphic_defines as d
 
-from hfkt import hfkt_str as hs
+from tools import hfkt_str as hs
 
 def prepare_input_lines(input_liste: List[str]) -> (bool, str,c.CCommandStrData):
 

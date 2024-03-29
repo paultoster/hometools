@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import List
 
-from hfkt import hfkt_list as hl
+from tools import hfkt_list as hl
 
 @dataclass
 class CCommandStrData:

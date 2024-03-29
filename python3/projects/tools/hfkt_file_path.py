@@ -72,7 +72,7 @@ else:
   for i,item in enumerate(p_list): t_path += item + os.sep
   if( os.path.normpath(t_path) not in sys.path ): sys.path.append(t_path)
 
-  from hfkt import hfkt_str as hstr
+  from tools import hfkt_str as hstr
 #endif--------------------------------------------------------------------------
 
 

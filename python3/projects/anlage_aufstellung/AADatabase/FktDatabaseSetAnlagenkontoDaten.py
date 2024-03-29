@@ -7,9 +7,9 @@ if( tools_path not in sys.path ):
     sys.path.append(tools_path)
 
 # Hilfsfunktionen
-from hfkt import hfkt as h
+from tools import hfkt as h
 from AADatabase import DatabaseDef as dbdef
-from hfkt import hfkt_db as hdb
+from tools import hfkt_db as hdb
 
 
 #-----------------------------------------------
