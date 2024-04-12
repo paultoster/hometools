@@ -1,0 +1,13 @@
+main_work_dir = D:\tools_matlab_tb
+measure_dir = D:\tools_matlab_tb
+carmaker_project_dir = D:\tools_matlab_tb
+c_datalyser_prc_file = {}
+c_pos_signal_list = {}
+c_neg_signal_list = {}
+datalyser_a2l_file = 
+debug_info_in_prot = 0
+peak_filt_std_fac = 3
+c_my_func_file = {}
+c_analyse_func_file = {}
+res_file = result.dat
+c_dbc_file = {}

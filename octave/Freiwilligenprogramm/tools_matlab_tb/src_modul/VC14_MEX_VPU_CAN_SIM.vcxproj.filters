@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+   <ItemGroup>
+      <Filter Include="sources">
+         <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+         <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+      </Filter>
+      <Filter Include="headers">
+         <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+         <Extensions>h;hpp;hxx;hm;inl;inc;xsd;he</Extensions>
+      </Filter>
+      <Filter Include="resources">
+         <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+         <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+      </Filter>
+      <Filter Include="algo">
+         <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD02}</UniqueIdentifier>
+      </Filter>
+      <Filter Include="CAF_CAP">
+         <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD03}</UniqueIdentifier>
+      </Filter>
+      <Filter Include="common">
+         <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD04}</UniqueIdentifier>
+      </Filter>
+      <Filter Include="protbuf">
+         <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD05}</UniqueIdentifier>
+      </Filter>
+      <Filter Include="src">
+         <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD06}</UniqueIdentifier>
+      </Filter>
+   </ItemGroup>
+   <ItemGroup>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\ArbiDriveCtrlMain.c">
+         <Filter>algo</Filter>
+      </ClCompile>
+      <ClInclude Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\ArbiDriveCtrlMain.h">
+         <Filter>algo</Filter>
+      </ClInclude>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\ArbiDriveCtrlInputs.c">
+         <Filter>algo</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\ArbiDriveCtrlOutputs.c">
+         <Filter>algo</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\ArbiDriveCtrlParameters.c">
+         <Filter>algo</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\ArbiDriveCtrlMainCpp.cpp">
+         <Filter>algo</Filter>
+      </ClCompile>
+      <ClInclude Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\ArbiDriveCtrlMainCpp.h">
+         <Filter>algo</Filter>
+      </ClInclude>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DesiredTraj.cpp">
+         <Filter>algo</Filter>
+      </ClCompile>
+      <ClInclude Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DesiredTraj.h">
+         <Filter>algo</Filter>
+      </ClInclude>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DriveCtrlSttMchn.cpp">
+         <Filter>algo</Filter>
+      </ClCompile>
+      <ClInclude Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DriveCtrlSttMchn.h">
+         <Filter>algo</Filter>
+      </ClInclude>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\VehPoseCalc.cpp">
+         <Filter>algo</Filter>
+      </ClCompile>
+      <ClInclude Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\VehPoseCalc.h">
+         <Filter>algo</Filter>
+      </ClInclude>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\LatParkCntrl.cpp">
+         <Filter>algo</Filter>
+      </ClCompile>
+      <ClInclude Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\LatParkCntrl.h">
+         <Filter>algo</Filter>
+      </ClInclude>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DevToPathC.c">
+         <Filter>algo</Filter>
+      </ClCompile>
+      <ClInclude Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DevToPathC.h">
+         <Filter>algo</Filter>
+      </ClInclude>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DevToPathCpp.cpp">
+         <Filter>algo</Filter>
+      </ClCompile>
+      <ClInclude Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DevToPathCpp.h">
+         <Filter>algo</Filter>
+      </ClInclude>
+      <ClInclude Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DevToPathDef.h">
+         <Filter>algo</Filter>
+      </ClInclude>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DevToPathPreparePath.c">
+         <Filter>algo</Filter>
+      </ClCompile>
+      <ClInclude Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DevToPathPreparePath.h">
+         <Filter>algo</Filter>
+      </ClInclude>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DevToPathPrepareTraj.c">
+         <Filter>algo</Filter>
+      </ClCompile>
+      <ClInclude Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DevToPathPrepareTraj.h">
+         <Filter>algo</Filter>
+      </ClInclude>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DevToPathPrepareModPath.c">
+         <Filter>algo</Filter>
+      </ClCompile>
+      <ClInclude Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DevToPathPrepareModPath.h">
+         <Filter>algo</Filter>
+      </ClInclude>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DevToPathDeviation.c">
+         <Filter>algo</Filter>
+      </ClCompile>
+      <ClInclude Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DevToPathDeviation.h">
+         <Filter>algo</Filter>
+      </ClInclude>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DevToPathEvalPath.c">
+         <Filter>algo</Filter>
+      </ClCompile>
+      <ClInclude Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DevToPathEvalPath.h">
+         <Filter>algo</Filter>
+      </ClInclude>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DevToPathSpline.c">
+         <Filter>algo</Filter>
+      </ClCompile>
+      <ClInclude Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DevToPathSpline.h">
+         <Filter>algo</Filter>
+      </ClInclude>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\caf2Algo.cpp">
+         <Filter>CAF_CAP</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\ArbiDriveCtrlCapInput.cpp">
+         <Filter>CAF_CAP</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\ArbiDriveCtrlCapOutput.cpp">
+         <Filter>CAF_CAP</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\ArbiDriveCtrlCapParDetails.cpp">
+         <Filter>CAF_CAP</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\common\utilities\Timer.cpp">
+         <Filter>common</Filter>
+      </ClCompile>
+      <ClInclude Include="D:\Grid\Grid_trunk\src\common\utilities\Timer.h">
+         <Filter>common</Filter>
+      </ClInclude>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\common\modules\Helpfuncs\Str2Vector.cpp">
+         <Filter>common</Filter>
+      </ClCompile>
+      <ClInclude Include="D:\Grid\Grid_trunk\src\common\modules\Helpfuncs\Str2Vector.h">
+         <Filter>common</Filter>
+      </ClInclude>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\common\utilities\IniFile.cpp">
+         <Filter>common</Filter>
+      </ClCompile>
+      <ClInclude Include="D:\Grid\Grid_trunk\src\common\utilities\IniFile.h">
+         <Filter>common</Filter>
+      </ClInclude>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\common\CAF\cafProto.cpp">
+         <Filter>common</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\common\CAF\cafRunnable.cpp">
+         <Filter>common</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\common\modules\Helpfuncs\HelpFuncCommon.c">
+         <Filter>common</Filter>
+      </ClCompile>
+      <ClInclude Include="D:\Grid\Grid_trunk\src\common\modules\Helpfuncs\HelpFuncCommon.h">
+         <Filter>common</Filter>
+      </ClInclude>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\common\modules\Helpfuncs\HelpFuncCommonCpp.cpp">
+         <Filter>common</Filter>
+      </ClCompile>
+      <ClInclude Include="D:\Grid\Grid_trunk\src\common\modules\Helpfuncs\HelpFuncCommonCpp.h">
+         <Filter>common</Filter>
+      </ClInclude>
+      <ClInclude Include="D:\Grid\Grid_trunk\src\common\modules\Helpfuncs\HelpFuncCommonDef.h">
+         <Filter>common</Filter>
+      </ClInclude>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\common\modules\Helpfuncs\HelpFuncVek2D.c">
+         <Filter>common</Filter>
+      </ClCompile>
+      <ClInclude Include="D:\Grid\Grid_trunk\src\common\modules\Helpfuncs\HelpFuncVek2D.h">
+         <Filter>common</Filter>
+      </ClInclude>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\common\modules\Helpfuncs\HelpFuncVek2DCpp.cpp">
+         <Filter>common</Filter>
+      </ClCompile>
+      <ClInclude Include="D:\Grid\Grid_trunk\src\common\modules\Helpfuncs\HelpFuncVek2DCpp.h">
+         <Filter>common</Filter>
+      </ClInclude>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\header.pb.cc">
+         <Filter>protbuf</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\header.pb2structs.cc">
+         <Filter>protbuf</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\Embedded\ACCStatus.pb.cc">
+         <Filter>protbuf</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\Embedded\ACCStatus.pb2structs.cc">
+         <Filter>protbuf</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\VehicleMovement\PoseOffsetCorrect.pb.cc">
+         <Filter>protbuf</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\VehicleMovement\PoseOffsetCorrect.pb2structs.cc">
+         <Filter>protbuf</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\VehicleMovement\VehiclePose.pb.cc">
+         <Filter>protbuf</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\VehicleMovement\VehiclePose.pb2structs.cc">
+         <Filter>protbuf</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\SensorNearData\VehicleDynamics.pb.cc">
+         <Filter>protbuf</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\SensorNearData\VehicleDynamics.pb2structs.cc">
+         <Filter>protbuf</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\SensorNearData\PowerTrain.pb.cc">
+         <Filter>protbuf</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\SensorNearData\PowerTrain.pb2structs.cc">
+         <Filter>protbuf</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\SensorNearData\CarSwitches.pb.cc">
+         <Filter>protbuf</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\SensorNearData\CarSwitches.pb2structs.cc">
+         <Filter>protbuf</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\SensorNearData\SensorStates.pb.cc">
+         <Filter>protbuf</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\SensorNearData\SensorStates.pb2structs.cc">
+         <Filter>protbuf</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\FctCtrlUnit\FctCtrlUnit.pb.cc">
+         <Filter>protbuf</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\FctCtrlUnit\FctCtrlUnit.pb2structs.cc">
+         <Filter>protbuf</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\Arbitration\ArbiVRequest.pb.cc">
+         <Filter>protbuf</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\Arbitration\ArbiVRequest.pb2structs.cc">
+         <Filter>protbuf</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\Arbitration\ArbiDev2PthDebug.pb.cc">
+         <Filter>protbuf</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\Arbitration\ArbiDev2PthDebug.pb2structs.cc">
+         <Filter>protbuf</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\Arbitration\ArbiDriveCtrlRequest.pb.cc">
+         <Filter>protbuf</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\Arbitration\ArbiDriveCtrlRequest.pb2structs.cc">
+         <Filter>protbuf</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\ExtRequests\ExtCurvRequest.pb.cc">
+         <Filter>protbuf</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\ExtRequests\ExtCurvRequest.pb2structs.cc">
+         <Filter>protbuf</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\ExtRequests\ExtDev2PthRequest.pb.cc">
+         <Filter>protbuf</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\ExtRequests\ExtDev2PthRequest.pb2structs.cc">
+         <Filter>protbuf</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\ExtRequests\ExtStrAngRequest.pb.cc">
+         <Filter>protbuf</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\ExtRequests\ExtStrAngRequest.pb2structs.cc">
+         <Filter>protbuf</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\ExtRequests\ExtVeloRequest.pb.cc">
+         <Filter>protbuf</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\ExtRequests\ExtVeloRequest.pb2structs.cc">
+         <Filter>protbuf</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\ExtRequests\VehicleDesiredTraj.pb.cc">
+         <Filter>protbuf</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\ExtRequests\VehicleDesiredTraj.pb2structs.cc">
+         <Filter>protbuf</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\RTAS_tools\adc_task\matlab\modul_sim_adc_task\MODUL_SIM_ADC_TASK\src\mex_EMODUL_SIM.cpp">
+         <Filter>src</Filter>
+      </ClCompile>
+      <ClCompile Include="D:\RTAS_tools\adc_task\matlab\modul_sim_adc_task\MODUL_SIM_ADC_TASK\src\sim_EMODUL_SIM.cpp">
+         <Filter>src</Filter>
+      </ClCompile>
+      <ClInclude Include="D:\RTAS_tools\adc_task\matlab\modul_sim_adc_task\MODUL_SIM_ADC_TASK\src\sim_EMODUL_SIM.h">
+         <Filter>src</Filter>
+      </ClInclude>
+      <ClCompile Include="D:\RTAS_tools\adc_task\matlab\modul_sim_adc_task\MODUL_SIM_ADC_TASK\src\fkt_EMODUL_SIM.cpp">
+         <Filter>src</Filter>
+      </ClCompile>
+      <ClInclude Include="D:\RTAS_tools\adc_task\matlab\modul_sim_adc_task\MODUL_SIM_ADC_TASK\src\fkt_EMODUL_SIM.h">
+         <Filter>src</Filter>
+      </ClInclude>
+      <ClInclude Include="D:\RTAS_tools\adc_task\matlab\modul_sim_adc_task\MODUL_SIM_ADC_TASK\src\SlfBasic.h">
+         <Filter>src</Filter>
+      </ClInclude>
+   </ItemGroup>
+</Project>

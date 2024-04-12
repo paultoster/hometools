@@ -1,0 +1,56 @@
+<html><head><title>filtfilt (Signal Processing Toolbox)</title>
+<!-- $Revision: 1.18 $  $Date: 2002/06/07 21:19:09 $ -->
+
+<!-- DOCNAME: Signal Processing Toolbox -->
+<!-- CHUNKNAME: filtfilt -->
+<!-- CHAPNAME: filtfilt -->
+<!-- HEADSTUFF -->
+<link rel=stylesheet href="docstyle1.css" type="text/css">
+</head>
+<body bgcolor=#ffffff>
+<a name="1027">
+<!-- NAVBARTOP -->
+<table border=0 width="100%" cellpadding=0 cellspacing=0><tr>
+<td valign=baseline bgcolor="#ffe4b0"><b>Signal Processing Toolbox</b></td>
+<td valign=baseline bgcolor="#ffe4b0" align=right><a href="filternorm.html"><img src="b_prev.gif" border=0></a>&nbsp;&nbsp;&nbsp;<a href="filtic.html"><img src="b_next.gif" border=0></a></td>
+</tr>
+</table><font size=+3 color="#990000">filtfilt</font>
+
+
+<!-- FNAME:filtfilt --><a name="1027"></a>
+
+<!-- SYNCHTO: reftable.html -->
+
+
+<a name=""></a><!-- H2 --><a name="1028"></a><br>
+<p><a name="1029"></a>
+Zero-phase digital filtering</p>
+<a name="syntax"></a><!-- H2 --><a name="1030"></a><p><font size=+1 color="#990000"><b>Syntax</b></font><br>
+<ul class=continued><li class=continued><pre><a name="1032"></a>y<code>&nbsp;=&nbsp;</code>filtfilt(b,a,x)
+</pre></li></ul>
+<a name="description"></a><!-- H2 --><a name="1033"></a><p><font size=+1 color="#990000"><b>Description</b></font><br>
+<p><a name="1043"></a><code>y<code>&nbsp;=&nbsp;</code>filtfilt(b,a,x)
+</code> <a name="95545"></a>performs zero-phase digital filtering by processing the input data in both the forward and reverse directions (see problem 5.39 in [1]). After filtering in the forward direction, it reverses the filtered sequence and runs it back through the filter. The resulting sequence has precisely zero-phase distortion and double the filter order. <code>filtfilt</code> minimizes start-up and ending transients by matching initial conditions, and works for both real and complex inputs. </p>
+<p><a name="465063"></a>Note that <code>filtfilt</code> should not be used with differentiator and Hilbert FIR filters, since the operation of these filters depends heavily on their phase response.</p>
+<a name="algorithm"></a><!-- H2 --><a name="1047"></a><p><font size=+1 color="#990000"><b>Algorithm</b></font><br>
+<p><a name="1050"></a><code>filtfilt</code> is an M-file that uses the <code><a href="filter.html">filter</a></code> function. In addition to the forward-reverse filtering, it attempts to minimize startup transients by adjusting initial conditions to match the DC component of the signal and by prepending several filter lengths of a flipped, reflected copy of the input signal.</p>
+<a name="see_also"></a><a name="seeal_sec"></a><!-- H2 --><a name="57216"></a><p><font size=+1 color="#990000"><b>See Also</b></font><br>
+<p><a name="862157"></a><code><a href="fftfilt.html">fftfilt</a></code>, <code><a href="filter.html">filter</a></code>, <code><a href="filter2.html">filter2</a></code></p>
+<a name="references"></a><!-- H2 --><a name="1058"></a><p><font size=+1 color="#990000"><b>References</b></font><br>
+<p><a name="1060"></a>[1] Oppenheim, A.V., and R.W. Schafer, <em>Discrete-Time Signal Processing</em>, Prentice-Hall, 1989, pp.&nbsp;311-312.</p>
+<p><a name="985464"></a>[2] Mitra, S.K., <em>Digital Signal Processing</em>, 2nd ed., McGraw-Hill, 2001, Sections 4.4.2 and 8.2.5. </p>
+<p><a name="985482"></a>[3] Gustafsson, F., "Determining the initial states in forward-backward filtering," <em>IEEE Transactions on Signal Processing</em>, April 1996, Volume 44, Issue 4, pp.&nbsp;988--992, </p>
+<p><a name="985469"></a></p>
+
+<br>
+
+
+<p><table bgcolor="#ffe4b0" border=0 width="100%" cellpadding=0 cellspacing=0><tr valign=top><td align=left width=20><a href="filternorm.html"><img src="b_prev.gif" border=0 align=bottom></a>&nbsp;</td><td align=left>&nbsp;filternorm</td><td>&nbsp;</td><td align=right>filtic&nbsp;</td><td align=right width=20><a href="filtic.html"><img src="b_next.gif" border=0 align=bottom></a></td></tr></table>
+
+<br>
+<!-- Copyright 2002 The MathWorks, Inc. -->
+<!-- Last updated: Thu Jun 06 19:59:51 2002 -->
+</body>
+</html>
+
+

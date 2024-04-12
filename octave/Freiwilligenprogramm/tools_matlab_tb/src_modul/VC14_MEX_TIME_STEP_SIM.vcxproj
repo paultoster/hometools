@@ -1,0 +1,389 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build" ToolsVersion="14.0">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>mex_MODUL_SIM_ADC_TASK</ProjectName>
+    <ProjectGuid>{701CF841-63B2-4495-8959-5B77E421D7E4}</ProjectGuid>
+    <RootNamespace>mexReadData</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>11.0.61030.0</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <GenerateManifest>true</GenerateManifest>
+    <TargetExt>.mexw32</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>.\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;MEXREADDATA_EXPORTS;_CRT_SECURE_NO_DEPRECATE;_HDF5USEDLL_;SIM_MODUL;USE_CAF;SIM_EMODUL;_USE_MATH_DEFINES;SIM_CFG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalOptions>/export:mexFunction %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>libmex.lib;libmx.lib;libmat.lib;ws2_32.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)$(ProjectName).mexw32</OutputFile>
+      <ModuleDefinitionFile />
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>NotSet</SubSystem>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention />
+      <TargetMachine>MachineX86</TargetMachine>
+      <AllowIsolation>true</AllowIsolation>
+      <AdditionalLibraryDirectories>..\..\..\..\..\Grid\Grid_trunk\src\common\utilities\lib\Debug;..\..\..\..\..\Grid\Grid_trunk\src\common\protobuf\lib\vc110;..\..\..\..\..\Grid\Grid_trunk\src\common\utilities\lib\Debug;..\..\..\..\..\Grid\Grid_trunk\src\common\modules\tacclib;..\..\..\..\..\Grid\external\glut\lib\v140\Win32\Release;..\..\..\..\..\Grid\Grid_trunk\src\common\CAF\precompiled;..\..\..\..\..\Grid\external\protobuf\3.1.0\lib\v140\Win32\Debug;..\..\..\..\..\Grid\Grid_trunk\src\common\CAF\precompiled;C:\Program Files (x86)\MATLAB\R2014a\extern\lib\win32\microsoft;C:\Program Files (x86)\MATLAB\R2014a\extern\lib\win32\microsoft\msvc60</AdditionalLibraryDirectories>
+    </Link>
+    <Manifest>
+      <GenerateCatalogFiles>false</GenerateCatalogFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>.\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;MEXREADDATA_EXPORTS;SIM_MODUL;USE_CAF;SIM_EMODUL;_USE_MATH_DEFINES;SIM_CFG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>libmex.lib;libmx.lib;libmat.lib;ws2_32.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)$(ProjectName).mexw32</OutputFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention />
+      <TargetMachine>MachineX86</TargetMachine>
+      <AdditionalOptions>/export:mexFunction %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalLibraryDirectories>C:\Program Files (x86)\MATLAB\R2014a\extern\lib\win32\microsoft;C:\Program Files (x86)\MATLAB\R2014a\extern\lib\win32\microsoft\msvc60</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets" />
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\ArbiDriveCtrlMain.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\ArbiDriveCtrlMain.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\ArbiDriveCtrlInputs.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\ArbiDriveCtrlOutputs.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\ArbiDriveCtrlParameters.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\ArbiDriveCtrlMainCpp.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\ArbiDriveCtrlMainCpp.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DesiredTraj.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DesiredTraj.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DriveCtrlSttMchn.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DriveCtrlSttMchn.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\VehPoseCalc.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\VehPoseCalc.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\LatParkCntrl.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\LatParkCntrl.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DevToPathC.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DevToPathC.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DevToPathCpp.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DevToPathCpp.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DevToPathDef.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DevToPathPreparePath.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DevToPathPreparePath.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DevToPathPrepareTraj.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DevToPathPrepareTraj.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DevToPathPrepareModPath.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DevToPathPrepareModPath.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DevToPathDeviation.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DevToPathDeviation.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DevToPathEvalPath.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DevToPathEvalPath.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DevToPathSpline.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\algo\DevToPathSpline.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\caf2Algo.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\ArbiDriveCtrlCapInput.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\ArbiDriveCtrlCapOutput.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\ArbiDriveCtrlCapParDetails.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\common\utilities\Timer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\Grid\Grid_trunk\src\common\utilities\Timer.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\common\modules\Helpfuncs\Str2Vector.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\Grid\Grid_trunk\src\common\modules\Helpfuncs\Str2Vector.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\common\utilities\IniFile.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\Grid\Grid_trunk\src\common\utilities\IniFile.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\common\CAF\cafProto.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\common\CAF\cafRunnable.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\common\modules\Helpfuncs\HelpFuncCommon.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\Grid\Grid_trunk\src\common\modules\Helpfuncs\HelpFuncCommon.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\common\modules\Helpfuncs\HelpFuncCommonCpp.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\Grid\Grid_trunk\src\common\modules\Helpfuncs\HelpFuncCommonCpp.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\Grid\Grid_trunk\src\common\modules\Helpfuncs\HelpFuncCommonDef.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\common\modules\Helpfuncs\HelpFuncVek2D.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\Grid\Grid_trunk\src\common\modules\Helpfuncs\HelpFuncVek2D.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\common\modules\Helpfuncs\HelpFuncVek2DCpp.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\Grid\Grid_trunk\src\common\modules\Helpfuncs\HelpFuncVek2DCpp.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\header.pb.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\header.pb2structs.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\Embedded\ACCStatus.pb.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\Embedded\ACCStatus.pb2structs.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\VehicleMovement\PoseOffsetCorrect.pb.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\VehicleMovement\PoseOffsetCorrect.pb2structs.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\VehicleMovement\VehiclePose.pb.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\VehicleMovement\VehiclePose.pb2structs.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\SensorNearData\VehicleDynamics.pb.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\SensorNearData\VehicleDynamics.pb2structs.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\SensorNearData\PowerTrain.pb.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\SensorNearData\PowerTrain.pb2structs.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\SensorNearData\CarSwitches.pb.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\SensorNearData\CarSwitches.pb2structs.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\SensorNearData\SensorStates.pb.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\SensorNearData\SensorStates.pb2structs.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\FctCtrlUnit\FctCtrlUnit.pb.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\FctCtrlUnit\FctCtrlUnit.pb2structs.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\Arbitration\ArbiVRequest.pb.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\Arbitration\ArbiVRequest.pb2structs.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\Arbitration\ArbiDev2PthDebug.pb.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\Arbitration\ArbiDev2PthDebug.pb2structs.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\Arbitration\ArbiDriveCtrlRequest.pb.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\Arbitration\ArbiDriveCtrlRequest.pb2structs.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\ExtRequests\ExtCurvRequest.pb.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\ExtRequests\ExtCurvRequest.pb2structs.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\ExtRequests\ExtDev2PthRequest.pb.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\ExtRequests\ExtDev2PthRequest.pb2structs.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\ExtRequests\ExtStrAngRequest.pb.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\ExtRequests\ExtStrAngRequest.pb2structs.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\ExtRequests\ExtVeloRequest.pb.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\ExtRequests\ExtVeloRequest.pb2structs.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\ExtRequests\VehicleDesiredTraj.pb.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Grid\Grid_trunk\src\ArbiDriveCtrl\Debug\protobuf\ExtRequests\VehicleDesiredTraj.pb2structs.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\RTAS_tools\adc_task\matlab\modul_sim_adc_task\MODUL_SIM_ADC_TASK\src\mex_EMODUL_SIM.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\RTAS_tools\adc_task\matlab\modul_sim_adc_task\MODUL_SIM_ADC_TASK\src\sim_EMODUL_SIM.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\RTAS_tools\adc_task\matlab\modul_sim_adc_task\MODUL_SIM_ADC_TASK\src\sim_EMODUL_SIM.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\RTAS_tools\adc_task\matlab\modul_sim_adc_task\MODUL_SIM_ADC_TASK\src\fkt_EMODUL_SIM.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\RTAS_tools\adc_task\matlab\modul_sim_adc_task\MODUL_SIM_ADC_TASK\src\fkt_EMODUL_SIM.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\RTAS_tools\adc_task\matlab\modul_sim_adc_task\MODUL_SIM_ADC_TASK\src\SlfBasic.h" />
+  </ItemGroup>
+</Project>

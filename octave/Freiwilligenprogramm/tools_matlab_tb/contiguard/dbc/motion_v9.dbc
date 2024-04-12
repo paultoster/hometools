@@ -1,0 +1,370 @@
+VERSION ""
+
+
+NS_ : 
+	NS_DESC_
+	CM_
+	BA_DEF_
+	BA_
+	VAL_
+	CAT_DEF_
+	CAT_
+	FILTER
+	BA_DEF_DEF_
+	EV_DATA_
+	ENVVAR_DATA_
+	SGTYPE_
+	SGTYPE_VAL_
+	BA_DEF_SGTYPE_
+	BA_SGTYPE_
+	SIG_TYPE_REF_
+	VAL_TABLE_
+	SIG_GROUP_
+	SIG_VALTYPE_
+	SIGTYPE_VALTYPE_
+	BO_TX_BU_
+	BA_DEF_REL_
+	BA_REL_
+	BA_DEF_DEF_REL_
+	BU_SG_REL_
+	BU_EV_REL_
+	BU_BO_REL_
+	SG_MUL_VAL_
+
+BS_:
+
+BU_: MOTION_GW MOTION_ECU ICM_QL Gateway_vehicle2contiguard
+VAL_TABLE_ QU_SER_CLCTR_YMR 6 "Nicht verf¸gbar, Fehler" 5 "Standby" 4 "GMV eingeschr‰nkt, aktiv" 3 "GMV eingeschr‰nkt, verf¸gbar" 2 "GMV aktiv" 1 "GMV verf¸gbar" 0 "Init" ;
+VAL_TABLE_ QU_SER_ECBA 3 "Beschreibung f¸r den Wert '0x3'" 2 "Beschreibung f¸r den Wert '0x2'" 1 "Beschreibung f¸r den Wert '0x1'" 0 "Beschreibung f¸r den Wert '0x0'" ;
+VAL_TABLE_ QU_SER_STMOM_DV_ACT 4 "Schnittstelle Fehler" 3 "Schnittstelle n. verf., PMA akt" 2 "Schnittstelle aktiv" 1 "Schnittstelle verf¸gbar" 0 "Schnittstelle Init" ;
+VAL_TABLE_ QU_FN_EST 4 "EPS Funktion aus" 3 "EPS Fehler" 2 "EPS Teilfunktion verf¸gbar" 1 "EPS Normal, Aktiv" 0 "EPS Init" ;
+VAL_TABLE_ Tab_QU_TAR_WMOM_PT_SUM_DRS 3584 "Standby-Anforderungnichtumsetzen" 640 "Sollwert umsetzen - unst. Schub" ;
+VAL_TABLE_ Tab_ALIV_RQ_BRTORQ_SUM 15 "Signal ung¸ltig" ;
+VAL_TABLE_ Tab_ST_GRSEL_DRV 0 "Initialisierung" 1 "N" 2 "R" 3 "P" 5 "1" 6 "2" 7 "3" 8 "4" 9 "5" 10 "6" 11 "7" 12 "8" 15 "Signal ung¸ltig" ;
+VAL_TABLE_ Tab_ST_ENG_RUN_DRV 0 "Motor aus" 1 "Motor startet" 2 "Motor l‰uft" 3 "Signal ung¸ltig" ;
+VAL_TABLE_ Tab_ST_KL 0 "Init" 2 "KL30" 8 "KLR-Ein" 10 "KL15-Ein" 11 "KL50-Verzˆgerung" 12 "KL50-ƒnderung" 13 "KL50-Ein" 15 "Signal ung¸ltig" ;
+VAL_TABLE_ Tab_ST_INTF_DRASY 8 "Initialisierung" 0 "Keine Fahrpedal-(Fahrer-) anford" 1 "Fahrpedal-(Fahrer-) anforderung," 3 "Fahrpedal-(Fahrer-) anforderung " 7 "Fahrpedal-(Fahrer-) anforderung " 2 "Keine Fahrpedal-(Fahrer-) anford" 15 "Signal ung¸ltig" ;
+VAL_TABLE_ Tab_QU_AVL_ANG_ACPD 8 "Initialisierung" 1 "Signalwert ist g√ºltig und abgesi" 9 "reserviert" 2 "reserviert" 10 "reserviert" 3 "reserviert" 11 "reserviert" 4 "reserviert" 12 "Abgleichwert ist im Nutzsignal g" 6 "Signalwert ist ung√ºltig" 14 "reserviert" 7 "reserviert" 15 "Signal ung√ºltig" ;
+VAL_TABLE_ Tab_ST_AVAI_INTV_PT_DRS 0 "Eingriff nicht erlaubt" 1 "Eingriff erlaubt" 2 "Eingriff nicht erlaubt" 3 "Signal ung¸ltig" ;
+VAL_TABLE_ Tab_QU_V_VEH_COG 8 "Initialisierung" 1 "Signalwert ist g√ºltig und abgesi" 9 "Reserved" 2 "Reserved" 10 "Signalwert ist g√ºltig, Zustand/S" 3 "Reserved" 11 "Signalqualit√§t bzw. √úberwachung " 4 "Reserved" 12 "Reserved" 6 "Reserved" 14 "Signalwert ist ung√ºltig, Zustand" 7 "Reserved" 15 "Signal ung√ºltig" ;
+VAL_TABLE_ Tab_ST_PENG_PT 0 "Initialisierung" 1 "Keine Kraftschlussinfo ermittelb" 4 "Voller Kraftschluss Antrieb Rad" 8 "Teilweiser Kraftschluss Antrieb " 9 "Teilweiser Kraftschluss Antrieb " 12 "Kein Kraftschluss Antrieb Rad, a" 13 "Kein Kraftschluss Antrieb Rad, m" 14 "Kein Kraftschluss Antrieb Rad, K" 15 "Signal ung¸ltig" ;
+VAL_TABLE_ Tab_ST_DRVDIR_DVCH 0 "Initialisierung" 2 "Kein Fahrtrichtungswunsch vorhan" 4 "Fahrtrichtungswunsch vorw‰rts" 5 "Fahrtrichtungswunsch r¸ckw‰rts" 15 "Signal ung¸ltig" ;
+VAL_TABLE_ Tab_QU_AVL_BRTORQ_SUM_DVCH 8 "Initialisierung" 2 "Signalwert ist g√ºltig" 4 "Ersatzwert ist im Nutzsignal ges" 12 "Abgleichwert ist im Nutzsignal g" 6 "Signalwert ist ung√ºltig" 15 "Signal ung√ºltig" 1 "reserviert" 9 "reserviert" 10 "reserviert" 3 "reserviert" 11 "reserviert" 14 "reserviert" 7 "reserviert" ;
+VAL_TABLE_ Tab_QU_AVL_BRTORQ_SUM 8 "Initialisierung" 1 "Signalwert ist g√ºltig und abgesi" 6 "Signalwert ist ung√ºltig" 9 "reserviert" 2 "reserviert" 10 "reserviert" 3 "reserviert" 11 "reserviert" 4 "reserviert" 12 "reserviert" 14 "reserviert" 7 "reserviert" 15 "Signal ung√ºltig" ;
+VAL_TABLE_ Tab_QU_REIN_PT 8 "Initialisierung" 1 "Signalwert ist g√ºltig und abgesi" 9 "Signalwert ist g√ºltig und abgesi" 2 "Signalwert ist g√ºltig" 11 "Signalqualit√§t bzw. √úberwachung " 4 "Ersatzwert ist im Nutzsignal ges" 12 "Abgleichwert ist im Nutzsignal g" 6 "Signalwert ist ung√ºltig" 15 "Signal ung√ºltig" ;
+VAL_TABLE_ Tab_QU_AVL_WMOM_PT_SUM 8 "Initialisierung" 1 "reserviert" 9 "reserviert" 2 "Signalwert ist g√ºltig" 10 "Signalwert ist g√ºltig, Zustand/S" 3 "Signalqualit√§t bzw. √úberwachung " 11 "reserviert" 4 "reserviert" 12 "Abgleichwert ist im Nutzsignal g" 6 "Signalwert ist ung√ºltig" 14 "reserviert" 7 "reserviert" 15 "Signal ung√ºltig" ;
+VAL_TABLE_ Tab_QU_AVL_STEA_DV 8 "Initialisierung" 1 "Signalwert ist g√ºltig und abgesi" 9 "Signalwert ist g√ºltig und abgesi" 2 "Signalwert ist g√ºltig, Zustand/S" 10 "Signalwert ist g√ºltig, Zustand/S" 3 "Signalqualit√§t bzw. √úberwachung " 11 "Signalqualit√§t bzw. √úberwachung " 4 "Ersatzwert ist im Nutzsignal ges" 12 "Abgleichwert ist im Nutzsignal g" 6 "Signalwert ist ung√ºltig, Zustand" 14 "Signalwert ist ung√ºltig, Zustand" 7 "Sensor nicht vorhanden" 15 "Signal ung√ºltig" ;
+VAL_TABLE_ Tab_QU_AVL_STEAV_DV 8 "Initialisierung" 1 "Signalwert ist g√ºltig und abgesi" 9 "Reserved" 2 "Signalwert ist g√ºltig, Zustand/S" 10 "Reserved" 3 "Reserved" 11 "Reserved" 4 "Reserved" 12 "Abgleichwert ist im Nutzsignal g" 6 "Signalwert ist ung√ºltig, Zustand" 14 "Signalwert ist ung√ºltig, Zustand" 7 "Reserved" 15 "Signal ung√ºltig" ;
+VAL_TABLE_ Tab_QU_AVL_STMOM_DV_ACT 15 "Signal ung¸ltig" 6 "Signalwert ung¸ltig" 1 "g¸ltig" 0 "Initialisierung" ;
+VAL_TABLE_ Tab_QU_ACLNX_COG 8 "Initialisierung" 1 "Reserved" 9 "Reserved" 2 "Signalwert ist g√ºltig" 10 "Signalwert ist g√ºltig, Zustand/S" 3 "Signalqualit√§t bzw. √úberwachung " 11 "Signalqualit√§t bzw. √úberwachung " 4 "Reserved" 12 "Ersatzwert ist im Nutzsignal ges" 6 "Signalwert ist ung√ºltig" 14 "Signalwert ist ung√ºltig, Zustand" 7 "Reserved" 15 "Signal ung√ºltig" ;
+VAL_TABLE_ Tab_QU_ACLNY_COG 8 "Initialisierung" 1 "Signalwert ist g√ºltig und abgesi" 9 "Signalwert ist g√ºltig und abgesi" 2 "Signalwert ist g√ºltig" 10 "Signalwert ist g√ºltig, Zustand/S" 3 "Signalqualit√§t bzw. √úberwachung " 11 "Signalqualit√§t bzw. √úberwachung " 4 "Reserved" 12 "Ersatzwert ist im Nutzsignal ges" 6 "Signalwert ist ung√ºltig" 14 "Signalwert ist ung√ºltig, Zustand" 7 "Reserved" 15 "Signal ung√ºltig" ;
+VAL_TABLE_ Tab_TAR_WMOM_PT_SUM_DRS 65535 "SNA" ;
+VAL_TABLE_ Tab_TAR_STMOM_DV_ACT 4095 "SNA" ;
+VAL_TABLE_ Tab_QU_TAR_STMOM_DV_ACT 2 "umsetzen" 7 "noEPS" 14 "Standby" 15 "ung¸ltig" ;
+VAL_TABLE_ Tab_RQ_TAO_SSM 15 "Sendefkt nicht aktiv" 1 "SSM f¸hren, nicht mech sichern" 0 "SSM nicht f¸hren" ;
+VAL_TABLE_ Tab_TAR_DIFF_BRTORQ_FTAX_YMR 4095 "SNA" ;
+VAL_TABLE_ Tab_TAR_DIFF_BRTORQ_BAX_YMR 4095 "SNA" ;
+VAL_TABLE_ Tab_FACT_TAR_COMPT_DRV_YMR 255 "SNA" ;
+VAL_TABLE_ Tab_QU_TAR_DIFF_BRTORQ_YMR 8 "Initialisierung" 2 "Sollwert umsetzen" 6 "Sollwert nicht umsetzen, Fehler" 14 "Sollwert nicht umsetzen, Standby" 7 "Sollwert nicht vorhanden" 15 "Signal ung¸ltig" ;
+VAL_TABLE_ Tab_QU_TAR_BRTORQ_SUM 0 "Standby - nicht umsetzen" 1 "Aktiv - Komfort" 15 "ung¸ltig" 2 "Aktiv - Komfort + Anfahren" 3 "Aktiv - Sicherheit" 4 "Aktiv - Sicherheit + Anfahren" ;
+
+
+BO_ 513 HAF_TTS: 4 MOTION_GW
+ SG_ HAF_TTS_time_ms : 0|32@1+ (1,0) [0|0] "ms" Vector__XXX
+
+BO_ 789 HAF_G12: 8 MOTION_GW
+ SG_ VROLL_COG : 44|16@1+ (0.01,-328) [0|0] "∞/s" Vector__XXX
+ SG_ VPI_COG : 28|12@1+ (0.05,-102.5) [0|0] "∞/s" Vector__XXX
+ SG_ QU_VROLL_COG : 40|4@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ QU_VPI_COG : 24|4@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ QU_ACLNZ_COG : 4|4@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ALIV_HAF_G12 : 0|4@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ACLNZ_COG : 8|12@1+ (0.02,-40.94) [-40.94|40.96] "m/s≤" Vector__XXX
+
+BO_ 788 HAF_G11: 7 MOTION_GW
+ SG_ CRC_HAF_G11 : 0|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ALIV_HAF_G11 : 8|4@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ST_DRVDIR_DVCH : 24|4@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ST_GRSEL_DRV : 28|4@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ST_ENG_RUN_DRV : 20|2@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ST_KL : 16|4@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 520 HAF_M3: 8 MOTION_ECU
+ SG_ CRC_HAF_D3 : 0|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ALIV_HAF_D3 : 8|4@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ TAR_DIFF_BRTORQ_FTAX_YMR : 16|12@1+ (5,-10000) [-10000|10475] "Nm" Vector__XXX
+ SG_ TAR_DIFF_BRTORQ_BAX_YMR : 28|12@1+ (5,-10000) [-10000|10475] "Nm" Vector__XXX
+ SG_ FACT_TAR_COMPT_DRV_YMR : 40|8@1+ (0.005,0) [0|1.275] "" Vector__XXX
+ SG_ QU_TAR_DIFF_BRTORQ_YMR : 12|4@1+ (1,0) [0|15] "ENUM" Vector__XXX
+
+BO_ 784 HAF_G09: 8 MOTION_GW
+ SG_ AVL_QUAN_EES_WHL_RRH : 48|16@1+ (1,0) [0|65534] "" Vector__XXX
+ SG_ AVL_QUAN_EES_WHL_RLH : 32|16@1+ (1,0) [0|65534] "" Vector__XXX
+ SG_ AVL_QUAN_EES_WHL_FRH : 16|16@1+ (1,0) [0|65534] "" Vector__XXX
+ SG_ AVL_QUAN_EES_WHL_FLH : 0|16@1+ (1,0) [0|65534] "" Vector__XXX
+
+BO_ 786 HAF_G10: 6 MOTION_GW
+ SG_ ST_AVAI_INTV_PT_DRS : 44|2@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ST_INTF_DRASY : 40|4@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ QU_AVL_ANG_ACPD : 12|4@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ AVL_ANG_ACPD_VIRT : 28|12@1+ (0.025,0) [0|100] "%" Vector__XXX
+ SG_ AVL_ANG_ACPD : 16|12@1+ (0.025,0) [0|100] "%" Vector__XXX
+ SG_ CRC_HAF_G10 : 0|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ALIV_HAF_G10 : 8|4@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 782 HAF_G08: 8 MOTION_GW
+ SG_ QU_SER_ECBA : 52|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ QU_SER_CLCTR_YMR : 60|4@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ QU_AVL_BRTORQ_SUM_DVCH : 48|4@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ AVL_BRTORQ_SUM_DVCH : 32|16@1+ (1,-32000) [-32000|0] "Nm" Vector__XXX
+ SG_ QU_AVL_BRTORQ_SUM : 12|4@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ AVL_BRTORQ_SUM : 16|16@1+ (1,-32000) [-32000|0] "Nm" Vector__XXX
+ SG_ CRC_HAF_G08 : 0|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ALIV_HAF_G08 : 8|4@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 780 HAF_G07: 8 MOTION_GW
+ SG_ QU_REIN_PT : 60|4@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ REIN_PT : 48|12@1+ (0.125,0) [0|511.75] "" Vector__XXX
+ SG_ AVL_WMOM_PT_SUM_RECUP_MAX : 32|16@1+ (1,-32000) [-32000|32000] "Nm" Vector__XXX
+ SG_ QU_AVL_WMOM_PT_SUM : 12|4@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ AVL_WMOM_PT_SUM : 16|16@1+ (1,-32000) [-32000|32000] "Nm" Vector__XXX
+ SG_ CRC_HAF_G07 : 0|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ALIV_HAF_G07 : 8|4@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 778 HAF_G06: 8 MOTION_GW
+ SG_ AVL_WMOM_PT_SUM_DTORQ_TOP : 48|16@1+ (1,-32000) [-32000|32000] "Nm" Vector__XXX
+ SG_ AVL_WMOM_PT_SUM_DTORQ_BOT : 32|16@1+ (1,-32000) [-32000|32000] "Nm" Vector__XXX
+ SG_ AVL_WMOM_PT_SUM_MAX : 16|16@1+ (1,-32000) [-32000|33535] "Nm" Vector__XXX
+ SG_ CRC_HAF_G06 : 0|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ALIV_HAF_G06 : 8|4@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 776 HAF_G05: 8 MOTION_GW
+ SG_ Ist_Motormoment_EPS : 52|12@1+ (0.005,-10) [0|0] "" Vector__XXX
+ SG_ QU_AVL_STEA_DV : 12|4@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ AVL_STEA_DV : 16|16@1+ (0.04395,-1440.11) [-1440.11|1440.11] "∞" Vector__XXX
+ SG_ QU_AVL_STEAV_DV : 48|4@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ AVL_STEAV_DV : 32|16@1+ (0.0879,-2879.9) [-2879.9|2879.9] "∞/s" Vector__XXX
+ SG_ CRC_HAF_G05 : 0|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ALIV_HAF_G05 : 8|4@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 774 HAF_G04: 8 MOTION_GW
+ SG_ QU_AVL_FORC_GRD : 28|4@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ QU_SER_STMOM_DV_ACT : 52|4@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ QU_FN_EST : 48|4@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ AVL_FORC_GRD : 32|12@1+ (0.0084,-17) [-17|17] "kN" Vector__XXX
+ SG_ QU_HOFF_RCOG : 44|4@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ QU_AVL_STMOM_DV_ACT : 12|4@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ AVL_STMOM_DV_ACT : 16|12@1+ (0.005,-10) [-10|10] "Nm" Vector__XXX
+ SG_ CRC_HAF_G04 : 0|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ALIV_HAF_G04 : 8|4@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 772 HAF_G03: 8 MOTION_GW
+ SG_ AVL_RPM_WHL_RLH : 32|16@1+ (0.015625,-511.984) [-400|400] "rad/s" Vector__XXX
+ SG_ AVL_RPM_WHL_FRH : 16|16@1+ (0.015625,-511.984) [-400|400] "rad/s" Vector__XXX
+ SG_ AVL_RPM_WHL_FLH : 0|16@1+ (0.015625,-511.984) [-400|400] "rad/s" Vector__XXX
+ SG_ AVL_RPM_WHL_RRH : 48|16@1+ (0.015625,-511.984) [-400|400] "rad/s" Vector__XXX
+
+BO_ 770 HAF_G02: 8 MOTION_GW
+ SG_ ACLNX_COG : 16|16@1+ (0.002,-65) [-65|65] "m/s≤" Vector__XXX
+ SG_ QU_ACLNX_COG : 12|4@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ QU_ACLNY_COG : 32|4@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ACLNY_COG : 36|16@1+ (0.002,-65) [-65|65] "m/s≤" Vector__XXX
+ SG_ CRC_HAF_G02 : 0|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ALIV_HAF_G02 : 8|4@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 768 HAF_G01: 8 MOTION_GW
+ SG_ V_VEH_COG : 16|16@1+ (0.015625,0) [0|350] "km/h" Vector__XXX
+ SG_ QU_V_VEH_COG : 12|4@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ QU_VYAW_VEH : 32|4@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ VYAW_VEH : 36|16@1+ (0.005,-163.84) [-163.84|163.83] "∞/s" Vector__XXX
+ SG_ ALIV_HAF_G01 : 8|4@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ CRC_HAF_G01 : 0|8@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 397 VEH_DYNMC_DT_ESTI: 7 MOTION_GW
+ SG_ QU_VEH_DYNMC_DT_ESTI : 12|4@1+ (1,0) [0|0] ""  MOTION_ECU
+ SG_ ATTA_ESTI_ERR_AMP : 16|8@1+ (0.2,0) [0|50.8] "∞"  MOTION_ECU
+ SG_ ATTA_ESTI : 0|12@1+ (0.1,-204.7) [-204.7|204.7] "∞"  MOTION_ECU
+ SG_ ATTAV_ESTI_ERR_AMP : 40|8@1+ (4,0) [0|1016] "∞/s"  MOTION_ECU
+ SG_ ATTAV_ESTI : 24|12@1+ (2,-4094) [-4094|4094] "∞/s"  MOTION_ECU
+
+BO_ 518 HAF_M1: 8 MOTION_ECU
+ SG_ CRC_HAF_D1 : 0|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ALIV_HAF_D1 : 8|4@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ TAR_WMOM_PT_SUM_DRS : 32|16@1+ (1,-32000) [-32000|33535] "Nm" Vector__XXX
+ SG_ QU_TAR_WMOM_PT_SUM_DRS : 28|4@1+ (1,0) [0|0] "ENUM" Vector__XXX
+ SG_ TAR_STMOM_DV_ACT : 16|12@1+ (0.006,-12) [-12|12.57] "Nm" Vector__XXX
+ SG_ QU_TAR_STMOM_DV_ACT : 12|4@1+ (1,0) [0|15] "ENUM" Vector__XXX
+
+BO_ 519 HAF_M2: 8 MOTION_ECU
+ SG_ CRC_HAF_D2 : 0|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ QU_TAR_BRTORQ_SUM : 12|4@1+ (1,0) [0|15] "ENUM" Vector__XXX
+ SG_ RQ_TAO_SSM : 16|4@1+ (1,0) [0|15] "ENUM" Vector__XXX
+ SG_ TAR_BRTORQ_SUM : 20|16@1+ (1,-32000) [-32000|33535] "Nm" Vector__XXX
+ SG_ ALIV_HAF_D2 : 8|4@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 844 NAV_GPS2: 8 Vector__XXX
+ SG_ ST_V_HRZTL : 16|16@1- (1,0) [-32767|32766] "cm/s" Vector__XXX
+ SG_ ST_QUAL_PO : 40|12@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ST_HG_NAVI : 0|16@1- (1,0) [-32767|32766] "m" Vector__XXX
+ SG_ ST_HDG_HRZTL_ABSL : 32|8@1+ (1.5,0) [0|360] "∞" Vector__XXX
+
+BO_ 842 NAV_GPS1: 8 Vector__XXX
+ SG_ ST_LONG_NAVI : 0|32@1- (8E-008,0) [-180|180] "∞" Vector__XXX
+ SG_ ST_LAT_NAVI : 32|32@1- (8E-008,0) [-90|90] "∞" Vector__XXX
+
+
+
+CM_ SG_ 789 QU_ACLNZ_COG "Qualifier";
+CM_ SG_ 789 ACLNZ_COG "Z-Beschleunigung Fahrzeugschwerpunkt";
+CM_ SG_ 788 ST_DRVDIR_DVCH "Status_Fahrtrichtung_Fahrerwunsch
+Gibt die wahrscheinliche Fahrtrichtung des Fahrzeuges an.";
+CM_ SG_ 788 ST_GRSEL_DRV "Status Gang Getriebe";
+CM_ SG_ 788 ST_ENG_RUN_DRV "Status Motor l‰uft";
+CM_ SG_ 788 ST_KL "Klemmenstatus";
+CM_ SG_ 520 TAR_DIFF_BRTORQ_FTAX_YMR "Soll_Differenz_Bremsmoment_Vorderachse_Giermomentverteilung: Einzustellendes Raddifferenzbremsmoment der Giermomentverteilung an der Vorderachse. Ein positiver Wert erzeugt ein linksdrehendes Giermoment ¸ber die Vorderachse.";
+CM_ SG_ 520 TAR_DIFF_BRTORQ_BAX_YMR "Soll_Differenz_Bremsmoment_Hinterachse_Giermomentverteilung: Einzustellendes Raddifferenzbremsmoment der Giermomentverteilung an der Hinterachse. Ein positiver Wert erzeugt ein linksdrehendes Giermoment ¸ber die Hinterachse.";
+CM_ SG_ 520 FACT_TAR_COMPT_DRV_YMR "Faktor_Soll_Kompensation_Antrieb_Giermomentverteilung";
+CM_ SG_ 520 QU_TAR_DIFF_BRTORQ_YMR "Qualifier_Soll_Differenz_Bremsmoment_Giermomentverteilung";
+CM_ SG_ 784 AVL_QUAN_EES_WHL_RRH "Ist Anzahl Geberflanken Rad";
+CM_ SG_ 784 AVL_QUAN_EES_WHL_RLH "Ist Anzahl Geberflanken Rad";
+CM_ SG_ 784 AVL_QUAN_EES_WHL_FRH "Ist Anzahl Geberflanken Rad";
+CM_ SG_ 784 AVL_QUAN_EES_WHL_FLH "Ist Anzahl Geberflanken Rad";
+CM_ SG_ 786 ST_AVAI_INTV_PT_DRS "Status_Verf¸gbarkeit_Eingriff_Antriebsstrang_FAS
+R¸ckmeldung des Antriebsstranges ob Eingriffe bez¸glich Fahrtrichtungswunsch oder Kraftschluss erlaubt sind. Dieses Signal ist Bestandteil der Dom‰nenteilschnittstelle Zustand Antrieb
+";
+CM_ SG_ 786 ST_INTF_DRASY "Status_Schnittstelle_Fahrerassistenzsystem
+Status zum Fahrpedal und zum Verh‰ltnis der Fahreranforderung bzgl. der FAS-Anforderung.
+";
+CM_ SG_ 786 QU_AVL_ANG_ACPD "Qualifier";
+CM_ SG_ 786 AVL_ANG_ACPD_VIRT "Ist Winkel Fahrpedal Virutell
+Dieses Signal ¸bertr‰gt den errechneten Fahrpedalwinkel, der sich aus der aktuellen Fahrgeschwindigkeitsregelung ergibt. Finden keine FAS-Eingriffe statt, entspricht der virtuelle Fahrpedalwinkel dem Ist-Winkel";
+CM_ SG_ 786 AVL_ANG_ACPD "Ist_Winkel_Fahrpedal
+Vom Antriebsstrang gemeldeter Istwinkel des Fahrpedals. 100% Fahrpedalwinkel wird nur bei erkanntem Kickdown versendet. Ohne Kickdown betr‰gt der Wert maximal 99.975%.";
+CM_ SG_ 782 QU_AVL_BRTORQ_SUM_DVCH "Qualifier";
+CM_ SG_ 782 AVL_BRTORQ_SUM_DVCH "Ist_Bremsmoment_Summe_Fahrerwunsch
+Aktuelles radbezogenes Bremsmoment das der Fahrer ¸ber das Bremspedal versucht zu stellen. Bei einer Bremspedalbet‰tigung wird ein negativer Wert ¸bertragen";
+CM_ SG_ 782 QU_AVL_BRTORQ_SUM "Qualifier";
+CM_ SG_ 782 AVL_BRTORQ_SUM "Ist Bremsmoment Summe
+Aktuelles radbezogene Summen-Reibbremsmoment des DSC-Steuerger‰ts. Ein negatives Bremsmoment entspricht einer Reibkraft entgegen der Fahrzeugbewegung.
+";
+CM_ SG_ 780 QU_REIN_PT "Qualifier";
+CM_ SG_ 780 REIN_PT "Verst‰rkung_Antriebsstrang";
+CM_ SG_ 780 AVL_WMOM_PT_SUM_RECUP_MAX "Ist_Radmoment_Antriebsstrang_Summe_Rekuperation_Maximal
+Summe von dem maximalen Schleppmoment Unten und Bremsrekuperationsmoment, das momentan zur Verf¸gung steht.";
+CM_ SG_ 780 QU_AVL_WMOM_PT_SUM "Qualifier";
+CM_ SG_ 780 AVL_WMOM_PT_SUM "Ist_Radmoment_Antriebsstrang_Summe
+Aktuell antreibendes Summen-Radmoment des Antriebsstrangs.";
+CM_ SG_ 778 AVL_WMOM_PT_SUM_DTORQ_TOP "Ist_Radmoment_Antriebsstrang_Summe_Schleppmoment_Oben
+Maximales Schleppmoment des Antriebs ausgehend vom aktuellen Betriebspunkt das kontinuierlich erreichbar ist.";
+CM_ SG_ 778 AVL_WMOM_PT_SUM_DTORQ_BOT "Maximales Schleppmoment des Antriebs ausgehend vom aktuellen Betriebspunkt";
+CM_ SG_ 778 AVL_WMOM_PT_SUM_MAX "Obere Grenze f¸r die aktuell umsetzbare Anforderung des antreibenden Summen-Radmomentes bezogen auf die aktuell anliegenden ‹bersetzungsverh‰ltnisse. Die Wirkrichtung des Radmom";
+CM_ SG_ 776 QU_AVL_STEA_DV "Qualifier";
+CM_ SG_ 776 AVL_STEA_DV "Ist_Lenkwinkel_Fahrer
+Tats‰chlicher, offsetbereinigter  Einschlag des Lenkrads durch den Fahrer auf das Lenkrad bezogen.";
+CM_ SG_ 776 QU_AVL_STEAV_DV "Qualifier";
+CM_ SG_ 776 AVL_STEAV_DV "Ist_Lenkwinkelgeschwindigkeit_Fahrer";
+CM_ SG_ 774 QU_HOFF_RCOG "Qualifier";
+CM_ SG_ 774 QU_AVL_STMOM_DV_ACT "Qualifier";
+CM_ SG_ 774 AVL_STMOM_DV_ACT "Ist_Lenkmoment_Fahrer_Stellglied
+Das Signal Ist_Lenkmoment_Fahrer stellt das Fahrerlenkmoment im Gegenuhrzeigersinn positiv dar";
+CM_ SG_ 772 AVL_RPM_WHL_RLH "Ist_Drehzahl_Rad";
+CM_ SG_ 772 AVL_RPM_WHL_FRH "Ist_Drehzahl_Rad";
+CM_ SG_ 772 AVL_RPM_WHL_FLH "Ist_Drehzahl_Rad";
+CM_ SG_ 772 AVL_RPM_WHL_RRH "Ist_Drehzahl_Rad";
+CM_ SG_ 770 ACLNX_COG "L‰ngsbeschleunigung im Fahrzeugschwerpunkt. Eine positive L‰ngsbeschleunigung wirkt in Fahrzeug X-Richtung. Fahrzeugkoordinatensystem gem‰ﬂ ISO 8855.";
+CM_ SG_ 770 QU_ACLNX_COG "Qualifier";
+CM_ SG_ 770 QU_ACLNY_COG "Qualifier";
+CM_ SG_ 770 ACLNY_COG "Querbeschleunigung Fahrzeugschwerpunkt";
+CM_ SG_ 768 V_VEH_COG "Geschwindigkeit Fahrzeugschwerpunkt";
+CM_ SG_ 768 QU_V_VEH_COG "Qualifier";
+CM_ SG_ 768 QU_VYAW_VEH "Qualifier";
+CM_ SG_ 768 VYAW_VEH "Giergeschwindigkeit_Fahrzeug
+Richtung nach ISO 8855 (positiver Winkel entspricht Drehung gegen den Uhrzeigersinn).";
+CM_ SG_ 397 QU_VEH_DYNMC_DT_ESTI "Qualifier";
+CM_ SG_ 397 ATTA_ESTI_ERR_AMP "Schwimmwinkel Fehleramplitude";
+CM_ SG_ 397 ATTA_ESTI "Schwimmwinkel";
+CM_ SG_ 397 ATTAV_ESTI_ERR_AMP "Schwimmwinkel Fehleramplitude";
+CM_ SG_ 397 ATTAV_ESTI "Schwimmwinkelgeschwindigkeit";
+CM_ SG_ 518 TAR_WMOM_PT_SUM_DRS "Soll_Radmoment_Antriebsstrang_Summe_FAS: Dieses Signal beinhaltet das angefordert (koordinierte und plausibilisierte) antreibende Summen-Radmoment der Fahrerassistenzsysteme.";
+CM_ SG_ 518 QU_TAR_WMOM_PT_SUM_DRS "Qualifier_Soll_Radmoment_Antriebsstrang_Summe_FAS, Signaltabelle aus Nachrichtenkatalog entnehmen!";
+CM_ SG_ 518 TAR_STMOM_DV_ACT "Soll_Lenkmoment_Fahrer_Stellglied: Gestelltes Motormoment f¸r den EPS Aktuator. Offsetmoment (+/-1Nm).";
+CM_ SG_ 518 QU_TAR_STMOM_DV_ACT "QualifierSollLenkmomentFahrerStellglied
+0xF Signal ung¸ltig Wird nicht aktiv gesetzt
+0xE Standby: Sollwerte nicht umsetz Wird auch im Fehlerfall gesetzt.
+0x7 Sollwerte nicht vorhanden
+0x2 Sollwerte umsetzen Es wird ein Lenkmoment angefordert.
+
+
+
+";
+CM_ SG_ 519 QU_TAR_BRTORQ_SUM "Qualifier Soll_Bremsmoment_Summe
+0 = 0xE0
+1 = 0x20
+2 = 0x24
+3 = 0x26";
+CM_ SG_ 519 RQ_TAO_SSM "Anforderung_‹bernahme_Stillstandsmanagement
+Mit diesem Signal kann eine FAS Funktion die ‹bernahme durch das Stillstandsmanagement (SSM) anfordern, bzw. die Sicherung des Fahrzeuges im Stillstand durch hydraulisches oder mechanisches halten anfordern";
+CM_ SG_ 519 TAR_BRTORQ_SUM "Soll_Bremsmoment_Summe
+Sollwertvorgabe des radbezogenen Summenbremsmoments an das DSC-Steuerger‰t (unabh‰ngig davon, ob es durch Reibbremse und/oder Bremsrekuperation umgesetzt wird).";
+BA_DEF_ SG_  "GenSigStartValue" HEX 0 134217728;
+BA_DEF_ BO_  "GenMsgCycleTime" INT 0 65535;
+BA_DEF_DEF_  "GenSigStartValue" 0;
+BA_DEF_DEF_  "GenMsgCycleTime" 0;
+BA_ "GenMsgCycleTime" BO_ 789 1000;
+BA_ "GenMsgCycleTime" BO_ 788 20;
+BA_ "GenMsgCycleTime" BO_ 520 10;
+BA_ "GenMsgCycleTime" BO_ 784 10;
+BA_ "GenMsgCycleTime" BO_ 786 20;
+BA_ "GenMsgCycleTime" BO_ 782 20;
+BA_ "GenMsgCycleTime" BO_ 780 20;
+BA_ "GenMsgCycleTime" BO_ 778 20;
+BA_ "GenMsgCycleTime" BO_ 776 10;
+BA_ "GenMsgCycleTime" BO_ 774 10;
+BA_ "GenMsgCycleTime" BO_ 772 10;
+BA_ "GenMsgCycleTime" BO_ 770 10;
+BA_ "GenMsgCycleTime" BO_ 768 10;
+BA_ "GenMsgCycleTime" BO_ 518 10;
+BA_ "GenMsgCycleTime" BO_ 519 10;
+BA_ "GenSigStartValue" SG_ 789 VROLL_COG 32800;
+BA_ "GenSigStartValue" SG_ 789 VPI_COG 2050;
+BA_ "GenSigStartValue" SG_ 789 ACLNZ_COG 0;
+BA_ "GenSigStartValue" SG_ 776 Ist_Motormoment_EPS 2000;
+BA_ "GenSigStartValue" SG_ 774 AVL_FORC_GRD 2023.8095238095;
+BA_ "GenSigStartValue" SG_ 772 AVL_RPM_WHL_RLH 32766.976;
+BA_ "GenSigStartValue" SG_ 772 AVL_RPM_WHL_FRH 32766.976;
+BA_ "GenSigStartValue" SG_ 772 AVL_RPM_WHL_FLH 32766.976;
+BA_ "GenSigStartValue" SG_ 772 AVL_RPM_WHL_RRH 32766.976;
+BA_ "GenSigStartValue" SG_ 518 TAR_STMOM_DV_ACT 2000;
+VAL_ 789 QU_ACLNZ_COG 8 "Initialisierung" 1 "Signalwert ist g√ºltig und abgesi" 9 "Signalwert ist g√ºltig und abgesi" 2 "Signalwert ist g√ºltig" 10 "Signalwert ist g√ºltig, Zustand/S" 3 "Signalqualit√§t bzw. √úberwachung " 11 "Signalqualit√§t bzw. √úberwachung " 4 "Reserved" 12 "Ersatzwert ist im Nutzsignal ges" 6 "Signalwert ist ung√ºltig" 14 "Signalwert ist ung√ºltig, Zustand" 7 "Reserved" 15 "Signal ung√ºltig" ;
+VAL_ 788 ST_DRVDIR_DVCH 0 "Initialisierung" 2 "Kein Fahrtrichtungswunsch vorhan" 4 "Fahrtrichtungswunsch vorw‰rts" 5 "Fahrtrichtungswunsch r¸ckw‰rts" 15 "Signal ung¸ltig" ;
+VAL_ 788 ST_GRSEL_DRV 0 "Initialisierung" 1 "N" 2 "R" 3 "P" 5 "1" 6 "2" 7 "3" 8 "4" 9 "5" 10 "6" 11 "7" 12 "8" 15 "Signal ung¸ltig" ;
+VAL_ 788 ST_ENG_RUN_DRV 0 "Motor aus" 1 "Motor startet" 2 "Motor l‰uft" 3 "Signal ung¸ltig" ;
+VAL_ 788 ST_KL 0 "Init" 2 "KL30" 8 "KLR-Ein" 10 "KL15-Ein" 11 "KL50-Verzˆgerung" 12 "KL50-ƒnderung" 13 "KL50-Ein" 15 "Signal ung¸ltig" ;
+VAL_ 520 TAR_DIFF_BRTORQ_FTAX_YMR 4095 "SNA" ;
+VAL_ 520 TAR_DIFF_BRTORQ_BAX_YMR 4095 "SNA" ;
+VAL_ 520 FACT_TAR_COMPT_DRV_YMR 255 "SNA" ;
+VAL_ 520 QU_TAR_DIFF_BRTORQ_YMR 8 "Initialisierung" 2 "Sollwert umsetzen" 6 "Sollwert nicht umsetzen, Fehler" 14 "Sollwert nicht umsetzen, Standby" 7 "Sollwert nicht vorhanden" 15 "Signal ung¸ltig" ;
+VAL_ 786 ST_AVAI_INTV_PT_DRS 0 "Eingriff nicht erlaubt wegen GWS" 1 "Eingriff erlaubt" 2 "Eingriff nicht erlaubt" 3 "Signal ung¸ltig" ;
+VAL_ 786 ST_INTF_DRASY 8 "Initialisierung" 0 "Keine Fahrpedal-(Fahrer-) anford" 1 "Fahrpedal-(Fahrer-) anforderung," 3 "Fahrpedal-(Fahrer-) anforderung " 7 "Fahrpedal-(Fahrer-) anforderung " 2 "Keine Fahrpedal-(Fahrer-) anford" 15 "Signal ung¸ltig" ;
+VAL_ 786 QU_AVL_ANG_ACPD 8 "Initialisierung" 1 "Signalwert ist g√ºltig und abgesi" 9 "reserviert" 2 "reserviert" 10 "reserviert" 3 "reserviert" 11 "reserviert" 4 "reserviert" 12 "Abgleichwert ist im Nutzsignal g" 6 "Signalwert ist ung√ºltig" 14 "reserviert" 7 "reserviert" 15 "Signal ung√ºltig" ;
+VAL_ 782 QU_SER_CLCTR_YMR 6 "Nicht verf¸gbar, Fehler" 5 "Standby" 4 "GMV eingeschr‰nkt, aktiv" 3 "GMV eingeschr‰nkt, verf¸gbar" 2 "GMV aktiv" 1 "GMV verf¸gbar" 0 "Init" ;
+VAL_ 782 QU_AVL_BRTORQ_SUM_DVCH 8 "Initialisierung" 2 "Signalwert ist g√ºltig" 4 "Ersatzwert ist im Nutzsignal ges" 12 "Abgleichwert ist im Nutzsignal g" 6 "Signalwert ist ung√ºltig" 15 "Signal ung√ºltig" 1 "reserviert" 9 "reserviert" 10 "reserviert" 3 "reserviert" 11 "reserviert" 14 "reserviert" 7 "reserviert" ;
+VAL_ 782 QU_AVL_BRTORQ_SUM 8 "Initialisierung" 1 "Signalwert ist g√ºltig und abgesi" 6 "Signalwert ist ung√ºltig" 9 "reserviert" 2 "reserviert" 10 "reserviert" 3 "reserviert" 11 "reserviert" 4 "reserviert" 12 "reserviert" 14 "reserviert" 7 "reserviert" 15 "Signal ung√ºltig" ;
+VAL_ 780 QU_REIN_PT 8 "Initialisierung" 1 "Signalwert ist g√ºltig und abgesi" 9 "Signalwert ist g√ºltig und abgesi" 2 "Signalwert ist g√ºltig" 11 "Signalqualit√§t bzw. √úberwachung " 4 "Ersatzwert ist im Nutzsignal ges" 12 "Abgleichwert ist im Nutzsignal g" 6 "Signalwert ist ung√ºltig" 15 "Signal ung√ºltig" ;
+VAL_ 780 QU_AVL_WMOM_PT_SUM 8 "Initialisierung" 1 "reserviert" 9 "reserviert" 2 "Signalwert ist g√ºltig" 10 "Signalwert ist g√ºltig, Zustand/S" 3 "Signalqualit√§t bzw. √úberwachung " 11 "reserviert" 4 "reserviert" 12 "Abgleichwert ist im Nutzsignal g" 6 "Signalwert ist ung√ºltig" 14 "reserviert" 7 "reserviert" 15 "Signal ung√ºltig" ;
+VAL_ 776 QU_AVL_STEA_DV 8 "Initialisierung" 1 "Signalwert ist g√ºltig und abgesi" 9 "Signalwert ist g√ºltig und abgesi" 2 "Signalwert ist g√ºltig, Zustand/S" 10 "Signalwert ist g√ºltig, Zustand/S" 3 "Signalqualit√§t bzw. √úberwachung " 11 "Signalqualit√§t bzw. √úberwachung " 4 "Ersatzwert ist im Nutzsignal ges" 12 "Abgleichwert ist im Nutzsignal g" 6 "Signalwert ist ung√ºltig, Zustand" 14 "Signalwert ist ung√ºltig, Zustand" 7 "Sensor nicht vorhanden" 15 "Signal ung√ºltig" ;
+VAL_ 776 QU_AVL_STEAV_DV 8 "Initialisierung" 1 "Signalwert ist g√ºltig und abgesi" 9 "Reserved" 2 "Signalwert ist g√ºltig, Zustand/S" 10 "Reserved" 3 "Reserved" 11 "Reserved" 4 "Reserved" 12 "Abgleichwert ist im Nutzsignal g" 6 "Signalwert ist ung√ºltig, Zustand" 14 "Signalwert ist ung√ºltig, Zustand" 7 "Reserved" 15 "Signal ung√ºltig" ;
+VAL_ 774 QU_SER_STMOM_DV_ACT 4 "Schnittstelle Fehler" 3 "Schnittstelle n. verf., PMA akt" 2 "Schnittstelle aktiv" 1 "Schnittstelle verf¸gbar" 0 "Schnittstelle Init" ;
+VAL_ 774 QU_FN_EST 4 "EPS Funktion aus" 3 "EPS Fehler" 2 "EPS Teilfunktion verf¸gbar" 1 "EPS Normal, Aktiv" 0 "EPS Init" ;
+VAL_ 774 QU_AVL_STMOM_DV_ACT 15 "Signal ung¸ltig" 6 "Signalwert ung¸ltig" 1 "g¸ltig" 0 "Initialisierung" ;
+VAL_ 770 QU_ACLNX_COG 8 "Initialisierung" 1 "Reserved" 9 "Reserved" 2 "Signalwert ist g√ºltig" 10 "Signalwert ist g√ºltig, Zustand/S" 3 "Signalqualit√§t bzw. √úberwachung " 11 "Signalqualit√§t bzw. √úberwachung " 4 "Reserved" 12 "Ersatzwert ist im Nutzsignal ges" 6 "Signalwert ist ung√ºltig" 14 "Signalwert ist ung√ºltig, Zustand" 7 "Reserved" 15 "Signal ung√ºltig" ;
+VAL_ 770 QU_ACLNY_COG 8 "Initialisierung" 1 "Signalwert ist g√ºltig und abgesi" 9 "Signalwert ist g√ºltig und abgesi" 2 "Signalwert ist g√ºltig" 10 "Signalwert ist g√ºltig, Zustand/S" 3 "Signalqualit√§t bzw. √úberwachung " 11 "Signalqualit√§t bzw. √úberwachung " 4 "Reserved" 12 "Ersatzwert ist im Nutzsignal ges" 6 "Signalwert ist ung√ºltig" 14 "Signalwert ist ung√ºltig, Zustand" 7 "Reserved" 15 "Signal ung√ºltig" ;
+VAL_ 768 QU_V_VEH_COG 8 "Initialisierung" 1 "Signalwert ist g√ºltig und abgesi" 9 "Reserved" 2 "Reserved" 10 "Signalwert ist g√ºltig, Zustand/S" 3 "Reserved" 11 "Signalqualit√§t bzw. √úberwachung " 4 "Reserved" 12 "Reserved" 6 "Reserved" 14 "Signalwert ist ung√ºltig, Zustand" 7 "Reserved" 15 "Signal ung√ºltig" ;
+VAL_ 768 QU_VYAW_VEH 8 "Initialisierung" 1 "Signalwert ist g√ºltig und abgesi" 9 "Signalwert ist g√ºltig und abgesi" 2 "Signalwert ist g√ºltig" 10 "Signalwert ist g√ºltig, Zustand/S" 3 "Signalqualit√§t bzw. √úberwachung " 11 "Signalqualit√§t bzw. √úberwachung " 4 "Reserved" 12 "Ersatzwert: Abgleichwert ist im " 6 "Signalwert ist ung√ºltig" 14 "Signalwert ist ung√ºltig, Zustand" 7 "Reserved" 15 "Signal ung√ºltig" ;
+VAL_ 397 QU_VEH_DYNMC_DT_ESTI 8 "Initialisierung" 2 "Wert g¸ltig" 4 "Ersatzwert (Low-Speed)" 12 "Ersatzwert (Dreher)" 15 "Signal ung¸ltig" ;
+VAL_ 518 TAR_WMOM_PT_SUM_DRS 65535 "SNA" ;
+VAL_ 518 TAR_STMOM_DV_ACT 4095 "SNA" ;
+VAL_ 518 QU_TAR_STMOM_DV_ACT 2 "umsetzen" 7 "noEPS" 14 "Standby" 15 "ung¸ltig" ;
+VAL_ 519 QU_TAR_BRTORQ_SUM 0 "Standby - nicht umsetzen" 1 "Aktiv - Komfort" 2 "Aktiv - Komfort + Anfahren" 3 "Aktiv - Sicherheit" 4 "Aktiv - Sicherheit + Anfahren" 15 "ung¸ltig" ;
+VAL_ 519 RQ_TAO_SSM 15 "Sendefkt nicht aktiv" 1 "SSM f¸hren, nicht mech sichern" 0 "SSM nicht f¸hren" ;
+

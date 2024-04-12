@@ -1,0 +1,6 @@
+[['signals.driver_pressure'    , 1,'bar'     ,'double'     ,1,'']
+,['signals.is_brake_applied'   , 1,'-'     ,'int'     ,0,'']
+,['signals.abs_state' , 1,'-'     ,'int'     ,0,'']
+,['signals.esc_state' , 1,'-'     ,'int'     ,0,'']
+,['signals.tcs_state' , 1,'-'     ,'int'     ,0,'']
+];                 

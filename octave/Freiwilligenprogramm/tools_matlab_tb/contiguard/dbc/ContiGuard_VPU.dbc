@@ -1,0 +1,3184 @@
+VERSION "HNPBNNNYNNNNNNNNNNNNNNNNNNNNNNNNYNYYYYYYYY>4>%%%/4>'%**4YYY///"
+
+
+NS_ : 
+	NS_DESC_
+	CM_
+	BA_DEF_
+	BA_
+	VAL_
+	CAT_DEF_
+	CAT_
+	FILTER
+	BA_DEF_DEF_
+	EV_DATA_
+	ENVVAR_DATA_
+	SGTYPE_
+	SGTYPE_VAL_
+	BA_DEF_SGTYPE_
+	BA_SGTYPE_
+	SIG_TYPE_REF_
+	VAL_TABLE_
+	SIG_GROUP_
+	SIG_VALTYPE_
+	SIGTYPE_VALTYPE_
+	BO_TX_BU_
+	BA_DEF_REL_
+	BA_REL_
+	BA_DEF_DEF_REL_
+	BU_SG_REL_
+	BU_EV_REL_
+	BU_BO_REL_
+	SG_MUL_VAL_
+
+BS_:
+
+BU_: DMS_PC OpelInsigna RP_ECU_BSD_FRONT CanCmd RDU ARS300 CSF200 RP_ECU_TVB RP_ECU_IQF Car_PC RP_ECU_IPAS FFP IC SCCM TZH_CAN_Modul BCU3 ARS_ISF CG_VPU RBTM_FR RBTM_FL IQF CG_out VBOX_III CarPC BMW_SF_CAN POD_CAN FlexXconMidget ExtCAN ACC_Radar
+VAL_TABLE_ parkReq 3 "hold permanently" 2 "hold temporarily" 1 "release" 0 "stay" ;
+VAL_TABLE_ gearReq 3 "forward" 2 "neutral" 1 "backward" 0 "stay" ;
+VAL_TABLE_ GlblTm_Multiplex 2 "gpsTime" 1 "sysTimestamp" 0 "msgCount" ;
+VAL_TABLE_ RCG_LED 1 "ein" 0 "aus" ;
+VAL_TABLE_ SwitchACCOff 1 "yes" 0 "no" ;
+VAL_TABLE_ SwitchACCOn 1 "yes" 0 "no" ;
+VAL_TABLE_ InterventionTypeCenter 15 "LCA" 14 "no intervention" 13 "LCA" 12 "no intervention" 11 "LCA" 10 "no intervention" 9 "LCA" 8 "no intervention" 7 "LCA" 6 "no intervention" 5 "LCA" 4 "no intervention" 3 "LCA" 2 "no intervention" 1 "LCA" 0 "no intervention" ;
+VAL_TABLE_ InterventionTypeLeftRight 15 "VWall & LDW" 14 "LDW" 13 "VWall" 12 "no intervention" 11 "VWall & LDW" 10 "LDW" 9 "VWall" 8 "no intervention" 7 "VWall & LDW" 6 "LDW" 5 "VWall" 4 "no intervention" 3 "VWall & LDW" 2 "LDW" 1 "VWall" 0 "no intervention" ;
+VAL_TABLE_ VLongRequestType 1 "NORMAL_V_REQUEST" 0 "OFF" ;
+VAL_TABLE_ ALongRequestType 2 "NORMAL_A_REQUEST" 1 "RAMP_DOWN_MODE" 0 "OFF" ;
+VAL_TABLE_ AFFPJitterFrequency 3 "40Hz" 2 "30Hz" 1 "20Hz" 0 "10Hz" ;
+VAL_TABLE_ AFFPJitterForm 3 "undef." 2 "Rectangle" 1 "Sawtooth" 0 "Sinus" ;
+VAL_TABLE_ AFFPJitterAmplitude 7 "70% of AFFPForce" 6 "60% of AFFPForce" 5 "50% of AFFPForce" 4 "40% of AFFPForce" 3 "30% of AFFPForce" 2 "20% of AFFPForce" 1 "10% of AFFPForce" 0 "0% of AFFPForce" ;
+VAL_TABLE_ AGB_IMU_True_False 1 "True" 0 "False" ;
+VAL_TABLE_ AGB_IMU_InValid_Valid 1 "Invalid" 0 "Valid" ;
+VAL_TABLE_ LateralMarginType 2 "Vehicle" 1 "CrashBarrier" 0 "Line" ;
+VAL_TABLE_ VtAvidLed 1 "LED switched on" 0 "LED off" ;
+VAL_TABLE_ VtAGB_ReqMaxEngTqStatus 1 "No AGB request active" 0 "AGB requests torque reduction" ;
+VAL_TABLE_ LaLdwActiveState 7 "LDW Suppressed Right + Left" 6 "- *" 5 "LDW Suppressed Right" 4 "LDW Warning Right" 3 "LDW Suppressed Left" 2 "LDW Warning Left" 1 "- *" 0 "LDW Idle *" ;
+VAL_TABLE_ LaLkaLcaActiveState 7 "LKA/LCA Suppressed Right + Left" 6 "LCA in Progress * (Intervention Right + Left so to say)" 5 "LKA Suppressed Right" 4 "LKA Intervention Right" 3 "LKA Suppressed Left" 2 "LKA Intervention Left" 1 "LKA Idle, LCA Suppressed *" 0 "LKA Idle *" ;
+
+
+BO_ 1386 mACC_GRA_Anzeige: 8 ACC_Radar
+ SG_ ACA_ID_StaACC : 11|5@1+ (1,0) [0|31] ""  ExtCAN
+ SG_ ACA_Fahrerhinw : 16|1@1+ (1,0) [0|1] ""  ExtCAN
+ SG_ ACA_V_Wunsch : 24|8@1+ (1,0) [0|254] "km/h"  ExtCAN
+ SG_ ACA_PrioDisp : 35|2@1+ (1,0) [0|3] ""  ExtCAN
+ SG_ ACA_StaACC : 8|3@1+ (1,0) [0|7] ""  ExtCAN
+ SG_ ACA_AnzDisplay : 17|1@1+ (1,0) [0|1] ""  ExtCAN
+ SG_ ACA_Zeitluecke : 18|4@1+ (1,0) [0|15] ""  ExtCAN
+ SG_ ACA_gemZeitl : 40|4@1+ (1,0) [0|15] ""  ExtCAN
+ SG_ ACA_kmh_mph : 32|1@1+ (1,0) [0|1] ""  ExtCAN
+ SG_ ACA_Akustik1 : 33|1@1+ (1,0) [0|1] ""  ExtCAN
+ SG_ ACA_Akustik2 : 34|1@1+ (1,0) [0|1] ""  ExtCAN
+ SG_ ACA_Checksum : 0|8@1+ (1,0) [0|255] ""  ExtCAN
+ SG_ ACA_Codierung : 56|1@1+ (1,0) [0|1] ""  ExtCAN
+ SG_ ACA_Tachokranz : 57|1@1+ (1,0) [0|1] ""  ExtCAN
+ SG_ ACA_ACC_Verz : 44|1@1+ (1,0) [0|1] ""  ExtCAN
+ SG_ ACA_res_22 : 22|2@1+ (1,0) [0|3] ""  ExtCAN
+ SG_ ACA_Zaehler : 60|4@1+ (1,0) [0|15] ""  ExtCAN
+ SG_ ACA_res_37 : 37|2@1+ (1,0) [0|3] ""  ExtCAN
+ SG_ ACA_res_45 : 45|3@1+ (1,0) [0|7] ""  ExtCAN
+ SG_ ACA_ID_StaGRA : 51|5@1+ (1,0) [0|31] ""  ExtCAN
+ SG_ ACA_res_59 : 59|1@1+ (1,0) [0|1] ""  ExtCAN
+ SG_ ACA_res_39 : 39|1@1+ (1,0) [0|1] ""  ExtCAN
+ SG_ ACA_Aend_Zeitluecke : 58|1@1+ (1,0) [0|1] ""  ExtCAN
+ SG_ ACA_StaGRA : 48|3@1+ (1,0) [0|7] ""  ExtCAN
+
+BO_ 872 mACC_System: 8 ACC_Radar
+ SG_ ACS_Schubabsch : 15|1@1+ (1,0) [0|1] ""  ExtCAN
+ SG_ ACS_ADR_Schub : 14|1@1+ (1,0) [0|1] ""  ExtCAN
+ SG_ ACS_Checksum : 0|8@1+ (1,0) [0|255] ""  ExtCAN
+ SG_ ACS_Sta_ADR : 12|2@1+ (1,0) [0|3] ""  ExtCAN
+ SG_ ACS_StSt_Info : 16|2@1+ (1,0) [0|3] ""  ExtCAN
+ SG_ ACS_Zaehler : 8|4@1+ (1,0) [0|15] ""  ExtCAN
+ SG_ ACS_MomEingriff : 18|1@1+ (1,0) [0|1] ""  ExtCAN
+ SG_ ACS_FreigSollB : 23|1@1+ (1,0) [0|1] ""  ExtCAN
+ SG_ ACS_Sollbeschl : 24|11@1+ (0.005,-7.22) [-7.22|3.005] "m/ss"  ExtCAN
+ SG_ ACS_res_21 : 21|2@1+ (1,0) [0|3] ""  ExtCAN
+ SG_ ACS_res_37 : 37|1@1+ (1,0) [0|1] ""  ExtCAN
+ SG_ ACS_res_35 : 35|1@1+ (1,0) [0|1] ""  ExtCAN
+ SG_ ACS_Typ_ACC : 19|2@1+ (1,0) [0|3] ""  ExtCAN
+ SG_ ACS_Anhaltewunsch : 38|1@1+ (1,0) [0|1] ""  ExtCAN
+ SG_ ACS_zul_Regelabw : 40|8@1+ (0.005,0) [0|1.265] "m/ss"  ExtCAN
+ SG_ ACS_res_36 : 36|1@1+ (1,0) [0|1] ""  ExtCAN
+ SG_ ACS_max_AendGrad : 48|8@1+ (0.02,0) [0.02|5.06] "m/ss"  ExtCAN
+ SG_ ACS_res_56 : 56|1@1+ (1,0) [0|1] ""  ExtCAN
+ SG_ ACS_res_57 : 57|1@1+ (1,0) [0|1] ""  ExtCAN
+ SG_ ACS_Fehler : 39|1@1+ (1,0) [0|1] ""  ExtCAN
+ SG_ ACS_res_58 : 58|1@1+ (1,0) [0|1] ""  ExtCAN
+ SG_ ACS_res_59 : 59|1@1+ (1,0) [0|1] ""  ExtCAN
+ SG_ ACS_res_63 : 63|1@1+ (1,0) [0|1] ""  ExtCAN
+ SG_ ACS_res_60 : 60|1@1+ (1,0) [0|1] ""  ExtCAN
+ SG_ ACS_res_62 : 62|1@1+ (1,0) [0|1] ""  ExtCAN
+ SG_ ACS_res_61 : 61|1@1+ (1,0) [0|1] ""  ExtCAN
+
+BO_ 870 mAWV: 5 ACC_Radar
+ SG_ AWV_2_Status : 24|1@1+ (1,0) [0|1] ""  ExtCAN
+ SG_ AWV_2_SU_Warnzeit : 26|2@1+ (1,0) [0|3] ""  ExtCAN
+ SG_ AWV_Checksumme : 0|8@1+ (1,0) [0|255] ""  ExtCAN
+ SG_ AWV_Zaehler : 8|4@1+ (1,0) [0|15] ""  ExtCAN
+ SG_ AWV_2_Fehler : 25|1@1+ (1,0) [0|1] ""  ExtCAN
+ SG_ AWV_1_Prefill : 17|1@1+ (1,0) [0|1] ""  ExtCAN
+ SG_ AWV_Text : 12|4@1+ (1,0) [0|15] ""  ExtCAN
+ SG_ AWV_res_20 : 20|4@1+ (1,0) [0|15] ""  ExtCAN
+ SG_ AWV_1_Freigabe : 16|1@1+ (1,0) [0|1] ""  ExtCAN
+ SG_ AWV_2_SU_Bremsruck : 28|1@1+ (1,0) [0|1] ""  ExtCAN
+ SG_ AWV_1_Parameter : 18|2@1+ (1,0) [0|3] ""  ExtCAN
+ SG_ AWV_2_Umfeldwarn : 31|1@1+ (1,0) [0|1] ""  ExtCAN
+ SG_ AWV_2_Freigabe : 32|1@1+ (1,0) [0|1] ""  ExtCAN
+ SG_ AWV_2_Gurtstraffer : 39|1@1+ (1,0) [0|1] ""  ExtCAN
+ SG_ AWV_2_SU_Gong : 29|1@1+ (1,0) [0|1] ""  ExtCAN
+ SG_ AWV_Infoton : 38|1@1+ (1,0) [0|1] ""  ExtCAN
+ SG_ AWV_2_Warnsymbol : 37|1@1+ (1,0) [0|1] ""  ExtCAN
+ SG_ AWV_2_Warnton : 36|1@1+ (1,0) [0|1] ""  ExtCAN
+ SG_ AWV_2_Ruckprofil : 33|3@1+ (1,0) [0|7] ""  ExtCAN
+ SG_ AWV_2_SU_Lampe : 30|1@1+ (1,0) [0|1] ""  ExtCAN
+
+BO_ 1652 BAP_ACC: 8 ACC_Radar
+ SG_ BAP_Data_ACC : 0|16@1+ (1,0) [0|65535] ""  ExtCAN
+ SG_ BAP_var_ACC : 16|48@1+ (1,0) [0|2.8147497671E+014] ""  ExtCAN
+
+BO_ 530 CamObj_3_DTQ: 8 FlexXconMidget
+ SG_ CamObj_3_DTQ_Width : 48|9@1+ (0.01,0) [0|0] ""  POD_CAN
+ SG_ CamObj_3_DTQ_VY : 32|12@1+ (0.005,-10) [0|0] ""  POD_CAN
+ SG_ CamObj_3_DTQ_Vld : 31|1@1+ (1,0) [0|0] ""  POD_CAN
+ SG_ CamObj_3_DTQ_Type : 14|2@1+ (1,0) [0|0] ""  POD_CAN
+ SG_ CamObj_3_DTQ_Stat : 57|3@1+ (1,0) [0|0] ""  POD_CAN
+ SG_ CamObj_3_DTQ_Offset_Y : 16|14@1+ (0.005,-40.95) [0|0] ""  POD_CAN
+ SG_ CamObj_3_DTQ_Dist_X : 0|14@1+ (0.005,0) [0|0] ""  POD_CAN
+ SG_ CamObj_3_DTQ_DataQual : 44|4@1+ (0.1,0) [0|0] ""  POD_CAN
+
+BO_ 529 CamObj_2_DTQ: 8 FlexXconMidget
+ SG_ CamObj_2_DTQ_Width : 48|9@1+ (0.01,0) [0|0] ""  POD_CAN
+ SG_ CamObj_2_DTQ_VY : 32|12@1+ (0.005,-10) [0|0] ""  POD_CAN
+ SG_ CamObj_2_DTQ_Vld : 31|1@1+ (1,0) [0|0] ""  POD_CAN
+ SG_ CamObj_2_DTQ_Type : 14|2@1+ (1,0) [0|0] ""  POD_CAN
+ SG_ CamObj_2_DTQ_Stat : 57|3@1+ (1,0) [0|0] ""  POD_CAN
+ SG_ CamObj_2_DTQ_Offset_Y : 16|14@1+ (0.005,-40.95) [0|0] ""  POD_CAN
+ SG_ CamObj_2_DTQ_Dist_X : 0|14@1+ (0.005,0) [0|0] ""  POD_CAN
+ SG_ CamObj_2_DTQ_DataQual : 44|4@1+ (0.1,0) [0|0] ""  POD_CAN
+
+BO_ 528 CamObj_1_DTQ: 8 FlexXconMidget
+ SG_ CamObj_1_DTQ_Width : 48|9@1+ (0.01,0) [0|0] ""  POD_CAN
+ SG_ CamObj_1_DTQ_VY : 32|12@1+ (0.005,-10) [0|0] ""  POD_CAN
+ SG_ CamObj_1_DTQ_Vld : 31|1@1+ (1,0) [0|0] ""  POD_CAN
+ SG_ CamObj_1_DTQ_Type : 14|2@1+ (1,0) [0|0] ""  POD_CAN
+ SG_ CamObj_1_DTQ_Stat : 57|3@1+ (1,0) [0|0] ""  POD_CAN
+ SG_ CamObj_1_DTQ_Offset_Y : 16|14@1+ (0.005,-40.95) [0|0] ""  POD_CAN
+ SG_ CamObj_1_DTQ_Dist_X : 0|14@1+ (0.005,0) [0|0] ""  POD_CAN
+ SG_ CamObj_1_DTQ_DataQual : 44|4@1+ (0.1,0) [0|0] ""  POD_CAN
+
+BO_ 7 GlobalTime: 8 Vector__XXX
+ SG_ GlblTm_MultiplexorId M : 1|2@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ GlblTm_GpsTime m2 : 8|56@1+ (1,0) [0|0] "µs" Vector__XXX
+ SG_ GlblTm_SystemTimestamp m1 : 8|56@1+ (1,0) [0|0] "µs" Vector__XXX
+
+BO_ 1632 Messlenkrad1: 8 Vector__XXX
+
+BO_ 1633 Messlenkrad2: 8 Vector__XXX
+
+BO_ 163 ExtSteerReq3: 6 Vector__XXX
+ SG_ ExtSteerReq_C0C1_quality : 47|4@0+ (1,0) [0|15] "" Vector__XXX
+ SG_ ExtSteerReq_C0C1_priority : 39|6@0+ (1,0) [0|63] "" Vector__XXX
+ SG_ ExtSteerReq_C0C1_c1 : 23|16@0- (4E-006,0) [-0.131072|0.131068] "1/m²" Vector__XXX
+ SG_ ExtSteerReq_C0C1_c0 : 7|16@0- (4E-006,0) [-0.131072|0.131068] "1/m" Vector__XXX
+ SG_ ExtSteerReq_C0C1_active : 32|1@0+ (1,0) [0|1] "" Vector__XXX
+
+BO_ 380 SALatLongC_Debug: 7 Vector__XXX
+ SG_ SALaLoDbug_nrstGOReliab : 51|3@0+ (1,0) [0|7] "" Vector__XXX
+ SG_ SALaLoDbug_nrstGOId : 47|10@0+ (1,0) [0|1023] "" Vector__XXX
+ SG_ SALaLoDbug_nrstGOType : 53|2@0+ (1,0) [0|3] "" Vector__XXX
+ SG_ SALaLoDbug_nrstGOvMax : 19|10@0- (0.1,0) [-51.2|51.1] "m/s" Vector__XXX
+ SG_ SALaLoDbug_nrstGOaxRel : 13|10@0- (0.1,0) [-51.2|51.1] "m/s²" Vector__XXX
+ SG_ SALaLoDbug_nrstGOvyRel : 25|10@0- (0.1,0) [-51.2|51.1] "m/s" Vector__XXX
+ SG_ SALaLoDbug_nrstGOvxRel : 7|10@0- (0.1,0) [-51.2|51.1] "m/s" Vector__XXX
+
+BO_ 1812 DV_ACTN_ACPD: 8 BMW_SF_CAN
+ SG_ QU_AVL_ANG_ACPD_SFCAN : 28|4@1+ (1,0) [0|0] ""  CarPC
+ SG_ GRAD_AVL_ANG_ACPD_SFCAN : 32|12@1+ (4,-8187) [-8187|8188] "%/s"  CarPC
+ SG_ CRC_DV_ACTN_ACPD : 0|8@1+ (1,0) [0|255] ""  CarPC
+ SG_ AVL_ANG_ACPD_SFCAN : 16|12@1+ (0.025,0) [0|100] "%"  CarPC
+ SG_ ALIV_DV_ACTN_ACPD : 8|4@1+ (1,0) [0|0] ""  CarPC
+
+BO_ 1355 mParkhilfe_5: 8 RDU
+ SG_ PA5_VMR_Abstand : 40|8@1+ (1,0) [0|254] "cm"  Car_PC
+ SG_ PA5_VL_Abstand : 0|8@1+ (1,0) [0|254] "cm"  Car_PC
+ SG_ PA5_HL_Abstand : 16|8@1+ (1,0) [0|254] "cm"  Car_PC
+ SG_ PA5_HR_Abstand : 24|8@1+ (1,0) [0|254] "cm"  Car_PC
+ SG_ PA5_HML_Abstand : 48|8@1+ (1,0) [0|254] "cm"  Car_PC
+ SG_ PA5_HMR_Abstand : 56|8@1+ (1,0) [0|254] "cm"  Car_PC
+ SG_ PA5_VML_Abstand : 32|8@1+ (1,0) [0|254] "cm"  Car_PC
+ SG_ PA5_VR_Abstand : 8|8@1+ (1,0) [0|254] "cm"  Car_PC
+
+BO_ 1798 Tra_2: 6 Vector__XXX
+ SG_ Tra_2_YVBox : 32|16@1- (0.01,0) [0|0] "m" Vector__XXX
+ SG_ Tra_2_XVBox : 16|16@1- (0.01,0) [0|0] "m" Vector__XXX
+ SG_ Tra_2_YawVBox : 0|16@1- (0.00174533,0) [0|0] "rad" Vector__XXX
+
+BO_ 1797 Tra_1: 6 Vector__XXX
+ SG_ Tra_1_YPosEgo : 32|16@1- (0.01,0) [0|0] "m" Vector__XXX
+ SG_ Tra_1_XPosEgo : 16|16@1- (0.01,0) [0|0] "m" Vector__XXX
+ SG_ Tra_1_YawPosEgo : 0|16@1- (0.00174533,0) [0|0] "rad" Vector__XXX
+
+BO_ 1796 Tra_0: 8 Vector__XXX
+ SG_ Tra_0_C0S : 53|14@0- (3E-005,0) [0|0] "1/m" Vector__XXX
+ SG_ Tra_0_YS : 17|14@0- (0.01,0) [0|0] "m" Vector__XXX
+ SG_ Tra_0_XS : 15|14@0- (0.01,0) [0|0] "m" Vector__XXX
+ SG_ Tra_0_iTraAct : 7|8@0+ (1,0) [0|0] "-" Vector__XXX
+ SG_ Tra_0_AlphaS : 35|14@0- (0.00174533,0) [0|0] "rad" Vector__XXX
+
+BO_ 162 ExtSteerReq2: 8 Car_PC
+ SG_ ExtSteerReq_Dev2Pth_psi_LSB : 55|5@0- (0.00015625,0) [0|0] "rad" Vector__XXX
+ SG_ ExtSteerReq_Dev2Pth_y : 39|10@0- (0.01,0) [-5.12|5.11] "m" Vector__XXX
+ SG_ ExtSteerReq_Dev2Pth_psi : 23|10@0- (0.0025,0) [-1.28|1.2775] "rad" Vector__XXX
+ SG_ ExtSteerReq_Dev2Pth_c0 : 7|16@0- (1E-005,0) [-0.32768|0.32767] "1/m" Vector__XXX
+ SG_ ExtSteerReq_Dev2Pth_quality : 45|4@0+ (1,0) [0|15] "" Vector__XXX
+ SG_ ExtSteerReq_Dev2Pth_priority : 29|6@0+ (1,0) [0|63] "" Vector__XXX
+ SG_ ExtSteerReq_Dev2Pth_active : 40|1@0+ (1,0) [0|1] "" Vector__XXX
+
+BO_ 1927 TZH_CAN_Modul_8_debug: 8 Vector__XXX
+
+BO_ 308 TZH_CAN_Modul_8: 8 Vector__XXX
+
+BO_ 340 TZH_CAN_Modul_8_Set: 8 Vector__XXX
+
+BO_ 1943 TZH_CAN_Modul_7_debug: 8 Vector__XXX
+
+BO_ 306 TZH_CAN_Modul_7: 8 Vector__XXX
+
+BO_ 338 TZH_CAN_Modul_7_Set: 8 Vector__XXX
+
+BO_ 336 TZH_CAN_Modul_6_Set: 8 Vector__XXX
+ SG_ RCG_LED_Fahrer_mitte : 0|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RCG_LED_Fahrer_innen : 5|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RCG_LED_Fahrer_aussen : 1|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RCG_LED_Beifahrer_mitte : 3|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RCG_LED_Beifahrer_innen : 4|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RCG_LED_Beifahrer_aussen : 2|1@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 637 BSDObj_FR_Kopie_1: 8 Vector__XXX
+ SG_ BSDyVelRight : 39|8@0- (0.2,0) [-25.6|25.4] "" Vector__XXX
+ SG_ BSDxVelRight : 31|8@0- (0.2,0) [-25.6|25.4] "" Vector__XXX
+ SG_ BSDyPosRight : 23|8@0- (0.1,0) [-12.8|12.7] "" Vector__XXX
+ SG_ BSDxPosRight : 15|8@0- (0.1,0) [-12.8|12.7] "" Vector__XXX
+ SG_ BSDStatusRight : 7|8@0- (1,0) [-128|127] "" Vector__XXX
+
+BO_ 636 BSDObj_FL_Kopie_1: 8 Vector__XXX
+ SG_ BSDyVelLeft : 39|8@0- (0.2,0) [-25.6|25.4] "" Vector__XXX
+ SG_ BSDxVelLeft : 31|8@0- (0.2,0) [-25.6|25.4] "" Vector__XXX
+ SG_ BSDyPosLeft : 23|8@0- (0.1,0) [-12.8|12.7] "" Vector__XXX
+ SG_ BSDxPosLeft : 15|8@0- (0.1,0) [-12.8|12.7] "" Vector__XXX
+ SG_ BSDStatusLeft : 7|8@0- (1,0) [-128|127] "" Vector__XXX
+
+BO_ 379 SALatLongB_Debug: 7 Car_PC
+ SG_ SALaLoDbug_nearestBTdelaySncMeas : 43|10@0+ (0.001,0) [0|1.023] "s" Vector__XXX
+ SG_ SALaLoDbug_globTimSync : 45|2@0+ (1,0) [0|3] "" Vector__XXX
+ SG_ SALaLoDbug_nearestBTdelay : 39|10@0+ (0.001,0) [0|1.023] "s" Vector__XXX
+ SG_ SALaLoDbug_nearestBTx : 7|12@0- (0.1,0) [-204.8|204.7] "m" Vector__XXX
+ SG_ SALaLoDbug_nearestBTvx : 11|10@0- (0.1,0) [-51.2|51.1] "m/s" Vector__XXX
+ SG_ SALaLoDbug_nearestBTax : 17|10@0- (0.1,0) [-51.2|51.1] "m/s²" Vector__XXX
+
+BO_ 161 ExtSteerReq1: 5 Car_PC
+ SG_ ExtSteerReq_Tor_priority : 13|6@0+ (1,0) [0|63] "" Vector__XXX
+ SG_ ExtSteerReq_Ang_value : 23|12@0- (0.4,0) [-819.2|818.8] "deg" Vector__XXX
+ SG_ ExtSteerReq_Ang_active : 33|1@0+ (1,0) [0|1] "" Vector__XXX
+ SG_ ExtSteerReq_Ang_quality : 27|4@0+ (1,0) [0|15] ""  RDU
+ SG_ ExtSteerReq_Tor_active : 32|1@0+ (1,0) [0|1] ""  RDU
+ SG_ ExtSteerReq_Tor_value : 7|10@0- (0.04,0) [-20.48|20.44] "Nm"  RDU
+ SG_ ExtSteerReq_Ang_priority : 39|6@0+ (1,0) [0|63] ""  RDU
+
+BO_ 1056 ACC_CNTRL_STAT: 8 ARS_ISF
+ SG_ ACC_LIM : 27|1@0+ (1,0) [0|1] "-"  RDU
+ SG_ ACC_REQ_MIN : 26|11@0+ (0.01,-10.23) [-10.23|10.23] "m/s²"  RDU
+ SG_ ACC_REQ_MAX : 23|11@0+ (0.01,-10.23) [-10.23|10.23] "m/s²"  RDU
+ SG_ ACC_PREFILL : 0|1@0+ (1,0) [0|1] ""  RDU
+ SG_ ACC_MODE : 7|3@0+ (1,0) [0|7] ""  RDU
+ SG_ ACC_ALIVE : 4|4@0+ (1,0) [0|15] ""  RDU
+ SG_ CRC_420h : 15|8@0+ (1,0) [0|255] ""  RDU
+
+BO_ 559 HMI_STAT_IN: 8 RDU
+ SG_ ACC_DriveOff : 28|1@1+ (1,0) [0|0] ""  ARS_ISF
+ SG_ ACC_Set_Off : 27|1@1+ (1,0) [0|0] ""  ARS_ISF
+ SG_ ACC_Set_On : 26|1@1+ (1,0) [0|0] ""  ARS_ISF
+ SG_ ACC_Set_Setspeed : 48|8@1+ (1,0) [0|0] "km/h"  ARS_ISF
+ SG_ ACC_Max_Setspeed : 56|8@1+ (1,0) [0|0] "km/h"  ARS_ISF
+ SG_ V_SPEEDO_UNIT : 47|1@1+ (0.1,0) [0|1] "-"  ARS_ISF
+ SG_ V_SPEEDO : 32|15@1+ (0.01,0) [0|327.67] "km/h | mph"  ARS_ISF
+ SG_ DM_ON : 6|1@1+ (1,0) [0|1] "-"  ARS_ISF
+ SG_ LKA_ON : 5|1@1+ (1,0) [0|1] "-"  ARS_ISF
+ SG_ FCA_ON : 4|1@1+ (1,0) [0|1] "-"  ARS_ISF
+ SG_ ACC_REQ_HEADWAY : 24|2@1+ (1,0) [0|3] "%"  ARS_ISF
+ SG_ ACC_GAP_UP : 3|1@1+ (1,0) [0|1] "-"  ARS_ISF
+ SG_ ACC_GAP_DOWN : 2|1@1+ (1,0) [0|1] "-"  ARS_ISF
+ SG_ CC_RESUME : 1|1@1+ (1,0) [0|1] "-"  ARS_ISF
+ SG_ CC_MAIN_ON : 0|1@1+ (1,0) [0|1] "-"  ARS_ISF
+ SG_ CC_CANCEL : 7|1@1+ (1,0) [0|1] "-"  ARS_ISF
+ SG_ CC_DECEL : 16|8@1+ (1,0) [0|255] "-"  ARS_ISF
+ SG_ CC_ACCEL : 8|8@1+ (1,0) [0|255] "-"  ARS_ISF
+
+BO_ 1073 HMI_STAT_OUT: 8 ARS_ISF
+ SG_ DM_STATE : 38|2@1+ (1,0) [0|3] "-"  RDU
+ SG_ FCA_STATE : 33|2@1+ (1,0) [0|3] "-"  RDU
+ SG_ DM_ALERT : 36|2@1+ (1,0) [0|3] "-"  RDU
+ SG_ FAILURE_STATE : 60|2@1+ (1,0) [0|3] "-"  RDU
+ SG_ CC_DISPL_MODE : 56|4@1+ (1,0) [0|14] "-"  RDU
+ SG_ ACC_HEADWAY_SETTING : 48|7@1+ (1,0) [0|100] "%"  RDU
+ SG_ ACC_REC_SPEED : 40|8@1+ (1,0) [0|250] "km/h | mph"  RDU
+ SG_ ACC_DRIVE_OFF_POS : 55|1@1+ (1,0) [0|1] "-"  RDU
+ SG_ ACC_CONF_REQ : 63|1@1+ (1,0) [0|1] "-"  RDU
+ SG_ ACC_ALERT : 35|1@1+ (1,0) [0|1] "-"  RDU
+ SG_ ACC_OBJ_DET : 62|1@1+ (1,0) [0|1] "-"  RDU
+ SG_ FCA_ALERT : 32|1@1+ (1,0) [0|1] "-"  RDU
+ SG_ ACC_OBJ_SPEED : 24|8@1+ (1,0) [0|250] "km/h | mph"  RDU
+ SG_ CC_SET_SPEED : 16|8@1+ (1,0) [0|250] "km/h | mph"  RDU
+ SG_ ACC_REQ_DIST : 8|8@1+ (1,0) [0|254] "m"  RDU
+ SG_ ACC_DIST : 0|8@1+ (1,0) [0|254] "m"  RDU
+
+BO_ 787 MiniDisplay_status: 8 Vector__XXX
+ SG_ MD_ImageRegion4 : 55|5@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ MD_ImageRegion3 : 39|5@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ MD_ImageRegion2 : 23|5@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ MD_ImageRegion1 : 7|5@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ MD_Image4Source : 48|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ MD_Image4Priority : 49|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ MD_Image3Source : 32|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ MD_Image3Priority : 33|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ MD_Image2Source : 16|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ MD_Image2Priority : 17|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ MD_Image1Source : 0|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ MD_Image1Priority : 1|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ MD_ActiveImage4 : 63|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ MD_ActiveImage3 : 47|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ MD_ActiveImage2 : 31|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ MD_ActiveImage1 : 15|8@0+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 377 SALatLong9: 8 Car_PC
+ SG_ SALaLoIqf9_strengthR : 7|7@0+ (0.7874015748,0) [0|100] "%"  IQF
+ SG_ SALaLoIqf9_projectionR : 63|8@0+ (0.4,0) [0|102] "m"  IQF
+ SG_ SALaLoIqf9_availableR : 0|1@0+ (1,0) [0|1] ""  IQF
+ SG_ SALaLoIqf9_psiR : 41|10@0- (0.001,0) [-0.512|0.511] "rad"  IQF
+ SG_ SALaLoIqf9_intervTypeR : 45|4@0+ (1,0) [0|15] "-"  IQF
+ SG_ SALaLoIqf9_dyR : 39|10@0- (0.01,0) [-5.12|5.11] "m"  IQF
+ SG_ SALaLoIqf9_c0R : 15|12@0- (1E-005,0) [-0.02048|0.02047] "1/m"  IQF
+ SG_ SALaLoIqf9_c1R : 19|12@0- (1E-007,0) [-0.0002048|0.0002047] "1/m²"  IQF
+
+BO_ 376 SALatLong8: 8 Car_PC
+ SG_ SALaLoIqf8_strengthL : 7|7@0+ (0.7874015748,0) [0|100] "%"  IQF
+ SG_ SALaLoIqf8_projectionL : 63|8@0+ (0.4,0) [0|102] "m"  IQF
+ SG_ SALaLoIqf8_availableL : 0|1@0+ (1,0) [0|1] ""  IQF
+ SG_ SALaLoIqf8_psiL : 41|10@0- (0.001,0) [-0.512|0.511] "rad"  IQF
+ SG_ SALaLoIqf8_c1L : 19|12@0- (1E-007,0) [-0.0002048|0.0002047] "1/m²"  IQF
+ SG_ SALaLoIqf8_c0L : 15|12@0- (1E-005,0) [-0.02048|0.02047] "1/m"  IQF
+ SG_ SALaLoIqf8_intervTypeL : 45|4@0+ (1,0) [0|15] "-"  IQF
+ SG_ SALaLoIqf8_dyL : 39|10@0- (0.01,0) [-5.12|5.11] "m"  IQF
+
+BO_ 375 SALatLong7: 8 Car_PC
+ SG_ SALaLoIqf7_tqRampDistR : 63|8@0+ (0.01,0) [0|2.55] "m"  IQF
+ SG_ SALaLoIqf7_tqRampDistL : 31|8@0+ (0.01,0) [0|2.55] "m"  IQF
+ SG_ SALaLoIqf7_minDistR : 39|8@0+ (0.01,0) [0|2.55] "m"  IQF
+ SG_ SALaLoIqf7_minDistL : 7|8@0+ (0.01,0) [0|2.55] "m"  IQF
+ SG_ SALaLoIqf7_midDistR : 47|8@0+ (0.01,0) [0|2.55] "m"  IQF
+ SG_ SALaLoIqf7_midDistL : 15|8@0+ (0.01,0) [0|2.55] "m"  IQF
+ SG_ SALaLoIqf7_maxDistR : 55|8@0+ (0.01,0) [0|2.55] "m"  IQF
+ SG_ SALaLoIqf7_maxDistL : 23|8@0+ (0.01,0) [0|2.55] "m"  IQF
+
+BO_ 1895 TZH_CAN_Modul_5_debug: 8 Vector__XXX
+
+BO_ 1863 TZH_CAN_Modul_4_debug: 8 Vector__XXX
+
+BO_ 1879 TZH_CAN_Modul_3_debug: 8 Vector__XXX
+
+BO_ 1911 TZH_CAN_Modul_2_debug: 8 Vector__XXX
+
+BO_ 549 AccTzReq: 2 Car_PC
+ SG_ AccTzStateReq : 11|2@1+ (1,0) [0|0] ""  RDU
+ SG_ AccTzSpeedEnable : 8|1@1+ (1,0) [0|0] ""  RDU
+ SG_ AccTzSetSpeedReq : 0|8@1+ (1,0) [0|0] "km/h"  RDU
+ SG_ AccTzDistReq : 9|2@1+ (1,0) [0|0] ""  RDU
+
+BO_ 786 PC_Status: 8 Vector__XXX
+ SG_ PC_Status_Value : 0|8@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 1030 VBOX_6_ID406: 8 Vector__XXX
+ SG_ Vel_Quality_ID406 : 7|16@0- (0.01,0) [0|0] "km/h" Vector__XXX
+
+BO_ 774 VBOX_6: 8 VBOX_III
+ SG_ Vel_Quality : 7|16@0- (0.01,0) [0|0] "km/h" Vector__XXX
+
+BO_ 1028 VBOX_4_ID404: 8 Vector__XXX
+ SG_ Longitudinal_acceleration_ID404 : 23|16@0- (0.01,0) [-327.68|327.67] "G" Vector__XXX
+ SG_ Lateral_acceleration_ID404 : 7|16@0- (0.01,0) [-327.68|327.67] "G" Vector__XXX
+
+BO_ 1027 VBOX_3_ID403: 8 Vector__XXX
+ SG_ DGPS_ID403 : 31|1@0+ (1,0) [0|0] "On" Vector__XXX
+ SG_ Altitude_WGS84_ID403 : 7|24@0- (0.01,0) [0|42949700] "metres" Vector__XXX
+
+BO_ 1026 VBOX_2_ID402: 8 Vector__XXX
+ SG_ Velocity_Kmh_ID402 : 39|16@0+ (0.01852,0) [0|1213.7082] "Km/h" Vector__XXX
+ SG_ Heading_ID402 : 55|16@0+ (0.01,0) [0|359.99] "Degrees" Vector__XXX
+ SG_ Longitude_ID402 : 7|32@0- (1E-005,0) [-21474.83648|21474.83647] "Minutes" Vector__XXX
+
+BO_ 1025 VBOX_1_ID401: 8 Vector__XXX
+ SG_ Latitude_ID401 : 39|32@0- (1E-005,0) [-21474.83648|21474.83647] "Minutes" Vector__XXX
+ SG_ Sats_ID401 : 7|8@0+ (1,0) [0|12] "Sats" Vector__XXX
+ SG_ Time_Since_Midnight_ID401 : 15|24@0+ (0.01,0) [0|0] "Seconds" Vector__XXX
+
+BO_ 773 VBOX_5: 8 VBOX_III
+ SG_ Trig_Vel_Mph : 55|16@0+ (0.0115078,0) [0|754.163673] "Mph" Vector__XXX
+ SG_ Trig_Vel_Kmh : 55|16@0+ (0.01852,0) [0|1213.7082] "Km/h" Vector__XXX
+ SG_ Trig_time : 39|16@0+ (0.01,0) [0|655.35] "Secs" Vector__XXX
+ SG_ Distance : 7|32@0+ (7.8125E-005,0) [0|335544] "Metres" Vector__XXX
+
+BO_ 772 VBOX_4: 8 VBOX_III
+ SG_ Lateral_acceleration : 55|16@0- (0.01,0) [-327.68|327.67] "G"  VBOX_III
+ SG_ Longitudinal_acceleration : 39|16@0- (0.01,0) [-327.68|327.67] "G"  VBOX_III
+ SG_ Trig_Dist : 7|32@0+ (7.8125E-005,0) [0|335544] "Metres"  VBOX_III
+
+BO_ 771 VBOX_3: 8 VBOX_III
+ SG_ DGPS : 61|1@0+ (1,0) [0|0] "On"  VBOX_III
+ SG_ Brake_trigger : 60|1@0+ (1,0) [0|0] "On"  VBOX_III
+ SG_ Vertical_Velocity : 31|16@0- (0.01,0) [0|655.36] "m/s"  VBOX_III
+ SG_ Altitude_WGS84 : 7|24@0- (0.01,0) [0|42949700] "metres"  VBOX_III
+
+BO_ 770 VBOX_2: 8 VBOX_III
+ SG_ Velocity_Mph : 39|16@0+ (0.0115078,0) [0|754.163673] "Mph" Vector__XXX
+ SG_ Heading : 55|16@0+ (0.01,0) [0|359.99] "Degrees"  VBOX_III
+ SG_ Velocity_Kmh : 39|16@0+ (0.01852,0) [0|1213.7082] "Km/h"  VBOX_III
+ SG_ Longitude : 7|32@0- (1E-005,0) [-21474.83648|21474.83647] "Minutes"  VBOX_III
+
+BO_ 769 VBOX_1: 8 VBOX_III
+ SG_ Latitude : 39|32@0- (1E-005,0) [-21474.83648|21474.83647] "Minutes"  VBOX_III
+ SG_ Time_Since_Midnight : 15|24@0+ (0.01,0) [0|0] "Seconds"  VBOX_III
+ SG_ Sats : 7|8@0+ (1,0) [0|12] "Sats"  VBOX_III
+
+BO_ 1418 mGRA_VW: 4 RDU
+ SG_ GRA_privCAN_Checksum : 0|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ GRA_privCAN_Kodierinfo : 15|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ GRA_privCAN_Hauptschalt : 8|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ GRA_privCAN_Neu_Zaehler : 20|4@1+ (1,0) [0|15] "" Vector__XXX
+ SG_ GRA_privCAN_Sender : 18|2@1+ (1,0) [0|3] "" Vector__XXX
+ SG_ GRA_privCAN_Sta_Limiter : 28|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ GRA_privCAN_Sportschalter : 30|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ GRA_privCAN_Abbrechen : 9|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ GRA_privCAN_Down_kurz : 10|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ GRA_privCAN_Fehler_Tip : 31|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ GRA_privCAN_Up_kurz : 11|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ GRA_privCAN_Up_lang : 13|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ GRA_privCAN_Down_lang : 12|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ GRA_privCAN_Neu_Setzen : 16|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ GRA_privCAN_Tip_Down : 24|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ GRA_privCAN_Recall : 17|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ GRA_privCAN_Tip_Up : 25|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ GRA_privCAN_Zeitluecke : 26|2@1+ (1,0) [0|3] "" Vector__XXX
+ SG_ GRA_privCAN_Typ_Hauptschalt : 29|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ GRA_privCAN_Fehler_Bed : 14|1@1+ (1,0) [0|1] "" Vector__XXX
+
+BO_ 867 DMS_Control: 1 Car_PC
+ SG_ DMS_control_code : 0|8@1+ (1,0) [0|255] "" Vector__XXX
+
+BO_ 864 DMS_Drowsiness: 5 DMS_PC
+ SG_ DMS_DDM_Blink_Confidence : 32|8@1+ (0.01,0) [0|1] "" Vector__XXX
+ SG_ DMS_DDM_Blink_Duration : 24|8@1+ (10,0) [0|2550] "ms" Vector__XXX
+ SG_ DMS_DDM_Score_Confidence : 16|8@1+ (0.01,0) [0|1] "" Vector__XXX
+ SG_ DMS_DDM_Score : 8|8@1+ (0.1,0) [0|4] "" Vector__XXX
+ SG_ DMS_DDM_Status : 7|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ DMS_DDM_Type : 6|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ DMS_DDM_Diagnostic : 0|6@1+ (1,0) [0|63] "" Vector__XXX
+
+BO_ 865 DMS_Inattentiveness: 3 DMS_PC
+ SG_ DMS_DIM_Distraction_Time : 16|8@1+ (0.1,0) [0|25.5] "s" Vector__XXX
+ SG_ DMS_DIM_Confidence : 8|8@1+ (0.01,0) [0|1] "" Vector__XXX
+ SG_ DMS_DIM_Status : 7|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ DMS_DIM_Type : 6|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ DMS_DIM_Diagnostic : 0|6@1+ (1,0) [0|63] "" Vector__XXX
+
+BO_ 866 DMS_Head_Pose: 5 DMS_PC
+ SG_ DMS_HP_Confidence : 32|8@1+ (0.01,0) [0|1] "" Vector__XXX
+ SG_ DMS_HP_Z : 24|8@1+ (5,0) [0|1275] "mm" Vector__XXX
+ SG_ DMS_HP_Y : 16|8@1- (5,0) [-635|635] "mm" Vector__XXX
+ SG_ DMS_HP_X : 8|8@1- (5,0) [-635|635] "mm" Vector__XXX
+ SG_ DMS_HP_Status : 7|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ DMS_HP_Type : 6|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ DMS_HP_Error : 0|6@1+ (1,0) [0|63] "" Vector__XXX
+
+BO_ 165 IQF1: 7 IQF
+ SG_ IQF1_RefAng : 47|16@0- (0.025,0) [-819.2|819.175] "°"  RDU
+ SG_ IQF1_RefQuality : 15|4@0+ (1,0) [0|0] ""  RDU
+ SG_ IQF1_RefPriority : 23|6@0+ (1,0) [0|0] ""  RDU
+ SG_ IQF1_RefActivity : 1|2@0+ (1,0) [0|0] ""  RDU
+ SG_ IQF1_RefTorque : 17|10@0- (0.04,0) [-20.48|20.44] "Nm"  RDU
+ SG_ IQF1_Status : 39|8@0+ (1,0) [0|0] ""  RDU
+ SG_ IQF1_LdwIntens : 5|2@0+ (1,0) [0|0] ""  RDU
+ SG_ IQF1_LdwStatus : 3|2@0+ (1,0) [0|0] ""  RDU
+
+BO_ 167 IQF2: 6 IQF
+ SG_ IQF2_IntvStrength : 47|7@0+ (0.7874015748,0) [0|100] "%"  RDU
+ SG_ IQF2_Failure : 7|8@0+ (1,0) [0|0] ""  RDU
+ SG_ IQF2_Curvature : 15|16@0- (1E-005,0) [-0.32768|0.32767] "1/m"  RDU
+ SG_ IQF2_HandTorque : 31|14@0- (0.01,0) [-81.92|81.91] "Nm"  RDU
+ SG_ IQF2_HandsOffDetect : 33|2@0+ (1,0) [0|0] ""  RDU
+
+BO_ 981 ObjRearRight2: 8 Vector__XXX
+ SG_ ObjRearRight2_Width : 11|3@0+ (1,0) [0|7] "" Vector__XXX
+ SG_ ObjRearRight2_VrelLong : 63|12@0+ (0.0625,-128) [-127.9375|128] "m/s" Vector__XXX
+ SG_ ObjRearRight2_ProbOfExist : 14|3@0+ (1,0) [0|7] "" Vector__XXX
+ SG_ ObjRearRight2_LongDispl : 47|11@0+ (0.1,0) [0|204] "m" Vector__XXX
+ SG_ ObjRearRight2_LatSpeed : 39|8@0+ (0.25,-32) [-32|31.75] "m/s" Vector__XXX
+ SG_ ObjRearRight2_LatDispl : 23|10@0+ (0.1,-52) [-51.9|52] "m" Vector__XXX
+ SG_ ObjRearRight2_AccelLong : 7|9@0+ (0.0625,-16) [-15.9735|16] "m/s²" Vector__XXX
+
+BO_ 980 ObjRearRight1: 8 Vector__XXX
+ SG_ ObjRearRight1_Width : 53|3@0+ (1,0) [0|7] "" Vector__XXX
+ SG_ ObjRearRight1_VrelLong : 20|12@0+ (0.0625,-128) [-127.9375|128] "m/s" Vector__XXX
+ SG_ ObjRearRight1_ProbOfExist : 50|3@0+ (1,0) [0|7] "" Vector__XXX
+ SG_ ObjRearRight1_LongDispl : 15|11@0+ (0.1,0) [0|204] "m" Vector__XXX
+ SG_ ObjRearRight1_LatSpeed : 7|8@0+ (0.25,-32) [-32|31.75] "m/s" Vector__XXX
+ SG_ ObjRearRight1_LatDispl : 47|10@0+ (0.1,-52) [-51.9|52] "m" Vector__XXX
+ SG_ ObjRearRight1_AccelLong : 24|9@0+ (0.0625,-16) [-15.9735|16] "m/s²" Vector__XXX
+
+BO_ 979 ObjRearLeft2: 8 Vector__XXX
+ SG_ ObjRearLeft2_Width : 53|3@0+ (1,0) [0|7] "" Vector__XXX
+ SG_ ObjRearLeft2_VrelLong : 20|12@0+ (0.0625,-128) [-127.9375|128] "m/s" Vector__XXX
+ SG_ ObjRearLeft2_ProbOfExist : 50|3@0+ (1,0) [0|7] "" Vector__XXX
+ SG_ ObjRearLeft2_LongDispl : 15|11@0+ (0.1,0) [0|204] "m" Vector__XXX
+ SG_ ObjRearLeft2_LatSpeed : 7|8@0+ (0.25,-32) [-32|31.75] "m/s" Vector__XXX
+ SG_ ObjRearLeft2_LatDispl : 47|10@0+ (0.1,-52) [-51.9|52] "m" Vector__XXX
+ SG_ ObjRearLeft2_AccelLong : 24|9@0+ (0.0625,-16) [-15.9735|16] "m/s²" Vector__XXX
+
+BO_ 978 ObjRearLeft1: 8 Vector__XXX
+ SG_ ObjRearLeft1_Width : 53|3@0+ (1,0) [0|7] "" Vector__XXX
+ SG_ ObjRearLeft1_VrelLong : 20|12@0+ (0.0625,-128) [-127.9375|128] "m/s" Vector__XXX
+ SG_ ObjRearLeft1_ProbOfExist : 50|3@0+ (1,0) [0|7] "" Vector__XXX
+ SG_ ObjRearLeft1_LongDispl : 15|11@0+ (0.1,0) [0|204] "m" Vector__XXX
+ SG_ ObjRearLeft1_LatSpeed : 7|8@0+ (0.25,-32) [-32|31.75] "m/s" Vector__XXX
+ SG_ ObjRearLeft1_LatDispl : 47|10@0+ (0.1,-52) [-51.9|52] "m" Vector__XXX
+ SG_ ObjRearLeft1_AccelLong : 24|9@0+ (0.0625,-16) [-15.9735|16] "m/s²" Vector__XXX
+
+BO_ 976 ObjRearMid1: 8 Vector__XXX
+ SG_ ObjRearMid1_ProbOfExist : 50|3@0+ (1,0) [0|7] "" Vector__XXX
+ SG_ ObjRearMid1_Width : 53|3@0+ (1,0) [0|7] "" Vector__XXX
+ SG_ ObjRearMid1_LatDispl : 47|10@0+ (0.1,-52) [-51.9|52] "m" Vector__XXX
+ SG_ ObjRearMid1_AccelLong : 24|9@0+ (0.0625,-16) [-15.9735|16] "m/s²" Vector__XXX
+ SG_ ObjRearMid1_VrelLong : 20|12@0+ (0.0625,-128) [-127.9375|128] "m/s" Vector__XXX
+ SG_ ObjRearMid1_LatSpeed : 7|8@0+ (0.25,-32) [-32|31.75] "m/s" Vector__XXX
+ SG_ ObjRearMid1_LongDispl : 15|11@0+ (0.1,0) [0|204] "m" Vector__XXX
+
+BO_ 977 ObjRearMid2: 8 Vector__XXX
+ SG_ ObjRearMid2_Width : 53|3@0+ (1,0) [0|7] "" Vector__XXX
+ SG_ ObjRearMid2_VrelLong : 20|12@0+ (0.0625,-128) [-127.9375|128] "m/s" Vector__XXX
+ SG_ ObjRearMid2_ProbOfExist : 50|3@0+ (1,0) [0|7] "" Vector__XXX
+ SG_ ObjRearMid2_LongDispl : 15|11@0+ (0.1,0) [0|204] "m" Vector__XXX
+ SG_ ObjRearMid2_LatSpeed : 7|8@0+ (0.25,-32) [-32|31.75] "m/s" Vector__XXX
+ SG_ ObjRearMid2_LatDispl : 47|10@0+ (0.1,-52) [-51.9|52] "m" Vector__XXX
+ SG_ ObjRearMid2_AccelLong : 24|9@0+ (0.0625,-16) [-15.9735|16] "m/s²" Vector__XXX
+
+BO_ 320 TZH2_AGB_VehicleAcceleration: 8 Vector__XXX
+ SG_ AGB_IMUChksumSec : 50|11@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ AGB_IMULonAcc : 35|12@0- (0.015625,0) [0|0] "m/s²" Vector__XXX
+ SG_ AGB_IMUYawRtSec : 20|13@0- (0.024,0) [0|0] "deg/s" Vector__XXX
+ SG_ AGB_IMULatAccSecAval : 22|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ AGB_IMUYawRtSecAval : 23|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ AGB_IMULatACCSec : 1|10@0- (0.0625,0) [0|0] "m/s²" Vector__XXX
+ SG_ AGB_IMURollCntSec : 7|2@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ AGB_IMULonACCV : 21|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ AGB_IMULatACCSecV : 4|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ AGB_IMUYawRtSecV : 5|1@0+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 321 DSA_DriveStateAssessment: 3 Car_PC
+ SG_ DSA_DriverDistractionConfidence : 15|8@0+ (1,0) [0|100] "percent" Vector__XXX
+ SG_ DSA_DriverDrowsinessConfidence : 23|8@0+ (1,0) [0|100] "percent" Vector__XXX
+ SG_ DSA_DriverDrowsiness : 7|5@0+ (1,0) [0|31] "" Vector__XXX
+ SG_ DSA_DriverDistraction : 2|3@0+ (1,0) [0|7] "" Vector__XXX
+
+BO_ 785 MiniDisplay_set: 8 Car_PC
+ SG_ MD_ImageRegion4 : 55|5@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ MD_ImageRegion3 : 39|5@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ MD_ImageRegion2 : 23|5@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ MD_ImageRegion1 : 7|5@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ MD_Image4Source : 48|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ MD_Image4Priority : 49|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ MD_Image3Source : 32|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ MD_Image3Priority : 33|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ MD_Image2Source : 16|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ MD_Image2Priority : 17|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ MD_Image1Source : 0|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ MD_Image1Priority : 1|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ MD_ActiveImage4 : 63|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ MD_ActiveImage3 : 47|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ MD_ActiveImage2 : 31|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ MD_ActiveImage1 : 15|8@0+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 1304 MSB_SG_APPL_RBTM_FR: 8 RBTM_FR
+ SG_ SG_APPL_RBTM_FR : 7|64@0+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 1303 MSB_SG_APPL_RBTM_FL: 8 RBTM_FL
+ SG_ SG_APPL_RBTM_FL : 7|64@0+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 1432 MSB_SD_RS_RBTM_FR: 8 RBTM_FR
+ SG_ SD_RS_RBTM_FR : 7|64@0+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 1431 MSB_SD_RS_RBTM_FL: 8 RBTM_FL
+ SG_ SD_RS_RBTM_FL : 7|64@0+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 385 MSB_RBTM_FR_STAT: 2 RBTM_FR
+ SG_ RBT_FR_Race_Actv : 4|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RBT_FR_Sport_Actv : 5|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ Presf_FR_Disp_Rq : 8|2@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ Presf_FR_Tgl : 7|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RBT_FR_Actv : 6|1@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 384 MSB_RBTM_FL_STAT: 2 RBTM_FL
+ SG_ RBT_FL_Race_Actv : 4|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RBT_FL_Sport_Actv : 5|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ Presf_FL_Disp_Rq : 8|2@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ Presf_FL_Tgl : 7|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RBT_FL_Actv : 6|1@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 1048 MSB_NM_RBTM_FR: 8 RBTM_FR
+ SG_ Nw_Id : 56|8@1+ (1,0) [0|0] ""  RBTM_FR,RBTM_FL
+ SG_ WakeupCnt m2 : 40|8@1+ (1,0) [0|254] ""  RBTM_FR,RBTM_FL
+ SG_ Awake_RBT_FR_Actv m15 : 37|1@1+ (1,0) [0|0] ""  RBTM_FR,RBTM_FL
+ SG_ Awake_Ignition_On m15 : 36|1@1+ (1,0) [0|0] ""  RBTM_FR,RBTM_FL
+ SG_ Awake_Diag_Actv m15 : 33|1@1+ (1,0) [0|0] ""  RBTM_FR,RBTM_FL
+ SG_ WakeupRsn_RBTM_FR m2 : 32|8@1+ (1,0) [0|0] ""  RBTM_FR,RBTM_FL
+ SG_ Awake_NwSt m15 : 32|1@1+ (1,0) [0|0] ""  RBTM_FR,RBTM_FL
+ SG_ NM_Ud_Srv M : 24|8@1+ (1,0) [0|0] ""  RBTM_FR,RBTM_FL
+ SG_ NM_Sleep_Ind : 23|1@1+ (1,0) [0|0] ""  RBTM_FR,RBTM_FL
+ SG_ NM_Sleep_Ack : 22|1@1+ (1,0) [0|0] ""  RBTM_FR,RBTM_FL
+ SG_ NM_Ud_Launch : 16|6@1+ (1,0) [0|0] ""  RBTM_FR,RBTM_FL
+ SG_ NM_Successor : 8|8@1+ (1,0) [0|63] ""  RBTM_FR,RBTM_FL
+ SG_ NM_Mode : 0|8@1+ (1,0) [0|0] ""  RBTM_FR,RBTM_FL
+
+BO_ 1047 MSB_NM_RBTM_FL: 8 RBTM_FL
+ SG_ Nw_Id : 56|8@1+ (1,0) [0|0] ""  RBTM_FR,RBTM_FL
+ SG_ WakeupCnt m2 : 40|8@1+ (1,0) [0|254] ""  RBTM_FR,RBTM_FL
+ SG_ Awake_RBT_FL_Actv m15 : 37|1@1+ (1,0) [0|0] ""  RBTM_FR,RBTM_FL
+ SG_ Awake_Ignition_On m15 : 36|1@1+ (1,0) [0|0] ""  RBTM_FR,RBTM_FL
+ SG_ Awake_Diag_Actv m15 : 33|1@1+ (1,0) [0|0] ""  RBTM_FR,RBTM_FL
+ SG_ WakeupRsn_RBTM_FL m2 : 32|8@1+ (1,0) [0|0] ""  RBTM_FR,RBTM_FL
+ SG_ Awake_NwSt m15 : 32|1@1+ (1,0) [0|0] ""  RBTM_FR,RBTM_FL
+ SG_ NM_Ud_Srv M : 24|8@1+ (1,0) [0|0] ""  RBTM_FR,RBTM_FL
+ SG_ NM_Sleep_Ind : 23|1@1+ (1,0) [0|0] ""  RBTM_FR,RBTM_FL
+ SG_ NM_Sleep_Ack : 22|1@1+ (1,0) [0|0] ""  RBTM_FR,RBTM_FL
+ SG_ NM_Ud_Launch : 16|6@1+ (1,0) [0|0] ""  RBTM_FR,RBTM_FL
+ SG_ NM_Successor : 8|8@1+ (1,0) [0|63] ""  RBTM_FR,RBTM_FL
+ SG_ NM_Mode : 0|8@1+ (1,0) [0|0] ""  RBTM_FR,RBTM_FL
+
+BO_ 1742 MSB_MESS_RBTM_FR1: 8 RBTM_FR
+ SG_ MESS_RBTM_FR1 : 7|64@0+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 1734 MSB_MESS_RBTM_FL1: 8 RBTM_FL
+ SG_ MESS_RBTM_FL1 : 7|64@0+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 2015 MSB_DG_RQ_OBD: 8 Vector__XXX
+ SG_ DG_RQ_OBD : 7|64@0+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 1089 MSB_DG_RQ_GLOBAL_UDS: 8 Vector__XXX
+ SG_ DG_RQ_GLOBAL_UDS : 7|64@0+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 1088 MSB_DG_RQ_GLOBAL: 8 Vector__XXX
+ SG_ DG_RQ_GLOBAL : 7|64@0+ (1,0) [0|0] ""  RBTM_FR,RBTM_FL
+
+BO_ 1176 MSB_D_RS_RBTM_FR: 8 RBTM_FR
+ SG_ D_RS_RBTM_FR : 7|64@0+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 1175 MSB_D_RS_RBTM_FL: 8 RBTM_FL
+ SG_ D_RS_RBTM_FL : 7|64@0+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 1730 MSB_D_RQ_RBTM_FR: 8 Vector__XXX
+ SG_ D_RQ_RBTM_FR : 7|64@0+ (1,0) [0|0] ""  RBTM_FR
+
+BO_ 1722 MSB_D_RQ_RBTM_FL: 8 Vector__XXX
+ SG_ D_RQ_RBTM_FL : 7|64@0+ (1,0) [0|0] ""  RBTM_FL
+
+BO_ 400 VehicleTrajectory_ID190: 8 Vector__XXX
+ SG_ vehTraj_dC1 : 55|16@0- (5E-006,0) [-0.16384|0.163835] "1/m²" Vector__XXX
+ SG_ vehTraj_dC0 : 39|16@0- (5E-006,0) [-0.16384|0.163835] "1/m" Vector__XXX
+ SG_ vehTraj_C1 : 23|16@0- (5E-006,0) [-0.16384|0.163835] "1/m²" Vector__XXX
+ SG_ vehTraj_C0 : 7|16@0- (5E-006,0) [-0.16384|0.163835] "1/m" Vector__XXX
+
+BO_ 1312 CG_VPU_CART_OUT: 8 CG_VPU
+ SG_ APIA_ID420_Prefill : 9|1@0+ (1,0) [0|0] ""  RDU
+ SG_ APIA_ID420_DecelerationRqActive : 8|1@0+ (1,0) [0|0] ""  RDU
+ SG_ RefAccelRDU : 40|11@1+ (0.01,-10.23) [-10.23|10.23] "m/s²"  RDU
+ SG_ ACCFailInfo : 1|2@1+ (1,0) [0|0] ""  RDU
+ SG_ ACCLimiterActive : 6|1@0+ (1,0) [0|1] "-"  RDU
+ SG_ ACCReqMin : 29|11@1+ (0.01,-10.23) [-10.23|10.23] "m/s²"  RDU
+ SG_ ACCReqMax : 16|11@1+ (0.01,-10.23) [-10.23|10.23] "m/s²"  RDU
+ SG_ ACCPreFill : 55|1@1+ (1,0) [0|1] ""  RDU
+ SG_ ACCMode : 3|2@1+ (1,0) [0|3] ""  RDU
+ SG_ ACCAliveCounter : 12|4@1+ (1,0) [0|15] ""  RDU
+
+BO_ 1424 ANZEIGE_ACC_priv: 8 RDU
+ SG_ ST_RADA_ACC_priv : 16|2@1+ (1,0) [0|0] ""  CG_out
+ SG_ ST_DISP_OBJ_CAP_priv : 48|3@1+ (1,0) [0|0] ""  CG_out
+ SG_ ST_DISP_DVOR_priv : 42|4@1+ (1,0) [0|0] ""  CG_out
+ SG_ ST_DISP_DR_RQSP_priv : 12|4@1+ (1,0) [0|0] ""  CG_out
+ SG_ ST_DISP_DR_GAPC_priv : 54|2@1+ (1,0) [0|0] ""  CG_out
+ SG_ ST_ACC_SWO_SYS_priv : 22|2@1+ (1,0) [0|0] ""  CG_out
+ SG_ ST_ACC_MOD_priv : 19|3@1+ (1,0) [0|0] ""  CG_out
+ SG_ RCPT_ACTVN_DR_priv : 30|2@1+ (1,0) [0|0] ""  CG_out
+ SG_ GAP_AVL_TARO_priv : 32|8@1+ (1,0) [0|0] "m"  CG_out
+ SG_ DISP_SEN_DRT_priv : 56|2@1+ (1,0) [0|0] ""  CG_out
+ SG_ DISP_RECW_priv : 28|2@1+ (1,0) [0|0] ""  CG_out
+ SG_ DISP_OBJ_CAP_priv : 46|2@1+ (1,0) [0|0] ""  CG_out
+ SG_ DISP_GRQ_priv : 58|2@1+ (1,0) [0|0] ""  CG_out
+ SG_ DISP_DVOR_priv : 40|2@1+ (1,0) [0|0] ""  CG_out
+ SG_ DISP_DR_RQSP_priv : 0|12@1+ (0.1,0) [0|0] "km/h"  CG_out
+ SG_ DISP_DR_GAPC_priv : 51|3@1+ (1,0) [0|0] ""  CG_out
+ SG_ CHKSM_ACC_priv : 60|4@1+ (1,0) [0|0] ""  CG_out
+ SG_ ALIV_COU_ACC_priv : 24|4@1+ (1,0) [0|0] ""  CG_out
+
+BO_ 378 SALatLongA_Debug: 8 Car_PC
+ SG_ SALaLoDbug_relBTxOrg : 39|12@0- (0.1,0) [-204.8|204.7] "m" Vector__XXX
+ SG_ SALaLoDbug_relBTvxOrg : 43|10@0- (0.1,0) [-51.2|51.1] "m/s" Vector__XXX
+ SG_ SALaLoDbug_relBTdelay : 49|10@0+ (0.001,0) [0|1.023] "s" Vector__XXX
+ SG_ SALaLoDbug_relBTax : 17|10@0- (0.1,0) [-51.2|51.1] "m/s²" Vector__XXX
+ SG_ SALaLoDbug_relBTvx : 11|10@0- (0.1,0) [-51.2|51.1] "m/s" Vector__XXX
+ SG_ SALaLoDbug_relBTx : 7|12@0- (0.1,0) [-204.8|204.7] "m" Vector__XXX
+
+BO_ 374 SALatLong6: 8 Car_PC
+ SG_ SALaLoWarn_AFFPJitterFreq : 62|2@0+ (1,0) [0|3] "-" Vector__XXX
+ SG_ SALaLoWarn_AFFPJitterForm : 60|2@0+ (1,0) [0|3] "-" Vector__XXX
+ SG_ SALaLoWarn_AFFPJitterAmpl : 58|3@0+ (1,0) [0|7] "-" Vector__XXX
+ SG_ SALaLoWarn_AcousticActiveRight : 33|1@0+ (1,0) [0|1] "-" Vector__XXX
+ SG_ SALaLoWarn_DoorWarnerActiveRight : 43|1@0+ (1,0) [0|1] "-" Vector__XXX
+ SG_ SALaLoWarn_DoorWarnerActiveLeft : 44|1@0+ (1,0) [0|1] "-" Vector__XXX
+ SG_ SALaLoWarn_IntRearIndActiveRight : 41|1@0+ (1,0) [0|1] "-" Vector__XXX
+ SG_ SALaLoWarn_IntRearIndActiveLeft : 42|1@0+ (1,0) [0|1] "-" Vector__XXX
+ SG_ SALaLoWarn_OpticalLevel : 51|2@0+ (1,0) [0|3] "-" Vector__XXX
+ SG_ SALaLoWarn_OpticalType : 55|4@0+ (1,0) [0|15] "-" Vector__XXX
+ SG_ SALaLoWarn_OpticalActive : 48|1@0+ (1,0) [0|1] "-" Vector__XXX
+ SG_ SALaLoWarn_SeatBeltLevel : 31|3@0+ (1,0) [0|7] "-" Vector__XXX
+ SG_ SALaLoWarn_AFFPForce : 7|8@0+ (0.4,0) [0|100] "-" Vector__XXX
+ SG_ SALaLoWarn_AFFPAngle : 15|12@0+ (0.025,0) [0|100] "-" Vector__XXX
+ SG_ SALaLoWarn_AcousticType : 39|4@0+ (1,0) [0|15] "-" Vector__XXX
+ SG_ SALaLoWarn_PrefillActive : 40|1@0+ (1,0) [0|1] "-" Vector__XXX
+ SG_ SALaLoWarn_AcousticActiveLeft : 32|1@0+ (1,0) [0|1] "-" Vector__XXX
+ SG_ SALaLoWarn_SeatBeltActive : 24|1@0+ (1,0) [0|1] "-" Vector__XXX
+ SG_ SALaLoWarn_AFFPActive : 16|1@0+ (1,0) [0|1] "-" Vector__XXX
+
+BO_ 373 SALatLong5: 8 Car_PC
+ SG_ SALaLoLong_parkReq : 49|2@0+ (1,0) [0|3] "" Vector__XXX
+ SG_ SALaLoLong_gearReq : 63|2@0+ (1,0) [0|3] "" Vector__XXX
+ SG_ SALaLoLong_DelaySinceMeas : 43|10@0+ (0.001,0) [0|1.023] "s" Vector__XXX
+ SG_ SALaLoLong_SwitchACCOff : 3|1@1+ (1,0) [0|1] ""  IQF
+ SG_ SALaLoLong_MaxAccSetSpeed : 39|12@0+ (0.1,0) [0|409.5] "km/h"  IQF
+ SG_ SALaLoLong_SwitchACCOn : 2|1@1+ (1,0) [0|1] ""  IQF
+ SG_ SALaLoLong_vReqType : 23|4@0+ (1,0) [0|15] "-"  IQF
+ SG_ SALaLoLong_vReq : 19|12@0- (0.144,0) [-294.912|294.768] "km/h"  IQF
+ SG_ SALaLoLong_aReqType : 7|4@0+ (1,0) [0|15] "-"  IQF
+ SG_ SALaLoLong_aReq : 1|10@0- (0.1,0) [-51.2|51.1] "m/s²"  IQF
+
+BO_ 372 SALatLong4: 7 Car_PC
+ SG_ SALaLoIqf_TypeRight_0x179 : 26|3@1+ (1,0) [0|0] ""  IQF
+ SG_ SALaLoIqf_TypeLeft_0x178 : 29|3@1+ (1,0) [0|0] ""  IQF
+ SG_ SALaLoIqf_rigthRampWidth : 55|8@0+ (0.01,0) [0|2.55] "m" Vector__XXX
+ SG_ SALaLoIqf_rigthDeadZone : 47|8@0+ (0.01,0) [0|2.55] "m" Vector__XXX
+ SG_ SALaLoIqf_rightStrength : 39|7@0+ (0.7874015748,0) [0|100] "%"  IQF
+ SG_ SALaLoIqf_leftRampWidth : 23|8@0+ (0.01,0) [0|2.55] "m" Vector__XXX
+ SG_ SALaLoIqf_leftDeadZone : 15|8@0+ (0.01,0) [0|2.55] "m" Vector__XXX
+ SG_ SALaLoIqf_leftStrength : 7|7@0+ (0.7874015748,0) [0|100] "%"  IQF
+
+BO_ 368 SALatLong0: 8 Car_PC
+ SG_ SALaLoIqf_tqRampDistR : 63|8@0+ (0.01,0) [0|2.55] "m"  IQF
+ SG_ SALaLoIqf_tqRampDistL : 31|8@0+ (0.01,0) [0|2.55] "m"  IQF
+ SG_ SALaLoIqf_minDistR : 39|8@0+ (0.01,0) [0|2.55] "m"  IQF
+ SG_ SALaLoIqf_minDistL : 7|8@0+ (0.01,0) [0|2.55] "m"  IQF
+ SG_ SALaLoIqf_midDistR : 47|8@0+ (0.01,0) [0|2.55] "m"  IQF
+ SG_ SALaLoIqf_midDistL : 15|8@0+ (0.01,0) [0|2.55] "m"  IQF
+ SG_ SALaLoIqf_maxDistR : 55|8@0+ (0.01,0) [0|2.55] "m"  IQF
+ SG_ SALaLoIqf_maxDistL : 23|8@0+ (0.01,0) [0|2.55] "m"  IQF
+
+BO_ 371 SALatLong3: 8 Car_PC
+ SG_ SALaLoIqf_TypeRight_0x172 : 2|3@1+ (1,0) [0|0] ""  IQF
+ SG_ SALaLoIqf_TypeLeft_0x171 : 5|3@1+ (1,0) [0|0] ""  IQF
+ SG_ SALaLoIqf_projection : 63|8@0+ (0.4,0) [0|102] "m"  IQF
+ SG_ SALaLoIqf_intervType : 45|4@0+ (1,0) [0|15] "-"  IQF
+ SG_ SALaLoIqf_available : 0|1@0+ (1,0) [0|1] ""  IQF
+ SG_ SALaLoIqf_psi : 41|10@0- (0.001,0) [-0.512|0.511] "rad"  IQF
+ SG_ SALaLoIqf_dy : 39|10@0- (0.01,0) [-5.12|5.11] "m"  IQF
+ SG_ SALaLoIqf_c1 : 19|12@0- (1E-007,0) [-0.0002048|0.0002047] "1/m²"  IQF
+ SG_ SALaLoIqf_c0 : 15|12@0- (1E-005,0) [-0.02048|0.02047] "1/m"  IQF
+
+BO_ 370 SALatLong2: 8 Car_PC
+ SG_ SALaLoIqf_strengthR : 7|7@0+ (0.7874015748,0) [0|100] "%"  IQF
+ SG_ SALaLoIqf_projectionR : 63|8@0+ (0.4,0) [0|102] "m"  IQF
+ SG_ SALaLoIqf_availableR : 0|1@0+ (1,0) [0|1] ""  IQF
+ SG_ SALaLoIqf_psiR : 41|10@0- (0.001,0) [-0.512|0.511] "rad"  IQF
+ SG_ SALaLoIqf_intervTypeR : 45|4@0+ (1,0) [0|15] "-"  IQF
+ SG_ SALaLoIqf_dyR : 39|10@0- (0.01,0) [-5.12|5.11] "m"  IQF
+ SG_ SALaLoIqf_c0R : 15|12@0- (1E-005,0) [-0.02048|0.02047] "1/m"  IQF
+ SG_ SALaLoIqf_c1R : 19|12@0- (1E-007,0) [-0.0002048|0.0002047] "1/m²"  IQF
+
+BO_ 369 SALatLong1: 8 Car_PC
+ SG_ SALaLoIqf_strengthL : 7|7@0+ (0.7874015748,0) [0|100] "%"  IQF
+ SG_ SALaLoIqf_projectionL : 63|8@0+ (0.4,0) [0|102] "m"  IQF
+ SG_ SALaLoIqf_availableL : 0|1@0+ (1,0) [0|1] ""  IQF
+ SG_ SALaLoIqf_psiL : 41|10@0- (0.001,0) [-0.512|0.511] "rad"  IQF
+ SG_ SALaLoIqf_c1L : 19|12@0- (1E-007,0) [-0.0002048|0.0002047] "1/m²"  IQF
+ SG_ SALaLoIqf_c0L : 15|12@0- (1E-005,0) [-0.02048|0.02047] "1/m"  IQF
+ SG_ SALaLoIqf_intervTypeL : 45|4@0+ (1,0) [0|15] "-"  IQF
+ SG_ SALaLoIqf_dyL : 39|10@0- (0.01,0) [-5.12|5.11] "m"  IQF
+
+BO_ 1583 IQF_MESS_ID62F: 8 RP_ECU_IQF
+ SG_ IQF_MESS_MinDist : 55|16@0- (0.01,0) [0|0] "" Vector__XXX
+ SG_ IQF_MESS_DistRight : 39|16@0- (0.01,0) [0|0] "" Vector__XXX
+ SG_ IQF_MESS_DistLeft : 23|16@0- (0.01,0) [0|0] "" Vector__XXX
+ SG_ IQF_MESS_DistY1s : 7|16@0- (0.01,0) [0|0] "" Vector__XXX
+
+BO_ 807 OpelAGB_Message6: 8 Car_PC
+
+BO_ 806 OpelAGB_Message5: 8 Car_PC
+
+BO_ 805 OpelAGB_Message4: 8 Car_PC
+
+BO_ 804 OpelAGB_FUS_Obj_2: 8 Car_PC
+ SG_ FUS_LatSpeed_Sigma : 39|8@0+ (0.05,0) [0|12.75] "m"  OpelInsigna
+ SG_ FUS_Width_Sigma : 0|6@1+ (0.05,0) [0|3.15] "m"  OpelInsigna
+ SG_ FUS_LatDispl_Sigma : 24|8@1+ (0.05,0) [0|12.75] "m"  OpelInsigna
+ SG_ FUS_VrelLong_Sigma : 16|8@1+ (0.05,0) [0|12.75] "m"  OpelInsigna
+ SG_ FUS_LongDispl_Sigma : 15|8@0+ (0.05,0) [0|12.75] "m"  OpelInsigna
+
+BO_ 803 OpelAGB_FUS_Obj_1: 8 Car_PC
+ SG_ FUS_RadarCounter : 16|7@1+ (1,0) [0|127] ""  OpelInsigna
+ SG_ FUS_CameraCounter : 8|7@1+ (1,0) [0|127] ""  OpelInsigna
+ SG_ FUS_Age : 0|7@1+ (1,0) [0|127] ""  OpelInsigna
+
+BO_ 802 OpelAGB_FUS_Obj_0: 8 Car_PC
+ SG_ FUS_Width : 51|7@0+ (0.04,0) [0|5.08] "m"  OpelInsigna
+ SG_ FUS_VrelLong : 47|12@0+ (0.0625,-128) [-128|127.9375] "m/s"  OpelInsigna
+ SG_ FUS_RollCount : 59|2@1+ (1,0) [0|3] ""  OpelInsigna
+ SG_ FUS_LongDispl : 26|11@0+ (0.1,0) [0|204.7] "m"  OpelInsigna
+ SG_ FUS_LatSpeed : 20|10@0+ (0.0625,-32) [-32|31.9375] "m/s"  OpelInsigna
+ SG_ FUS_LatDispl : 15|11@0+ (0.05,-52) [-52|50.35] "m"  OpelInsigna
+ SG_ FUS_ID : 0|8@1+ (1,0) [0|255] ""  OpelInsigna
+
+BO_ 635 BSDObj_FR: 8 RP_ECU_BSD_FRONT
+ SG_ BSDyVelRight : 39|8@0- (0.2,0) [-25.6|25.4] "" Vector__XXX
+ SG_ BSDxVelRight : 31|8@0- (0.2,0) [-25.6|25.4] "" Vector__XXX
+ SG_ BSDyPosRight : 23|8@0- (0.1,0) [-12.8|12.7] "" Vector__XXX
+ SG_ BSDxPosRight : 15|8@0- (0.1,0) [-12.8|12.7] "" Vector__XXX
+ SG_ BSDStatusRight : 7|8@0- (1,0) [-128|127] "" Vector__XXX
+
+BO_ 634 BSDObj_FL: 8 RP_ECU_BSD_FRONT
+ SG_ BSDyVelLeft : 39|8@0- (0.2,0) [-25.6|25.4] "" Vector__XXX
+ SG_ BSDxVelLeft : 31|8@0- (0.2,0) [-25.6|25.4] "" Vector__XXX
+ SG_ BSDyPosLeft : 23|8@0- (0.1,0) [-12.8|12.7] "" Vector__XXX
+ SG_ BSDxPosLeft : 15|8@0- (0.1,0) [-12.8|12.7] "" Vector__XXX
+ SG_ BSDStatusLeft : 7|8@0- (1,0) [-128|127] "" Vector__XXX
+
+BO_ 1987 BCU3_TO_DIAG: 8 BCU3
+
+BO_ 1986 DIAG_TO_BCU3: 8 Car_PC
+ SG_ Dia_demand : 39|16@0+ (0.05,0) [0|0] "" Vector__XXX
+
+BO_ 801 BCU3_ID321: 8 BCU3
+ SG_ _321BA_activ : 48|1@1+ (1,0) [0|0] ""  RP_ECU_TVB
+ SG_ _321Voltage : 40|8@1+ (0.07343,0) [0|0] "V"  RP_ECU_TVB
+ SG_ _321PWM : 32|8@1+ (1,0) [0|0] "digit"  RP_ECU_TVB
+ SG_ _321Current : 24|8@1+ (0.0155,0) [0|0] "A"  RP_ECU_TVB
+ SG_ _321TravelS : 16|8@1+ (0.169,0) [0|0] "mm"  RP_ECU_TVB
+ SG_ _321PSens1 : 7|16@0+ (0.01,0) [0|0] "bar"  RP_ECU_TVB
+
+BO_ 670 ABS_STATUS: 8 RP_ECU_TVB
+ SG_ Abs_in_cycle : 31|1@1+ (1,0) [0|0] ""  BCU3
+ SG_ WL_abs : 27|1@1+ (1,0) [0|0] ""  BCU3
+
+BO_ 659 ABS_TO_BCU3: 8 RP_ECU_TVB
+ SG_ V_undriven_right1 : 48|16@1- (0.0576,0) [0|0] ""  BCU3
+ SG_ V_undriven_left1 : 32|16@1- (0.0576,0) [0|0] ""  BCU3
+ SG_ V_undriven_left : 16|16@1- (0.0576,0) [0|0] ""  BCU3
+ SG_ V_undriven_right : 0|16@1- (0.0576,0) [0|0] ""  BCU3
+
+BO_ 1937 ABS_PUMP_STATUS: 7 RDU
+
+BO_ 545 BCU3_TO_ICC: 8 BCU3
+ SG_ _221Chksum : 56|8@1+ (1,0) [0|0] ""  BCU3
+ SG_ _221Mes_cnt : 52|4@1+ (1,0) [0|0] ""  BCU3
+ SG_ _221Dem_Ack : 40|8@1+ (0.5,0) [0|0] ""  BCU3
+ SG_ _221PSens2 : 31|16@0+ (0.01,0) [0|0] "bar"  BCU3
+ SG_ _221Failure : 16|8@1+ (1,0) [0|0] ""  BCU3
+ SG_ _221PRC_active : 15|1@1+ (1,0) [0|0] ""  BCU3
+ SG_ _221ReleaseSwitch : 14|1@1+ (1,0) [0|0] ""  BCU3
+ SG_ _221Mode : 13|1@1+ (1,0) [0|0] ""  BCU3
+ SG_ _221PRCWarnLamp : 12|1@1+ (1,0) [0|0] ""  BCU3
+ SG_ _221BAWarnLamp : 11|1@1+ (1,0) [0|0] ""  BCU3
+ SG_ _221HighLowVolt : 10|1@1+ (1,0) [0|0] ""  BCU3
+ SG_ _221FSSwitchOff : 8|1@1+ (1,0) [0|0] ""  BCU3
+
+BO_ 337 ICC_TO_BCU3: 8 RP_ECU_TVB
+ SG_ _151DataCKS : 56|8@1+ (1,0) [0|0] ""  BCU3
+ SG_ _151Msg_cnt : 52|4@1+ (1,0) [0|0] ""  BCU3
+ SG_ _151BLS_Fail : 25|1@1+ (1,0) [0|0] ""  BCU3
+ SG_ _151BLS_Signal : 24|1@1+ (1,0) [0|0] ""  BCU3
+ SG_ ICC_Press_demand : 15|16@0+ (0.05,0) [0|0] "bar"  BCU3
+ SG_ _151PRC_EnableBit : 7|1@1+ (1,0) [0|0] ""  BCU3
+ SG_ _151BA_EnableBit : 6|1@1+ (1,0) [0|0] ""  BCU3
+
+BO_ 800 AGB_ReqMaxEngineTorque: 8 RP_ECU_TVB
+ SG_ AvidLed5 : 20|1@0+ (1,0) [0|0] ""  OpelInsigna
+ SG_ AvidLed4 : 19|1@0+ (1,0) [0|0] ""  OpelInsigna
+ SG_ AvidLed3 : 18|1@0+ (1,0) [0|0] ""  OpelInsigna
+ SG_ AvidLed2 : 17|1@0+ (1,0) [0|0] ""  OpelInsigna
+ SG_ AvidLed1 : 16|1@0+ (1,0) [0|0] ""  OpelInsigna
+ SG_ AGB_ReqMaxEngTqStatus : 4|1@0+ (1,0) [0|0] ""  OpelInsigna
+ SG_ AGB_ReqMaxEngTq : 3|12@0+ (0.5,-848) [0|0] "Nm"  OpelInsigna
+
+BO_ 389 LaneCam1: 8 Car_PC
+ SG_ bSystemAvailable : 7|8@0+ (1,0) [0|0] ""  RP_ECU_IQF
+ SG_ fYEgo : 15|16@0+ (0.01,-320) [0|0] "m"  RP_ECU_IQF
+ SG_ fB0m : 31|16@0+ (0.01,0) [0|0] "m"  RP_ECU_IQF
+ SG_ fPsi : 47|16@0+ (0.001,-32) [0|0] "°"  RP_ECU_IQF
+
+BO_ 390 LaneCam2: 8 Car_PC
+ SG_ fC1hm : 39|16@0+ (1E-006,-0.032) [-0.032|0.033535] "1/m²"  RP_ECU_IQF
+ SG_ fC0hm : 23|16@0+ (1E-006,-0.032) [-0.032|0.033535] "1/m"  RP_ECU_IQF
+ SG_ fTheta : 7|16@0+ (0.001,-32) [0|0] "°"  RP_ECU_IQF
+
+BO_ 256 MSB_Command: 8 RP_ECU_TVB
+ SG_ MSB_warn : 3|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ MSB_force : 8|8@1+ (1,0) [0|256] "" Vector__XXX
+ SG_ MSB_Driver : 7|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ MSB_Codriver : 6|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ MSB_release : 2|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ MSB_unlock : 1|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ MSB_lock : 0|1@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 640 DTR_ARS_0: 8 Car_PC
+ SG_ DTR_ARS_RelLatSpd : 47|12@0+ (0.025,-32) [-32|70.375] "m/s"  RDU
+ SG_ DTR_ARS_RelLongSpd : 29|14@0+ (0.025,-128) [-128|128] "m/s"  RDU
+ SG_ DTR_ARS_Dist : 7|14@0+ (0.1,-512) [-512|512] "m"  RDU
+ SG_ DTR_ARS_LatDisplace : 9|12@0+ (0.1,-128) [-128|128] "m"  RDU
+
+BO_ 641 DTR_ARS_1: 8 Car_PC
+ SG_ DTR_ARS_ID : 32|8@1+ (1,0) [0|0] ""  RDU
+ SG_ DTR_ARS_RelLongAccel : 7|9@0+ (0.1,-20) [-20|20] "m/s²"  RDU
+ SG_ DTR_ARS_Width : 14|12@0+ (0.01,0) [0|40.95] "m"  RDU
+ SG_ DTR_ARS_Status : 24|2@1+ (1,0) [0|0] ""  RDU
+ SG_ DTR_ARS_Dynamic : 28|3@0+ (1,0) [0|7] ""  RDU
+ SG_ DTR_ARS_Class : 18|3@0+ (1,0) [0|7] ""  RDU
+
+BO_ 1044 CSF200_OUT_NM_MPC: 8 CSF200
+ SG_ NM_Mode : 0|8@1+ (1,0) [0|0] ""  RDU
+ SG_ NM_Successor : 8|8@1+ (1,0) [0|63] ""  RDU
+ SG_ NM_Ud_Launch : 16|6@1+ (1,0) [0|0] ""  RDU
+ SG_ NM_Sleep_Ack : 22|1@1+ (1,0) [0|0] ""  RDU
+ SG_ NM_Sleep_Ind : 23|1@1+ (1,0) [0|0] ""  RDU
+ SG_ NM_Ud_Srv M : 24|8@1+ (1,0) [0|0] ""  RDU
+ SG_ Awake_NwSt m15 : 32|1@1+ (1,0) [0|0] ""  RDU
+ SG_ WakeupRsn_MPC m2 : 32|8@1+ (1,0) [0|0] ""  RDU
+ SG_ Awake_Diag_Actv m15 : 33|1@1+ (1,0) [0|0] ""  RDU
+ SG_ Awake_Ignition_On m15 : 36|1@1+ (1,0) [0|0] ""  RDU
+ SG_ Nw_Id : 56|8@1+ (1,0) [0|0] ""  RDU
+
+BO_ 911 CSF200_OUT_SLA_DISP_RQ: 8 RDU
+ SG_ SLA_Disp_Counter : 63|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ SLA_Disp_Rq : 7|56@0+ (1,0) [0|0] ""  RDU
+
+BO_ 849 CSF200_OUT_SLA_DISP_RQ2: 8 CSF200
+ SG_ SLA_SpdWarn_Rq : 0|2@1+ (1,0) [0|0] ""  IC,RDU
+ SG_ SLA_SpdWarn_DispType : 2|3@1+ (1,0) [0|0] ""  IC,RDU
+ SG_ SLA_SpdWarn_IconDisp_Rq : 5|2@1+ (1,0) [0|0] ""  IC,RDU
+ SG_ SLA_WarnSpd_Unit : 7|1@1+ (1,0) [0|0] ""  IC,RDU
+ SG_ SLA_WarnSpd_Val : 8|8@1+ (1,0) [0|254] ""  IC,RDU
+
+BO_ 395 CSF200_OUT_MPC_IHC: 8 CSF200
+ SG_ IHC_Stat_MPC : 0|2@1+ (1,0) [0|0] ""  RDU
+ SG_ IHC_Tunnel : 2|2@1+ (1,0) [0|0] ""  RDU
+ SG_ IHC_TrffcStyle : 4|2@1+ (1,0) [0|0] ""  RDU
+ SG_ IHC_Brt_Outsd : 8|8@1+ (1,0) [0|250] ""  RDU
+ SG_ IHC_OptHdLgtLvl_Stat : 16|2@1+ (1,0) [0|0] ""  RDU
+ SG_ IHC_HiBm_Stat : 18|2@1+ (1,0) [0|0] ""  RDU
+ SG_ IHC_City_Dtct : 20|2@1+ (1,0) [0|0] ""  RDU
+ SG_ IHC_Wthr_Dtct : 22|2@1+ (1,0) [0|0] ""  RDU
+ SG_ IHC_ChgovrLvl : 24|4@1+ (1,0) [0|14] ""  RDU
+ SG_ IHC_DrvDir : 28|2@1+ (1,0) [0|0] ""  RDU
+ SG_ IHC_LgtDist_Rq : 32|8@1+ (2.5,0) [0|600] "m"  RDU
+ SG_ IHC_ObjAngl : 40|8@1+ (0.2,-20) [-20|20] "°"  RDU
+ SG_ MC_MPC_IHC : 52|4@1+ (1,0) [0|15] ""  RDU
+
+BO_ 539 CSF200_OUT_ALDW_LANE2: 8 CSF200
+ SG_ ALDW_LaneHrztCrv : 1|10@0+ (8E-005,-0.04096) [-0.04096|0.0408] "1/m"  RDU
+ SG_ ALDW_LaneMarkCol_Lt : 2|3@1+ (1,0) [0|0] ""  RDU
+ SG_ ALDW_LaneMarkCol_Rt : 5|3@1+ (1,0) [0|0] ""  RDU
+ SG_ ALDW_LaneClothoidPara : 17|10@0+ (1E-006,-0.000512) [-0.000512|0.00051] "1/m²"  RDU
+ SG_ ALDW_LaneMark_Lt_Stat : 18|3@1+ (1,0) [0|0] ""  RDU
+ SG_ ALDW_LaneMark_Rt_Stat : 21|3@1+ (1,0) [0|0] ""  RDU
+ SG_ ALDW_VehPitchAngl : 33|10@0+ (0.01,-5.12) [-5.12|5.1] "°"  RDU
+ SG_ ALDW_LaneMarkType_Lt : 34|4@1+ (1,0) [0|0] ""  RDU
+ SG_ ALDW_LaneSiteDtct_Stat : 38|2@1+ (1,0) [0|0] ""  RDU
+ SG_ ALDW_LaneMarkType_Rt : 48|4@1+ (1,0) [0|0] ""  RDU
+ SG_ MC_ALDW_LANE2 : 52|4@1+ (1,0) [0|15] ""  RDU
+ SG_ CRC_ALDW_LANE2 : 56|8@1+ (1,0) [0|0] ""  RDU
+
+BO_ 541 CSF200_OUT_ALDW_LANE1: 8 CSF200
+ SG_ ALDW_LaneLtrlDist : 1|10@0+ (0.01,-5.12) [-5.12|5.1] "m"  RDU
+ SG_ ALDW_RoadType : 2|3@1+ (1,0) [0|0] ""  RDU
+ SG_ ALDW_LaneTrckTm : 5|3@1+ (1,0) [0|6] "s"  RDU
+ SG_ ALDW_LaneWidth : 17|10@0+ (0.01,0) [0|10.22] "m"  RDU
+ SG_ ALDW_LaneNum : 18|3@1+ (1,0) [1|6] ""  RDU
+ SG_ ALDW_NumLane : 21|3@1+ (1,0) [1|6] ""  RDU
+ SG_ ALDW_LaneYawAngl : 35|12@0+ (0.01,-20.48) [-20.48|20.46] "°"  RDU
+ SG_ ALDW_LaneChg_Stat : 36|2@1+ (1,0) [0|0] ""  RDU
+ SG_ ALDW_RoadExit_Stat : 38|2@1+ (1,0) [0|0] ""  RDU
+ SG_ ALDW_LaneDataQual : 48|4@1+ (0.1,0) [0|1] ""  RDU
+ SG_ MC_ALDW_LANE1 : 52|4@1+ (1,0) [0|15] ""  RDU
+ SG_ CRC_ALDW_LANE1 : 56|8@1+ (1,0) [0|0] ""  RDU
+
+BO_ 543 CSF200_OUT_ALDW_A1: 8 CSF200
+ SG_ ALDW_MsgDisp_Rq : 0|3@1+ (1,0) [0|0] ""  IC,RDU
+ SG_ ALDW_Menu_Enbl_Rq : 3|1@1+ (1,0) [0|0] ""  IC,RDU
+ SG_ ALDW_IndLmp_On_Rq : 4|2@1+ (1,0) [0|0] ""  IC,RDU
+ SG_ ALDW_Warn_Rq : 8|3@1+ (1,0) [0|0] ""  IC,RDU
+ SG_ ALDW_VibInsty_Rq : 11|5@1+ (5,0) [0|100] "%"  SCCM,RDU
+ SG_ ALDW_LaneMarkWidth_Lt : 16|7@1+ (0.01,0) [0|1.26] "m"  RDU
+ SG_ ALDW_LaneMarkWidth_Rt : 24|7@1+ (0.01,0) [0|1.26] "m"  RDU
+ SG_ ALDW_OnCal_Stat : 32|2@1+ (1,0) [0|0] ""  RDU
+ SG_ ALDW_OnCalExecDist : 34|3@1+ (1,0) [0|0] ""  RDU
+ SG_ MC_ALDW_A1 : 52|4@1+ (1,0) [0|15] ""  RDU
+ SG_ CRC_ALDW_A1 : 56|8@1+ (1,0) [0|0] ""  RDU
+
+BO_ 1568 LCS_MESS_ID620: 8 RP_ECU_TVB
+ SG_ CAN_meas_2 : 55|16@0- (0.01,0) [0|0] "" Vector__XXX
+ SG_ CAN_meas_1 : 39|16@0- (0.01,0) [0|0] "" Vector__XXX
+ SG_ acc_nec_dec : 7|16@0- (0.01,0) [0|0] "" Vector__XXX
+ SG_ gaspedal : 24|8@1+ (1,0) [0|255] "%" Vector__XXX
+ SG_ tmc : 16|8@1+ (1,0) [0|255] "%" Vector__XXX
+
+BO_ 1569 LCS_MESS_ID621: 8 RP_ECU_TVB
+ SG_ SystemActivTimer : 55|16@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ PC2_Obj_CAN_Timeout_ID35C : 15|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ Parameter_Counter : 0|8@1- (1,0) [0|0] "" Vector__XXX
+ SG_ Valid_Object : 8|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ LCS_CAN_Timeout_ID2FA : 14|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ LCS_CAN_Timeout_ID1F6 : 13|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ Parameter_Value : 39|16@0+ (1,0) [0|0] "sec" Vector__XXX
+ SG_ APIA_a_necessary : 23|16@0+ (0.01,0) [0|0] "m/s" Vector__XXX
+ SG_ ActState_FFP : 9|1@0+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 1570 IQF_MESS_ID622: 8 RP_ECU_IQF
+ SG_ IQF_Status : 32|8@1- (1,0) [0|0] "" Vector__XXX
+ SG_ IQF_Debug2 : 23|16@0- (0.001,0) [0|0] "°" Vector__XXX
+ SG_ IQF_Debug1 : 7|16@0- (0.01,0) [0|0] "°" Vector__XXX
+ SG_ IQF_Parameter_Value : 55|16@0+ (1,0) [0|0] "sec" Vector__XXX
+ SG_ IQF_Parameter_Counter : 40|8@1- (1,0) [0|0] "" Vector__XXX
+
+BO_ 1571 IQF_MESS_ID623: 8 RP_ECU_IQF
+ SG_ IQF_DeltaYDot : 55|16@0- (0.01,0) [-327.68|327.67] "m/s" Vector__XXX
+ SG_ IQF_DeltaY : 39|16@0- (0.01,0) [-327.68|327.67] "m" Vector__XXX
+ SG_ IQF_YawAngleReq : 23|16@0- (0.001,0) [-32.768|32.767] "°" Vector__XXX
+ SG_ IQF_AbsRef : 7|16@0+ (0.01,0) [0|655.35] "m/s" Vector__XXX
+
+BO_ 1572 IQF_MESS_ID624: 8 RP_ECU_IQF
+ SG_ IQF_SteerWheelAngleReq : 55|16@0- (0.16,0) [-5242.88|5242.72] "°" Vector__XXX
+ SG_ IQF_DeltaYawAngleInt : 39|16@0- (0.001,0) [-32.768|32.767] "°s" Vector__XXX
+ SG_ IQF_YawAngleDot : 23|16@0- (0.001,0) [-32.768|32.767] "°/s" Vector__XXX
+ SG_ IQF_DeltaYawAngle : 7|16@0- (0.001,0) [-32.768|32.767] "°" Vector__XXX
+
+BO_ 1573 IQF_MESS_ID625: 7 RP_ECU_IQF
+ SG_ IQF_C0 : 47|16@0- (1E-006,0) [-0.032768|0.032767] "" Vector__XXX
+ SG_ IQF_ReadyCounter : 39|8@0+ (1,0) [0|255] "" Vector__XXX
+ SG_ IQF_LookAheadAngle : 23|16@0- (0.01,0) [-327.68|327.67] "" Vector__XXX
+ SG_ IQF_LookAheadCurvature : 7|16@0- (1E-006,0) [-0.032768|0.032767] "1/m" Vector__XXX
+
+BO_ 1574 IQF_MESS_ID626: 8 RP_ECU_IQF
+ SG_ IQF_YawAngReqKP2 : 55|16@0+ (0.01,0) [0|655.35] "" Vector__XXX
+ SG_ IQF_YawAngReqKD : 39|16@0+ (0.01,0) [0|655.35] "" Vector__XXX
+ SG_ IQF_StWhAngReqLAhead : 23|16@0- (0.01,0) [-327.68|327.67] "" Vector__XXX
+ SG_ IQF_YawAngReqKP : 7|16@0+ (0.01,0) [0|655.35] "" Vector__XXX
+
+BO_ 1575 IQF_MESS_ID627: 7 RP_ECU_IQF
+ SG_ AsymDeltaYCorr : 55|16@0- (0.01,0) [-327.68|327.67] "" Vector__XXX
+ SG_ IQF_StAngReqKD : 39|16@0+ (0.01,0) [0|655.35] "" Vector__XXX
+ SG_ IQF_StAngReqKI : 23|16@0+ (0.01,0) [0|655.35] "" Vector__XXX
+ SG_ IQF_StAngReqKP : 7|16@0+ (0.01,0) [0|655.35] "" Vector__XXX
+
+BO_ 1576 IQF_MESS_ID628: 8 RP_ECU_IQF
+ SG_ IQF_right_available : 23|1@0+ (1,0) [0|1] "" Vector__XXX
+ SG_ IQF_left_available : 22|1@0+ (1,0) [0|1] "" Vector__XXX
+ SG_ IQF_lca_available : 21|1@0+ (1,0) [0|1] "" Vector__XXX
+ SG_ IQF_TurningSignal_Right : 17|1@0+ (1,0) [0|1] "" Vector__XXX
+ SG_ IQF_TurningSignal_Left : 16|1@0+ (1,0) [0|1] "" Vector__XXX
+ SG_ IQF_LKA_menu_selected : 19|1@0+ (1,0) [0|1] "" Vector__XXX
+ SG_ IQF_LDW_menu_selected : 18|1@0+ (1,0) [0|1] "" Vector__XXX
+ SG_ IQF_LCA_menu_selected : 20|1@0+ (1,0) [0|1] "" Vector__XXX
+ SG_ LookAHeadTime : 7|16@0+ (0.001,0) [0|65.535] "" Vector__XXX
+
+BO_ 1577 IQF_MESS_ID629: 8 RP_ECU_IQF
+ SG_ aIqfState1TqPart : 7|16@0- (0.01,0) [0|0] "Nm" Vector__XXX
+ SG_ aIqfState2TqPart : 55|16@0- (0.01,0) [0|0] "Nm" Vector__XXX
+ SG_ IQF_STWA : 23|16@0- (0.1,0) [0|0] "°" Vector__XXX
+ SG_ IQF_STW_Torque : 39|16@0- (0.01,0) [0|0] "N" Vector__XXX
+
+BO_ 1578 IQF_MESS_ID62A: 8 RP_ECU_IQF
+ SG_ IqfMess_60A_4 : 55|16@0- (1,0) [-32768|32767] "-" Vector__XXX
+ SG_ IqfMess_60A_3 : 39|16@0- (1,0) [-32768|32767] "-" Vector__XXX
+ SG_ IqfMess_60A_2 : 23|16@0- (1,0) [-32768|32767] "-" Vector__XXX
+ SG_ IqfMess_60A_1 : 7|16@0- (1,0) [-32768|32767] "-" Vector__XXX
+
+BO_ 1579 IQF_MESS_ID62B: 8 RP_ECU_IQF
+ SG_ IqfMess_60B_4 : 55|16@0- (1,0) [-32768|32767] "-" Vector__XXX
+ SG_ IqfMess_60B_3 : 39|16@0- (1,0) [-32768|32767] "-" Vector__XXX
+ SG_ IqfMess_60B_2 : 23|16@0- (1,0) [-32768|32767] "-" Vector__XXX
+ SG_ IqfMess_60B_1 : 7|16@0- (1,0) [-32768|32767] "-" Vector__XXX
+
+BO_ 1580 IQF_MESS_ID62C: 8 RP_ECU_IQF
+ SG_ IqfMess_60C_4 : 55|16@0- (1,0) [-32768|32767] "-" Vector__XXX
+ SG_ IqfMess_60C_3 : 39|16@0- (1,0) [-32768|32767] "-" Vector__XXX
+ SG_ IqfMess_60C_2 : 23|16@0- (1,0) [-32768|32767] "-" Vector__XXX
+ SG_ IqfMess_60C_1 : 7|16@0- (1,0) [-32768|32767] "-" Vector__XXX
+
+BO_ 1581 IQF_MESS_ID62D: 8 RP_ECU_IQF
+ SG_ IqfMess_60D_4 : 55|16@0- (1,0) [-32768|32767] "" Vector__XXX
+ SG_ IqfMess_60D_3 : 39|16@0- (1,0) [-32768|32767] "-" Vector__XXX
+ SG_ IqfMess_60D_2 : 23|16@0- (1,0) [-32768|32767] "-" Vector__XXX
+ SG_ IqfMess_60D_1 : 7|16@0- (1,0) [-32768|32767] "-" Vector__XXX
+
+BO_ 1582 IQF_MESS_ID62E: 8 RP_ECU_IQF
+ SG_ IqfMess_60E_4 : 55|16@0- (1,0) [-32768|32767] "-" Vector__XXX
+ SG_ IqfMess_60E_3 : 39|16@0- (1,0) [-32768|32767] "-" Vector__XXX
+ SG_ IqfMess_60E_2 : 23|16@0- (1,0) [-32768|32767] "-" Vector__XXX
+ SG_ IqfMess_60E_1 : 7|16@0- (1,0) [-32768|32767] "-" Vector__XXX
+
+BO_ 860 DTR_Cam_ObjInterest0: 8 Car_PC
+ SG_ DTR_Cam_Obj0DelaySinceMeas : 51|10@0+ (0.001,0) [0|1.023] "s" Vector__XXX
+ SG_ DTR_Cam_Obj0RelLatSpd : 47|12@0+ (0.025,-32) [-32|70.375] "m/s"  RP_ECU_TVB
+ SG_ DTR_Cam_Obj0RelLongSpd : 29|14@0+ (0.025,-128) [-128|128] "m/s"  RP_ECU_TVB
+ SG_ DTR_Cam_Obj0Dist : 7|14@0+ (0.1,-512) [-512|512] "m"  RP_ECU_TVB
+ SG_ DTR_Cam_Obj0LatDisplace : 9|12@0+ (0.1,-128) [-128|128] "m"  RP_ECU_TVB
+
+BO_ 861 DTR_Cam_ObjInterest1: 7 Car_PC
+ SG_ DTR_Cam_Obj0Ttc : 47|10@0+ (0.01,0) [0|10.23] "s" Vector__XXX
+ SG_ DTR_Cam_Obj0_ID : 32|8@1+ (1,0) [0|0] ""  RP_ECU_TVB
+ SG_ DTR_Cam_Obj0RelLongAccel : 7|9@0+ (0.1,-20) [-20|20] "m/s²"  RP_ECU_TVB
+ SG_ DTR_Cam_Obj0Width : 14|12@0+ (0.01,0) [0|40.95] "m"  RP_ECU_TVB
+ SG_ DTR_Cam_Obj0Status : 24|2@1+ (1,0) [0|0] ""  RP_ECU_TVB
+ SG_ DTR_Cam_Obj0Dynamic : 28|3@0+ (1,0) [0|7] ""  RP_ECU_TVB
+ SG_ DTR_Cam_Obj0Class : 18|3@0+ (1,0) [0|7] ""  RP_ECU_TVB
+
+BO_ 876 AGBObjInterest0: 8 OpelInsigna
+ SG_ AGBObj0RelLatSpd : 47|12@0+ (0.025,-32) [-32|70.375] "m/s"  RP_ECU_TVB
+ SG_ AGBObj0RelLongSpd : 29|14@0+ (0.025,-128) [-128|281.575] "m/s"  RP_ECU_TVB
+ SG_ AGBObj0Dist : 7|14@0+ (0.1,-512) [-512|1126.3] "m"  RP_ECU_TVB
+ SG_ AGBObj0LatDisplace : 9|12@0+ (0.1,-128) [-128|281.5] "m"  RP_ECU_TVB
+
+BO_ 877 AGBObjInterest1: 8 OpelInsigna
+ SG_ AGBObj0_ID : 32|8@1+ (1,0) [0|0] ""  RP_ECU_TVB
+ SG_ AGBObj0RelLongAccel : 7|9@0+ (0.1,-20) [-20|31.1] "m/s²"  RP_ECU_TVB
+ SG_ AGBObj0Width : 14|12@0+ (0.01,0) [0|40.95] "m"  RP_ECU_TVB
+ SG_ AGBObj0Status : 24|2@1+ (1,0) [0|0] ""  RP_ECU_TVB
+ SG_ AGBObj0Dynamic : 28|3@0+ (1,0) [0|7] ""  RP_ECU_TVB
+ SG_ AGBObj0Class : 18|3@0+ (1,0) [0|7] ""  RP_ECU_TVB
+
+BO_ 792 SRO_ID318: 1 Car_PC
+ SG_ Freiflaeche : 0|1@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 784 ID310_Config_DLL: 8 Car_PC
+ SG_ Mode_right_overpass : 0|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ Mode_maxACCsetSpeed : 31|8@0+ (1,0) [0|255] "km/h" Vector__XXX
+ SG_ Mode_Switch_ACC_OFF : 6|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ Mode_Switch_ACC_ON : 7|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ Mode_Steering_Assistance : 23|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ Mode_Braking_Assistance : 15|8@0+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 1792 Messtrigger: 1 Car_PC
+ SG_ Messtrigger_TVB : 2|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ Messtrigger_right : 1|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ Messtrigger_left : 0|1@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 663 IPAS_Status: 8 RP_ECU_IPAS
+ SG_ IPAS_Regelbereit : 1|1@1+ (1,0) [0|0] ""  RP_ECU_IQF
+ SG_ IPAS_Fehler : 0|1@1+ (1,0) [0|0] ""  RP_ECU_IQF
+
+BO_ 661 IPAS_Demand: 8 RP_ECU_IQF
+ SG_ IPAS_Debug : 15|16@0- (0.01,0) [-327.68|327.67] "-" Vector__XXX
+ SG_ IPAS_counter : 56|4@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ IPAS_Momentvorgabe : 3|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ IPAS_Soll_Lenkmoment : 31|16@0- (0.01,0) [-327.68|327.67] "Nm"  RP_ECU_IPAS
+ SG_ IPAS_ACTIVE : 0|1@1+ (1,0) [0|0] ""  RP_ECU_IPAS
+ SG_ IPAS_DO_WARNING : 1|2@1+ (1,0) [0|0] ""  RP_ECU_IPAS
+
+BO_ 351 FFP: 8 RP_ECU_TVB
+ SG_ ffp_jitter : 40|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ffp_enable : 48|2@1+ (1,0) [0|1] "-"  RDU
+ SG_ ffp_force_max : 24|8@1+ (0.4,0) [0|100] "% "  RDU
+ SG_ ffp_ang : 12|12@1+ (0.025,0) [0|100] "%"  RDU
+
+BO_ 354 FFP_Status: 6 FFP
+ SG_ THR_SPAR_FFP : 32|8@1+ (0.4,0) [0|0] "%"  RP_ECU_TVB
+ SG_ ST_ANG_AVL_FFP : 28|2@1+ (1,0) [0|0] ""  RP_ECU_TVB
+ SG_ ANG_AVL_FFP : 16|12@1+ (0.025,0) [0|0] "%"  RP_ECU_TVB
+ SG_ ST_RCPT_FFP : 14|2@1+ (1,0) [0|0] ""  RP_ECU_TVB
+ SG_ ST_FFP_MOD : 12|2@1+ (1,0) [0|0] ""  RP_ECU_TVB
+ SG_ ALIV_ST_FFP : 8|4@1+ (1,0) [0|0] ""  RP_ECU_TVB
+ SG_ CHKSM_ST_FFP : 0|8@1+ (1,0) [0|0] ""  RP_ECU_TVB
+
+BO_ 296 TZH_CAN_Modul_1: 8 TZH_CAN_Modul
+
+BO_ 328 TZH_CAN_Modul_1_Set: 8 RP_ECU_TVB
+ SG_ Brakelight_right : 18|1@1+ (1,0) [0|0] ""  RP_ECU_TVB
+ SG_ Brakelight_left : 19|1@1+ (1,0) [0|0] ""  RP_ECU_TVB
+ SG_ Basic_Counter : 55|16@0+ (1,0) [0|0] ""  RP_ECU_TVB
+ SG_ TVB_warning_opt : 24|1@1+ (1,0) [0|0] ""  RP_ECU_TVB
+ SG_ TVB_Abbruch : 25|2@1+ (1,0) [0|0] ""  RP_ECU_TVB
+ SG_ TVB_warning_sound_right : 16|1@1+ (1,0) [0|0] ""  RP_ECU_TVB
+ SG_ LED_right_up : 2|1@1+ (1,0) [0|0] ""  RP_ECU_TVB
+ SG_ LED_right_middle : 3|1@1+ (1,0) [0|0] ""  RP_ECU_TVB
+ SG_ LED_PWM : 8|8@1+ (1,0) [0|0] ""  RP_ECU_TVB
+ SG_ LED_left_up : 5|1@1+ (1,0) [0|0] ""  RP_ECU_TVB
+ SG_ LED_left_down : 1|1@1+ (1,0) [0|0] ""  RP_ECU_TVB
+ SG_ LED_left_middle : 0|1@1+ (1,0) [0|0] ""  RP_ECU_TVB
+ SG_ LED_right_down : 4|1@1+ (1,0) [0|0] ""  RP_ECU_TVB
+ SG_ sun_state : 35|1@1+ (1,0) [0|0] ""  RP_ECU_TVB
+ SG_ win_state : 34|1@1+ (1,0) [0|0] ""  RP_ECU_TVB
+ SG_ msb_state : 32|2@1+ (1,0) [0|0] ""  RP_ECU_TVB
+ SG_ TVB_warning_sound_left : 20|1@1+ (1,0) [0|0] ""  RP_ECU_TVB
+
+BO_ 288 TZH_CAN_Modul_2: 8 TZH_CAN_Modul
+
+BO_ 290 TZH_CAN_Modul_3: 8 TZH_CAN_Modul
+
+BO_ 322 TZH_CAN_Modul_3_Set: 8 Vector__XXX
+ SG_ Brakelight_right : 18|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ Brakelight_left : 19|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ Basic_Counter : 55|16@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ TVB_warning_opt : 24|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ TVB_Abbruch : 25|2@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ TVB_warning_sound_right : 16|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ LED_right_up : 5|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ LED_right_middle : 0|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ LED_PWM : 8|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ LED_left_up : 2|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ LED_left_down : 4|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ LED_left_middle : 3|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ LED_right_down : 1|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ sun_state : 35|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ win_state : 34|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ msb_state : 32|2@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ TVB_warning_sound_left : 20|1@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 292 TZH_CAN_Modul_4: 8 Vector__XXX
+ SG_ Schluesselschalter : 0|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ Sitzbelegung_BF : 3|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ Tuerkontakt_rechts : 2|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ Tuerkontakt_links : 1|1@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 324 TZH_CAN_Modul_4_set: 8 Vector__XXX
+ SG_ TZH_CAN_MODUL5_LED_TuerRechts : 5|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ TZH_CAN_MODUL5_LED_TuerLinks : 4|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ TZH_CAN_MODUL5_LED2 : 2|2@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ TZH_CAN_MODUL5_BYTE2 : 16|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ TZH_CAN_MODUL5_BYTE1 : 8|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ TZH_CAN_MODUL5_LED1 : 0|2@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 294 TZH_CAN_Modul_5: 2 Vector__XXX
+ SG_ Schluesselschalter : 8|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ Sitzbelegung_BF : 11|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ Tuerkontakt_rechts : 9|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ Tuerkontakt_links : 10|1@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 326 TZH_CAN_Modul_5_Set: 3 RDU
+ SG_ TZH_CAN_MODUL5_LED_TuerRechts : 0|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ TZH_CAN_MODUL5_LED_TuerLinks : 1|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ TZH_CAN_MODUL5_LED2 : 2|2@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ TZH_CAN_MODUL5_BYTE2 : 16|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ TZH_CAN_MODUL5_BYTE1 : 8|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ TZH_CAN_MODUL5_LED1 : 4|2@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 1621 CanCmd_rx: 8 CanCmd
+
+BO_ 1622 CanCmd_tx: 8 RP_ECU_TVB
+
+BO_ 1428 BEDIENUNG_TEMPOMAT_RDU: 4 RP_ECU_TVB
+ SG_ CHKSM_CCTR_RDU : 0|8@1+ (1,0) [0|0] ""  RDU
+ SG_ ALIV_CCTR_RDU : 8|4@1+ (1,0) [0|0] ""  RDU
+ SG_ OP_PUBU_CCTR_ACC_RDU : 16|8@1+ (1,0) [0|0] ""  RDU
+ SG_ OP_GAPC_ACC_RDU : 24|2@1+ (1,0) [0|0] ""  RDU
+
+BO_ 552 WHL_STAT2: 8 RDU
+ SG_ WhlDir_RR_Stat : 54|2@1+ (1,0) [0|0] ""  ARS300
+ SG_ WhlRPM_RR : 53|14@0+ (0.5,0) [0|8191] "rpm"  ARS300
+ SG_ WhlDir_RL_Stat : 38|2@1+ (1,0) [0|0] ""  ARS300
+ SG_ WhlRPM_RL : 37|14@0+ (0.5,0) [0|8191] "rpm"  ARS300
+ SG_ WhlDir_FR_Stat : 22|2@1+ (1,0) [0|0] ""  ARS300
+ SG_ WhlRPM_FR : 21|14@0+ (0.5,0) [0|8191] "rpm"  ARS300
+ SG_ WhlDir_FL_Stat : 6|2@1+ (1,0) [0|0] ""  ARS300
+ SG_ WhlRPM_FL : 5|14@0+ (0.5,0) [0|8191] "rpm"  ARS300
+
+BO_ 544 RDU_A1: 8 RDU
+ SG_ WhPlsRev m12 : 16|8@1+ (1,0) [0|255] ""  ARS300
+ SG_ DiagMd : 62|2@1+ (1,0) [0|3] ""  ARS300
+ SG_ Lane_Cfg : 60|2@1+ (1,0) [0|3] ""  ARS300
+ SG_ Lane_Stat2 : 56|4@1+ (1,0) [0|15] ""  ARS300
+ SG_ VehDirReverse : 55|1@1+ (1,0) [0|1] ""  ARS300
+ SG_ LRG_TargetAC : 54|1@1+ (1,0) [0|1] ""  ARS300
+ SG_ TrckOffSpd : 53|1@1+ (1,0) [0|1] ""  ARS300
+ SG_ Avl : 52|1@1+ (1,0) [0|1] ""  ARS300
+ SG_ VehSp : 51|1@1+ (1,0) [0|1] ""  ARS300
+ SG_ Sens_Turn : 50|1@1+ (1,0) [0|1] ""  ARS300
+ SG_ LRG_Host_NA : 49|1@1+ (1,0) [0|1] ""  ARS300
+ SG_ EngRun : 48|1@1+ (1,0) [0|1] ""  ARS300
+ SG_ Odo16 : 39|16@0+ (2,0) [0|99998] "km"  ARS300
+ SG_ VehLinePack m8 : 29|2@1+ (1,0) [0|3] ""  ARS300
+ SG_ StRatio m0 : 24|8@1+ (0.1,10) [10|35.3] ""  ARS300
+ SG_ Eng m6 : 24|6@1+ (1,0) [0|255] ""  ARS300
+ SG_ VehLineYear m8 : 24|5@1+ (1,2000) [2000|2029] ""  ARS300
+ SG_ WeightCenterAlt m9 : 24|8@1+ (0.01,0.3) [0.3|2.7] "m"  ARS300
+ SG_ WhlLoadDepend m11 : 24|8@1+ (0.1,0) [0|10] "%"  ARS300
+ SG_ VehModel m6 : 19|5@1+ (1,0) [0|31] ""  ARS300
+ SG_ Guard m9 : 18|2@1+ (1,0) [0|3] ""  ARS300
+ SG_ SensOffset m0 : 16|8@1+ (0.01,-1) [-1|1] "m"  ARS300
+ SG_ BodyStyle m6 : 16|3@1+ (1,0) [0|7] ""  ARS300
+ SG_ VehVersion m7 : 16|8@1+ (1,0) [0|255] ""  ARS300
+ SG_ AWD m8 : 16|1@1+ (1,0) [0|1] ""  ARS300
+ SG_ Country m9 : 16|2@1+ (1,0) [0|3] ""  ARS300
+ SG_ AxisLoad m11 : 16|8@1+ (0.01,0.2) [0.2|0.8] "%"  ARS300
+ SG_ WhlBase m1 : 22|15@0+ (0.001,1) [1|20] "m"  ARS300
+ SG_ SelfStGrdnt m2 : 16|9@0+ (0.001,0.1) [0.1|0.45] "°s²/m"  ARS300
+ SG_ TrckWidth_Ft m3 : 17|10@0+ (0.001,1) [1|2.02] "m"  ARS300
+ SG_ TrckWidth_R m4 : 17|10@0+ (0.001,1) [1|2.02] "m"  ARS300
+ SG_ WhlCircumDyn m5 : 18|11@0+ (0.001,1) [1|3.045] "m"  ARS300
+ SG_ VehWeight m10 : 23|16@0+ (1,0) [0|65534] "kg"  ARS300
+ SG_ SubId M : 4|4@1+ (1,0) [0|14] ""  ARS300
+ SG_ VehSpd : 3|12@0+ (0.1,0) [0|409.4] "km/h"  ARS300
+
+BO_ 548 RDU_A2: 8 RDU
+ SG_ ASC_Avl : 46|1@1+ (1,0) [0|0] ""  ARS300
+ SG_ StW_AnglSpd : 45|14@0+ (0.5,-2048) [-2048|2047] "°/s"  ARS300
+ SG_ StW_AnglSens_Stat : 30|2@1+ (1,0) [0|0] ""  ARS300
+ SG_ StW_Angl : 29|14@0+ (0.5,-2048) [-2048|2047] "°"  ARS300
+ SG_ VehYawRate_Raw : 15|16@0+ (0.01,-327.68) [-327.68|327.66] "°/s"  ARS300
+ SG_ VehAccel_Y : 0|8@1+ (0.08,-10.24) [-10.24|10.08] "m/s²"  ARS300
+
+BO_ 550 RDU_A3: 8 RDU
+ SG_ VSC_OFF : 61|1@1+ (1,0) [0|1] ""  ARS300
+ SG_ VSC_ACT_BRE : 60|1@1+ (1,0) [0|1] ""  ARS300
+ SG_ VSC_ACT : 59|1@1+ (1,0) [0|1] ""  ARS300
+ SG_ TCS_ACT : 58|1@1+ (1,0) [0|1] ""  ARS300
+ SG_ ABS_ACT4 : 57|1@1+ (1,0) [0|1] "-"  ARS300
+ SG_ ABS_ACT : 56|1@1+ (1,0) [0|1] "-"  ARS300
+ SG_ VehDirState : 51|2@1+ (1,0) [0|3] ""  ARS300
+ SG_ MC_A3 : 53|3@1+ (1,0) [0|7] ""  ARS300
+ SG_ Gear : 32|4@1+ (1,0) [0|15] ""  ARS300
+ SG_ Brk_Torque : 36|12@1+ (3,0) [0|12282] "Nm"  ARS300
+ SG_ PBRK_Stat : 48|3@1+ (1,0) [0|7] ""  ARS300
+ SG_ WhlPlsCnt_RR : 24|8@1+ (1,0) [0|254] "Impulses"  ARS300
+ SG_ WhlPlsCnt_RL : 16|8@1+ (1,0) [0|254] "Impulses"  ARS300
+ SG_ WhlPlsCnt_FR : 8|8@1+ (1,0) [0|254] "Impulses"  ARS300
+ SG_ WhlPlsCnt_FL : 0|8@1+ (1,0) [0|254] "Impulses"  ARS300
+
+BO_ 554 RDU_A4: 8 RDU
+ SG_ ACCEL_PEDAL_TRAVEL : 56|7@1+ (1,0) [0|100] "%"  ARS_ISF
+ SG_ RDU_ALIVE : 47|3@0+ (1,0) [0|7] ""  ARS_ISF
+ SG_ ACC_SHUTOFF_ACK : 15|1@0+ (1,0) [0|1] ""  ARS_ISF
+ SG_ ACC_REQ_LIM : 44|2@0+ (1,0) [0|3] ""  ARS_ISF
+ SG_ ACC_OV : 14|2@0+ (1,0) [0|3] ""  ARS_ISF
+ SG_ ACC_E : 12|2@0+ (1,0) [0|3] ""  ARS_ISF
+ SG_ A_BASIS : 42|11@0+ (0.01,-10.23) [-10.23|10.23] "m/s2"  ARS_ISF
+ SG_ DRIVER_BRAKING : 10|1@0+ (1,0) [0|1] ""  ARS_ISF
+ SG_ VehAccel_X_Sen : 16|8@1+ (0.08,-10.24) [-10.24|10.08] "m/s²"  ARS_ISF
+ SG_ Veh_Accel_X_Est : 0|10@1+ (0.03,-15.36) [-15.36|15.33] "m/s²"  ARS_ISF
+ SG_ VehCourse : 24|16@1+ (7.6294E-006,-0.25) [-0.25|0.249992729] "1/m"  ARS_ISF
+
+BO_ 1313 RDU_A6: 8 RDU
+ SG_ RDU_U_BT : 40|8@1+ (0.1,0) [0|0] "V"  ARS300
+ SG_ selected_car : 62|2@1+ (1,0) [0|0] ""  ARS300
+ SG_ RDU_SW_BLTB_PSR : 60|2@1+ (1,0) [0|0] ""  ARS300
+ SG_ RDU_SW_BLTB_DRR : 58|2@1+ (1,0) [0|0] ""  ARS300
+ SG_ RDU_ST_KL_15 : 56|2@1+ (1,0) [0|0] ""  ARS300
+ SG_ RDU_Bremsdruck : 16|16@1+ (0.1,0) [0|0] "bar"  ARS300
+ SG_ RDU_ABS_Vref : 0|16@1+ (0.01,0) [0|0] "km/h"  ARS300
+ SG_ RDU_aSoll : 32|8@1+ (0.1,0) [0|0] "m/s²"  ARS300
+
+BO_ 1314 RDU_A7: 8 RDU
+ SG_ KO3_Kilometerstand_2 : 40|8@1+ (1,0) [0|255] "km" Vector__XXX
+ SG_ KO3_Kilometerstand_1 : 48|12@1+ (1,0) [0|4095] "km" Vector__XXX
+ SG_ RDU_ACC_WarnSignal : 31|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RDU_ACC_AnfahrFlag : 30|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RDU_HandsOff : 28|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RDU_ACC_Resume : 29|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RDU_DoorSwitch_rearPS : 27|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RDU_DoorSwitch_rearDR : 26|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RDU_DoorSwitch_PS : 25|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RDU_DoorSwitch_DR : 24|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RDU_Wischer : 23|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RDU_Licht_Stand : 16|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RDU_Licht_Nebelschluss : 20|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RDU_Licht_Nebel : 19|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RDU_Licht_Fern : 18|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RDU_Licht_Brems : 21|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RDU_Licht_Abblend : 17|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RDU_Blinker : 12|3@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RDU_Tacho_Speed : 0|12@1+ (0.1,0) [0|0] "kmh" Vector__XXX
+
+BO_ 1315 RDU_A8: 8 Vector__XXX
+ SG_ RDU_FahrerLenkmoment : 0|16@1- (-0.000423868,0) [0|0] "Nm" Vector__XXX
+
+BO_ 596 SensState: 8 ARS300
+ SG_ TPCycleCounter : 47|24@0+ (1,0) [0|16777215] ""  ARS300,RDU
+ SG_ LaneRadius : 31|16@0+ (1,-32767) [-32767|32767] "m"  ARS300,RDU
+ SG_ Track_R : 18|2@1+ (1,0) [0|3] ""  ARS300,RDU
+ SG_ Track_L : 16|2@1+ (1,0) [0|3] ""  ARS300,RDU
+ SG_ Blockage : 14|2@1+ (1,0) [0|3] ""  ARS300,RDU
+ SG_ MC_A1 : 8|4@1+ (1,0) [0|15] ""  ARS300,RDU
+ SG_ SensDiagMd : 12|2@1+ (1,0) [0|3] ""  ARS300,RDU
+ SG_ SupVolt_L : 6|1@1+ (1,0) [0|0] ""  ARS300,RDU
+ SG_ RxInvalid : 7|1@1+ (1,0) [0|0] ""  ARS300,RDU
+ SG_ SensDef : 5|1@1+ (1,0) [0|0] ""  ARS300,RDU
+ SG_ SensDeAdj : 4|1@1+ (1,0) [0|0] ""  ARS300,RDU
+ SG_ SensTempErr : 3|1@1+ (1,0) [0|0] ""  ARS300,RDU
+ SG_ SensExtErr : 2|1@1+ (1,0) [0|0] ""  ARS300,RDU
+ SG_ SensDirty : 0|1@1+ (1,0) [0|0] ""  ARS300,RDU
+ SG_ ObjNotMeas : 1|1@1+ (1,0) [0|0] ""  ARS300,RDU
+
+BO_ 604 ObjInterest_1: 8 ARS300
+ SG_ Obj0LostReason : 50|2@1+ (1,0) [0|3] "-"  RDU
+ SG_ Obj0CutoutPot : 56|7@1+ (1,0) [0|100] "%"  RDU
+ SG_ Obj0RelLatSpd : 47|12@0+ (0.025,-32) [-32|70.375] "m/s"  RDU
+ SG_ Obj0RelLongSpd : 29|14@0+ (0.025,-128) [-128|128] "m/s"  RDU
+ SG_ Obj0Dist : 7|14@0+ (0.1,-512) [-512|512] "m"  RDU
+ SG_ Obj0LatDisplace : 9|12@0+ (0.1,-128) [-128|128] "m"  RDU
+
+BO_ 605 ObjInterest_2: 8 ARS300
+ SG_ Host0LongAccel : 47|9@0+ (0.1,-20) [-20|20] "m/s²"  RDU
+ SG_ Host0LongSpd : 53|14@0+ (0.025,-128) [-128|128] "m/s"  RDU
+ SG_ Obj0_ID : 32|8@1+ (1,0) [0|0] ""  RDU
+ SG_ Obj0RelLongAccel : 7|9@0+ (0.1,-20) [-20|20] "m/s²"  RDU
+ SG_ Obj0Width : 14|12@0+ (0.01,0) [0|40.95] "m"  RDU
+ SG_ Obj0Status : 24|2@1+ (1,0) [0|0] ""  RDU
+ SG_ Obj0Dynamic : 28|3@0+ (1,0) [0|7] ""  RDU
+ SG_ Obj0Class : 18|3@0+ (1,0) [0|7] ""  RDU
+
+BO_ 608 ObjHidden_1: 8 ARS300
+ SG_ Obj1LostReason : 50|2@1+ (1,0) [0|3] "-"  RDU
+ SG_ Obj1Coverage : 56|7@1+ (1,0) [0|100] "%"  RDU
+ SG_ Obj1RelLatSpd : 47|12@0+ (0.025,-32) [-32|70.375] "m/s"  RDU
+ SG_ Obj1RelLongSpd : 29|14@0+ (0.025,-128) [-128|128] "m/s"  RDU
+ SG_ Obj1Dist : 7|14@0+ (0.1,-512) [-512|512] "m"  RDU
+ SG_ Obj1LatDisplace : 9|12@0+ (0.1,-128) [-128|128] "m"  RDU
+
+BO_ 609 ObjHidden_2: 8 ARS300
+ SG_ Obj1_ID : 32|8@1+ (1,0) [0|0] ""  RDU
+ SG_ Obj1RelLongAccel : 7|9@0+ (0.1,-20) [-20|20] "m/s²"  RDU
+ SG_ Obj1Width : 14|12@0+ (0.01,0) [0|40.95] "m"  RDU
+ SG_ Obj1Status : 24|2@1+ (1,0) [0|0] ""  RDU
+ SG_ Obj1Dynamic : 28|3@0+ (1,0) [0|7] ""  RDU
+ SG_ Obj1Class : 18|3@0+ (1,0) [0|7] ""  RDU
+
+BO_ 612 ObjNearDistL_1: 8 ARS300
+ SG_ Obj2LostReason : 50|2@1+ (1,0) [0|3] "-"  RDU
+ SG_ Obj2CutinPot : 56|7@1+ (1,0) [0|100] "%"  RDU
+ SG_ Obj2RelLatSpd : 47|12@0+ (0.025,-32) [-32|70.375] "m/s"  RDU
+ SG_ Obj2RelLongSpd : 29|14@0+ (0.025,-128) [-128|128] "m/s"  RDU
+ SG_ Obj2Dist : 7|14@0+ (0.1,-512) [-512|512] "m"  RDU
+ SG_ Obj2LatDisplace : 9|12@0+ (0.1,-128) [-128|128] "m"  RDU
+
+BO_ 613 ObjNearDistL_2: 8 ARS300
+ SG_ Obj2_ID : 32|8@1+ (1,0) [0|0] ""  RDU
+ SG_ Obj2RelLongAccel : 7|9@0+ (0.1,-20) [-20|20] "m/s²"  RDU
+ SG_ Obj2Width : 14|12@0+ (0.01,0) [0|40.95] "m"  RDU
+ SG_ Obj2Status : 24|2@1+ (1,0) [0|0] ""  RDU
+ SG_ Obj2Dynamic : 28|3@0+ (1,0) [0|7] ""  RDU
+ SG_ Obj2Class : 18|3@0+ (1,0) [0|7] ""  RDU
+
+BO_ 616 ObjNearDistR_1: 8 ARS300
+ SG_ Obj3LostReason : 50|2@1+ (1,0) [0|3] "-"  RDU
+ SG_ Obj3CutinPot : 56|7@1+ (1,0) [0|100] "%"  RDU
+ SG_ Obj3RelLatSpd : 47|12@0+ (0.025,-32) [-32|70.375] "m/s"  RDU
+ SG_ Obj3RelLongSpd : 29|14@0+ (0.025,-128) [-128|128] "m/s"  RDU
+ SG_ Obj3Dist : 7|14@0+ (0.1,-512) [-512|512] "m"  RDU
+ SG_ Obj3LatDisplace : 9|12@0+ (0.1,-128) [-128|128] "m"  RDU
+
+BO_ 617 ObjNearDistR_2: 8 ARS300
+ SG_ Obj3_ID : 32|8@1+ (1,0) [0|0] ""  RDU
+ SG_ Obj3RelLongAccel : 7|9@0+ (0.1,-20) [-20|20] "m/s²"  RDU
+ SG_ Obj3Width : 14|12@0+ (0.01,0) [0|40.95] "m"  RDU
+ SG_ Obj3Status : 24|2@1+ (1,0) [0|0] ""  RDU
+ SG_ Obj3Dynamic : 28|3@0+ (1,0) [0|7] ""  RDU
+ SG_ Obj3Class : 18|3@0+ (1,0) [0|7] ""  RDU
+
+BO_ 620 ObjNearTrckL_1: 8 ARS300
+ SG_ Obj4LostReason : 50|2@1+ (1,0) [0|3] "-"  RDU
+ SG_ Obj4CutinPot : 56|7@1+ (1,0) [0|100] "%"  RDU
+ SG_ Obj4RelLatSpd : 47|12@0+ (0.025,-32) [-32|70.375] "m/s"  RDU
+ SG_ Obj4RelLongSpd : 29|14@0+ (0.025,-128) [-128|128] "m/s"  RDU
+ SG_ Obj4Dist : 7|14@0+ (0.1,-512) [-512|512] "m"  RDU
+ SG_ Obj4LatDisplace : 9|12@0+ (0.1,-128) [-128|128] "m"  RDU
+
+BO_ 621 ObjNearTrckL_2: 8 ARS300
+ SG_ Obj4_ID : 32|8@1+ (1,0) [0|0] ""  RDU
+ SG_ Obj4RelLongAccel : 7|9@0+ (0.1,-20) [-20|20] "m/s²"  RDU
+ SG_ Obj4Width : 14|12@0+ (0.01,0) [0|40.95] "m"  RDU
+ SG_ Obj4Status : 24|2@1+ (1,0) [0|0] ""  RDU
+ SG_ Obj4Dynamic : 28|3@0+ (1,0) [0|7] ""  RDU
+ SG_ Obj4Class : 18|3@0+ (1,0) [0|7] ""  RDU
+
+BO_ 624 ObjNearTrckR_1: 8 ARS300
+ SG_ Obj5LostReason : 50|2@1+ (1,0) [0|3] "-"  RDU
+ SG_ Obj5CutinPot : 56|7@1+ (1,0) [0|100] "%"  RDU
+ SG_ Obj5RelLatSpd : 47|12@0+ (0.025,-32) [-32|70.375] "m/s"  RDU
+ SG_ Obj5RelLongSpd : 29|14@0+ (0.025,-128) [-128|128] "m/s"  RDU
+ SG_ Obj5Dist : 7|14@0+ (0.1,-512) [-512|512] "m"  RDU
+ SG_ Obj5LatDisplace : 9|12@0+ (0.1,-128) [-128|128] "m"  RDU
+
+BO_ 625 ObjNearTrckR_2: 8 ARS300
+ SG_ Obj5_ID : 32|8@1+ (1,0) [0|0] ""  RDU
+ SG_ Obj5RelLongAccel : 7|9@0+ (0.1,-20) [-20|20] "m/s²"  RDU
+ SG_ Obj5Width : 14|12@0+ (0.01,0) [0|40.95] "m"  RDU
+ SG_ Obj5Status : 24|2@1+ (1,0) [0|0] ""  RDU
+ SG_ Obj5Dynamic : 28|3@0+ (1,0) [0|7] ""  RDU
+ SG_ Obj5Class : 18|3@0+ (1,0) [0|7] ""  RDU
+
+BO_ 1087 CSF200_ID43F: 8 RDU
+ SG_ ID43F_tmp_Sig4 : 55|16@0+ (1,0) [0|0] ""  CSF200
+ SG_ ID43F_tmp_Sig3 : 39|16@0+ (1,0) [0|0] ""  CSF200
+ SG_ ID43F_tmp_Sig2 : 23|16@0+ (1,0) [0|0] ""  CSF200
+ SG_ ID43F_tmp_Sig1 : 7|16@0+ (1,0) [0|0] ""  CSF200
+
+BO_ 515 CSF200_WHL_STAT2: 8 RDU
+ SG_ WhlRPM_FL_x : 5|14@0+ (0.5,0) [0|8191] "rpm"  CSF200
+ SG_ WhlDir_FL_Stat_x : 6|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ WhlRPM_FR_x : 21|14@0+ (0.5,0) [0|8191] "rpm"  CSF200
+ SG_ WhlDir_FR_Stat_x : 22|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ WhlRPM_RL_x : 37|14@0+ (0.5,0) [0|8191] "rpm"  CSF200
+ SG_ WhlDir_RL_Stat_x : 38|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ WhlRPM_RR_x : 53|14@0+ (0.5,0) [0|8191] "rpm"  CSF200
+ SG_ WhlDir_RR_Stat_x : 54|2@1+ (1,0) [0|0] ""  CSF200
+
+BO_ 1 CSF200_EIS_A1: 8 RDU
+ SG_ ISw_Stat : 0|3@1+ (1,0) [0|0] ""  CSF200
+ SG_ Ign_On_StProc_Inact : 3|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ TxPkPosn_Rq : 4|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ TxPkPosn_Emg_Rq : 5|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ TxPkPosnAuto_Enbl : 6|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ TxPkPosn_Rq_SBC_Enbl : 7|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ KG_IgnCtrl_Actv : 8|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ EngSt_Enbl_Rq_KG : 9|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ KG_StSw_Psd : 10|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ AutoDrLk_Rq_Src : 14|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ AutoDrLk_Stat : 20|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ SPCR_Conf_EIS : 24|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ CLkS_DL_Stat : 28|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ CLkS_Gas_Dr_Stat : 30|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ CLkS_Dr_FL_Stat : 32|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ CLkS_Dr_FR_Stat : 34|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ CLkS_Dr_RL_Stat : 36|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ CLkS_Dr_RR_Stat : 38|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ KeyLine1_Appr : 40|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ KeyLine2_Appr : 41|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ KeyLine3_Appr : 42|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ KeyLine4_Appr : 43|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ KeyLine5_Appr : 44|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ KeyLine6_Appr : 45|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ KeyLine7_Appr : 46|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ KeyLine8_Appr : 47|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ CLkS_Lk_Stat3 : 48|3@1+ (1,0) [0|0] ""  CSF200
+ SG_ SPCR_AcustWarn_Rq_EIS : 51|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ MC_EIS_A1 : 52|4@1+ (1,0) [0|15] ""  CSF200
+ SG_ CRC_EIS_A1 : 56|8@1+ (1,0) [0|0] ""  CSF200
+
+BO_ 2 CSF200_DM_FL_A1: 5 RDU
+ SG_ CSF200_DrRLtch_FL_Stat : 0|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ AddTurnLmp_Lt_Flt : 3|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ CLkS_UnlkSw_FL_Psd : 4|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ CLkS_LkSw_FL_Psd : 5|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ DL_RemActn_LHD_Psd : 12|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ CSL_LHD_Inact : 15|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ WinPosn_FL : 19|12@0+ (0.25,-512) [-512|511.5] "1/RotorRevolution"  CSF200
+ SG_ PW_FL_SS : 21|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ PW_FL_Bl : 22|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ PW_FL_Norm : 23|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ BSM_WarnUnit_Lt_Stat : 34|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ MirrAdjSw_Stat_LHD : 37|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ Recup_Dsabl_Rq_DOOR_FL : 38|2@1+ (1,0) [0|0] ""  CSF200
+
+BO_ 3 CSF200_STW_ANGL_STAT: 8 RDU
+ SG_ CSF200_StW_Angl : 5|14@0+ (0.5,-2048) [-2048|2047] "°"  CSF200
+ SG_ CSF200_StW_AnglSpd : 21|14@0+ (0.5,-2048) [-2048|2047] "°/s"  CSF200
+ SG_ CSF200_StW_AnglSens_Stat : 32|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ CSF200_StW_AnglSens_Id : 34|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ CSF200_MC_STW_ANGL_STAT : 52|4@1+ (1,0) [0|15] ""  CSF200
+ SG_ CSF200_CRC_STW_ANGL_STAT : 56|8@1+ (1,0) [0|0] ""  CSF200
+
+BO_ 4 CSF200_DM_FR_A1: 5 RDU
+ SG_ CSF200_DrRLtch_FR_Stat : 0|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ AddTurnLmp_Rt_Flt : 3|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ CLkS_UnlkSw_FR_Psd : 4|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ CLkS_LkSw_FR_Psd : 5|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ DL_RemActn_RHD_Psd : 12|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ CSL_RHD_Inact : 15|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ WinPosn_FR : 19|12@0+ (0.25,-512) [-512|511.5] "1/RotorRevolution"  CSF200
+ SG_ PW_FR_SS : 21|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ PW_FR_Bl : 22|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ PW_FR_Norm : 23|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ BSM_WarnUnit_Rt_Stat : 34|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ MirrAdjSw_Stat_RHD : 37|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ Recup_Dsabl_Rq_DOOR_FR : 38|2@1+ (1,0) [0|0] ""  CSF200
+
+BO_ 5 CSF200_BRK_STAT: 8 RDU
+ SG_ Brk_Stat : 0|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ SPCR_Sp_Stat : 2|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ BrkPdl_Stat : 4|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ BrkIntrvntn_Actv_ESP : 8|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ BrkIntrvntn_Actv_AS : 10|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ BrkIntrvntn_Enbl : 12|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ EmgBrk_Actv : 14|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ FullBrk_Actv : 15|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ BrkTrq : 19|12@0+ (3,0) [0|12282] "Nm"  CSF200
+ SG_ SPCR_Md_V3 : 20|4@1+ (1,0) [0|0] ""  CSF200
+ SG_ ESP_Sys_Stat : 32|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ SPCR_Excpt_Rq : 36|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ SPCR_Veh_Immo : 38|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ TxPkPosn_Rq_SBC : 39|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ ESP_Md : 46|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ SPCR_AS_Dsabl : 48|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ SPCR_AS_Off_Rq : 50|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ MC_BRK_STAT : 52|4@1+ (1,0) [0|15] ""  CSF200
+ SG_ CRC_BRK_STAT : 56|8@1+ (1,0) [0|0] ""  CSF200
+
+BO_ 14 CSF200_STW_ANGLHP_STAT: 8 RDU
+ SG_ StW_AnglHP : 5|14@0+ (0.1,-819.2) [-819.2|819] "°"  CSF200
+ SG_ StW_AnglHP_Sens_Stat : 32|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ StW_AnglHP_Sens_Id : 34|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ MC_STW_ANGLHP_STAT : 52|4@1+ (1,0) [0|15] ""  CSF200
+ SG_ CRC_STW_ANGLHP_STAT : 56|8@1+ (1,0) [0|0] ""  CSF200
+
+BO_ 69 CSF200_STW_ACTN_RQ: 8 RDU
+ SG_ SpdCtrlLvr_Stat : 0|6@1+ (1,0) [0|0] ""  CSF200
+ SG_ VSL_Enbl_Rq : 6|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ SpdCtrlLvrStat_Inv : 7|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ DTR_Dist_Rq : 8|8@1+ (1,0) [0|200] ""  CSF200
+ SG_ TurnIndLvr_Stat : 16|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ HiBmLvr_Stat : 18|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ WprWashSw_Psd : 20|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ WprWash_R_Sw_Posn_V2 : 22|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ StW_Lvr_Stat : 24|3@1+ (1,0) [0|0] ""  CSF200
+ SG_ StW_Cond_Flt : 27|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ StW_Cond_Psd : 28|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ HrnSw_Psd : 30|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ StW_Sw00_Psd : 32|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ StW_Sw01_Psd : 33|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ StW_Sw02_Psd : 34|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ StW_Sw03_Psd : 35|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ StW_Sw04_Psd : 36|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ StW_Sw05_Psd : 37|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ StW_Sw06_Psd : 38|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ StW_Sw07_Psd : 39|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ StW_Sw08_Psd : 40|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ StW_Sw09_Psd : 41|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ StW_Sw10_Psd : 42|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ StW_Sw11_Psd : 43|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ StW_Sw12_Psd : 44|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ StW_Sw13_Psd : 45|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ StW_Sw14_Psd : 46|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ StW_Sw15_Psd : 47|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ WprSw6Posn : 48|3@1+ (1,0) [0|0] ""  CSF200
+ SG_ MC_STW_ACTN_RQ : 52|4@1+ (1,0) [0|15] ""  CSF200
+ SG_ CRC_STW_ACTN_RQ : 56|8@1+ (1,0) [0|0] ""  CSF200
+
+BO_ 95 CSF200_BRK_STAT2: 8 RDU
+ SG_ BrkTrq_D : 3|12@0+ (3,0) [0|12282] "Nm"  CSF200
+ SG_ BrkTrqGrdnt_D : 19|12@0+ (97.68,-200048) [-200048|199853] "Nm/s"  CSF200
+ SG_ MC_BRK_STAT2 : 52|4@1+ (1,0) [0|15] ""  CSF200
+ SG_ CRC_BRK_STAT2 : 56|8@1+ (1,0) [0|0] ""  CSF200
+
+BO_ 105 CSF200_LM_A1: 2 RDU
+ SG_ PkLmp_Lt_On_Rq : 0|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ PkLmp_Rt_On_Rq : 1|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ PosnLmp_On_Rq : 2|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ LoBm_On_Rq : 3|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ FogLmp_Ft_On_Rq : 4|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ FogLmp_R_On_Rq : 5|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ ADL_Actv : 6|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ NS_Ill_Actv : 7|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ SwIll_Off_Rq : 8|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ FogLmp_Ft_IndLmp_On_Rq : 9|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ LoBm_IndLmp_On_Rq : 10|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ IHC_Stat_V2 : 11|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ FogLmp_R_IndLmp_On_Rq : 13|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ PosnLmp_IndLmp_On_Rq : 14|1@1+ (1,0) [0|0] ""  CSF200
+
+BO_ 115 CSF200_SBW_RS_ISM: 8 RDU
+ SG_ TSL_Posn_ISM : 0|4@1+ (1,0) [0|0] ""  CSF200
+ SG_ TSL_MtnLk_Actv : 4|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ TSL_Posn_P_ISM : 5|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ TxDrvProgSw_Psd_V3 : 6|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ TxN_Posn_Rq_D : 10|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ SBC_Add_Dsabl_Rq_ISM : 11|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ TxPkPosn_Emg_Actv : 12|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ Key_P_Enbl : 13|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ EmgPath_Enbl : 14|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ ISM_LHOM : 15|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ TSL_Angle : 16|8@1+ (0.5,0) [0|90] "°"  CSF200
+ SG_ ISM_Temp : 24|8@1+ (1,-50) [-50|204] "°C"  CSF200
+ SG_ EmgPath_Volt : 32|8@1+ (0.1,0) [0|25.4] "V"  CSF200
+ SG_ TSL_ShiftLk_Stat : 46|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ TSL_Posn_Target : 48|4@1+ (1,0) [0|0] ""  CSF200
+ SG_ MC_SBW_RS_ISM : 52|4@1+ (1,0) [0|15] ""  CSF200
+ SG_ CRC_SBW_RS_ISM : 56|8@1+ (1,0) [0|0] ""  CSF200
+
+BO_ 243 CSF200_ENG_RQ2_TCM: 8 RDU
+ SG_ Gr : 0|4@1+ (1,0) [0|0] ""  CSF200
+ SG_ Gr_Target : 4|4@1+ (1,0) [0|0] ""  CSF200
+ SG_ TxRatio : 8|8@1+ (0.02,0) [0|5.08] ""  CSF200
+ SG_ EngWhlTrqRatio_TCM : 21|14@0+ (0.01,0) [0|163.82] ""  CSF200
+ SG_ TxTrqLoss : 32|8@1+ (0.25,0) [0|63.5] "Nm"  CSF200
+ SG_ TxShiftStyle : 40|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ TxMechStyle : 42|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ TxStyle : 44|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ VehDrvStyle : 46|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ MC_ENG_RQ2_TCM : 52|4@1+ (1,0) [0|15] ""  CSF200
+ SG_ CRC_ENG_RQ2_TCM : 56|8@1+ (1,0) [0|0] ""  CSF200
+
+BO_ 261 CSF200_ENG_RS3: 8 RDU
+ SG_ EngRPM : 5|14@0+ (1,0) [0|16382] "rpm"  CSF200
+ SG_ PreHt_Stat : 6|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ KickDnSw_Psd : 7|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ EngTrqMaxCorrFctr : 16|8@1+ (0.0078,0) [0|1.98] ""  CSF200
+ SG_ AccelPdlPosn : 24|8@1+ (0.4,0) [0|100] "%"  CSF200
+ SG_ AccelPdlPosn_Raw : 32|8@1+ (0.4,0) [0|100] "%"  CSF200
+ SG_ GenLoad : 40|6@1+ (3.22581,0) [0|100] "%"  CSF200
+ SG_ AddPwrCnsmr_On_Rq : 46|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ Term61_Actv : 47|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ EngRun_Stat : 48|3@1+ (1,0) [0|0] ""  CSF200
+ SG_ AccelPdlPosnSens_Flt : 51|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ MC_ENG_RS3 : 52|4@1+ (1,0) [0|15] ""  CSF200
+ SG_ CRC_ENG_RS3 : 56|8@1+ (1,0) [0|0] ""  CSF200
+
+BO_ 415 CSF200_IC_A1: 8 RDU
+ SG_ VehSpd_Disp : 3|12@0+ (0.1,0) [0|409.4] "km/h"  CSF200
+ SG_ AirTemp_Outsd_Disp : 16|8@1+ (0.5,-40) [-40|85] "°C"  CSF200
+ SG_ EngShutOffTm : 27|12@0+ (1,0) [0|4094] "min"  CSF200
+ SG_ HiBm_Enbl : 28|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ PTS_Disp_Stat_IC : 30|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ Odo : 47|24@0+ (0.1,0) [0|999999.9] "km"  CSF200
+
+BO_ 513 CSF200_WHL_STAT1: 8 RDU
+ SG_ CSF200_WhlPlsCnt_FL : 0|8@1+ (1,0) [0|254] "Impulses"  CSF200
+ SG_ CSF200_WhlPlsCnt_FR : 8|8@1+ (1,0) [0|254] "Impulses"  CSF200
+ SG_ CSF200_WhlPlsCnt_RL : 16|8@1+ (1,0) [0|254] "Impulses"  CSF200
+ SG_ CSF200_WhlPlsCnt_RR : 24|8@1+ (1,0) [0|254] "Impulses"  CSF200
+ SG_ CSF200_MC_WHL_STAT1 : 52|4@1+ (1,0) [0|15] ""  CSF200
+ SG_ CSF200_CRC_WHL_STAT1 : 56|8@1+ (1,0) [0|0] ""  CSF200
+
+BO_ 517 CSF200_PN14_STAT: 8 RDU
+ SG_ PN14_BackupBat_Flt : 2|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ PN14_RemPerm : 4|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ PN14_RevBltTns_Off_Rq : 5|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ PN14_SBC_Add_Off_Rq : 6|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ PN14_SupBat_Volt : 8|8@1+ (0.1,0) [0|25.4] "V"  CSF200
+ SG_ PN14_SupBatCutSw_Stat : 16|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ PN14_GM1_Actv : 18|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ PN14_GM1_Avl : 19|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ PN14_AS_Off_Rq : 24|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ SPCR_Flt_PN14 : 26|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ PN14_LHC_Actv : 31|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ LHC_PTC6_Rq : 32|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ LHC_PTC5_Rq : 33|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ LHC_PTC4_Rq : 34|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ LHC_PTC3_Rq : 35|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ LHC_PTC2_Rq : 36|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ LHC_PTC1_Rq : 37|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ LHC_IntFan_R_50_Rq : 38|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ LHC_IntFan_F_50_Rq : 39|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ LHC_DSH_Stg2_Rq : 40|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ LHC_DSH_Stg1_Rq : 41|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ LHC_SeatHtStg3_Rq : 42|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ LHC_SeatHtStg2_Rq : 43|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ LHC_SeatHtStg1_Rq : 44|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ LHC_SeatVn_Rq : 45|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ LHC_Tlm_Rq : 46|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ LHC_TrlrSock_Rq : 47|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ LHC_WprPkHt_Rq : 48|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ LHC_EBL_Rq : 49|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ LHC_StW_Ht_Rq : 50|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ LHC_WShHt_Rq : 51|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ LHC_MirrHt_Rq : 52|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ LHC_CoolBox_R_Rq : 53|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ LHC_EngFan_50_Rq : 54|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ LHC_FogLmp_Ft_Rq : 55|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ LHC_TrkSock_Rq : 56|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ LHC_ComfLmp_Rq : 57|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ LHC_RHU_Rq : 58|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ LHC_ICH_Rq : 59|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ PN14_LHC_Taxi_Rq : 60|1@1+ (1,0) [0|0] ""  CSF200
+
+BO_ 518 CSF200_AVI: 8 RDU
+ SG_ TaxiPwrSup_Avl : 0|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ TaxiEmgAlm_Avl : 1|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ TaxiRoofLmpCon_Avl : 2|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ RadioHdFree_Avl : 4|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ ES_EmgVeh_Avl : 5|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ GAS_Avl : 7|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ EmgOpn_Inact : 8|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ RadioData_Avl : 9|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ VehHandi : 10|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ KG_Avl : 16|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ PTS_Avl : 17|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ RB_R_Avl : 18|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ Mem_Avl : 19|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ XenonHL_Avl : 20|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ APC_Avl : 24|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ FTW_Avl : 25|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ PKAS_Avl : 26|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ CMS_Avl : 27|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ SLA_Avl : 28|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ BrkCC_Avl : 29|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ DTR_Avl : 30|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ NV_Avl : 31|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ BSM_Avl : 32|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ CURV_Avl : 33|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ ADTR_Avl : 34|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ APG_Avl : 35|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ TAPS_Avl : 37|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ IHC_Avl : 38|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ ALDW_Avl : 39|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ SeatBkRstAdj_R_Avl : 40|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ IdvdlSeat_R_Avl : 41|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ PTCM_Avl : 42|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ DL_AuxProt_Avl : 43|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ DrAuxProt_Avl : 44|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ TPM_Avl : 46|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ VehFixMaxSpd : 48|8@1+ (1,0) [0|250] "km/h"  CSF200
+ SG_ CRC_AVI : 56|8@1+ (1,0) [0|0] ""  CSF200
+
+BO_ 519 CSF200_CVI: 8 RDU
+ SG_ Group : 0|4@1+ (1,0) [0|0] ""  CSF200
+ SG_ CSF200_Country : 4|4@1+ (1,0) [0|0] ""  CSF200
+ SG_ VehLine : 8|6@1+ (1,0) [0|0] ""  CSF200
+ SG_ CSF200_Guard : 14|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ CSF200_VehLinePack : 16|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ CSF200_VehLineYear : 18|5@1+ (1,2000) [2000|2029] ""  CSF200
+ SG_ CSF200_BodyStyle : 24|5@1+ (1,0) [0|0] ""  CSF200
+ SG_ StStyle : 29|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ PSTS_Avl : 31|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ EngStyle : 32|8@1+ (1,0) [0|0] ""  CSF200
+ SG_ TCM_Avl : 40|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ HVAC_Avl : 41|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ TrlrHtch_Avl : 42|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ VTA_Avl : 43|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ PCD_Avl : 44|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ ICH_Avl : 45|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ LgtSens_Avl : 46|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ RainSens_Avl : 47|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ HVACStyle : 48|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ VehOPTPack : 50|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ Cplt_SL_Enbl : 52|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ RoofStyle : 53|3@1+ (1,0) [0|0] ""  CSF200
+ SG_ CRC_CVI : 56|8@1+ (1,0) [0|0] ""  CSF200
+
+BO_ 520 CSF200_AVI2: 8 RDU
+ SG_ MirrFld_Avl : 0|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ Presf_Avl : 1|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ TELEAID_Avl : 2|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ PddlLmp_Avl : 3|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ WarnLmp_Avl : 4|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ EntrLmp_Avl : 5|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ Win_R_PartOpn : 6|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ ADC_Avl : 7|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ WinStyle : 8|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ SpecVehPW_FL_Avl : 10|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ SpecVehPW_FR_Avl : 11|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ SpecVehPW_RL_Avl : 12|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ SpecVehPW_RR_Avl : 13|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ Mem_P_Avl : 14|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ AmbLgt_Avl : 16|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ SeatHt_R_Avl : 17|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ RoofLmpSup_PrmntActv : 18|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ SPCR_Style : 19|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ LDP_Avl : 21|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ LCMS_Avl : 22|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ EM_Style : 24|6@1+ (1,0) [0|0] ""  CSF200
+ SG_ SSA_Avl : 31|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ CRC_AVI2 : 56|8@1+ (1,0) [0|0] ""  CSF200
+
+BO_ 581 CSF200_VEH_DYN_STAT: 8 RDU
+ SG_ CSF200_VehYawRate_Raw : 7|16@0+ (0.01,-327.68) [-327.68|327.66] "°/s"  CSF200
+ SG_ VehYawRateOffset : 16|8@1+ (0.08,-10.24) [-6.96|6.96] ""  CSF200
+ SG_ VehAccel_X_Offset : 24|8@1+ (0.02,-2.56) [-2.56|2.52] "m/s²"  CSF200
+ SG_ VehAccel_X : 32|8@1+ (0.08,-10.24) [-10.24|10.08] "m/s²"  CSF200
+ SG_ CSF200_VehAccel_Y : 40|8@1+ (0.08,-10.24) [-10.24|10.08] "m/s²"  CSF200
+ SG_ MC_VEH_DYN_STAT : 52|4@1+ (1,0) [0|15] ""  CSF200
+ SG_ VehAccel_Y_Offset : 56|8@1+ (0.02,-2.56) [-2.56|2.52] "m/s²"  CSF200
+
+BO_ 583 CSF200_BRK_TIRE_DISP_RQ: 8 RDU
+ SG_ SBC_BrkMsg_Disp_Rq_V2 : 0|7@1+ (1,0) [0|0] ""  CSF200
+ SG_ SBC_BrkMsg_Disp_TrgRq : 7|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ SBC_VDC_Msg_Disp_Rq : 8|7@1+ (1,0) [0|0] ""  CSF200
+ SG_ SBC_VDC_Msg_Disp_TrgRq : 15|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ SBC_CtrlLmp_Info : 16|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ ABS_IndLmp_On_Rq : 18|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ BrkIndLmp_On_Rq_SBC : 20|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ ESP_Off_IndLmp_On_Rq : 22|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ FTW_Stat : 24|3@1+ (1,0) [0|0] ""  CSF200
+ SG_ FTW_Msg_Disp_Rq : 28|4@1+ (1,0) [0|0] ""  CSF200
+ SG_ SBC_Add_StatMsg_Disp_Rq : 32|4@1+ (1,0) [0|0] ""  CSF200
+ SG_ SBC_Add_Msg_Disp_TrgRq : 36|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ SBC_Add_Stat : 37|3@1+ (1,0) [0|0] ""  CSF200
+ SG_ DrowWarn_Rq : 40|3@1+ (1,0) [0|0] ""  CSF200
+ SG_ DrowDtct_Actv : 43|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ DrowDtctIndLmp_On_Rq : 44|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ AMG_ESP_OffMd_Actv : 45|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ DSR_Sw_LED_On_Rq : 46|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ PSTS_FltMsg_Disp_Rq : 54|1@1+ (1,0) [0|0] ""  CSF200
+
+BO_ 643 CSF200_BODY_R1: 8 RDU
+ SG_ DrRLtch_FL_Stat : 0|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ DrRLtch_FR_Stat : 2|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ DrRLtch_RL_Stat : 4|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ DrRLtch_RR_Stat : 6|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ DL_RLtch_Stat : 8|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ EngHd_Stat : 10|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ VTA_Alm_Actv : 13|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ LgtSens_Twlgt : 16|3@1+ (1,0) [0|7] "Steps"  CSF200
+ SG_ LgtSens_SNA : 19|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ LgtSens_Tunnel : 20|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ LgtSens_Flt : 21|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ LgtSens_Night : 22|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ ADL_LoBm_On_Rq : 23|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ Trlr_Stat : 24|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ Hrn_On : 26|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ Term54_Actv : 27|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ MPkBrk_Stat : 28|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ WprOutsdPkPosn : 29|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ Tire_LHOM : 30|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ CSF200_LoBm_On_Rq : 32|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ HiBm_On : 33|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ IrLmp_D_Lt_Flt : 34|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ IrLmp_P_Rt_Flt : 35|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ LoBm_D_Lt_Flt : 36|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ LoBm_P_Rt_Flt : 37|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ RevGr_Engg : 38|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ AirTemp_Insd : 40|8@1+ (0.25,0) [0|58] "°C"  CSF200
+ SG_ Bckl_Sw_RL_Stat_SAM_R : 48|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ Bckl_Sw_RR_Stat_SAM_R : 50|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ Bckl_Sw_RM_Stat_SAM_R : 52|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ StW_Cond_Stat : 54|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ AirTemp_Outsd : 56|8@1+ (0.5,-40) [-40|85] "°C"  CSF200
+
+BO_ 781 CSF200_ECM_A1: 8 RDU
+ SG_ EngCoolTemp : 0|8@1+ (1,-40) [-40|214] "°C"  CSF200
+ SG_ IntkAirTemp : 8|8@1+ (1,-40) [-40|214] "°C"  CSF200
+ SG_ EngOilTemp : 16|8@1+ (1,-40) [-40|160] "°C"  CSF200
+ SG_ EngOilLvl : 24|8@1+ (0.315,0) [0|80] "mm"  CSF200
+ SG_ EngOilQual : 32|8@1+ (0.01969,1) [1|6] ""  CSF200
+ SG_ FuelCons : 47|16@0+ (0.21668,0) [0|14200] "µl/250ms"  CSF200
+ SG_ AirPress_Outsd : 56|8@1+ (7.8,0) [0|1980] "hPa"  CSF200
+
+BO_ 783 CSF200_IHC_LGT_STAT: 8 RDU
+ SG_ IHC_Stat_HLM_LT : 0|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ IHC_LgtStyle : 8|3@1+ (1,0) [0|0] ""  CSF200
+ SG_ IHC_HiBm_Stat_HLM_LT : 12|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ IHC_GlareRdc_Stat : 16|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ IHC_LgtDist : 24|8@1+ (2.5,0) [0|600] "m"  CSF200
+ SG_ IHC_HL_LgtOut : 32|4@1+ (0.5,32) [32|38] "W"  CSF200
+ SG_ IHC_CrvLgtRotAngl : 40|8@1+ (0.2,-20) [-20|20] "°"  CSF200
+ SG_ MC_IHC_LGT_STAT : 52|4@1+ (1,0) [0|15] ""  CSF200
+
+BO_ 815 CSF200_SCCM_A1: 8 RDU
+ SG_ StW_Temp : 0|8@1+ (0.5,-40) [-40|85] "°C"  CSF200
+ SG_ StW_TempSens_Flt : 8|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ ALDW_VibMot_Stat : 16|3@1+ (1,0) [0|0] ""  CSF200
+ SG_ ALDW_VibMot_Avl : 19|1@1+ (1,0) [0|0] ""  CSF200
+
+BO_ 843 CSF200_SPC_A1: 5 RDU
+ SG_ ElecPwr_Inc_Rq_SPC : 2|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ SPC_Id : 4|3@1+ (1,0) [0|0] ""  CSF200
+ SG_ LvlCal_Exec : 7|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ VehLvl_FL : 8|8@1+ (1,-127) [-127|127] "mm"  CSF200
+ SG_ VehLvl_FR : 16|8@1+ (1,-127) [-127|127] "mm"  CSF200
+ SG_ VehLvl_RL : 24|8@1+ (1,-127) [-127|127] "mm"  CSF200
+ SG_ VehLvl_RR : 32|8@1+ (1,-127) [-127|127] "mm"  CSF200
+
+BO_ 845 CSF200_TSSR_A1: 2 RDU
+ SG_ TSSR_Ft_Stat : 0|3@1+ (1,0) [0|0] ""  CSF200
+ SG_ TSSR_Ft_RB_Stat : 3|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ TSSR_Sw_Stat : 5|3@1+ (1,0) [0|0] ""  CSF200
+ SG_ LR_Sw_Psd : 8|3@1+ (1,0) [0|0] ""  CSF200
+
+BO_ 851 CSF200_IC_A10: 8 RDU
+ SG_ SLA_SpdOffset_Rq_D_Val : 0|7@1+ (1,-64) [-64|62] ""  CSF200
+ SG_ SLA_SpdOffset_Rq_D_Unit : 7|1@1+ (1,0) [0|0] ""  CSF200
+
+BO_ 881 CSF200_HLM_LT_STAT: 8 RDU
+ SG_ HLM_LT_Msg1_Disp_Rq : 0|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ HLM_LT_Msg2_Disp_Rq : 1|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ HLM_LT_Msg4_Disp_Rq : 3|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ HLM_LT_Msg5_Disp_Rq : 4|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ HLM_LT_Msg6_Disp_Rq : 5|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ HiBm_Lt_SupVolt_On_Rq : 8|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ HiBm_Rt_SupVolt_On_Rq : 10|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ LoBm_Lt_SupVolt_Off_Rq : 14|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ LoBm_Lt_Stat : 16|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ LoBm_Lt_SupVolt : 24|8@1+ (0.1,0) [0|25.4] "V"  CSF200
+ SG_ HiBm_Lt_SupVolt : 32|8@1+ (0.1,0) [0|25.4] "V"  CSF200
+ SG_ VehLvl_Ft_HLM : 40|8@1+ (1,-127) [-127|127] "mm"  CSF200
+ SG_ VehLvl_R_HLM : 48|8@1+ (1,-127) [-127|127] "mm"  CSF200
+
+BO_ 888 CSF200_DTR_DISP_RQ: 8 RDU
+ SG_ DTR_FltDisp_Rq_V2 : 0|4@1+ (1,0) [0|0] ""  CSF200
+ SG_ DTR_IndLmp_On_Rq : 4|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ DTR_Beep_Rq : 5|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ SRD_Off_GPS : 6|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ DTR_Disp_On_Rq : 7|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ DTR_Spd_Dsr : 8|8@1+ (1,0) [0|250] "km/h(mph)"  CSF200
+ SG_ ObjIntrst_Dist : 16|8@1+ (1,0) [0|150] "m"  CSF200
+ SG_ Dist_D_Dsr : 24|8@1+ (1,0) [0|150] "m"  CSF200
+ SG_ DTR_CC_Enbl : 32|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ DTR_Disp_Blink_Rq : 33|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ DTR_SegDisp_On_Rq : 34|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ ObjIntrst_Dtct : 35|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ DTR_Enbl : 36|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ DTR_Msg1_Disp_Rq : 37|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ DTR_Msg2_Disp_Rq : 38|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ DTR_Msg3_Disp_Rq : 39|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ TargetVehSpd : 40|8@1+ (1,0) [0|250] "km/h(mph)"  CSF200
+ SG_ AS_Actv_V3 : 48|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ CMS2_FltDisp_Rq : 50|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ DTR_DistWarn_Enbl : 52|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ DTR_Avl_Ind : 53|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ DTR_Ovr_D : 54|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ MinIndTm_Reset_Rq : 55|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ AS_MsgDisp_Rq_V4 : 56|5@1+ (1,0) [0|0] ""  CSF200
+ SG_ PKAS_FltDisp_Rq : 61|3@1+ (1,0) [0|0] ""  CSF200
+
+BO_ 925 CSF200_IC_A2: 8 RDU
+ SG_ TankLvl_Disp : 0|7@1+ (1,0) [0|126] "l"  CSF200
+ SG_ TankLvl_Min : 7|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ SPCR_Conf_IC : 8|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ SPCR_Flt_IC : 10|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ PreHtIndLmp_Flt : 15|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ TankRng : 23|16@0+ (1,0) [0|9999] "km"  CSF200
+ SG_ VehTireMaxSpd : 32|8@1+ (1,0) [0|250] "km/h"  CSF200
+ SG_ UnitGap : 40|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ UnitVehSpd : 41|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ SPEEDO_Cal : 42|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ SPEEDO_Seg_Avl : 43|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ DTR_Disp_Off : 44|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ DTR_Disp_Actv : 45|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ DTR_VisualWarn_Off : 46|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ DTR_AcustWarn_Off : 47|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ RollTestMd_Actv : 48|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ Parity_RollTestMd_Actv : 50|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ DrowDtct_On_Rq : 51|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ DrowWarnDisp_Stat : 52|3@1+ (1,0) [0|0] ""  CSF200
+ SG_ EPkBrkMd_Rq_V2 : 56|3@1+ (1,0) [0|0] ""  CSF200
+ SG_ MC_IC_A2 : 59|4@1+ (1,0) [0|15] ""  CSF200
+
+BO_ 928 CSF200_NAVI_SLA_PRED_RSTRCT1: 2 RDU
+ SG_ NaviSpdLmt_Pred_1 : 0|6@1+ (5,0) [0|310] "km/h(mph)"  CSF200
+ SG_ NaviSLA_PredRstrct1_Cnt : 6|2@1+ (1,0) [0|3] ""  CSF200
+ SG_ NaviSpdLmtSignType_Pred_1 : 8|3@1+ (1,0) [0|0] ""  CSF200
+ SG_ NaviSpdLmtVld_Stat_Pred_1 : 11|4@1+ (1,0) [0|0] ""  CSF200
+
+BO_ 934 CSF200_NAVI_SLA_ACTL_RSTRCT2: 2 RDU
+ SG_ NaviSpdLmt_2 : 0|6@1+ (5,0) [0|310] "km/h(mph)"  CSF200
+ SG_ NaviSLA_ActlRstrct2_Cnt : 6|2@1+ (1,0) [0|3] ""  CSF200
+ SG_ NaviSpdLmtSignType_2 : 8|3@1+ (1,0) [0|0] ""  CSF200
+ SG_ NaviSpdLmtVld_Stat_2 : 11|4@1+ (1,0) [0|0] ""  CSF200
+
+BO_ 936 CSF200_NAVI_SLA_PRED_RSTRCT2: 2 RDU
+ SG_ NaviSpdLmt_Pred_2 : 0|6@1+ (5,0) [0|310] "km/h(mph)"  CSF200
+ SG_ NaviSLA_PredRstrct2_Cnt : 6|2@1+ (1,0) [0|3] ""  CSF200
+ SG_ NaviSpdLmtSignType_Pred_2 : 8|3@1+ (1,0) [0|0] ""  CSF200
+ SG_ NaviSpdLmtVld_Stat_Pred_2 : 11|4@1+ (1,0) [0|0] ""  CSF200
+
+BO_ 939 CSF200_NAVI_SLA_STAT2: 8 RDU
+ SG_ CSF200_NaviSpdLmt_Pred : 0|6@1+ (5,0) [0|310] "km/h(mph)"  CSF200
+ SG_ NaviSpdUnit_Pred : 6|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ CSF200_NaviSpdLmtSignType_Pred : 8|3@1+ (1,0) [0|0] ""  CSF200
+ SG_ CSF200_NaviSpdLmtVld_Stat_Pred : 11|4@1+ (1,0) [0|0] ""  CSF200
+ SG_ NaviSpdLmtSignDist : 16|8@1+ (2,0) [0|508] "m"  CSF200
+ SG_ NaviLctDist : 24|8@1+ (2,0) [0|508] "m"  CSF200
+ SG_ NaviLctType_Pred : 32|4@1+ (1,0) [0|0] ""  CSF200
+ SG_ NaviLeaveType_Pred : 36|4@1+ (1,0) [0|0] ""  CSF200
+ SG_ NaviRegion : 46|15@0+ (1,0) [0|32766] ""  CSF200
+ SG_ Navi_SLA_Stat2_Cnt : 56|2@1+ (1,0) [0|3] ""  CSF200
+
+BO_ 943 CSF200_NAVI_SLA_STAT1: 8 RDU
+ SG_ NaviSpdLmt : 0|6@1+ (5,0) [0|310] "km/h(mph)"  CSF200
+ SG_ NaviSpdUnit : 6|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ NaviSpdLmtSignType : 8|3@1+ (1,0) [0|0] ""  CSF200
+ SG_ NaviSpdLmtVld_Stat : 11|4@1+ (1,0) [0|0] ""  CSF200
+ SG_ NaviCountry : 17|10@0+ (1,0) [0|999] ""  CSF200
+ SG_ NaviFuncRdClass : 18|3@1+ (1,0) [0|0] ""  CSF200
+ SG_ NaviCityLmt_Stat : 21|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ Navi_SLA_Stat1_Cnt : 32|2@1+ (1,0) [0|3] ""  CSF200
+ SG_ NaviRoute_Stat : 34|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ NaviNumLane : 36|4@1+ (1,0) [0|0] ""  CSF200
+ SG_ Map_ID : 40|3@1+ (1,0) [0|0] ""  CSF200
+ SG_ NaviMapAge : 48|3@1+ (1,0) [0|0] ""  CSF200
+ SG_ NaviLctType : 51|4@1+ (1,0) [0|0] ""  CSF200
+ SG_ NaviMM_Qual : 56|3@1+ (1,0) [0|0] ""  CSF200
+ SG_ NaviLctQual : 59|3@1+ (1,0) [0|0] ""  CSF200
+ SG_ NaviTrffcStyle : 62|2@1+ (1,0) [0|0] ""  CSF200
+
+BO_ 949 CSF200_NAVI_SLA_ACTL_RSTRCT1: 2 RDU
+ SG_ CSF200_NaviSpdLmt_1 : 0|6@1+ (5,0) [0|310] "km/h(mph)"  CSF200
+ SG_ NaviSLA_ActlRstrct1_Cnt : 6|2@1+ (1,0) [0|3] ""  CSF200
+ SG_ CSF200_NaviSpdLmtSignType_1 : 8|3@1+ (1,0) [0|0] ""  CSF200
+ SG_ CSF200_NaviSpdLmtVld_Stat_1 : 11|4@1+ (1,0) [0|0] ""  CSF200
+
+BO_ 965 CSF200_BODY_R2: 8 RDU
+ SG_ SuspLvlAdjSw_Psd : 0|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ VehDrvProgSw_Psd : 6|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ ESP_Sw_Psd : 8|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ NV_Sw_Psd : 10|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ PTS_Sw_Psd : 14|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ PKAS_Sw_Psd : 16|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ TX_Actv : 21|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ DL_Sw_Psd : 22|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ CoolIndLmp_On_Rq : 23|1@1+ (1,0) [0|0] ""  CSF200
+ SG_ CSF200_BSM_WarnUnit_Lt_Stat : 36|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ CSF200_BSM_WarnUnit_Rt_Stat : 38|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ ADC_Sw_Psd_V2 : 40|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ Phonecall_SDS_Actv : 42|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ Tlm_Sw_Psd : 44|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ DSR_Sw_Psd : 46|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ OffRoadSw_Psd : 48|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ ADC_Sw_Psd_CTRL_L_V2 : 50|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ SuspLvlAdjSw_Psd_CTRL_L : 52|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ SSA_ECO_OffSw_Psd_CTRL_U : 54|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ IrLmp_Stat : 56|3@1+ (1,0) [0|0] ""  CSF200
+
+BO_ 993 CSF200_IC_A3: 8 RDU
+ SG_ FTW_On_Rq : 0|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ TPM_Actv_Rq_V2 : 2|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ DRLt_On_Rq : 4|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ RadarSensMd_Rq : 6|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ DataRadioMenu_Stat : 8|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ TaxiMd_Rq : 10|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ TaxiRoofLmpMd_Rq : 12|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ TaxiToneMd_Rq : 14|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ TAX_Rq : 16|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ DRVM_SysMd_Rq : 18|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ DRVM_AudioMd_Rq : 20|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ UnitTemp_Rq : 22|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ UnitPress_Rq : 24|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ AFS_Md_Rq : 26|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ SSA_ECO_Md_Rq : 28|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ IHC_Md_Rq : 30|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ ALDW_Md_Rq : 32|3@1+ (1,0) [0|0] ""  CSF200
+ SG_ SLA_Md_Rq : 35|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ PTS_AcustWarn_Enbl : 40|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ PTS_Md_Rq : 42|2@1+ (1,0) [0|0] ""  CSF200
+ SG_ BSM_Md_Rq : 46|2@1+ (1,0) [0|0] ""  CSF200
+
+BO_ 997 CSF200_NAVI_POS5: 8 RDU
+ SG_ GPS_Vsbl_Sat : 0|4@1+ (1,0) [0|12] ""  CSF200
+ SG_ GPS_Trck_Sat : 4|4@1+ (1,0) [0|12] ""  CSF200
+ SG_ GPS_Vdop : 8|8@1+ (0.1,0) [1|8] ""  CSF200
+ SG_ GPS_Hdop : 16|8@1+ (0.1,0) [1|8] ""  CSF200
+ SG_ GPS_Pdop : 24|8@1+ (0.1,0) [1|8] ""  CSF200
+ SG_ GPS_Fix : 32|4@1+ (1,0) [0|0] ""  CSF200
+
+BO_ 1456 CANIO_5B0h: 8 RDU
+ SG_ Error_Code : 24|16@1+ (1,0) [0|0] ""  CSF200
+ SG_ Active_Function_5B0 : 8|8@1+ (1,0) [0|0] ""  CSF200
+ SG_ Sensor_Config_5B0 : 0|8@1+ (1,0) [0|0] ""  CSF200
+
+BO_ 1540 ARS300_XCP_Slave2: 8 Vector__XXX
+
+BO_ 1539 ARS300_XCP_Slave1: 8 Vector__XXX
+
+BO_ 1537 ARS300_XCP_Master2: 8 Vector__XXX
+
+BO_ 1536 ARS300_XCP_Master1: 8 Vector__XXX
+
+BO_ 1596 VPU1_XCP_ID63C: 8 Vector__XXX
+
+BO_ 1287 VPU1_XCP_ID507: 8 Vector__XXX
+
+BO_ 1609 VPU2_XCPrx_ID649: 8 Vector__XXX
+
+BO_ 1608 VPU2_XCPtx_ID648: 8 Vector__XXX
+
+BO_ 1607 VPU4_XCPrx_ID647: 8 Vector__XXX
+
+BO_ 1606 VPU4_XCPtx_ID646: 8 Vector__XXX
+
+BO_ 1605 VPU6_XCPrx_ID645: 8 Vector__XXX
+
+BO_ 1604 VPU6_XCPtx_ID644: 8 Vector__XXX
+
+BO_ 1603 VPU3_XCPrx_ID643: 8 Vector__XXX
+
+BO_ 1602 VPU3_XCPtx_ID642: 8 Vector__XXX
+
+
+
+CM_ "Racelogic VBOX III";
+CM_ BU_ DMS_PC "PC of Driver Monitoring System";
+CM_ BU_ RP_ECU_BSD_FRONT "BSD - blind spot detection; object detected by short range side radar";
+CM_ SG_ 163 ExtSteerReq_C0C1_quality "Quality-Signal 0-15   -> from comfortable to dynamic";
+CM_ SG_ 163 ExtSteerReq_C0C1_priority "Priority 0 - 63; higher priority requests succeed lower ones";
+CM_ SG_ 163 ExtSteerReq_C0C1_active "0/1 Active-Bit for Anglerequest";
+CM_ SG_ 1798 Tra_2_YVBox "y-Koordinate Schnittpunkt auf Trajektorie";
+CM_ SG_ 1798 Tra_2_XVBox "x-Koordinate Schnittpunkt auf Trajektorie";
+CM_ SG_ 1798 Tra_2_YawVBox "Winkel an der Trajektorie am aktuellen Punkt
+";
+CM_ SG_ 1797 Tra_1_YPosEgo "y-Koordinate Schnittpunkt auf Trajektorie";
+CM_ SG_ 1797 Tra_1_XPosEgo "x-Koordinate Schnittpunkt auf Trajektorie";
+CM_ SG_ 1797 Tra_1_YawPosEgo "Winkel an der Trajektorie am aktuellen Punkt
+";
+CM_ SG_ 1796 Tra_0_C0S "y-Koordinate Schnittpunkt auf Trajektorie";
+CM_ SG_ 1796 Tra_0_YS "y-Koordinate Schnittpunkt auf Trajektorie";
+CM_ SG_ 1796 Tra_0_XS "x-Koordinate Schnittpunkt auf Trajektorie";
+CM_ SG_ 1796 Tra_0_iTraAct "aktueller Stützstelle auf der Trajektorie";
+CM_ SG_ 1796 Tra_0_AlphaS "Winkel an der Trajektorie am aktuellen Punkt
+";
+CM_ SG_ 162 ExtSteerReq_Dev2Pth_quality "Quality-Signal 0-15   -> from comfortable to dynamic";
+CM_ SG_ 162 ExtSteerReq_Dev2Pth_priority "Priority 0 - 63; higher priority requests succeed lower ones";
+CM_ SG_ 162 ExtSteerReq_Dev2Pth_active "0/1 Active-Bit for Anglerequest";
+CM_ BO_ 637 "BSD - blind spot detection; object detected by short range side radar";
+CM_ BO_ 636 "BSD - blind spot detection; object detected by short range side radar";
+CM_ SG_ 161 ExtSteerReq_Tor_priority "Priority 0 - 63; higher priority requests succeed lower ones";
+CM_ SG_ 161 ExtSteerReq_Ang_active "0/1 Active-Bit for Anglerequest";
+CM_ SG_ 161 ExtSteerReq_Ang_quality "Quality-Signal 0-15   -> from comfortable to dynamic";
+CM_ SG_ 161 ExtSteerReq_Tor_active "0/1 Active-Bit for Torquerequest";
+CM_ SG_ 161 ExtSteerReq_Ang_priority "Priority 0 - 63; higher priority requests succeed lower ones";
+CM_ BO_ 1056 "Output data defined by CARTRONIC interface specification";
+CM_ SG_ 1056 ACC_LIM "Command to dynamic controller to perform acceleration limiting instead of acceleration control";
+CM_ SG_ 1056 ACC_REQ_MIN "Acceleration request lower limit";
+CM_ SG_ 1056 ACC_REQ_MAX "Acceleration request upper limit";
+CM_ SG_ 1056 ACC_PREFILL "Request for brake prefill (close the gap between brake pads and brake disc)";
+CM_ SG_ 1056 ACC_MODE "ACC operational state";
+CM_ SG_ 1056 ACC_ALIVE "Message counter";
+CM_ SG_ 1056 CRC_420h "CRC-checksum byte 1 to 7 according to SAE J1850";
+CM_ BO_ 559 "Contains driver operation switches";
+CM_ SG_ 559 V_SPEEDO_UNIT "Unit of the speed displayed in the speedometer (0 = km/h, 1 = mph)";
+CM_ SG_ 559 V_SPEEDO "speed displayed in the speedometer";
+CM_ SG_ 559 DM_ON "Distance monitoring function switch (1 = ON)";
+CM_ SG_ 559 LKA_ON "Lane keeping assist function switch (1 = ON)";
+CM_ SG_ 559 FCA_ON "Forward collision alert function switch (1 = ON)";
+CM_ SG_ 559 ACC_REQ_HEADWAY "driver headway setting (0% means minimum, 100% means maximum)";
+CM_ SG_ 559 ACC_GAP_UP "increase headway setting (1 = switch applied)";
+CM_ SG_ 559 ACC_GAP_DOWN "decrease headway setting (1 = switch applied)";
+CM_ SG_ 559 CC_RESUME "Resume cruise control";
+CM_ SG_ 559 CC_MAIN_ON "Cruise control main switch (1 = ON)";
+CM_ SG_ 559 CC_CANCEL "disengage cruise control";
+CM_ SG_ 559 CC_DECEL "decrease cruise control set speed";
+CM_ SG_ 559 CC_ACCEL "increase cruise control set speed";
+CM_ BO_ 1073 "Output to ICM (driver information interface)";
+CM_ SG_ 1073 DM_STATE "State of the distance monitoring function";
+CM_ SG_ 1073 FCA_STATE "State of the forward collision alert function";
+CM_ SG_ 1073 DM_ALERT "Distance monitoring alert request (1 = on)";
+CM_ SG_ 1073 FAILURE_STATE "Failure status of Forward looking sensor ECU";
+CM_ SG_ 1073 CC_DISPL_MODE "in case of a shared display this signal shows the current mode";
+CM_ SG_ 1073 ACC_HEADWAY_SETTING "headway setting (0% means minimum, 100% means maximum)";
+CM_ SG_ 1073 ACC_REC_SPEED "ACC recommended speed due to limited field of view or speed limit (unit depends on setting in IPC)";
+CM_ SG_ 1073 ACC_DRIVE_OFF_POS "Indication that a drive off is possible";
+CM_ SG_ 1073 ACC_CONF_REQ "Indication that a driver confirmation required to drive off";
+CM_ SG_ 1073 ACC_ALERT "acc alert request (1 = on)";
+CM_ SG_ 1073 ACC_OBJ_DET "ACC has determined an object of interest (1 = Object detected)";
+CM_ SG_ 1073 FCA_ALERT "Forward collision alert request (1 = on)";
+CM_ SG_ 1073 ACC_OBJ_SPEED "absolute longitudinal velocity of the object of interest (unit depends on setting in IPC)";
+CM_ SG_ 1073 CC_SET_SPEED "driver selected speed (unit depends on setting in IPC)";
+CM_ SG_ 1073 ACC_REQ_DIST "requested distance to object of interest according to headway setting";
+CM_ SG_ 1073 ACC_DIST "longitudinal distance to object of interest";
+CM_ BO_ 787 "Byte 0
+   Bit 0: Bildherkunft 1 (0=File, 1=ROM)
+   Bit 1: Priorität (0=normal, 1=break through)
+   Bit 2: frei
+   Bit 3-7: Bildbereichsnr. (uint5, 00h bis 1Fh, 00h=Signal leer, d.h. ohne Bildinfo)
+
+Byte 1: Bildnr. (uint8, 00h-FFh, 00h=leeres Bild)";
+CM_ SG_ 787 MD_ImageRegion4 " Bit 3-7: Bildbereichsnr. (uint5, 00h bis 1Fh, 00h=Signal leer, d.h. ohne Bildinfo)";
+CM_ SG_ 787 MD_ImageRegion3 " Bit 3-7: Bildbereichsnr. (uint5, 00h bis 1Fh, 00h=Signal leer, d.h. ohne Bildinfo)";
+CM_ SG_ 787 MD_ImageRegion2 " Bit 3-7: Bildbereichsnr. (uint5, 00h bis 1Fh, 00h=Signal leer, d.h. ohne Bildinfo)";
+CM_ SG_ 787 MD_ImageRegion1 " Bit 3-7: Bildbereichsnr. (uint5, 00h bis 1Fh, 00h=Signal leer, d.h. ohne Bildinfo)";
+CM_ SG_ 787 MD_Image4Source " Bit 0: Bildherkunft 1 (0=File, 1=ROM)";
+CM_ SG_ 787 MD_Image4Priority "Bit 1: Priorität (0=normal, 1=break through)";
+CM_ SG_ 787 MD_Image3Source " Bit 0: Bildherkunft 1 (0=File, 1=ROM)";
+CM_ SG_ 787 MD_Image3Priority "Bit 1: Priorität (0=normal, 1=break through)";
+CM_ SG_ 787 MD_Image2Source " Bit 0: Bildherkunft 1 (0=File, 1=ROM)";
+CM_ SG_ 787 MD_Image2Priority "Bit 1: Priorität (0=normal, 1=break through)";
+CM_ SG_ 787 MD_Image1Source " Bit 0: Bildherkunft 1 (0=File, 1=ROM)";
+CM_ SG_ 787 MD_Image1Priority "Bit 1: Priorität (0=normal, 1=break through)";
+CM_ SG_ 787 MD_ActiveImage4 "Byte 1: Bildnr. (uint8, 00h-FFh, 00h=leeres Bild)";
+CM_ SG_ 787 MD_ActiveImage3 "Byte 1: Bildnr. (uint8, 00h-FFh, 00h=leeres Bild)";
+CM_ SG_ 787 MD_ActiveImage2 "Byte 1: Bildnr. (uint8, 00h-FFh, 00h=leeres Bild)";
+CM_ SG_ 787 MD_ActiveImage1 "Byte 1: Bildnr. (uint8, 00h-FFh, 00h=leeres Bild)";
+CM_ SG_ 377 SALaLoIqf9_strengthR "strength as percentage of maximum torque  right track (maximum intervention torque)
+second detected track";
+CM_ SG_ 377 SALaLoIqf9_projectionR "projection length for control  right track, (from front axle in front)
+second track detected";
+CM_ SG_ 377 SALaLoIqf9_availableR "available bit right track
+second detected track";
+CM_ SG_ 377 SALaLoIqf9_psiR "relative yaw angle vehicle to right track, (positive, vehicle middle line in front to left)
+second track detected";
+CM_ SG_ 377 SALaLoIqf9_intervTypeR "Intervention Type right track, wich intervention has to take plcae
+second track detected";
+CM_ SG_ 377 SALaLoIqf9_dyR "lateral distance to right track, (positive, from vehicle middle front axle to left)
+second track detected";
+CM_ SG_ 377 SALaLoIqf9_c0R "curvature at front axle position(left curve positive)  right track
+second detected track";
+CM_ SG_ 377 SALaLoIqf9_c1R "curvature derivation (derived from distance)  at front axle position   right track
+second detected track";
+CM_ SG_ 376 SALaLoIqf8_strengthL "strength as percentage of maximum torque  left track (maximum intervention torque)
+second detected track";
+CM_ SG_ 376 SALaLoIqf8_projectionL "projection length for control  left track, (from front axle in front)
+second track detected";
+CM_ SG_ 376 SALaLoIqf8_availableL "available bit left track
+second detected track";
+CM_ SG_ 376 SALaLoIqf8_psiL "relative yaw angle vehicle to left track, (positive, vehicle middle line in front to left)
+second track detected";
+CM_ SG_ 376 SALaLoIqf8_c1L "curvature derivation (derived from distance)  at front axle position   left track
+second detected track";
+CM_ SG_ 376 SALaLoIqf8_c0L "curvature at front axle position(left curve positive)   left track
+second detected track";
+CM_ SG_ 376 SALaLoIqf8_intervTypeL "Intervention Type left track, wich intervention has to take plcae
+second track detected";
+CM_ SG_ 376 SALaLoIqf8_dyL "lateral distance to left track, (positive, from vehicle middle front axle to left)
+second track detected";
+CM_ SG_ 375 SALaLoIqf7_tqRampDistR "torque ramp in distance right
+second detected track";
+CM_ SG_ 375 SALaLoIqf7_tqRampDistL "torque ramp in distance left
+second detected track";
+CM_ SG_ 375 SALaLoIqf7_minDistR "minimum distance to track border right
+second detected track";
+CM_ SG_ 375 SALaLoIqf7_minDistL "minimum distance to track border left
+second detected track";
+CM_ SG_ 375 SALaLoIqf7_midDistR "mid control distance to track border right
+second deteced track";
+CM_ SG_ 375 SALaLoIqf7_midDistL "mid control distance to track border left
+second deteced track";
+CM_ SG_ 375 SALaLoIqf7_maxDistR "maximum control distance to track border right
+second deteced track";
+CM_ SG_ 375 SALaLoIqf7_maxDistL "maximum control distance to track border left
+second deteced track";
+CM_ SG_ 1028 Longitudinal_acceleration_ID404 "Longitudinal acceleration in G";
+CM_ SG_ 1028 Lateral_acceleration_ID404 "Lateral acceleration in G";
+CM_ SG_ 1027 DGPS_ID403 "DGPS lock status
+
+1 = DGPS active
+0 = DGPS not active";
+CM_ SG_ 1027 Altitude_WGS84_ID403 "Altitude in metres
+
+ref WGS84
+";
+CM_ SG_ 1026 Velocity_Kmh_ID402 "Velocity (Knots)
+1 Knot = 1.852 Km/h
+
+";
+CM_ SG_ 1026 Heading_ID402 "Heading in degrees";
+CM_ SG_ 1026 Longitude_ID402 "Longitude
+MMMMM.MMMMM
+
+Example 5882246 = 58.82246 minutes";
+CM_ BO_ 1025 "VBOX Message 1";
+CM_ SG_ 1025 Latitude_ID401 "Latitude MMMM.MMMMM
+Example 311924579 = 3119.24579 Minutes";
+CM_ SG_ 1025 Sats_ID401 "Satelites in view";
+CM_ SG_ 1025 Time_Since_Midnight_ID401 "Time UTC";
+CM_ SG_ 772 Lateral_acceleration "Lateral acceleration in G";
+CM_ SG_ 772 Longitudinal_acceleration "Longitudinal acceleration in G";
+CM_ SG_ 772 Trig_Dist "Distance in metres";
+CM_ SG_ 771 DGPS "DGPS lock status
+
+1 = DGPS active
+0 = DGPS not active";
+CM_ SG_ 771 Brake_trigger "Brake trigger switch status";
+CM_ SG_ 771 Vertical_Velocity "Vertical velocityin metres/sec";
+CM_ SG_ 771 Altitude_WGS84 "Altitude in metres
+
+ref WGS84
+";
+CM_ SG_ 770 Velocity_Mph "Velocity (Knots)
+1 Knot = 1.852 Km/h
+
+";
+CM_ SG_ 770 Heading "Heading in degrees";
+CM_ SG_ 770 Velocity_Kmh "Velocity (Knots)
+1 Knot = 1.852 Km/h
+
+";
+CM_ SG_ 770 Longitude "Longitude
+MMMMM.MMMMM
+
+Example 5882246 = 58.82246 minutes";
+CM_ BO_ 769 "VBOX Message 1";
+CM_ SG_ 769 Latitude "Latitude MMMM.MMMMM
+Example 311924579 = 3119.24579 Minutes";
+CM_ SG_ 769 Time_Since_Midnight "Time UTC";
+CM_ SG_ 769 Sats "Satelites in view";
+CM_ SG_ 867 DMS_control_code "0= No action
+1= Start driver drowsiness monitoring (DDM) 
+2= Stop DDM 
+3= Start monitoring of driver inattentiveness (DIM) and head pose
+4= Stop DIM/head pose ";
+CM_ SG_ 864 DMS_DDM_Blink_Confidence "Interactor :   I_6_21
+Description:  I 6 Driver monitoring data (camera only)
+Comment    :  DDM: Blink Confidence
+";
+CM_ SG_ 864 DMS_DDM_Blink_Duration "Interactor :   I_6_20
+Description:  I 6 Driver monitoring data (camera only)
+Comment    :  DDM: Blink duration
+";
+CM_ SG_ 864 DMS_DDM_Score_Confidence "Interactor :   I_6_19
+Description:  I 6 Driver monitoring data (camera only)
+Comment    :  DDM: Drowsiness-score confidence
+";
+CM_ SG_ 864 DMS_DDM_Score "Interactor :   I_6_18
+Description:  I 6 Driver monitoring data (camera only)
+Comment    :  DDM: Drowsiness score
+";
+CM_ SG_ 864 DMS_DDM_Status "Interactor :   I_6_14
+Description:  I 6 Driver monitoring data (camera only)
+Comment    :  DDM status
+";
+CM_ SG_ 864 DMS_DDM_Type "Interactor :   I_6_3
+Description:  I 6 Driver monitoring data (camera only)
+Comment    :  DDM type
+";
+CM_ SG_ 864 DMS_DDM_Diagnostic "Interactor :   I_6_1
+Description:  I 6 Driver monitoring data (camera only)
+Comment    :  DDM diagnostic 
+";
+CM_ SG_ 865 DMS_DIM_Distraction_Time "Interactor :   I_6_17
+Description:  I 6 Driver monitoring data (camera only)
+Comment    :  DIM: Inattentiveness time
+";
+CM_ SG_ 865 DMS_DIM_Confidence "Interactor :   I_6_23
+Description:  I 6 Driver monitoring data (camera only)
+Comment    :  DIM:@confidence 
+";
+CM_ SG_ 865 DMS_DIM_Status "Interactor :   I_6_15
+Description:  I 6 Driver monitoring data (camera only)
+Comment    :  DIM status
+";
+CM_ SG_ 865 DMS_DIM_Type "Interactor :   I_6_4
+Description:  I 6 Driver monitoring data (camera only)
+Comment    :  DIM type 
+";
+CM_ SG_ 865 DMS_DIM_Diagnostic "Interactor :   I_6_22
+Description:  I 6 Driver monitoring data (camera only)
+Comment    :  DIM: Inattentivness diagnostic
+";
+CM_ SG_ 866 DMS_HP_Confidence "Interactor :   I_6_11
+Description:  I 6 Driver monitoring data (camera only)
+Comment    :  Head Pose Confidence
+";
+CM_ SG_ 866 DMS_HP_Z "Interactor :   I_6_10
+Description:  I 6 Driver monitoring data (camera only)
+Comment    :  Head Pose Z
+";
+CM_ SG_ 866 DMS_HP_Y "Interactor :   I_6_9
+Description:  I 6 Driver monitoring data (camera only)
+Comment    :  Head Pose Y
+";
+CM_ SG_ 866 DMS_HP_X "Interactor :   I_6_8
+Description:  I 6 Driver monitoring data (camera only)
+Comment    :  Head Pose X
+";
+CM_ SG_ 866 DMS_HP_Status "Interactor :   I_6_7
+Description:  I 6 Driver monitoring data (camera only)
+Comment    :  Head Pose Status
+";
+CM_ SG_ 866 DMS_HP_Type "Interactor :   I_6_7
+Description:  I 6 Driver monitoring data (camera only)
+Comment    :  Head Pose type
+";
+CM_ SG_ 866 DMS_HP_Error "Interactor :   I_6_5
+Description:  I 6 Driver monitoring data (camera only)
+Comment    :  Head Pose Error
+";
+CM_ SG_ 165 IQF1_RefAng "Steer Wheel Reference Angle";
+CM_ SG_ 165 IQF1_RefQuality "low quality: 0 -> 15 high quality";
+CM_ SG_ 165 IQF1_RefPriority "low priority: 0  -> high priority: 63";
+CM_ SG_ 165 IQF1_Status "Gibt Status für LKAS  und Intervention an, LDW wird in IQF1_LdwStatus angegeben
+
+Bit0  LKAS
+Bit1  Intv Left
+Bit2  Intv Right
+Bit3  virt wall Left     (Anlehnen)
+Bit4  virt wall Right   (Anlehnen)";
+CM_ SG_ 165 IQF1_LdwIntens "Intensität, bis jetzt nicht belegt";
+CM_ SG_ 167 IQF2_IntvStrength "strength as percentage of maximum torque (maximum intervention torque) during intervention
+(used for combined intervention)
+";
+CM_ SG_ 167 IQF2_HandTorque "estimated drivers hand torque";
+CM_ SG_ 167 IQF2_HandsOffDetect "Hands Off detected:
+
+0 => Hands On Detected
+3 => Hands Off Detected";
+CM_ SG_ 981 ObjRearRight2_Width "Object width
+0 - unknown
+1 - < 0.5m (pedestrian)
+2 - < 1m    (bike)
+3 - < 2m    (car)
+4 - < 3m    (truck)
+5 - < 4m
+6 - < 6m
+7 - exceedsObject width
+0 - unknown
+1 - < 0.5m (pedestrian)
+2 - < 1m    (bike)
+3 - < 2m    (car)
+4 - < 3m    (truck)
+5 - < 4m
+6 - < 6m
+7 - exceeds";
+CM_ SG_ 981 ObjRearRight2_VrelLong "Relative longitudinal speed (Base)";
+CM_ SG_ 981 ObjRearRight2_ProbOfExist "Object propabiltiy of existence
+0 - invalid
+1 - < 25%
+2 - < 50%
+3 - < 75%
+4 - < 90%
+5 - < 99%
+6 - < 99,9%
+7 - < 99,99%";
+CM_ SG_ 981 ObjRearRight2_LongDispl "Longitudinal displacement (Base)";
+CM_ SG_ 981 ObjRearRight2_LatSpeed "Object lateral velocity.
+Value negative = obj moves left to right.
+Value positive = obj moves right to left.";
+CM_ SG_ 981 ObjRearRight2_LatDispl "Lateral displacement (Base)";
+CM_ SG_ 981 ObjRearRight2_AccelLong "Relative longitudinal acceleration (Base)";
+CM_ SG_ 980 ObjRearRight1_Width "Object width
+0 - unknown
+1 - < 0.5m (pedestrian)
+2 - < 1m    (bike)
+3 - < 2m    (car)
+4 - < 3m    (truck)
+5 - < 4m
+6 - < 6m
+7 - exceeds";
+CM_ SG_ 980 ObjRearRight1_VrelLong "Relative longitudinal speed (Base)";
+CM_ SG_ 980 ObjRearRight1_ProbOfExist "Object propabiltiy of existence
+0 - invalid
+1 - < 25%
+2 - < 50%
+3 - < 75%
+4 - < 90%
+5 - < 99%
+6 - < 99,9%
+7 - < 99,99%";
+CM_ SG_ 980 ObjRearRight1_LongDispl "Longitudinal displacement (Base)";
+CM_ SG_ 980 ObjRearRight1_LatSpeed "Object lateral velocity.
+Value negative = obj moves left to right.
+Value positive = obj moves right to left.";
+CM_ SG_ 980 ObjRearRight1_LatDispl "Lateral displacement (Base)";
+CM_ SG_ 980 ObjRearRight1_AccelLong "Relative longitudinal acceleration (Base)";
+CM_ SG_ 979 ObjRearLeft2_Width "Object width
+0 - unknown
+1 - < 0.5m (pedestrian)
+2 - < 1m    (bike)
+3 - < 2m    (car)
+4 - < 3m    (truck)
+5 - < 4m
+6 - < 6m
+7 - exceeds";
+CM_ SG_ 979 ObjRearLeft2_VrelLong "Relative longitudinal speed (Base)";
+CM_ SG_ 979 ObjRearLeft2_ProbOfExist "Object propabiltiy of existence
+0 - invalid
+1 - < 25%
+2 - < 50%
+3 - < 75%
+4 - < 90%
+5 - < 99%
+6 - < 99,9%
+7 - < 99,99%";
+CM_ SG_ 979 ObjRearLeft2_LongDispl "Longitudinal displacement (Base)";
+CM_ SG_ 979 ObjRearLeft2_LatSpeed "Object lateral velocity.
+Value negative = obj moves left to right.
+Value positive = obj moves right to left.";
+CM_ SG_ 979 ObjRearLeft2_LatDispl "Lateral displacement (Base)";
+CM_ SG_ 979 ObjRearLeft2_AccelLong "Relative longitudinal acceleration (Base)";
+CM_ SG_ 978 ObjRearLeft1_Width "Object width
+0 - unknown
+1 - < 0.5m (pedestrian)
+2 - < 1m    (bike)
+3 - < 2m    (car)
+4 - < 3m    (truck)
+5 - < 4m
+6 - < 6m
+7 - exceeds";
+CM_ SG_ 978 ObjRearLeft1_VrelLong "Relative longitudinal speed (Base)";
+CM_ SG_ 978 ObjRearLeft1_ProbOfExist "Object propabiltiy of existence
+0 - invalid
+1 - < 25%
+2 - < 50%
+3 - < 75%
+4 - < 90%
+5 - < 99%
+6 - < 99,9%
+7 - < 99,99%";
+CM_ SG_ 978 ObjRearLeft1_LongDispl "Longitudinal displacement (Base)";
+CM_ SG_ 978 ObjRearLeft1_LatSpeed "Object lateral velocity.
+Value negative = obj moves left to right.
+Value positive = obj moves right to left.";
+CM_ SG_ 978 ObjRearLeft1_LatDispl "Lateral displacement (Base)";
+CM_ SG_ 978 ObjRearLeft1_AccelLong "Relative longitudinal acceleration (Base)";
+CM_ SG_ 976 ObjRearMid1_ProbOfExist "Object propabiltiy of existence
+0 - invalid
+1 - < 25%
+2 - < 50%
+3 - < 75%
+4 - < 90%
+5 - < 99%
+6 - < 99,9%
+7 - < 99,99%";
+CM_ SG_ 976 ObjRearMid1_Width "Object width
+0 - unknown
+1 - < 0.5m (pedestrian)
+2 - < 1m    (bike)
+3 - < 2m    (car)
+4 - < 3m    (truck)
+5 - < 4m
+6 - < 6m
+7 - exceeds";
+CM_ SG_ 976 ObjRearMid1_LatDispl "Lateral displacement (Base)";
+CM_ SG_ 976 ObjRearMid1_AccelLong "Relative longitudinal acceleration (Base)";
+CM_ SG_ 976 ObjRearMid1_VrelLong "Relative longitudinal speed (Base)";
+CM_ SG_ 976 ObjRearMid1_LatSpeed "Object lateral velocity.
+Value negative = obj moves left to right.
+Value positive = obj moves right to left.";
+CM_ SG_ 976 ObjRearMid1_LongDispl "Longitudinal displacement (Base)";
+CM_ SG_ 977 ObjRearMid2_Width "Object width
+0 - unknown
+1 - < 0.5m (pedestrian)
+2 - < 1m    (bike)
+3 - < 2m    (car)
+4 - < 3m    (truck)
+5 - < 4m
+6 - < 6m
+7 - exceeds";
+CM_ SG_ 977 ObjRearMid2_VrelLong "Relative longitudinal speed (Base)";
+CM_ SG_ 977 ObjRearMid2_ProbOfExist "Object propabiltiy of existence
+0 - invalid
+1 - < 25%
+2 - < 50%
+3 - < 75%
+4 - < 90%
+5 - < 99%
+6 - < 99,9%
+7 - < 99,99%";
+CM_ SG_ 977 ObjRearMid2_LongDispl "Longitudinal displacement (Base)";
+CM_ SG_ 977 ObjRearMid2_LatSpeed "Object lateral velocity.
+Value negative = obj moves left to right.
+Value positive = obj moves right to left.";
+CM_ SG_ 977 ObjRearMid2_LatDispl "Lateral displacement (Base)";
+CM_ SG_ 977 ObjRearMid2_AccelLong "Relative longitudinal acceleration (Base)";
+CM_ BO_ 320 "Diese Botschaft wird vom Opel Insignia Fahrzeug-CAN (Sensor-Daten-CAN) auf den Privat-CAN gehoben.
+Als Gateway kommt ein Peak-Modul zum Einsatz.";
+CM_ SG_ 320 AGB_IMUChksumSec "Inertial Measurement Unit Checksum Secondary";
+CM_ SG_ 320 AGB_IMULonAcc "Inertial Measurement Unit Longitudinal Acceleration";
+CM_ SG_ 320 AGB_IMUYawRtSec "Inertial Measurement Unit Yaw Rate Secondary";
+CM_ SG_ 320 AGB_IMULatAccSecAval "Inertial Measurement Unit Lateral Acceleration Secondary Available";
+CM_ SG_ 320 AGB_IMUYawRtSecAval "Inertial Measurement Unit Yaw Rate Secondary Available";
+CM_ SG_ 320 AGB_IMULatACCSec "Inertial Measurement Unit Lateral Acceleration Secondary";
+CM_ SG_ 320 AGB_IMURollCntSec "Inertial Measurement Unit Rolling Count Secondary";
+CM_ SG_ 320 AGB_IMULonACCV "Inertial Measurement Unit Longitudinal Acceleration Validity";
+CM_ SG_ 320 AGB_IMULatACCSecV "Inertial Measurement Unit Lateral Acceleration Secondary Validity";
+CM_ SG_ 320 AGB_IMUYawRtSecV "Inertial Measurement Unit Yaw Rate Secondary Validity";
+CM_ BO_ 321 "Diese Botschaft wird vom Opel Insignia Fahrzeug-CAN (Sensor-Daten-CAN) auf den Privat-CAN gehoben.
+Als Gateway kommt ein Peak-Modul zum Einsatz.";
+CM_ BO_ 785 "Byte 0
+   Bit 0: Bildherkunft 1 (0=File, 1=ROM)
+   Bit 1: Priorität (0=normal, 1=break through)
+   Bit 2: frei
+   Bit 3-7: Bildbereichsnr. (uint5, 00h bis 1Fh, 00h=Signal leer, d.h. ohne Bildinfo)
+
+Byte 1: Bildnr. (uint8, 00h-FFh, 00h=leeres Bild)";
+CM_ SG_ 785 MD_ImageRegion4 " Bit 3-7: Bildbereichsnr. (uint5, 00h bis 1Fh, 00h=Signal leer, d.h. ohne Bildinfo)";
+CM_ SG_ 785 MD_ImageRegion3 " Bit 3-7: Bildbereichsnr. (uint5, 00h bis 1Fh, 00h=Signal leer, d.h. ohne Bildinfo)";
+CM_ SG_ 785 MD_ImageRegion2 " Bit 3-7: Bildbereichsnr. (uint5, 00h bis 1Fh, 00h=Signal leer, d.h. ohne Bildinfo)";
+CM_ SG_ 785 MD_ImageRegion1 " Bit 3-7: Bildbereichsnr. (uint5, 00h bis 1Fh, 00h=Signal leer, d.h. ohne Bildinfo)";
+CM_ SG_ 785 MD_Image4Source " Bit 0: Bildherkunft 1 (0=File, 1=ROM)";
+CM_ SG_ 785 MD_Image4Priority "Bit 1: Priorität (0=normal, 1=break through)";
+CM_ SG_ 785 MD_Image3Source " Bit 0: Bildherkunft 1 (0=File, 1=ROM)";
+CM_ SG_ 785 MD_Image3Priority "Bit 1: Priorität (0=normal, 1=break through)";
+CM_ SG_ 785 MD_Image2Source " Bit 0: Bildherkunft 1 (0=File, 1=ROM)";
+CM_ SG_ 785 MD_Image2Priority "Bit 1: Priorität (0=normal, 1=break through)";
+CM_ SG_ 785 MD_Image1Source " Bit 0: Bildherkunft 1 (0=File, 1=ROM)";
+CM_ SG_ 785 MD_Image1Priority "Bit 1: Priorität (0=normal, 1=break through)";
+CM_ SG_ 785 MD_ActiveImage4 "Byte 1: Bildnr. (uint8, 00h-FFh, 00h=leeres Bild)";
+CM_ SG_ 785 MD_ActiveImage3 "Byte 1: Bildnr. (uint8, 00h-FFh, 00h=leeres Bild)";
+CM_ SG_ 785 MD_ActiveImage2 "Byte 1: Bildnr. (uint8, 00h-FFh, 00h=leeres Bild)";
+CM_ SG_ 785 MD_ActiveImage1 "Byte 1: Bildnr. (uint8, 00h-FFh, 00h=leeres Bild)";
+CM_ SG_ 372 SALaLoIqf_TypeRight_0x179 "track border type right side from second detected track (ID 0x179)";
+CM_ SG_ 372 SALaLoIqf_TypeLeft_0x178 "track border type left side from second detected track (ID 0x178)";
+CM_ SG_ 372 SALaLoIqf_rigthDeadZone "dead zone right from trajectory LKAS";
+CM_ SG_ 372 SALaLoIqf_rightStrength "rigth strength, percentage gain to reduce torque left from trajectory LKAS";
+CM_ SG_ 372 SALaLoIqf_leftDeadZone "dead zone left from trajectory LKAS";
+CM_ SG_ 372 SALaLoIqf_leftStrength "left strength, percentage gain to reduce torque left from trajectory LKAS";
+CM_ SG_ 368 SALaLoIqf_tqRampDistR "torque ramp in distance right
+first detected track";
+CM_ SG_ 368 SALaLoIqf_tqRampDistL "torque ramp in distance left
+first detected track";
+CM_ SG_ 368 SALaLoIqf_minDistR "minimum control distance to track border right
+first detected track";
+CM_ SG_ 368 SALaLoIqf_minDistL "minimum control distance to track border left
+first detected track";
+CM_ SG_ 368 SALaLoIqf_midDistR "mid control distance to track border right
+first detected track";
+CM_ SG_ 368 SALaLoIqf_midDistL "mid control distance to track border left
+first detected track";
+CM_ SG_ 368 SALaLoIqf_maxDistR "maximum control distance to track border right
+first detected track";
+CM_ SG_ 368 SALaLoIqf_maxDistL "maximum control distance to track border left
+first deteced track";
+CM_ SG_ 371 SALaLoIqf_TypeRight_0x172 "track border type right side from first detected track (ID 0x172)";
+CM_ SG_ 371 SALaLoIqf_TypeLeft_0x171 "track border type left side from first detected track (ID 0x171)";
+CM_ SG_ 371 SALaLoIqf_projection "projection length LKAS";
+CM_ SG_ 371 SALaLoIqf_intervType "Intervention type LKAS";
+CM_ SG_ 371 SALaLoIqf_available "available bit LKAS (Lane keeping assitant system, Spurhaltesystem)";
+CM_ SG_ 371 SALaLoIqf_psi "relative yaw angle to trajectory, (positive, from vehicle middle line in front)  LKAS";
+CM_ SG_ 371 SALaLoIqf_dy "lateral distance to trajectory, (positive, from vehicle middle front axle to left LKAS";
+CM_ SG_ 371 SALaLoIqf_c1 "curvature derivation (derifed from distance) LKAS (Lane keeping assitant system, Spurhaltesystem)";
+CM_ SG_ 371 SALaLoIqf_c0 "curvature(left curve positive)LKAS (Lane keeping assitant system, Spurhaltesystem)";
+CM_ SG_ 370 SALaLoIqf_strengthR "strength as percentage of maximum torque  right track (maximum intervention torque)
+first detected track";
+CM_ SG_ 370 SALaLoIqf_projectionR "projection length for control  right track, (from front axle in front)
+first track detected";
+CM_ SG_ 370 SALaLoIqf_availableR "available bit right track
+first detected track";
+CM_ SG_ 370 SALaLoIqf_psiR "relative yaw angle vehicle to right track, (positive, vehicle middle line in front to left)
+first track detected";
+CM_ SG_ 370 SALaLoIqf_intervTypeR "Intervention Type right track, wich intervention has to take plcae
+first track detected";
+CM_ SG_ 370 SALaLoIqf_dyR "lateral distance to right track, (positive, from vehicle middle front axle to left)
+first track detected";
+CM_ SG_ 370 SALaLoIqf_c0R "curvature at front axle position(left curve positive)  right track
+first detected track";
+CM_ SG_ 370 SALaLoIqf_c1R "curvature derivation (derived from distance)  at front axle position   right track
+first detected track";
+CM_ SG_ 369 SALaLoIqf_strengthL "strength as percentage of maximum torque  left track (maximum intervention torque)
+first detected track";
+CM_ SG_ 369 SALaLoIqf_projectionL "projection length for control  left track, (from front axle in front)
+first track detected";
+CM_ SG_ 369 SALaLoIqf_availableL "available bit left track
+first detected track";
+CM_ SG_ 369 SALaLoIqf_psiL "relative yaw angle vehicle to left track, (positive, vehicle middle line in front to left)
+first track detected";
+CM_ SG_ 369 SALaLoIqf_c1L "curvature derivation (derived from distance)  at front axle position   left track
+first detected track";
+CM_ SG_ 369 SALaLoIqf_c0L "curvature at front axle position(left curve positive)   left track
+first detected track";
+CM_ SG_ 369 SALaLoIqf_intervTypeL "Intervention Type left track, wich intervention has to take plcae
+first track detected";
+CM_ SG_ 369 SALaLoIqf_dyL "lateral distance to left track, (positive, from vehicle middle front axle to left)
+first track detected";
+CM_ SG_ 804 FUS_LatSpeed_Sigma "Tracking System`s sigma value for lateral speed.
+
+This is an internal value of the tracking system. It is used
+within the algorithm to calculate the assocation windows.";
+CM_ SG_ 804 FUS_Width_Sigma "Tracking System`s sigma value for width.
+
+This is an internal value of the tracking system. It is used
+within the algorithm to calculate the assocation windows.";
+CM_ SG_ 804 FUS_LatDispl_Sigma "Tracking System`s sigma value of lateral displacement.
+
+This is an internal value of the tracking system. It is used
+within the algorithm to calculate the assocation windows.";
+CM_ SG_ 804 FUS_VrelLong_Sigma "Tracking System`s sigma value for longitudinal speed.
+
+This is an internal value of the tracking system. It is used
+within the algorithm to calculate the assocation windows.";
+CM_ SG_ 804 FUS_LongDispl_Sigma "Tracking System`s sigma value of longtudinal displacement.
+
+This is an internal value of the tracking system. It is used
+within the algorithm to calculate the assocation windows.";
+CM_ SG_ 803 FUS_RadarCounter "Number of cycles the object has been found in the radar object list. Counter does not exceed 127.";
+CM_ SG_ 803 FUS_CameraCounter "Number of cycles the object is detected by the camera. Counter does not exceed 127.";
+CM_ SG_ 803 FUS_Age "Number of camera cycles the object is tracked. Counter does not exceed 127.";
+CM_ SG_ 802 FUS_Width "Width of Object. (always positiv)";
+CM_ SG_ 802 FUS_VrelLong "Relative longitudinal speed.
+Signal definition analog to ARS300.";
+CM_ SG_ 802 FUS_RollCount "Rollcounter. Incremented with every object list.";
+CM_ SG_ 802 FUS_LongDispl "Longitudinal Distance relative to front axle.
+Signal definition analog to ARS300.";
+CM_ SG_ 802 FUS_LatSpeed "Object lateral velocity.
+Value negative = obj moves left to right.
+Value positive = obj moves right to left.
+Signal definition analog to ARS300.";
+CM_ SG_ 802 FUS_LatDispl "Object lateral displacement relative to vehicle center.
+Signal definition analog to ARS300.";
+CM_ SG_ 802 FUS_ID "Object ID.
+Current Range 0...7
+255 means Object undefined.
+ID is not used for one cycle when an object is not tracked anymore.";
+CM_ BO_ 635 "BSD - blind spot detection; object detected by short range side radar";
+CM_ BO_ 634 "BSD - blind spot detection; object detected by short range side radar";
+CM_ SG_ 800 AvidLed5 "Opel Insignia Avid LED activation bit.";
+CM_ SG_ 800 AvidLed4 "Opel Insignia Avid LED activation bit.";
+CM_ SG_ 800 AvidLed3 "Opel Insignia Avid LED activation bit.";
+CM_ SG_ 800 AvidLed2 "Opel Insignia Avid LED activation bit.";
+CM_ SG_ 800 AvidLed1 "Opel Insignia Avid LED activation bit.";
+CM_ BO_ 876 "War mal gedacht dazu, dass Opel TVB als Eingriffsfunktion
+verwendet.
+Aktueller Stand ist aber, dass Opel Verzögerung anfordert.
+Sollte dies so bleiben, würde diese Botschaft nicht mehr
+gebraucht werden.";
+CM_ BO_ 877 "War mal gedacht dazu, dass Opel TVB als Eingriffsfunktion
+verwendet.
+Aktueller Stand ist aber, dass Opel Verzögerung anfordert.
+Sollte dies so bleiben, würde diese Botschaft nicht mehr
+gebraucht werden.";
+CM_ SG_ 784 Mode_right_overpass "Wird die Botschaft nicht gesendet, ist rechts ueberholen moeglich.";
+CM_ SG_ 784 Mode_Switch_ACC_OFF "0 - no action
+1 - MSU switch command: ACC OFF";
+CM_ SG_ 784 Mode_Switch_ACC_ON "0 - no action
+1 - MSU switch command: ACC ON";
+CM_ SG_ 784 Mode_Steering_Assistance "Modi der Querregelung von MSU (alle gesetzten Modi werden überlagert):
+
+Bit0:    LDW
+Bit1:    vWall/HC
+Bit2:    LCA
+Bit3-5: for future use
+Bit6:    LKS
+Bit7:    for future use";
+CM_ SG_ 784 Mode_Braking_Assistance "Modi der Längsführung von MSU (alle gesetzten Modi werden überlagert):
+
+Bit0:   Emergency Brake Warning
+Bit1:   Distance Warning
+Bit2:   AGB
+Bit3-5: for future use
+Bit6:   ACC
+Bit7:    for future use
+";
+CM_ SG_ 552 WhlDir_RR_Stat "Direction of rotation of rear right wheel";
+CM_ SG_ 552 WhlRPM_RR "Wheel rpm rear right";
+CM_ SG_ 552 WhlDir_RL_Stat "Direction of rotation of rear left wheel";
+CM_ SG_ 552 WhlRPM_RL "Wheel rpm rear left";
+CM_ SG_ 552 WhlDir_FR_Stat "Direction of rotation of front right wheel";
+CM_ SG_ 552 WhlRPM_FR "Wheel rpm front right";
+CM_ SG_ 552 WhlDir_FL_Stat "Direction of rotation of front left wheel";
+CM_ SG_ 552 WhlRPM_FL "Wheel rpm front left";
+CM_ SG_ 1314 KO3_Kilometerstand_2 "Kilometerstand
+Low Byte 6, High Byte 7 und in Byte 8 Bit 3..0 (additiv) ; Wertebereich geht bis (220 - 1), Fehler wird ausgegeben, falls Kilometerstand nicht restaurierbar
+0xFFFFF ist Fehler";
+CM_ SG_ 1314 KO3_Kilometerstand_1 "Kilometerstand
+Low Byte 6, High Byte 7 und in Byte 8 Bit 3..0 (additiv) ; Wertebereich geht bis (220 - 1), Fehler wird ausgegeben, falls Kilometerstand nicht restaurierbar
+0xFFFFF ist Fehler";
+BA_DEF_  "BusType" STRING ;
+BA_DEF_ BU_  "TpOwnSystemEcuNumber" HEX 0 255;
+BA_DEF_ BU_  "TpNodeBaseAddress" HEX 0 65535;
+BA_DEF_ BO_  "GenMsgStartValue" STRING ;
+BA_DEF_ SG_  "GenSigSNA" STRING ;
+BA_DEF_  "Version" HEX 0 255;
+BA_DEF_  "NmMessageCount" INT 0 64;
+BA_DEF_  "NWID" HEX 0 255;
+BA_DEF_  "NBTMax" INT 0 255;
+BA_DEF_  "NBTMin" INT 0 255;
+BA_DEF_  "SamplePointMax" FLOAT 0 100;
+BA_DEF_  "SamplePointMin" FLOAT 0 100;
+BA_DEF_ SG_  "RID" STRING ;
+BA_DEF_ BO_  "TpTxIndex" INT 0 99;
+BA_DEF_  "NWM-Basisadresse" HEX 0 536870911;
+BA_DEF_  "NWM-Typ" ENUM  "zentral (MB-W210)","dezentral (MB-OSAN)","keines","VAG-OSEK","BMW-OSEK","PAG-OSEK","DBAG-OSEK";
+BA_DEF_ BU_  "NWM-Stationsadresse" HEX 0 63;
+BA_DEF_ SG_  "FlexKomSigLaenge" INT 0 64;
+BA_DEF_ SG_  "FlexKomSigStartPos" INT 0 63;
+BA_DEF_ SG_  "FlexKomComment" STRING ;
+BA_DEF_ SG_  "FlexKomSigName" STRING ;
+BA_DEF_ SG_  "FlexKomSID" INT 0 65535;
+BA_DEF_ SG_  "GenSigStartValue" HEX 0 4294967295;
+BA_DEF_ SG_  "FlexKomSigStartValue" STRING ;
+BA_DEF_ SG_  "GenSigCycleTimeActive" INT 0 65535;
+BA_DEF_ SG_  "GenSigCycleTime" INT 0 65535;
+BA_DEF_ SG_  "GenSigSendType" ENUM  "cyclicX","spontanX","cyclicIfActiveX","spontanWithDelay","cyclicAndSpontanX","cyclicAndSpontanWithDelay","spontanWithRepitition","cyclicIfActiveAndSpontanWD","cyclicIfActiveFast","cyclicWithRepeatOnDemand","none";
+BA_DEF_ BO_  "GenMsgNrOfRepetitions" INT 0 65535;
+BA_DEF_ BO_  "GenMsgDelayTime" INT 0 65535;
+BA_DEF_ BO_  "GenMsgStartDelayTime" INT 0 65535;
+BA_DEF_ BO_  "GenMsgCycleTimeActive" INT 0 65535;
+BA_DEF_ BO_  "GenMsgCycleTime" INT 0 65535;
+BA_DEF_ BO_  "GenMsgSendType" ENUM  "cyclicX","spontanX","cyclicIfActiveX","spontanWithDelay","cyclicAndSpontanX","cyclicAndSpontanWithDelay","spontanWithRepitition","cyclicIfActiveAndSpontanWD","cyclicIfActiveFast","cyclicWithRepeatOnDemand","none";
+BA_DEF_  "Baudrate" INT 0 1000000;
+BA_DEF_  "VersionWeek" INT 0 53;
+BA_DEF_  "VersionYear" INT 0 99;
+BA_DEF_  "Manufacturer" ENUM  "DBAG","VAG","BMWAG","PAG","GM";
+BA_DEF_DEF_  "BusType" "";
+BA_DEF_DEF_  "TpOwnSystemEcuNumber" 0;
+BA_DEF_DEF_  "TpNodeBaseAddress" 0;
+BA_DEF_DEF_  "GenMsgStartValue" "";
+BA_DEF_DEF_  "GenSigSNA" "";
+BA_DEF_DEF_  "Version" 192;
+BA_DEF_DEF_  "NmMessageCount" 64;
+BA_DEF_DEF_  "NWID" 11;
+BA_DEF_DEF_  "NBTMax" 21;
+BA_DEF_DEF_  "NBTMin" 9;
+BA_DEF_DEF_  "SamplePointMax" 81.25;
+BA_DEF_DEF_  "SamplePointMin" 75;
+BA_DEF_DEF_  "RID" "";
+BA_DEF_DEF_  "TpTxIndex" 0;
+BA_DEF_DEF_  "NWM-Basisadresse" 1024;
+BA_DEF_DEF_  "NWM-Typ" "keines";
+BA_DEF_DEF_  "NWM-Stationsadresse" 0;
+BA_DEF_DEF_  "FlexKomSigLaenge" 0;
+BA_DEF_DEF_  "FlexKomSigStartPos" 0;
+BA_DEF_DEF_  "FlexKomComment" "";
+BA_DEF_DEF_  "FlexKomSigName" "";
+BA_DEF_DEF_  "FlexKomSID" 0;
+BA_DEF_DEF_  "GenSigStartValue" 0;
+BA_DEF_DEF_  "FlexKomSigStartValue" "";
+BA_DEF_DEF_  "GenSigCycleTimeActive" 0;
+BA_DEF_DEF_  "GenSigCycleTime" 0;
+BA_DEF_DEF_  "GenSigSendType" "";
+BA_DEF_DEF_  "GenMsgNrOfRepetitions" 0;
+BA_DEF_DEF_  "GenMsgDelayTime" 0;
+BA_DEF_DEF_  "GenMsgStartDelayTime" 0;
+BA_DEF_DEF_  "GenMsgCycleTimeActive" 0;
+BA_DEF_DEF_  "GenMsgCycleTime" 0;
+BA_DEF_DEF_  "GenMsgSendType" "";
+BA_DEF_DEF_  "Baudrate" 500000;
+BA_DEF_DEF_  "VersionWeek" 28;
+BA_DEF_DEF_  "VersionYear" 6;
+BA_DEF_DEF_  "Manufacturer" "DBAG";
+BA_ "Manufacturer" 0;
+BA_ "NWM-Typ" 2;
+BA_ "VersionYear" 6;
+BA_ "VersionWeek" 28;
+BA_ "NWM-Basisadresse" 1024;
+BA_ "Baudrate" 500000;
+BA_ "SamplePointMin" 75;
+BA_ "SamplePointMax" 81.25;
+BA_ "NBTMin" 9;
+BA_ "NBTMax" 21;
+BA_ "NWID" 11;
+BA_ "NmMessageCount" 64;
+BA_ "Version" 192;
+BA_ "BusType" "CAN";
+BA_ "TpNodeBaseAddress" BU_ RDU 0;
+BA_ "TpOwnSystemEcuNumber" BU_ RDU 0;
+BA_ "NWM-Stationsadresse" BU_ RDU 0;
+BA_ "GenMsgSendType" BO_ 552 0;
+BA_ "GenMsgCycleTime" BO_ 552 20;
+BA_ "GenMsgDelayTime" BO_ 552 20;
+BA_ "GenMsgNrOfRepetitions" BO_ 552 0;
+BA_ "GenMsgStartValue" BO_ 552 "FFFFFFFFFFFFFFFFh";
+BA_ "GenSigStartValue" SG_ 336 RCG_LED_Fahrer_mitte 1;
+BA_ "GenSigStartValue" SG_ 336 RCG_LED_Fahrer_innen 1;
+BA_ "GenSigStartValue" SG_ 336 RCG_LED_Fahrer_aussen 1;
+BA_ "GenSigStartValue" SG_ 336 RCG_LED_Beifahrer_mitte 1;
+BA_ "GenSigStartValue" SG_ 336 RCG_LED_Beifahrer_innen 1;
+BA_ "GenSigStartValue" SG_ 336 RCG_LED_Beifahrer_aussen 1;
+BA_ "GenSigStartValue" SG_ 165 IQF1_RefAng 0;
+BA_ "GenSigStartValue" SG_ 981 ObjRearRight2_VrelLong 2048;
+BA_ "GenSigStartValue" SG_ 981 ObjRearRight2_LatSpeed 128;
+BA_ "GenSigStartValue" SG_ 981 ObjRearRight2_LatDispl 520;
+BA_ "GenSigStartValue" SG_ 981 ObjRearRight2_AccelLong 256;
+BA_ "GenSigStartValue" SG_ 980 ObjRearRight1_VrelLong 2048;
+BA_ "GenSigStartValue" SG_ 980 ObjRearRight1_LatSpeed 128;
+BA_ "GenSigStartValue" SG_ 980 ObjRearRight1_LatDispl 520;
+BA_ "GenSigStartValue" SG_ 980 ObjRearRight1_AccelLong 256;
+BA_ "GenSigStartValue" SG_ 979 ObjRearLeft2_VrelLong 2048;
+BA_ "GenSigStartValue" SG_ 979 ObjRearLeft2_LatSpeed 128;
+BA_ "GenSigStartValue" SG_ 979 ObjRearLeft2_LatDispl 520;
+BA_ "GenSigStartValue" SG_ 979 ObjRearLeft2_AccelLong 256;
+BA_ "GenSigStartValue" SG_ 978 ObjRearLeft1_VrelLong 2048;
+BA_ "GenSigStartValue" SG_ 978 ObjRearLeft1_LatSpeed 128;
+BA_ "GenSigStartValue" SG_ 978 ObjRearLeft1_LatDispl 520;
+BA_ "GenSigStartValue" SG_ 978 ObjRearLeft1_AccelLong 256;
+BA_ "GenSigStartValue" SG_ 976 ObjRearMid1_LatDispl 520;
+BA_ "GenSigStartValue" SG_ 976 ObjRearMid1_AccelLong 256;
+BA_ "GenSigStartValue" SG_ 976 ObjRearMid1_VrelLong 2048;
+BA_ "GenSigStartValue" SG_ 976 ObjRearMid1_LatSpeed 128;
+BA_ "GenSigStartValue" SG_ 977 ObjRearMid2_VrelLong 2048;
+BA_ "GenSigStartValue" SG_ 977 ObjRearMid2_LatSpeed 128;
+BA_ "GenSigStartValue" SG_ 977 ObjRearMid2_LatDispl 520;
+BA_ "GenSigStartValue" SG_ 977 ObjRearMid2_AccelLong 256;
+BA_ "GenSigStartValue" SG_ 400 vehTraj_dC1 0;
+BA_ "GenSigStartValue" SG_ 400 vehTraj_dC0 0;
+BA_ "GenSigStartValue" SG_ 400 vehTraj_C1 0;
+BA_ "GenSigStartValue" SG_ 400 vehTraj_C0 0;
+BA_ "GenSigSendType" SG_ 552 WhlDir_RR_Stat 0;
+BA_ "GenSigCycleTime" SG_ 552 WhlDir_RR_Stat 20;
+BA_ "FlexKomSigStartValue" SG_ 552 WhlDir_RR_Stat "FFFFFFFFFFFFFFFFh";
+BA_ "GenSigStartValue" SG_ 552 WhlDir_RR_Stat 3;
+BA_ "FlexKomSID" SG_ 552 WhlDir_RR_Stat 184549427;
+BA_ "FlexKomSigStartPos" SG_ 552 WhlDir_RR_Stat 7;
+BA_ "FlexKomSigLaenge" SG_ 552 WhlDir_RR_Stat 64;
+BA_ "FlexKomSigName" SG_ 552 WhlDir_RR_Stat "Whl_Stat2";
+BA_ "FlexKomComment" SG_ 552 WhlDir_RR_Stat "Front and rear wheels state, part 2";
+BA_ "GenSigSNA" SG_ 552 WhlDir_RR_Stat "3h";
+BA_ "GenSigSendType" SG_ 552 WhlRPM_RR 0;
+BA_ "GenSigCycleTime" SG_ 552 WhlRPM_RR 20;
+BA_ "FlexKomSigStartValue" SG_ 552 WhlRPM_RR "FFFFFFFFFFFFFFFFh";
+BA_ "GenSigStartValue" SG_ 552 WhlRPM_RR 16383;
+BA_ "FlexKomSID" SG_ 552 WhlRPM_RR 184549427;
+BA_ "FlexKomSigStartPos" SG_ 552 WhlRPM_RR 7;
+BA_ "FlexKomSigLaenge" SG_ 552 WhlRPM_RR 64;
+BA_ "FlexKomSigName" SG_ 552 WhlRPM_RR "Whl_Stat2";
+BA_ "FlexKomComment" SG_ 552 WhlRPM_RR "Front and rear wheels state, part 2";
+BA_ "GenSigSNA" SG_ 552 WhlRPM_RR "3FFFh";
+BA_ "GenSigSendType" SG_ 552 WhlDir_RL_Stat 0;
+BA_ "GenSigCycleTime" SG_ 552 WhlDir_RL_Stat 20;
+BA_ "FlexKomSigStartValue" SG_ 552 WhlDir_RL_Stat "FFFFFFFFFFFFFFFFh";
+BA_ "GenSigStartValue" SG_ 552 WhlDir_RL_Stat 3;
+BA_ "FlexKomSID" SG_ 552 WhlDir_RL_Stat 184549427;
+BA_ "FlexKomSigStartPos" SG_ 552 WhlDir_RL_Stat 7;
+BA_ "FlexKomSigLaenge" SG_ 552 WhlDir_RL_Stat 64;
+BA_ "FlexKomSigName" SG_ 552 WhlDir_RL_Stat "Whl_Stat2";
+BA_ "FlexKomComment" SG_ 552 WhlDir_RL_Stat "Front and rear wheels state, part 2";
+BA_ "GenSigSNA" SG_ 552 WhlDir_RL_Stat "3h";
+BA_ "GenSigSendType" SG_ 552 WhlRPM_RL 0;
+BA_ "GenSigCycleTime" SG_ 552 WhlRPM_RL 20;
+BA_ "FlexKomSigStartValue" SG_ 552 WhlRPM_RL "FFFFFFFFFFFFFFFFh";
+BA_ "GenSigStartValue" SG_ 552 WhlRPM_RL 16383;
+BA_ "FlexKomSID" SG_ 552 WhlRPM_RL 184549427;
+BA_ "FlexKomSigStartPos" SG_ 552 WhlRPM_RL 7;
+BA_ "FlexKomSigLaenge" SG_ 552 WhlRPM_RL 64;
+BA_ "FlexKomSigName" SG_ 552 WhlRPM_RL "Whl_Stat2";
+BA_ "FlexKomComment" SG_ 552 WhlRPM_RL "Front and rear wheels state, part 2";
+BA_ "GenSigSNA" SG_ 552 WhlRPM_RL "3FFFh";
+BA_ "GenSigSendType" SG_ 552 WhlDir_FR_Stat 0;
+BA_ "GenSigCycleTime" SG_ 552 WhlDir_FR_Stat 20;
+BA_ "FlexKomSigStartValue" SG_ 552 WhlDir_FR_Stat "FFFFFFFFFFFFFFFFh";
+BA_ "GenSigStartValue" SG_ 552 WhlDir_FR_Stat 3;
+BA_ "FlexKomSID" SG_ 552 WhlDir_FR_Stat 184549427;
+BA_ "FlexKomSigStartPos" SG_ 552 WhlDir_FR_Stat 7;
+BA_ "FlexKomSigLaenge" SG_ 552 WhlDir_FR_Stat 64;
+BA_ "FlexKomSigName" SG_ 552 WhlDir_FR_Stat "Whl_Stat2";
+BA_ "FlexKomComment" SG_ 552 WhlDir_FR_Stat "Front and rear wheels state, part 2";
+BA_ "GenSigSNA" SG_ 552 WhlDir_FR_Stat "3h";
+BA_ "GenSigSendType" SG_ 552 WhlRPM_FR 0;
+BA_ "GenSigCycleTime" SG_ 552 WhlRPM_FR 20;
+BA_ "FlexKomSigStartValue" SG_ 552 WhlRPM_FR "FFFFFFFFFFFFFFFFh";
+BA_ "GenSigStartValue" SG_ 552 WhlRPM_FR 16383;
+BA_ "FlexKomSID" SG_ 552 WhlRPM_FR 184549427;
+BA_ "FlexKomSigStartPos" SG_ 552 WhlRPM_FR 7;
+BA_ "FlexKomSigLaenge" SG_ 552 WhlRPM_FR 64;
+BA_ "FlexKomSigName" SG_ 552 WhlRPM_FR "Whl_Stat2";
+BA_ "FlexKomComment" SG_ 552 WhlRPM_FR "Front and rear wheels state, part 2";
+BA_ "GenSigSNA" SG_ 552 WhlRPM_FR "3FFFh";
+BA_ "GenSigSendType" SG_ 552 WhlDir_FL_Stat 0;
+BA_ "GenSigCycleTime" SG_ 552 WhlDir_FL_Stat 20;
+BA_ "FlexKomSigStartValue" SG_ 552 WhlDir_FL_Stat "FFFFFFFFFFFFFFFFh";
+BA_ "GenSigStartValue" SG_ 552 WhlDir_FL_Stat 3;
+BA_ "FlexKomSID" SG_ 552 WhlDir_FL_Stat 184549427;
+BA_ "FlexKomSigStartPos" SG_ 552 WhlDir_FL_Stat 7;
+BA_ "FlexKomSigLaenge" SG_ 552 WhlDir_FL_Stat 64;
+BA_ "FlexKomSigName" SG_ 552 WhlDir_FL_Stat "Whl_Stat2";
+BA_ "FlexKomComment" SG_ 552 WhlDir_FL_Stat "Front and rear wheels state, part 2";
+BA_ "GenSigSNA" SG_ 552 WhlDir_FL_Stat "3h";
+BA_ "GenSigSendType" SG_ 552 WhlRPM_FL 0;
+BA_ "GenSigCycleTime" SG_ 552 WhlRPM_FL 20;
+BA_ "FlexKomSigStartValue" SG_ 552 WhlRPM_FL "FFFFFFFFFFFFFFFFh";
+BA_ "GenSigStartValue" SG_ 552 WhlRPM_FL 16383;
+BA_ "FlexKomSID" SG_ 552 WhlRPM_FL 184549427;
+BA_ "FlexKomSigStartPos" SG_ 552 WhlRPM_FL 7;
+BA_ "FlexKomSigLaenge" SG_ 552 WhlRPM_FL 64;
+BA_ "FlexKomSigName" SG_ 552 WhlRPM_FL "Whl_Stat2";
+BA_ "FlexKomComment" SG_ 552 WhlRPM_FL "Front and rear wheels state, part 2";
+BA_ "GenSigSNA" SG_ 552 WhlRPM_FL "3FFFh";
+BA_ "GenSigStartValue" SG_ 1315 RDU_FahrerLenkmoment 0;
+BA_ "GenSigStartValue" SG_ 581 VehYawRateOffset 128;
+BA_ "GenSigStartValue" SG_ 997 GPS_Vdop 10;
+BA_ "GenSigStartValue" SG_ 997 GPS_Hdop 10;
+BA_ "GenSigStartValue" SG_ 997 GPS_Pdop 10;
+VAL_ 7 GlblTm_MultiplexorId 2 "gpsTime" 1 "sysTimestamp" 0 "msgCount" ;
+VAL_ 336 RCG_LED_Fahrer_mitte 1 "ein" 0 "aus" ;
+VAL_ 336 RCG_LED_Fahrer_innen 1 "ein" 0 "aus" ;
+VAL_ 336 RCG_LED_Fahrer_aussen 1 "ein" 0 "aus" ;
+VAL_ 336 RCG_LED_Beifahrer_mitte 1 "ein" 0 "aus" ;
+VAL_ 336 RCG_LED_Beifahrer_innen 1 "ein" 0 "aus" ;
+VAL_ 336 RCG_LED_Beifahrer_aussen 1 "ein" 0 "aus" ;
+VAL_ 1056 ACC_MODE 3 "DISENGAGE" 2 "OVERRIDE" 1 "ACTIVE" 0 "OFF" ;
+VAL_ 1073 DM_STATE 3 "SNA" 2 "ON_ACTIVE" 1 "ON_INACTIVE" 0 "OFF" ;
+VAL_ 1073 FCA_STATE 3 "SNA" 2 "ON_ACTIVE" 1 "ON_INACTIVE" 0 "OFF" ;
+VAL_ 1073 DM_ALERT 3 "critical" 2 "near" 1 "OK" 0 "far" ;
+VAL_ 1073 FAILURE_STATE 3 "service required" 2 "performance degradation" 1 "temporairily unavailable" 0 "No failure" ;
+VAL_ 1073 CC_DISPL_MODE 14 "headway setting" 13 "lim permanent" 12 "lim disengage" 11 "lim invalid operation" 10 "lim active" 9 "lim valid operation" 8 "lim off" 7 "cc recom speed" 6 "cc override" 5 "cc disangage" 4 "cc invalid operation" 3 "cc active" 2 "cc valid operation" 1 "cc off" 0 "dspl off" ;
+VAL_ 377 SALaLoIqf9_intervTypeR 15 "VWall & LDW" 14 "LDW" 13 "VWall" 12 "no intervention" 11 "VWall & LDW" 10 "LDW" 9 "VWall" 8 "no intervention" 7 "VWall & LDW" 6 "LDW" 5 "VWall" 4 "no intervention" 3 "VWall & LDW" 2 "LDW" 1 "VWall" 0 "no intervention" ;
+VAL_ 376 SALaLoIqf8_intervTypeL 15 "VWall & LDW" 14 "LDW" 13 "VWall" 12 "no intervention" 11 "VWall & LDW" 10 "LDW" 9 "VWall" 8 "no intervention" 7 "VWall & LDW" 6 "LDW" 5 "VWall" 4 "no intervention" 3 "VWall & LDW" 2 "LDW" 1 "VWall" 0 "no intervention" ;
+VAL_ 786 PC_Status_Value 2 "OK" 1 "Warnung" 0 "Fehler" ;
+VAL_ 864 DMS_DDM_Status 0 "INACTIVE" 1 "ACTIVE" ;
+VAL_ 864 DMS_DDM_Type 1 "DATA" 0 "ACKNOWLEDGE" ;
+VAL_ 864 DMS_DDM_Diagnostic 63 "DRIV_DROW_ERROR" 0 "DRIV_DROW_ALERT" 1 "DRIV_DROW_SLIGHTLY_DROWSY" 2 "DRIV_DROW_DROWSY" 3 "DRIV_DROW_SLEEPY" ;
+VAL_ 865 DMS_DIM_Status 0 "INACTIVE" 1 "ACTIVE" ;
+VAL_ 865 DMS_DIM_Type 1 "DATA" 0 "ACKNOWLEDGE" ;
+VAL_ 865 DMS_DIM_Diagnostic 63 "DRIV_DST_DIAG_ERROR" 0 "DRIV_DST_DIAG_ON_ROAD" 1 "DRIV_DST_DIAG_OFF_ROAD" ;
+VAL_ 866 DMS_HP_Status 0 "INACTIVE" 1 "ACTIVE" ;
+VAL_ 866 DMS_HP_Type 0 "ACKNOWLEDGE" 1 "DATA" ;
+VAL_ 866 DMS_HP_Error 63 "HEAD_POSE_ERROR" 3 "Reserved" 2 "Reserved" 0 "Reserved" 1 "Reserved" ;
+VAL_ 165 IQF1_RefActivity 2 "ref angle" 1 "ref torque" 0 "no activity" ;
+VAL_ 165 IQF1_LdwStatus 2 "LDW rechts" 1 "LDW links" 0 "LDW nicht aktive" ;
+VAL_ 167 IQF2_HandsOffDetect 3 "hands off" 2 "-" 1 "-" 0 "hands on" ;
+VAL_ 320 AGB_IMULatAccSecAval 1 "True" 0 "False" ;
+VAL_ 320 AGB_IMUYawRtSecAval 1 "True" 0 "False" ;
+VAL_ 320 AGB_IMULonACCV 1 "Invalid" 0 "Valid" ;
+VAL_ 320 AGB_IMULatACCSecV 1 "Invalid" 0 "Valid" ;
+VAL_ 320 AGB_IMUYawRtSecV 1 "Invalid" 0 "Valid" ;
+VAL_ 374 SALaLoWarn_AFFPJitterFreq 3 "40Hz" 2 "30Hz" 1 "20Hz" 0 "10Hz" ;
+VAL_ 374 SALaLoWarn_AFFPJitterForm 3 "undef." 2 "Rectangle" 1 "Sawtooth" 0 "Sinus" ;
+VAL_ 374 SALaLoWarn_AFFPJitterAmpl 7 "70% of AFFPForce" 6 "60% of AFFPForce" 5 "50% of AFFPForce" 4 "40% of AFFPForce" 3 "30% of AFFPForce" 2 "20% of AFFPForce" 1 "10% of AFFPForce" 0 "0% of AFFPForce" ;
+VAL_ 373 SALaLoLong_parkReq 3 "hold permanently" 2 "hold temporarily" 1 "release" 0 "stay" ;
+VAL_ 373 SALaLoLong_gearReq 3 "forward" 2 "neutral" 1 "backward" 0 "stay" ;
+VAL_ 373 SALaLoLong_SwitchACCOff 1 "yes" 0 "no" ;
+VAL_ 373 SALaLoLong_SwitchACCOn 1 "yes" 0 "no" ;
+VAL_ 373 SALaLoLong_vReqType 1 "NORMAL_V_REQUEST" 0 "OFF" ;
+VAL_ 373 SALaLoLong_aReqType 2 "NORMAL_A_REQUEST" 1 "RAMP_DOWN_MODE" 0 "OFF" ;
+VAL_ 372 SALaLoIqf_TypeRight_0x179 2 "Vehicle" 1 "CrashBarrier" 0 "Line" ;
+VAL_ 372 SALaLoIqf_TypeLeft_0x178 2 "Vehicle" 1 "CrashBarrier" 0 "Line" ;
+VAL_ 371 SALaLoIqf_TypeRight_0x172 2 "Vehicle" 1 "CrashBarrier" 0 "Line" ;
+VAL_ 371 SALaLoIqf_TypeLeft_0x171 2 "Vehicle" 1 "CrashBarrier" 0 "Line" ;
+VAL_ 371 SALaLoIqf_intervType 15 "LCA" 14 "no intervention" 13 "LCA" 12 "no intervention" 11 "LCA" 10 "no intervention" 9 "LCA" 8 "no intervention" 7 "LCA" 6 "no intervention" 5 "LCA" 4 "no intervention" 3 "LCA" 2 "no intervention" 1 "LCA" 0 "no intervention" ;
+VAL_ 370 SALaLoIqf_intervTypeR 15 "VWall & LDW" 14 "LDW" 13 "VWall" 12 "no intervention" 11 "VWall & LDW" 10 "LDW" 9 "VWall" 8 "no intervention" 7 "VWall & LDW" 6 "LDW" 5 "VWall" 4 "no intervention" 3 "VWall & LDW" 2 "LDW" 1 "VWall" 0 "no intervention" ;
+VAL_ 369 SALaLoIqf_intervTypeL 15 "VWall & LDW" 14 "LDW" 13 "VWall" 12 "no intervention" 11 "VWall & LDW" 10 "LDW" 9 "VWall" 8 "no intervention" 7 "VWall & LDW" 6 "LDW" 5 "VWall" 4 "no intervention" 3 "VWall & LDW" 2 "LDW" 1 "VWall" 0 "no intervention" ;
+VAL_ 800 AvidLed5 1 "LED switched on" 0 "LED off" ;
+VAL_ 800 AvidLed4 1 "LED switched on" 0 "LED off" ;
+VAL_ 800 AvidLed3 1 "LED switched on" 0 "LED off" ;
+VAL_ 800 AvidLed2 1 "LED switched on" 0 "LED off" ;
+VAL_ 800 AvidLed1 1 "LED switched on" 0 "LED off" ;
+VAL_ 800 AGB_ReqMaxEngTqStatus 1 "No AGB request active" 0 "AGB requests torque reduction" ;
+VAL_ 784 Mode_right_overpass 1 "right overpass not allowed" 0 "right overpass allowed" ;
+VAL_ 324 TZH_CAN_MODUL5_LED2 3 "failure" 2 "activ" 1 "inactiv" 0 "off" ;
+VAL_ 324 TZH_CAN_MODUL5_LED1 3 "failure" 2 "activ" 1 "inactiv" 0 "off" ;
+VAL_ 326 TZH_CAN_MODUL5_LED2 3 "failure" 2 "activ" 1 "inactiv" 0 "off" ;
+VAL_ 326 TZH_CAN_MODUL5_LED1 3 "failure" 2 "activ" 1 "inactiv" 0 "off" ;
+VAL_ 552 WhlDir_RR_Stat 3 "SNA" 2 "BACKWARD" 1 "FORWARD" 0 "VOID" ;
+VAL_ 552 WhlRPM_RR 16383 "SNA" ;
+VAL_ 552 WhlDir_RL_Stat 3 "SNA" 2 "BACKWARD" 1 "FORWARD" 0 "VOID" ;
+VAL_ 552 WhlRPM_RL 16383 "SNA" ;
+VAL_ 552 WhlDir_FR_Stat 3 "SNA" 2 "BACKWARD" 1 "FORWARD" 0 "VOID" ;
+VAL_ 552 WhlRPM_FR 16383 "SNA" ;
+VAL_ 552 WhlDir_FL_Stat 3 "SNA" 2 "BACKWARD" 1 "FORWARD" 0 "VOID" ;
+VAL_ 552 WhlRPM_FL 16383 "SNA" ;
+VAL_ 544 WhPlsRev 255 "SNA" ;
+VAL_ 544 DiagMd 3 "REM_DIAG" 2 "HOST_DIAG" 1 "LINE_DIAG" 0 "NO_DIAG" ;
+VAL_ 544 Lane_Cfg 3 "RES3" 2 "ONLY_EXT" 1 "ADD_EXT" 0 "NO_EXT" ;
+VAL_ 544 Odo16 65535 "SNA" ;
+VAL_ 544 VehLinePack 3 "PACKX" 2 "PACK2" 1 "PACK1" 0 "PACK0" ;
+VAL_ 544 StRatio 255 "SNA" ;
+VAL_ 544 VehLineYear 31 "START" 30 "NDEF30" ;
+VAL_ 544 WeightCenterAlt 255 "SNA" ;
+VAL_ 544 WhlLoadDepend 255 "SNA" ;
+VAL_ 544 Guard 3 "SNA" 2 "B6" 1 "B4" 0 "NO" ;
+VAL_ 544 SensOffset 255 "SNA" ;
+VAL_ 544 AxisLoad 255 "SNA" ;
+VAL_ 544 WhlBase 32767 "SNA" ;
+VAL_ 544 SelfStGrdnt 511 "SNA" ;
+VAL_ 544 TrckWidth_Ft 1023 "SNA" ;
+VAL_ 544 TrckWidth_R 1023 "SNA" ;
+VAL_ 544 WhlCircumDyn 2047 "SNA" ;
+VAL_ 544 VehWeight 65535 "SNA" ;
+VAL_ 544 SubId 15 "SNA" 14 "RES14" 13 "RES13" 12 "RES12" 11 "WTICKS" 10 "WEIGHT" 9 "VEH_INF2" 8 "VEH_INF1" 7 "VEH_VERS" 6 "VEH_ID" 5 "DWHL_CIRC" 4 "TWRA" 3 "TWFA" 2 "SELF_ST_GRAD" 1 "WHL_B" 0 "SOFFS_STRAT" ;
+VAL_ 544 VehSpd 4095 "SNA" ;
+VAL_ 548 StW_AnglSpd 16383 "SNA" ;
+VAL_ 548 StW_AnglSens_Stat 3 "ERR_INI" 2 "ERR" 1 "INI" 0 "OK" ;
+VAL_ 548 StW_Angl 16383 "SNA" ;
+VAL_ 548 VehYawRate_Raw 65535 "SNA" ;
+VAL_ 548 VehAccel_Y 255 "SNA" ;
+VAL_ 550 VehDirState 3 "SNA" 2 "REVERSE" 1 "FORWARD" 0 "VOID" ;
+VAL_ 550 Gear 15 "SNA" 14 "Not defined" 13 "P" 12 "R2" 11 "R1" 10 "R" 9 "Not defined" 8 "Not defined" 7 "D7" 6 "D6" 5 "D5" 4 "D4" 3 "D3" 2 "D2" 1 "D1" 0 "N" ;
+VAL_ 550 Brk_Torque 4095 "Description for the value '0x0'" ;
+VAL_ 550 PBRK_Stat 7 "SNA" 6 "Not defined" 5 "Parking brake manually engaged" 4 "Parking brake is released" 3 "Parking brake is engaged" 2 "Decreasing braking action" 1 "Increasing braking action" 0 "Not defined" ;
+VAL_ 550 WhlPlsCnt_RR 255 "SNA" ;
+VAL_ 550 WhlPlsCnt_RL 255 "SNA" ;
+VAL_ 550 WhlPlsCnt_FR 255 "SNA" ;
+VAL_ 550 WhlPlsCnt_FL 255 "SNA" ;
+VAL_ 554 ACC_REQ_LIM 3 "SNA" 2 "Deceleration limited" 1 "Acceleration limited" 0 "No limitation" ;
+VAL_ 554 ACC_OV 3 "SNA" 2 "Override by deceleration pedal" 1 "Override by acceleration pedal" 0 "No override" ;
+VAL_ 554 VehAccel_X_Sen 255 "SNA" ;
+VAL_ 554 Veh_Accel_X_Est 1023 "SNA" ;
+VAL_ 554 VehCourse 65535 "SNA" ;
+VAL_ 1313 RDU_U_BT 255 "SNA" ;
+VAL_ 1313 RDU_SW_BLTB_PSR 2 "frei" 1 "gesteckt" 0 "nicht gesteckt" 3 "SNA" ;
+VAL_ 1313 RDU_SW_BLTB_DRR 2 "frei" 1 "gesteckt" 0 "nicht gesteckt" 3 "SNA" ;
+VAL_ 1313 RDU_ST_KL_15 3 "SNA" 1 "Klemme_50_aktiv" 0 "Grundzustand" ;
+VAL_ 1313 RDU_Bremsdruck 65535 "SNA" ;
+VAL_ 1313 RDU_ABS_Vref 65535 "SNA" ;
+VAL_ 1314 RDU_Blinker 7 "SNA" 3 "beide ein" 2 "rechts ein" 1 "links ein" 0 "aus" ;
+VAL_ 1314 RDU_Tacho_Speed 4095 "SNA" ;
+

@@ -1,0 +1,103 @@
+VERSION ""
+
+
+NS_ : 
+	NS_DESC_
+	CM_
+	BA_DEF_
+	BA_
+	VAL_
+	CAT_DEF_
+	CAT_
+	FILTER
+	BA_DEF_DEF_
+	EV_DATA_
+	ENVVAR_DATA_
+	SGTYPE_
+	SGTYPE_VAL_
+	BA_DEF_SGTYPE_
+	BA_SGTYPE_
+	SIG_TYPE_REF_
+	VAL_TABLE_
+	SIG_GROUP_
+	SIG_VALTYPE_
+	SIGTYPE_VALTYPE_
+	BO_TX_BU_
+	BA_DEF_REL_
+	BA_REL_
+	BA_DEF_DEF_REL_
+	BU_SG_REL_
+	BU_EV_REL_
+	BU_BO_REL_
+	SG_MUL_VAL_
+
+BS_:
+
+BU_: VBOX_III
+
+
+BO_ 1834 VBOX_RTK: 8 Vector__XXX
+ SG_ Solution_Type : 7|32@0- (1,0) [0|10] "1" Vector__XXX
+
+BO_ 1832 VBOX_8: 8 Vector__XXX
+ SG_ Latitude_48bit : 7|48@0- (1E-007,0) [-10800|10800] "Minutes" Vector__XXX
+ SG_ Kalman_Filter_Status : 56|1@0+ (1,0) [0|1] "" Vector__XXX
+
+BO_ 1833 VBOX_9: 8 Vector__XXX
+ SG_ Longitude_48bit : 7|48@0- (1E-007,0) [-5400|5400] "Minutes" Vector__XXX
+
+BO_ 1831 VBOX_7: 8 Vector__XXX
+ SG_ Roll_Angle : 39|16@0- (0.01,0) [-180|180] "degrees" Vector__XXX
+ SG_ Yaw_Rate : 23|16@0- (0.01,0) [-1333|1333] "deg/s" Vector__XXX
+ SG_ Long_Velocity_mph : 55|16@0- (0.0115078,0) [-377.0875904|377.0760826] "mph" Vector__XXX
+ SG_ Long_Velocity_kmh : 55|16@0- (0.01852,0) [-606.86336|606.84484] "km/h" Vector__XXX
+ SG_ Lat_Velocity_mph : 7|16@0- (0.0115078,0) [-377.0875904|377.0760826] "mph" Vector__XXX
+ SG_ Lat_Velocity_kmh : 7|16@0- (0.01852,0) [-606.86336|606.84484] "km/h" Vector__XXX
+
+BO_ 1830 VBOX_6: 8 Vector__XXX
+ SG_ Pitch_Angle : 55|16@0- (0.01,0) [-90|90] "degrees" Vector__XXX
+ SG_ Slip_Angle : 39|16@0- (0.01,0) [-180|180] "degrees" Vector__XXX
+ SG_ True_Heading : 23|16@0+ (0.01,0) [0|360] "degrees" Vector__XXX
+ SG_ Vel_Quality : 7|16@0- (0.01,0) [0|0] "km/h" Vector__XXX
+
+BO_ 1829 VBOX_5: 8 Vector__XXX
+ SG_ Trig_Vel_Mph : 55|16@0+ (0.0115078,0) [0|754.163673] "Mph" Vector__XXX
+ SG_ Trig_Vel_Kmh : 55|16@0+ (0.01852,0) [0|1213.7082] "Km/h" Vector__XXX
+ SG_ Trig_time : 39|16@0+ (0.01,0) [0|655.35] "Secs" Vector__XXX
+ SG_ Distance : 7|32@0+ (7.8125E-005,0) [0|335544] "Metres" Vector__XXX
+
+BO_ 1828 VBOX_4: 8 Vector__XXX
+ SG_ Lateral_acceleration : 55|16@0- (0.01,0) [-327.68|327.67] "G" Vector__XXX
+ SG_ Longitudinal_acceleration : 39|16@0- (0.01,0) [-327.68|327.67] "G" Vector__XXX
+ SG_ Trig_Dist : 7|32@0+ (7.8125E-005,0) [0|335544] "Metres" Vector__XXX
+
+BO_ 1827 VBOX_3: 8 Vector__XXX
+ SG_ DGPS : 61|1@0+ (1,0) [0|0] "On" Vector__XXX
+ SG_ Brake_trigger : 60|1@0+ (1,0) [0|0] "On" Vector__XXX
+ SG_ Vertical_Velocity : 31|16@0- (0.01,0) [0|655.36] "m/s" Vector__XXX
+ SG_ Altitude_WGS84 : 7|24@0- (0.01,0) [0|42949700] "metres" Vector__XXX
+
+BO_ 1826 VBOX_2: 8 Vector__XXX
+ SG_ Velocity_mph : 39|16@0+ (0.0115078,0) [0|754.163673] "mph" Vector__XXX
+ SG_ Heading : 55|16@0+ (0.01,0) [0|359.99] "Degrees" Vector__XXX
+ SG_ Velocity_kmh : 39|16@0+ (0.01852,0) [0|1213.7082] "Km/h" Vector__XXX
+ SG_ Longitude : 7|32@0- (1E-005,0) [-21474.83648|21474.83647] "Minutes" Vector__XXX
+
+BO_ 1825 VBOX_1: 8 Vector__XXX
+ SG_ Latitude : 39|32@0- (1E-005,0) [-21474.83648|21474.83647] "Minutes" Vector__XXX
+ SG_ Time_Since_Midnight : 15|24@0+ (0.01,0) [0|0] "Seconds" Vector__XXX
+ SG_ Sats : 7|8@0+ (1,0) [0|12] "Sats" Vector__XXX
+
+BO_ 1835 VBOX_Slip_1: 8 Vector__XXX
+ SG_ Slip_FL : 7|16@0- (0.01,0) [-180|180] "deg" Vector__XXX
+ SG_ Slip_FR : 23|16@0- (0.01,0) [-180|180] "deg" Vector__XXX
+ SG_ Slip_RL : 39|16@0- (0.01,0) [-180|180] "deg" Vector__XXX
+ SG_ Slip_RR : 55|16@0- (0.01,0) [-180|180] "deg" Vector__XXX
+
+BO_ 1836 VOBX_Slip_2: 8 Vector__XXX
+ SG_ Slip_COG : 7|16@0- (0.01,0) [-180|180] "deg" Vector__XXX
+
+
+
+SIG_VALTYPE_ 1834 Solution_Type : 1;
+

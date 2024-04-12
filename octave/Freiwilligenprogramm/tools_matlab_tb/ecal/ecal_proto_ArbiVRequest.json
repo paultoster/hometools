@@ -1,0 +1,8 @@
+[['switch_acc_on'            , 1,'enum'     ,'int'    , 1, '']
+,['switch_acc_off'           , 1,'enum'     ,'int'    , 1, '']
+,['resm_aftr_intrv'          , 1,'enum'     ,'int'    , 1, '']
+,['gear_req'                 , 1,'enum'     ,'int'    , 1, '']
+,['park_req'                 , 1,'enum'     ,'int'    , 1, '']
+,['app_number'               , 1,'enum'     ,'int'    , 1, '']
+,['velocity'                 , 1,'m/s'      ,'double' , 1, '']
+];

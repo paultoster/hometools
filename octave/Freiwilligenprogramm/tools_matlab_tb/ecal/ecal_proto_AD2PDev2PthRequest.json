@@ -1,0 +1,10 @@
+[
+	['active'                   , 1, 'enum'     ,'int'    , 1, '']
+   ,['lateral_control_priority' , 1, 'enum'     ,'int'    , 1, '']
+   ,['lateral_control_quality'  , 1, 'enum'     ,'int'    , 1, '']
+   ,['yaw_angle_deviation_psi'  , 1, 'rad'      ,'double' , 1, '']
+   ,['lateral_deviation_y'      , 1, 'm'        ,'double' , 1, '']
+   ,['pilot_control_c0'         , 1, '1/m'      ,'double' , 1, '']
+   ,['header_timestamp'         , 1, 'us'       ,'double' , 1, '']
+   ,['ramp_out_request'         , 1, 'enum'     ,'int'    , 1, '']
+]

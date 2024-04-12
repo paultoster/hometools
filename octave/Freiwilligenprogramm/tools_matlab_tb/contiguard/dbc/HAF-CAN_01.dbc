@@ -1,0 +1,985 @@
+VERSION "HNPBNNNYNNNNNNNNNNNNNNNNNNNNNNNNYNYYYYYYYY>4>%%%/4>'%**4YYY///"
+
+
+NS_ : 
+	NS_DESC_
+	CM_
+	BA_DEF_
+	BA_
+	VAL_
+	CAT_DEF_
+	CAT_
+	FILTER
+	BA_DEF_DEF_
+	EV_DATA_
+	ENVVAR_DATA_
+	SGTYPE_
+	SGTYPE_VAL_
+	BA_DEF_SGTYPE_
+	BA_SGTYPE_
+	SIG_TYPE_REF_
+	VAL_TABLE_
+	SIG_GROUP_
+	SIG_VALTYPE_
+	SIGTYPE_VALTYPE_
+	BO_TX_BU_
+	BA_DEF_REL_
+	BA_REL_
+	BA_DEF_DEF_REL_
+	BU_SG_REL_
+	BU_EV_REL_
+	BU_BO_REL_
+	SG_MUL_VAL_
+
+BS_:
+
+BU_: Gateway_vehicle2contiguard RDU ARS300 Vector__X
+VAL_TABLE_ bool_Value_Table 1 "TRUE / YES" 0 "FALSE / NO" ;
+VAL_TABLE_ parkReq 3 "hold permanently" 2 "hold temporarily" 1 "release" 0 "stay" ;
+VAL_TABLE_ gearReq 3 "forward" 2 "neutral" 1 "backward" 0 "stay" ;
+VAL_TABLE_ GlblTm_Multiplex 2 "gpsTime" 1 "sysTimestamp" 0 "msgCount" ;
+VAL_TABLE_ RCG_LED 1 "ein" 0 "aus" ;
+VAL_TABLE_ SwitchACCOff 1 "yes" 0 "no" ;
+VAL_TABLE_ SwitchACCOn 1 "yes" 0 "no" ;
+VAL_TABLE_ InterventionTypeCenter 15 "LCA" 14 "no intervention" 13 "LCA" 12 "no intervention" 11 "LCA" 10 "no intervention" 9 "LCA" 8 "no intervention" 7 "LCA" 6 "no intervention" 5 "LCA" 4 "no intervention" 3 "LCA" 2 "no intervention" 1 "LCA" 0 "no intervention" ;
+VAL_TABLE_ InterventionTypeLeftRight 15 "VWall & LDW" 14 "LDW" 13 "VWall" 12 "no intervention" 11 "VWall & LDW" 10 "LDW" 9 "VWall" 8 "no intervention" 7 "VWall & LDW" 6 "LDW" 5 "VWall" 4 "no intervention" 3 "VWall & LDW" 2 "LDW" 1 "VWall" 0 "no intervention" ;
+VAL_TABLE_ VLongRequestType 1 "NORMAL_V_REQUEST" 0 "OFF" ;
+VAL_TABLE_ ALongRequestType 2 "NORMAL_A_REQUEST" 1 "RAMP_DOWN_MODE" 0 "OFF" ;
+VAL_TABLE_ AFFPJitterFrequency 3 "40Hz" 2 "30Hz" 1 "20Hz" 0 "10Hz" ;
+VAL_TABLE_ AFFPJitterForm 3 "undef." 2 "Rectangle" 1 "Sawtooth" 0 "Sinus" ;
+VAL_TABLE_ AFFPJitterAmplitude 7 "70% of AFFPForce" 6 "60% of AFFPForce" 5 "50% of AFFPForce" 4 "40% of AFFPForce" 3 "30% of AFFPForce" 2 "20% of AFFPForce" 1 "10% of AFFPForce" 0 "0% of AFFPForce" ;
+VAL_TABLE_ AGB_IMU_True_False 1 "True" 0 "False" ;
+VAL_TABLE_ AGB_IMU_InValid_Valid 1 "Invalid" 0 "Valid" ;
+VAL_TABLE_ LateralMarginType 2 "Vehicle" 1 "CrashBarrier" 0 "Line" ;
+VAL_TABLE_ VtAvidLed 1 "LED switched on" 0 "LED off" ;
+VAL_TABLE_ VtAGB_ReqMaxEngTqStatus 1 "No AGB request active" 0 "AGB requests torque reduction" ;
+VAL_TABLE_ LaLdwActiveState 7 "LDW Suppressed Right + Left" 6 "- *" 5 "LDW Suppressed Right" 4 "LDW Warning Right" 3 "LDW Suppressed Left" 2 "LDW Warning Left" 1 "- *" 0 "LDW Idle *" ;
+VAL_TABLE_ LaLkaLcaActiveState 7 "LKA/LCA Suppressed Right + Left" 6 "LCA in Progress * (Intervention Right + Left so to say)" 5 "LKA Suppressed Right" 4 "LKA Intervention Right" 3 "LKA Suppressed Left" 2 "LKA Intervention Left" 1 "LKA Idle, LCA Suppressed *" 0 "LKA Idle *" ;
+
+
+BO_ 397 VEH_DYNMC_DT_ESTI: 7 Gateway_vehicle2contiguard
+ SG_ ATTA_ESTI : 0|12@1+ (0.1,-204.7) [-204.7|204.7] "°" Vector__XXX
+ SG_ QU_VEH_DYNMC_DT_ESTI : 12|4@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ ATTA_ESTI_ERR_AMP : 16|8@1+ (0.2,0) [0|50.8] "°" Vector__XXX
+ SG_ ATTAV_ESTI : 24|12@1+ (2,-4094) [-4094|4094] "°/s" Vector__XXX
+ SG_ ATTAV_ESTI_ERR_AMP : 40|8@1+ (4,0) [0|1016] "°/s" Vector__XXX
+
+BO_ 520 HAF_01: 8 Gateway_vehicle2contiguard
+ SG_ ALIVE_HAF_01 : 0|4@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 519 HAF_D2: 8 Gateway_vehicle2contiguard
+ SG_ QU_TAR_BRTORQ_SUM : 44|4@1+ (1,0) [0|15] "ENUM" Vector__XXX
+ SG_ RQ_TAO_SSM : 40|4@1+ (1,0) [0|15] "ENUM" Vector__XXX
+ SG_ TAR_BRTORQ_SUM : 48|16@1+ (1,-32000) [-32000|33535] "Nm" Vector__XXX
+ SG_ ALIVE_HAF_D2 : 12|4@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ TAR_DIFF_BRTORQ_FTAX_YMR : 0|12@1+ (5,-10000) [-10000|10475] "Nm" Vector__XXX
+ SG_ TAR_DIFF_BRTORQ_BAX_YMR : 24|12@1+ (5,-10000) [-10000|10475] "Nm" Vector__XXX
+ SG_ FACT_TAR_COMPT_DRV_YMR : 16|8@1+ (0.005,0) [0|1.275] "" Vector__XXX
+ SG_ QU_TAR_DIFF_BRTORQ_YMR : 36|4@1+ (1,0) [0|15] "ENUM" Vector__XXX
+
+BO_ 518 HAF_D1: 8 Gateway_vehicle2contiguard
+ SG_ ALIVE_HAF_D1 : 0|4@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ TAR_WMOM_PT_SUM_DRS : 24|16@1+ (1,-32000) [-32000|33535] "Nm" Vector__XXX
+ SG_ QU_TAR_WMOM_PT_SUM_DRS : 8|12@1+ (1,0) [0|0] "ENUM" Vector__XXX
+ SG_ TAR_STMOM_DV_ACT : 40|12@1+ (0.006,-12) [-12|12.57] "Nm" Vector__XXX
+ SG_ QU_TAR_STMOM_DV_ACT : 20|4@1+ (1,0) [0|15] "ENUM" Vector__XXX
+
+BO_ 557 HAF_A12: 8 Gateway_vehicle2contiguard
+ SG_ ALIVE_HAF_A12 : 0|4@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ AVL_BRTORQ_SUM_DVCH : 8|16@1+ (1,-32000) [-32000|33535] "Nm" Vector__XXX
+ SG_ QU_AVL_BRTORQ_SUM_DVCH : 4|4@1+ (1,0) [0|0] "ENUM" Vector__XXX
+ SG_ AVL_ANG_ACPD_VIRT : 24|12@1+ (0.025,0) [0|0] "%" Vector__XXX
+ SG_ ST_INTF_DRASY : 36|4@1+ (1,0) [0|15] "ENUM" Vector__XXX
+ SG_ ST_KL : 40|4@1+ (1,0) [0|15] "ENUM" Vector__XXX
+ SG_ ST_ENG_RUN_DRV : 44|2@1+ (1,0) [0|3] "ENUM" Vector__XXX
+ SG_ ST_GRSEL_DRV : 46|2@1+ (1,0) [0|3] "ENUM" Vector__XXX
+
+BO_ 556 HAF_A11: 8 Gateway_vehicle2contiguard
+ SG_ ALIVE_HAF_A11 : 0|4@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ AVL_WMOM_PT_SUM_RECUP_MAX : 8|16@1+ (1,-32000) [-32000|33535] "Nm" Vector__XXX
+ SG_ AVL_WMOM_PT_SUM_MAX : 40|16@1+ (1,-32000) [-32000|33535] "Nm" Vector__XXX
+ SG_ ST_AVAI_INTV_PT_DRS : 56|2@1+ (1,0) [0|0] "ENUM" Vector__XXX
+ SG_ ST_PENG_PT : 4|4@1+ (1,0) [0|15] "ENUM" Vector__XXX
+ SG_ REIN_PT : 24|12@1+ (0.125,0) [0|511.875] "" Vector__XXX
+ SG_ QU_REIN_PT : 36|4@1+ (1,0) [0|15] "ENUM" Vector__XXX
+
+BO_ 555 HAF_A10: 8 Gateway_vehicle2contiguard
+ SG_ ALIVE_HAF_A10 : 0|4@1+ (1,1) [0|1] "" Vector__XXX
+ SG_ AVL_WMOM_PT_SUM : 4|16@1+ (1,-32000) [-32000|33535] "Nm" Vector__XXX
+ SG_ QU_AVL_WMOM_PT_SUM : 20|4@1+ (1,0) [0|1] "ENUM" Vector__XXX
+ SG_ AVL_WMOM_PT_SUM_DTORQ_BOT : 24|16@1+ (1,-32000) [-32000|33535] "Nm" Vector__XXX
+ SG_ AVL_WMOM_PT_SUM_DTORQ_TOP : 40|16@1+ (1,-32000) [-32000|33535] "Nm" Vector__XXX
+ SG_ ST_DRVDIR_DVCH : 56|4@1+ (1,0) [0|1] "ENUM" Vector__XXX
+
+BO_ 784 ID_0x310: 8 Vector__XXX
+
+BO_ 636 ID_0x27C: 8 Vector__XXX
+
+BO_ 2015 ID_0x7DF: 8 Vector__XXX
+
+BO_ 1987 ID_0x7C3: 8 Vector__XXX
+
+BO_ 1986 ID_0x7C2: 8 Vector__XXX
+
+BO_ 1937 ID_0x791: 8 Vector__XXX
+
+BO_ 1943 ID_0x797: 8 Vector__XXX
+
+BO_ 1927 ID_0x787: 8 Vector__XXX
+
+BO_ 1911 ID_0x777: 8 Vector__XXX
+
+BO_ 1895 ID_0x767: 8 Vector__XXX
+
+BO_ 1879 ID_0x757: 8 Vector__XXX
+
+BO_ 1863 ID_0x747: 8 Vector__XXX
+
+BO_ 1836 ID_0x72C: 8 Vector__XXX
+
+BO_ 1835 ID_0x72B: 8 Vector__XXX
+
+BO_ 1834 ID_0x72A: 8 Vector__XXX
+
+BO_ 1833 ID_0x729: 8 Vector__XXX
+
+BO_ 1832 ID_0x728: 8 Vector__XXX
+
+BO_ 1831 ID_0x727: 8 Vector__XXX
+
+BO_ 1830 ID_0x726: 8 Vector__XXX
+
+BO_ 1829 ID_0x725: 8 Vector__XXX
+
+BO_ 1828 ID_0x724: 8 Vector__XXX
+
+BO_ 1827 ID_0x723: 8 Vector__XXX
+
+BO_ 1826 ID_0x722: 8 Vector__XXX
+
+BO_ 1825 ID_0x721: 8 Vector__XXX
+
+BO_ 1812 ID_0x714: 8 Vector__XXX
+
+BO_ 1792 ID_0x700: 1 Vector__XXX
+
+BO_ 1742 ID_0x6CE: 8 Vector__XXX
+
+BO_ 1734 ID_0x6C6: 8 Vector__XXX
+
+BO_ 1730 ID_0x6C2: 8 Vector__XXX
+
+BO_ 1722 ID_0x6BA: 8 Vector__XXX
+
+BO_ 1652 ID_0x674: 8 Vector__XXX
+
+BO_ 1633 ID_0x661: 8 Vector__XXX
+
+BO_ 1632 ID_0x660: 8 Vector__XXX
+
+BO_ 1622 ID_0x656: 8 Vector__XXX
+
+BO_ 1621 ID_0x655: 8 Vector__XXX
+
+BO_ 1609 ID_0x649: 8 Vector__XXX
+
+BO_ 1608 ID_0x648: 8 Vector__XXX
+
+BO_ 1607 ID_0x647: 8 Vector__XXX
+
+BO_ 1606 ID_0x646: 8 Vector__XXX
+
+BO_ 1605 ID_0x645: 8 Vector__XXX
+
+BO_ 1604 ID_0x644: 8 Vector__XXX
+
+BO_ 1603 ID_0x643: 8 Vector__XXX
+
+BO_ 1602 ID_0x642: 8 Vector__XXX
+
+BO_ 1596 ID_0x63C: 8 Vector__XXX
+
+BO_ 1583 ID_0x62F: 8 Vector__XXX
+
+BO_ 1582 ID_0x62E: 8 Vector__XXX
+
+BO_ 1581 ID_0x62D: 8 Vector__XXX
+
+BO_ 1580 ID_0x62C: 8 Vector__XXX
+
+BO_ 1579 ID_0x62B: 8 Vector__XXX
+
+BO_ 1578 ID_0x62A: 8 Vector__XXX
+
+BO_ 1577 ID_0x629: 8 Vector__XXX
+
+BO_ 1576 ID_0x628: 8 Vector__XXX
+
+BO_ 1575 ID_0x627: 7 Vector__XXX
+
+BO_ 1574 ID_0x626: 8 Vector__XXX
+
+BO_ 1573 ID_0x625: 7 Vector__XXX
+
+BO_ 1572 ID_0x624: 8 Vector__XXX
+
+BO_ 1571 ID_0x623: 8 Vector__XXX
+
+BO_ 1570 ID_0x622: 8 Vector__XXX
+
+BO_ 1569 ID_0x621: 8 Vector__XXX
+
+BO_ 1568 ID_0x620: 8 Vector__XXX
+
+BO_ 1540 ID_0x604: 8 Vector__XXX
+
+BO_ 1539 ID_0x603: 8 Vector__XXX
+
+BO_ 1537 ID_0x601: 8 Vector__XXX
+
+BO_ 1536 ID_0x600: 8 Vector__XXX
+
+BO_ 1456 ID_0x5B0: 8 Vector__XXX
+
+BO_ 1432 ID_0x598: 8 Vector__XXX
+
+BO_ 1431 ID_0x597: 8 Vector__XXX
+
+BO_ 1428 ID_0x594: 4 Vector__XXX
+
+BO_ 1424 ID_0x590: 8 Vector__XXX
+
+BO_ 1418 ID_0x58A: 4 Vector__XXX
+
+BO_ 1386 ID_0x56A: 8 Vector__XXX
+
+BO_ 1355 ID_0x54B: 8 Vector__XXX
+
+BO_ 1312 ID_0x520: 8 Vector__XXX
+
+BO_ 1304 ID_0x518: 8 Vector__XXX
+
+BO_ 1303 ID_0x517: 8 Vector__XXX
+
+BO_ 1287 ID_0x507: 8 Vector__XXX
+
+BO_ 1176 ID_0x498: 8 Vector__XXX
+
+BO_ 1175 ID_0x497: 8 Vector__XXX
+
+BO_ 1089 ID_0x441: 8 Vector__XXX
+
+BO_ 1073 ID_0x431: 8 Vector__XXX
+
+BO_ 1088 ID_0x440: 8 Vector__XXX
+
+BO_ 1056 ID_0x420: 8 Vector__XXX
+
+BO_ 1048 ID_0x418: 8 Vector__XXX
+
+BO_ 1047 ID_0x417: 8 Vector__XXX
+
+BO_ 981 ID_0x3D5: 8 Vector__XXX
+
+BO_ 979 ID_0x3D3: 8 Vector__XXX
+
+BO_ 980 ID_0x3D4: 8 Vector__XXX
+
+BO_ 978 ID_0x3D2: 8 Vector__XXX
+
+BO_ 977 ID_0x3D1: 8 Vector__XXX
+
+BO_ 976 ID_0x3D0: 8 Vector__XXX
+
+BO_ 911 ID_0x38F: 8 Vector__XXX
+
+BO_ 877 ID_0x36D: 8 Vector__XXX
+
+BO_ 876 ID_0x36C: 8 Vector__XXX
+
+BO_ 870 ID_0x366: 5 Vector__XXX
+
+BO_ 872 ID_0x368: 8 Vector__XXX
+
+BO_ 867 ID_0x363: 1 Vector__XXX
+
+BO_ 866 ID_0x362: 5 Vector__XXX
+
+BO_ 865 ID_0x361: 3 Vector__XXX
+
+BO_ 864 ID_0x360: 5 Vector__XXX
+
+BO_ 861 ID_0x35D: 8 Vector__XXX
+
+BO_ 860 ID_0x35C: 8 Vector__XXX
+
+BO_ 849 ID_0x351: 8 Vector__XXX
+
+BO_ 807 ID_0x327: 8 Vector__XXX
+
+BO_ 806 ID_0x326: 8 Vector__XXX
+
+BO_ 805 ID_0x325: 8 Vector__XXX
+
+BO_ 804 ID_0x324: 8 Vector__XXX
+
+BO_ 803 ID_0x323: 8 Vector__XXX
+
+BO_ 802 ID_0x322: 8 Vector__XXX
+
+BO_ 801 ID_0x321: 8 Vector__XXX
+
+BO_ 800 ID_0x320: 8 Vector__XXX
+
+BO_ 792 ID_0x318: 1 Vector__XXX
+
+BO_ 787 ID_0x313: 8 Vector__XXX
+
+BO_ 786 ID_0x312: 8 Vector__XXX
+
+BO_ 785 ID_0x311: 8 Vector__XXX
+
+BO_ 670 ID_0x29E: 8 Vector__XXX
+
+BO_ 663 ID_0x297: 8 Vector__XXX
+
+BO_ 661 ID_0x295: 8 Vector__XXX
+
+BO_ 659 ID_0x293: 8 Vector__XXX
+
+BO_ 641 ID_0x281: 8 Vector__XXX
+
+BO_ 640 ID_0x280: 8 Vector__XXX
+
+BO_ 637 ID_0x27D: 8 Vector__XXX
+
+BO_ 635 ID_0x27B: 8 Vector__XXX
+
+BO_ 634 ID_0x27A: 8 Vector__XXX
+
+BO_ 625 ID_0x271: 8 Vector__XXX
+
+BO_ 624 ID_0x270: 8 Vector__XXX
+
+BO_ 621 ID_0x26D: 8 Vector__XXX
+
+BO_ 620 ID_0x26C: 8 Vector__XXX
+
+BO_ 617 ID_0x269: 8 Vector__XXX
+
+BO_ 616 ID_0x268: 8 Vector__XXX
+
+BO_ 613 ID_0x265: 8 Vector__XXX
+
+BO_ 612 ID_0x264: 8 Vector__XXX
+
+BO_ 609 ID_0x261: 8 Vector__XXX
+
+BO_ 608 ID_0x260: 8 Vector__XXX
+
+BO_ 605 ID_0x25D: 8 Vector__XXX
+
+BO_ 604 ObjInterest_1: 8 ARS300
+ SG_ Obj0RelLongSpd : 29|14@0+ (0.025,-128) [-128|128] "m/s"  RDU
+ SG_ Obj0Dist : 7|14@0+ (0.1,-512) [-512|512] "m"  RDU
+ SG_ Obj0LatDisplace : 9|12@0+ (0.1,-128) [-128|128] "m"  RDU
+
+BO_ 596 ID_0x254: 8 Vector__XXX
+
+BO_ 559 ID_0x22F: 8 Vector__XXX
+
+BO_ 549 ID_0x225: 2 Vector__XXX
+
+BO_ 545 ID_0x221: 8 Vector__XXX
+
+BO_ 543 ID_0x21F: 8 Vector__XXX
+
+BO_ 541 ID_0x21D: 8 Vector__XXX
+
+BO_ 539 ID_0x21B: 8 Vector__XXX
+
+BO_ 532 ID_0x214: 8 Vector__XXX
+
+BO_ 531 ID_0x213: 8 Vector__XXX
+
+BO_ 530 ID_0x212: 8 Vector__XXX
+
+BO_ 529 ID_0x211: 8 Vector__XXX
+
+BO_ 528 ID_0x210: 8 Vector__XXX
+
+BO_ 517 ID_0x205: 1 Vector__XXX
+
+BO_ 516 ID_0x204: 8 Vector__XXX
+
+BO_ 515 ID_0x203: 8 Vector__XXX
+
+BO_ 514 ID_0x202: 8 Vector__XXX
+
+BO_ 513 ID_0x201: 8 Vector__XXX
+
+BO_ 512 ID_0x200: 8 Vector__XXX
+
+BO_ 400 ID_0x190: 8 Vector__XXX
+
+BO_ 390 ID_0x186: 8 Vector__XXX
+
+BO_ 389 ID_0x185: 8 Vector__XXX
+
+BO_ 385 ID_0x181: 2 Vector__XXX
+
+BO_ 384 ID_0x180: 2 Vector__XXX
+
+BO_ 381 ID_0x17D: 2 Vector__XXX
+
+BO_ 380 ID_0x17C: 7 Vector__XXX
+
+BO_ 379 ID_0x17B: 7 Vector__XXX
+
+BO_ 378 ID_0x17A: 8 Vector__XXX
+
+BO_ 377 ID_0x179: 8 Vector__XXX
+
+BO_ 376 ID_0x178: 8 Vector__XXX
+
+BO_ 375 ID_0x177: 8 Vector__XXX
+
+BO_ 374 ID_0x176: 8 Vector__XXX
+
+BO_ 373 ID_0x175: 8 Vector__XXX
+
+BO_ 372 ID_0x174: 7 Vector__XXX
+
+BO_ 371 ID_0x173: 8 Vector__XXX
+
+BO_ 370 ID_0x172: 8 Vector__XXX
+
+BO_ 369 ID_0x171: 8 Vector__XXX
+
+BO_ 368 ID_0x170: 8 Vector__XXX
+
+BO_ 354 ID_0x162: 6 Vector__XXX
+
+BO_ 351 ID_0x15F: 8 Vector__XXX
+
+BO_ 340 ID_0x154: 8 Vector__XXX
+
+BO_ 338 ID_0x152: 8 Vector__XXX
+
+BO_ 337 ID_0x151: 8 Vector__XXX
+
+BO_ 336 ID_0x150: 8 Vector__XXX
+
+BO_ 328 ID_0x148: 8 Vector__XXX
+
+BO_ 326 ID_0x146: 3 Vector__XXX
+
+BO_ 324 ID_0x144: 8 Vector__XXX
+
+BO_ 322 ID_0x142: 8 Vector__XXX
+
+BO_ 321 ID_0x141: 3 Vector__XXX
+
+BO_ 320 ID_0x140: 8 Vector__XXX
+
+BO_ 309 ID_0x135: 8 Vector__XXX
+
+BO_ 308 ID_0x134: 8 Vector__XXX
+
+BO_ 306 ID_0x132: 8 Vector__XXX
+
+BO_ 296 ID_0x128: 8 Vector__XXX
+
+BO_ 294 ID_0x126: 2 Vector__XXX
+
+BO_ 292 ID_0x124: 8 Vector__XXX
+
+BO_ 290 ID_0x122: 8 Vector__XXX
+
+BO_ 288 ID_0x120: 8 Vector__XXX
+
+BO_ 256 ID_0x100: 8 Vector__XXX
+
+BO_ 167 ID_0xA7: 6 Vector__XXX
+
+BO_ 165 ID_0xA5: 7 Vector__XXX
+
+BO_ 163 ID_0xA3: 3 Vector__XXX
+
+BO_ 162 ID_0xA2: 8 Vector__XXX
+
+BO_ 161 ID_0xA1: 5 Vector__XXX
+
+BO_ 7 ID_0x7: 8 Vector__XXX
+
+BO_ 552 HAF_A9: 8 Gateway_vehicle2contiguard
+ SG_ WhlDir_RR_Stat : 54|2@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ WhlRPM_RR : 53|14@0+ (0.5,0) [0|8191] "rpm" Vector__XXX
+ SG_ WhlDir_RL_Stat : 38|2@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ WhlRPM_RL : 37|14@0+ (0.5,0) [0|8191] "rpm" Vector__XXX
+ SG_ WhlDir_FR_Stat : 22|2@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ WhlRPM_FR : 21|14@0+ (0.5,0) [0|8191] "rpm" Vector__XXX
+ SG_ WhlDir_FL_Stat : 6|2@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ WhlRPM_FL : 5|14@0+ (0.5,0) [0|8191] "rpm" Vector__XXX
+
+BO_ 544 HAF_A1: 8 Gateway_vehicle2contiguard
+ SG_ WhPlsRev m12 : 16|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ DiagMd : 62|2@1+ (1,0) [0|3] "" Vector__XXX
+ SG_ Lane_Cfg : 60|2@1+ (1,0) [0|3] "" Vector__XXX
+ SG_ Lane_Stat2 : 56|4@1+ (1,0) [0|15] "" Vector__XXX
+ SG_ VehDirReverse : 55|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ LRG_TargetAC : 54|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ TrckOffSpd : 53|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ Avl : 52|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ VehSp : 51|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ Sens_Turn : 50|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ LRG_Host_NA : 49|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ EngRun : 48|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ Odo16 : 39|16@0+ (2,0) [0|99998] "km" Vector__XXX
+ SG_ VehLinePack m8 : 29|2@1+ (1,0) [0|3] "" Vector__XXX
+ SG_ StRatio m0 : 24|8@1+ (0.1,10) [10|35.3] "" Vector__XXX
+ SG_ Eng m6 : 24|6@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ VehLineYear m8 : 24|5@1+ (1,2000) [2000|2029] "" Vector__XXX
+ SG_ WeightCenterAlt m9 : 24|8@1+ (0.01,0.3) [0.3|2.7] "m" Vector__XXX
+ SG_ WhlLoadDepend m11 : 24|8@1+ (0.1,0) [0|10] "%" Vector__XXX
+ SG_ VehModel m6 : 19|5@1+ (1,0) [0|31] "" Vector__XXX
+ SG_ Guard m9 : 18|2@1+ (1,0) [0|3] "" Vector__XXX
+ SG_ SensOffset m0 : 16|8@1+ (0.01,-1) [-1|1] "m" Vector__XXX
+ SG_ BodyStyle m6 : 16|3@1+ (1,0) [0|7] "" Vector__XXX
+ SG_ VehVersion m7 : 16|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ AWD m8 : 16|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ Country m9 : 16|2@1+ (1,0) [0|3] "" Vector__XXX
+ SG_ AxisLoad m11 : 16|8@1+ (0.01,0.2) [0.2|0.8] "%" Vector__XXX
+ SG_ WhlBase m1 : 22|15@0+ (0.001,1) [1|20] "m" Vector__XXX
+ SG_ SelfStGrdnt m2 : 16|9@0+ (0.001,0.1) [0.1|0.45] "°s²/m" Vector__XXX
+ SG_ TrckWidth_Ft m3 : 17|10@0+ (0.001,1) [1|2.02] "m" Vector__XXX
+ SG_ TrckWidth_R m4 : 17|10@0+ (0.001,1) [1|2.02] "m" Vector__XXX
+ SG_ WhlCircumDyn m5 : 18|11@0+ (0.001,1) [1|3.045] "m" Vector__XXX
+ SG_ VehWeight m10 : 23|16@0+ (1,0) [0|65534] "kg" Vector__XXX
+ SG_ SubId M : 4|4@1+ (1,0) [0|14] "" Vector__XXX
+ SG_ VehSpd : 3|12@0+ (0.1,0) [0|409.4] "km/h" Vector__XXX
+
+BO_ 548 HAF_A2: 8 Gateway_vehicle2contiguard
+ SG_ ASC_Avl : 46|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ StW_AnglSpd : 45|14@0+ (0.5,-2048) [-2048|2047] "°/s" Vector__XXX
+ SG_ StW_AnglSens_Stat : 30|2@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ StW_Angl : 29|14@0+ (0.5,-2048) [-2048|2047] "°" Vector__XXX
+ SG_ VehYawRate_Raw : 15|16@0+ (0.01,-327.68) [-327.68|327.66] "°/s" Vector__XXX
+ SG_ VehAccel_Y : 0|8@1+ (0.08,-10.24) [-10.24|10.08] "m/s²" Vector__XXX
+
+BO_ 550 HAF_A3: 8 Gateway_vehicle2contiguard
+ SG_ VSC_OFF : 61|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ VSC_ACT_BRE : 60|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ VSC_ACT : 59|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ TCS_ACT : 58|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ ABS_ACT4 : 57|1@1+ (1,0) [0|1] "-" Vector__XXX
+ SG_ ABS_ACT : 56|1@1+ (1,0) [0|1] "-" Vector__XXX
+ SG_ VehDirState : 51|2@1+ (1,0) [0|3] "" Vector__XXX
+ SG_ MC_A3 : 53|3@1+ (1,0) [0|7] "" Vector__XXX
+ SG_ Gear : 32|4@1+ (1,0) [0|15] "" Vector__XXX
+ SG_ Brk_Torque : 36|12@1+ (3,0) [0|12282] "Nm" Vector__XXX
+ SG_ PBRK_Stat : 48|3@1+ (1,0) [0|7] "" Vector__XXX
+ SG_ WhlPlsCnt_RR : 24|8@1+ (1,0) [0|254] "Impulses" Vector__XXX
+ SG_ WhlPlsCnt_RL : 16|8@1+ (1,0) [0|254] "Impulses" Vector__XXX
+ SG_ WhlPlsCnt_FR : 8|8@1+ (1,0) [0|254] "Impulses" Vector__XXX
+ SG_ WhlPlsCnt_FL : 0|8@1+ (1,0) [0|254] "Impulses" Vector__XXX
+
+BO_ 554 HAF_A4: 8 Gateway_vehicle2contiguard
+ SG_ ACCEL_PEDAL_TRAVEL : 56|7@1+ (1,0) [0|100] "%" Vector__XXX
+ SG_ RDU_ALIVE : 47|3@0+ (1,0) [0|7] "" Vector__XXX
+ SG_ ACC_SHUTOFF_ACK : 15|1@0+ (1,0) [0|1] "" Vector__XXX
+ SG_ ACC_REQ_LIM : 44|2@0+ (1,0) [0|3] "" Vector__XXX
+ SG_ ACC_OV : 14|2@0+ (1,0) [0|3] "" Vector__XXX
+ SG_ ACC_E : 12|2@0+ (1,0) [0|3] "" Vector__XXX
+ SG_ A_BASIS : 42|11@0+ (0.01,-10.23) [-10.23|10.23] "m/s2" Vector__XXX
+ SG_ DRIVER_BRAKING : 10|1@0+ (1,0) [0|1] "" Vector__XXX
+ SG_ VehAccel_X_Sen : 16|8@1+ (0.08,-10.24) [-10.24|10.08] "m/s²" Vector__XXX
+ SG_ Veh_Accel_X_Est : 0|10@1+ (0.03,-15.36) [-15.36|15.33] "m/s²" Vector__XXX
+ SG_ VehCourse : 24|16@1+ (7.6294E-006,-0.25) [-0.25|0.249992729] "1/m" Vector__XXX
+
+BO_ 1313 HAF_A6: 8 Gateway_vehicle2contiguard
+ SG_ RDU_U_BT : 40|8@1+ (0.1,0) [0|0] "V" Vector__XXX
+ SG_ selected_car : 62|2@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RDU_SW_BLTB_PSR : 60|2@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RDU_SW_BLTB_DRR : 58|2@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RDU_ST_KL_15 : 56|2@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RDU_Bremsdruck : 16|16@1+ (0.1,0) [0|0] "bar" Vector__XXX
+ SG_ RDU_ABS_Vref : 0|16@1+ (0.01,0) [0|0] "km/h" Vector__XXX
+ SG_ RDU_aSoll : 32|8@1+ (0.1,0) [0|0] "m/s²" Vector__XXX
+
+BO_ 1314 HAF_A7: 8 Gateway_vehicle2contiguard
+ SG_ Env_Temp : 32|8@1- (0.48828125,-40) [-40|85] "°C" Vector__XXX
+ SG_ SW_Config : 60|4@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ KO3_Kilometerstand_2 : 40|8@1+ (1,0) [0|255] "km" Vector__XXX
+ SG_ KO3_Kilometerstand_1 : 48|12@1+ (1,0) [0|4095] "km" Vector__XXX
+ SG_ RDU_ACC_WarnSignal : 31|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RDU_ACC_AnfahrFlag : 30|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RDU_HandsOff : 28|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RDU_ACC_Resume : 29|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RDU_DoorSwitch_rearPS : 27|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RDU_DoorSwitch_rearDR : 26|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RDU_DoorSwitch_PS : 25|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RDU_DoorSwitch_DR : 24|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RDU_Wischer : 23|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RDU_Licht_Stand : 16|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RDU_Licht_Nebelschluss : 20|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RDU_Licht_Nebel : 19|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RDU_Licht_Fern : 18|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RDU_Licht_Brems : 21|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RDU_Licht_Abblend : 17|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RDU_Blinker : 12|3@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RDU_Tacho_Speed : 0|12@1+ (0.1,0) [0|0] "kmh" Vector__XXX
+
+BO_ 1315 HAF_A8: 8 Gateway_vehicle2contiguard
+ SG_ RDU_FahrerLenkmoment : 0|16@1- (-0.000423868,0) [0|0] "Nm" Vector__XXX
+ SG_ Giergeschw : 16|16@1- (0.01,0) [0|100] "°/s" Vector__XXX
+ SG_ LRW : 32|16@1- (0.04375,0) [0|1433.55625] "°" Vector__XXX
+ SG_ LRW_Gesch : 48|16@1- (0.04375,0) [0|1433.55625] "°/s" Vector__XXX
+
+
+
+CM_ "Racelogic VBOX III";
+CM_ SG_ 397 ATTA_ESTI "Schwimmwinkel";
+CM_ SG_ 397 QU_VEH_DYNMC_DT_ESTI "Qualifier";
+CM_ SG_ 397 ATTA_ESTI_ERR_AMP "Schwimmwinkel Fehleramplitude";
+CM_ SG_ 397 ATTAV_ESTI "Schwimmwinkelgeschwindigkeit";
+CM_ SG_ 397 ATTAV_ESTI_ERR_AMP "Schwimmwinkel Fehleramplitude";
+CM_ SG_ 519 QU_TAR_BRTORQ_SUM "Qualifier Soll_Bremsmoment_Summe
+0 = 0xE0
+1 = 0x20
+2 = 0x24
+3 = 0x26";
+CM_ SG_ 519 RQ_TAO_SSM "Anforderung_Übernahme_Stillstandsmanagement
+Mit diesem Signal kann eine FAS Funktion die Übernahme durch das Stillstandsmanagement (SSM) anfordern, bzw. die Sicherung des Fahrzeuges im Stillstand durch hydraulisches oder mechanisches halten anfordern";
+CM_ SG_ 519 TAR_BRTORQ_SUM "Soll_Bremsmoment_Summe
+Sollwertvorgabe des radbezogenen Summenbremsmoments an das DSC-Steuergerät (unabhängig davon, ob es durch Reibbremse und/oder Bremsrekuperation umgesetzt wird).";
+CM_ SG_ 519 TAR_DIFF_BRTORQ_FTAX_YMR "Soll_Differenz_Bremsmoment_Vorderachse_Giermomentverteilung: Einzustellendes Raddifferenzbremsmoment der Giermomentverteilung an der Vorderachse. Ein positiver Wert erzeugt ein linksdrehendes Giermoment über die Vorderachse.";
+CM_ SG_ 519 TAR_DIFF_BRTORQ_BAX_YMR "Soll_Differenz_Bremsmoment_Hinterachse_Giermomentverteilung: Einzustellendes Raddifferenzbremsmoment der Giermomentverteilung an der Hinterachse. Ein positiver Wert erzeugt ein linksdrehendes Giermoment über die Hinterachse.";
+CM_ SG_ 519 FACT_TAR_COMPT_DRV_YMR "Faktor_Soll_Kompensation_Antrieb_Giermomentverteilung";
+CM_ SG_ 519 QU_TAR_DIFF_BRTORQ_YMR "Qualifier_Soll_Differenz_Bremsmoment_Giermomentverteilung";
+CM_ SG_ 518 TAR_WMOM_PT_SUM_DRS "Soll_Radmoment_Antriebsstrang_Summe_FAS: Dieses Signal beinhaltet das angefordert (koordinierte und plausibilisierte) antreibende Summen-Radmoment der Fahrerassistenzsysteme.";
+CM_ SG_ 518 QU_TAR_WMOM_PT_SUM_DRS "Qualifier_Soll_Radmoment_Antriebsstrang_Summe_FAS, Signaltabelle aus Nachrichtenkatalog entnehmen!";
+CM_ SG_ 518 TAR_STMOM_DV_ACT "Soll_Lenkmoment_Fahrer_Stellglied: Gestelltes Motormoment für den EPS Aktuator. Offsetmoment (+/-1Nm).";
+CM_ SG_ 518 QU_TAR_STMOM_DV_ACT "Qualifier_Soll_Lenkmoment_Fahrer_Stellglied";
+CM_ SG_ 557 AVL_BRTORQ_SUM_DVCH "Ist_Bremsmoment_Summe_Fahrerwunsch: Aktuelles radbezogenes Bremsmoment das der Fahrer über das Bremspedal versucht zu stellen.
+Ein negatives Bremsmoment entspricht einer Reibkraft entgegen der Fahrzeugbewegung.";
+CM_ SG_ 557 QU_AVL_BRTORQ_SUM_DVCH "Erweiterter Status Qualifier zum Signal Ist_Bremsmoment_Fahrerwunsch.";
+CM_ SG_ 557 AVL_ANG_ACPD_VIRT "Ist_Winkel_Fahrpedal_Virtuell: Dieses Signal überträgt den errechneten Fahrpedalwinkel, der sich aus der aktuellen Fahrgeschwindigkeitsregelung ergibt. Finden keine FAS-Eingriffe statt, entspricht der virtuelle Fahrpedalwinkel dem Ist-Winkel.";
+CM_ SG_ 557 ST_INTF_DRASY "Status_Schnittstelle_Fahrerassistenzsystem: Status zum Fahrpedal und zum Verhältnis der Fahreranforderung bzgl. der FAS-Anforderung.";
+CM_ SG_ 557 ST_KL "Status_Klemme: Klemmenstatus. Sowohl ein Klemmenstatus On als auch ein Klemmenstatus Change einer bestimmten Klemme impliziert automatisch den Klemmenzustand On aller durch niedrigere Codierungwerte beschriebenen Klemmen.";
+CM_ SG_ 557 ST_ENG_RUN_DRV "Status_Motor_Läuft_Antrieb";
+CM_ SG_ 557 ST_GRSEL_DRV "Status_Gangwahl_Antrieb: Das Signal gibt an, in welchem Gang sich das Getriebe zur Zeit befindet. Für den Fall, daß gerade eine Schaltung (Signal Status_Schaltung_Aktiv) abläuft, wird der Zielgang übertragen.";
+CM_ SG_ 556 AVL_WMOM_PT_SUM_RECUP_MAX "Summe von dem maximalen Schleppmoment Unten und Bremsrekuperationsmoment, das momentan zur Verfügung steht.";
+CM_ SG_ 556 AVL_WMOM_PT_SUM_MAX "Obere Grenze für die aktuell umsetzbare Anforderung des antreibenden Summen-Radmomentes bezogen auf die aktuell anliegenden Übersetzungsverhältnisse. Die Wirkrichtung des Radmoments wird durch den Getriebeabtrieb (vorwärts/rückwärts) festgelegt.";
+CM_ SG_ 556 ST_AVAI_INTV_PT_DRS "Status_Verfügbarkeit_Eingriff_Antriebsstrang_FAS
+Rückmeldung des Antriebsstranges ob Eingriffe bezüglich Fahrtrichtungswunsch oder Kraftschluss erlaubt sind. Dieses Signal ist Bestandteil der Domänenteilschnittstelle Zustand Antrieb";
+CM_ SG_ 556 ST_PENG_PT "Status_Kraftschluss_Antriebsstrang: Verallgemeinerte Information über die Kraftschlussverhältnisse zwischen Antrieb und den angetriebenen Rädern sowie zwischen Rad und Karosserie dar.";
+CM_ SG_ 556 REIN_PT "Verstärkung Antriebsstrang: Kinematische Übersetzung zwischen Verbrennungsmotor und der angetriebenen Räder.";
+CM_ SG_ 556 QU_REIN_PT "Erweiterter Status Qualifier zum Signal Verstärkung Antriebsstrang.";
+CM_ SG_ 555 AVL_WMOM_PT_SUM "Aktuell antreibendes Summen-Radmoment des Antriebsstrangs.";
+CM_ SG_ 555 QU_AVL_WMOM_PT_SUM "Erweiterter Status Qualifier zum Signal Ist_Radmoment_Antriebsstrang_Summe.";
+CM_ SG_ 555 AVL_WMOM_PT_SUM_DTORQ_BOT "Maximales Schleppmoment des Antriebs ausgehend vom aktuellen Betriebspunkt.";
+CM_ SG_ 555 AVL_WMOM_PT_SUM_DTORQ_TOP "Maximales Schleppmoment des Antriebs ausgehend vom aktuellen Betriebspunkt das kontinuierlich erreichbar ist.";
+CM_ SG_ 555 ST_DRVDIR_DVCH "Gibt die wahrscheinliche Fahrtrichtung des Fahrzeuges an.";
+CM_ SG_ 552 WhlDir_RR_Stat "Direction of rotation of rear right wheel";
+CM_ SG_ 552 WhlRPM_RR "Wheel rpm rear right";
+CM_ SG_ 552 WhlDir_RL_Stat "Direction of rotation of rear left wheel";
+CM_ SG_ 552 WhlRPM_RL "Wheel rpm rear left";
+CM_ SG_ 552 WhlDir_FR_Stat "Direction of rotation of front right wheel";
+CM_ SG_ 552 WhlRPM_FR "Wheel rpm front right";
+CM_ SG_ 552 WhlDir_FL_Stat "Direction of rotation of front left wheel";
+CM_ SG_ 552 WhlRPM_FL "Wheel rpm front left";
+CM_ SG_ 548 VehYawRate_Raw "Yaw rate unfiltered and without offset compensation.";
+CM_ SG_ 554 A_BASIS "Acceleration in x-direction (back to front)";
+CM_ SG_ 1313 RDU_U_BT "Main power supply voltage";
+CM_ SG_ 1313 RDU_SW_BLTB_PSR "Seatbelt passenger";
+CM_ SG_ 1313 RDU_SW_BLTB_DRR "Seatbelt driver";
+CM_ SG_ 1313 RDU_ST_KL_15 "Ignition on status";
+CM_ SG_ 1314 Env_Temp "Environmental Temperature [°C]";
+CM_ SG_ 1314 SW_Config "Bit 0 : = 1 Lenkwinkel; Lenkwinkelgeschw; YawRate werden auch auf RDU_A8 ausgegeben.
+          = 0 Signale kommen nur auf RDU_A2
+Bit 1: frei
+Bit 2: frei
+Bit 3: frei";
+CM_ SG_ 1314 KO3_Kilometerstand_2 "Kilometerstand
+Low Byte 6, High Byte 7 und in Byte 8 Bit 3..0 (additiv) ; Wertebereich geht bis (220 - 1), Fehler wird ausgegeben, falls Kilometerstand nicht restaurierbar
+0xFFFFF ist Fehler";
+CM_ SG_ 1314 KO3_Kilometerstand_1 "Kilometerstand
+Low Byte 6, High Byte 7 und in Byte 8 Bit 3..0 (additiv) ; Wertebereich geht bis (220 - 1), Fehler wird ausgegeben, falls Kilometerstand nicht restaurierbar
+0xFFFFF ist Fehler";
+BA_DEF_  "BusType" STRING ;
+BA_DEF_ BU_  "TpOwnSystemEcuNumber" HEX 0 255;
+BA_DEF_ BU_  "TpNodeBaseAddress" HEX 0 65535;
+BA_DEF_ BO_  "GenMsgStartValue" STRING ;
+BA_DEF_ SG_  "GenSigSNA" STRING ;
+BA_DEF_  "Version" HEX 0 255;
+BA_DEF_  "NmMessageCount" INT 0 64;
+BA_DEF_  "NWID" HEX 0 255;
+BA_DEF_  "NBTMax" INT 0 255;
+BA_DEF_  "NBTMin" INT 0 255;
+BA_DEF_  "SamplePointMax" FLOAT 0 100;
+BA_DEF_  "SamplePointMin" FLOAT 0 100;
+BA_DEF_ SG_  "RID" STRING ;
+BA_DEF_ BO_  "TpTxIndex" INT 0 99;
+BA_DEF_  "NWM-Basisadresse" HEX 0 536870911;
+BA_DEF_  "NWM-Typ" ENUM  "zentral (MB-W210)","dezentral (MB-OSAN)","keines","VAG-OSEK","BMW-OSEK","PAG-OSEK","DBAG-OSEK";
+BA_DEF_ BU_  "NWM-Stationsadresse" HEX 0 63;
+BA_DEF_ SG_  "FlexKomSigLaenge" INT 0 64;
+BA_DEF_ SG_  "FlexKomSigStartPos" INT 0 63;
+BA_DEF_ SG_  "FlexKomComment" STRING ;
+BA_DEF_ SG_  "FlexKomSigName" STRING ;
+BA_DEF_ SG_  "FlexKomSID" INT 0 65535;
+BA_DEF_ SG_  "GenSigStartValue" HEX 0 4294967295;
+BA_DEF_ SG_  "FlexKomSigStartValue" STRING ;
+BA_DEF_ SG_  "GenSigCycleTimeActive" INT 0 65535;
+BA_DEF_ SG_  "GenSigCycleTime" INT 0 65535;
+BA_DEF_ SG_  "GenSigSendType" ENUM  "cyclicX","spontanX","cyclicIfActiveX","spontanWithDelay","cyclicAndSpontanX","cyclicAndSpontanWithDelay","spontanWithRepitition","cyclicIfActiveAndSpontanWD","cyclicIfActiveFast","cyclicWithRepeatOnDemand","none";
+BA_DEF_ BO_  "GenMsgNrOfRepetitions" INT 0 65535;
+BA_DEF_ BO_  "GenMsgDelayTime" INT 0 65535;
+BA_DEF_ BO_  "GenMsgStartDelayTime" INT 0 65535;
+BA_DEF_ BO_  "GenMsgCycleTimeActive" INT 0 65535;
+BA_DEF_ BO_  "GenMsgCycleTime" INT 0 65535;
+BA_DEF_ BO_  "GenMsgSendType" ENUM  "cyclicX","spontanX","cyclicIfActiveX","spontanWithDelay","cyclicAndSpontanX","cyclicAndSpontanWithDelay","spontanWithRepitition","cyclicIfActiveAndSpontanWD","cyclicIfActiveFast","cyclicWithRepeatOnDemand","none";
+BA_DEF_  "Baudrate" INT 0 1000000;
+BA_DEF_  "VersionWeek" INT 0 53;
+BA_DEF_  "VersionYear" INT 0 99;
+BA_DEF_  "Manufacturer" ENUM  "DBAG","VAG","BMWAG","PAG","GM";
+BA_DEF_DEF_  "BusType" "";
+BA_DEF_DEF_  "TpOwnSystemEcuNumber" 0;
+BA_DEF_DEF_  "TpNodeBaseAddress" 0;
+BA_DEF_DEF_  "GenMsgStartValue" "";
+BA_DEF_DEF_  "GenSigSNA" "";
+BA_DEF_DEF_  "Version" 192;
+BA_DEF_DEF_  "NmMessageCount" 64;
+BA_DEF_DEF_  "NWID" 11;
+BA_DEF_DEF_  "NBTMax" 21;
+BA_DEF_DEF_  "NBTMin" 9;
+BA_DEF_DEF_  "SamplePointMax" 81.25;
+BA_DEF_DEF_  "SamplePointMin" 75;
+BA_DEF_DEF_  "RID" "";
+BA_DEF_DEF_  "TpTxIndex" 0;
+BA_DEF_DEF_  "NWM-Basisadresse" 1024;
+BA_DEF_DEF_  "NWM-Typ" "keines";
+BA_DEF_DEF_  "NWM-Stationsadresse" 0;
+BA_DEF_DEF_  "FlexKomSigLaenge" 0;
+BA_DEF_DEF_  "FlexKomSigStartPos" 0;
+BA_DEF_DEF_  "FlexKomComment" "";
+BA_DEF_DEF_  "FlexKomSigName" "";
+BA_DEF_DEF_  "FlexKomSID" 0;
+BA_DEF_DEF_  "GenSigStartValue" 0;
+BA_DEF_DEF_  "FlexKomSigStartValue" "";
+BA_DEF_DEF_  "GenSigCycleTimeActive" 0;
+BA_DEF_DEF_  "GenSigCycleTime" 0;
+BA_DEF_DEF_  "GenSigSendType" "";
+BA_DEF_DEF_  "GenMsgNrOfRepetitions" 0;
+BA_DEF_DEF_  "GenMsgDelayTime" 0;
+BA_DEF_DEF_  "GenMsgStartDelayTime" 0;
+BA_DEF_DEF_  "GenMsgCycleTimeActive" 0;
+BA_DEF_DEF_  "GenMsgCycleTime" 0;
+BA_DEF_DEF_  "GenMsgSendType" "";
+BA_DEF_DEF_  "Baudrate" 500000;
+BA_DEF_DEF_  "VersionWeek" 28;
+BA_DEF_DEF_  "VersionYear" 6;
+BA_DEF_DEF_  "Manufacturer" "DBAG";
+BA_ "BusType" "CAN";
+BA_ "Version" 192;
+BA_ "NmMessageCount" 64;
+BA_ "NWID" 11;
+BA_ "NBTMax" 21;
+BA_ "NBTMin" 9;
+BA_ "SamplePointMax" 81.25;
+BA_ "SamplePointMin" 75;
+BA_ "Baudrate" 500000;
+BA_ "NWM-Basisadresse" 1024;
+BA_ "VersionWeek" 28;
+BA_ "VersionYear" 6;
+BA_ "NWM-Typ" 2;
+BA_ "Manufacturer" 0;
+BA_ "NWM-Stationsadresse" BU_ Gateway_vehicle2contiguard 0;
+BA_ "TpOwnSystemEcuNumber" BU_ Gateway_vehicle2contiguard 0;
+BA_ "TpNodeBaseAddress" BU_ Gateway_vehicle2contiguard 0;
+BA_ "GenMsgCycleTime" BO_ 519 10;
+BA_ "GenMsgCycleTime" BO_ 518 10;
+BA_ "GenMsgCycleTime" BO_ 557 20;
+BA_ "GenMsgCycleTime" BO_ 556 20;
+BA_ "GenMsgCycleTime" BO_ 555 20;
+BA_ "GenMsgStartValue" BO_ 552 "FFFFFFFFFFFFFFFFh";
+BA_ "GenMsgNrOfRepetitions" BO_ 552 0;
+BA_ "GenMsgDelayTime" BO_ 552 20;
+BA_ "GenMsgCycleTime" BO_ 552 20;
+BA_ "GenMsgSendType" BO_ 552 0;
+BA_ "GenMsgCycleTime" BO_ 544 20;
+BA_ "GenMsgCycleTime" BO_ 548 20;
+BA_ "GenMsgCycleTime" BO_ 550 20;
+BA_ "GenMsgCycleTime" BO_ 554 20;
+BA_ "GenMsgCycleTime" BO_ 1313 20;
+BA_ "GenMsgCycleTime" BO_ 1314 20;
+BA_ "GenMsgCycleTimeActive" BO_ 1315 10;
+BA_ "GenMsgCycleTime" BO_ 1315 20;
+BA_ "GenSigStartValue" SG_ 518 TAR_STMOM_DV_ACT 2000;
+BA_ "GenSigStartValue" SG_ 557 AVL_BRTORQ_SUM_DVCH 32;
+BA_ "GenSigSNA" SG_ 552 WhlDir_RR_Stat "3h";
+BA_ "FlexKomComment" SG_ 552 WhlDir_RR_Stat "Front and rear wheels state, part 2";
+BA_ "FlexKomSigName" SG_ 552 WhlDir_RR_Stat "Whl_Stat2";
+BA_ "FlexKomSigLaenge" SG_ 552 WhlDir_RR_Stat 64;
+BA_ "FlexKomSigStartPos" SG_ 552 WhlDir_RR_Stat 7;
+BA_ "FlexKomSID" SG_ 552 WhlDir_RR_Stat 184549427;
+BA_ "GenSigStartValue" SG_ 552 WhlDir_RR_Stat 3;
+BA_ "FlexKomSigStartValue" SG_ 552 WhlDir_RR_Stat "FFFFFFFFFFFFFFFFh";
+BA_ "GenSigCycleTime" SG_ 552 WhlDir_RR_Stat 20;
+BA_ "GenSigSendType" SG_ 552 WhlDir_RR_Stat 0;
+BA_ "GenSigSNA" SG_ 552 WhlRPM_RR "3FFFh";
+BA_ "FlexKomComment" SG_ 552 WhlRPM_RR "Front and rear wheels state, part 2";
+BA_ "FlexKomSigName" SG_ 552 WhlRPM_RR "Whl_Stat2";
+BA_ "FlexKomSigLaenge" SG_ 552 WhlRPM_RR 64;
+BA_ "FlexKomSigStartPos" SG_ 552 WhlRPM_RR 7;
+BA_ "FlexKomSID" SG_ 552 WhlRPM_RR 184549427;
+BA_ "GenSigStartValue" SG_ 552 WhlRPM_RR 16383;
+BA_ "FlexKomSigStartValue" SG_ 552 WhlRPM_RR "FFFFFFFFFFFFFFFFh";
+BA_ "GenSigCycleTime" SG_ 552 WhlRPM_RR 20;
+BA_ "GenSigSendType" SG_ 552 WhlRPM_RR 0;
+BA_ "GenSigSNA" SG_ 552 WhlDir_RL_Stat "3h";
+BA_ "FlexKomComment" SG_ 552 WhlDir_RL_Stat "Front and rear wheels state, part 2";
+BA_ "FlexKomSigName" SG_ 552 WhlDir_RL_Stat "Whl_Stat2";
+BA_ "FlexKomSigLaenge" SG_ 552 WhlDir_RL_Stat 64;
+BA_ "FlexKomSigStartPos" SG_ 552 WhlDir_RL_Stat 7;
+BA_ "FlexKomSID" SG_ 552 WhlDir_RL_Stat 184549427;
+BA_ "GenSigStartValue" SG_ 552 WhlDir_RL_Stat 3;
+BA_ "FlexKomSigStartValue" SG_ 552 WhlDir_RL_Stat "FFFFFFFFFFFFFFFFh";
+BA_ "GenSigCycleTime" SG_ 552 WhlDir_RL_Stat 20;
+BA_ "GenSigSendType" SG_ 552 WhlDir_RL_Stat 0;
+BA_ "GenSigSNA" SG_ 552 WhlRPM_RL "3FFFh";
+BA_ "FlexKomComment" SG_ 552 WhlRPM_RL "Front and rear wheels state, part 2";
+BA_ "FlexKomSigName" SG_ 552 WhlRPM_RL "Whl_Stat2";
+BA_ "FlexKomSigLaenge" SG_ 552 WhlRPM_RL 64;
+BA_ "FlexKomSigStartPos" SG_ 552 WhlRPM_RL 7;
+BA_ "FlexKomSID" SG_ 552 WhlRPM_RL 184549427;
+BA_ "GenSigStartValue" SG_ 552 WhlRPM_RL 16383;
+BA_ "FlexKomSigStartValue" SG_ 552 WhlRPM_RL "FFFFFFFFFFFFFFFFh";
+BA_ "GenSigCycleTime" SG_ 552 WhlRPM_RL 20;
+BA_ "GenSigSendType" SG_ 552 WhlRPM_RL 0;
+BA_ "GenSigSNA" SG_ 552 WhlDir_FR_Stat "3h";
+BA_ "FlexKomComment" SG_ 552 WhlDir_FR_Stat "Front and rear wheels state, part 2";
+BA_ "FlexKomSigName" SG_ 552 WhlDir_FR_Stat "Whl_Stat2";
+BA_ "FlexKomSigLaenge" SG_ 552 WhlDir_FR_Stat 64;
+BA_ "FlexKomSigStartPos" SG_ 552 WhlDir_FR_Stat 7;
+BA_ "FlexKomSID" SG_ 552 WhlDir_FR_Stat 184549427;
+BA_ "GenSigStartValue" SG_ 552 WhlDir_FR_Stat 3;
+BA_ "FlexKomSigStartValue" SG_ 552 WhlDir_FR_Stat "FFFFFFFFFFFFFFFFh";
+BA_ "GenSigCycleTime" SG_ 552 WhlDir_FR_Stat 20;
+BA_ "GenSigSendType" SG_ 552 WhlDir_FR_Stat 0;
+BA_ "GenSigSNA" SG_ 552 WhlRPM_FR "3FFFh";
+BA_ "FlexKomComment" SG_ 552 WhlRPM_FR "Front and rear wheels state, part 2";
+BA_ "FlexKomSigName" SG_ 552 WhlRPM_FR "Whl_Stat2";
+BA_ "FlexKomSigLaenge" SG_ 552 WhlRPM_FR 64;
+BA_ "FlexKomSigStartPos" SG_ 552 WhlRPM_FR 7;
+BA_ "FlexKomSID" SG_ 552 WhlRPM_FR 184549427;
+BA_ "GenSigStartValue" SG_ 552 WhlRPM_FR 16383;
+BA_ "FlexKomSigStartValue" SG_ 552 WhlRPM_FR "FFFFFFFFFFFFFFFFh";
+BA_ "GenSigCycleTime" SG_ 552 WhlRPM_FR 20;
+BA_ "GenSigSendType" SG_ 552 WhlRPM_FR 0;
+BA_ "GenSigSNA" SG_ 552 WhlDir_FL_Stat "3h";
+BA_ "FlexKomComment" SG_ 552 WhlDir_FL_Stat "Front and rear wheels state, part 2";
+BA_ "FlexKomSigName" SG_ 552 WhlDir_FL_Stat "Whl_Stat2";
+BA_ "FlexKomSigLaenge" SG_ 552 WhlDir_FL_Stat 64;
+BA_ "FlexKomSigStartPos" SG_ 552 WhlDir_FL_Stat 7;
+BA_ "FlexKomSID" SG_ 552 WhlDir_FL_Stat 184549427;
+BA_ "GenSigStartValue" SG_ 552 WhlDir_FL_Stat 3;
+BA_ "FlexKomSigStartValue" SG_ 552 WhlDir_FL_Stat "FFFFFFFFFFFFFFFFh";
+BA_ "GenSigCycleTime" SG_ 552 WhlDir_FL_Stat 20;
+BA_ "GenSigSendType" SG_ 552 WhlDir_FL_Stat 0;
+BA_ "GenSigSNA" SG_ 552 WhlRPM_FL "3FFFh";
+BA_ "FlexKomComment" SG_ 552 WhlRPM_FL "Front and rear wheels state, part 2";
+BA_ "FlexKomSigName" SG_ 552 WhlRPM_FL "Whl_Stat2";
+BA_ "FlexKomSigLaenge" SG_ 552 WhlRPM_FL 64;
+BA_ "FlexKomSigStartPos" SG_ 552 WhlRPM_FL 7;
+BA_ "FlexKomSID" SG_ 552 WhlRPM_FL 184549427;
+BA_ "GenSigStartValue" SG_ 552 WhlRPM_FL 16383;
+BA_ "FlexKomSigStartValue" SG_ 552 WhlRPM_FL "FFFFFFFFFFFFFFFFh";
+BA_ "GenSigCycleTime" SG_ 552 WhlRPM_FL 20;
+BA_ "GenSigSendType" SG_ 552 WhlRPM_FL 0;
+BA_ "GenSigStartValue" SG_ 1314 Env_Temp 82;
+BA_ "GenSigStartValue" SG_ 1315 RDU_FahrerLenkmoment 0;
+VAL_ 397 QU_VEH_DYNMC_DT_ESTI 8 "Initialisierung" 2 "Wert gültig" 4 "Ersatzwert (Low-Speed)" 12 "Ersatzwert (Dreher)" 15 "Signal ungültig" ;
+VAL_ 519 QU_TAR_BRTORQ_SUM 255 "ungültig" 224 "Standby - nicht umsetzen" 38 "Aktiv - Sicherheit + Anfahren" 36 "Aktiv - Komfort + Anfahren" 34 "Aktiv - Sicherheit" 32 "Aktiv - Komfort" ;
+VAL_ 519 RQ_TAO_SSM 15 "Sendefkt nicht aktiv" 1 "SSM führen, nicht mech sichern" 0 "SSM nicht führen" ;
+VAL_ 519 TAR_DIFF_BRTORQ_FTAX_YMR 4095 "SNA" ;
+VAL_ 519 TAR_DIFF_BRTORQ_BAX_YMR 4095 "SNA" ;
+VAL_ 519 FACT_TAR_COMPT_DRV_YMR 255 "SNA" ;
+VAL_ 519 QU_TAR_DIFF_BRTORQ_YMR 8 "Initialisierung" 2 "Sollwert umsetzen" 6 "Sollwert nicht umsetzen, Fehler" 14 "Sollwert nicht umsetzen, Standby" 7 "Sollwert nicht vorhanden" 15 "Signal ungültig" ;
+VAL_ 518 TAR_WMOM_PT_SUM_DRS 65535 "SNA" ;
+VAL_ 518 TAR_STMOM_DV_ACT 4095 "SNA" ;
+VAL_ 518 QU_TAR_STMOM_DV_ACT 2 "Sollwerte umsetzen Es wird ein Lenkmoment angefordert." 7 "Sollwerte nicht vorhanden Wird immer gesetzt wenn keine EPS verbaut ist" 14 "Standby: Sollwerte nicht umsetzen Es wird kein Moment angefordert. Wird auch im Fehlerfall gesetzt." 15 "Signal ungültig Wird nicht aktiv gesetzt" ;
+VAL_ 557 AVL_BRTORQ_SUM_DVCH 65535 "SNA" ;
+VAL_ 557 QU_AVL_BRTORQ_SUM_DVCH 8 "Initialisierung Beim SG-Aufstart bis Istwert verfügbar (Vorbefüllung)" 2 "Signalwert ist gültig Normalzustand, Bereitstellung unabhängig von Reglerzustand" 4 "Ersatzwert ist im Nutzsignal gesetzt nach Init während Verwendung z.B. Default-cp (qualitative Bewertung, keine quantitative)" 12 "Abgleichwert ist im Nutzsignal gesetzt, Zustand/Status temporär z.B. aufgrund des Pumpentests ist eine Plausibilsierung des Nutzsignals nicht möglich. (Umrechnung des Vordrucks in Wert mit Defaultwert im Auftstartvorgang), maximal 3 Zyklen" 6 "Signalwert ist ungültig Fehler, keine Signalberechnung möglich" 15 "Signal ungültig Nutzung nur vom Gateway, nicht seitens Sender-SG" 1 "reserviert" 9 "reserviert" 10 "reserviert" 3 "reserviert" 11 "reserviert" 14 "reserviert" 7 "reserviert" ;
+VAL_ 557 AVL_ANG_ACPD_VIRT 4095 "SNA" ;
+VAL_ 557 ST_INTF_DRASY 8 "Initialisierung" 0 "Keine Fahrpedal-(Fahrer-)anforderung, keine FASAnforderung" 1 "Fahrpedal-(Fahrer-) anforderung, keine FASAnforderung" 3 "Fahrpedal-(Fahrer-) anforderung größer FASAnforderung" 6 "Fahrpedal-(Fahrer-) anforderung größer Fluchtschwelle SLD-Betrieb" 7 "Fahrpedal-(Fahrer-) anforderung kleiner FASAnforderung" 2 "Keine Fahrpedal-(Fahrer-) anforderung, FAS-Anforderung" 15 "Signal ungültig" ;
+VAL_ 557 ST_KL 0 "Init" 1 "Reserve" 2 "KL30 Alle Klemmen aus" 3 "KL30F-Änderung" 4 "KL30F-Ein" 5 "KL30B-Änderung" 6 "KL30B-Ein" 7 "KLR-Änderung" 8 "KLR-Ein" 9 "KL15-Änderung" 10 "KL15-Ein" 11 "KL50-Verzögerung Komfortstart aktiv, Diesel vorglühen, Motor-Relais anziehen" 12 "KL50-Änderung" 13 "KL50-Ein" 14 "Fehler" 15 "Signal ungültig" ;
+VAL_ 557 ST_ENG_RUN_DRV 0 "Motor aus" 1 "Motor startet" 2 "Motor läuft" 3 "SNA" ;
+VAL_ 557 ST_GRSEL_DRV 0 "Initialisierung" 1 "N Kein Kraftschluß" 2 "R Rückwärtgang" 3 "P Kein Kraftschluß (Nur EGS)" 5 "1 1.Gang" 6 "2 2.Gang" 7 "3 3.Gang" 8 "4 4.Gang" 9 "5 5.Gang" 10 "6 6.Gang" 11 "7 7.Gang" 12 "8 8. Gang" 13 "9 9. Gang (wird derzeit nur in Hybridfahrzeugen verwendet)" 15 "Signal ungültig" ;
+VAL_ 556 AVL_WMOM_PT_SUM_RECUP_MAX 65535 "SNA" ;
+VAL_ 556 AVL_WMOM_PT_SUM_MAX 65535 "SNA" ;
+VAL_ 556 ST_AVAI_INTV_PT_DRS 0 "Eingriff nicht erlaubt wegen GWS" 1 "Eingriff erlaubt" 2 "Eingriff nicht erlaubt" 3 "Signal ungültig" ;
+VAL_ 556 ST_PENG_PT 0 "Initialisierung" 1 "Keine Kraftschlussinfo ermittelbar: Motor aus, AT nicht in P, kein Kraftschluss ermittelbar" 4 "Voller Kraftschluss Antrieb Rad: Kraftschluss vorhanden" 8 "Teilweiser Kraftschluss Antrieb Rad, automatischer Schaltvorgang aktiv: Teilweiser Kraftschluss, Schaltvorgang AT" 9 "Teilweiser Kraftschluss Antrieb Rad, manueller Schaltvorgang aktiv: Teilweiser Kraftschluss, 10%-Kupplungsschalter/kein AT" 12 "Kein Kraftschluss Antrieb Rad, ausgekuppelt: Kein Kraftschluss, N" 13 "Kein Kraftschluss Antrieb Rad,manueller Schaltvorgang aktiv: Kein Kraftschluss, Handschalter" 14 "Kein Kraftschluss Antrieb Rad, Kraftschluss Rad - Karosserie: Information variantenabhängig (Typ Parkbremse) AT in P" 15 "Signal ungültig" ;
+VAL_ 556 REIN_PT 4095 "SNA" ;
+VAL_ 556 QU_REIN_PT 8 "Initialisierung" 1 "reserviert" 9 "reserviert" 2 "Signalwert ist gültig: Normalzustand" 10 "Signalwert ist gültig: Zustand/Status temporär: Motor kann kein Schleppmoment aufnehmen" 3 "Signalqualität bzw. Überwachung eingeschränkt: Sensor oder Aktorfehler (z.B. Raddrehzahl) beeinträchtigen die Signalqualität." 11 "reserviert" 4 "reserviert" 12 "Abgleichwert ist im Nutzsignal gesetzt Zustand/Status temporär: Signalwert nicht ermittelbar. Abgleichwert wird versandt." 6 "Signalwert ist ungültig Fehlerfall" 14 "reserviert" 7 "reserviert" 15 "Signal ungültig Darf ausschließlich durch ein Gateway gesetzt werden" ;
+VAL_ 555 AVL_WMOM_PT_SUM 65535 "SNA" ;
+VAL_ 555 QU_AVL_WMOM_PT_SUM 12 "reserviert" 11 "reserviert" 10 "gültig, Zustand temporär" 8 "Initialisierung" 3 "Signalqualität eingeschränkt" 2 "gültig" 1 "reserviert" ;
+VAL_ 555 AVL_WMOM_PT_SUM_DTORQ_BOT 65535 "SNA" ;
+VAL_ 555 AVL_WMOM_PT_SUM_DTORQ_TOP 65535 "SNA" ;
+VAL_ 555 ST_DRVDIR_DVCH 0 "Initialisierung" 2 "Kein Fahrtrichtungswunsch vorhanden, Park oder Neutral, beim Handschalter: kein Kraftschluss" 4 "Fahrtrichtungswunsch vorwärts, CVT: Gang 1-9, Handschalter: kein Rückwärtsgang und Kraftschluss erkannt" 5 "Fahrtrichtungswunsch rückwärts, Rückwärtsgang" 15 "Signal ungültig" ;
+VAL_ 552 WhlDir_RR_Stat 3 "SNA" 2 "BACKWARD" 1 "FORWARD" 0 "VOID" ;
+VAL_ 552 WhlRPM_RR 16383 "SNA" ;
+VAL_ 552 WhlDir_RL_Stat 3 "SNA" 2 "BACKWARD" 1 "FORWARD" 0 "VOID" ;
+VAL_ 552 WhlRPM_RL 16383 "SNA" ;
+VAL_ 552 WhlDir_FR_Stat 3 "SNA" 2 "BACKWARD" 1 "FORWARD" 0 "VOID" ;
+VAL_ 552 WhlRPM_FR 16383 "SNA" ;
+VAL_ 552 WhlDir_FL_Stat 3 "SNA" 2 "BACKWARD" 1 "FORWARD" 0 "VOID" ;
+VAL_ 552 WhlRPM_FL 16383 "SNA" ;
+VAL_ 544 WhPlsRev 255 "SNA" ;
+VAL_ 544 DiagMd 3 "REM_DIAG" 2 "HOST_DIAG" 1 "LINE_DIAG" 0 "NO_DIAG" ;
+VAL_ 544 Lane_Cfg 3 "RES3" 2 "ONLY_EXT" 1 "ADD_EXT" 0 "NO_EXT" ;
+VAL_ 544 Odo16 65535 "SNA" ;
+VAL_ 544 VehLinePack 3 "PACKX" 2 "PACK2" 1 "PACK1" 0 "PACK0" ;
+VAL_ 544 StRatio 255 "SNA" ;
+VAL_ 544 VehLineYear 31 "START" 30 "NDEF30" ;
+VAL_ 544 WeightCenterAlt 255 "SNA" ;
+VAL_ 544 WhlLoadDepend 255 "SNA" ;
+VAL_ 544 Guard 3 "SNA" 2 "B6" 1 "B4" 0 "NO" ;
+VAL_ 544 SensOffset 255 "SNA" ;
+VAL_ 544 AxisLoad 255 "SNA" ;
+VAL_ 544 WhlBase 32767 "SNA" ;
+VAL_ 544 SelfStGrdnt 511 "SNA" ;
+VAL_ 544 TrckWidth_Ft 1023 "SNA" ;
+VAL_ 544 TrckWidth_R 1023 "SNA" ;
+VAL_ 544 WhlCircumDyn 2047 "SNA" ;
+VAL_ 544 VehWeight 65535 "SNA" ;
+VAL_ 544 SubId 15 "SNA" 14 "RES14" 13 "RES13" 12 "RES12" 11 "WTICKS" 10 "WEIGHT" 9 "VEH_INF2" 8 "VEH_INF1" 7 "VEH_VERS" 6 "VEH_ID" 5 "DWHL_CIRC" 4 "TWRA" 3 "TWFA" 2 "SELF_ST_GRAD" 1 "WHL_B" 0 "SOFFS_STRAT" ;
+VAL_ 544 VehSpd 4095 "SNA" ;
+VAL_ 548 StW_AnglSpd 16383 "SNA" ;
+VAL_ 548 StW_AnglSens_Stat 3 "ERR_INI" 2 "ERR" 1 "INI" 0 "OK" ;
+VAL_ 548 StW_Angl 16383 "SNA" ;
+VAL_ 548 VehYawRate_Raw 65535 "SNA" ;
+VAL_ 548 VehAccel_Y 255 "SNA" ;
+VAL_ 550 VehDirState 3 "SNA" 2 "REVERSE" 1 "FORWARD" 0 "VOID" ;
+VAL_ 550 Gear 15 "SNA" 14 "Not defined" 13 "P" 12 "R2" 11 "R1" 10 "R" 9 "Not defined" 8 "Not defined" 7 "D7" 6 "D6" 5 "D5" 4 "D4" 3 "D3" 2 "D2" 1 "D1" 0 "N" ;
+VAL_ 550 Brk_Torque 4095 "Description for the value '0x0'" ;
+VAL_ 550 PBRK_Stat 7 "SNA" 6 "Not defined" 5 "Parking brake manually engaged" 4 "Parking brake is released" 3 "Parking brake is engaged" 2 "Decreasing braking action" 1 "Increasing braking action" 0 "Not defined" ;
+VAL_ 550 WhlPlsCnt_RR 255 "SNA" ;
+VAL_ 550 WhlPlsCnt_RL 255 "SNA" ;
+VAL_ 550 WhlPlsCnt_FR 255 "SNA" ;
+VAL_ 550 WhlPlsCnt_FL 255 "SNA" ;
+VAL_ 554 ACC_REQ_LIM 3 "SNA" 2 "Deceleration limited" 1 "Acceleration limited" 0 "No limitation" ;
+VAL_ 554 ACC_OV 3 "SNA" 2 "Override by deceleration pedal" 1 "Override by acceleration pedal" 0 "No override" ;
+VAL_ 554 VehAccel_X_Sen 255 "SNA" ;
+VAL_ 554 Veh_Accel_X_Est 1023 "SNA" ;
+VAL_ 554 VehCourse 65535 "SNA" ;
+VAL_ 1313 RDU_U_BT 255 "SNA" ;
+VAL_ 1313 RDU_SW_BLTB_PSR 2 "frei" 1 "gesteckt" 0 "nicht gesteckt" 3 "SNA" ;
+VAL_ 1313 RDU_SW_BLTB_DRR 2 "frei" 1 "gesteckt" 0 "nicht gesteckt" 3 "SNA" ;
+VAL_ 1313 RDU_ST_KL_15 3 "SNA" 1 "Klemme_50_aktiv" 0 "Grundzustand" ;
+VAL_ 1313 RDU_Bremsdruck 65535 "SNA" ;
+VAL_ 1313 RDU_ABS_Vref 65535 "SNA" ;
+VAL_ 1314 RDU_Blinker 7 "SNA" 3 "beide ein" 2 "rechts ein" 1 "links ein" 0 "aus" ;
+VAL_ 1314 RDU_Tacho_Speed 4095 "SNA" ;
+
