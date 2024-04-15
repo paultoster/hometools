@@ -1,14 +1,18 @@
-addpath('./tools_matlab_tb');
+addpath('K:/tools/hometools/octave/Freiwilligenprogramm/tools_matlab_tb');
 
 csv_delimter    = ';';
-csv_filename    = 'einkommen.csv';
+csv_filename_a    = 'aufstellung.csv';
+csv_filename_u    = 'uebersicht.csv';
 
-erster_monat    = num_monat('01.01.2024');
-letzter_monat   = num_monat('01.07.2025');
+erster_monat     = num_monat('01.01.2024');
+letzter_monat    = num_monat('01.4.2025');
+erster_monat_frei    = num_monat('1.6.2024');
+erster_monat_rente   = num_monat('01.8.2025');
 
 brutto_monat    = 8100;
+turbo_factor    = 3;
 
-erster_monat_frei = num_monat('01.08.2025');
+
 
 
 s = bilde_struct_mit_monat_jahr(erster_monat,letzter_monat);
@@ -17,46 +21,35 @@ for i=1:n
 
   fprintf('%s %s \n',s(i).monat,s(i).jahr);
 
-  if( s(i).imonat < erster_monat_frei )
+  if( s(i).imonat < (erster_monat_frei-1) )
+
     s(i) = berechne_abgaben_monat_arbeit(s(i),brutto_monat);
+
+
+  elseif(s(i).imonat == (erster_monat_frei-1))
+
+    s(i) = berechne_abgaben_monat_abfindung(s(i),brutto_monat,erster_monat_rente,erster_monat_frei,turbo_factor);
+
+  elseif(s(i).imonat < erster_monat_rente)
+
+    s(i) = berechne_abgaben_monat_frei(s(i));
+
   else
     s(i) = berechne_abgaben_monat_arbeit(s(i),brutto_monat);
   end
+
+  % berechne jahres summe und sbrechnung
+  s    = berechne_abgaben_jahr(s,i);
 
   fprintf('brutto: %15.2f € netto: %15.2f € \n',s(i).brutto,s(i).netto);
 
 end
 
-c_txt = {};
+c_csv = build_csv_output(s,n,csv_delimter);
+okay = write_ascii_file( csv_filename_a, c_csv );
 
-t = ['datum',csv_delimter];
-for i=1:n
-  t = [t,s(i).monat,' ',s(i).jahr];
-  if( i < n )
-    t = [t,csv_delimter];
-  end
-end
-c_txt = cell_add(c_txt,t);
-%--------------------------
-t = ['brutto',csv_delimter];
-for i=1:n
-  t = [t,str_change_f(num2str(s(i).brutto,'%10.2f'),'.',',')];
-  if( i < n )
-    t = [t,csv_delimter];
-  end
-end
-c_txt = cell_add(c_txt,t);
-%--------------------------
-t = ['netto',csv_delimter];
-for i=1:n
-  t = [t,str_change_f(num2str(s(i).netto,'%10.2f'),'.',',')];
-  if( i < n )
-    t = [t,csv_delimter];
-  end
-end
-c_txt = cell_add(c_txt,t);
+c_ueber = build_csv_uebersicht(s,n,csv_delimter,brutto_monat,erster_monat_frei,erster_monat_rente-1);
+okay = write_ascii_file( csv_filename_a, c_ueber );
 
-
-okay = write_ascii_file( csv_filename, c_txt );
 
 

@@ -12,7 +12,7 @@ function [lohnsteuer,kirchensteuer, soli] = jahres_steuer(brutto_jahr)
     lohnsteuer =  (922.98 * y + 1400) * y;
   elseif( brutto_jahr < 66760 )
     y = (brutto_jahr - 17005) / 10000;
-    lohnsteuer =  (181.19 * z + 2397) * z + 1025.38;
+    lohnsteuer =  (181.19 * y + 2397) * y + 1025.38;
   elseif( brutto_jahr < 277825 )
     lohnsteuer = 0.42 * brutto_jahr - 10602.13;
   else
@@ -20,7 +20,7 @@ function [lohnsteuer,kirchensteuer, soli] = jahres_steuer(brutto_jahr)
   end
 
   % Korrektur aus meiner Abbrechnung
-  lohnsteuer = lohnsteuer * 0.7652;
+  lohnsteuer = lohnsteuer * 1.0; % 0.7652;
 
   kirchensteuer = lohnsteuer * 0.09 * 0.89; % Korrektur aus meiner Abbrechnung
   soli = lohnsteuer * 0.025185 * 0.83;
