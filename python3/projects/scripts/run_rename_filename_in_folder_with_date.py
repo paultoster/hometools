@@ -1,8 +1,13 @@
 # -*- coding: cp1252 -*-
 # rename path and filenames and content
 #
-import os,re
-from hfkt_func import hfkt as h
+import sys,os,re
+
+tools_path = os.getcwd() + "\\.."
+if( tools_path not in sys.path ):
+    sys.path.append(tools_path)
+
+from tools import hfkt as h
 
 def find_date(fbody):
 
@@ -82,44 +87,47 @@ def change_body_name(fullfile,fbody):
 
   return new_fbody
 #enddef
-start_dir_vorschlag=os.getcwd()
-# start_dir_vorschlag="M:/pdata/Bank/Consors/2018"
 
-start_dir = h.abfrage_dir(comment="In welchem Verzeichnis Datum in Filename bringen",start_dir=start_dir_vorschlag)
+if __name__ == '__main__':
 
-liste = []
-liste = h.get_liste_of_subdir_files(start_dir,liste=liste)
+  # start_dir_vorschlag=os.getcwd()
+  start_dir_vorschlag="M:/pdata/Bank/ING/2024"
 
-for fullfile in liste:
+  start_dir = h.abfrage_dir(comment="In welchem Verzeichnis Datum in Filename bringen",start_dir=start_dir_vorschlag)
 
-  (path,fbody,ext) = h.get_pfe(fullfile)
+  liste = []
+  liste = h.get_liste_of_subdir_files(start_dir,liste=liste)
 
+  for fullfile in liste:
 
-  # check if first 8 digits are not a date
-  try:
-    i0 = int(fbody[0:8])
-    # a = h.is_datum_str(h.datum_int_to_str(i0))
-  except:
-    i0 = 0
-    # a = h.is_datum_str(h.datum_int_to_str(i0))
-  #endtry
-
-  if( not h.is_datum_str(h.datum_int_to_str(i0)) ):
-
-    new_fbody = change_body_name(fullfile,fbody)
+    (path,fbody,ext) = h.get_pfe(fullfile)
 
 
-    fullfile_new = h.set_pfe(p=path,b=new_fbody,e=ext)
+    # check if first 8 digits are not a date
+    try:
+      i0 = int(fbody[0:8])
+      # a = h.is_datum_str(h.datum_int_to_str(i0))
+    except:
+      i0 = 0
+      # a = h.is_datum_str(h.datum_int_to_str(i0))
+    #endtry
 
-    os.rename(fullfile,fullfile_new)
+    if( not h.is_datum_str(h.datum_int_to_str(i0)) ):
+
+      new_fbody = change_body_name(fullfile,fbody)
 
 
-    print(f"file: {fbody}{'.'}{ext} new: {new_fbody}{'.'}{ext})")
-  else:
+      fullfile_new = h.set_pfe(p=path,b=new_fbody,e=ext)
 
-    print(f"no change file: {fbody}{'.'}{ext} ")
-#endfor
+      os.rename(fullfile,fullfile_new)
 
+
+      print(f"file: {fbody}{'.'}{ext} new: {new_fbody}{'.'}{ext})")
+    else:
+
+      print(f"no change file: {fbody}{'.'}{ext} ")
+  #endfor
+#endif
 
 
 print("---- Ende ----")
