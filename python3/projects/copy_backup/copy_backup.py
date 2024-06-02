@@ -5,9 +5,13 @@
 import os, sys, shutil, sys, time, array
 from stat import *
 
-tools_path = os.getcwd() + "\\.."
+# tools_path = os.getcwd() + "\\.."
+t=__file__.split(os.sep)
+t[0]=t[0]+os.sep
+tools_path = os.path.join(*(t[0:len(t)-2]))
+
 if( tools_path not in sys.path ):
-    sys.path.append(tools_path)
+  sys.path.append(tools_path)
 
 from tools import hfkt as h
 

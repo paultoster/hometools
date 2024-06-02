@@ -3,7 +3,9 @@ rem
 rem verschiedene Befhel um mit pip Module zu installieren
 rem ------------------------------------------------------
 
-python -m pip install --upgrade pip
+python -m pip install yahoo_fin
+
+rem python -m pip install --upgrade pip
 
 rem python -m pip install numpy matplot
 

@@ -24,6 +24,7 @@
  (path,fbody,ext) = get_pfe(full_file): Gibt Pfad,Filebody und Extension zurück
  fullfilename = set_pfe(path,filebody,ext)
  fullfilename = set_pfe(path,filename)
+ leaves_path_name = get_path_leaves(full_path_name,root_path_name)
  def remove_dir_all(dir_name): Löscht den Pfad
  def remove_named_dir(dir_name,delete_name,recursive): Loescht von dir_name die Ordber delete_name rekursiv oder nicht weg
  def is_textfile(filename, blocksize = 512) checks if file is an text-file
@@ -446,7 +447,33 @@ def set_pfe(p="",b="",e=""):
 
 
     return full_file_name
+def get_path_leaves(full_path_name,root_path_name):
 
+    leaves_path_name = ""
+    
+    rlist = root_path_name.split(os.sep)
+    flist = full_path_name.split(os.sep)
+    icount = 0
+    for i in range(len(rlist)):
+        if( len(flist) > i ):
+            t1 = rlist[i]
+            t2 = flist[i]
+            if (os.sep == "\\"):
+                t1 = rlist[i].lower()
+                t2 = flist[i].lower()
+            #endif
+            if( t1 == t2 ):
+                icount += 1
+            #endif
+        #endif
+    #endif
+    if( len(rlist) == icount ):
+        leaves_path_name = os.path.join(*flist[icount:])
+    #endif
+    
+    return leaves_path_name
+    
+#enddef
 
 def remove_dir_all(dir_name):
 

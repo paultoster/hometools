@@ -13,23 +13,25 @@ import sys
 import os
 import shutil
 
-tools_path = os.getcwd() + "\\.."
+t=__file__.split(os.sep)
+t[0]=t[0]+os.sep
+tools_path = os.path.join(*(t[0:len(t)-2]))
 if( tools_path not in sys.path ):
     sys.path.append(tools_path)
 
 from tools import hfkt_file_path as hfp
 from tools import hfkt_str as hs
 
-md_dir = "K:/data/md/"
+md_dir = "K:\\data\\md\\"
 nmd_dir = len(md_dir)
 
-script_dir = "K:/media/mdscripts"
+script_dir = "K:\\media\\wort\\mdscripts"
 
 def main(item):
 
-  sfilename = hs.change_max(item,"\\","/")
+  # sfilename = hs.change_max(item,"\\","/")
 
-  tleaf =  sfilename[nmd_dir:]
+  tleaf =  item[nmd_dir:]
 
   tfilename = os.path.join(script_dir,tleaf)
 
@@ -46,8 +48,8 @@ def main(item):
     #try
   #endif
 
-  shutil.move(sfilename,tfilename)
-  print(f"{sfilename} -> {tfilename}")
+  shutil.move(item,tfilename)
+  print(f"{item} -> {tfilename}")
 
 if __name__ == '__main__':
 
