@@ -47,12 +47,12 @@ class CCanvasData:
 
       if( ratio_w > ratio_h ):
         self.ratio_canvas_to_screen = 1./ratio_w
-        self.screen_width  = maxscreenwidth;
+        self.screen_width  = maxscreenwidth
         self.screen_height = int(float(self.point_height)*self.ratio_canvas_to_screen)
       else:
         self.ratio_canvas_to_screen = 1./ratio_h
         self.screen_width = int(float(self.point_width)*self.ratio_canvas_to_screen)
-        self.screen_height  = maxscreenheight;
+        self.screen_height  = maxscreenheight
 
       CanvasData.ratio_width_to_height = float(CanvasData.point_height)/float(CanvasData.point_width)
     #enddef

@@ -123,9 +123,9 @@ else:
   for i,item in enumerate(p_list): t_path += item + os.sep
   if( os.path.normpath(t_path) not in sys.path ): sys.path.append(t_path)
 
-  from hfkt import sstr
-  from hfkt import hfkt     as h
-  from hfkt import hfkt_def as hdef
+  from tools import sstr
+  from tools import hfkt     as h
+  from tools import hfkt_def as hdef
 #endif--------------------------------------------------------------------------
 
 OK     = 1
@@ -167,14 +167,14 @@ def abfrage_liste_indexListe(liste,title=None):
 
 class abfrage_liste_class:
   """
-    Gui Abfrgae einer Liste, es k�nnen Buttons erstellt werden
+    Gui Abfrgae einer Liste, es können Buttons erstellt werden
     der Abfrage von listeAbfrage (default ['okay','cancel'])
     z.B.
     liste = ["abc","def","ghi",jkl"]
     listeAbfrage = ["cancel","gut"]
     obj   = sgui.abfrage_liste(liste,listeAbfrage)
 
-    R�ckgabe:
+    Rückgabe:
     obj.index        erster Index
     obj.indexListe   Liste mit index zu vorgegebenen Liste
     obj.indexAbfrage index der Abfrage Liste

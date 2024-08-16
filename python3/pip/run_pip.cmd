@@ -3,7 +3,11 @@ rem
 rem verschiedene Befhel um mit pip Module zu installieren
 rem ------------------------------------------------------
 
-python -m pip install yahoo_fin
+python -m pip install pandas_datareader
+
+rem python -m pip install my-stocks
+
+rem python -m pip install yahoo_fin
 
 rem python -m pip install --upgrade pip
 
