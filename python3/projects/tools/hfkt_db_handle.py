@@ -298,7 +298,7 @@ def getKey(s):
   return s[I0_GETKEY]
 
 class dbhandle:
-  PRIMARY_KEY_NAME = u"key"
+  PRIMARY_KEY_NAME = hdef.PRIMARY_KEY_NAME
   DELIM_TABLINK    = "@"
   OKAY     = hdef.OK
   NOT_OKAY = hdef.NOT_OK

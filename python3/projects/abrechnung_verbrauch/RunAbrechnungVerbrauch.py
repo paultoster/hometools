@@ -10,12 +10,19 @@
 #-------------------------------------------------------------------------------
 import sys,os
 
-import tools_path as tp
 
-if( tp.tools_path not in sys.path ):
-    sys.path.append(tp.tools_path)
-    
-from abrechnung_verbrauch import AbrechnungVerbrauch as av
+
+tools_path = os.getcwd() + "\\.."
+if( tools_path not in sys.path ):
+    sys.path.append(tools_path)
+
+t_path, _ = os.path.split(__file__)
+if (t_path == os.getcwd()):
+  import AbrechnungVerbrauch as av
+else:
+  from abrechnung_verbrauch import AbrechnungVerbrauch as av
+#endif
+
 # Hilfsfunktionen
 from tools import hfkt as h
 from tools import hfkt_def as hdef

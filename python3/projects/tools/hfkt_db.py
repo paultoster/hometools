@@ -13,7 +13,10 @@
 # db.errText
 #
 # db.has_log_text()
-# db.get_log_text()
+# db.get_log_text
+#
+# db.has_err_text()
+# db.get_err_text()
 #
 # db.exist_table(tabname)
 #   return True/False
@@ -188,6 +191,19 @@ class db:
     else:
       self.logText += text
 
+#===============================================================================
+#===============================================================================
+  def get_err_text(self):
+    err_text = self.errText
+    self.errText = ""
+    return err_text
+#===============================================================================
+#===============================================================================
+  def has_err_text(self):
+    if( len(self.errText) > 0 ):
+      return True
+    else:
+      return False
 #===============================================================================
 #===============================================================================
   def data_base_is_modified(self):

@@ -57,7 +57,7 @@ else:
   for i,item in enumerate(p_list): t_path += item + os.sep
   if( os.path.normpath(t_path) not in sys.path ): sys.path.append(t_path)
 
-  from hfkt import sgui
+  import sgui
   from hfkt import hfkt     as h
 #endif--------------------------------------------------------------------------
 

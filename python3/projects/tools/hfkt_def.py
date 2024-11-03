@@ -21,3 +21,5 @@ DEF_VEC    = 4;
 
 
 DEFAULT_PYTHON_DIR = "D:\\tools_tb\\python3"
+
+PRIMARY_KEY_NAME = u"key"
