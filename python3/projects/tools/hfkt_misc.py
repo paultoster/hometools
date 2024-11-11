@@ -3,7 +3,7 @@
 # 18.06.23 von hfkt.py
 #############################
 
-###################################################################################
+##################################################################################
 # Sonstiges
 ###################################################################################
 '''
@@ -19,6 +19,7 @@
  def str_datum(int_dat):
  secs = secs_akt_time_epoch()
  secs = secs_time_epoch_from_int(intval)
+ secs = secs_time_epoch_from_str_re(str_dat)
  secs = secs_time_epoch_from_str(str_dat,delim=".")
  secs = secs_time_epoch_from_int(intval,plus_hours)
  string = secs_time_epoch_to_str(secs): Wandelt in string Datum
@@ -61,12 +62,12 @@ from tkinter import *
 from tkinter.constants import *
 import tkinter.filedialog
 import tkinter.messagebox
-import tkinter.tix
 import string
 import types
 import copy
 import sys
 import os
+import re
 import stat
 import time
 import datetime
@@ -260,6 +261,44 @@ def secs_time_epoch_from_int(intval,plus_hours=0):
   liste = datum_int_to_intliste(intval)
   t = (liste[2], liste[1], liste[0], plus_hours, 0, 0, 0, 0, 0)
   return time.mktime( t )
+
+def secs_time_epoch_from_str_re(str_dat):
+  """
+  Das Str-Datum  (z.B. "17.12.2004", "17-12-2004", "17/12/2004") wird mit re versucht zu erkennen und
+  in Sekunden in epochaler Zeit umgerechnet
+  secs = secs_time_epoch_from_str_datefinder(str_dat)
+  """
+  pattern = r"\b([1-9]|0[1-9]|1[0-9]|2[0-9]|3[0-1])[-/\.]([1-9]|0[1-9]|[12]\d|3[01])[-/\.](19\d\d|20\d\d|\d\d)\b"
+  form    = "%d.%m.%Y"
+
+  dates = re.findall(pattern, str_dat)
+  liste = []
+  for d in dates:
+    strdat = d[0]+"."+d[1]+"."
+    if( len(d) == 2 ):
+      strdat += str(datetime.datetime.now().year)
+    else:
+      if( len(d[2]) <= 2 ):
+        strdat += "20"+d[2]
+      else:
+        strdat += d[2]
+      #endif
+    #endif
+
+    t = datetime.datetime.strptime(strdat, form)
+    liste.append(int(t.timestamp()))
+  # endfor
+  
+  if( len(liste) == 1 ):
+    return liste[0]
+  elif( len(liste) > 1 ):
+    return liste
+  else:
+    return int(0)
+  #endif
+#enddef
+#----------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------
 def secs_time_epoch_from_str(str_dat,delim="."):
   """
   Das Str-Datum intval (z.B. "17.12.2004") wird in Sekunden in epochaler Zeit umgerechnet
@@ -841,20 +880,45 @@ def add_constant(ll,value):
 # testen mit main
 ###########################################################################
 if __name__ == '__main__':
-    fullpathname = 'https://files.realpython.com/media/haversine_formula_150.fb2b87d122a4.png'
-    t = get_last_subdir_name(fullpathname)
+  
+    
+    string_with_dates = "05.10.23"
+    
+    
+    text = " Oder aber 01.11.65 Das Datum ist 09/02/2023 und der andere Termin ist am 12-12-2024  "
 
-    (p,b,e) = get_pfe('https://files.realpython.com/media/haversine_formula_150.fb2b87d122a4.png')
-    str_replace("abcdefghi","12",8,2)
 
-    #secs_time_epoch_from_str('14.01.2020')
-    liste = string_to_num_list('[1.2, 3.2, 4.55]')
-    print(liste)
-    t = "abcd|efgh"
-    liste = split_text(t,"|")
-    print(t)
-    print(liste)
-    print("gdgdg")
+    epochdate =  secs_time_epoch_from_str_re(text)
+
+
+    print(epochdate,secs_time_epoch_to_str(epochdate))
+
+
+    # pattern = r"\b(0[1-9]|1[0-9]|2[0-9]|3[0-1])[-/\.](0[1-9]|[12]\d|3[01])[-/\.](19\d\d|20\d\d|\d\d)\b"
+    # dates = re.findall(pattern, text)
+    # for d in dates:
+    #  s = d[0]
+    #  s += "."+d[1]
+    #  if( len(d[2]) == 2 ):
+    #    s += ".20" + d[2]
+    #  else:
+    #    s += "." + d[2]
+    #  #endif
+
+    # fullpathname = 'https://files.realpython.com/media/haversine_formula_150.fb2b87d122a4.png'
+    # t = get_last_subdir_name(fullpathname)
+    #
+    # (p,b,e) = get_pfe('https://files.realpython.com/media/haversine_formula_150.fb2b87d122a4.png')
+    # str_replace("abcdefghi","12",8,2)
+    #
+    # #secs_time_epoch_from_str('14.01.2020')
+    # liste = string_to_num_list('[1.2, 3.2, 4.55]')
+    # print(liste)
+    # t = "abcd|efgh"
+    # liste = split_text(t,"|")
+    # print(t)
+    # print(liste)
+    # print("gdgdg")
     #i0 = such("abcdef",'cd',"vs")
     #b=get_free_size('d:\\temp')
     #liste = get_parent_path_dirs('d:\\temp\\Grid')

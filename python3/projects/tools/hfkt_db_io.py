@@ -1,7 +1,5 @@
 # -*- coding: cp1252 -*-
 #
-# 19.10.24  init ähnlich
-#
 # hfkt_db_iohfkt_db_hande, aber ohne die Definitionstabelle
 #
 # dbfile                 Dateiname des db-Files
@@ -14,6 +12,7 @@
 #  CEL_TYPE_NAME[i]       Liste mit zugehörigen Typen
 #
 #     hdb.DB_DATA_TYPE_DATUM       Datum-Typ
+#     hdb.DB_DATA_TYPE_PRIMKEY     prime key of data set
 #     hdb.DB_DATA_TYPE_STR         String-Typ
 #     hdb.DB_DATA_TYPE_FLOAT       Float-Typ
 #     hdb.DB_DATA_TYPE_INT         Integer-Typ
@@ -21,8 +20,10 @@
 #     hdb.DB_DATA_TYPE_CENT        Integer-Typ  as Cent
 #     hdb.BD_DATA_TYPE_EURO        Float-Type in Euro
 #
-# Functionen
+# Funktionen
 #
+# allgemeine Funktionen =================================================================================
+#========================================================================================================
 # dbio = hdbio.dbio(dbdatafile)              Klasse anlegen mit dabdatafile und öffnen
 #
 #                                            if not dbio.status == dbio.NOT_OKAY
@@ -38,7 +39,31 @@
 #
 # get_celldef(tabname) -> list               get cell definition of table
 #
+# neues Datenset für eine Tabelle kreieren ================================================================
+#==========================================================================================================
+#
 # dlist = dbio.create_datalist(tabname) -> list  creat a empty list of table tabname
+#
+# dlist.add_data(cellname,data) -> status       add to dlist one cell
+#
+# status = dlist.add_to_table()                 addd dlist to table
+#==========================================================================================================
+# ddict = dbio.get_data(tabname)
+#
+#      Gesamten Inhalt der Tabelle ausgeben in einem dictionary
+#     mit  ddict[Zellname] = [], ...
+#
+#     Inhalt der Tabelle abfragen, iype1 = 0, itype2=None:   gesamte Tabelle
+#     (header_liste,data_liste) = dbh.get_tab_data(tabelename) <= nix
+#        header_liste : m x 1  m rows/Zellen
+#        data_liste   : n x m  n DatensÃ¤tze
+#     (header_liste,data_liste) = dbh.get_tab_data(tabelename,cellname) <= string
+#        header_liste : 1
+#        data_liste   : n x 1
+#    (header_liste,data_liste) = dbh.get_tab_data(tabelename,cellnames_liste) <= liste
+#        header_liste : m x 1
+#        data_liste   : n x m
+  #==========================================================================================================
 #-----------------------------------------------------------------------------------------------------------------------------------------
 # Beispiel TAbelle erstellen:
 #
@@ -57,21 +82,24 @@
 #   dlist = dbio.create_datalist(tabname)
 #   if( dbio.status != dbio.OKAY ) =>
 #
+#   Erstelle einen neuen Tabelleneintrag
+#   dlist = dbio.create_datalist(tabname)
+#
 #   Fülle alle Werte ein
 #   dlist.add_data("Datum","12.01.2003")
 #   dlist.add_data("Wert",20.31)
 #   dlist.add_data("Menge",100)
 #   dlist.add_data("Comment","erste Buchung")
-#   dlist.add_data("key@Material",11)
+#   dlist.add_to_table("key@Material",11)
 #   if( dlist.status != dlist.OKAY ) =>
 #
 #   Speichere die daten liste in Tabelle
-#   dlist.store_in_table()
+#   dlist.add_to_table()
 #   if( dlist.status != dlist.OKAY ) =>
 #   delete dlist
 #
 #-----------------------------------------------------------------------------------------------------------------------
-# interne definition
+# interne Definition
 #
 # # self.DbDefTab[i]                  i = 0, ... , self.nDbDefTab - 1
 # # self.DbDefTab[i].name             Name
@@ -102,6 +130,7 @@ if( t_path == os.getcwd() ):
   import hfkt_def as hdef
   import hfkt_ini as hini
   import hfkt_db  as hdb
+  import hfkt_misc  as hm
 else:
   p_list     = os.path.normpath(t_path).split(os.sep)
   if( len(p_list) > 1 ): p_list = p_list[ : -1]
@@ -113,6 +142,7 @@ else:
   from tools_path import hfkt_def as hdef
   from tools_path import hfkt_ini as hini
   from tools_path import hfkt_db  as hdb
+  from tools_path import hfkt_misc as hm
 #endif--------------------------------------------------------------------------
 
 
@@ -120,9 +150,15 @@ DB_TAB_TYPE_BUILD     = 0
 DB_TAB_TYPE_SCHABLONE = 1
 DB_TAB_TYPE_STRING_LISTE = ["DB_TAB_TYPE_BUILD","DB_TAB_TYPE_SCHABLONE"]
 I0_GETKEY = 0
+DELIM_TABLINK    = "@"
 def getKey(s):
   return s[I0_GETKEY]
 
+#-----------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------
+#-------- class data_list             -----------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------
 class data_list:
   PRIMARY_KEY_NAME = hdef.PRIMARY_KEY_NAME
   OKAY     = hdef.OK
@@ -132,12 +168,14 @@ class data_list:
   status   = hdef.OK
   dataList = []
   defTab   = None
-  def __init__(self, deftab):
+  db       = None
+  def __init__(self, deftab, db):
     '''
       Build a new data set with zeros and ""
       :param deftab: definition of the table
     '''
     self.defTab   = deftab
+    self.db       = db
     self.dataList = self.set_empty_values()
   #enddef
   def set_empty_values(self):
@@ -154,62 +192,104 @@ class data_list:
     #     hdb.BD_DATA_TYPE_EURO        Float-Type in Euro
     data_list = []
     for defcell in self.defTab.cells:
-      if(  (defcell.datatype == hdb.DB_DATA_TYPE_DATUM) \
-        or (defcell.datatype == hdb.DB_DATA_TYPE_INT) \
-        or (defcell.datatype == hdb.DB_DATA_TYPE_KEY) \
-        or (defcell.datatype == hdb.DB_DATA_TYPE_CENT) \
+      if(  (defcell.datatype == hdb.DB_DATA_TYPE_DATUM)
+        or (defcell.datatype == hdb.DB_DATA_TYPE_INT)
+        or (defcell.datatype == hdb.DB_DATA_TYPE_KEY)
+        or (defcell.datatype == hdb.DB_DATA_TYPE_CENT)
         ):
         data_list.append(0)
       elif( defcell.datatype == hdb.DB_DATA_TYPE_STR ):
         data_list.append("")
-      else:
+      elif(  (defcell.datatype == hdb.DB_DATA_TYPE_FLOAT)
+          or (defcell.datatype == hdb.DB_DATA_TYPE_EURO)):
         data_list.append(0.0)
+      # primekey not
       #endif
     #endfor
     return data_list
   #enddef
-  def set_cell(self,cellname,data):
+  def add_data(self,cellname,data):
     '''
       set values in data_list for collecting all input for one data set
       :param cellname:   Name of cell to fill
       :param data:       data of cell to fill
-      :return:           nothing
+      :return:           status
     '''
+    icell = 0
+    flag = True
     for defcell in self.defTab.cells:
-      flag = True
+      if( (defcell.datatype == hdb.DB_DATA_TYPE_KEY)):
+        (cname, tablink) = seperate_tablink(cellname)
+        if(   (len(defcell.tablelink) > 0)
+          and (tablink ==  defcell.tablelink)):
+          cellname = cname
+        #endif
+      #endif
       if( cellname == defcell.name ): # gefunden
-        self.dataList.append([defcell.name,self.convert_value(defcell,data)])
+        self.dataList[icell] = self.convert_value(defcell,data)
         flag = False
         break
+      else:
+        icell += 1
       #endif
     #endfor
+    
     if( flag ):
       self.status  = self.NOT_OKAY
       self.errText = "In dictionary d ist die Zelle <%s> nicht vorhanden (nach DbDefTab wird diese benoetigt)" % defcell.name
       return self.status
     #endif
+    
+    
   #enddef
-  #===============================================================================
-  #===============================================================================
+  def add_to_table(self):
+    """
+      Add dataset to the defined table
+      :return: status
+    """
+    # db_liste mit unterliste Zellname und Datum erstellen
+    db_liste = []
+    for i, data in enumerate(self.dataList):
+      vliste = [self.defTab.cells[i].name,data]
+      db_liste.append(vliste)
+    #endfor
+    if (self.db.add_new_data_set(self.defTab.name, db_liste) != self.db.OKAY):
+      self.errText += self.db.errText
+      self.status = self.NOT_OKAY
+      return self.status
+    # endif
+    return self.status
+  #enddef
   def convert_value(self,defcell,value):
     """
     Konvertiert Wert, wenn notwendig
     return converted value
     """
-    if(  (defcell.datatype == hdb.DB_DATA_TYPE_PRIMKEY) \
-      or (defcell.datatype == hdb.DB_DATA_TYPE_DATUM)       \
-      or (defcell.datatype == hdb.DB_DATA_TYPE_INT)         \
-      or (defcell.datatype == hdb.DB_DATA_TYPE_CENT)         \
-      or (defcell.datatype == hdb.DB_DATA_TYPE_KEY)         \
+    if(  (defcell.datatype == hdb.DB_DATA_TYPE_PRIMKEY)
+      or (defcell.datatype == hdb.DB_DATA_TYPE_INT)
+      or (defcell.datatype == hdb.DB_DATA_TYPE_CENT)
+      or (defcell.datatype == hdb.DB_DATA_TYPE_KEY)
       ):
       conv_value = int(value)
+    elif ((defcell.datatype == hdb.DB_DATA_TYPE_DATUM)):
+      if(isinstance(value,str)):
+        conv_value = hm.secs_time_epoch_from_str_re(value)
+      elif(isinstance(value,int) ):
+        conv_value = value
+      else:
+        self.errText = "In Tabelle: konnte aus der Zelle: <%s> nicht der type(%i) umgesetzt werden " % (
+        defcell.name, defcell.type)
+        self.status = self.NOT_OKAY
+        conv_value = -1.0
+      #endif
     elif(  (defcell.datatype == hdb.DB_DATA_TYPE_STR) ):
       if( not isinstance(value, str) ):
         conv_value = h.to_unicode(str(value))
       else:
         conv_value = h.to_unicode(value)
       #endif
-    elif(  (defcell.datatype == hdb.DB_DATA_TYPE_FLOAT) ):
+    elif(  (defcell.datatype == hdb.DB_DATA_TYPE_FLOAT)
+        or (defcell.datatype == hdb.DB_DATA_TYPE_EURO)):
       conv_value = float(value)
     else:
       self.errText = "In Tabelle: konnte aus der Zelle: <%s> nicht der type(%i) umgesetzt werden " % (defcell.name,defcell.type)
@@ -219,11 +299,36 @@ class data_list:
 
     return conv_value
   #enddef
-#endclass
 
+
+  def has_err_text(self) -> bool:
+    if (len(self.errText) > 0):
+      return True
+    else:
+      return False
+    # endif
+  # enddef
+
+  def add_err_text(self, text: str) -> None:
+    if (len(self.errText) > 0):
+      self.errText += "\n" + text
+    else:
+      self.errText += text
+  # enddef
+  def get_err_text(self) -> str:
+    err_text = self.errText
+    self.errText = ""
+    return err_text
+  #enddef
+#endclass
+#-----------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------
+#-------- class dbio                  -----------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------
 class dbio:
   PRIMARY_KEY_NAME = u"key"
-  DELIM_TABLINK    = "@"
+
   OKAY     = hdef.OK
   NOT_OKAY = hdef.NOT_OK
   errText  = ""
@@ -345,7 +450,7 @@ class dbio:
     for i in range(min(len(cells["name"]),len(cells["type"]))):
 
       if( cells["type"][i] == hdb.DB_DATA_TYPE_KEY):
-        (name,tablink) = self.seperate_tablink(cells["name"][i])
+        (name,tablink) = seperate_tablink(cells["name"][i])
       else:
         name = cells["name"][i]
         tablink = ""
@@ -433,7 +538,7 @@ class dbio:
       return None
     #endif
     
-    dlist = data_list(tabdef)
+    dlist = data_list(tabdef,self.db)
     if( dlist.status != dlist.OKAY ):
       self.errText.append(f" {dlist.errText}")
       self.status = self.NOT_OKAY
@@ -441,6 +546,9 @@ class dbio:
     #endif
     return dlist
   #enddef
+  # ===============================================================================
+  # ===============================================================================
+
   def close(self):
     if (self.db != None):
 
@@ -616,28 +724,33 @@ class dbio:
 
     return False
   #endddef
-  def seperate_tablink(self,name_in):
-    name = h.elim_ae(name_in, ' ')
-    # pruefen, ob Tabellen name zu z.B. key angehï¿½ngt ist
-    if (h.such(name, self.DELIM_TABLINK, "vs") >= 0):
-      lliste = name.split(self.DELIM_TABLINK)
-      name = lliste[0]
-      if (len(lliste) > 1):
-        tablink = lliste[1]
-      else:
-        tablink = ""
-      # endif
-    else:
-      tablink = ""
-    # endif
-    return(name,tablink)
-  #enddef
-  
+
   # -------------------------------------------------------------------------------
   # -------------------------------------------------------------------------------
 
 #endclass
 
+#########################################################################################################
+#########################################################################################################
+# Hilfsfunktionen
+#########################################################################################################
+#########################################################################################################
+def seperate_tablink(name_in):
+  name = h.elim_ae(name_in, ' ')
+  # pruefen, ob Tabellen name zu z.B. key angehï¿½ngt ist
+  if (h.such(name, DELIM_TABLINK, "vs") >= 0):
+    lliste = name.split(DELIM_TABLINK)
+    name = lliste[0]
+    if (len(lliste) > 1):
+      tablink = lliste[1]
+    else:
+      tablink = ""
+    # endif
+  else:
+    tablink = ""
+  # endif
+  return(name,tablink)
+#enddef
 
 ###########################################################################
 # testen mit main
@@ -656,14 +769,14 @@ if __name__ == '__main__':
   #endif
 
   celldef = {"name": ["Wert"               , "Datum"               , "Menge"             , "Comment"           , "key1@Material"]
-            ,"type": [hdb.DB_DATA_TYPE_CENT, hdb.DB_DATA_TYPE_DATUM, hdb.DB_DATA_TYPE_INT, hdb.DB_DATA_TYPE_STR, hdb.DB_DATA_TYPE_KEY]
+            ,"type": [hdb.DB_DATA_TYPE_EURO, hdb.DB_DATA_TYPE_DATUM, hdb.DB_DATA_TYPE_INT, hdb.DB_DATA_TYPE_STR, hdb.DB_DATA_TYPE_KEY]
             }
   tabdef = {"name": "Einkauf", "cells": celldef}
 
   dbio.define_table(tabdef)
 
   celldef = {"name": ["Name"               , "Woher"               ]
-            ,"type": [hdb.DB_DATA_TYPE_CENT, hdb.DB_DATA_TYPE_STR  ]
+            ,"type": [hdb.DB_DATA_TYPE_STR, hdb.DB_DATA_TYPE_STR  ]
             }
   tabdef = {"name": "Material", "cells": celldef}
 
@@ -672,13 +785,34 @@ if __name__ == '__main__':
   if(dbio.status == False):
     print(f"error in dbio mit Tabelle Einkauf: {dbio.get_err_text()}")
   #endif
-  
-  
-  tabdef = dbio.get_tabdef("Einkauf")
-  dataset = []
-  
 
-  
+
+  dlist = dbio.create_datalist("Material")
+  dlist.add_data("Name","Tee")
+  dlist.add_data("Woher","Kaufhof")
+  dlist.add_to_table()
+
+  if (dlist.status != dlist.OKAY):
+    print(f"Tabellen eingang Material hat Fehler: {dlist.get_err_text()}")
+    exit(1)
+  #endif
+
+  del dlist
+
+  dlist = dbio.create_datalist("Einkauf")
+  dlist.add_data("Datum","12.01.2003")
+  dlist.add_data("Wert",20.31)
+  dlist.add_data("Menge",100)
+  dlist.add_data("Comment","Ein neues Datum")
+  dlist.add_data("key1@Material",1)
+  dlist.add_to_table()
+
+  if (dlist.status != dlist.OKAY):
+    print(f"Tabelleneingang Einkauf hat Fehler:  {dlist.get_err_text()}")
+    exit(1)
+  #endif
+  del dlist
+
   dbio.close()
 
   if (dbio.has_err_text()):

@@ -105,7 +105,8 @@ DB_DATA_TYPE_FLOAT   =   3
 DB_DATA_TYPE_INT     =   4
 DB_DATA_TYPE_KEY     =   5
 DB_DATA_TYPE_CENT    =   6
-DB_DATA_TYPE_STRING_LISTE = ["DB_DATA_TYPE_DATUM","DB_DATA_TYPE_PRIMKEY","DB_DATA_TYPE_STR","DB_DATA_TYPE_FLOAT","DB_DATA_TYPE_INT","DB_DATA_TYPE_KEY","DB_DATA_TYPE_CENT"]
+DB_DATA_TYPE_EURO    =   7
+DB_DATA_TYPE_STRING_LISTE = ["DB_DATA_TYPE_DATUM","DB_DATA_TYPE_PRIMKEY","DB_DATA_TYPE_STR","DB_DATA_TYPE_FLOAT","DB_DATA_TYPE_INT","DB_DATA_TYPE_KEY","DB_DATA_TYPE_CENT","DB_DATA_TYPE_EURO"]
 
 
 
@@ -463,7 +464,8 @@ class db:
           or (datatype == DB_DATA_TYPE_CENT)   \
           ):
         command = command + " %s INTEGER" % cellname
-      elif(  (datatype == DB_DATA_TYPE_FLOAT) ):
+      elif(  (datatype == DB_DATA_TYPE_FLOAT)
+          or (datatype == DB_DATA_TYPE_EURO)):
         command = command + " %s REAL" % cellname
       elif(  (datatype == DB_DATA_TYPE_STR) ):
         command = command + " %s TEXT" % cellname
@@ -522,7 +524,8 @@ class db:
               ):
             if( flag ): command = command + " %s INTEGER DEFAULT %s" % (defcellname,"0")
             else:       command = command + " %s INTEGER" % defcellname
-          elif(  (defcelldatatype == DB_DATA_TYPE_FLOAT) ):
+          elif(  (defcelldatatype == DB_DATA_TYPE_FLOAT)
+              or (defcelldatatype == DB_DATA_TYPE_EURO)):
             if( flag ): command = command + " %s REAL DEFAULT %s" % (defcellname,"0.0")
             else:       command = command + " %s REAL" % defcellname
           elif(  (defcelldatatype == DB_DATA_TYPE_STR) ):
