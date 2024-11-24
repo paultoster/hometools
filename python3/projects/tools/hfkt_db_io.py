@@ -2,14 +2,33 @@
 #
 # hfkt_db_iohfkt_db_hande, aber ohne die Definitionstabelle
 #
-# dbfile                 Dateiname des db-Files
-#
 # Aufbau Tabelle
 #=========================
 #
-#  TAB_NAME               Name der Tabelle
-#  CELL_NAME[i]           Liste mit Zellennamen
-#  CEL_TYPE_NAME[i]       Liste mit zugehörigen Typen
+#-----------------------------------------------------------------------------------------------------------------------
+# externe Definition Tabelle
+#
+#   tabdef = {"name": tabname,
+#             "cells": {"name":[name1,name2,...],
+#                       "type":[type1,typ2,...]
+#                      }
+#            }
+#--------------------------------------------------------------------------------------------------------------------------
+# interne Definition Tabelle
+#
+# self.DbDefTab[i]                  i = 0, ... , self.nDbDefTab - 1
+# self.DbDefTab[i].name             Name
+#                 .type             wird hier nicht benutzt, ist immer DB_TAB_TYPE_BUILD
+#                 .comment          wird hier nicht benutzt
+#                 .isdb             ist in database enthalten
+#                 .cells[j]         j = 0, ..., self.DbDefTab[i].ncells - 1
+#                 .cells[j].name       Name Zelle
+#                          .datatype   datatype  siehe oben
+#                          .unit       Enheit, wird nicht benutzt
+#                          .comment    wird hier nicht benutzt
+#                          .tablelink  Wenn ein key einer anderen TAbelle eingetragen wird, steht hier der Tabellenname
+#----------------------------------------------------------------------------------------------------------------------------
+# types:
 #
 #     hdb.DB_DATA_TYPE_DATUM       Datum-Typ
 #     hdb.DB_DATA_TYPE_PRIMKEY     prime key of data set
@@ -20,10 +39,8 @@
 #     hdb.DB_DATA_TYPE_CENT        Integer-Typ  as Cent
 #     hdb.BD_DATA_TYPE_EURO        Float-Type in Euro
 #
-# Funktionen
-#
 # allgemeine Funktionen =================================================================================
-#========================================================================================================
+#
 # dbio = hdbio.dbio(dbdatafile)              Klasse anlegen mit dabdatafile und öffnen
 #
 #                                            if not dbio.status == dbio.NOT_OKAY
@@ -40,14 +57,15 @@
 # get_celldef(tabname) -> list               get cell definition of table
 #
 # neues Datenset für eine Tabelle kreieren ================================================================
-#==========================================================================================================
 #
 # dlist = dbio.create_datalist(tabname) -> list  creat a empty list of table tabname
 #
 # dlist.add_data(cellname,data) -> status       add to dlist one cell
 #
 # status = dlist.add_to_table()                 addd dlist to table
-#==========================================================================================================
+#
+# Daten holen ==============================================================================================
+#
 # ddict = dbio.get_data(tabname)
 #
 #      Gesamten Inhalt der Tabelle ausgeben in einem dictionary
@@ -63,7 +81,6 @@
 #    (header_liste,data_liste) = dbh.get_tab_data(tabelename,cellnames_liste) <= liste
 #        header_liste : m x 1
 #        data_liste   : n x m
-  #==========================================================================================================
 #-----------------------------------------------------------------------------------------------------------------------------------------
 # Beispiel TAbelle erstellen:
 #
@@ -76,16 +93,16 @@
 #
 #   dbio.define_table(tabdef)
 #
-#   Build a new data list item:
-#   first initiate for a specific table
+#   # Build a new data list item:
+#   # first initiate for a specific table
 #
 #   dlist = dbio.create_datalist(tabname)
 #   if( dbio.status != dbio.OKAY ) =>
 #
-#   Erstelle einen neuen Tabelleneintrag
-#   dlist = dbio.create_datalist(tabname)
+#   # Erstelle einen neuen Tabelleneintrag
+#   # dlist = dbio.create_datalist(tabname)
 #
-#   Fülle alle Werte ein
+#   # Fülle alle Werte ein
 #   dlist.add_data("Datum","12.01.2003")
 #   dlist.add_data("Wert",20.31)
 #   dlist.add_data("Menge",100)
@@ -93,31 +110,12 @@
 #   dlist.add_to_table("key@Material",11)
 #   if( dlist.status != dlist.OKAY ) =>
 #
-#   Speichere die daten liste in Tabelle
+#   # Speichere die daten liste in Tabelle
 #   dlist.add_to_table()
 #   if( dlist.status != dlist.OKAY ) =>
-#   delete dlist
+#     delete dlist
 #
-#-----------------------------------------------------------------------------------------------------------------------
-# interne Definition
-#
-# # self.DbDefTab[i]                  i = 0, ... , self.nDbDefTab - 1
-# # self.DbDefTab[i].name             Name
-# #                 .type             wird hier nicht benutzt, ist immer DB_TAB_TYPE_BUILD
-# #                 .comment          wird hier nicht benutzt
-# #                 .isdb             ist in database enthalten
-# #                 .cells[j]         j = 0, ..., self.DbDefTab[i].ncells - 1
-# #                 .cells[j].name       Name Zelle
-# #                          .datatype   datatype  siehe oben
-# #                          .unit       Enheit, wird nicht benutzt
-# #                          .comment    wird hier nicht benutzt
-# #                          .tablelink  Wenn ein key einer anderen TAbelle eingetragen wird, steht hier der Tabellenname
 #----------------------------------------------------------------------------------
-# interne Funktionen
-#
-# def check_and_build_table(self, deftab):
-#
-#  Checkt die Tabellendefinition, ob erstellt, wenn nein, dann erstellen
 
 
 import os, sys, types, sqlite3
@@ -155,9 +153,9 @@ def getKey(s):
   return s[I0_GETKEY]
 
 #-----------------------------------------------------------------------------------------------------
-#------------------------------------------------------------------------------------------------------
-#-------- class data_list             -----------------------------------------------------------------
-#------------------------------------------------------------------------------------------------------
+#
+# class data_list
+#
 #------------------------------------------------------------------------------------------------------
 class data_list:
   PRIMARY_KEY_NAME = hdef.PRIMARY_KEY_NAME
@@ -169,6 +167,9 @@ class data_list:
   dataList = []
   defTab   = None
   db       = None
+  #-----------------------------------------------------------------------------
+  # public init
+  #-----------------------------------------------------------------------------
   def __init__(self, deftab, db):
     '''
       Build a new data set with zeros and ""
@@ -178,6 +179,9 @@ class data_list:
     self.db       = db
     self.dataList = self.set_empty_values()
   #enddef
+  #-----------------------------------------------------------------------------
+  # intern set_empty_values
+  #-----------------------------------------------------------------------------
   def set_empty_values(self):
     '''
       set empty values for one data set of the table
@@ -208,6 +212,9 @@ class data_list:
     #endfor
     return data_list
   #enddef
+  # -----------------------------------------------------------------------------
+  # public add_data
+  # -----------------------------------------------------------------------------
   def add_data(self,cellname,data):
     '''
       set values in data_list for collecting all input for one data set
@@ -242,6 +249,9 @@ class data_list:
     
     
   #enddef
+  # -----------------------------------------------------------------------------
+  # public add_to_table
+  # -----------------------------------------------------------------------------
   def add_to_table(self):
     """
       Add dataset to the defined table
@@ -260,6 +270,9 @@ class data_list:
     # endif
     return self.status
   #enddef
+  # -----------------------------------------------------------------------------
+  # intern convert_value
+  # -----------------------------------------------------------------------------
   def convert_value(self,defcell,value):
     """
     Konvertiert Wert, wenn notwendig
@@ -299,8 +312,9 @@ class data_list:
 
     return conv_value
   #enddef
-
-
+  # -----------------------------------------------------------------------------
+  # public has_err_text
+  # -----------------------------------------------------------------------------
   def has_err_text(self) -> bool:
     if (len(self.errText) > 0):
       return True
@@ -309,12 +323,18 @@ class data_list:
     # endif
   # enddef
 
+  # -----------------------------------------------------------------------------
+  # intern add_err_text
+  # -----------------------------------------------------------------------------
   def add_err_text(self, text: str) -> None:
     if (len(self.errText) > 0):
       self.errText += "\n" + text
     else:
       self.errText += text
   # enddef
+  # -----------------------------------------------------------------------------
+  # public get_err_text
+  # -----------------------------------------------------------------------------
   def get_err_text(self) -> str:
     err_text = self.errText
     self.errText = ""
@@ -322,9 +342,9 @@ class data_list:
   #enddef
 #endclass
 #-----------------------------------------------------------------------------------------------------
-#------------------------------------------------------------------------------------------------------
-#-------- class dbio                  -----------------------------------------------------------------
-#------------------------------------------------------------------------------------------------------
+#
+# class dbio
+#
 #------------------------------------------------------------------------------------------------------
 class dbio:
   PRIMARY_KEY_NAME = u"key"
@@ -335,7 +355,12 @@ class dbio:
   logText  = ""
   status   = hdef.OK
   db       = None
-  # DB-Def-Table:
+  
+  #######################################################################################################
+  #
+  # class DB-Def-Table:
+  #
+  #######################################################################################################
   class db_def_tab:
     def __init__(self,name):
       self.name    = name        # Name (bei type=DB_TAB_TYPE_SCHABLONE wird spezifischer Name mit '_' anghï¿½ngt)
@@ -345,6 +370,11 @@ class dbio:
       self.ncells  = 0           # Anzahl der Zellen
       self.isdb    = 0           # Tabelle ist angelegt!
 
+  #######################################################################################################
+  #
+  # class DB-Def-Cell:
+  #
+  #######################################################################################################
   class db_def_cell:
     def __init__(self,name,datatype,tablelink):
       self.name      = name            # Name
@@ -352,9 +382,10 @@ class dbio:
       self.unit      = ""              #
       self.comment   = ""              # Kommentar
       self.tablelink = tablelink       # Wenn ein key einer anderen TAbelle eingetragen wird, steht hier der Tabellenname
-# public
-#===============================================================================
-#===============================================================================
+
+  #-----------------------------------------------------------------------------
+  # public init
+  #-----------------------------------------------------------------------------
   def __init__(self,dbfile):
     """
     Check Db - Define - LIste with Dbfile
@@ -377,7 +408,9 @@ class dbio:
     #endif
     return
   #enddef
-
+  #-----------------------------------------------------------------------------
+  # public define_table
+  #-----------------------------------------------------------------------------
   def define_table(self,tabdef:dict) -> bool:
     """
     Tabelle anlegen bzw. checken, ob vorhanden
@@ -482,12 +515,14 @@ class dbio:
     self.DbDefTab[self.nDbDefTab-1].isdb = 1
 
   #enddef
-#-------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------
+  
+  # -----------------------------------------------------------------------------
+  # public get_tabdef
+  # -----------------------------------------------------------------------------
   def get_tabdef(self,tabname):
     """
     Sucht in self.DbDefTab die tabelle und gibt die Struktur zurï¿½ck
-    wenn nicht vorhanden, dann None Rï¿½ckgabe
+    wenn nicht vorhanden, dann None Rueckgabe
     """
     
     for tabdef in self.DbDefTab:
@@ -501,6 +536,9 @@ class dbio:
     return None
   #enddef
 
+  # -----------------------------------------------------------------------------
+  # public get_celldef
+  # -----------------------------------------------------------------------------
   def get_celldef(self,tabname):
     """
     # get_celldef(tabname) -> list      get cell definition of table
@@ -526,9 +564,12 @@ class dbio:
     #endif
     
     return cell_names
+  # -----------------------------------------------------------------------------
+  # public create_datalist
+  # -----------------------------------------------------------------------------
   def create_datalist(self,tabname):
     '''
-     create a empty data of table tabname
+     create a empty data set of table with tabname
      
     :param tabname: table name
     :return: data_list
@@ -546,10 +587,88 @@ class dbio:
     #endif
     return dlist
   #enddef
-  # ===============================================================================
-  # ===============================================================================
+  
+  # -----------------------------------------------------------------------------
+  # public get_data
+  # -----------------------------------------------------------------------------
+  def get_data(self,tabname):
+    """
+    get data from table tabname
+    
+    
+    :param     tabname (str):
+    :return:   data (dict)
+    """
+    header_liste = []
+    data_liste   = []
+    
+    
+    if( not self.db.exist_table(tabname)):
+      self.status = self.NOT_OKAY
+      self.errText = "In dictionary d ist die Zelle <%s> nicht vorhanden (nach DbDefTab wird diese benoetigt)" % defcell.name
+      return self.status
+  
+    # Sucht Tabelle in Definition
+    if( not self.check_tab_in_tabdef_und_db(tabname) ):
+      return (header_liste,data_liste)
+    #endif
 
+    # A) gesamte Tabelle
+    if( not cellnames ):
+      #Header-Liste
+      header_liste = self.get_cell_names_from_deftab(tabname)
+    # B) Auswahlliste
+    elif( h.is_list(cellnames) ):
+      for cellname in cellnames:
+        if( self.is_cell_name_tabdef(tabname,cellname) ):
+          header_liste.append(cellname)
+        #endif
+      #endfor
+      if( len(header_liste) == 0 ):
+        self.status = self.NOT_OKAY
+        tt          = "Tabelle <%s> enthï¿½lt die genannten Zellennamen nicht:  " % tabname
+        for cellname in cellnames:
+          tt += "%s, " % cellname
+
+        self.errText = tt
+        return (header_liste,data_liste)
+    # C) Ein Name
+    else:
+      if( self.is_cell_name_tabdef(tabname,cellnames) ):
+        header_liste.append(cellnames)
+      if( len(header_liste) == 0 ):
+        self.status = self.NOT_OKAY
+        tt          = "Tabelle <%s>  enthï¿½lt die genannten Zellennamen nicht: " % tabname
+        tt += " %s" % cellnames
+        #endfor
+        self.errText = tt
+        return (header_liste,data_liste)
+      #endif
+    #endif
+
+    # Daten holen
+    data_liste = self.db.get_data_from_tab(tabname,header_liste)
+
+    # DAta-Liste
+    if( self.db.status != self.db.OKAY):
+      self.status = self.NOT_OKAY
+      tt          = "Tabelle <%s> konnte in Datei <%s> nicht gelesen werden !!!" % (tabname,self.dbfile)
+      self.errText = tt
+      return (header_liste,data_liste)
+    #endif
+
+    return (header_liste,data_liste)
+
+  #enddef
+  # -----------------------------------------------------------------------------
+  # public close
+  # -----------------------------------------------------------------------------
   def close(self):
+    """
+    close db
+    
+    :return:
+    """
     if (self.db != None):
 
       self.db.close_dbfile()
@@ -566,7 +685,14 @@ class dbio:
 
   # enddef
 
+  # -----------------------------------------------------------------------------
+  # public has_log_text
+  # -----------------------------------------------------------------------------
   def has_log_text(self):
+    """
+    proof if log text is written
+    :return:
+    """
     if (len(self.logText) > 0):
       return True
     else:
@@ -575,21 +701,43 @@ class dbio:
 
   # enddef
 
+  # -----------------------------------------------------------------------------
+  # intern add_log_text
+  # -----------------------------------------------------------------------------
   def add_log_text(self, text):
+    """
+     add log-text
+    :param text:
+    :return:
+    """
     if (len(self.logText) > 0):
       self.logText += "\n" + text
     else:
       self.logText += text
 
   # enddef
+  # -----------------------------------------------------------------------------
+  # public get_log_text
+  # -----------------------------------------------------------------------------
   def get_log_text(self):
+    """
+    return logtext and reset internal
+    :return:
+    """
     log_text = self.logText
     self.logText = ""
     return log_text
 
   # endif
 
+  # -----------------------------------------------------------------------------
+  # public has_err_text
+  # -----------------------------------------------------------------------------
   def has_err_text(self) -> bool:
+    """
+    proof is error text is set
+    :return:
+    """
     if (len(self.errText) > 0):
       return True
     else:
@@ -598,24 +746,37 @@ class dbio:
 
   # enddef
 
+  # -----------------------------------------------------------------------------
+  # internal add_err_text
+  # -----------------------------------------------------------------------------
   def add_err_text(self, text: str) -> None:
+    """
+    add error text
+    
+    :param text:
+    :return:
+    """
     if (len(self.errText) > 0):
       self.errText += "\n" + text
     else:
       self.errText += text
 
   # enddef
+  # -----------------------------------------------------------------------------
+  # public get_err_text
+  # -----------------------------------------------------------------------------
   def get_err_text(self) -> str:
+    """
+    get erro text reurned and reset internally
+    :return:
+    """
     err_text = self.errText
     self.errText = ""
     return err_text
 
-  # -------------------------------------------------------------------------------
-  # -------------------------------------------------------------------------------
-  # interne Funktionen
-  # -------------------------------------------------------------------------------
-  # -------------------------------------------------------------------------------
-
+  # -----------------------------------------------------------------------------
+  # intern check_and_build_table
+  # -----------------------------------------------------------------------------
   def check_and_build_table(self, deftab):
     """
     Checkt die Tabellendefinition, ob erstellt, wenn nein, dann erstellen
@@ -686,8 +847,9 @@ class dbio:
 
     return self.status
   #enddef
-  # -------------------------------------------------------------------------------
-  # -------------------------------------------------------------------------------
+  # -----------------------------------------------------------------------------
+  # intern build_db_table
+  # -----------------------------------------------------------------------------
   def build_db_table(self, deftab):
     """
     Bildet Tabelle mit  cells aus deftab Definition
@@ -712,9 +874,12 @@ class dbio:
 
     return self.status
   #enddef
+  # -----------------------------------------------------------------------------
+  # intern find_name_in_list
+  # -----------------------------------------------------------------------------
   def find_name_in_list(self,cell_name,cell_liste):
     """
-    PrÃ¼ft ob Cellname bereits voranden
+    Prueft ob Cellname bereits voranden
     """
     for item in cell_liste:
       if( item[0] == cell_name):
@@ -727,6 +892,8 @@ class dbio:
 
   # -------------------------------------------------------------------------------
   # -------------------------------------------------------------------------------
+  # -------------------------------------------------------------------------------
+  # -------------------------------------------------------------------------------
 
 #endclass
 
@@ -735,6 +902,9 @@ class dbio:
 # Hilfsfunktionen
 #########################################################################################################
 #########################################################################################################
+# -----------------------------------------------------------------------------
+# intern seperate_tablink
+# -----------------------------------------------------------------------------
 def seperate_tablink(name_in):
   name = h.elim_ae(name_in, ' ')
   # pruefen, ob Tabellen name zu z.B. key angehï¿½ngt ist
