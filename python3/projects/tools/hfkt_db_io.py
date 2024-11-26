@@ -52,10 +52,12 @@
 # get_err_text(self) -> str:                 get errror text and erase in object
 #
 # dbio.has_log_text() -> bool:               has object logtext
-# get_log_text(self) -> str:                 get log text and erase in object
+# get_log_text()      -> str:                 get log text and erase in object
 #
+# get_tabdef(tabname)  -> list with strut
 # get_celldef(tabname) -> list               get cell definition of table
 #
+#---------------------------------------------------------------------------------------------------------
 # neues Datenset für eine Tabelle kreieren ================================================================
 #
 # dlist = dbio.create_datalist(tabname) -> list  creat a empty list of table tabname
@@ -81,6 +83,16 @@
 #    (header_liste,data_liste) = dbh.get_tab_data(tabelename,cellnames_liste) <= liste
 #        header_liste : m x 1
 #        data_liste   : n x m
+#
+#----------------------------------------------------------------------------------------------
+# Daten löschen
+#  staus = dbio.delete_data_by_primkey(tabname,primkey)
+#
+#    delete_data_by_primkey(self,tabname,primkey)
+#    delete_data_by_primkey(self,tabname,primkey_liste):
+#    Es werden aus der Tabelle mit tabname die Zellen mit primkey bzw liste von primkeys
+#    gelÃ¶scht
+#    return status
 #-----------------------------------------------------------------------------------------------------------------------------------------
 # Beispiel TAbelle erstellen:
 #
@@ -530,7 +542,7 @@ class dbio:
         return tabdef
       #endif
     #endfor
-    self.status = hdef.NOT_OK
+    self.status = self.NOT_OKAY
     tt = "Tabelle <%s> konnte in der Definition nicht gefunden werden !!!" % (tabname)
     self.errText = tt
     return None
@@ -591,75 +603,141 @@ class dbio:
   # -----------------------------------------------------------------------------
   # public get_data
   # -----------------------------------------------------------------------------
-  def get_data(self,tabname):
+  def get_data(self,tabname,cell_listed=0,key_listed=0):
     """
     get data from table tabname
-    
+
+    cell_listed=1 : Sortiere in ddict = {namezelle1: [var1_zelle1, var2_zelle1, ...],namezelle2: [var1_zelle2, var2_zelle2, ...], ...}
+
+    key_listed=1 : Sortiert nach keys ddict = {'header':[name_zelle1,name_zelle2, ...],
+                                               key_num_first:[var1_zelle1,var1_zelle2, ...], key_num_second:[var2_zelle1,var2_zelle2, ...], ...
+                                              }
+
     
     :param     tabname (str):
     :return:   data (dict)
     """
-    header_liste = []
-    data_liste   = []
-    
+    ddict        = {}
     
     if( not self.db.exist_table(tabname)):
       self.status = self.NOT_OKAY
       self.errText = "In dictionary d ist die Zelle <%s> nicht vorhanden (nach DbDefTab wird diese benoetigt)" % defcell.name
-      return self.status
-  
-    # Sucht Tabelle in Definition
-    if( not self.check_tab_in_tabdef_und_db(tabname) ):
-      return (header_liste,data_liste)
-    #endif
+      return ddict
 
-    # A) gesamte Tabelle
-    if( not cellnames ):
-      #Header-Liste
-      header_liste = self.get_cell_names_from_deftab(tabname)
-    # B) Auswahlliste
-    elif( h.is_list(cellnames) ):
-      for cellname in cellnames:
-        if( self.is_cell_name_tabdef(tabname,cellname) ):
-          header_liste.append(cellname)
-        #endif
-      #endfor
-      if( len(header_liste) == 0 ):
-        self.status = self.NOT_OKAY
-        tt          = "Tabelle <%s> enthï¿½lt die genannten Zellennamen nicht:  " % tabname
-        for cellname in cellnames:
-          tt += "%s, " % cellname
-
-        self.errText = tt
-        return (header_liste,data_liste)
-    # C) Ein Name
-    else:
-      if( self.is_cell_name_tabdef(tabname,cellnames) ):
-        header_liste.append(cellnames)
-      if( len(header_liste) == 0 ):
-        self.status = self.NOT_OKAY
-        tt          = "Tabelle <%s>  enthï¿½lt die genannten Zellennamen nicht: " % tabname
-        tt += " %s" % cellnames
-        #endfor
-        self.errText = tt
-        return (header_liste,data_liste)
-      #endif
-    #endif
+    #Header-Liste
+    header_liste = self.get_cell_names_from_deftab(tabname)
 
     # Daten holen
     data_liste = self.db.get_data_from_tab(tabname,header_liste)
 
-    # DAta-Liste
+    # Data-Liste
     if( self.db.status != self.db.OKAY):
       self.status = self.NOT_OKAY
       tt          = "Tabelle <%s> konnte in Datei <%s> nicht gelesen werden !!!" % (tabname,self.dbfile)
       self.errText = tt
-      return (header_liste,data_liste)
+      return ddict
     #endif
 
-    return (header_liste,data_liste)
+    # -------------------------------------------------------------------------------------------------------------------
+    # cell_listed: ddict = {namezelle1: [var1_zelle1, var2_zelle1, ...],namezelle2: [var1_zelle2, var2_zelle2, ...], ...}
+    # -------------------------------------------------------------------------------------------------------------------
+    if( cell_listed != 0 ):
+      for i,col in enumerate(header_liste):
+        ddict[col] = []
+      for data in data_liste:
+        for i,col in enumerate(header_liste):
+          ddict[col].append(data[i])
+    #---------------------------------------------------------------------------------------------------------------
+    # key_listed: ddict = {'header': [name_zelle1, name_zelle2, ...],
+    #                      key_num_first: [var1_zelle1, var1_zelle2, ...], key_num_second: [var2_zelle1, var2_zelle2, ...], ...
+    #                     }
+    # ---------------------------------------------------------------------------------------------------------------
+    elif(key_listed != 0):
+      n = len(header_liste)
+      ddict['header'] = header_liste[0:n-1]
+      for data in data_liste:
+        ddict[data[n-1]]=data[0:n-1]
+    else:
+      self.status = self.NOT_OKAY
+      tt          = "Für Tabelle: %s in File: %s  Datenausgabefomat setzen: cell_listed=1 or key_listed=1 or ...  !!!" % (tabname,self.dbfile)
+      self.errText = tt
+    #endif
 
+    return ddict
   #enddef
+
+  """
+      # A) gesamte Tabelle
+      if( not cellnames ):
+        #Header-Liste
+        header_liste = self.get_cell_names_from_deftab(tabname)
+      # B) Auswahlliste
+      elif( h.is_list(cellnames) ):
+        for cellname in cellnames:
+          if( self.is_cell_name_tabdef(tabname,cellname) ):
+            header_liste.append(cellname)
+          #endif
+        #endfor
+        if( len(header_liste) == 0 ):
+          self.status = self.NOT_OKAY
+          tt          = "Tabelle <%s> enthï¿½lt die genannten Zellennamen nicht:  " % tabname
+          for cellname in cellnames:
+            tt += "%s, " % cellname
+  
+          self.errText = tt
+          return (header_liste,data_liste)
+      # C) Ein Name
+      else:
+        if( self.is_cell_name_tabdef(tabname,cellnames) ):
+          header_liste.append(cellnames)
+        if( len(header_liste) == 0 ):
+          self.status = self.NOT_OKAY
+          tt          = "Tabelle <%s>  enthï¿½lt die genannten Zellennamen nicht: " % tabname
+          tt += " %s" % cellnames
+          #endfor
+          self.errText = tt
+          return (header_liste,data_liste)
+        #endif
+      #endif
+  
+      # Daten holen
+      data_liste = self.db.get_data_from_tab(tabname,header_liste)
+  
+      # Data-Liste
+      if( self.db.status != self.db.OKAY):
+        self.status = self.NOT_OKAY
+        tt          = "Tabelle <%s> konnte in Datei <%s> nicht gelesen werden !!!" % (tabname,self.dbfile)
+        self.errText = tt
+        return (header_liste,data_liste)
+      #endif
+  
+      return (header_liste,data_liste)
+  """
+  #enddef
+  # -----------------------------------------------------------------------------
+  # public delete_data
+  # -----------------------------------------------------------------------------
+  def delete_data(self, tabname, liste,by_primekey=0):
+    """
+    dbio.delete_data(tabname,primkey,by_primekey=1)
+    dbio.delete_data(tabname,primkey_liste,by_primekey=1):
+
+    Es werden aus der Tabelle mit tabname die Zellen mit primkey bzw liste von primkeys
+    gelï¿½scht
+    return status
+    """
+
+    if( by_primekey != 0 ):
+      return self.delete_data_by_primekey(tabname, liste)
+    else:
+      self.status = self.NOT_OKAY
+      tt          = "Für Tabelle: %s in File: %s Dateneingabefomat setzen: by_primekey=1 or ...  !!!" % (tabname,self.dbfile)
+      self.errText = tt
+    #endif
+
+    return self.status
+  #enddef
+
   # -----------------------------------------------------------------------------
   # public close
   # -----------------------------------------------------------------------------
@@ -889,6 +967,75 @@ class dbio:
 
     return False
   #endddef
+# -----------------------------------------------------------------------------
+# intern get_cell_names_from_deftab
+# -----------------------------------------------------------------------------
+  def get_cell_names_from_deftab(self,tabname):
+    """
+    Sucht alle Zellen namen der Tabelle
+    (Wird hier gemacht wegen den Tabelleverweis)
+    """
+    cell_names = []
+    flag = True
+
+    for deftab in self.DbDefTab:
+      if( tabname == deftab.name ):
+        for cell in deftab.cells:
+          cell_names.append(cell.name)
+          flag = False
+        #endfor
+      #endif
+    #endfor
+
+    if( flag ):
+      self.status = hdef.NOT_OK
+      tt          = "Tabelle <%s> konnte in der Definition nicht gefunden werden !!!" % (tabname)
+      self.errText = tt
+    #endif
+    return cell_names
+  #enddef
+  # -----------------------------------------------------------------------------
+  # intern delete_data_by_primekey
+  # -----------------------------------------------------------------------------
+  def delete_data_by_primekey(self, tabname, primkey_liste):
+    """
+    delete_data(self,tabname,primkey,by_primekey=1)
+    delete_data(self,tabname,primkey_liste,by_primekey=1):
+
+    Es werden aus der Tabelle mit tabname die Zellen mit primkey bzw liste von primkeys
+    gelï¿½scht
+    return status
+    """
+
+    # Liste erstellen wenn notwendig
+    if (not h.is_list(primkey_liste)):
+      primkey_liste = [primkey_liste]
+
+    # Sucht Tabelle in Definition und db
+    if (not self.db.exist_table(tabname)):
+      self.errText += self.db.get_err_text()
+      self.status = self.NOT_OKAY
+      return self.status
+    # endif
+
+    # get tabstruct von deftab
+    deftab = self.get_tabdef(tabname)
+
+    if( self.status == self.NOT_OKAY ):
+      return self.status
+
+    for primkey in primkey_liste:
+      if (self.db.exist_data_in_tab(tabname, self.PRIMARY_KEY_NAME, primkey)):
+        self.db.delete_data_set_by_key(tabname, self.PRIMARY_KEY_NAME, primkey)
+      else:
+        self.errText += "Primary Key %i existiert in Tabelle %s nicht und kann nicht gelï¿½scht werden" % (
+        primkey, tabname)
+        self.status = self.NOT_OKAY
+        return self.status
+      # endif
+    # enfor
+    return self.status
+  #endif
 
   # -------------------------------------------------------------------------------
   # -------------------------------------------------------------------------------
@@ -962,6 +1109,16 @@ if __name__ == '__main__':
   dlist.add_data("Woher","Kaufhof")
   dlist.add_to_table()
 
+  dlist = dbio.create_datalist("Material")
+  dlist.add_data("Name","Kaffee")
+  dlist.add_data("Woher","Karstadt")
+  dlist.add_to_table()
+
+  dlist = dbio.create_datalist("Material")
+  dlist.add_data("Name","Mukkefuk")
+  dlist.add_data("Woher","DM")
+  dlist.add_to_table()
+
   if (dlist.status != dlist.OKAY):
     print(f"Tabellen eingang Material hat Fehler: {dlist.get_err_text()}")
     exit(1)
@@ -982,6 +1139,20 @@ if __name__ == '__main__':
     exit(1)
   #endif
   del dlist
+
+  ddict = dbio.get_data("Einkauf",cell_listed=1)
+
+  if (dbio.status != dbio.OKAY):
+    print(f"Tabellen abfrage Einkauf fehlgeschlagen:  {dbio.get_err_text()}")
+    exit(1)
+  #endif
+
+  if( dbio.delete_data("Material", 1 , by_primekey=1) != dbio.OKAY ):
+    print(f"Tabellen daten löschen Material fehlgeschlagen:  {dbio.get_err_text()}")
+    exit(1)
+  # endif
+
+  print(ddict)
 
   dbio.close()
 
