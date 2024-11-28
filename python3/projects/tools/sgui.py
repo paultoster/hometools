@@ -1,10 +1,10 @@
 ########file test.py##########################################
-#!/usr/bin/env python
+#!/usr/bin/env python  obj = abfrage_liste_class(liste,title=title)
 #
 #------------------------------------------------------------------------------------------------------
-# full_file_name = eingabe_file(file_types="*",comment="Waehle oder benenne neue Datei",start_dir=None)
+# full_file_name = eingabe_file( file_types="*", comment="Waehle oder benenne neue Datei", start_dir=None)
 #
-# #  File auswaehlen
+# File auswaehlen
 # Um ein neues File zu generieren mit folgenden Parameter
 # file_types = "*.c *.h"      Filetypen (auch feste namen möglich "abc.py")
 # start_dir  = "d:\\abc"	Anfangspfad
@@ -13,6 +13,7 @@
 #
 #------------------------------------------------------------------------------------------------------
 # index = sgui.abfrage_liste_index(liste)
+# index = sgui.abfrage_liste_index(liste,"Title")
 #
 # listeAnzeige = ["Materialname","Materialmesseinheit","Materialabrechnungseinheit"]
 # index = sgui.abfrage_liste_index(listeAnzeige)
@@ -21,54 +22,70 @@
 #  index = 0 ... 2  Index Liste
 #
 #------------------------------------------------------------------------------------------------------
+# indexListe = sgui.abfrage_liste_indexListe(liste)
+# indexListe = sgui.abfrage_liste_indexListe(liste,"Title")
+#
+# listeAnzeige = ["Materialname","Materialmesseinheit","Materialabrechnungseinheit"]
+# indexListe = sgui.abfrage_liste_indexListe(listeAnzeige)
+#
+#  indexListe = [-1]       Cancel
+#  indexListe = [0,2]      Index Liste zwei Elemente
+#
+#------------------------------------------------------------------------------------------------------
+# (index,indexAbfrage) = sgui.abfrage_liste_index_abfrage_index(liste,listeAbfrage):
 # (indexListe,indexAbfrage) = sgui.abfrage_liste_indexListe_abfrage_index(liste,listeAbfrage):
+#
 # z.B. liste = ["alpha","beta","gamma"] , listeAbfrage = ["Ok","Cancel","Aendern"]
 #
+# idex       = -1
+# indexListe 0 [-1]  keinen Wert
 #
 #
 #------------------------------------------------------------------------------------------------------
 # list =  abfrage_n_eingabezeilen(liste,vorgabe_liste=None,title=None)
 #
-#   Gui Abfrage verschiedener Eingaben
+#   Gui Abfrage verschiedener Eingaben vorgabe_liste als default-Wert
 #   z.B.
 #   listeAnzeige = ["Materialname","Materialmesseinheit","Materialabrechnungseinheit"]
 #   listeErgebnis = sgui.abfrage_n_eingabezeilen(listeAnzeige)
-#   oder mit Vorgewert
+#
+#   oder mit Vorgabewert
+#
 #   listeAnzeige = ["Materialname","Materialmesseinheit","Materialabrechnungseinheit"]
 #   listeWerte   = ["Kaffee","kg","Tassen"]
 #   title        = "MAterialauswahl"
 #   listeErgebnis = sgui.abfrage_n_eingabezeilen(liste=listeAnzeige, vorgabe_liste=listeWerte,title=title)
 #
+#   bei cancel Rückgabe leer List
+#------------------------------------------------------------------------------------------------------
+# (data_set,indexAbfrage) = sgui.abfrage_tabelle(header_liste,data_set):    listeAbfrage = ["okay"]
+# (data_set,indexAbfrage) = sgui.abfrage_tabelle(header_liste,data_set,data_index_liste):    listeAbfrage = ["okay"]
+# (data_set,indexAbfrage) = sgui.abfrage_tabelle(header_liste,data_set,data_index_liste,listeAbfrage):
+#
+# z.B. header_liste     = ["alpha","beta","gamma"]                       Die Name der Bestandteile eines dat-items
+#      data_set         = [[0.1,0.1,0.2],[0.2,0.5,0.2], .... ]           Date-set liste mit Zeilen-Liste, Zeilenliste entspricht dr Headerliste
+#      data_index_liste = [1,2, ...}                                     inizes zu den jeweiligen Daten packet
+#      listeAbfrage     = ["Ok","Cancel","Aendern"]                      Abfrage möglichkeiten indexAbfrage zeigt dann den Wert
+#
+# gibt den geänderten data_set zurück
+# data_index_liste
+#
 #
 #------------------------------------------------------------------------------------------------------
-# flag = sgui.abfrage_janein(text=Soll abgebrochen werden,title=Abbruch j/n)
+# flag = sgui.abfrage_janein(text="Soll abgebrochen werden")
+# flag = sgui.abfrage_janein(text="Soll abgebrochen werden",title="Abbruch j/n")
 #
 #  flag      True/False
-#
-#
 #
 #------------------------------------------------------------------------------------------------------
 #  sgui.anzeige_text(texteingabe,title=None,textcolor='black')
 #  Zeigt Text an mit Okay Button
 #  Farben 'black','red','blue','green'...
-#------------------------------------------------------------------------------------------------------
-# lsite = abfrage_listbox1(liste,smode)
-#
-# Listenabfrage Auswahl eines oder mehrere items aus einer Liste
-#        Beispiel:
-#        liste       Liste von auszuwählen
-#        smode       "s" singlemode, nur ein item darf ausgew�hlt werden
-#                    "e" extended mehrere items
-#        Beispiel
-#        liste = ["Dieter","Roland","Dirk"]
-#        items = abfrage_listbox(liste,"s")
-#        for item in items:
-#            print "\nName: %s" % liste[item]
-#
 #
 #------------------------------------------------------------------------------------------------------
 # dir = abfrage_dir(comment=None,start_dir=None)
-# gui für Pfad auszuwählen
+#
+#  gui um Pfad auszuwählen
 #
 #
 #
@@ -76,12 +93,11 @@
 # selected_file = eingabe_file(file_types="*",comment="Waehle oder benenne neue Datei",start_dir=None)
 #
 #     eingabe_file (FileSelectBox) um ein neues File zu generieren
-#                                 mit folgenden Parameter
+#     mit folgenden Parameter
 #     file_types = "*.c *.h"      Filetypen (auch feste namen m�glich "abc.py")
 #     start_dir  = "d:\\abc"	Anfangspfad
 #     comment    = "Suche Datei"  Windows Leisten text
 #     return selected_file or None
-#
 #
 #------------------------------------------------------------------------------------------------------
 # items = abfrage_listbox(liste,smode):
@@ -100,6 +116,7 @@
 import tkinter as Tk
 # import tkinter.filedialog
 from tkinter.filedialog import askopenfilename
+from tkinter import ttk
 import tkinter.messagebox
 import os
 import sys
@@ -141,6 +158,16 @@ GUI_ICON_FILE_BASE = "SGUI.ico"
 #===============================================================================
 #========================== abfrage_liste ======================================
 #===============================================================================
+def abfrage_liste_index(liste,title=None):
+  obj = abfrage_liste_class(liste,title=title)
+  index        = obj.index
+  del obj
+  return index
+def abfrage_liste_indexListe(liste,title=None):
+  obj = abfrage_liste_class(liste,title=title)
+  indexListe   = obj.indexListe
+  del obj
+  return indexListe
 def abfrage_liste_index_abfrage_index(liste,listeAbfrage,title=None):
   obj = abfrage_liste_class(liste,listeAbfrage,title)
   index        = obj.index
@@ -153,17 +180,6 @@ def abfrage_liste_indexListe_abfrage_index(liste,listeAbfrage,title=None):
   indexAbfrage = obj.indexAbfrage
   del obj
   return (indexListe,indexAbfrage)
-
-def abfrage_liste_index(liste,title=None):
-  obj = abfrage_liste_class(liste,title=title)
-  index        = obj.index
-  del obj
-  return index
-def abfrage_liste_indexListe(liste,title=None):
-  obj = abfrage_liste_class(liste,title=title)
-  indexListe   = obj.indexListe
-  del obj
-  return indexListe
 
 class abfrage_liste_class:
   """
@@ -195,6 +211,7 @@ class abfrage_liste_class:
   str_auswahl_liste     = []
   index_auswahl_liste   = []
   indexListe            = []
+  
   index                 = -1
   indexAbfrage          = -1
   act_frame_id          = 0
@@ -471,6 +488,472 @@ class abfrage_liste_class:
     if( self.act_frame_id == self.GUI_LISTE_ID ):
       self.Gui_rahmen[self.GUI_LISTE_ID].pack(expand=1,fill=Tk.BOTH)
 #========================== abfrage_liste ======================================
+#===============================================================================
+
+#===============================================================================
+#========================== abfrage_tabelle=====================================
+#
+# gibt den geänderten data_set zurück
+# data_index_liste
+def abfrage_tabelle(header_liste,data_set,data_index_liste=None,listeAbfrage=None):
+  obj = abfrage_tabelle_class(header_liste,data_set,data_index_liste,listeAbfrage)
+  data_set_out = obj.data_set
+  indexAbfrage = obj.indexAbfrage
+  del obj
+  return (data_set_out,indexAbfrage)
+class abfrage_tabelle_class:
+  """
+    (data_set,indexAbfrage) = sgui.abfrage_tabelle(header_liste,data_set):    listeAbfrage = ["okay"]
+    (data_set,indexAbfrage) = sgui.abfrage_tabelle(header_liste,data_set,data_index_liste):    listeAbfrage = ["okay"]
+    (data_set,indexAbfrage) = sgui.abfrage_tabelle(header_liste,data_set,data_index_liste,listeAbfrage):
+
+    z.B. header_liste     = ["alpha","beta","gamma"]                       Die Name der Bestandteile eines dat-items
+         data_set         = [[0.1,0.1,0.2],[0.2,0.5,0.2], .... ]           Date-set liste mit Zeilen-Liste, Zeilenliste entspricht dr Headerliste
+         data_index_liste = [1,2, ...}                                     inizes zu den jeweiligen Daten packet
+         listeAbfrage     = ["Ok","Cancel","Aendern"]                      Abfrage möglichkeiten indexAbfrage zeigt dann den Wert
+
+  """
+  GUI_GEOMETRY_WIDTH    = GUI_GEOMETRY_WIDTH_BASE
+  GUI_GEOMETRY_HEIGHT   = GUI_GEOMETRY_HEIGHT_BASE
+  GUI_GEOMETRY_POSX     = 0
+  GUI_GEOMETRY_POSY     = 0
+  GUI_ICON_FILE         = GUI_ICON_FILE_BASE
+  GUI_TITLE             = "Tabelle"
+
+  GUI_TAB_ID          = 0
+  
+  DATA_FLOAT          = 0
+  DATA_INTEGER         = 1
+  DATA_STRING         = 2
+
+  state                 = hdef.OKAY
+  header_liste          = []
+  data_set              = []
+  ndata                 = 0
+  nheader               = 0
+  index_liste           = []
+  type_liste             = []
+  
+  index_liste           = []
+  str_auswahl_liste     = []
+  index_auswahl_liste   = []
+  indexListe            = []
+  index                 = -1
+  indexAbfrage          = -1
+  act_frame_id          = 0
+  Gui_rahmen            = [None]
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+  def __init__(self,header_liste,data_set,data_index_liste=None,listeAbfrage=None):
+    """
+    """
+    self.state                 = hdef.OKAY
+    self.header_liste          = []
+    self.index_liste           = []
+    self.str_auswahl_liste     = []
+    self.index_auswahl_liste   = []
+    self.indexListe            = []
+    self.abfrage_liste         = [u'okay']
+    self.index                 = -1
+    self.act_frame_id          = 0
+    self.title                 = u"Tabelle"
+
+    # data_set
+    if (data_set and isinstance(data_set, list)):
+      nheader = 0
+      self.ndata   = len(data_set)
+      for data in data_set:
+        if( len(data) > nheader ):
+          nheader = len(data)
+        #endif
+      #endfor
+      self.data_set = data_set
+      self.nheader  = nheader
+    else:
+      self.state = hdef.NOT_OKAY
+      return ([],-1)
+    #endif
+    
+    # proof first data set for type
+    data = self.data_set[0]
+    self.type_liste = []
+    for item in data:
+      if( isinstance(item,float) ):
+        self.type_liste.append(self.DATA_FLOAT)
+      elif( isinstance(item,int)):
+        self.type_liste.append(self.DATA_INTEGER)
+      else:
+        self.type_liste.append(self.DATA_STRING)
+      #endif
+    #endfor
+    
+    # header liste
+    if( header_liste and isinstance(header_liste, list)):
+      self.header_liste = []
+      for item in header_liste:
+        self.header_liste.append(item)
+      #endfor
+    #endif
+    
+    n = len(self.header_liste)
+    if( n < self.nheader ):
+      for i in range(n,self.nheader):
+        self.header_liste.append(f"item{i}")
+      #endfor
+    #endif
+      
+    #index liste
+    if( data_index_liste and  isinstance(data_index_liste, list)):
+      self.index_liste = []
+      for index in data_index_liste:
+        self.index_liste.append(index)
+      #endfor
+
+      n = len(self.index_liste)
+      if (n < self.ndata):
+        
+        if( n == 0):    ii = 0
+        else:           ii = self.index_liste[-1]
+        
+        for i in range(n, self.ndata):
+          ii += 1
+          self.index_liste.append(ii)
+        # endfor
+      # endif
+    #endif
+    
+    
+    # Liste der Abfrage buttons
+    if( listeAbfrage ):
+      self.abfrage_liste = []
+      for item in listeAbfrage:
+        if( isinstance(item, str) ):
+          self.abfrage_liste.append(item)
+        elif( isinstance(item, float) ):
+          self.abfrage_liste.append("%f" % item)
+        elif( isinstance(item, int) ):
+          self.abfrage_liste.append("%i" % item)
+        #endif
+    #endif
+
+    # Titel:
+    # if( title and isinstance(title, str)):
+    #   self.title = title
+    #endif
+
+    # Auswahlliste wird auf gesamte Liste gesetzt
+    # self.str_auswahl_liste   = self.str_liste
+    # self.index_auswahl_liste = self.index_liste
+
+
+    # TK-Grafik anlegen
+    #------------------
+    self.root = Tk.Tk()
+    self.root.protocol("WM_DELETE_WINDOW", self.exitMenu)
+    #geo = str(self.GUI_GEOMETRY_WIDTH)+"x"+str(self.GUI_GEOMETRY_HEIGHT)
+    #self.root.geometry(geo)
+    self.root.wm_geometry("%dx%d+%d+%d" % (self.GUI_GEOMETRY_WIDTH, self.GUI_GEOMETRY_HEIGHT, self.GUI_GEOMETRY_POSX, self.GUI_GEOMETRY_POSY))
+
+    if( os.path.isfile(self.GUI_ICON_FILE) ):
+        self.root.wm_iconbitmap(self.GUI_ICON_FILE)
+    self.root.title(self.GUI_TITLE)
+
+    # Gui anlegen
+    #--------------
+    self.createTabellenGui()
+
+    # Menue anlegen
+    #--------------
+    # self.createMenu()
+    self.makeTabGui()
+    self.flag_mainloop = True
+
+    self.root.mainloop()
+
+  def __del__(self):
+      if(self.flag_mainloop):
+        self.root.destroy()
+        self.flag_mainloop = False
+  def exitMenu(self):
+    ''' Beenden der Gui
+    '''
+    # Vor Beenden Speichern abfragen
+    # ans = tkinter.messagebox.askyesno(parent=self.root,title='Sichern', message='Soll Datenbasis gesichert werden')
+    # if( ans ): self.base.save_db_file()
+
+    if(self.flag_mainloop):
+        self.root.destroy()
+        self.flag_mainloop = False
+
+
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+  def createTabellenGui(self):
+    ''' Gui für Liste
+    '''
+    self.Gui_rahmen[self.GUI_TAB_ID] = Tk.LabelFrame(self.root,bd=2,text=self.title,font=('Verdana',10,'bold'))
+
+    gr_entry = Tk.Frame(self.Gui_rahmen[self.GUI_TAB_ID],relief=Tk.GROOVE, bd=2)
+    gr_entry.pack(pady=5)
+
+    # label links oben mit text Filte
+    # label_a = Tk.Label(gr_entry,text='Filter:',font=('Verdana',10,'bold'))
+    # label_a.pack(side=Tk.LEFT,pady=1,padx=1)
+
+    # entry StringVar fuer die Eingabe
+    # self.StringVarFiltText = Tk.StringVar()
+    # self.StringVarFiltText.set("")
+    # self.StringVarFiltText.trace("w",self.runDoFilter)
+
+    # entry Aufruf
+    # entry_a = Tk.Entry(gr_entry,width=(100),textvariable=self.StringVarFiltText)
+    # entry_a.pack(side=Tk.LEFT,pady=1,padx=1)
+
+    gr_tabbox = Tk.Frame(self.Gui_rahmen[self.GUI_TAB_ID])
+    gr_tabbox.pack(expand=1,fill=Tk.BOTH)
+
+    # Scrollbar
+    scroll_tabbox = Tk.Scrollbar(gr_tabbox)
+    scroll_tabbox.pack(side=Tk.RIGHT,fill=Tk.Y)
+    
+    if (len(self.index_liste) == self.ndata):
+      self.tabGui_TabBox = ttk.Treeview(gr_tabbox, columns=self.header_liste) # , show="headings"
+    else:
+      self.tabGui_TabBox = ttk.Treeview(gr_tabbox, columns=self.header_liste, show="headings")
+    #endf
+    
+    # Listbox ttk.Treeview(self, columns=("ID", "Name", "Category", "Price"), show="headings")
+    # Tk.Listbox(gr_listbox,selectmode=Tk.EXTENDED,yscrollcommand=scroll_listbox.set,font=('Verdana',15,'bold'))
+    
+    # columns
+    if (len(self.index_liste) == self.ndata):
+      self.tabGui_TabBox.column("#0", width=30, minwidth=20)
+      # endif
+    for name in self.header_liste:
+      self.tabGui_TabBox.column(name, anchor=Tk.W)
+    # endfor
+    
+    
+    if( len(self.index_liste) == self.ndata ):
+      self.tabGui_TabBox.heading("#0", text="id", anchor=Tk.W)
+    #endif
+    for name in self.header_liste:
+      self.tabGui_TabBox.heading(name, text=name, anchor=Tk.W)
+    #endfor
+    
+    self.tabGui_TabBox.tag_configure('oddrow',background = 'white')
+    self.tabGui_TabBox.tag_configure('evenrow',background = 'lightblue')
+
+    self.tabGui_TabBox.bind("<Double-1>", self.SelectOnDoubleClick)
+    
+    
+
+    self.tabGui_TabBox.pack(fill=Tk.BOTH, expand=1)
+
+    scroll_tabbox.config(command=self.tabGui_TabBox.yview)
+
+
+    gr_buts = Tk.Frame(self.Gui_rahmen[self.GUI_TAB_ID],relief=Tk.GROOVE, bd=2)
+    gr_buts.pack(fill=Tk.X,pady=5)
+
+    self.Button = []
+    for name in self.abfrage_liste:
+
+      b_back = Tk.Button(gr_buts,text=name,command=lambda m=name: self.selectTabGui(m))  # lambda m=method: self.populateMethod(m))
+      b_back.pack(side=Tk.LEFT,pady=4,padx=2)
+      self.Button.append(b_back)
+    #endfor
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+#  def runDoFilter(self,*dummy):
+#
+#    tt = self.StringVarFiltText.get()
+#
+#    self.str_auswahl_liste   = []
+#    self.index_auswahl_liste = []
+#
+#    for i in range(0,len(self.str_liste),1):
+#
+#      ii = self.str_liste[i].find(tt)
+#      if( ii > -1 ):
+#        self.str_auswahl_liste.append(self.str_liste[i])
+#        self.index_auswahl_liste.append(self.index_liste[i])
+#      #endif
+#    #endfor
+#
+#    self.makeTabGui()
+#
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+  def makeTabGui(self):
+    ''' list-Gui f�llen
+    '''
+
+    # delete tabbox
+    #n = self.    tabGui_TabBox.size()
+    #if( n > 0 ): self.    tabGui_TabBox.delete(0, n)
+
+    self.    tabGui_TabBox.pack(expand=1,fill=Tk.BOTH)
+
+    # Gruppenname aktualisieren
+    # self.select    tabGui()
+    # fill listbox
+    # Insert sample data into the Treeview
+    if( len(self.index_liste) == self.ndata ):
+      for i, data in enumerate(self.data_set):
+        if( self.index_liste[i] % 2 == 0):
+          self.tabGui_TabBox.insert(parent="", index="end", iid=self.index_liste[i],text=self.index_liste[i],values=data,tags=('evenrow',))
+        else:
+          self.tabGui_TabBox.insert(parent="", index="end", iid=self.index_liste[i],text=self.index_liste[i],values=data,tags=('oddrow',))
+        #endif
+      #endfor
+    else:
+      count = 0
+      for data in self.data_set:
+        if (count % 2 == 0):
+          self.tabGui_TabBox.insert("", "end", values=data,tags=('evenrow',))
+        else:
+          self.tabGui_TabBox.insert("", "end", values=data,tags=('oddrow',))
+        #endif
+        count += 1
+      #endfor
+    #endif
+
+    self.setActFrameID(self.GUI_TAB_ID)
+
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+  def selectTabGui(self,button_name):
+    ''' eine Gruppe ausw�hlen �ber selection, wenn nicht dann weiter
+        aktuellen Namen verwenden
+        Ergebnis wird in self.actual_group_name gespeichert
+        R�ckgabewert:
+        Wenn self.actual_group_name belegt ist, dann True
+        ansonasten False
+    '''
+    
+    self.data_set = []
+    for line in self.tabGui_TabBox.get_children():
+      
+      data = []
+      for i,value in enumerate(self.tabGui_TabBox.item(line)['values']):
+        if( self.type_liste[i] == self.DATA_INTEGER ):
+          data.append(int(value))
+        elif (self.type_liste[i] == self.DATA_FLOAT):
+          data.append(float(value))
+        else:
+          data.append(str(value))
+        #endif
+      #endfor
+      self.data_set.append(data)
+    #endfor
+    """
+    # Nimmt den aktuellen Cursorstellung
+    self.indexListe = []
+
+    select = self.tabGui_TabBox.curselection()
+
+    if( len(select) > 0  ):
+      for i in range(0,len(select),1):
+        ii = select[i]
+        if( ii < len(self.index_auswahl_liste) ):
+          self.indexListe.append(self.index_auswahl_liste[ii])
+        #endif
+      #endfor
+      if( len(self.indexListe) > 0 ):
+        self.index = self.indexListe[0]
+    #endif
+    flag = False
+    icount = 0
+    for name in self.abfrage_liste:
+      if( name == button_name ):
+        flag = True
+        self.indexAbfrage = icount
+        break
+      icount += 1
+      #endif
+    #endfor
+    """
+    self.exitMenu()
+
+  def SelectOnDoubleClick(self, event):
+    '''Executed, when a row is double-clicked'''
+    # close previous popups
+    try:  # in case there was no previous popup
+      self.entryPopup.destroy()
+    except AttributeError:
+      pass
+
+    # what row and column was clicked on
+    rowid = self.tabGui_TabBox.identify_row(event.y)
+    column = self.tabGui_TabBox.identify_column(event.x)
+
+    # return if the header was double clicked
+    if not rowid:
+      return
+
+    # get cell position and cell dimensions
+    x, y, width, height = self.tabGui_TabBox.bbox(rowid, column)
+    print(x, y, width, height)
+
+    # y-axis offset
+    pady = height // 2
+
+    # place Entry Widget
+    text = self.tabGui_TabBox.item(rowid, 'values')[int(column[1:]) - 1]
+    self.entryPopup = EntryPopup(self.root,self.tabGui_TabBox, rowid, int(column[1:]) - 1, text)
+    self.entryPopup.place(x=x, y=y + pady, width=width, height=height, anchor='w')
+
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+  def setActFrameID(self,id):
+    ''' Setzt Gui mit ID
+    '''
+    if( self.act_frame_id == self.GUI_TAB_ID ):
+      self.Gui_rahmen[self.GUI_TAB_ID].pack_forget()
+
+    self.act_frame_id = id
+    if( self.act_frame_id == self.GUI_TAB_ID ):
+      self.Gui_rahmen[self.GUI_TAB_ID].pack(expand=1,fill=Tk.BOTH)
+
+
+#-------------------------------------------------------------------------------
+#------------------------ entry pop up -----------------------------------------
+class EntryPopup(ttk.Entry):
+  def __init__(self, root,tree, iid, column, text, **kw):
+    super().__init__(root, **kw)
+    self.tv = tree  # reference to parent window's treeview
+    self.iid = iid  # row id
+    self.column = column
+
+    self.insert(0, text)
+    self['exportselection'] = False  # Prevents selected text from being copied to
+    # clipboard when widget loses focus
+    self.focus_force()  # Set focus to the Entry widget
+    self.select_all()  # Highlight all text within the entry widget
+    self.bind("<Return>", self.on_return)  # Enter key bind
+    self.bind("<Control-a>", self.select_all)  # CTRL + A key bind
+    self.bind("<Escape>", lambda *ignore: self.destroy())  # ESC key bind
+
+  def on_return(self, event):
+    '''Insert text into treeview, and delete the entry popup'''
+    rowid = self.tv.focus()  # Find row id of the cell which was clicked
+    vals = self.tv.item(rowid, 'values')  # Returns a tuple of all values from the row with id, "rowid"
+    vals = list(vals)  # Convert the values to a list so it becomes mutable
+    vals[self.column] = self.get()  # Update values with the new text from the entry widget
+    self.tv.item(rowid, values=vals)  # Update the Treeview cell with updated row values
+    self.destroy()  # Destroy the Entry Widget
+
+  def select_all(self, *ignore):
+    ''' Set selection on the whole text '''
+    self.selection_range(0, 'end')
+    return 'break'  # returns 'break' to interrupt default key-bindings
+#------------------------ entry pop up -----------------------------------------
+#-------------------------------------------------------------------------------
+
+
+
+#========================== abfrage_tabelle ======================================
 #===============================================================================
 
 #===============================================================================
@@ -1042,103 +1525,6 @@ class anzeige_text_class:
   #enddef
 #endclass
 
-#========================== abfrage_listbox1 ============================
-#===============================================================================
-def abfrage_listbox1(liste,smode):
-    """ Listenabfrage Auswahl eines oder mehrere items aus einer Liste
-        Beispiel:
-        liste       Liste von auszuw�hlend
-        smode       "s" singlemode, nur ein item darf ausgew�hlt werden
-                    "e" extended mehrere items
-        Beispiel
-        liste = ["Dieter","Roland","Dirk"]
-        items = abfrage_listbox(liste,"s")
-        for item in items:
-            print "\nName: %s" % liste[item]
-    """
-
-    tk = Tk()
-    t = slistbox1(tk,liste,smode)
-
-    return t.items
-class slistbox1:
-    def __init__(self,master,liste,smode="E"):
-        self.name = "Listbox"
-        self.items = []
-
-        self.toplevel=Toplevel(master)
-        self.toplevel.withdraw()
-
-        self.result=StringVar()
-
-        self.listbox = Listbox(self.toplevel,selectmode=smode)
-        self.listbox.pack()
-
-##        # liste auf H�he und Breite auswerten
-##        lh = len(liste)
-##        lw = 0
-##        for item in liste:
-##            lw = max(lw,len(item))
-##        if lh > 30 :
-##            lh1     = 30
-##            hscroll = 1
-##        else:
-##            lh1     = lh
-##            hscroll = 0
-##
-##        if( smode == "S" or smode == "s" ):
-##            selectm = SINGLE
-##        else:
-##            selectm = EXTENDED
-##
-##        # Listbox erstellen
-##        if hscroll > 0: # mit vertikal Scrollbar
-##
-##            hscrollbar = Scrollbar(self.toplevel)
-##            hscrollbar.pack(side=RIGHT, fill=Y)
-##            self.listbox = Listbox( self.toplevel,height=lh1, width=30
-##                                  , selectmode=selectm
-##                                  , yscrollcommand=hscrollbar.set)
-##            self.listbox.pack(side=LEFT, fill=Y)
-##            hscrollbar.config(command=self.listbox.yview)
-##
-##        else: # ohne Scrollbar
-##            self.listbox = Listbox( self.toplevel,height=lh1, width=30
-##                                  , selectmode=selectm)
-##            self.listbox.pack()
-
-        # Button
-        self.button1 = Button(self.toplevel,text="OK",command=self.get_items_and_close)
-        self.button1.pack()
-
-        # Bindung zum Beenden
-        #self.listbox.bind_all('<Return>', self.get_items_and_close)
-
-        # Listbox f�llen
-        for item in liste:
-            print("items: %s" % item)
-            self.listbox.insert('end',item)
-
-
-
-    def get_items_and_close(self):
-
-        # items abfragen
-        items = self.listbox.curselection()
-
-        # wegen alter Version transformieren
-        try:
-            items = map(string.atoi, items)
-        except ValueError: pass
-
-        # items an struktur �bergeben
-        for i in items:
-            self.items.append(int(i))
-
-        # widget l�schen
-        self.result.set("ok")
-        self.toplevel.destroy()
-        return
 
 #========================== abfrage_dir ========================================
 #===============================================================================
@@ -1467,16 +1853,16 @@ class slistbox:
         # Listbox erstellen
         if hscroll > 0: # mit vertikal Scrollbar
 
-            hscrollbar = Scrollbar(self)
-            hscrollbar.pack(side=RIGHT, fill=Y)
-            self.listbox = Listbox( self,height=lh1, width=30
+            hscrollbar = Tk.Scrollbar(self)
+            hscrollbar.pack(side=Tk.RIGHT, fill=Tk.Y)
+            self.listbox = Tk.Listbox( self,height=lh1, width=30
                                   , selectmode=selectm
                                   , yscrollcommand=hscrollbar.set)
-            self.listbox.pack(side=LEFT, fill=Y)
+            self.listbox.pack(side=Tk.LEFT, fill=Tk.Y)
             hscrollbar.config(command=self.listbox.yview)
 
         else: # ohne Scrollbar
-            self.listbox = Listbox( self,height=lh1, width=30
+            self.listbox = Tk.Listbox( self,height=lh1, width=30
                                   , selectmode=selectm)
             self.listbox.pack()
 
@@ -1508,7 +1894,7 @@ class slistbox:
 #===============================================================================
 def abfrage_ok_box(text="Ist das okay"):
 
-    root = tkinter.tix.Tk()
+    root = Tk.Tk()
     f = SOkCancelBox(root,text)
     f.mainloop()
     f.destroy()
@@ -2133,8 +2519,28 @@ def eingabe_jn(comment,default=None):
 if __name__ == '__main__':
 
 
-    # abfrage_liste_index(['A','B','C'])
-
+    header_liste= ["Datuam","Markt","Kosten"]
+    data_set    = [["1.2.2010","Rewe",10.15,"1.2.2010","Rewe",10.15]
+                  ,["1.2.2010","Rewe",10.15,"1.2.2010","Rewe",10.15]
+                  ,["1.2.2010","Rewe",10.15,"1.2.2010","Rewe",10.15]
+                  ,["1.2.2010","Rewe",10.15,"1.2.2010","Rewe",10.15]
+                  ,["1.2.2010","Rewe",10.15,"1.2.2010","Rewe",10.15]
+                  ,["1.2.2010","Rewe",10.15,"1.2.2010","Rewe",10.15]
+                  ,["1.2.2010","Rewe",10.15,"1.2.2010","Rewe",10.15]
+                  ]
+    # data = ['1.2.2010', 'Rewe', '10,15']
+    # for i in range(100):
+    #  data_set.append(data)
+      
+    index_data_liste = [1,2,3,4,5,6,7]
+    
+    (data_set_out,index) = abfrage_tabelle(header_liste = header_liste,data_set=data_set,data_index_liste=index_data_liste )
+    
+    print(data_set)
+    print(data_set_out)
+    
+    
+    """
     texteingabe = []
     for i in range(30):
       texteingabe.append("ösqodh23odhodhoh")
@@ -2142,7 +2548,7 @@ if __name__ == '__main__':
       texteingabe.append("abcdefghij")
     t       = "Vorsicht"
     anzeige_text(texteingabe,title=t,textcolor='green')
-
+    """
     # listeAnzeige = ["Materialname","Materialmesseinheit","Materialabrechnungseinheit","Materialname","Materialmesseinheit","Materialabrechnungseinheit","Materialname","Materialmesseinheit","Materialabrechnungseinheit","Materialname","Materialmesseinheit","Materialabrechnungseinheit","Materialname","Materialmesseinheit","Materialabrechnungseinheit"]
     # #listeAnzeige = ["Materialname","Materialmesseinheit","Materialabrechnungseinheit"]
     # listeErgebnis = abfrage_n_eingabezeilen(listeAnzeige)
