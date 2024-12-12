@@ -22,6 +22,7 @@ if( t_path == os.getcwd() ):
 
   import hfkt_def as hfkt_def
   import hfkt as h
+  import sgui
 else:
   p_list     = os.path.normpath(t_path).split(os.sep)
   if( len(p_list) > 1 ): p_list = p_list[ : -1]
@@ -31,12 +32,15 @@ else:
 
   from tools import hfkt_def as hfkt_def
   from tools import hfkt as h
+  from tools import sgui
 #endif--------------------------------------------------------------------------
 class log:
   state            = hfkt_def.OKAY
   errtext          = ""
   logfile_out_flag = False
   log_message      = []
+  PRINT_SCREEN     = 1
+  GUI_SCREEN       = 2
   def __init__(self,log_file=None):
     """ Log-Datei oeffnen
     """
@@ -83,7 +87,7 @@ class log:
       except IOError:
           print("IO-error of close log_file <%s>" % self.log_file)
   #-----------------------------------------------------------------------------
-  def write(self,text,screen=0):
+  def write(self,text,screen=0,title=None):
 
     # log-message in Datei schreiben
     if( self.logfile_out_flag and (self.state == hfkt_def.OK) ):
@@ -91,20 +95,30 @@ class log:
     # log-message in Buffer schreiben
     self.log_message.append(text)
     # log-message auf den Bildschirm schreiben
-    if( screen ):
+    if( screen == self.PRINT_SCREEN):
       print(text)
+    elif( screen == self.GUI_SCREEN):
+      if( title == "error"):
+        sgui.anzeige_text(text, title=title, textcolor='red')
+      elif( title == "warn"):
+        sgui.anzeige_text(text, title=title, textcolor='blu')
+      else:
+        sgui.anzeige_text(text, title=title, textcolor='black')
+      #endif
+    #endif
+  #enddef
   #-----------------------------------------------------------------------------
-  def write_e(self,text,screen=0):
+  def write_e(self,text,screen=0,title=None):
 
-    self.write(text+"\n",screen)
+    self.write(text+"\n",screen,title=title)
   #-----------------------------------------------------------------------------
-  def write_err(self,text,screen=0):
+  def write_err(self,text,screen=0,title="error"):
 
-    self.write("ERROR: "+text+"\n",screen)
+    self.write("ERROR: "+text+"\n",screen,title=title)
   #-----------------------------------------------------------------------------
-  def write_warn(self,text,screen=0):
+  def write_warn(self,text,screen=0,title="warn"):
 
-    self.write("WARNING: "+text+"\n",screen)
+    self.write("WARNING: "+text+"\n",screen,title=title)
   #-----------------------------------------------------------------------------
   def get_next_message(self):
     """

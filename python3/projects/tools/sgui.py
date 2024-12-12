@@ -713,9 +713,12 @@ class abfrage_tabelle_class:
     gr_tabbox.pack(expand=1,fill=Tk.BOTH)
 
     # Scrollbar
-    scroll_tabbox = Tk.Scrollbar(gr_tabbox)
-    scroll_tabbox.pack(side=Tk.RIGHT,fill=Tk.Y)
+    scroll_tabbox_y = Tk.Scrollbar(gr_tabbox)
+    scroll_tabbox_y.pack(side=Tk.RIGHT,fill=Tk.Y)
     
+    scroll_tabbox_x= Tk.Scrollbar(gr_tabbox, orient="horizontal")
+    scroll_tabbox_x.pack(side=Tk.BOTTOM,fill=Tk.X)
+
     if (len(self.index_liste) == self.ndata):
       self.tabGui_TabBox = ttk.Treeview(gr_tabbox, columns=self.header_liste) # , show="headings"
     else:
@@ -750,9 +753,9 @@ class abfrage_tabelle_class:
 
     self.tabGui_TabBox.pack(fill=Tk.BOTH, expand=1)
 
-    scroll_tabbox.config(command=self.tabGui_TabBox.yview)
-
-
+    scroll_tabbox_y.config(command=self.tabGui_TabBox.yview)
+    scroll_tabbox_x.config(command=self.tabGui_TabBox.xview)
+    
     gr_buts = Tk.Frame(self.Gui_rahmen[self.GUI_TAB_ID],relief=Tk.GROOVE, bd=2)
     gr_buts.pack(fill=Tk.X,pady=5)
 
@@ -1812,8 +1815,8 @@ def abfrage_listbox(liste,smode):
     """ Listenabfrage Auswahl eines oder mehrere items aus einer Liste
         Beispiel:
         liste       Liste von auszuw�hlend
-        smode       "s" singlemode, nur ein item darf ausgew�hlt werden
-                    "e" extended mehrere items
+        smode       "S" singlemode, nur ein item darf ausgew�hlt werden
+                    "E" extended mehrere items
         Beispiel
         liste = ["Dieter","Roland","Dirk"]
         items = abfrage_listbox(liste,"s")
@@ -1822,14 +1825,16 @@ def abfrage_listbox(liste,smode):
     """
 
     t = slistbox(liste=liste,smode=smode)
-    t.mainloop()
-    t.destroy()
+    t.tk.mainloop()
+    
+    items = t.items
+    # t.tk.destroy()
 
-    return t.items
+    return items
 
 class slistbox:
     def __init__(self,liste,smode="E"):
-        Tk.__init__(self)
+        self.tk = Tk.Tk()
         self.name = "Listbox"
         self.items = []
 
@@ -1846,23 +1851,23 @@ class slistbox:
             hscroll = 0
 
         if( smode == "S" or smode == "s" ):
-            selectm = SINGLE
+            selectm = Tk.SINGLE
         else:
-            selectm = EXTENDED
+            selectm = Tk.EXTENDED
 
         # Listbox erstellen
         if hscroll > 0: # mit vertikal Scrollbar
 
-            hscrollbar = Tk.Scrollbar(self)
+            hscrollbar = Tk.Scrollbar(self.tk)
             hscrollbar.pack(side=Tk.RIGHT, fill=Tk.Y)
-            self.listbox = Tk.Listbox( self,height=lh1, width=30
+            self.listbox = Tk.Listbox( self.tk,height=lh1, width=30
                                   , selectmode=selectm
                                   , yscrollcommand=hscrollbar.set)
             self.listbox.pack(side=Tk.LEFT, fill=Tk.Y)
             hscrollbar.config(command=self.listbox.yview)
 
         else: # ohne Scrollbar
-            self.listbox = Tk.Listbox( self,height=lh1, width=30
+            self.listbox = Tk.Listbox( self.tk,height=lh1, width=30
                                   , selectmode=selectm)
             self.listbox.pack()
 

@@ -70,6 +70,16 @@
 #
 # ddict = dbio.get_data(tabname)
 #
+# cell_listed = 1: Sortiere in ddict = {namezelle1: [var1_zelle1, var2_zelle1, ...],
+#                                       namezelle2: [var1_zelle2, var2_zelle2, ...], ...}
+#
+# key_listed = 1: Sortiert
+# nach keys                   ddict = {'header': [name_zelle1, name_zelle2, ... name_zellem],
+#                                      'key': [key_var1, key_var2, ... key_varn],
+#                                      'nkey': n, 'nheader': m
+#                                      'data': [[var1_zelle1, var1_zelle2, ..., var1_zellem], [var2_zelle1, var2_zelle2, ..., var2_zellem], ...,
+#                                              [varn_zelle1, varn_zelle2, ..., varn_zellem]
+#                                     }
 #      Gesamten Inhalt der Tabelle ausgeben in einem dictionary
 #     mit  ddict[Zellname] = [], ...
 #
@@ -141,6 +151,7 @@ if( t_path == os.getcwd() ):
   import hfkt_ini as hini
   import hfkt_db  as hdb
   import hfkt_misc  as hm
+  import sgui
 else:
   p_list     = os.path.normpath(t_path).split(os.sep)
   if( len(p_list) > 1 ): p_list = p_list[ : -1]
@@ -153,6 +164,7 @@ else:
   from tools_path import hfkt_ini as hini
   from tools_path import hfkt_db  as hdb
   from tools_path import hfkt_misc as hm
+  from tools_path import sgui
 #endif--------------------------------------------------------------------------
 
 
@@ -609,8 +621,10 @@ class dbio:
 
     cell_listed=1 : Sortiere in ddict = {namezelle1: [var1_zelle1, var2_zelle1, ...],namezelle2: [var1_zelle2, var2_zelle2, ...], ...}
 
-    key_listed=1 : Sortiert nach keys ddict = {'header':[name_zelle1,name_zelle2, ...],
-                                               key_num_first:[var1_zelle1,var1_zelle2, ...], key_num_second:[var2_zelle1,var2_zelle2, ...], ...
+    key_listed=1 : Sortiert nach keys ddict = {'header':[name_zelle1,name_zelle2, ... name_zellem],
+                                               'key':[key_var1, key_var2, ... key_varn],
+                                               'nkey':n, 'nheader':m
+                                               'data':[[var1_zelle1,var1_zelle2, ..., var1_zellem],[var2_zelle1,var2_zelle2, ... ,var2_zellem], ...,[varn_zelle1,varn_zelle2, ... ,varn_zellem]
                                               }
 
     
@@ -654,9 +668,17 @@ class dbio:
     # ---------------------------------------------------------------------------------------------------------------
     elif(key_listed != 0):
       n = len(header_liste)
-      ddict['header'] = header_liste[0:n-1]
+      ddict['header']  = header_liste[0:n-1]
+      ddict['mheader'] = n-1
+      ddict['key']     = []
+      ddict['data']    = []
+      nkey             = 0
       for data in data_liste:
-        ddict[data[n-1]]=data[0:n-1]
+        ddict['key'].append(data[n-1])
+        ddict['data'].append(data[0:n-1])
+        nkey += 1
+      #endfor
+      ddict['nkey'] = nkey
     else:
       self.status = self.NOT_OKAY
       tt          = "Für Tabelle: %s in File: %s  Datenausgabefomat setzen: cell_listed=1 or key_listed=1 or ...  !!!" % (tabname,self.dbfile)
@@ -1140,19 +1162,24 @@ if __name__ == '__main__':
   #endif
   del dlist
 
-  ddict = dbio.get_data("Einkauf",cell_listed=1)
+  ddict = dbio.get_data("Einkauf",key_listed=1)
 
   if (dbio.status != dbio.OKAY):
     print(f"Tabellen abfrage Einkauf fehlgeschlagen:  {dbio.get_err_text()}")
     exit(1)
   #endif
+  
+  # header_liste,data_set,data_index_liste=None,listeAbfrage=None
+  
+  (data_set_out,_) = sgui.abfrage_tabelle(header_liste = ddict["header"], data_set=ddict["data"],data_index_liste=ddict["key"])
+  
+  print(data_set_out)
+  
+  #  if( dbio.delete_data("Material", 1 , by_primekey=1) != dbio.OKAY ):
+  #    print(f"Tabellen daten löschen Material fehlgeschlagen:  {dbio.get_err_text()}")
+  #    exit(1)
+  #  # endif
 
-  if( dbio.delete_data("Material", 1 , by_primekey=1) != dbio.OKAY ):
-    print(f"Tabellen daten löschen Material fehlgeschlagen:  {dbio.get_err_text()}")
-    exit(1)
-  # endif
-
-  print(ddict)
 
   dbio.close()
 
@@ -1163,4 +1190,10 @@ if __name__ == '__main__':
     print(f"Log text dbio: {dbio.get_log_text()}")
   #endif
 
-#endif
+
+"""
+  liste = ["Dieter", "Roland", "Dirk"]
+  items = sgui.abfrage_listbox(liste, smode="S")
+  for item in items:
+    print("\nName: %s" % liste[item])
+"""
