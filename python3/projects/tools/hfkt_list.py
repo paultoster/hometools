@@ -44,6 +44,10 @@
     return csd
 
 
+liste = multiply_constant(liste, value)
+
+liste = add_constant(liste, value)
+
 '''
 ###################################################################################
 # Fileoperating
@@ -1284,6 +1288,52 @@ def list_move_items(list_in,index_liste,index_end = -1):
   list_in = erase_from_list(list_in,index_liste)
 
   return list_moved
+
+
+
+def multiply_constant(ll, value):
+  """
+    multiplies a list with const value
+    """
+  if (isinstance(ll, list)):
+    out = []
+    for i in range(len(ll)):
+      if (isinstance(ll[i], str)):
+        val = float(ll[i]) * value
+        out.append(str(val))
+      else:
+        out.append(ll[i] * value)
+  else:
+    if (isinstance(ll, str)):
+      val = float(ll) * value
+      out = str(val)
+    else:
+      out = ll * value
+
+  return out
+
+
+def add_constant(ll, value):
+  """
+    add to a list const value
+    """
+  if (isinstance(ll, list)):
+    for i in range(len(ll)):
+      if (isinstance(ll[i], str)):
+        ll[i] = float(ll[i]) + value
+        ll[i] = str(ll[i])
+      else:
+        ll[i] += value
+  else:
+    if (isinstance(ll, str)):
+      ll = float(ll) + value
+      ll = str(ll)
+    else:
+      ll += value
+
+  return ll
+
+
 #enddef
 ###########################################################################
 # testen mit main

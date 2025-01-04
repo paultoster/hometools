@@ -200,7 +200,7 @@ from tkinter import *
 from tkinter.constants import *
 import tkinter.filedialog
 import tkinter.messagebox
-import tkinter.tix
+import tkinter.ttk
 import string
 import types
 import copy
@@ -2187,26 +2187,26 @@ class DirList:
         else:
             z.wm_title("choose dir")
 
-        # Create the tkinter.tixDirList and the tixLabelEntry widgets on the on the top
+        # Create the tkinter.ttkDirList and the tixLabelEntry widgets on the on the top
         # of the dialog box
 
         # bg = root.tk.eval('tix option get bg')
         # adding bg=bg crashes Windows pythonw tk8.3.3 Python 2.1.0
 
-        top = tkinter.tix.Frame( w, relief=RAISED, bd=1)
+        top = tkinter.ttk.Frame( w, relief=RAISED, bd=1)
 
         # Create the DirList widget. By default it will show the current
         # directory
         #
         #
-        top.dir = tkinter.tix.DirList(top)
+        top.dir = tkinter.ttk.DirList(top)
         top.dir.chdir(dir_start)
         top.dir.hlist['width'] = 40
 
         # When the user presses the ".." button, the selected directory
         # is "transferred" into the entry widget
         #
-        top.btn = tkinter.tix.Button(top, text = "  >>  ", pady = 0)
+        top.btn = tkinter.ttk.Button(top, text = "  >>  ", pady = 0)
 
         # We use a LabelEntry to hold the installation directory. The user
         # can choose from the DirList widget, or he can type in the directory
@@ -2216,7 +2216,7 @@ class DirList:
             label_text = "chosen Directory (and add name for new dir):"
         else:
             label_text = "chosen Directory:"
-        top.ent = tkinter.tix.LabelEntry(top, label=label_text,
+        top.ent = tkinter.ttk.LabelEntry(top, label=label_text,
                                   labelside = 'top',
                                   options = '''
                                   entry.width 50
@@ -2245,7 +2245,7 @@ class DirList:
 
         # Use a ButtonBox to hold the buttons.
         #
-        box = tkinter.tix.ButtonBox (w, orientation='horizontal')
+        box = tkinter.ttk.ButtonBox (w, orientation='horizontal')
 ##        box.add ('ok', text='Ok', underline=0, width=6,
 ##                     command = lambda self=self: self.okcmd () )
         box.add ('ok', text='Ok', underline=0, width=6,
@@ -2322,24 +2322,24 @@ class SFileSelectBox:
 
 
 
-        top = tkinter.tix.Frame( w            \
+        top = tkinter.ttk.Frame( w            \
                        , relief=FLAT  \
                        , bd=20        \
                        )
 
-        top.fselect = tkinter.tix.FileSelectBox( top                \
+        top.fselect = tkinter.ttk.FileSelectBox( top                \
                                        , dir=start_dir      \
                                        , pattern=file_types \
                                        )
 
 
-        top.okbtn = tkinter.tix.Button(top                                 \
+        top.okbtn = tkinter.ttk.Button(top                                 \
                               ,text='Ok'                           \
                               ,width = 10                          \
                               ,command=lambda x=top: self.okcmd(x) \
                               )
 
-        top.quitbtn = tkinter.tix.Button(top                                   \
+        top.quitbtn = tkinter.ttk.Button(top                                   \
                                 ,text='Quit'                           \
                                 ,width = 10                            \
                                 ,command=lambda x=top: self.quitcmd(x) \
@@ -2357,9 +2357,9 @@ class SFileSelectBox:
                         , side=LEFT \
                         )
 
-        top.okbtn.pack( side=tkinter.tix.BOTTOM )
+        top.okbtn.pack( side=tkinter.ttk.BOTTOM )
 
-        top.quitbtn.pack( side=tkinter.tix.BOTTOM )
+        top.quitbtn.pack( side=tkinter.ttk.BOTTOM )
 
         z.wm_protocol( "WM_DELETE_WINDOW"            \
                      , lambda x=top: self.quitcmd(x) \
@@ -2397,23 +2397,23 @@ class SStringBox:
         else:
             z.wm_title("Text eingeben")
 
-        top = tkinter.tix.Frame( w            \
+        top = tkinter.ttk.Frame( w            \
                        , relief=FLAT  \
                        , bd=20        \
                        )
 
-        top.combo = tkinter.tix.ComboBox( top )
+        top.combo = tkinter.ttk.ComboBox( top )
         top.combo.entry['state'] = "normal"
         top.combo['editable']    = True
 
 
-        top.okbtn = tkinter.tix.Button(top                                 \
+        top.okbtn = tkinter.ttk.Button(top                                 \
                               ,text='Ok'                           \
                               ,width = 10                          \
                               ,command=lambda x=top: self.okcmd(x) \
                               )
 
-        top.quitbtn = tkinter.tix.Button(top                                   \
+        top.quitbtn = tkinter.ttk.Button(top                                   \
                                 ,text='Quit'                           \
                                 ,width = 10                            \
                                 ,command=lambda x=top: self.quitcmd(x) \
@@ -2431,9 +2431,9 @@ class SStringBox:
                         , side=LEFT \
                         )
 
-        top.okbtn.pack( side=tkinter.tix.BOTTOM )
+        top.okbtn.pack( side=tkinter.ttk.BOTTOM )
 
-        top.quitbtn.pack( side=tkinter.tix.BOTTOM )
+        top.quitbtn.pack( side=tkinter.ttk.BOTTOM )
 
         z.wm_protocol( "WM_DELETE_WINDOW"            \
                      , lambda x=top: self.quitcmd(x) \
@@ -2539,23 +2539,23 @@ class SOkCancelBox:
 
 
 
-        top = tkinter.tix.Frame( w            \
+        top = tkinter.ttk.Frame( w            \
                        , relief=FLAT  \
                        , bd=20        \
                        )
 
-##        top.label = tkinter.tix.Label(w, padx=20, pady=10, bd=1, relief=tkinter.tix.RAISED, \
-##                              anchor=tkinter.tix.CENTER, text=comment)
-        top.label = tkinter.tix.Label(top, bd=1, relief=tkinter.tix.RAISED, \
-                              anchor=tkinter.tix.CENTER, text=comment)
+##        top.label = tkinter.ttk.Label(w, padx=20, pady=10, bd=1, relief=tkinter.ttk.RAISED, \
+##                              anchor=tkinter.ttk.CENTER, text=comment)
+        top.label = tkinter.ttk.Label(top, bd=1, relief=tkinter.ttk.RAISED, \
+                              anchor=tkinter.ttk.CENTER, text=comment)
 
-        top.okbtn = tkinter.tix.Button(top                                 \
+        top.okbtn = tkinter.ttk.Button(top                                 \
                               ,text='Ok'                           \
                               ,width = 10                          \
                               ,command=lambda x=top: self.okcmd(x) \
                               )
 
-        top.quitbtn = tkinter.tix.Button(top                                   \
+        top.quitbtn = tkinter.ttk.Button(top                                   \
                                 ,text='Cancel'                           \
                                 ,width = 10                            \
                                 ,command=lambda x=top: self.quitcmd(x) \
@@ -2566,10 +2566,10 @@ class SOkCancelBox:
                 , side=TOP     \
                 )
 
-        top.label.pack( side=tkinter.tix.TOP )
-        top.okbtn.pack( side=tkinter.tix.BOTTOM )
+        top.label.pack( side=tkinter.ttk.TOP )
+        top.okbtn.pack( side=tkinter.ttk.BOTTOM )
 
-        top.quitbtn.pack( side=tkinter.tix.BOTTOM )
+        top.quitbtn.pack( side=tkinter.ttk.BOTTOM )
 
         z.wm_protocol( "WM_DELETE_WINDOW"            \
                      , lambda x=top: self.quitcmd(x) \
@@ -2922,7 +2922,7 @@ def abfrage_ok_box(text="Ist das okay"):
 
 def abfrage_dir(comment=None,start_dir=None):
     """ gui für Pfad auszuwählen """
-##    import tkinter.messagebox, traceback, tkinter.tix
+##    import tkinter.messagebox, traceback, tkinter.ttk
 ##
 ##    global dirlist
 ##
@@ -2932,7 +2932,7 @@ def abfrage_dir(comment=None,start_dir=None):
 ##        start_dir = abfrage_root_dir()
 ##
 ##    try:
-##        root=tkinter.tix.Tk()
+##        root=tkinter.ttk.Tk()
 ##        dirlist = DirList(root,start_dir,comment)
 ##        dirlist.mainloop()
 ##
@@ -2961,7 +2961,7 @@ def abfrage_dir(comment=None,start_dir=None):
 ##        text = "Error running the demo script:\n"
 ##        for line in traceback.format_exception(t,v,tb):
 ##            text = text + line + '\n'
-##            d = tkinter.messagebox.showerror ( 'tkinter.tix Demo Error', text)
+##            d = tkinter.messagebox.showerror ( 'tkinter.ttk Demo Error', text)
 ##    return dirname
     root = Tk()
     dir = tkinter.filedialog.askdirectory(master=root, title=comment, initialdir=start_dir)
@@ -2970,7 +2970,7 @@ def abfrage_dir(comment=None,start_dir=None):
     return dir
 def abfrage_sub_dir(comment=None,start_dir=None):
     """ gui für Unterpfad von start_dir auszuwählen """
-    import tkinter.messagebox, traceback, tkinter.tix
+    import tkinter.messagebox, traceback, tkinter.ttk
 
     global dirlist
 
@@ -2983,7 +2983,7 @@ def abfrage_sub_dir(comment=None,start_dir=None):
     dir_not_found = True
     while dir_not_found :
         try:
-            root=tkinter.tix.Tk()
+            root=tkinter.ttk.Tk()
             dirlist = DirList(root,start_dir,comment,True)
             dirlist.mainloop()
 
@@ -3002,7 +3002,7 @@ def abfrage_sub_dir(comment=None,start_dir=None):
             text = "Error running the demo script:\n"
             for line in traceback.format_exception(t,v,tb):
                 text = text + line + '\n'
-                d = tkinter.messagebox.showerror ( 'tkinter.tix Demo Error', text)
+                d = tkinter.messagebox.showerror ( 'tkinter.ttk Demo Error', text)
 
         dirname = change_max(dirname,"/","\\")
 
@@ -3046,7 +3046,7 @@ def abfrage_file(file_types="*.*",comment=None,start_dir=None,default_extension=
     file_names = ["C-Files","H-Files"]
 
     """
-##    root = tkinter.tix.Tk()
+##    root = tkinter.ttk.Tk()
 ##    f = SFileSelectBox(root,file_types,comment,start_dir)
 ##    f.mainloop()
 ##    f.destroy()
@@ -3090,7 +3090,7 @@ def eingabe_file(file_types="*",comment="Waehle oder benenne neue Datei",start_d
     count = 0
     while( count < 10 ):
         count = count + 1
-        root = tkinter.tix.Tk()
+        root = tkinter.ttk.Tk()
         f = SFileSelectBox(root,file_types,comment,start_dir)
         f.mainloop()
         f.destroy()
@@ -3107,7 +3107,7 @@ def eingabe_file(file_types="*",comment="Waehle oder benenne neue Datei",start_d
             return selected_file
 
 def abfrage_str_box(comment="",width=400):
-    root = tkinter.tix.Tk()
+    root = tkinter.ttk.Tk()
 
     geotext = str(max(width,300))+"x90"
     root.geometry(geotext)

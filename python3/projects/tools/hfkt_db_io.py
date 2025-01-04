@@ -143,28 +143,29 @@
 import os, sys, types, sqlite3
 
 #-------------------------------------------------------------------------------
-t_path, _ = os.path.split(__file__)
-if( t_path == os.getcwd() ):
+#t_path, _ = os.path.split(__file__)
+#p_list     = os.path.normpath(t_path).split(os.sep)
+#if( t_path == os.getcwd() ):
 
-  import hfkt     as h
-  import hfkt_def as hdef
-  import hfkt_ini as hini
-  import hfkt_db  as hdb
-  import hfkt_misc  as hm
-  import sgui
-else:
-  p_list     = os.path.normpath(t_path).split(os.sep)
-  if( len(p_list) > 1 ): p_list = p_list[ : -1]
-  tools_path = ""
-  for i,item in enumerate(p_list): tools_path += item + os.sep
-  if( os.path.normpath(tools_path) not in sys.path ): sys.path.append(tools_path)
-
-  from tools_path import hfkt     as h
-  from tools_path import hfkt_def as hdef
-  from tools_path import hfkt_ini as hini
-  from tools_path import hfkt_db  as hdb
-  from tools_path import hfkt_misc as hm
-  from tools_path import sgui
+import hfkt     as h
+import hfkt_def as hdef
+import hfkt_ini as hini
+import hfkt_db  as hdb
+import hfkt_misc  as hm
+import sgui
+#else:
+#  p_list     = os.path.normpath(t_path).split(os.sep)
+#  if( len(p_list) > 1 ): p_list = p_list[ : -1]
+#  tools_path = ""
+#  for i,item in enumerate(p_list): tools_path += item + os.sep
+#  if( os.path.normpath(tools_path) not in sys.path ): sys.path.append(tools_path)
+  
+#  from tools_path import hfkt     as h
+#  from tools_path import hfkt_def as hdef
+#  from tools_path import hfkt_ini as hini
+#  from tools_path import hfkt_db  as hdb
+#  from tools_path import hfkt_misc as hm
+#  from tools_path import sgui
 #endif--------------------------------------------------------------------------
 
 
