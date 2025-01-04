@@ -75,7 +75,7 @@ import fnmatch
 t_path, _ = os.path.split(__file__)
 if( t_path == os.getcwd() ):
 
-  import hfkt_misc as hmisc
+  import hfkt_type as htype
 
 else:
   p_list     = os.path.normpath(t_path).split(os.sep)
@@ -84,7 +84,7 @@ else:
   for i,item in enumerate(p_list): t_path += item + os.sep
   if( os.path.normpath(t_path) not in sys.path ): sys.path.append(t_path)
 
-  from hfkt import hfkt_misc as hmisc
+  from hfkt import hfkt_type as htype
 #endif--------------------------------------------------------------------------
 
 KITCHEN_MODUL_AVAILABLE = False
@@ -743,7 +743,7 @@ def write_ascii(file_name,data):
      write ascii with carriage return (\n)
     """
     okay  = OK
-    if( hmisc.is_list(data) ):
+    if( htype.is_list(data) ):
 
         try:
             with open(file_name, 'w') as f:

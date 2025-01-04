@@ -151,7 +151,7 @@ import hfkt     as h
 import hfkt_def as hdef
 import hfkt_ini as hini
 import hfkt_db  as hdb
-import hfkt_misc  as hm
+import hfkt_type  as htype
 import sgui
 #else:
 #  p_list     = os.path.normpath(t_path).split(os.sep)
@@ -164,7 +164,7 @@ import sgui
 #  from tools_path import hfkt_def as hdef
 #  from tools_path import hfkt_ini as hini
 #  from tools_path import hfkt_db  as hdb
-#  from tools_path import hfkt_misc as hm
+#  from tools_path import hfkt_type as htype
 #  from tools_path import sgui
 #endif--------------------------------------------------------------------------
 
@@ -311,7 +311,7 @@ class data_list:
       conv_value = int(value)
     elif ((defcell.datatype == hdb.DB_DATA_TYPE_DATUM)):
       if(isinstance(value,str)):
-        conv_value = hm.secs_time_epoch_from_str_re(value)
+        conv_value = htype.secs_time_epoch_from_str_re(value)
       elif(isinstance(value,int) ):
         conv_value = value
       else:
