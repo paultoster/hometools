@@ -186,7 +186,7 @@ class data_list:
   PRIMARY_KEY_NAME = hdef.PRIMARY_KEY_NAME
   OKAY     = hdef.OK
   NOT_OKAY = hdef.NOT_OK
-  errText  = ""
+  errtext  = ""
   logText  = ""
   status   = hdef.OK
   dataList = []
@@ -268,7 +268,7 @@ class data_list:
     
     if( flag ):
       self.status  = self.NOT_OKAY
-      self.errText = "In dictionary d ist die Zelle <%s> nicht vorhanden (nach DbDefTab wird diese benoetigt)" % defcell.name
+      self.errtext = "In dictionary d ist die Zelle <%s> nicht vorhanden (nach DbDefTab wird diese benoetigt)" % defcell.name
       return self.status
     #endif
     
@@ -289,7 +289,7 @@ class data_list:
       db_liste.append(vliste)
     #endfor
     if (self.db.add_new_data_set(self.defTab.name, db_liste) != self.db.OKAY):
-      self.errText += self.db.errText
+      self.errtext += self.db.errtext
       self.status = self.NOT_OKAY
       return self.status
     # endif
@@ -315,7 +315,7 @@ class data_list:
       elif(isinstance(value,int) ):
         conv_value = value
       else:
-        self.errText = "In Tabelle: konnte aus der Zelle: <%s> nicht der type(%i) umgesetzt werden " % (
+        self.errtext = "In Tabelle: konnte aus der Zelle: <%s> nicht der type(%i) umgesetzt werden " % (
         defcell.name, defcell.type)
         self.status = self.NOT_OKAY
         conv_value = -1.0
@@ -330,7 +330,7 @@ class data_list:
         or (defcell.datatype == hdb.DB_DATA_TYPE_EURO)):
       conv_value = float(value)
     else:
-      self.errText = "In Tabelle: konnte aus der Zelle: <%s> nicht der type(%i) umgesetzt werden " % (defcell.name,defcell.type)
+      self.errtext = "In Tabelle: konnte aus der Zelle: <%s> nicht der type(%i) umgesetzt werden " % (defcell.name,defcell.type)
       self.status  = self.NOT_OKAY
       conv_value    = -1.0
     #endif
@@ -341,7 +341,7 @@ class data_list:
   # public has_err_text
   # -----------------------------------------------------------------------------
   def has_err_text(self) -> bool:
-    if (len(self.errText) > 0):
+    if (len(self.errtext) > 0):
       return True
     else:
       return False
@@ -352,17 +352,17 @@ class data_list:
   # intern add_err_text
   # -----------------------------------------------------------------------------
   def add_err_text(self, text: str) -> None:
-    if (len(self.errText) > 0):
-      self.errText += "\n" + text
+    if (len(self.errtext) > 0):
+      self.errtext += "\n" + text
     else:
-      self.errText += text
+      self.errtext += text
   # enddef
   # -----------------------------------------------------------------------------
   # public get_err_text
   # -----------------------------------------------------------------------------
   def get_err_text(self) -> str:
-    err_text = self.errText
-    self.errText = ""
+    err_text = self.errtext
+    self.errtext = ""
     return err_text
   #enddef
 #endclass
@@ -376,7 +376,7 @@ class dbio:
 
   OKAY     = hdef.OK
   NOT_OKAY = hdef.NOT_OK
-  errText  = ""
+  errtext  = ""
   logText  = ""
   status   = hdef.OK
   db       = None
@@ -426,7 +426,7 @@ class dbio:
     self.db = hdb.db(self.dbfile)
     if( self.db.status  != self.db.OKAY ):
       self.status  = self.NOT_OKAY
-      self.errText = self.db.errText
+      self.errtext = self.db.errtext
       return
     elif( self.db.has_log_text() ):
       self.add_log_text(self.db.get_log_text())
@@ -454,20 +454,20 @@ class dbio:
     #
     if( "name" not in keylist):
       self.status = self.NOT_OKAY
-      self.errText = f"tabdef has not keyname \"name\" "
+      self.errtext = f"tabdef has not keyname \"name\" "
       return False
     elif(not isinstance(tabdef["name"], str)):
       self.status = self.NOT_OKAY
-      self.errText = f"tabdef[\"name\"] is not a string "
+      self.errtext = f"tabdef[\"name\"] is not a string "
       return False
     #endif
     if( "cells" not in keylist):
       self.status = self.NOT_OKAY
-      self.errText = f"tabdef has not keyname \"cells\" "
+      self.errtext = f"tabdef has not keyname \"cells\" "
       return False
     elif(not isinstance(tabdef["cells"], dict)):
       self.status = self.NOT_OKAY
-      self.errText = f"tabdef[\"cells\"] is not a dictionary "
+      self.errtext = f"tabdef[\"cells\"] is not a dictionary "
       return False
     #endif
 
@@ -476,26 +476,26 @@ class dbio:
 
     if( "name" not in keylist):
       self.status = self.NOT_OKAY
-      self.errText = f"tabdef[\"cells\"] has not keyname \"name\" "
+      self.errtext = f"tabdef[\"cells\"] has not keyname \"name\" "
       return False
     elif(not isinstance(cells["name"], list)):
       self.status = self.NOT_OKAY
-      self.errText = f"cells[\"name\"] is not a list "
+      self.errtext = f"cells[\"name\"] is not a list "
       return False
     #endif
     if( "type" not in keylist):
       self.status = self.NOT_OKAY
-      self.errText = f"tabdef[\"type\"] has not key \"cells\" "
+      self.errtext = f"tabdef[\"type\"] has not key \"cells\" "
       return False
     elif(not isinstance(cells["type"], list)):
       self.status = self.NOT_OKAY
-      self.errText = f"tabdef[\"cells\"] is not a list "
+      self.errtext = f"tabdef[\"cells\"] is not a list "
       return False
     #endif
 
     if( len(cells["name"]) != len(cells["type"])):
       self.status = self.NOT_OKAY
-      self.errText = f"tabdef[\"cells\"] has not same length as cells[\"name\"]"
+      self.errtext = f"tabdef[\"cells\"] has not same length as cells[\"name\"]"
       return False
     #endif
 
@@ -528,7 +528,7 @@ class dbio:
     deftab.ncells += 1
 
     if (self.check_and_build_table(deftab) != self.db.OKAY):
-      self.errText += self.db.errText
+      self.errtext += self.db.errtext
       self.status = self.NOT_OKAY
       return self.status
     # endif
@@ -557,7 +557,7 @@ class dbio:
     #endfor
     self.status = self.NOT_OKAY
     tt = "Tabelle <%s> konnte in der Definition nicht gefunden werden !!!" % (tabname)
-    self.errText = tt
+    self.errtext = tt
     return None
   #enddef
 
@@ -585,7 +585,7 @@ class dbio:
     if( flag ):
       self.status = hdef.NOT_OK
       tt          = "Tabelle <%s> konnte in der Definition nicht gefunden werden !!!" % (tabname)
-      self.errText = tt
+      self.errtext = tt
     #endif
     
     return cell_names
@@ -606,7 +606,7 @@ class dbio:
     
     dlist = data_list(tabdef,self.db)
     if( dlist.status != dlist.OKAY ):
-      self.errText.append(f" {dlist.errText}")
+      self.errtext.append(f" {dlist.errtext}")
       self.status = self.NOT_OKAY
       return None
     #endif
@@ -636,7 +636,7 @@ class dbio:
     
     if( not self.db.exist_table(tabname)):
       self.status = self.NOT_OKAY
-      self.errText = "In dictionary d ist die Zelle <%s> nicht vorhanden (nach DbDefTab wird diese benoetigt)" % defcell.name
+      self.errtext = "In dictionary d ist die Zelle <%s> nicht vorhanden (nach DbDefTab wird diese benoetigt)" % defcell.name
       return ddict
 
     #Header-Liste
@@ -649,7 +649,7 @@ class dbio:
     if( self.db.status != self.db.OKAY):
       self.status = self.NOT_OKAY
       tt          = "Tabelle <%s> konnte in Datei <%s> nicht gelesen werden !!!" % (tabname,self.dbfile)
-      self.errText = tt
+      self.errtext = tt
       return ddict
     #endif
 
@@ -683,7 +683,7 @@ class dbio:
     else:
       self.status = self.NOT_OKAY
       tt          = "Für Tabelle: %s in File: %s  Datenausgabefomat setzen: cell_listed=1 or key_listed=1 or ...  !!!" % (tabname,self.dbfile)
-      self.errText = tt
+      self.errtext = tt
     #endif
 
     return ddict
@@ -707,7 +707,7 @@ class dbio:
           for cellname in cellnames:
             tt += "%s, " % cellname
   
-          self.errText = tt
+          self.errtext = tt
           return (header_liste,data_liste)
       # C) Ein Name
       else:
@@ -718,7 +718,7 @@ class dbio:
           tt          = "Tabelle <%s>  enthï¿½lt die genannten Zellennamen nicht: " % tabname
           tt += " %s" % cellnames
           #endfor
-          self.errText = tt
+          self.errtext = tt
           return (header_liste,data_liste)
         #endif
       #endif
@@ -730,7 +730,7 @@ class dbio:
       if( self.db.status != self.db.OKAY):
         self.status = self.NOT_OKAY
         tt          = "Tabelle <%s> konnte in Datei <%s> nicht gelesen werden !!!" % (tabname,self.dbfile)
-        self.errText = tt
+        self.errtext = tt
         return (header_liste,data_liste)
       #endif
   
@@ -755,7 +755,7 @@ class dbio:
     else:
       self.status = self.NOT_OKAY
       tt          = "Für Tabelle: %s in File: %s Dateneingabefomat setzen: by_primekey=1 or ...  !!!" % (tabname,self.dbfile)
-      self.errText = tt
+      self.errtext = tt
     #endif
 
     return self.status
@@ -839,7 +839,7 @@ class dbio:
     proof is error text is set
     :return:
     """
-    if (len(self.errText) > 0):
+    if (len(self.errtext) > 0):
       return True
     else:
       return False
@@ -857,10 +857,10 @@ class dbio:
     :param text:
     :return:
     """
-    if (len(self.errText) > 0):
-      self.errText += "\n" + text
+    if (len(self.errtext) > 0):
+      self.errtext += "\n" + text
     else:
-      self.errText += text
+      self.errtext += text
 
   # enddef
   # -----------------------------------------------------------------------------
@@ -871,8 +871,8 @@ class dbio:
     get erro text reurned and reset internally
     :return:
     """
-    err_text = self.errText
-    self.errText = ""
+    err_text = self.errtext
+    self.errtext = ""
     return err_text
 
   # -----------------------------------------------------------------------------
@@ -909,7 +909,7 @@ class dbio:
           # bilden einer neuen Zelle
           self.db.build_new_cell_in_table(deftab.name, defcell.name, defcell.datatype)
           if (self.db.status != self.db.OKAY):
-            self.errText += self.db.errText
+            self.errtext += self.db.errtext
             self.status = self.NOT_OKAY
             return self.status
           # endif
@@ -959,7 +959,7 @@ class dbio:
     for cell in deftab.cells:
 
       if (self.find_name_in_list(cell.name, cell_liste)):
-        self.errText += "In Tabelle <%s> ist cellname <%s> doppelt:\n" % (deftab.name, cell.name)
+        self.errtext += "In Tabelle <%s> ist cellname <%s> doppelt:\n" % (deftab.name, cell.name)
         self.status = self.NOT_OKAY
         return self.status
       # endif
@@ -968,8 +968,8 @@ class dbio:
       cell_liste.append(liste)
     # endfor
     if (self.db.build_db_table(deftab.name, cell_liste) != self.db.OKAY):
-      self.errText += "Tabelle <%s> konnte in Datei <%s> nicht erstellt  werden:\n(%s)" % (
-      deftab.name, self.dbfile, self.db.errText)
+      self.errtext += "Tabelle <%s> konnte in Datei <%s> nicht erstellt  werden:\n(%s)" % (
+      deftab.name, self.dbfile, self.db.errtext)
       self.status = self.NOT_OKAY
     # endif
 
@@ -1013,7 +1013,7 @@ class dbio:
     if( flag ):
       self.status = hdef.NOT_OK
       tt          = "Tabelle <%s> konnte in der Definition nicht gefunden werden !!!" % (tabname)
-      self.errText = tt
+      self.errtext = tt
     #endif
     return cell_names
   #enddef
@@ -1036,7 +1036,7 @@ class dbio:
 
     # Sucht Tabelle in Definition und db
     if (not self.db.exist_table(tabname)):
-      self.errText += self.db.get_err_text()
+      self.errtext += self.db.get_err_text()
       self.status = self.NOT_OKAY
       return self.status
     # endif
@@ -1051,7 +1051,7 @@ class dbio:
       if (self.db.exist_data_in_tab(tabname, self.PRIMARY_KEY_NAME, primkey)):
         self.db.delete_data_set_by_key(tabname, self.PRIMARY_KEY_NAME, primkey)
       else:
-        self.errText += "Primary Key %i existiert in Tabelle %s nicht und kann nicht gelï¿½scht werden" % (
+        self.errtext += "Primary Key %i existiert in Tabelle %s nicht und kann nicht gelï¿½scht werden" % (
         primkey, tabname)
         self.status = self.NOT_OKAY
         return self.status

@@ -302,7 +302,7 @@ class dbhandle:
   DELIM_TABLINK    = "@"
   OKAY     = hdef.OK
   NOT_OKAY = hdef.NOT_OK
-  errText  = ""
+  errtext  = ""
   logText  = ""
   status   = hdef.OK
   # DB-Def-Table:
@@ -350,7 +350,7 @@ class dbhandle:
     self.db = hdb.db(self.dbfile)
     if( self.db.status  != self.db.OKAY ):
       self.status  = self.NOT_OKAY
-      self.errText = self.db.errText
+      self.errtext = self.db.errtext
       return
     elif( self.db.has_log_text() ):
       self.add_log_text(self.db.get_log_text())
@@ -362,7 +362,7 @@ class dbhandle:
       return
     elif( self.db.status  != self.db.OKAY ):
       self.status  = self.NOT_OKAY
-      self.errText = self.db.errText
+      self.errtext = self.db.errtext
       return
     elif( self.db.has_log_text() ):
       self.add_log_text(self.db.get_log_text())
@@ -428,7 +428,7 @@ class dbhandle:
     dbdeffile wird intepretiert um die Datenstruktur festzulegen
     """
     if( not os.path.exists(dbdeffile) ):
-       self.errText = "Data-Definition-File <%s> does not exist" % dbdeffile
+       self.errtext = "Data-Definition-File <%s> does not exist" % dbdeffile
        self.status  = self.NOT_OKAY
        return
 
@@ -437,7 +437,7 @@ class dbhandle:
     (self.status,errtext,out) = hini.readini(dbdeffile,None)
 
     if( self.status != hdef.OK ):
-      self.errText = errtext
+      self.errtext = errtext
       return self.status
     #endif
     #------------------------
@@ -465,7 +465,7 @@ class dbhandle:
       if( type_index == None ):
         self.status = hdef.NOT_OK
         tt          = "table-type <%s> not found in hfkt_db.py !!!" % type
-        self.errText = tt
+        self.errtext = tt
         return self.status
       #endif
       #-------------
@@ -517,7 +517,7 @@ class dbhandle:
         else:
           self.status = hdef.NOT_OK
           tt          = "Zelle: <s>: Hat keinen Namen in Datei:<%s> !!!" % (keyliste[index],dbdeffile)
-          self.errText = tt
+          self.errtext = tt
           return self.status
         #endif
         #..............
@@ -529,13 +529,13 @@ class dbhandle:
           if( data_type_index == None ):
             self.status = hdef.NOT_OK
             tt          = "Zelle: <%s>: zell-data-type <%s> not found in hfkt_db.py !!!" % (keyliste[index],h.elim_ae(liste[1],' '))
-            self.errText = tt
+            self.errtext = tt
             return self.status
           #endif
         else:
           self.status = hdef.NOT_OK
           tt          = "Zelle: <s>: Hat keinen Data-Type in Datei:<%s> !!!" % (keyliste[index],dbdeffile)
-          self.errText = tt
+          self.errtext = tt
           return self.status
         #endif
         #.................................................
@@ -625,7 +625,7 @@ class dbhandle:
       if( type_index == None ):
         self.status = hdef.NOT_OK
         tt          = "table-type <%s> not found in hfkt_db.py !!!" % type
-        self.errText = tt
+        self.errtext = tt
         return self.status
       #endif
       #-------------
@@ -651,7 +651,7 @@ class dbhandle:
       else:
         self.status = hdef.NOT_OK
         tt          = "tabellen definition <%s> has no cells !!!" % name
-        self.errText = tt
+        self.errtext = tt
         return self.status
 
       # Liste mit allen keys, die zelle enthalten
@@ -683,7 +683,7 @@ class dbhandle:
         else:
           self.status = hdef.NOT_OK
           tt          = "Zelle: <s>: Hat keinen Namen in Datei:<%s> !!!" % (cellname,tabname)
-          self.errText = tt
+          self.errtext = tt
           return self.status
         #endif
         #..............
@@ -695,13 +695,13 @@ class dbhandle:
           if( data_type_index == None ):
             self.status = hdef.NOT_OK
             tt          = "Zelle: <%s>: zell-data-type <%s> not found in hfkt_db.py !!!" % (cellname,data_type_index)
-            self.errText = tt
+            self.errtext = tt
             return self.status
           #endif
         else:
           self.status = hdef.NOT_OK
           tt          = "Zelle: <s>: Hat keinen Data-Type in dict !!!" % (cellname)
-          self.errText = tt
+          self.errtext = tt
           return self.status
         #endif
         #.................................................
@@ -771,7 +771,7 @@ class dbhandle:
       if( deftab.type == DB_TAB_TYPE_BUILD ):
         # check, ob die Tabelle erstellt ist
         if( self.check_and_build_table(deftab) != self.db.OKAY ):
-          self.errText += self.db.errText
+          self.errtext += self.db.errtext
           self.status  = self.NOT_OKAY
           return self.status
         else:
@@ -812,7 +812,7 @@ class dbhandle:
           # bilden einer neuen Zelle
           self.db.build_new_cell_in_table(deftab.name,defcell.name,defcell.datatype)
           if( self.db.status != self.db.OKAY ):
-            self.errText += self.db.errText;
+            self.errtext += self.db.errtext;
             self.status  = self.NOT_OKAY
             return self.status
           #endif
@@ -860,7 +860,7 @@ class dbhandle:
     for cell in deftab.cells:
 
       if( self.find_name_in_list(cell.name,cell_liste)):
-        self.errText += "In Tabelle <%s> ist cellname <%s> doppelt:\n" % (deftab.name,cell.name)
+        self.errtext += "In Tabelle <%s> ist cellname <%s> doppelt:\n" % (deftab.name,cell.name)
         self.status  = self.NOT_OKAY
         return self.status
       #endif
@@ -869,7 +869,7 @@ class dbhandle:
       cell_liste.append(liste)
     #endfor
     if( self.db.build_db_table(deftab.name,cell_liste) != self.db.OKAY ):
-      self.errText += "Tabelle <%s> konnte in Datei <%s> nicht erstellt  werden:\n(%s)" % (deftab.name,self.dbfile,self.db.errText)
+      self.errtext += "Tabelle <%s> konnte in Datei <%s> nicht erstellt  werden:\n(%s)" % (deftab.name,self.dbfile,self.db.errtext)
       self.status  = self.NOT_OKAY
     #endif
 
@@ -907,7 +907,7 @@ class dbhandle:
       deftab = self.get_tab_from_deftab(tabname)
       if( not deftab ):
         self.status  = self.NOT_OKAY
-        self.errText = "Tabelle <%s> konnte DefTabStruktur in DBDefTab nicht gefunden werden <%s> nicht gelesen werden !!!" % (tabname)
+        self.errtext = "Tabelle <%s> konnte DefTabStruktur in DBDefTab nicht gefunden werden <%s> nicht gelesen werden !!!" % (tabname)
         return self.status
       #endif
 
@@ -933,7 +933,7 @@ class dbhandle:
 
     if( not deftab ):
       self.status  = self.NOT_OKAY
-      self.errText = "Schablonen Tabelle <%s> konnte in DefTabStruktur DBDefTab nicht gefunden werden <%s> nicht gelesen werden !!!" % (schablone_tab_name)
+      self.errtext = "Schablonen Tabelle <%s> konnte in DefTabStruktur DBDefTab nicht gefunden werden <%s> nicht gelesen werden !!!" % (schablone_tab_name)
       return ""
     #endif
 
@@ -1031,7 +1031,7 @@ class dbhandle:
     else:
       self.status = self.NOT_OKAY
       tt          = "Tabelle <%s>  enth�lt den primary key <%s>  nicht: " % (tabname,self.PRIMARY_KEY_NAME)
-      self.errText = tt
+      self.errtext = tt
     #endif
 
     return ""
@@ -1115,7 +1115,7 @@ class dbhandle:
         for cellname in cellnames:
           tt += "%s, " % cellname
 
-        self.errText = tt
+        self.errtext = tt
         return (header_liste,data_liste)
     # C) Ein Name
     else:
@@ -1126,7 +1126,7 @@ class dbhandle:
         tt          = "Tabelle <%s>  enth�lt die genannten Zellennamen nicht: " % tabname
         tt += " %s" % cellnames
         #endfor
-        self.errText = tt
+        self.errtext = tt
         return (header_liste,data_liste)
       #endif
     #endif
@@ -1138,7 +1138,7 @@ class dbhandle:
     if( self.db.status != self.db.OKAY):
       self.status = self.NOT_OKAY
       tt          = "Tabelle <%s> konnte in Datei <%s> nicht gelesen werden !!!" % (tabname,self.dbfile)
-      self.errText = tt
+      self.errtext = tt
       return (header_liste,data_liste)
     #endif
 
@@ -1184,7 +1184,7 @@ class dbhandle:
     if( not self.is_cell_name_tabdef(tabname,cellname) ):
       self.status = self.NOT_OKAY
       tt          = "Tabelle <%s>  enth�lt den Zellennamen <%s> nicht: " % (tabname,cellname)
-      self.errText = tt
+      self.errtext = tt
       return ([],[],[])
     #endif
 
@@ -1195,7 +1195,7 @@ class dbhandle:
         if( not self.is_cell_name_tabdef(tabname,item) ):
           self.status = self.NOT_OKAY
           tt          = "Tabelle <%s>  enth�lt den Zellennamen <%s> aus header_liste nicht: " % (tabname,item)
-          self.errText = tt
+          self.errtext = tt
           return ([],[])
         #endif
       #endfor
@@ -1483,7 +1483,7 @@ class dbhandle:
     if( flag ):
       self.status = hdef.NOT_OK
       tt          = "Tabelle <%s> konnte in der Definition nicht gefunden werden !!!" % (tabname)
-      self.errText = tt
+      self.errtext = tt
     #endif
     return cell_names
 #-------------------------------------------------------------------------------
@@ -1495,7 +1495,7 @@ class dbhandle:
     if( not tabdef ):
       self.status = hdef.NOT_OK
       tt          = "Tabelle <%s> konnte in der Definition nicht gefunden werden !!!" % (tabname)
-      self.errText = tt
+      self.errtext = tt
       return False
     #endif
 
@@ -1597,13 +1597,13 @@ class dbhandle:
     if( not self.db.exist_table(tabname) ):
       self.status = hdef.NOT_OK
       tt          = "Tabelle <%s> konnte in der Definition nicht gefunden werden !!!" % (tabname)
-      self.errText = tt
+      self.errtext = tt
       return False
     else:
       if( not self.db.exist_cell(tabname,cellname) ):
         self.status = hdef.NOT_OK
         tt          = "Zellenname <%s> konnte in Tabelle <%s> nicht gefunden werden !!!" % (cellname,tabname)
-        self.errText = tt
+        self.errtext = tt
         return False
       else:
         (header_liste,data_liste) = self.get_tab_data(tabname,cellname)
@@ -1646,7 +1646,7 @@ class dbhandle:
     #endfor
     if( flag ):
       self.status  = self.NOT_OKAY
-      self.errText = "Tabelle <%s> konnte DefTabStruktur DBDefTab nicht gefunden werden <%s> nicht gelesen werden !!!" % (tabname)
+      self.errtext = "Tabelle <%s> konnte DefTabStruktur DBDefTab nicht gefunden werden <%s> nicht gelesen werden !!!" % (tabname)
     #endif
 
     return self.status
@@ -1701,14 +1701,14 @@ class dbhandle:
         #endfor
         if( flag ):
           self.status  = self.NOT_OKAY
-          self.errText = "In dictionary d ist die Zelle <%s> nicht vorhanden (nach DbDefTab wird diese benoetigt)" % defcell.name
+          self.errtext = "In dictionary d ist die Zelle <%s> nicht vorhanden (nach DbDefTab wird diese benoetigt)" % defcell.name
           return self.status
         #endif
       #endif
     #endfor
 
     if( self.db.add_new_data_set(tabname,liste) != self.db.OKAY ):
-      self.errText += self.db.errText;
+      self.errtext += self.db.errtext;
       self.status  = self.NOT_OKAY
       return self.status
     #endif
@@ -1752,7 +1752,7 @@ class dbhandle:
 
     if( len(liste) != 0 ):
       if( self.db.modify_data_set_by_key(tabname,self.PRIMARY_KEY_NAME,primkey,liste) != self.db.OKAY ):
-        self.errText += self.db.errText;
+        self.errtext += self.db.errtext;
         self.status  = self.NOT_OKAY
         return self.status
       #endif
@@ -1784,7 +1784,7 @@ class dbhandle:
       if( self.db.exist_data_in_tab(tabname,self.PRIMARY_KEY_NAME,primkey) ):
         self.db.delete_data_set_by_key(tabname,self.PRIMARY_KEY_NAME,primkey)
       else:
-        self.errText +="Primary Key %i existiert in Tabelle %s nicht und kann nicht gel�scht werden" % (primkey,tabname)
+        self.errtext +="Primary Key %i existiert in Tabelle %s nicht und kann nicht gel�scht werden" % (primkey,tabname)
         self.status  = self.NOT_OKAY
         return self.status
       #endif
@@ -1815,7 +1815,7 @@ class dbhandle:
     elif(  (defcell.datatype == hdb.DB_DATA_TYPE_FLOAT) ):
       conv_value = float(value)
     else:
-      self.errText = "In Tabelle: konnte aus der Zelle: <%s> nicht der type(%i) umgesetzt werden " % (defcell.name,defcell.type)
+      self.errtext = "In Tabelle: konnte aus der Zelle: <%s> nicht der type(%i) umgesetzt werden " % (defcell.name,defcell.type)
       self.status  = self.NOT_OKAY
       conv_value    = -1.0
     #endif

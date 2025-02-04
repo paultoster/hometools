@@ -10,7 +10,7 @@
 # db.close_dbfile()   db-Datei schliessen
 #
 # db.status
-# db.errText
+# db.errtext
 #
 # db.has_log_text()
 # db.get_log_text
@@ -134,7 +134,7 @@ def format_sql(sql):
 class db:
   OKAY     = hdef.OK
   NOT_OKAY = hdef.NOT_OK
-  errText  = ""
+  errtext  = ""
   logText  = ""
   status   = hdef.OK
   con      = None
@@ -195,13 +195,13 @@ class db:
 #===============================================================================
 #===============================================================================
   def get_err_text(self):
-    err_text = self.errText
-    self.errText = ""
+    err_text = self.errtext
+    self.errtext = ""
     return err_text
 #===============================================================================
 #===============================================================================
   def has_err_text(self):
-    if( len(self.errText) > 0 ):
+    if( len(self.errtext) > 0 ):
       return True
     else:
       return False
@@ -236,7 +236,7 @@ class db:
 
       except (sqlite3.Error, e):
 
-        self.errText = "sqlite3.connect(%s) is not working (Fehler %s)" % (elf.dbfile,e.args[0])
+        self.errtext = "sqlite3.connect(%s) is not working (Fehler %s)" % (elf.dbfile,e.args[0])
         self.status  = self.NOT_OKAY
 
     return self.status
@@ -315,7 +315,7 @@ class db:
         #endif
       #endfor
     else:
-      self.errText = "Tabelle <%s> is nicht in database <%s> vorhanden" % (tabname,self.dbfile)
+      self.errtext = "Tabelle <%s> is nicht in database <%s> vorhanden" % (tabname,self.dbfile)
       self.status  = self.NOT_OKAY
     #endif
     return False
@@ -342,7 +342,7 @@ class db:
         liste = self.cur.fetchall()
 
       except (sqlite3.Error, e):
-        self.errText = "Tabelle: command PRAGMA table_info(%s) gibt Fehler:<%s>" % (tname,e.args[0])
+        self.errtext = "Tabelle: command PRAGMA table_info(%s) gibt Fehler:<%s>" % (tname,e.args[0])
         self.status  = self.NOT_OKAY
 
       # Attribute eintragen
@@ -470,7 +470,7 @@ class db:
       elif(  (datatype == DB_DATA_TYPE_STR) ):
         command = command + " %s TEXT" % cellname
       else:
-        self.errText = "In Tabelle:<%s> konnte aus der Zelle: <%s> nicht der type(%i) umgesetzt werden " % (tabname,cellname,datatype)
+        self.errtext = "In Tabelle:<%s> konnte aus der Zelle: <%s> nicht der type(%i) umgesetzt werden " % (tabname,cellname,datatype)
         self.status  = self.NOT_OKAY
         return self.status
       #endIf
@@ -486,7 +486,7 @@ class db:
       self.modify_flag = True
 
     except:
-      self.errText = "Tabelle: <%s> command <%s> gibt Fehler:" % (tabname,command)
+      self.errtext = "Tabelle: <%s> command <%s> gibt Fehler:" % (tabname,command)
       self.status  = self.NOT_OKAY
 
     return self.status
@@ -499,7 +499,7 @@ class db:
       if( not self.exist_cell(deftabname,defcellname) ):
 
         if( defcelldatatype == DB_DATA_TYPE_PRIMKEY ):
-          self.errText = "In Tabelle:<%s> kann keine Zelle: <%s> mit Typ DB_DATA_TYPE_PRIMKEY hinzugef�gt werden " % (deftabname,defcellname)
+          self.errtext = "In Tabelle:<%s> kann keine Zelle: <%s> mit Typ DB_DATA_TYPE_PRIMKEY hinzugef�gt werden " % (deftabname,defcellname)
           self.status = self.NOT_OKAY
         else:
 
@@ -532,7 +532,7 @@ class db:
             if( flag ): command = command + " %s TEXT default %s" % (defcellname,"-")
             else:       command = command + " %s TEXT" % defcellname
           else:
-            self.errText = "In Tabelle:<%s> konnte aus der Zelle: <%s> nicht der type(%i) umgesetzt werden " % (deftabname,defcelldatatype)
+            self.errtext = "In Tabelle:<%s> konnte aus der Zelle: <%s> nicht der type(%i) umgesetzt werden " % (deftabname,defcelldatatype)
             self.status  = self.NOT_OKAY
             return self.status
           #endIf
@@ -547,7 +547,7 @@ class db:
       self.modify_flag = True
 
     except:
-      self.errText = "Tabelle: <%s> command <%s> gibt Fehler" % (deftabname,command)
+      self.errtext = "Tabelle: <%s> command <%s> gibt Fehler" % (deftabname,command)
       self.status  = self.NOT_OKAY
 
     # neue Tabelle in Liste aufnehmen
@@ -597,7 +597,7 @@ class db:
 ##            self.cur.execute(command)
 ##
 ##          except (sqlite3.Error, e):
-##            self.errText = "Tabelle: <%s> command <%s> gibt Fehler:<%s>" % (deftabname,command,e.args[0])
+##            self.errtext = "Tabelle: <%s> command <%s> gibt Fehler:<%s>" % (deftabname,command,e.args[0])
 ##            self.status  = self.NOT_OKAY
 ##          #endtry
 ##
@@ -642,7 +642,7 @@ class db:
       self.modify_flag = True
 
     except Exception as e:
-      self.errText = "Tabelle: <%s> gibt Fehler:<%s>" % (deftabname,e.args[0])
+      self.errtext = "Tabelle: <%s> gibt Fehler:<%s>" % (deftabname,e.args[0])
       self.status  = self.NOT_OKAY
     #endtry
 
@@ -663,7 +663,7 @@ class db:
 
 
     except (sqlite3.Error, e):
-      self.errText = "Tabelle: <%s> command <%s> gibt Fehler:<%s>" % (tabname,command,e.args[0])
+      self.errtext = "Tabelle: <%s> command <%s> gibt Fehler:<%s>" % (tabname,command,e.args[0])
       self.status  = self.NOT_OKAY
 
     return nrows
@@ -688,7 +688,7 @@ class db:
       else:
         return False
     except (sqlite3.Error, e):
-      self.errText = "Tabelle: <%s> command <%s> gibt Fehler:<%s>" % (tabname,command,e.args[0])
+      self.errtext = "Tabelle: <%s> command <%s> gibt Fehler:<%s>" % (tabname,command,e.args[0])
       self.status  = self.NOT_OKAY
     return False
 #============================================================================================================================
@@ -726,7 +726,7 @@ class db:
         datas = self.con.execute(command)
 
     except (sqlite3.Error, e):
-      self.errText = "Tabelle: <%s> command <%s> gibt Fehler:<%s>" % (tabname,command,e.args[0])
+      self.errtext = "Tabelle: <%s> command <%s> gibt Fehler:<%s>" % (tabname,command,e.args[0])
       self.status  = self.NOT_OKAY
 
     data_liste = []
@@ -773,7 +773,7 @@ class db:
       self.con.commit()
       self.modify_flag = True
     except (sqlite3.Error, e):
-      self.errText = "Tabelle: <%s> gibt Fehler:<%s>" % (deftabname,e.args[0])
+      self.errtext = "Tabelle: <%s> gibt Fehler:<%s>" % (deftabname,e.args[0])
       self.status  = self.NOT_OKAY
     #endtry
 
@@ -801,7 +801,7 @@ class db:
           self.con.commit()
           self.modify_flag = True
         except (sqlite3.Error, e):
-          self.errText = "Tabelle: <%s> gibt Fehler:<%s>" % (deftabname,e.args[0])
+          self.errtext = "Tabelle: <%s> gibt Fehler:<%s>" % (deftabname,e.args[0])
           self.status  = self.NOT_OKAY
           return self.status
         #endtry
@@ -825,7 +825,7 @@ class db:
       self.con.commit()
       self.modify_flag = True
     except (sqlite3.Error, e):
-      self.errText = "Tabelle: <%s> gibt Fehler:<%s>" % (deftabname,e.args[0])
+      self.errtext = "Tabelle: <%s> gibt Fehler:<%s>" % (deftabname,e.args[0])
       self.status  = self.NOT_OKAY
       return self.status
     #endtry

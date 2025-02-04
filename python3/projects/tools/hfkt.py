@@ -1952,21 +1952,21 @@ def make_backup_file(fullfilename,backup_dir):
     """
     builds from fullfilename a backup filename with actual date and copies the file
 
-    return (flag,errText)
+    return (flag,errtext)
     if( flag == OK) => no Text
     if( flag == NOT_OK) => error text
 
     """
 
-    errText = ""
+    errtext = ""
 
     if( not os.path.isfile(fullfilename)):
-        errText = "make_backup_file File: <%s> does not exist" % fullfilename
-        return (NOT_OK,errText)
+        errtext = "make_backup_file File: <%s> does not exist" % fullfilename
+        return (NOT_OK,errtext)
 
     if( not os.path.isdir(backup_dir)):
-        errText = "make_backup_file Backup Dir: <%s> does not exist" % backup_dir
-        return (NOT_OK,errText)
+        errtext = "make_backup_file Backup Dir: <%s> does not exist" % backup_dir
+        return (NOT_OK,errtext)
 
 
     (path,fbody,ext) = get_pfe(fullfilename)
@@ -1977,9 +1977,9 @@ def make_backup_file(fullfilename,backup_dir):
         flag = NOT_OK
 
     if( flag == NOT_OK):
-        errText = "copy(%s,%s) did not function" % (fullfilename,backup_file_name)
+        errtext = "copy(%s,%s) did not function" % (fullfilename,backup_file_name)
 
-    return(flag,errText)
+    return(flag,errtext)
 
 def move_file(s_filename,targetdir):
   """
