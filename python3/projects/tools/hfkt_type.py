@@ -109,12 +109,16 @@ def str_to_int_possible(string_val):
     try:
         return int(string_val)
     except ValueError:
-        value: float | None = str_to_float_possible(string_val)
-        if value:
-            return int(value)
-        else:
+        try:
+            value: float | None = str_to_float_possible(string_val)
+            if value:
+                return int(value)
+            else:
+                return None
+            # endif
+        except ValueError:
             return None
-        # endif
+        # end try
     # endtry
 
 
@@ -284,6 +288,26 @@ def isempty(val):
 
     return flag
 
+# -------------------------------------------------------
+
+def hfkt_type_proof_str_excel_float(wert_in):
+    if (isinstance(wert_in, str)):
+        wert_in = hstr.change_excel_value_str(wert_in)
+        wert = str_to_float_possible(wert_in)
+        if (wert == None):
+            okay = hdef.NOT_OKAY
+        else:
+            okay = hdef.OKAY
+        # endif
+    else:
+        wert = None
+        okay = hdef.NOT_OKAY
+        # endtry
+    # endif
+    return (okay, wert)
+
+
+# enddef
 
 # -------------------------------------------------------
 def hfkt_type_proof(wert_in, type):
@@ -299,7 +323,7 @@ def hfkt_type_proof(wert_in, type):
         return hfkt_type_proof_float(wert_in)
     elif (type == "int"):
         return hfkt_type_proof_int(wert_in)
-    elif (type == "dat"):
+    elif ((type == "dat") or (type == "date")):
         return hfkt_type_proof_dat(wert_in)
     elif (type == "iban"):
         return hfkt_type_proof_iban(wert_in)
@@ -360,8 +384,6 @@ def hfkt_type_proof_float(wert_in):
 
 
 # enddef
-
-
 def hfkt_type_proof_int(wert_in):
     if (isinstance(wert_in, int)):
         return (hdef.OKAY, wert_in)
@@ -512,7 +534,7 @@ def print_python_is_32_or_64_bit():
 # testen mit main
 ###########################################################################
 if __name__ == '__main__':
-    (okay, out) = hfkt_type_proof("DE45267548765986342856", "iban")
+    (okay, out) = hfkt_type_proof("11 Dez. 2024", "date")
 
     print(f"okay: {okay}, out : {out}")
 

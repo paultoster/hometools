@@ -22,7 +22,6 @@
 # dict.[START_ZEIT_TXT]                       Startdatum secs
 # dict.[self.AUSZUGS_TYP_TXT]                 Name des types für den Kontoauszug name1_pdf, name2_csv, etc
 #
-# self.PDF_TYPE_TXT                           pdf einlesen
 #
 # self.KONTO_DATEN_LESEN_TXT
 # self.konto_bearb_auswahl = []        Auswahl der Bearbeitungen des Kontos
@@ -74,7 +73,6 @@ class ini_file:
                       , (AUSZUGS_TYP_TXT,"str")
                       ]
   
-  PDF_TYPE_TXT = "pdf"
   
   KONTO_DATEN_LESEN_TXT   = "Auszug lesen"
   konto_bearb_auswahl = [KONTO_DATEN_LESEN_TXT
