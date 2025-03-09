@@ -39,6 +39,7 @@ class log:
   errtext          = ""
   logfile_out_flag = False
   log_message      = []
+  NO_SCREEN        = 0
   PRINT_SCREEN     = 1
   GUI_SCREEN       = 2
   def __init__(self,log_file=None):
@@ -101,7 +102,7 @@ class log:
       if( title == "error"):
         sgui.anzeige_text(text, title=title, textcolor='red')
       elif( title == "warn"):
-        sgui.anzeige_text(text, title=title, textcolor='blu')
+        sgui.anzeige_text(text, title=title, textcolor='blue')
       else:
         sgui.anzeige_text(text, title=title, textcolor='black')
       #endif

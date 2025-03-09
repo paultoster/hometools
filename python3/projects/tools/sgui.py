@@ -62,6 +62,11 @@
 # (data_set,indexAbfrage) = sgui.abfrage_tabelle(header_liste,data_set,data_index_liste):    listeAbfrage = ["okay"]
 # (data_set,indexAbfrage) = sgui.abfrage_tabelle(header_liste,data_set,data_index_liste,listeAbfrage):
 #
+# (data_set, indexAbfrage, irow) = sgui.abfrage_tabelle_get_row(header_liste, data_set):    listeAbfrage = ["okay"]
+# (data_set, indexAbfrage, irow) = sgui.abfrage_tabelle_get_row(header_liste, data_set,
+#                                                               data_index_liste):    listeAbfrage = ["okay"]
+# (data_set, indexAbfrage, irow) = sgui.abfrage_tabelle_get_row(header_liste, data_set, data_index_liste, listeAbfrage):
+#
 # z.B. header_liste     = ["alpha","beta","gamma"]                       Die Name der Bestandteile eines dat-items
 #      data_set         = [[0.1,0.1,0.2],[0.2,0.5,0.2], .... ]           Date-set liste mit Zeilen-Liste, Zeilenliste entspricht dr Headerliste
 #      data_index_liste = [1,2, ... ]                                    (default:None) indiizes zu den jeweiligen Daten packet
@@ -123,7 +128,7 @@ import tkinter.messagebox
 import os
 import sys
 import types
-import tkinter.ttk
+#import tkinter.ttk
 import string
 import copy
 
@@ -503,17 +508,29 @@ def abfrage_tabelle(header_liste,data_set,data_index_liste=None,listeAbfrage=Non
   indexAbfrage = obj.indexAbfrage
   del obj
   return (data_set_out,indexAbfrage)
+def abfrage_tabelle_get_row(header_liste,data_set,data_index_liste=None,listeAbfrage=None):
+  obj = abfrage_tabelle_class(header_liste,data_set,data_index_liste,listeAbfrage)
+  data_set_out = obj.data_set
+  indexAbfrage = obj.indexAbfrage
+  irow         = obj.current_row
+  del obj
+  return (data_set_out,indexAbfrage,irow)
 class abfrage_tabelle_class:
   """
     (data_set,indexAbfrage) = sgui.abfrage_tabelle(header_liste,data_set):    listeAbfrage = ["okay"]
     (data_set,indexAbfrage) = sgui.abfrage_tabelle(header_liste,data_set,data_index_liste):    listeAbfrage = ["okay"]
     (data_set,indexAbfrage) = sgui.abfrage_tabelle(header_liste,data_set,data_index_liste,listeAbfrage):
 
+    (data_set,indexAbfrage,irow) = sgui.abfrage_tabelle_get_row(header_liste,data_set):    listeAbfrage = ["okay"]
+    (data_set,indexAbfrage,irow) = sgui.abfrage_tabelle_get_row(header_liste,data_set,data_index_liste):    listeAbfrage = ["okay"]
+    (data_set,indexAbfrage,irow) = sgui.abfrage_tabelle_get_row(header_liste,data_set,data_index_liste,listeAbfrage):
+
     z.B. header_liste     = ["alpha","beta","gamma"]                       Die Name der Bestandteile eines dat-items
          data_set         = [[0.1,0.1,0.2],[0.2,0.5,0.2], .... ]           Date-set liste mit Zeilen-Liste, Zeilenliste entspricht dr Headerliste
          data_index_liste = [1,2, ...}                                     inizes zu den jeweiligen Daten packet
          listeAbfrage     = ["Ok","Cancel","Aendern"]                      Abfrage möglichkeiten indexAbfrage zeigt dann den Wert
 
+    irow = 0,1,2,3, .... -1 not clicked
   """
   GUI_GEOMETRY_WIDTH    = GUI_GEOMETRY_WIDTH_BASE
   GUI_GEOMETRY_HEIGHT   = GUI_GEOMETRY_HEIGHT_BASE
@@ -544,6 +561,7 @@ class abfrage_tabelle_class:
   indexAbfrage          = -1
   act_frame_id          = 0
   Gui_rahmen            = [None]
+  current_row           = -1
 #-------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
   def __init__(self,header_liste,data_set,data_index_liste=None,listeAbfrage=None):
@@ -559,6 +577,7 @@ class abfrage_tabelle_class:
     self.index                 = -1
     self.act_frame_id          = 0
     self.title                 = u"Tabelle"
+    self.current_row           = -1
 
     # data_set
     if (data_set and isinstance(data_set, list)):
@@ -590,7 +609,7 @@ class abfrage_tabelle_class:
     #endfor
     
     # header liste
-    if( header_liste and isinstance(header_liste, list)):
+    if( len(header_liste) and (isinstance(header_liste, list) or isinstance(header_liste, tuple))):
       self.header_liste = []
       for item in header_liste:
         self.header_liste.append(item)
@@ -726,7 +745,13 @@ class abfrage_tabelle_class:
     else:
       self.tabGui_TabBox = ttk.Treeview(gr_tabbox, columns=self.header_liste, show="headings")
     #endf
-    
+      
+    self.tabGui_TabBox.bind('<ButtonRelease-1>', self.selectItem)
+      # self.tabGui_TabBox.bind('<KeyPress-Down>', self.set_selection)
+      # self.tabGui_TabBox.bind('<KeyPress-Up>', self.set_selection)
+      # self.tabGui_TabBox.bind('<KeyRelease-Down>', self.move_item_down)
+      # self.tabGui_TabBox.bind('<KeyRelease-Up>', self.move_item_up)
+
     # Listbox ttk.Treeview(self, columns=("ID", "Name", "Category", "Price"), show="headings")
     # Tk.Listbox(gr_listbox,selectmode=Tk.EXTENDED,yscrollcommand=scroll_listbox.set,font=('Verdana',15,'bold'))
     
@@ -789,7 +814,35 @@ class abfrage_tabelle_class:
 #    self.makeTabGui()
 #
 #-------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------
+  def selectItem(self,a):
+    curItem = self.tabGui_TabBox.focus()
+    self.current_row = int(curItem)-1
+    print(self.tabGui_TabBox.item(curItem))
+    print(f"current_row = {self.current_row}")
+    # curRow = self.tabGui_TabBox.set(a)
+    # self.current_row = curRow["loc"]
+    
+  # def set_selection(self, event):
+  #   self.current_row = event.widget.selection();
+  #   event.widget.configure(selectmode=Tk.NONE)
+  #
+  #
+  # def reset_selection(self, event):
+  #   event.widget.selection_set(self.current_row)
+  #   event.widget.focus(self.current_row)
+  #   event.widget.configure(selectmode=Tk.BROWSE)
+  #
+  #
+  # def move_item_up(self, event):
+  #   self.reset_selection(event)
+  #   event.widget.move(self.current_row, '', event.widget.index(self.current_row) - 1)
+  #
+  #
+  # def move_item_down(self, event):
+  #   self.reset_selection(event)
+  #   event.widget.move(self.current_row, '', event.widget.index(self.current_row) + 1)
+    
+  #-------------------------------------------------------------------------------
   def makeTabGui(self):
     ''' list-Gui f�llen
     '''
@@ -852,22 +905,22 @@ class abfrage_tabelle_class:
       #endfor
       self.data_set.append(data)
     #endfor
-    """
+    
     # Nimmt den aktuellen Cursorstellung
     self.indexListe = []
 
-    select = self.tabGui_TabBox.curselection()
+    self.index = self.current_row
 
-    if( len(select) > 0  ):
-      for i in range(0,len(select),1):
-        ii = select[i]
-        if( ii < len(self.index_auswahl_liste) ):
-          self.indexListe.append(self.index_auswahl_liste[ii])
-        #endif
-      #endfor
-      if( len(self.indexListe) > 0 ):
-        self.index = self.indexListe[0]
-    #endif
+    # if( len(select) > 0  ):
+    #   for i in range(0,len(select),1):
+    #     ii = select[i]
+    #     if( ii < len(self.index_auswahl_liste) ):
+    #       self.indexListe.append(self.index_auswahl_liste[ii])
+    #     #endif
+    #   #endfor
+    #   if( len(self.indexListe) > 0 ):
+    #     self.index = self.indexListe[0]
+    # #endif
     flag = False
     icount = 0
     for name in self.abfrage_liste:
@@ -878,7 +931,7 @@ class abfrage_tabelle_class:
       icount += 1
       #endif
     #endfor
-    """
+    
     self.exitMenu()
 
   def SelectOnDoubleClick(self, event):

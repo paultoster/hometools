@@ -47,7 +47,7 @@ def report_einlesen(rd):
             break
         else:
             errtext = f"Auswahl: {choice} nicht bekannt"
-            rd.log.write_err(errtext, screen=rd.log.GUI_SCREEN)
+            rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
         # endif
     # endwhile
     
@@ -55,13 +55,13 @@ def report_einlesen(rd):
     d = rd.ini.konto_data[choice]
     
     # pdf lesen
-    if( d[rd.ini.AUSZUGS_TYP_TXT] == 'tr_pdf'):
+    if( d[rd.ini.AUSZUGS_TYP_NAME] == 'tr_pdf'):
         
         status = read_tr_pdf(rd,d)
         
     else:
-        errtext = f"Der Auszugstype von [{choice}].{rd.ini.AUSZUGS_TYP_TXT} = {d[rd.ini.AUSZUGS_TYP_TXT]} stimmt nicht"
-        rd.log.write_err(errtext, screen=rd.log.GUI_SCREEN)
+        errtext = f"Der Auszugstype von [{choice}].{rd.ini.AUSZUGS_TYP_NAME} = {d[rd.ini.AUSZUGS_TYP_NAME]} stimmt nicht"
+        rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
         status  = hdef.NOT_OKAY
     #endif
         
@@ -124,7 +124,7 @@ def read_tr_pdf(rd,d):
     (data,status,errtext) = konto_report_tr.read(text,filename)
     
     if( status != hdef.OKAY ):
-        rd.log.write_err(f"Fehler in konto_report_tr.read()  errtext = {errtext}", screen=rd.log.GUI_SCREEN)
+        rd.log.write_err(f"Fehler in konto_report_tr.read()  errtext = {errtext}", screen=rd.par.LOG_SCREEN_OUT)
         status = hdef.NOT_OKAY
     # endif
     return status

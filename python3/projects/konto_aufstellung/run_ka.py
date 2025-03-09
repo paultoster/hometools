@@ -1,6 +1,10 @@
 #
 # run koonto Aufstellung ka
 #
+# rd.log
+# rd.data
+# rd.ini
+#
 
 import os, sys
 from dataclasses import dataclass, field
@@ -14,7 +18,7 @@ LOG_FILE_NAME = "ka.log"
 INI_FILE_NAME = "ka.ini"
 
 
-
+import ka_par
 import ka_ini_file
 import ka_data_pickle
 import ka_konto_bearbeiten as kb
@@ -30,8 +34,9 @@ import hfkt_log as hlog
 
 @dataclass
 class RootData:
+    par: ka_par.Parameter = field(default_factory=ka_par.Parameter)
     log: hlog.log = field(default_factory=hlog.log)
-    ini: ka_ini_file.ini_file = field(default_factory=ka_ini_file.ini_file)
+    ini: ka_ini_file.ini = field(default_factory=ka_ini_file.ini)
     data: dict = field(default_factory=dict)
 
 
@@ -49,19 +54,22 @@ def konto_auswerten():
         
     # read ini-File
     # --------------
-    rd.ini = ka_ini_file.ini_file(INI_FILE_NAME)
+    rd.par = ka_par.get(rd.log)
+    rd.ini = ka_ini_file.ini(rd.par,INI_FILE_NAME)
 
     if (rd.ini.status != hdef.OK):
-        rd.log.write_err(rd.ini.errtext, screen=rd.log.GUI_SCREEN)
+        rd.log.write_err(rd.ini.errtext, screen=rd.par.LOG_SCREEN_OUT)
         return
+    else:
+        rd.par = rd.ini.get_par(rd.par)
     # endif
         
     # data_base
     # -----------
-    (status, errtext, rd.data) = ka_data_pickle.data_get(rd.ini)
+    (status, errtext, rd.data) = ka_data_pickle.data_get(rd.par,rd.ini)
 
     if (status != hdef.OK):
-        rd.log.write_err(errtext, screen=rd.log.GUI_SCREEN)
+        rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
         return
     # endif
     
@@ -92,12 +100,12 @@ def konto_auswerten():
             rd.log.write(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
             status = ib.bearbeiten(rd)
 
-            if (status != hdef.OKAY):
-                runflag = False
+            # if (status != hdef.OKAY):
+            #     runflag = False
             # endif
         else:
             errtext = f"Auswahl: {index} nicht bekannt"
-            rd.log.write_err(errtext, screen=rd.log.GUI_SCREEN)
+            rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
         #endif
 
         # # enddef
@@ -108,7 +116,7 @@ def konto_auswerten():
     (status, errtext) = ka_data_pickle.data_save(rd.data)
 
     if (status != hdef.OK):
-        rd.log.write_err(errtext, screen=rd.log.GUI_SCREEN)
+        rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
         # endif
 
     # close log-file

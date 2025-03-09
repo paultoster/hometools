@@ -3,7 +3,8 @@
 #
 # mit data_get() und data_save werden alle pickles geholt und gespeichert
 #
-
+# data[par.konto_names]
+# data[par.IBAN_DICT_DATA_NAME]
 
 import os, sys
 import pickle
@@ -23,10 +24,6 @@ import ka_iban_data
 KONTOPREFIX      = "konto"
 IBANPREFIX       = "info"
 
-# IBAN_PICKLE_NAME = "iban_liste"
-IBAN_DICT_DATA_NAME = "iban_dict_data"
-IBAN_DATA_LIST_NAME = "iban_data_list"
-IBAN_ID_MAX_NAME    = "iban_id_max"
 
 
 
@@ -126,7 +123,7 @@ class ka_data_pickle:
 #--------------------------------------------------------------------------------------
 #--------------------------------------------------------------------------------------
 
-def data_get(ini):
+def data_get(par,ini):
     status = hdef.OKAY
     errtext = ""
     data = {}
@@ -154,7 +151,7 @@ def data_get(ini):
         return (status, errtext, data)
     # endif
     
-    (status,errtext,data[IBAN_DICT_DATA_NAME]) = proof_iban_data_and_add_from_ini(d, data,ini)
+    (status,errtext,data[par.IBAN_DICT_DATA_NAME]) = proof_iban_data_and_add_from_ini(d, par,data,ini)
     
     if (status != hdef.OK):
         status = hdef.NOT_OKAY
@@ -201,14 +198,14 @@ def proof_konto_data_from_ini(d,ini_data):
     
     return d
 # end def
-def proof_iban_data_and_add_from_ini(d,data,ini):
+def proof_iban_data_and_add_from_ini(d,par,data,ini):
     
     status  = hdef.OK
     errtext = ""
     
-    if (IBAN_DATA_LIST_NAME not in d.ddict):
-        d.ddict[IBAN_DATA_LIST_NAME] = []
-        d.ddict[IBAN_ID_MAX_NAME]    = 0
+    if (par.IBAN_DATA_LIST_NAME not in d.ddict):
+        d.ddict[par.IBAN_DATA_LIST_NAME] = []
+        d.ddict[par.IBAN_ID_MAX_NAME]    = 0
     # end if
     
     # Suche nach ibans in konto-Daten
@@ -216,10 +213,14 @@ def proof_iban_data_and_add_from_ini(d,data,ini):
         
         dkonto = data[konto_name]
         
-        if not ka_iban_data.iban_find(d.ddict[IBAN_DATA_LIST_NAME],dkonto.ddict[ini.IBAN_TXT]):
-            (status,errtext) = ka_iban_data.iban_add(d.ddict[IBAN_DATA_LIST_NAME],d.ddict[IBAN_ID_MAX_NAME],dkonto.ddict[ini.IBAN_TXT], dkonto.ddict[ini.BANK_TXT], dkonto.ddict[ini.WER_TXT], "")
+        if not ka_iban_data.iban_find(d.ddict[par.IBAN_DATA_LIST_NAME],dkonto.ddict[par.IBAN_NAME]):
+            idmax = d.ddict[par.IBAN_ID_MAX_NAME]+1
+            (status, errtext,_,data_list) = ka_iban_data.iban_add(d.ddict[par.IBAN_DATA_LIST_NAME],idmax,dkonto.ddict[par.IBAN_NAME], dkonto.ddict[par.BANK_NAME], dkonto.ddict[par.WER_NAME], "")
             if( status != hdef.OK ):
                 return (status, errtext, d)
+            else:
+                d.ddict[par.IBAN_DATA_LIST_NAME] = data_list
+                d.ddict[par.IBAN_ID_MAX_NAME] = idmax
             # endif
         # endnif
     # endif
