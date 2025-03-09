@@ -342,6 +342,8 @@ def hfkt_type_proof_string(wert_in):
             return hfkt_type_proof_string(wert_in[0])
         except:
             return (hdef.NOT_OKAY, None)  # endtry
+    elif( wert_in == None ):
+        return(hdef.NOT_OKAY,None)
     else:
         try:
             wert = str(wert_in)
@@ -450,8 +452,10 @@ def hfkt_type_proof_iban(wert_in):
     (okay, wert) = hfkt_type_proof_string(wert_in)
 
     if (okay == hdef.OKAY):
+        
+        wert = hstr.elim_whitespace(wert)
 
-        (hit, hitliste) = eval_iban(wert_in)
+        (hit, hitliste) = eval_iban(wert)
         if (hit == 1):
             wert = hitliste[0]
             okay = hdef.OKAY

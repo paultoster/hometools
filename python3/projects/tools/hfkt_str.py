@@ -63,6 +63,8 @@
  textm = elim_ae_liste(text,muster_liste) Eliminiert text am Anfang und Ende mit einer liste von mustern z.B. [" ","\t"]
 
  textmod = elim_comment_not_quoted(text,comment_list,quot0,quot1) eliminiert Kommentar aus dem Text
+ textmod = elim_whitespace(text) eliminiert white space und \t aus dem Text
+ textmod = elim_whitespace(text,i0,ll) eliminiert white space und \t aus dem Text von i0 Länge ll
 
  t = delete_str_by_index(txt,i0,i1)  löscht txt[i0:i1]
  
@@ -767,6 +769,37 @@ def elim_comment_not_quoted(text, comment_liste, quot0, quot1):
     text1 = text[0:i0]
     return text1
 
+def elim_whitespace(text,i0=0,ll=0):
+    """
+        eliminiert white space und \t aus dem Text von i0 Länge ll
+    """
+    
+    n = len(text)
+    
+    if i0 >= n:
+        i0 = n - ll
+        if i0 < 0:
+            return text
+        # endif
+    # endif
+    
+    if (ll == 0) or (i0 + ll > n):
+        ll = n - i0
+        if (ll <= 0) or (n == 0):
+            return text
+        # endif
+    # endif
+    
+    txtmod = ""
+    for i in range(i0,ll):
+        if( (text[i] != ' ') and (text[i] != '\t') ):
+            txtmod = txtmod + text[i]
+        # endif
+    # endif
+    
+    return txtmod
+    
+    
 
 def split_not_quoted(text, spl, quot0, quot1, elim_leer=0):
     """

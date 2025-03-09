@@ -58,14 +58,14 @@
 #
 #   bei cancel Rückgabe leer List
 #------------------------------------------------------------------------------------------------------
-# (data_set,indexAbfrage) = sgui.abfrage_tabelle(header_liste,data_set):    listeAbfrage = ["okay"]
+# (data_set,indexAbfrage) = sgui.abfrage_tabelle(header_liste,data_set):  default   listeAbfrage = ["okay"]
 # (data_set,indexAbfrage) = sgui.abfrage_tabelle(header_liste,data_set,data_index_liste):    listeAbfrage = ["okay"]
 # (data_set,indexAbfrage) = sgui.abfrage_tabelle(header_liste,data_set,data_index_liste,listeAbfrage):
 #
 # z.B. header_liste     = ["alpha","beta","gamma"]                       Die Name der Bestandteile eines dat-items
 #      data_set         = [[0.1,0.1,0.2],[0.2,0.5,0.2], .... ]           Date-set liste mit Zeilen-Liste, Zeilenliste entspricht dr Headerliste
-#      data_index_liste = [1,2, ...}                                     inizes zu den jeweiligen Daten packet
-#      listeAbfrage     = ["Ok","Cancel","Aendern"]                      Abfrage möglichkeiten indexAbfrage zeigt dann den Wert
+#      data_index_liste = [1,2, ... ]                                    (default:None) indiizes zu den jeweiligen Daten packet
+#      listeAbfrage     = ["Ok","Cancel","Aendern"]                      (default: None) Abfrage möglichkeiten indexAbfrage zeigt dann den Wert
 #
 # gibt den geänderten data_set zurück
 # data_index_liste
