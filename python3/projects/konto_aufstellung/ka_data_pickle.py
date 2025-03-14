@@ -8,6 +8,8 @@
 
 import os, sys
 import pickle
+import json
+import pprint
 import zlib
 import traceback
 
@@ -36,55 +38,97 @@ class ka_data_pickle:
     logtext = ""
     name = ""
     ddict = {}
-    filename = "default_name"
+    filename = "default_name.pkl"
+    filename_json = "default_name.json"
+    use_json = 0    # 0: keine json-Datei
+                    # 1: schreibe auch json-datei
+                    # 2: lessen von json Datei
 
-    def __init__(self, name_prefix: str, body_name: str):
-
+    def __init__(self, name_prefix: str, body_name: str, use_json: int):
+        '''
+        build data dict
+        :param name_prefix: Filename
+        :param body_name:   Filesname
+        :param use_json:    0: don't 1: write, 2: read
+        '''
         if( len(name_prefix) > 0 ):
-          self.filename = name_prefix + "_" + body_name + ".pkl"
+          self.filename      = name_prefix + "_" + body_name + ".pkl"
+          self.filename_json = name_prefix + "_" + body_name + ".json"
         else:
             self.filename = body_name + ".pkl"
+            self.filename_json = body_name + ".json"
         # end if
         
         self.name = body_name
+        self.use_json = use_json
         
-
-        # Wenn die Datei vorhanden ist:
-        if (os.path.isfile(self.filename)):
-
-            try:
-                with open(self.filename, "rb") as f:
-                    uncompressed_data = zlib.decompress(f.read())
-                    f.close()
-            except PermissionError:
-                self.status = hdef.NOT_OKAY
-                self.errtext = f"File {self.filename} does not exist!"
-                return
-            except IOError:
-                self.status = hdef.NOT_OKAY
-                self.errtext = f"An error occurred while reading the file {self.filename}"
-                return
-            except Exception as e:
-                self.status = hdef.NOT_OKAY
-                self.errtext = f"An error occurred while reading the file {self.filename} with {traceback.format_exc(e)}"
-                return
-            # endtry
+        if (self.use_json == 2):  # read json
             
-            try:
-                self.ddict = pickle.loads(uncompressed_data)
-            except pickle.UnpicklingError as e:
+            if (os.path.isfile(self.filename_json)):
+                
+                try:
+                    with open(self.filename_json, "r") as f:
+                        self.ddict = json.load(f)
+                        f.close()
+                except PermissionError:
+                    self.status = hdef.NOT_OKAY
+                    self.errtext = f"File {self.filename_json} does not exist!"
+                    return
+                except IOError:
+                    self.status = hdef.NOT_OKAY
+                    self.errtext = f"An error occurred while reading the file {self.filename_json}"
+                    return
+                except Exception as e:
+                    self.status = hdef.NOT_OKAY
+                    self.errtext = f"An error occurred while reading the file {self.filename_json} with {traceback.format_exc(e)}"
+                    return
+                # endtry
+            else:
                 self.status = hdef.NOT_OKAY
-                self.errtext = f"An error occurred while run pickle with loaded file: {self.filename} with {traceback.format_exc(e)}"
-            except Exception as e:
-                self.status = hdef.NOT_OKAY
-                self.errtext = f"An error occurred while run pickle with loaded file: {self.filename} with {traceback.format_exc(e)}"
-            # endtry
-        # wenn keine Datei vorhanden, wird ein default gebildet
-        else:
+                self.errtext = f"File {self.filename_json} does not exist!"
+                return
             
-            self.ddict = {}
+            # end if
+            
+        else: # normal pickle load
+            
+            # Wenn die Datei vorhanden ist:
+            if (os.path.isfile(self.filename)):
         
-        # endif
+                try:
+                    with open(self.filename, "rb") as f:
+                        uncompressed_data = zlib.decompress(f.read())
+                        f.close()
+                except PermissionError:
+                    self.status = hdef.NOT_OKAY
+                    self.errtext = f"File {self.filename} does not exist!"
+                    return
+                except IOError:
+                    self.status = hdef.NOT_OKAY
+                    self.errtext = f"An error occurred while reading the file {self.filename}"
+                    return
+                except Exception as e:
+                    self.status = hdef.NOT_OKAY
+                    self.errtext = f"An error occurred while reading the file {self.filename} with {traceback.format_exc(e)}"
+                    return
+                # endtry
+
+                try:
+                    self.ddict = pickle.loads(uncompressed_data)
+                except pickle.UnpicklingError as e:
+                    self.status = hdef.NOT_OKAY
+                    self.errtext = f"An error occurred while run pickle with loaded file: {self.filename} with {traceback.format_exc(e)}"
+                except Exception as e:
+                    self.status = hdef.NOT_OKAY
+                    self.errtext = f"An error occurred while run pickle with loaded file: {self.filename} with {traceback.format_exc(e)}"
+                # endtry
+            else:
+                
+                self.ddict = {}
+            
+            # endif
+        
+        # end if
 
     # enddef
     def save(self):
@@ -118,7 +162,38 @@ class ka_data_pickle:
             self.errtext = f"An error occurred while reading the file {self.filename} with {traceback.format_exc(e)}"
             return
         # endtry
+
+        if (self.use_json == 1):  # read json
+            try:
+                json_obj = json.dumps(self.ddict,indent=2)
+                
+                # print json to screen with human-friendly formatting
+                # pprint.pprint(json_obj, compact=True)
+                
+                # write json to file with human-friendly formatting
+                # pretty_json_str = pprint.pformat(json_obj, compact=False)
+                
+                with open(self.filename_json, 'w') as f:
+                    f.write(json_obj)
+                
+                # with open(self.filename_json, 'w') as outfile:
+                #     json.dump(self.ddict, outfile, indent=2)
+            
+            except PermissionError:
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"File {self.filename_json} does not exist!"
+                return
+            except IOError:
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"An error occurred while reading the file {self.filename_json}"
+                return
+            except Exception as e:
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"An error occurred while reading the file {self.filename_json} with {traceback.format_exc(e)}"
+                return
     
+    # end if
+
     # enddef
 #--------------------------------------------------------------------------------------
 #--------------------------------------------------------------------------------------
@@ -130,8 +205,12 @@ def data_get(par,ini):
     
     # read konto-pickle-file
     for konto_name in ini.konto_names:
-        d = ka_data_pickle(KONTOPREFIX, konto_name)
-
+        if( konto_name in ini.data_pickle_jsonfile_list):
+            j = ini.data_pickle_use_json
+        else:
+            j = 0
+        # end if
+        d = ka_data_pickle(KONTOPREFIX, konto_name, j)
         if (d.status != hdef.OK):
             status = hdef.NOT_OKAY
             errtext = d.errtext
@@ -143,7 +222,12 @@ def data_get(par,ini):
     # endfor
 
     # iban-liste --------------------------------------------
-    d = ka_data_pickle(IBANPREFIX,ini.iban_list_file_name)
+    if (ini.iban_list_file_name in ini.data_pickle_jsonfile_list):
+        j = ini.data_pickle_use_json
+    else:
+        j = 0
+    # end if
+    d = ka_data_pickle(IBANPREFIX,ini.iban_list_file_name,j)
 
     if (d.status != hdef.OK):
         status = hdef.NOT_OKAY

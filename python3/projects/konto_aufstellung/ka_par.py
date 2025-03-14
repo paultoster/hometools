@@ -37,6 +37,16 @@ class Parameter:
     LOG_SCREEN_OUT: int = field(default_factory=int)
     KONTO_NAMES_NAME: str = "konto_names"
     IBAN_LIST_FILE_NAME: str = "iban_list_file_name"
+    DATA_PICKLE_USE_JSON: str = "data_pickle_use_json"
+    DATA_PICKLE_JSONFILE_LIST: str = "data_pickle_jsonfile_list"
+    DATA_PICKLE_USE_JSON_NO: int = 0
+    DATA_PICKLE_USE_JSON_WRITE: int = 1
+    DATA_PICKLE_USE_JSON_READ: int = 2
+
+    BASE_PROOF_LISTE = [(KONTO_NAMES_NAME,"list_str")
+                       ,(IBAN_LIST_FILE_NAME,"str")
+                        ,(DATA_PICKLE_USE_JSON,"int")
+                        ,(DATA_PICKLE_JSONFILE_LIST, "list_str")]
     # konto daten
     KONTO_PREFIX: str = "konto"
     IBAN_NAME: str = "iban"

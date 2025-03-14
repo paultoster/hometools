@@ -316,6 +316,11 @@ def hfkt_type_proof(wert_in, type):
     type: "str","float","int","dat","iban"
     "dat": Convert to epoch seconds
     "iban": string, 2 letters and 20 digits, could be with spaces
+    "str": string
+    "int": integer
+    "float": floating point
+    "list": any list
+    "list_str": a list with strings
     '''
     if (type == "str"):
         return hfkt_type_proof_string(wert_in)
@@ -323,6 +328,10 @@ def hfkt_type_proof(wert_in, type):
         return hfkt_type_proof_float(wert_in)
     elif (type == "int"):
         return hfkt_type_proof_int(wert_in)
+    elif (type == "list"):
+        return hfkt_type_proof_list(wert_in, "")
+    elif (type == "list_str"):
+        return hfkt_type_proof_list(wert_in, "str")
     elif ((type == "dat") or (type == "date")):
         return hfkt_type_proof_dat(wert_in)
     elif (type == "iban"):
@@ -416,7 +425,29 @@ def hfkt_type_proof_int(wert_in):
 
 # enddef
 
-
+def hfkt_type_proof_list(wert_in,type):
+    
+    if( isinstance(wert_in,list) ):
+        if( len(type) == 0 ):
+            return (hdef.OKAY, wert_in)
+        elif( type == "str" ):
+            for i,item_raw in enumerate(wert_in):
+                
+                (okay,item) = hfkt_type_proof_string(item_raw)
+                if( okay == hdef.OKAY):
+                    wert_in[i] = item
+                else:
+                    return (hdef.NOT_OKAY,wert_in)
+                # end if
+            # end for
+        else:
+            return (hdef.NOT_OKAY,wert_in)
+        #end if
+    else:
+        return (hdef.NOT_OKAY,wert_in)
+    # end if
+    return (hdef.OKAY,wert_in)
+# end def
 def hfkt_type_proof_dat(wert_in):
     """ return value in epoch seconds"""
     if (isinstance(wert_in, str)):

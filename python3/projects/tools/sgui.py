@@ -502,19 +502,24 @@ class abfrage_liste_class:
 #
 # gibt den geänderten data_set zurück
 # data_index_liste
-def abfrage_tabelle(header_liste,data_set,data_index_liste=None,listeAbfrage=None):
+def abfrage_tabelle(header_liste,data_set,listeAbfrage=None):
+  
+  data_index_liste = list(range(0,len(data_set)))
   obj = abfrage_tabelle_class(header_liste,data_set,data_index_liste,listeAbfrage)
   data_set_out = obj.data_set
   indexAbfrage = obj.indexAbfrage
   del obj
   return (data_set_out,indexAbfrage)
-def abfrage_tabelle_get_row(header_liste,data_set,data_index_liste=None,listeAbfrage=None):
+# end def
+def abfrage_tabelle_get_row(header_liste,data_set,listeAbfrage=None):
+  data_index_liste = list(range(0,len(data_set)))
   obj = abfrage_tabelle_class(header_liste,data_set,data_index_liste,listeAbfrage)
   data_set_out = obj.data_set
   indexAbfrage = obj.indexAbfrage
   irow         = obj.current_row
   del obj
   return (data_set_out,indexAbfrage,irow)
+# end def
 class abfrage_tabelle_class:
   """
     (data_set,indexAbfrage) = sgui.abfrage_tabelle(header_liste,data_set):    listeAbfrage = ["okay"]
@@ -765,7 +770,7 @@ class abfrage_tabelle_class:
     
     
     if( len(self.index_liste) == self.ndata ):
-      self.tabGui_TabBox.heading("#0", text="id", anchor=Tk.W)
+      self.tabGui_TabBox.heading("#0", text="index", anchor=Tk.W)
     #endif
     for name in self.header_liste:
       self.tabGui_TabBox.heading(name, text=name, anchor=Tk.W)
@@ -816,7 +821,7 @@ class abfrage_tabelle_class:
 #-------------------------------------------------------------------------------
   def selectItem(self,a):
     curItem = self.tabGui_TabBox.focus()
-    self.current_row = int(curItem)-1
+    self.current_row = int(curItem)
     print(self.tabGui_TabBox.item(curItem))
     print(f"current_row = {self.current_row}")
     # curRow = self.tabGui_TabBox.set(a)

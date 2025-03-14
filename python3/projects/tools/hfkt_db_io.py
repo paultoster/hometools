@@ -1172,7 +1172,7 @@ if __name__ == '__main__':
   
   # header_liste,data_set,data_index_liste=None,listeAbfrage=None
   
-  (data_set_out,_) = sgui.abfrage_tabelle(header_liste = ddict["header"], data_set=ddict["data"],data_index_liste=ddict["key"])
+  (data_set_out,_) = sgui.abfrage_tabelle(header_liste = ddict["header"], data_set=ddict["data"])
   
   print(data_set_out)
   
