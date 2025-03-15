@@ -34,7 +34,10 @@ import hfkt_date_time as hdt
 class Parameter:
     OKAY: int = hdef.OK
     NOT_OKAY: int = hdef.NOT_OK
+    # logging
     LOG_SCREEN_OUT: int = field(default_factory=int)
+    
+    # ini-file attributes
     KONTO_NAMES_NAME: str = "konto_names"
     IBAN_LIST_FILE_NAME: str = "iban_list_file_name"
     DATA_PICKLE_USE_JSON: str = "data_pickle_use_json"
@@ -47,7 +50,8 @@ class Parameter:
                        ,(IBAN_LIST_FILE_NAME,"str")
                         ,(DATA_PICKLE_USE_JSON,"int")
                         ,(DATA_PICKLE_JSONFILE_LIST, "list_str")]
-    # konto daten
+    
+    # konto daten in ini-file
     KONTO_PREFIX: str = "konto"
     IBAN_NAME: str = "iban"
     BANK_NAME: str = "bank"
@@ -57,6 +61,13 @@ class Parameter:
     START_TAG_NAME: str = "start_zeit"
     START_DATUM_NAME: str = "start_datum"
     AUSZUGS_TYP_NAME: str = "auszug_type"
+    
+    HEADER_BUCHDATUM: str = "header_buchdatum"
+    HEADER_WERTDATUM: str = "header_wertdatum"
+    HEADER_WER: str       = "header_wer"
+    HEADER_COMMENT: str   = "header_comment"
+    HEADER_WERT: str      = "header_wert"
+
     # Liste der zu checkenden Daten
     # ------------------------------
     KONTO_PROOF_LISTE = [(IBAN_NAME, "iban")
@@ -65,16 +76,22 @@ class Parameter:
                         , (START_WERT_NAME, "float")
                         , (START_DATUM_NAME, "dat")
                         , (AUSZUGS_TYP_NAME, "str")]
-
+    
+    
     # IBAN_PICKLE_NAME = "iban_liste"
     IBAN_DICT_DATA_NAME: str = "iban_dict_data"
     IBAN_DATA_LIST_NAME: str = "iban_data_list"
     IBAN_ID_MAX_NAME: str    = "iban_id_max"
     IBAN_ITEM_LIST: List[str] = ("id","iban", "bank", "wer", "comment")
+
     # konto names from ini
     KONTO_NAMES: str = field(default_factory=str)
     
-
+    # konto data
+    KONTO_NAME_NAME: str = "name"
+    KONTO_DATA_SET_NAME: str = "konto_data_set"
+    KONTO_DATA_SET_ITEM_LIST: List[str] = ("buchdatum","wertdatum", "wer", "comment", "wert")
+    
 
 
 def get(log):

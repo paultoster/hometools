@@ -199,6 +199,12 @@ class ka_data_pickle:
 #--------------------------------------------------------------------------------------
 
 def data_get(par,ini):
+    '''
+    
+    :param par:
+    :param ini:
+    :return:  (status, errtext, data) = data_get(par,ini)
+    '''
     status = hdef.OKAY
     errtext = ""
     data = {}
@@ -217,8 +223,16 @@ def data_get(par,ini):
             return (status, errtext, data)
         #endif
         
-        data[konto_name] = proof_konto_data_from_ini(d,ini.konto_data[konto_name])
-        
+        d = proof_konto_data_from_ini(d,ini.konto_data[konto_name])
+        d = proof_konto_data_intern(par,d,konto_name)
+        if (d.status != hdef.OK):
+            status = hdef.NOT_OKAY
+            errtext = d.errtext
+            return (status, errtext, data)
+        else:
+            data[konto_name] = d
+        # endif
+    
     # endfor
 
     # iban-liste --------------------------------------------
@@ -282,6 +296,41 @@ def proof_konto_data_from_ini(d,ini_data):
     
     return d
 # end def
+def proof_konto_data_intern(par,d,konto_name):
+    '''
+    
+    :param par
+    :param d:
+    :param konto_name
+    :return:d =  proof_konto_data_intern(d)
+    '''
+    
+    # konto name
+    key = par.KONTO_NAME_NAME
+    if key in d.ddict:
+            if konto_name != d.ddict[key] :
+                d.ddict[key] = konto_name
+            # end if
+        else:
+            d.ddict[key] = konto_name
+        
+    # kont_data set anlegen
+    key = par.KONTO_DATA_SET_NAME
+    if key in d.ddict:
+        if len(d.ddict[key]) > 0 :
+            if len(d.dict[key][0]) != len(par.KONTO_DATA_SET_ITEM_LIST) :
+                d.status  = hdef.NOT_OKAY
+                d.errtext = f"length of header-list {par.KONTO_DATA_SET_ITEM_LIST} not same with data-dict {d.dict[key]} of konto: {konto_name}"
+                return d
+            # end if
+        # end if
+    else:
+        d.dict[key] = []
+    # end if
+
+    return d
+# end def
+
 def proof_iban_data_and_add_from_ini(d,par,data,ini):
     
     status  = hdef.OK

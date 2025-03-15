@@ -76,7 +76,9 @@ t_path, _ = os.path.split(__file__)
 if( t_path == os.getcwd() ):
 
   import hfkt_type as htype
-
+  import hfkt_def  as hdef
+  import hfkt_str  as hstr
+  
 else:
   p_list     = os.path.normpath(t_path).split(os.sep)
   if( len(p_list) > 1 ): p_list = p_list[ : -1]
@@ -85,13 +87,12 @@ else:
   if( os.path.normpath(t_path) not in sys.path ): sys.path.append(t_path)
 
   from hfkt import hfkt_type as htype
+  from hfkt import hfkt_def  as hdef
+  from hfkt import hfkt_str as hstr
 #endif--------------------------------------------------------------------------
 
 KITCHEN_MODUL_AVAILABLE = False
 
-
-OK     = 1
-NOT_OK = 0
 QUOT    = 1
 NO_QUOT = 0
 TCL_ALL_EVENTS = 0
@@ -607,7 +608,7 @@ def eingabe_file(file_types="*",comment="Waehle oder benenne neue Datei",start_d
 
         if( os.path.exists(selected_file) ):
 
-            if( abfrage_ok_box(text="Die Datei <%s> existiert bereits" % selected_file) == OK ):
+            if( abfrage_ok_box(text="Die Datei <%s> existiert bereits" % selected_file) == hdef.OK ):
                 return selected_file
         else:
             return selected_file
@@ -636,7 +637,7 @@ def read_csv_file(file_name,delim=";"):
 
         for line in lines:
 
-           row = split_text(line,delim)
+           row = hstr.split_text(line,delim)
            liste.append(row)
         # reader = csv.reader(open(file_name, "rb"), delimiter=delim, quoting=csv.QUOTE_MINIMAL)
         # try:
@@ -648,7 +649,8 @@ def read_csv_file(file_name,delim=";"):
 
     return liste
 def read_csv_file_header_data(file_name,delim=";"):
-    ''' csv_header = ['name1','name2',...]
+    ''' (NOT_OK, csv_header, csv_data)=read_csv_file_header_data(file_name,delim=";")
+        csv_header = ['name1','name2',...]
         csv_data   = [[val_name1_zeile1,val_name2_zeile1,...],[val_name1_zeile2,val_name2_zeile2,...],...]
     '''
     csv_header = []
@@ -659,7 +661,7 @@ def read_csv_file_header_data(file_name,delim=";"):
 
         if(len(csv_liste) < 2):
             print("csv Datei <%s> zu klein (1. Zeile Header, weitere Zeilen Vokabeln)" % file_name)
-            return (NOT_OK, csv_header, csv_data)
+            return (hdef.NOT_OK, csv_header, csv_data)
         # header separieren
         csv_header = csv_liste[0]
         n = len(csv_header)
@@ -676,9 +678,9 @@ def read_csv_file_header_data(file_name,delim=";"):
             csv_data.append(row)
     else:
         print("DAtei nicht vorhanden <%s>" % file_name)
-        return (NOT_OK, csv_header, csv_data)
+        return (hdef.NOT_OK, csv_header, csv_data)
 
-    return (OK, csv_header, csv_data)
+    return (hdef.OK, csv_header, csv_data)
 
 def write_csv_file_header_data(file_name,csv_header,csv_data,delim=";"):
     ''' Write DAta with
@@ -690,7 +692,7 @@ def write_csv_file_header_data(file_name,csv_header,csv_data,delim=";"):
         val_name1_zeile1;val_name2_zeile1
         val_name1_zeile2;val_name2_zeile2
 
-        return OK/NOT_OKAY
+        return hdef.OK/NOT_OKAY
 
     '''
     f=file(file_name,"w")
@@ -712,7 +714,7 @@ def write_csv_file_header_data(file_name,csv_header,csv_data,delim=";"):
 
     f.close()
 
-    return OK
+    return hdef.OK
 
 def read_ascii_build_list_of_lines(file_name):
 
@@ -729,11 +731,11 @@ def read_ascii_build_list_of_lines(file_name):
 
 def read_ascii(file_name):
 
-    okay  = NOT_OK
+    okay  = hdef.NOT_OK
     if( os.path.isfile(file_name) ):
         with open(file_name) as f:
             data = f.read()
-        okay = OK
+        okay = hdef.OK
     else:
         print("Datei: "+file_name+" besteht nicht !!!")
     #endif
@@ -742,7 +744,7 @@ def write_ascii(file_name,data):
     """
      write ascii with carriage return (\n)
     """
-    okay  = OK
+    okay  = hdef.OK
     if( htype.is_list(data) ):
 
         try:
@@ -753,7 +755,7 @@ def write_ascii(file_name,data):
                 #endfor
             #endwith
         except:
-            okay = NOT_OK
+            okay = hdef.NOT_OK
 
     else:
         try:
@@ -761,7 +763,7 @@ def write_ascii(file_name,data):
                 f.write(data)
             #endwith
         except:
-            okay = NOT_OK
+            okay = hdef.NOT_OK
 
     #endif
     return okay

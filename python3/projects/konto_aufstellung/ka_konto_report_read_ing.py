@@ -1,7 +1,7 @@
 #
-# report TradeRepublic auslesen
+# report Ing-csv-Daten auslesen
 #
-#    =>  type tr_pdf
+#    =>  type und_csv
 #
 import os
 import sys
@@ -17,21 +17,32 @@ import hfkt_str as hstr
 import hfkt_type as htype
 
 
-def read(text,filename):
+def read(csv_lliste,header_lliste,filename):
+    '''
+    
+    :param csv_lliste:
+    :param header_lliste
+    :param filename:
+    :return: (data_lliste,status,errtext) = read(csv_lliste,header_lliste,filename)
+    '''
     errtext = ""
     status  = hdef.OKAY
-    data    = []
+    data_lliste    = []
     
-    # Suche KONTOÜBERSICHT im Text
+    
+    (okay, errtext, linestartindex, index_liste) = search_header(csv_lliste, header_lliste, filename)
+    
+    # Suche header-Zeile
     #-----------------------------
-    keyword = "KONTOÜBERSICHT"
+    
+    
     index = hstr.such(text, keyword, "vs")
     
     # Fehler
     if( index < 0 ):
         errtext = f"In file {filename} konnte nicht keyword {keyword} gefunden werden"
         status = hdef.NOT_OKAY
-        return (data, status, errtext)
+        return (data_lliste, status, errtext)
     # endif
     
     # Lösche alles bis key word
@@ -99,54 +110,47 @@ def read(text,filename):
     return (data,status,errtext)
     
 #enddef
-def read_wert_start_end(txt):
+def search_header(csv_lliste,header_lliste,filename):
     '''
-    Zerlegung von Cashkonto 0,00 € 79.335,90 € 60.316,34 € 19.019,56 €
-    mit           PRODUKT ANFANGSSALDO ZAHLUNGSEINGANG ZAHLUNGSAUSGANG ENDSALDO
     
-    :param txt:
-    :return: (status,errtext,wert_start)
+    :param csv_lliste:
+    :param header_lliste:
+    :return: (okay,errtext,linestartindex,index_liste) =  search_header(csv_lliste,header_lliste,filename):
     '''
-    status  = hdef.OKAY
-    errtext = " "
-    wert0   = 0.0
-    liste = hstr.split_text(txt, ' ', flagmulti=1)
+    nheader = len(header_lliste)
+    notfound   = True
+    header_found_liste = []
+    for i,liste in enumerate(csv_lliste):
+        index_liste = []
+        for j,hliste in enumerate(header_lliste):
+            
+            if hliste[0] in liste:
+                index_liste.append(j)
+                header_found_liste.append(hliste[0])
+            # end if
+        # end for
+        if( len(index_liste) == nheader ):
+            index = i
+            notfound = False
+            break
+        # end if
+    # end fo
     
-    n = len(liste)
-    
-    if( n < 5 ):
-        errtext = f"txt=\"{txt}\" kann nicht in 5 Teile zerlegt werden"
-        status = hdef.NOT_OKAY
-        return (status,errtext,wert0)
-    # endif
-    
-    wert = liste[1]
-    wert = hstr.elim_ae_liste(wert,["€","\xa0"," "])
-
-    (status, wert0) = htype.hfkt_type_proof_str_excel_float(wert)
-    
-    if( status != hdef.OKAY ):
-        errtext = f"txt=\"{txt}\" kann für wert_start der value \"{wert}\" nicht in float gewandelt werden"
-        status = hdef.NOT_OKAY
-        return (status,errtext,wert0)
-    # endif
-    
-    return (status, errtext, wert0)
-
-# enddef
-def is_line_w_number(txt):
-    '''
-    Prüft ob erster Wert bis eine Zahl ist (Datum)
-    :param txt:
-    :return: True/False
-    '''
-    liste = hstr.split_text(txt," ",flagmulti=1)
-    if( len(liste) == 0 ):
-        return False
-    (okay, wert) = htype.hfkt_type_proof_int(liste[0])
-    if( okay != hdef.OKAY):
-        return False
-    return True
-# end def
-
-# end def
+    if( notfound ):
+        okay = hdef.NOT_OKAY
+        item = ""
+        for hliste in header_lliste:
+            if hliste[0] not in header_found_liste:
+                item = hliste[0]
+                break
+            # end if
+        # end for
+        errtext = f"header item: {item} not found in csv_file: {filename}"
+        start_index = 0
+        index_liste = []
+    else:
+        okay = hdef.OKAY
+        errtext = ""
+        start_index = index + 1
+    # end if
+    return (okay,errtext,start_index,index_liste)
