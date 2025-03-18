@@ -22,6 +22,10 @@ def iban_abfrage(rd,header_liste,data_set,abfrage_liste):
 
 def auswahl_konto(rd):
     index = sgui.abfrage_liste_index(rd.ini.konto_names, "Konto auswählen")
-
-    return index
+    if index < 0:
+        choice =  ""
+    else:
+        choice = rd.ini.konto_names[index]
+    # endif
+    return (index,choice)
 # enddef

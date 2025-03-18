@@ -283,6 +283,8 @@ def proof_konto_data_from_ini(d,ini_data):
     :return:
     """
     
+    
+    
     for key in ini_data:
         
         if( key in d.ddict):
@@ -308,11 +310,11 @@ def proof_konto_data_intern(par,d,konto_name):
     # konto name
     key = par.KONTO_NAME_NAME
     if key in d.ddict:
-            if konto_name != d.ddict[key] :
-                d.ddict[key] = konto_name
-            # end if
-        else:
+        if konto_name != d.ddict[key] :
             d.ddict[key] = konto_name
+        # end if
+    else:
+        d.ddict[key] = konto_name
         
     # kont_data set anlegen
     key = par.KONTO_DATA_SET_NAME
@@ -325,7 +327,7 @@ def proof_konto_data_intern(par,d,konto_name):
             # end if
         # end if
     else:
-        d.dict[key] = []
+        d.ddict[key] = []
     # end if
 
     return d

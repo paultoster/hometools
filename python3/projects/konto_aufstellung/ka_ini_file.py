@@ -183,9 +183,9 @@ class ini:
 
     # Prüfe die Daten aus proof_liste
     #--------------------------------
-    proof_length = len(par.KONTO_PROOF_LISTE)
+    proof_length = len(par.INI_KONTO_PROOF_LISTE)
     index_liste  = [i for i in range(proof_length)]
-    for index,(proof,ttype) in enumerate(par.KONTO_PROOF_LISTE):
+    for index,(proof,ttype) in enumerate(par.INI_KONTO_PROOF_LISTE):
       if proof in key_liste:
         [okay,wert] = htype.hfkt_type_proof(kontodict[proof],ttype)
         if okay != hdef.OK:
@@ -204,7 +204,7 @@ class ini:
     if len(index_liste):
       self.status = hdef.NOT_OKAY
       for index in index_liste:
-        self.add_err_text(f"Im inifile {self.ini_file_name} ist Variable \"{kontoname}.{par.KONTO_PROOF_LISTE[index][0]}\" nicht gesetzt !!!!")
+        self.add_err_text(f"Im inifile {self.ini_file_name} ist Variable \"{kontoname}.{par.INI_KONTO_PROOF_LISTE[index][0]}\" nicht gesetzt !!!!")
       #endofor
       return self.status
     #endif

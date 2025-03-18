@@ -78,7 +78,6 @@ if( t_path == os.getcwd() ):
   import hfkt_type as htype
   import hfkt_def  as hdef
   import hfkt_str  as hstr
-  
 else:
   p_list     = os.path.normpath(t_path).split(os.sep)
   if( len(p_list) > 1 ): p_list = p_list[ : -1]
@@ -86,10 +85,11 @@ else:
   for i,item in enumerate(p_list): t_path += item + os.sep
   if( os.path.normpath(t_path) not in sys.path ): sys.path.append(t_path)
 
-  from hfkt import hfkt_type as htype
-  from hfkt import hfkt_def  as hdef
-  from hfkt import hfkt_str as hstr
+  from tools import hfkt_type as htype
+  from tools import hfkt_def  as hdef
+  from tools import hfkt_str as hstr
 #endif--------------------------------------------------------------------------
+
 
 KITCHEN_MODUL_AVAILABLE = False
 
@@ -636,7 +636,8 @@ def read_csv_file(file_name,delim=";"):
         f.close()
 
         for line in lines:
-
+           
+           line = hstr.elim_e(line,'\n')
            row = hstr.split_text(line,delim)
            liste.append(row)
         # reader = csv.reader(open(file_name, "rb"), delimiter=delim, quoting=csv.QUOTE_MINIMAL)

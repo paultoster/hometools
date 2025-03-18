@@ -16,8 +16,7 @@ if (tools_path not in sys.path):
 
 # Hilfsfunktionen
 import hfkt_def as hdef
-import hfkt_io as hio
-import hfkt_log as hlog
+# import hfkt_log as hlog
 import sgui
 
 import ka_gui
@@ -35,28 +34,29 @@ def report_einlesen(rd):
     
     # Kontoauswählen
     runflag = True
-    
     while (runflag):
         
-        choice = konto_gui.auswahl_konto(rd)
+        (index,choice) = ka_gui.auswahl_konto(rd)
         
-        if (choice == rd.ini.ENDE_RETURN_TXT):
-            runflag = False
-        elif (choice in rd.ini.konto_names):
+        if index < 0:
+            return status
+        elif choice in rd.ini.konto_names:
             
             rd.log.write(f"konto  \"{choice}\" ausgewählt")
             break
         else:
-            errtext = f"Auswahl: {choice} nicht bekannt"
+            status = hdef.NOT_OKAY
+            errtext = f"Konto Auswahl: {choice} nicht bekannt"
             rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
+            return status
         # endif
     # endwhile
     
     # Konto data in ini
-    d = rd.ini.konto_data[choice]
+    d = rd.data[choice].ddict
     
     # pdf lesen
-    if( d[rd.ini.AUSZUGS_TYP_NAME] == 'ing_csv'):
+    if( d[rd.par.AUSZUGS_TYP_NAME] == 'ing_csv'):
         
         status = read_ing_csv(rd,d)
         
@@ -80,75 +80,18 @@ def read_ing_csv(rd,d):
     :return: status
     """
     status = hdef.OKAY
-    # proof header values  KONTO_ITEM_LIST: List[str] = ("buchdatum","wertdatum", "wer", "comment", "wert")
-    header_lliste = [[rd.par.HEADER_BUCHDATUM, rd.par.KONTO_ITEM_LIST[0]]
-                   ,[rd.par.HEADER_WERTDATUM, rd.par.KONTO_ITEM_LIST[1]]
-                   ,[rd.par.HEADER_WER, rd.par.KONTO_ITEM_LIST[2]]
-                   ,[rd.par.HEADER_COMMENT, rd.par.KONTO_ITEM_LIST[3]]
-                   ,[rd.par.HEADER_WERT, rd.par.KONTO_ITEM_LIST[4]]
-                   ]
-    (status, errtext,header_lliste) = get_csv_header_list_names(d, header_lliste )
-    if( status == hdef.NOT_OKAY):
-        rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
-        status = hdef.NOT_OKAY
-        return status
-    #end if
     
     # csv-Datei auswählen
-    filename = sgui.abfrage_file(file_types="*.csv",comment="Wähle ein report von traderepublic als pdf-File aus",start_dir=os.getcwd())
+    filename = sgui.abfrage_file(file_types="*.csv",comment="Wähle ein report von ING-DiBa für den Kontoumsatz",start_dir=os.getcwd())
     
     if( len(filename) == 0 ): # Abbruch
         return status
     #endif
     
     
-    csv_lliste = hio.read_csv_file(file_name=filename,delim=";")
+    (status,data_lliste) = ka_konto_report_read_ing.read_csv(rd,d,filename)
     
-    if( len(csv_lliste) == 0 ):
-        rd.log.write_err(f"Fehler in read_ing_csv read_csv_file()  filename = {filename}", screen=rd.par.LOG_SCREEN_OUT)
-        status = hdef.NOT_OKAY
-        return status
-    
-    (data_lliste,status,errtext) = ka_konto_report_read_ing.read(csv_lliste,header_lliste,filename)
-    
-    if( status != hdef.OKAY ):
-        rd.log.write_err(f"Fehler in ka_konto_report_read_ing.read()  errtext = {errtext}", screen=rd.par.LOG_SCREEN_OUT)
-        status = hdef.NOT_OKAY
-    # endif
     return status
-# end def
-def get_csv_header_list_names(d, header_lliste):
-    '''
-    writes header name for specifiv csv file into list
-    
-    header_lliste = [[rd.par.HEADER_BUCHDATUM, rd.par.KONTO_ITEM_LIST[0]]
-                   ,[rd.par.HEADER_WERTDATUM, rd.par.KONTO_ITEM_LIST[1]]
-                   ,[rd.par.HEADER_WER, rd.par.KONTO_ITEM_LIST[2]]
-                   ,[rd.par.HEADER_COMMENT, rd.par.KONTO_ITEM_LIST[3]]
-                   ,[rd.par.HEADER_WERT, rd.par.KONTO_ITEM_LIST[4]]
-                   ]
-   
-    :param d:
-    :param keyname:
-    :return: (status,errtext,header_liste) =get_csv_header_list_names(d,header_liste)
-    '''
-    
-    for i,list in enumerate(header_lliste):
-        keyname = list[0]
-        if keyname not in d.keys() :
-            errtext = f"Fehler read_ing_csv  keyname: {keyname} of {d.name} is not in ini-File"
-            status = hdef.NOT_OKAY
-        elif len(d[keyname]) == 0 :
-            errtext = f"Fehler read_ing_csv  keyname: {keyname} of {d.name} is not in ini-File"
-            status = hdef.NOT_OKAY
-        else:
-            errtext = ""
-            status  = hdef.OKAY
-            header_lliste[i][0] = d[keyname]
-        # end if
-    # end for
-    
-    return (status,errtext,header_lliste)
 # end def
 
 # with open("beispieltext.txt", "w", encoding="utf-8") as file:

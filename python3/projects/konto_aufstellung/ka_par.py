@@ -62,15 +62,24 @@ class Parameter:
     START_DATUM_NAME: str = "start_datum"
     AUSZUGS_TYP_NAME: str = "auszug_type"
     
-    HEADER_BUCHDATUM: str = "header_buchdatum"
-    HEADER_WERTDATUM: str = "header_wertdatum"
-    HEADER_WER: str       = "header_wer"
-    HEADER_COMMENT: str   = "header_comment"
-    HEADER_WERT: str      = "header_wert"
+    HEADER_BUCHDATUM_NAME: str = "header_buchdatum"
+    HEADER_WERTDATUM_NAME: str = "header_wertdatum"
+    HEADER_WER_NAME: str       = "header_wer"
+    HEADER_COMMENT_NAME: str   = "header_comment"
+    HEADER_WERT_NAME: str      = "header_wert"
+    HEADER_BUCHTYPE_NAME: str   = "header_buchtype"
+    
+    # Reihenfolge entspricht KONTO_DATA_SET_ITEM_LIST
+    INI_KONTO_HEADER_NAME_LIST     = (HEADER_BUCHDATUM_NAME
+                                 ,HEADER_WERTDATUM_NAME
+                                 ,HEADER_WER_NAME
+                                 ,HEADER_BUCHTYPE_NAME
+                                 ,HEADER_WERT_NAME
+                                 ,HEADER_COMMENT_NAME)
 
     # Liste der zu checkenden Daten
     # ------------------------------
-    KONTO_PROOF_LISTE = [(IBAN_NAME, "iban")
+    INI_KONTO_PROOF_LISTE = [(IBAN_NAME, "iban")
                         , (BANK_NAME, "str")
                         , (WER_NAME, "str")
                         , (START_WERT_NAME, "float")
@@ -90,7 +99,20 @@ class Parameter:
     # konto data
     KONTO_NAME_NAME: str = "name"
     KONTO_DATA_SET_NAME: str = "konto_data_set"
-    KONTO_DATA_SET_ITEM_LIST: List[str] = ("buchdatum","wertdatum", "wer", "comment", "wert")
+    KONTO_DATA_SET_ITEM_LIST: List[str] = ( "buchdatum"
+                                          , "wertdatum"
+                                          , "wer"
+                                          , "buchtype"
+                                          , "wert"
+                                          ,"comment")
+    
+    KONTO_BUCHUNG_EINZAHLUNG   = 1
+    KONTO_BUCHUNG_AUSZAHLUNG   = 2
+    KONTO_BUCHUNG_WP_KAUF      = 3
+    KONTO_BUCHUNG_WP_VERKAUF   = 4
+    KONTO_BUCHUNG_WP_KOSTEN    = 5
+    KONTO_BUCHUNG_WO_EINNAHMEN = 6
+    
     
 
 
