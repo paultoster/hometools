@@ -60,7 +60,7 @@ class iban_data:
         errtext = ""
         
         # proof iban
-        (okay, wert) = htype.hfkt_type_proof_iban(iban)
+        (okay, wert) = htype.type_proof_iban(iban)
         if( okay != hdef.OKAY)
             status  = hdef.NOT_OKAY
             errtext = f"iban_data: error input iban = {iban} is not valid"
@@ -118,7 +118,7 @@ class iban_data:
             for i,d in enumerate(self.data_list):
                 if( d[I_IBAN] != d_new[i][I_IBAN]):
                     # proof iban
-                    (okay, wert) = htype.hfkt_type_proof_iban(d_new[i][I_IBAN])
+                    (okay, wert) = htype.type_proof_iban(d_new[i][I_IBAN])
                     if (okay != hdef.OKAY):
                         status = hdef.NOT_OKAY
                         errtext = f"iban_data: error input iban = {d_new[i][I_IBAN]} from Bank:{d[I_BANK]} and Comment:{d[I_COM]} is not valid"
@@ -158,7 +158,7 @@ class iban_data:
             wer     = hstr.elim_ae(listeErgebnis[I_WER],' ')
             comment = hstr.elim_ae(listeErgebnis[I_COM],' ')
 
-            (okay, wert) = htype.hfkt_type_proof_iban(iban)
+            (okay, wert) = htype.type_proof_iban(iban)
             if (okay != hdef.OKAY):
                 status = hdef.NOT_OKAY
                 errtext = f"iban_data: error input iban = {iban} from Bank:{bank} and Comment:{comment} is not valid"

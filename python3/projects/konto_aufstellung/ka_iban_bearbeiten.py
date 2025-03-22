@@ -29,8 +29,8 @@ def bearbeiten(rd):
     runflag = True
     while (runflag):
         
-        data_list = rd.data[rd.par.IBAN_DICT_DATA_NAME].ddict[rd.par.IBAN_DATA_LIST_NAME]
-        id_max = rd.data[rd.par.IBAN_DICT_DATA_NAME].ddict[rd.par.IBAN_ID_MAX_NAME]
+        data_list = rd.data[rd.par.IBAN_DATA_DICT_NAME].ddict[rd.par.IBAN_DATA_LIST_NAME]
+        id_max = rd.data[rd.par.IBAN_DATA_DICT_NAME].ddict[rd.par.IBAN_DATA_ID_MAX_NAME]
 
         (d_new,index_abfrage,irow) = ka_gui.iban_abfrage(rd, header_liste, data_list, abfrage_liste)
         
@@ -42,7 +42,7 @@ def bearbeiten(rd):
         # Update des editierten
         # ----------------------------
         elif( index_abfrage == i_update ):
-            (status, errtext, rd.data[rd.par.IBAN_DICT_DATA_NAME].ddict[rd.par.IBAN_DATA_LIST_NAME]) \
+            (status, errtext, rd.data[rd.par.IBAN_DATA_DICT_NAME].ddict[rd.par.IBAN_DATA_LIST_NAME]) \
                 = ka_iban_data.iban_mod(data_list,d_new)
             
             if (status != hdef.OK):
@@ -57,14 +57,14 @@ def bearbeiten(rd):
         elif( index_abfrage == i_add ):
             
             id_max = id_max+1
-            (status, errtext,rd.data[rd.par.IBAN_DICT_DATA_NAME].ddict[rd.par.IBAN_DATA_LIST_NAME]) \
+            (status, errtext,rd.data[rd.par.IBAN_DATA_DICT_NAME].ddict[rd.par.IBAN_DATA_LIST_NAME]) \
                 = ka_iban_data.iban_add_data_set(header_liste,data_list,id_max)
         
             if (status != hdef.OK):
                 rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
                 return status
             else:
-                rd.data[rd.par.IBAN_DICT_DATA_NAME].ddict[rd.par.IBAN_ID_MAX_NAME] = id_max
+                rd.data[rd.par.IBAN_DATA_DICT_NAME].ddict[rd.par.IBAN_DATA_ID_MAX_NAME] = id_max
             # end fi
             
         # Eintrag Löschen
@@ -72,7 +72,7 @@ def bearbeiten(rd):
         else:
             if irow >= 0:
                 
-                (status, errtext, rd.data[rd.par.IBAN_DICT_DATA_NAME].ddict[rd.par.IBAN_DATA_LIST_NAME]) \
+                (status, errtext, rd.data[rd.par.IBAN_DATA_DICT_NAME].ddict[rd.par.IBAN_DATA_LIST_NAME]) \
                     = ka_iban_data.iban_delete_data_set(data_list, irow)
                 
                 if status != hdef.OK:

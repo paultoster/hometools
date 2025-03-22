@@ -20,7 +20,8 @@
 # flag = is_dict(val)  Prüft, ob Type dictionary flag = True/False
 # flag = isfield(c,'valname') Prüft ob eine Klasse oder ein dict die instance hat
 # flag = isempty(val) Prüft, ob leer nach type
-# (okay,wert) = hfkt_type_proof(wert_in, type) Prüft den Wert auf seine type: "str","float","int","dat"
+# (okay,wert) = type_proof(wert_in, type) Prüft den Wert auf seine type: "str","float","int","dat","iban","euro"
+# (okay,wert_cent) = type_convert_euro_to_cent(wert_euro)
 #
 # print_python_is_32_or_64_bit
 # ---------------------------------
@@ -39,6 +40,7 @@ import string
 # import array
 # import shutil
 import struct
+import re
 
 import hfkt as h
 import hfkt_def as hdef
@@ -76,25 +78,17 @@ def str_to_float_possible(string_val):
     try:
         return float(string_val)
     except ValueError:
-        for istart in range(n):
-            for nend in range(istart + 1, n + 1, 1):
-                tt = string_val[istart:nend]
-                try:
-                    if len(tt) > maxdig:
-                        maxdig = len(tt)
-                        index0 = istart
-                        n1 = nend
-                        # endif
-                except ValueError:
-                    pass
-                    # endtry
-            # endfor
-        # endfor
-    # endtry
-    if maxdig > 0:
-        return float(string_val[index0:n1])
-    else:
-        return None
+        list = re.findall(r"[-+]?(?:\d*\.*\d+)", string_val)
+        
+        if len(list) > 0:
+            try:
+                return float(list[0])
+            except:
+                return None
+            # end try
+        # end if
+    # end try
+    
 
 
 # enddef
@@ -290,7 +284,7 @@ def isempty(val):
 
 # -------------------------------------------------------
 
-def hfkt_type_proof_str_excel_float(wert_in):
+def type_proof_str_excel_float(wert_in):
     if (isinstance(wert_in, str)):
         wert_in = hstr.change_excel_value_str(wert_in)
         wert = str_to_float_possible(wert_in)
@@ -310,9 +304,9 @@ def hfkt_type_proof_str_excel_float(wert_in):
 # enddef
 
 # -------------------------------------------------------
-def hfkt_type_proof(wert_in, type):
+def type_proof(wert_in, type):
     '''
-    (okay,wert) = hfkt_type_proof(wert_in, type) Prüft den Wert auf seine
+    (okay,wert) = type_proof(wert_in, type) Prüft den Wert auf seine
     type: "str","float","int","dat","iban"
     "dat": Convert to epoch seconds
     "iban": string, 2 letters and 20 digits, could be with spaces
@@ -321,21 +315,24 @@ def hfkt_type_proof(wert_in, type):
     "float": floating point
     "list": any list
     "list_str": a list with strings
+    "euro"
     '''
-    if (type == "str"):
-        return hfkt_type_proof_string(wert_in)
-    elif (type == "float"):
-        return hfkt_type_proof_float(wert_in)
-    elif (type == "int"):
-        return hfkt_type_proof_int(wert_in)
-    elif (type == "list"):
-        return hfkt_type_proof_list(wert_in, "")
-    elif (type == "list_str"):
-        return hfkt_type_proof_list(wert_in, "str")
-    elif ((type == "dat") or (type == "date")):
-        return hfkt_type_proof_dat(wert_in)
-    elif (type == "iban"):
-        return hfkt_type_proof_iban(wert_in)
+    if type == "str":
+        return type_proof_string(wert_in)
+    elif (type == "float") or (type == "euro"):
+        return type_proof_float(wert_in)
+    elif type == "int":
+        return type_proof_int(wert_in)
+    elif type == "list":
+        return type_proof_list(wert_in, "")
+    elif type == "list_str":
+        return type_proof_list(wert_in, "str")
+    elif (type == "dat") or (type == "date"):
+        return type_proof_dat(wert_in)
+    elif type == "iban":
+        return type_proof_iban(wert_in)
+    elif type == "isin":
+        return type_proof_isin(wert_in)
     else:
         return (hdef.NOT_OKAY, None)  # endif
 
@@ -343,12 +340,12 @@ def hfkt_type_proof(wert_in, type):
 # enddef
 
 
-def hfkt_type_proof_string(wert_in):
+def type_proof_string(wert_in):
     if (isinstance(wert_in, str)):
         return (hdef.OKAY, wert_in)
     elif (isinstance(wert_in, list) or isinstance(wert_in, tuple)):
         try:
-            return hfkt_type_proof_string(wert_in[0])
+            return type_proof_string(wert_in[0])
         except:
             return (hdef.NOT_OKAY, None)  # endtry
     elif( wert_in == None ):
@@ -366,13 +363,15 @@ def hfkt_type_proof_string(wert_in):
 
 # enddef
 
-
-def hfkt_type_proof_float(wert_in):
+def type_proof_euro(wert_in):
+    return type_proof_float(wert_in)
+#end def
+def type_proof_float(wert_in):
     if (isinstance(wert_in, float)):
         return (hdef.OKAY, wert_in)
     elif (isinstance(wert_in, list) or isinstance(wert_in, tuple)):
         try:
-            return hfkt_type_proof_float(wert_in[0])
+            return type_proof_float(wert_in[0])
         except:
             return (hdef.NOT_OKAY, None)  # endtry
     elif (isinstance(wert_in, str)):
@@ -395,12 +394,12 @@ def hfkt_type_proof_float(wert_in):
 
 
 # enddef
-def hfkt_type_proof_int(wert_in):
+def type_proof_int(wert_in):
     if (isinstance(wert_in, int)):
         return (hdef.OKAY, wert_in)
     elif (isinstance(wert_in, list) or isinstance(wert_in, tuple)):
         try:
-            return hfkt_type_proof_int(wert_in[0])
+            return type_proof_int(wert_in[0])
         except:
             return (hdef.NOT_OKAY, None)  # endtry
     elif (isinstance(wert_in, str)):
@@ -425,7 +424,7 @@ def hfkt_type_proof_int(wert_in):
 
 # enddef
 
-def hfkt_type_proof_list(wert_in,type):
+def type_proof_list(wert_in,type):
     
     if( isinstance(wert_in,list) ):
         if( len(type) == 0 ):
@@ -433,7 +432,7 @@ def hfkt_type_proof_list(wert_in,type):
         elif( type == "str" ):
             for i,item_raw in enumerate(wert_in):
                 
-                (okay,item) = hfkt_type_proof_string(item_raw)
+                (okay,item) = type_proof_string(item_raw)
                 if( okay == hdef.OKAY):
                     wert_in[i] = item
                 else:
@@ -448,7 +447,7 @@ def hfkt_type_proof_list(wert_in,type):
     # end if
     return (hdef.OKAY,wert_in)
 # end def
-def hfkt_type_proof_dat(wert_in):
+def type_proof_dat(wert_in):
     """ return value in epoch seconds"""
     if (isinstance(wert_in, str)):
         secs = hdt.secs_time_epoch_from_str_re(wert_in)
@@ -463,13 +462,13 @@ def hfkt_type_proof_dat(wert_in):
             return (hdef.OKAY, secs)
     elif (isinstance(wert_in, list) or isinstance(wert_in, tuple)):
         try:
-            return hfkt_type_proof_dat(wert_in[0])
+            return type_proof_dat(wert_in[0])
         except:
             return (hdef.NOT_OKAY, None)  # endtry
     else:
         try:
             datum = h.datum_int_to_str(int(wert_in))
-            return hfkt_type_proof_dat(datum)
+            return type_proof_dat(datum)
         except:
             return (hdef.NOT_OKAY, None)  # endtry  # endif
 
@@ -477,17 +476,17 @@ def hfkt_type_proof_dat(wert_in):
 # enddef
 
 
-def hfkt_type_proof_iban(wert_in):
+def type_proof_iban(wert_in):
     """ return value in epoch seconds"""
 
-    (okay, wert) = hfkt_type_proof_string(wert_in)
+    (okay, wert) = type_proof_string(wert_in)
 
     if (okay == hdef.OKAY):
         
         wert = hstr.elim_whitespace(wert)
 
         (hit, hitliste) = eval_iban(wert)
-        if (hit == 1):
+        if (hit >= 1):
             wert = hitliste[0]
             okay = hdef.OKAY
         else:
@@ -560,6 +559,206 @@ def eval_iban(input):
 
 
 # enddef
+
+def type_proof_isin(wert_in):
+    """ return value str
+    """
+    
+    (okay, wert) = type_proof_string(wert_in)
+    
+    if (okay == hdef.OKAY):
+        
+        isins = find_ISIN(wert)
+        if( len(isins) > 0 ):
+            (okay, errtext, number) = isin_validate(isins[0])
+            if okay == hdef.OKAY:
+                wert = number
+            else:
+                wert = None
+            # end if
+        else:
+            wert = None
+            okay = hdef.NOT_OKAY
+        # end if
+    # end if
+    return (okay, wert)
+# end def
+
+
+#----------------------------------------------------------------------------------------------------
+# isin functions start  -----------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------
+def find_ISIN(S):
+    ISIN_list = []
+    for i in range(len(S) - 12):
+        if S[i:i+2].isalpha() and  S[i+2:i+11].isalnum() and S[i+11:i+12].isdigit():
+            ISIN_list.append(S[i:i+12])
+    return ISIN_list
+# end def
+
+# isin.py - functions for handling ISIN numbers
+#
+# Copyright (C) 2015-2017 Arthur de Jong
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301 USA
+
+# ISIN (International Securities Identification Number).
+#
+# The ISIN is a 12-character alpha-numerical code specified in ISO 6166 used to
+# identify exchange listed securities such as bonds, commercial paper, stocks
+# and warrants. The number is formed of a two-letter country code, a nine
+# character national security identifier and a single check digit.
+#
+# This module does not currently separately validate the embedded national
+# security identifier part (e.g. when it is a CUSIP).
+#
+# More information:
+#
+# * https://en.wikipedia.org/wiki/International_Securities_Identification_Number
+#
+# >>> validate('US0378331005')
+# 'US0378331005'
+# >>> validate('US0378331003')
+# Traceback (most recent call last):
+#     ...
+# InvalidChecksum: ...
+# >>> from_natid('gb', 'BYXJL75')
+# 'GB00BYXJL758'
+
+
+
+# all valid ISO 3166-1 alpha-2 country codes
+_iso_3116_1_country_codes = [
+    'AD', 'AE', 'AF', 'AG', 'AI', 'AL', 'AM', 'AN', 'AO', 'AQ', 'AR', 'AS',
+    'AT', 'AU', 'AW', 'AX', 'AZ', 'BA', 'BB', 'BD', 'BE', 'BF', 'BG', 'BH',
+    'BI', 'BJ', 'BL', 'BM', 'BN', 'BO', 'BQ', 'BR', 'BS', 'BT', 'BV', 'BW',
+    'BY', 'BZ', 'CA', 'CC', 'CD', 'CF', 'CG', 'CH', 'CI', 'CK', 'CL', 'CM',
+    'CN', 'CO', 'CR', 'CS', 'CU', 'CV', 'CW', 'CX', 'CY', 'CZ', 'DE', 'DJ',
+    'DK', 'DM', 'DO', 'DZ', 'EC', 'EE', 'EG', 'EH', 'ER', 'ES', 'ET', 'FI',
+    'FJ', 'FK', 'FM', 'FO', 'FR', 'GA', 'GB', 'GD', 'GE', 'GF', 'GG', 'GH',
+    'GI', 'GL', 'GM', 'GN', 'GP', 'GQ', 'GR', 'GS', 'GT', 'GU', 'GW', 'GY',
+    'HK', 'HM', 'HN', 'HR', 'HT', 'HU', 'ID', 'IE', 'IL', 'IM', 'IN', 'IO',
+    'IQ', 'IR', 'IS', 'IT', 'JE', 'JM', 'JO', 'JP', 'KE', 'KG', 'KH', 'KI',
+    'KM', 'KN', 'KP', 'KR', 'KW', 'KY', 'KZ', 'LA', 'LB', 'LC', 'LI', 'LK',
+    'LR', 'LS', 'LT', 'LU', 'LV', 'LY', 'MA', 'MC', 'MD', 'ME', 'MF', 'MG',
+    'MH', 'MK', 'ML', 'MM', 'MN', 'MO', 'MP', 'MQ', 'MR', 'MS', 'MT', 'MU',
+    'MV', 'MW', 'MX', 'MY', 'MZ', 'NA', 'NC', 'NE', 'NF', 'NG', 'NI', 'NL',
+    'NO', 'NP', 'NR', 'NU', 'NZ', 'OM', 'PA', 'PE', 'PF', 'PG', 'PH', 'PK',
+    'PL', 'PM', 'PN', 'PR', 'PS', 'PT', 'PW', 'PY', 'QA', 'RE', 'RO', 'RS',
+    'RU', 'RW', 'SA', 'SB', 'SC', 'SD', 'SE', 'SG', 'SH', 'SI', 'SJ', 'SK',
+    'SL', 'SM', 'SN', 'SO', 'SR', 'SS', 'ST', 'SV', 'SX', 'SY', 'SZ', 'TC',
+    'TD', 'TF', 'TG', 'TH', 'TJ', 'TK', 'TL', 'TM', 'TN', 'TO', 'TR', 'TT',
+    'TV', 'TW', 'TZ', 'UA', 'UG', 'UM', 'US', 'UY', 'UZ', 'VA', 'VC', 'VE',
+    'VG', 'VI', 'VN', 'VU', 'WF', 'WS', 'YE', 'YT', 'ZA', 'ZM', 'ZW']
+
+# These special codes are allowed for ISIN
+_country_codes = set(_iso_3116_1_country_codes + [
+    'EU',  # European Union
+    'QS',  # internally used by Euroclear France
+    'QS',  # temporarily assigned in Germany
+    'QT',  # internally used in Switzerland
+    'XA',  # CUSIP Global Services substitute agencies
+    'XB',  # NSD Russia substitute agencies
+    'XC',  # WM Datenservice Germany substitute agencies
+    'XD',  # SIX Telekurs substitute agencies
+    'XF',  # internally assigned, not unique numbers
+    'XK',  # temporary country code for Kosovo
+    'XS',  # international securities
+])
+
+# the letters allowed in an ISIN
+_alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+
+
+def isin_compact(number):
+    """Convert the number to the minimal representation. This strips the
+    number of any valid separators and removes surrounding whitespace."""
+    number.replace(" ", "")
+    return number.strip().upper()
+
+
+def isin_calc_check_digit(number):
+    """Calculate the check digits for the number."""
+    # convert to numeric first, then double some, then sum individual digits
+    number = ''.join(str(_alphabet.index(n)) for n in number)
+    number = ''.join(
+        str((2, 1)[i % 2] * int(n)) for i, n in enumerate(reversed(number)))
+    return str((10 - sum(int(n) for n in number)) % 10)
+
+
+def isin_validate(number):
+    """Check if the number provided is valid. This checks the length and
+    check digit.
+    (okay,errtext,number) = isin_validate(number)
+    """
+    okay = hdef.OKAY
+    errtext = ""
+    number = isin_compact(number)
+    if not all(x in _alphabet for x in number):
+        okay = hdef.NOT_OKAY
+        errtext = f"isin_validate: isin-number {number} has invalid format"
+    elif len(number) != 12:
+        okay = hdef.NOT_OKAY
+        errtext = f"isin_validate: isin-number {number} has invalid length"
+    elif number[:2] not in _country_codes:
+        okay = hdef.NOT_OKAY
+        errtext = f"isin_validate: isin-number {number} has not known country code"
+    elif isin_calc_check_digit(number[:-1]) != number[-1]:
+        okay = hdef.NOT_OKAY
+        errtext = f"isin_validate: isin-number {number} has invalid checksum"
+    # end if
+    
+    return (okay,errtext,number)
+# end if
+
+def isin_is_valid(number):
+    """Check if the number provided is valid. This checks the length and
+    check digit."""
+    try:
+        (okay,errtext,number) = isin_validate(number)
+        if( okay != hdef.OKAY):
+            return False
+        else:
+            return True
+    except:
+        return False
+
+
+def isin_from_natid(country_code, number):
+    """Generate an ISIN from a national security identifier."""
+    number = country_code.upper() + isin_compact(number).zfill(9)
+    return number + isin_calc_check_digit(number)
+#----------------------------------------------------------------------------------------------------
+# isin functions ------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------
+
+def type_convert_euro_to_cent(wert_euro):
+    '''
+    
+    :param wert_euro:
+    :return: (okay,wert_cent) =  type_convert_euro_to_cent(wert_euro)
+    '''
+    (okay, out) = type_proof_euro(wert_euro)
+    if okay == hdef.OKAY:
+        wert_cent = int(out*100+0.5)
+    else:
+        wert_cent = None
+    # end if
+    return (okay,wert_cent)
+# end def
 # -------------------------------------------------------
 def print_python_is_32_or_64_bit():
     print(struct.calcsize("P") * 8)
@@ -569,9 +768,11 @@ def print_python_is_32_or_64_bit():
 # testen mit main
 ###########################################################################
 if __name__ == '__main__':
-    (okay, out) = hfkt_type_proof("11 Dez. 2024", "date")
+    (okay, out) = type_proof("Zins/Dividende ISIN IE00BM8R0J59 GL X-N.10", "isin")
 
     print(f"okay: {okay}, out : {out}")
+    
+    # ^([A-Z]{2})([A-Z0-9]{9})([0-9]{1})$
 
     # string_with_dates = "05.10.23"  #  # text = " Oder aber 01.11.65 Das Datum ist 09/02/2023 und der andere Termin ist am 12-12-2024  "  #  # epochdate = secs_time_epoch_from_str_re(text)  #  # print(epochdate, secs_time_epoch_to_str(epochdate))
 

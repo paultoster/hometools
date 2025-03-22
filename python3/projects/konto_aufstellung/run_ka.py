@@ -20,7 +20,7 @@ INI_FILE_NAME = "ka.ini"
 
 import ka_par
 import ka_ini_file
-import ka_data_pickle
+import ka_data_set
 import ka_konto_bearbeiten as kb
 import ka_iban_bearbeiten as ib
 import ka_gui
@@ -66,7 +66,7 @@ def konto_auswerten():
         
     # data_base
     # -----------
-    (status, errtext, rd.data) = ka_data_pickle.data_get(rd.par,rd.ini)
+    (status, errtext, rd.data) = ka_data_set.data_get(rd.par,rd.ini)
 
     if (status != hdef.OK):
         rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
@@ -113,7 +113,7 @@ def konto_auswerten():
     # endwhile
     
 
-    (status, errtext) = ka_data_pickle.data_save(rd.data)
+    (status, errtext) = ka_data_set.data_save(rd.data)
 
     if (status != hdef.OK):
         rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)

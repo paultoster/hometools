@@ -58,7 +58,21 @@ def report_einlesen(rd):
     # pdf lesen
     if( d[rd.par.AUSZUGS_TYP_NAME] == 'ing_csv'):
         
-        status = read_ing_csv(rd,d)
+        # csv-Datei auswählen
+        filename = sgui.abfrage_file(file_types="*.csv",
+                                     comment=f"Wähle ein report von ING-DiBa für den Kontoumsatz von Konto: {choice}",
+                                     start_dir=os.getcwd())
+        
+        if (len(filename) == 0):  # Abbruch
+            return status
+        # endif
+        
+        (status, d) = ka_konto_report_read_ing.read_csv(rd, d, filename)
+        
+        if status != hdef.OKAY:  # Abbruch
+            return status
+        # write back modified d
+        rd.data[choice].ddict = d
         
     else:
         errtext = f"Der Auszugstype von [{choice}].{rd.ini.AUSZUGS_TYP_NAME} = {d[rd.ini.AUSZUGS_TYP_NAME]} stimmt nicht"
@@ -77,23 +91,13 @@ def read_ing_csv(rd,d):
     
     :param rd:
     :param d:
-    :return: status
+    :return: (status,d) = read_ing_csv(rd,d)
     """
     status = hdef.OKAY
     
-    # csv-Datei auswählen
-    filename = sgui.abfrage_file(file_types="*.csv",comment="Wähle ein report von ING-DiBa für den Kontoumsatz",start_dir=os.getcwd())
     
-    if( len(filename) == 0 ): # Abbruch
-        return status
-    #endif
-    
-    
-    (status,data_lliste) = ka_konto_report_read_ing.read_csv(rd,d,filename)
-    
-    return status
+    return (status,d)
 # end def
-
 # with open("beispieltext.txt", "w", encoding="utf-8") as file:
 #     file.write(f"{'start----------------'}\n")
 #     doc = pymupdf.open(filename)  # open a document

@@ -101,7 +101,7 @@ class ini:
     index_liste  = [i for i in range(proof_length)]
     for index,(proof,ttype) in enumerate(par.BASE_PROOF_LISTE):
       if proof in key_liste:
-        [okay,wert] = htype.hfkt_type_proof(data[proof],ttype)
+        [okay,wert] = htype.type_proof(data[proof],ttype)
         if okay != hdef.OK:
           self.status = hdef.NOT_OKAY
           self.add_err_text(f"In inifile {self.ini_file_name} is variable {data[proof]} not correct !!!!")
@@ -123,22 +123,22 @@ class ini:
       return self.status
     #endif
     
-    self.konto_names = data.get(par.KONTO_NAMES_NAME)
+    self.konto_names = data.get(par.KONTO_DATA_DICT_NAMES_NAME)
     self.iban_list_file_name = data.get(par.IBAN_LIST_FILE_NAME)
     self.data_pickle_use_json = data.get(par.DATA_PICKLE_USE_JSON)
     self.data_pickle_jsonfile_list = data.get(par.DATA_PICKLE_JSONFILE_LIST)
 
 
-    # # self.konto_names = data.get(par.KONTO_NAMES_NAME)
+    # # self.konto_names = data.get(par.KONTO_DATA_DICT_NAMES_NAME)
     # # if not self.konto_names or (len(self.konto_names) == 0):
     # #   self.status = hdef.NOT_OKAY
     # #   self.add_err_text(f"In inifile {self.ini_file_name} ist keine Liste mit Kontonamen "
-    # #                     f"{par.KONTO_NAMES_NAME} = [kont1,konto2, ...] !!!!")
+    # #                     f"{par.KONTO_DATA_DICT_NAMES_NAME} = [kont1,konto2, ...] !!!!")
     # #   return self.status
     # # # endif
     #
     #
-    # [okay, self.iban_list_file_name] = htype.hfkt_type_proof(data.get(par.IBAN_LIST_FILE_NAME), "str")
+    # [okay, self.iban_list_file_name] = htype.type_proof(data.get(par.IBAN_LIST_FILE_NAME), "str")
     # if okay != hdef.OKAY:
     #   self.status = hdef.NOT_OKAY
     #   self.add_err_text(f"In inifile {self.ini_file_name} ist keine Name für das iban_file angegeben"
@@ -187,7 +187,7 @@ class ini:
     index_liste  = [i for i in range(proof_length)]
     for index,(proof,ttype) in enumerate(par.INI_KONTO_PROOF_LISTE):
       if proof in key_liste:
-        [okay,wert] = htype.hfkt_type_proof(kontodict[proof],ttype)
+        [okay,wert] = htype.type_proof(kontodict[proof],ttype)
         if okay != hdef.OK:
           self.status = hdef.NOT_OKAY
           self.add_err_text(f"In inifile {self.ini_file_name} is variable {kontoname}.{proof} = {kontodict[proof]} not correct !!!!")

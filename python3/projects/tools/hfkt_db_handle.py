@@ -525,7 +525,7 @@ class dbhandle:
         # Data-Type auslesen und data_type_index festlegen
         #.................................................
         if( len(liste) > 1 ):
-          data_type_index = hdb.get_data_type_number(h.elim_ae(liste[1],' '))
+          data_type_index = hdb.get_data_from_csv_type_number(h.elim_ae(liste[1],' '))
           if( data_type_index == None ):
             self.status = hdef.NOT_OK
             tt          = "Zelle: <%s>: zell-data-type <%s> not found in hfkt_db.py !!!" % (keyliste[index],h.elim_ae(liste[1],' '))
