@@ -505,7 +505,8 @@ class abfrage_liste_class:
 def abfrage_tabelle(header_liste,data_set,listeAbfrage=None):
   
   data_index_liste = list(range(0,len(data_set)))
-  obj = abfrage_tabelle_class(header_liste,data_set,data_index_liste,listeAbfrage)
+  color_liste = []
+  obj = abfrage_tabelle_class(header_liste,data_set,data_index_liste,color_liste,listeAbfrage)
   data_set_out = obj.data_set
   indexAbfrage = obj.indexAbfrage
   del obj
@@ -513,7 +514,17 @@ def abfrage_tabelle(header_liste,data_set,listeAbfrage=None):
 # end def
 def abfrage_tabelle_get_row(header_liste,data_set,listeAbfrage=None):
   data_index_liste = list(range(0,len(data_set)))
-  obj = abfrage_tabelle_class(header_liste,data_set,data_index_liste,listeAbfrage)
+  color_liste      = []
+  obj = abfrage_tabelle_class(header_liste,data_set,data_index_liste,color_liste,listeAbfrage)
+  data_set_out = obj.data_set
+  indexAbfrage = obj.indexAbfrage
+  irow         = obj.current_row
+  del obj
+  return (data_set_out,indexAbfrage,irow)
+# end def
+def abfrage_tabelle_get_row_set_color(header_liste,data_set,color_liste,listeAbfrage=None):
+  data_index_liste = list(range(0,len(data_set)))
+  obj = abfrage_tabelle_class(header_liste,data_set,data_index_liste,color_liste,listeAbfrage)
   data_set_out = obj.data_set
   indexAbfrage = obj.indexAbfrage
   irow         = obj.current_row
@@ -569,12 +580,14 @@ class abfrage_tabelle_class:
   current_row           = -1
 #-------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
-  def __init__(self,header_liste,data_set,data_index_liste=None,listeAbfrage=None):
+  def __init__(self,header_liste,data_set,data_index_liste=None,color_liste=None,listeAbfrage=None):
     """
     """
     self.state                 = hdef.OKAY
     self.header_liste          = []
     self.index_liste           = []
+    self.color_liste           = []
+    self.colors                = []
     self.str_auswahl_liste     = []
     self.index_auswahl_liste   = []
     self.indexListe            = []
@@ -648,16 +661,46 @@ class abfrage_tabelle_class:
       # endif
     #endif
     
+    #color_list
+    if color_liste and isinstance(color_liste, list):
+        self.color_liste = []
+        for colores in color_liste:
+            if isinstance(colores,str):
+              self.color_liste.append(colores)
+            else:
+              self.color_liste.append('')
+            # end if
+        # end for
+        n = len(self.color_liste)
+        if n < self.ndata:
+            for i in range(n, self.ndata):
+                self.color_liste.append('')
+            # end for
+        # end if
+    else:
+        self.color_liste = []
+        for i in range(self.ndata):
+            self.color_liste.append('')
+        # end for
+    # end if
+    
+    # unique colors
+    self.colors = []
+    for x in self.color_liste:
+        if (len(x) > 0) and (x not in self.colors):
+          self.color_liste.append(x)
+        # end if
+    # end for
     
     # Liste der Abfrage buttons
-    if( listeAbfrage ):
+    if listeAbfrage:
       self.abfrage_liste = []
       for item in listeAbfrage:
-        if( isinstance(item, str) ):
+        if isinstance(item, str):
           self.abfrage_liste.append(item)
-        elif( isinstance(item, float) ):
+        elif isinstance(item, float):
           self.abfrage_liste.append("%f" % item)
-        elif( isinstance(item, int) ):
+        elif isinstance(item, int):
           self.abfrage_liste.append("%i" % item)
         #endif
     #endif
@@ -763,7 +806,7 @@ class abfrage_tabelle_class:
     # columns
     if (len(self.index_liste) == self.ndata):
       self.tabGui_TabBox.column("#0", width=30, minwidth=20)
-      # endif
+    # endif
     for name in self.header_liste:
       self.tabGui_TabBox.column(name, anchor=Tk.W)
     # endfor
@@ -778,6 +821,9 @@ class abfrage_tabelle_class:
     
     self.tabGui_TabBox.tag_configure('oddrow',background = 'white')
     self.tabGui_TabBox.tag_configure('evenrow',background = 'lightblue')
+    for colores in self.colors:
+      self.tabGui_TabBox.tag_configure(colores, background=colores)
+    # end for
 
     self.tabGui_TabBox.bind("<Double-1>", self.SelectOnDoubleClick)
     

@@ -170,6 +170,10 @@ def proof_konto_data_intern(par, d, konto_name):
         d.ddict[key] = 0
     # end if
     
+    # Liste für neuen Input
+    key = par.KONTO_DATA_ID_NEW_LIST
+    d.ddict[key] = []
+    
     return d
 # end def
 

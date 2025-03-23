@@ -53,10 +53,10 @@ def report_einlesen(rd):
     # endwhile
     
     # Konto data in ini
-    d = rd.data[choice].ddict
+    ddict = rd.data[choice].ddict
     
-    # pdf lesen
-    if( d[rd.par.AUSZUGS_TYP_NAME] == 'ing_csv'):
+    # csv lesen
+    if( ddict[rd.par.AUSZUGS_TYP_NAME] == 'ing_csv'):
         
         # csv-Datei auswählen
         filename = sgui.abfrage_file(file_types="*.csv",
@@ -67,15 +67,15 @@ def report_einlesen(rd):
             return status
         # endif
         
-        (status, d) = ka_konto_report_read_ing.read_csv(rd, d, filename)
+        (status, ddict) = ka_konto_report_read_ing.read_csv(rd, ddict, filename)
         
         if status != hdef.OKAY:  # Abbruch
             return status
-        # write back modified d
-        rd.data[choice].ddict = d
+        # write back modified ddict
+        rd.data[choice].ddict = ddict
         
     else:
-        errtext = f"Der Auszugstype von [{choice}].{rd.ini.AUSZUGS_TYP_NAME} = {d[rd.ini.AUSZUGS_TYP_NAME]} stimmt nicht"
+        errtext = f"Der Auszugstype von [{choice}].{rd.ini.AUSZUGS_TYP_NAME} = {ddict[rd.ini.AUSZUGS_TYP_NAME]} stimmt nicht"
         rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
         status  = hdef.NOT_OKAY
     #endif
@@ -83,21 +83,6 @@ def report_einlesen(rd):
     return status
 # enddef
 
-#--------------------------------------------------------------------------------
-# csv von Ing-Bank lesen
-#--------------------------------------------------------------------------------
-def read_ing_csv(rd,d):
-    """
-    
-    :param rd:
-    :param d:
-    :return: (status,d) = read_ing_csv(rd,d)
-    """
-    status = hdef.OKAY
-    
-    
-    return (status,d)
-# end def
 # with open("beispieltext.txt", "w", encoding="utf-8") as file:
 #     file.write(f"{'start----------------'}\n")
 #     doc = pymupdf.open(filename)  # open a document

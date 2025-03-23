@@ -18,13 +18,13 @@ import hfkt_type as htype
 import hfkt_io as hio
 
 
-def read_csv(rd,d,filename):
+def read_csv(rd,ddict,filename):
     '''
     
     :param csv_lliste:
     :param header_lliste
     :param filename:
-    :return: (status,d) = read(rd,d,filename)
+    :return: (status,ddict) = read(rd,ddict,filename)
     '''
     status  = hdef.OKAY
     data_dict_list = {}
@@ -43,11 +43,11 @@ def read_csv(rd,d,filename):
     header_name_liste = []                  # Liste mit den Header-Namen beim Einlesen der csv-Datei
     index_konto_dataset_liste = []     # Liste mit den indices als Zuordnung zu den eingelesenen csv-Daten (entsp. dem header)
     for head_list in rd.par.INI_KONTO_HEADER_NAME_INDEX_LLIST:
-        if( head_list[0] in d.keys() ):
-            header_name_liste.append(d[head_list[0]])
+        if( head_list[0] in ddict.keys() ):
+            header_name_liste.append(ddict[head_list[0]])
             index_konto_dataset_liste.append(head_list[1])
         else:
-            rd.log.write_err(f"Fehler in building hear_liste header name: {head_list[0]} not found in ini-File for konto  {d['name']} ",
+            rd.log.write_err(f"Fehler in building hear_liste header name: {head_list[0]} not found in ini-File for konto  {ddict['name']} ",
                              screen=rd.par.LOG_SCREEN_OUT)
             status = hdef.NOT_OKAY
             return (status, data_dict_list)
@@ -66,7 +66,7 @@ def read_csv(rd,d,filename):
 
     # get data from csv lliste mit linestartindex, index_liste
     #-----------------------------
-    (okay, errtext, data_dict_list) = get_data_from_csv_lliste(csv_lliste,d,rd.par,linestartindex, index_lliste, filename)
+    (okay, errtext, data_dict_list) = get_data_from_csv_lliste(csv_lliste,ddict,rd.par,linestartindex, index_lliste, filename)
 
     # Fehler
     if okay != hdef.OKAY:
@@ -75,15 +75,15 @@ def read_csv(rd,d,filename):
         return (status, data_dict_list)
     # end if
     
-    # extract new data from data_llist with d[rd.par.KONTO_DATA_ID_MAX_NAME
-    data_dict_list_to_add = extract_new_data_from_data_dict_list(data_dict_list, rd.par,d[rd.par.KONTO_DATA_SET_NAME])
+    # extract new data from data_llist with ddict[rd.par.KONTO_DATA_ID_MAX_NAME
+    data_dict_list_to_add = extract_new_data_from_data_dict_list(data_dict_list, rd.par,ddict[rd.par.KONTO_DATA_SET_NAME])
     
     data_dict_list_to_add = add_isin_from_text_to_data_set(data_dict_list_to_add,rd.par)
     
-    # add new found data into d and modify idmax in d
-    (status, d) = add_new_data_in_data_lliste(data_dict_list_to_add, rd.par, d)
+    # add new found data into ddict and modify idmax in ddict and fill ddict[KONTO_DATA_ID_NEW_LIST]
+    (status, ddict) = add_new_data_in_data_lliste(data_dict_list_to_add, rd.par, ddict)
     
-    return (status,d)
+    return (status,ddict)
     
 #enddef
 def search_header(csv_lliste,header_name_liste,index_konto_dataset_liste,filename):
@@ -140,13 +140,13 @@ def search_header(csv_lliste,header_name_liste,index_konto_dataset_liste,filenam
     # end if
     return (okay,errtext,start_index,index_lliste)
 # end def
-def get_data_from_csv_lliste(csv_lliste,d,par,linestartindex, index_lliste,filename):
+def get_data_from_csv_lliste(csv_lliste,ddict,par,linestartindex, index_lliste,filename):
     '''
     
     :param csv_lliste:
     :param linestartindex:
     :param index_lliste:  liste mit position in csv-datei Spalte und mit index in konto_dataset
-    :return: (okay, errtext, data_dict_list) = get_data_from_csv_lliste(csv_lliste,d,par,linestartindex, index_lliste,filename)
+    :return: (okay, errtext, data_dict_list) = get_data_from_csv_lliste(csv_lliste,ddict,par,linestartindex, index_lliste,filename)
     '''
     okay = hdef.OKAY
     errtext = ""
@@ -197,7 +197,7 @@ def get_data_from_csv_lliste(csv_lliste,d,par,linestartindex, index_lliste,filen
                     errtext = f"get_data_from_csv_lliste: error input buchtype = <{csv_data_liste[i_csv]}> is not valid (iline={iline+1}, file={filename})"
                     return (okay, errtext, data_dict_list)
                 else:
-                    (okay,buchtype) = get_data_buchtype(wert,d,par)
+                    (okay,buchtype) = get_data_buchtype(wert,ddict,par)
                     if (okay != hdef.OKAY):
                         okay = hdef.NOT_OKAY
                         errtext = f"get_data_from_csv_lliste: error input buchtype = <{wert}> is not found with keywords (iline={iline+1}, file={filename})"
@@ -206,13 +206,13 @@ def get_data_from_csv_lliste(csv_lliste,d,par,linestartindex, index_lliste,filen
                     data_dict[par.KONTO_DATA_ITEM_LIST[i_dataset]] = buchtype
                 # end if
             elif i_dataset == par.KONTO_DATA_INDEX_WERT:
-                if(par.INI_KONTO_STR_EURO_TRENN_BRUCH in d):
-                    delim = d[par.INI_KONTO_STR_EURO_TRENN_BRUCH]
+                if(par.INI_KONTO_STR_EURO_TRENN_BRUCH in ddict):
+                    delim = ddict[par.INI_KONTO_STR_EURO_TRENN_BRUCH]
                 else:
                     delim = par.STR_EURO_TRENN_BRUCH_DEFAULT
                 # end if
-                if (par.INI_KONTO_STR_EURO_TRENN_TAUSEND in d):
-                    trennt = d[par.INI_KONTO_STR_EURO_TRENN_TAUSEND]
+                if (par.INI_KONTO_STR_EURO_TRENN_TAUSEND in ddict):
+                    trennt = ddict[par.INI_KONTO_STR_EURO_TRENN_TAUSEND]
                 else:
                     trennt = par.STR_EURO_TRENN_TAUSEN_DEFAULT
                 # end if
@@ -240,7 +240,7 @@ def get_data_from_csv_lliste(csv_lliste,d,par,linestartindex, index_lliste,filen
     
     return (okay, errtext, data_dict_list)
 # end def
-def get_data_buchtype(wert, d, par):
+def get_data_buchtype(wert, ddict, par):
     '''
     
     :param wert:
@@ -251,11 +251,11 @@ def get_data_buchtype(wert, d, par):
     okay = hdef.OKAY
     not_found = True
     for list in par.KONTO_DATA_BUCHTYPE_LIST:
-        if list[0] in d:
-            if isinstance(d[list[0]],str):
-                liste = [d[list[0]]]
+        if list[0] in ddict:
+            if isinstance(ddict[list[0]],str):
+                liste = [ddict[list[0]]]
             else:
-                liste = d[list[0]]
+                liste = ddict[list[0]]
             # end if
             
             for item in liste:
@@ -359,7 +359,7 @@ def add_isin_from_text_to_data_set(data_dict_list_to_add,par):
     
     return data_dict_list_to_add
 # end def
-def add_new_data_in_data_lliste(data_dict_list_to_add, par, d):
+def add_new_data_in_data_lliste(data_dict_list_to_add, par, ddict):
     '''
     KONTO_DATA_INDEX_BUCHDATUM: int = 1
     KONTO_DATA_INDEX_WERTDATUM: int = 2
@@ -371,11 +371,11 @@ def add_new_data_in_data_lliste(data_dict_list_to_add, par, d):
  
     :param data_dict_list_to_add:
     :param rd:
-    :param d:
-    :return: (status, d) =  add_new_data_in_data_lliste(data_dict_list_to_add,rd, d)
+    :param ddict:
+    :return: (status, ddict) =  add_new_data_in_data_lliste(data_dict_list_to_add,rd, ddict)
     '''
     status = hdef.OKAY
-    idmax = d[par.KONTO_DATA_ID_MAX_NAME]
+    idmax = ddict[par.KONTO_DATA_ID_MAX_NAME]
     for data_dict in data_dict_list_to_add:
         idmax += 1
         data_set = []
@@ -394,10 +394,11 @@ def add_new_data_in_data_lliste(data_dict_list_to_add, par, d):
         for index in index_liste:
             data_set.append(data_dict[par.KONTO_DATA_ITEM_LIST[index]])
             
-        d[par.KONTO_DATA_SET_NAME].append(data_set)
+        ddict[par.KONTO_DATA_SET_NAME].append(data_set)
+        ddict[par.KONTO_DATA_ID_NEW_LIST].append(idmax)
     # end for
-    d[par.KONTO_DATA_ID_MAX_NAME] = idmax
-    return (status, d)
+    ddict[par.KONTO_DATA_ID_MAX_NAME] = idmax
+    return (status, ddict)
 # end def
 
         

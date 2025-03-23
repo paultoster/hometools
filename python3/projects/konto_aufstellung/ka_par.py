@@ -40,6 +40,8 @@ class Parameter:
     STR_EURO_TRENN_BRUCH_DEFAULT: str = ","
     STR_EURO_TRENN_TAUSEN_DEFAULT: str = "."
     
+    KONTO_SHOW_NUMBER_OF_LINES: int = 15
+    
     # ini-file attributes
     KONTO_DATA_DICT_NAMES_NAME: str = "konto_names"
     
@@ -108,6 +110,7 @@ class Parameter:
     KONTO_NAME_NAME: str = "name"
     KONTO_DATA_SET_NAME: str = "konto_data_set"
     KONTO_DATA_ID_MAX_NAME: str = "konto_id_max"
+    KONTO_DATA_ID_NEW_LIST: str = "konto_id_new_list"
     KONTO_DATA_ITEM_LIST: List[str] = ( "id"         # set internally
                                       , "buchdatum"  # int read from csv/pdf
                                       , "wertdatum"  # int read from csv/pdf
