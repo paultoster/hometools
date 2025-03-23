@@ -40,12 +40,14 @@ def read_csv(rd,d,filename):
     # end if
     
     # build header_liste from ini-File
-    header_liste = []
-    for head_name in rd.par.INI_KONTO_HEADER_NAME_LIST:
-        if( head_name in d.keys() ):
-            header_liste.append(d[head_name])
+    header_name_liste = []                  # Liste mit den Header-Namen beim Einlesen der csv-Datei
+    index_konto_dataset_liste = []     # Liste mit den indices als Zuordnung zu den eingelesenen csv-Daten (entsp. dem header)
+    for head_list in rd.par.INI_KONTO_HEADER_NAME_INDEX_LLIST:
+        if( head_list[0] in d.keys() ):
+            header_name_liste.append(d[head_list[0]])
+            index_konto_dataset_liste.append(head_list[1])
         else:
-            rd.log.write_err(f"Fehler in building hear_liste header name: {head_name} not found in ini-File for konto  {d['name']} ",
+            rd.log.write_err(f"Fehler in building hear_liste header name: {head_list[0]} not found in ini-File for konto  {d['name']} ",
                              screen=rd.par.LOG_SCREEN_OUT)
             status = hdef.NOT_OKAY
             return (status, data_dict_list)
@@ -54,7 +56,7 @@ def read_csv(rd,d,filename):
     
     # Suche header-Zeile
     #-----------------------------
-    (okay, errtext, linestartindex, index_liste) = search_header(csv_lliste, header_liste , filename)
+    (okay, errtext, linestartindex, index_lliste) = search_header(csv_lliste, header_name_liste,index_konto_dataset_liste  , filename)
 
     if okay != hdef.OKAY:
         rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
@@ -64,7 +66,7 @@ def read_csv(rd,d,filename):
 
     # get data from csv lliste mit linestartindex, index_liste
     #-----------------------------
-    (okay, errtext, data_dict_list) = get_data_from_csv_lliste(csv_lliste,d,rd.par,linestartindex, index_liste, filename)
+    (okay, errtext, data_dict_list) = get_data_from_csv_lliste(csv_lliste,d,rd.par,linestartindex, index_lliste, filename)
 
     # Fehler
     if okay != hdef.OKAY:
@@ -84,34 +86,34 @@ def read_csv(rd,d,filename):
     return (status,d)
     
 #enddef
-def search_header(csv_lliste,header_liste,filename):
+def search_header(csv_lliste,header_name_liste,index_konto_dataset_liste,filename):
     '''
     
     :param csv_lliste:
-    :param header_liste:
-    :return: (okay,errtext,linestartindex,index_liste) =  search_header(csv_lliste,header_lliste,filename):
+    :param par:
+    :return: (okay,errtext,linestartindex,index_lliste) =  search_header(csv_lliste,par,filename):
     '''
-    nheader = len(header_liste)
+    nheader = len(header_name_liste)
     notfound   = True
     header_found_liste = []
     start_index = 0
-    index_liste = []
-    for i,liste in enumerate(csv_lliste):
+    index_lliste = []    # liste mit position in csv-datei Spalte und mit index in konto_dataset
+    for i,csv_liste in enumerate(csv_lliste):
         
         # for each new line in csv_lliste reset index_liste
-        index_liste = []
+        index_lliste = []
         
         # search header_liste in csv_lliste[i] (one line)
-        for j,head_name in enumerate(header_liste):
+        for j,head_name in enumerate(header_name_liste):
             
-            if head_name in liste:
-                index_liste.append(liste.index(head_name))
+            if head_name in csv_liste:
+                index_lliste.append([csv_liste.index(head_name),index_konto_dataset_liste[j]])
                 header_found_liste.append(head_name)
             # end if
         # end for
         
         # if index_liste is full stop for-loop and build start_index (next line)
-        if len(index_liste) == nheader:
+        if len(index_lliste) == nheader:
             start_index = i+1
             notfound = False
             break
@@ -121,7 +123,7 @@ def search_header(csv_lliste,header_liste,filename):
     if notfound:
         okay = hdef.NOT_OKAY
         item = ""
-        for head_name in header_liste:
+        for head_name in header_name_liste:
             if head_name not in header_found_liste:
                 item = head_name
                 break
@@ -129,22 +131,22 @@ def search_header(csv_lliste,header_liste,filename):
         # end for
         errtext = f"header item: {item} not found in csv_file: {filename}"
         start_index = 0
-        index_liste = []
+        index_lliste = []
     else:
         okay = hdef.OKAY
         errtext = ""
         # start_index = start_index
         # index_liste = index_liste
     # end if
-    return (okay,errtext,start_index,index_liste)
+    return (okay,errtext,start_index,index_lliste)
 # end def
-def get_data_from_csv_lliste(csv_lliste,d,par,linestartindex, index_liste,filename):
+def get_data_from_csv_lliste(csv_lliste,d,par,linestartindex, index_lliste,filename):
     '''
     
     :param csv_lliste:
     :param linestartindex:
-    :param index_liste:
-    :return: (okay, errtext, data_dict_list) = get_data_from_csv_lliste(csv_lliste,d,par,linestartindex, index_liste)
+    :param index_lliste:  liste mit position in csv-datei Spalte und mit index in konto_dataset
+    :return: (okay, errtext, data_dict_list) = get_data_from_csv_lliste(csv_lliste,d,par,linestartindex, index_lliste,filename)
     '''
     okay = hdef.OKAY
     errtext = ""
@@ -152,75 +154,84 @@ def get_data_from_csv_lliste(csv_lliste,d,par,linestartindex, index_liste,filena
     n = len(csv_lliste)
     
     for iline in range(linestartindex,n):
-        csv_data = csv_lliste[iline]
-        nline    = len(csv_data)
+        csv_data_liste = csv_lliste[iline]
+        nline    = len(csv_data_liste)
         data_dict = {}
-        index      = -1
-        for j in index_liste:
-            index += 1
-            # convertion
+        
+        for  liste in index_lliste:
+            i_csv = liste[0]
+            i_dataset = liste[1]
             
             # buchdatum
-            if( index == par.KONTO_DATA_INDEX_BUCHDATUM):
-                (okay, wert) = htype.type_proof_dat(csv_data[j])
+            if( i_dataset == par.KONTO_DATA_INDEX_BUCHDATUM):
+                (okay, wert) = htype.type_proof_dat(csv_data_liste[i_csv])
                 if (okay != hdef.OKAY):
                     okay = hdef.NOT_OKAY
-                    errtext = f"get_data_from_csv_lliste: error input buchdatum = <{csv_data[j]}> is not valid (iline={iline}, file={filename})"
+                    errtext = f"get_data_from_csv_lliste: error input buchdatum = <{csv_data_liste[i_csv]}> is not valid (iline={iline+1}, file={filename})"
                     return (okay, errtext, data_dict_list)
                 else:
-                    data_dict[par.KONTO_DATA_ITEM_LIST[par.KONTO_DATA_INDEX_BUCHDATUM]] = wert
+                    data_dict[par.KONTO_DATA_ITEM_LIST[i_dataset]] = wert
                 # endif
-            elif (index == par.KONTO_DATA_INDEX_WERTDATUM):
-                (okay, wert) = htype.type_proof_dat(csv_data[j])
+            elif (i_dataset == par.KONTO_DATA_INDEX_WERTDATUM):
+                (okay, wert) = htype.type_proof_dat(csv_data_liste[i_csv])
                 if (okay != hdef.OKAY):
                     okay = hdef.NOT_OKAY
-                    errtext = f"get_data_from_csv_lliste: error input wertdatum = <{csv_data[j]}> is not valid (iline={iline}, file={filename})"
+                    errtext = f"get_data_from_csv_lliste: error input wertdatum = <{csv_data_liste[i_csv]}> is not valid (iline={iline+1}, file={filename})"
                     return (okay, errtext, data_dict_list)
                 else:
-                    data_dict[par.KONTO_DATA_ITEM_LIST[par.KONTO_DATA_INDEX_WERTDATUM]] = wert
+                    data_dict[par.KONTO_DATA_ITEM_LIST[i_dataset]] = wert
                 # endif
-            elif (index == par.KONTO_DATA_INDEX_WER):
-                (okay, wert) = htype.type_proof_string(csv_data[j])
+            elif (i_dataset == par.KONTO_DATA_INDEX_WER):
+                (okay, wert) = htype.type_proof_string(csv_data_liste[i_csv])
                 if (okay != hdef.OKAY):
                     okay = hdef.NOT_OKAY
-                    errtext = f"get_data_from_csv_lliste: error input wer = <{csv_data[j]}> is not valid (iline={iline}, file={filename})"
+                    errtext = f"get_data_from_csv_lliste: error input wer = <{csv_data_liste[i_csv]}> is not valid (iline={iline+1}, file={filename})"
                     return (okay, errtext, data_dict_list)
                 else:
-                    data_dict[par.KONTO_DATA_ITEM_LIST[par.KONTO_DATA_INDEX_WER]] = wert
+                    data_dict[par.KONTO_DATA_ITEM_LIST[i_dataset]] = wert
                 # endif
-            elif (index == par.KONTO_DATA_INDEX_BUCHTYPE):
-                (okay, wert) = htype.type_proof_string(csv_data[j])
+            elif (i_dataset == par.KONTO_DATA_INDEX_BUCHTYPE):
+                (okay, wert) = htype.type_proof_string(csv_data_liste[i_csv])
                 if (okay != hdef.OKAY):
                     okay = hdef.NOT_OKAY
-                    errtext = f"get_data_from_csv_lliste: error input buchtype = <{csv_data[j]}> is not valid (iline={iline}, file={filename})"
+                    errtext = f"get_data_from_csv_lliste: error input buchtype = <{csv_data_liste[i_csv]}> is not valid (iline={iline+1}, file={filename})"
                     return (okay, errtext, data_dict_list)
                 else:
                     (okay,buchtype) = get_data_buchtype(wert,d,par)
                     if (okay != hdef.OKAY):
                         okay = hdef.NOT_OKAY
-                        errtext = f"get_data_from_csv_lliste: error input buchtype = <{wert}> is not found with keywords (iline={iline}, file={filename})"
+                        errtext = f"get_data_from_csv_lliste: error input buchtype = <{wert}> is not found with keywords (iline={iline+1}, file={filename})"
                         return (okay, errtext, data_dict_list)
                     # end if
-                    data_dict[par.KONTO_DATA_ITEM_LIST[par.KONTO_DATA_INDEX_BUCHTYPE]] = buchtype
+                    data_dict[par.KONTO_DATA_ITEM_LIST[i_dataset]] = buchtype
                 # end if
-            elif index == par.KONTO_DATA_INDEX_WERT:
-                # (okay, wert) = htype.type_proof_euro(csv_data[j])
-                (okay, wert) = htype.type_convert_euro_to_cent(csv_data[j])
+            elif i_dataset == par.KONTO_DATA_INDEX_WERT:
+                if(par.INI_KONTO_STR_EURO_TRENN_BRUCH in d):
+                    delim = d[par.INI_KONTO_STR_EURO_TRENN_BRUCH]
+                else:
+                    delim = par.STR_EURO_TRENN_BRUCH_DEFAULT
+                # end if
+                if (par.INI_KONTO_STR_EURO_TRENN_TAUSEND in d):
+                    trennt = d[par.INI_KONTO_STR_EURO_TRENN_TAUSEND]
+                else:
+                    trennt = par.STR_EURO_TRENN_TAUSEN_DEFAULT
+                # end if
+                (okay, wert) = htype.type_convert_euro_to_cent(csv_data_liste[i_csv],delim=delim,thousandsign=trennt)
                 if (okay != hdef.OKAY):
                     okay = hdef.NOT_OKAY
-                    errtext = f"get_data_from_csv_lliste: error input wert = <{csv_data[j]}> is not valid (iline={iline}, file={filename})"
+                    errtext = f"get_data_from_csv_lliste: error input wert = <{csv_data_liste[i_csv]}> is not valid (iline={iline+1}, file={filename})"
                     return (okay, errtext, data_dict_list)
                 else:
-                    data_dict[par.KONTO_DATA_ITEM_LIST[par.KONTO_DATA_INDEX_WERT]] = wert
+                    data_dict[par.KONTO_DATA_ITEM_LIST[i_dataset]] = wert
                 # endif
-            elif index == par.KONTO_DATA_INDEX_COMMENT:
-                (okay, wert) = htype.type_proof_string(csv_data[j])
+            elif i_dataset == par.KONTO_DATA_INDEX_COMMENT:
+                (okay, wert) = htype.type_proof_string(csv_data_liste[i_csv])
                 if (okay != hdef.OKAY):
                     okay = hdef.NOT_OKAY
-                    errtext = f"get_data_from_csv_lliste: error input comment = <{csv_data[j]}> is not valid (iline={iline}, file={filename})"
+                    errtext = f"get_data_from_csv_lliste: error input comment = <{csv_data_liste[i_csv]}> is not valid (iline={iline+1}, file={filename})"
                     return (okay, errtext, data_dict_list)
                 else:
-                    data_dict[par.KONTO_DATA_ITEM_LIST[par.KONTO_DATA_INDEX_COMMENT]] = wert
+                    data_dict[par.KONTO_DATA_ITEM_LIST[i_dataset]] = wert
                 # endif
             # end if
         # end for
@@ -348,7 +359,7 @@ def add_isin_from_text_to_data_set(data_dict_list_to_add,par):
     
     return data_dict_list_to_add
 # end def
-def add_new_data_in_data_lliste(data_dict_list_to_add, par, d, filename):
+def add_new_data_in_data_lliste(data_dict_list_to_add, par, d):
     '''
     KONTO_DATA_INDEX_BUCHDATUM: int = 1
     KONTO_DATA_INDEX_WERTDATUM: int = 2
@@ -361,8 +372,7 @@ def add_new_data_in_data_lliste(data_dict_list_to_add, par, d, filename):
     :param data_dict_list_to_add:
     :param rd:
     :param d:
-    :param filename:
-    :return: (status, d) =  add_new_data_in_data_lliste(data_dict_list_to_add,rd, d, filename)
+    :return: (status, d) =  add_new_data_in_data_lliste(data_dict_list_to_add,rd, d)
     '''
     status = hdef.OKAY
     idmax = d[par.KONTO_DATA_ID_MAX_NAME]

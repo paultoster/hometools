@@ -37,6 +37,9 @@ class Parameter:
     # logging
     LOG_SCREEN_OUT: int = field(default_factory=int)
     
+    STR_EURO_TRENN_BRUCH_DEFAULT: str = ","
+    STR_EURO_TRENN_TAUSEN_DEFAULT: str = "."
+    
     # ini-file attributes
     KONTO_DATA_DICT_NAMES_NAME: str = "konto_names"
     
@@ -71,13 +74,6 @@ class Parameter:
     HEADER_WERT_NAME: str      = "header_wert"
     HEADER_BUCHTYPE_NAME: str   = "header_buchtype"
     
-    # Reihenfolge entspricht KONTO_DATA_ITEM_LIST
-    INI_KONTO_HEADER_NAME_LIST     = (HEADER_BUCHDATUM_NAME
-                                 ,HEADER_WERTDATUM_NAME
-                                 ,HEADER_WER_NAME
-                                 ,HEADER_BUCHTYPE_NAME
-                                 ,HEADER_WERT_NAME
-                                 ,HEADER_COMMENT_NAME)
     
     INI_KONTO_BUCH_EINZAHLUNG_NAME: str = "buchung_einzahlung"
     INI_KONTO_BUCH_AUSZAHLUNG_NAME: str = "buchung_auszahlung"
@@ -86,6 +82,9 @@ class Parameter:
     INI_KONTO_BUCH_WP_VERKAUF_NAME: str = "buchung_wp_verkauf"
     INI_KONTO_BUCH_WP_KOSTEN_NAME: str = "buchung_wp_kosten"
     INI_KONTO_BUCH_WP_EINNAHMEN_NAME: str = "buchung_wp_einnahmen"
+    
+    INI_KONTO_STR_EURO_TRENN_BRUCH   = "string_euro_trenn_bruch"
+    INI_KONTO_STR_EURO_TRENN_TAUSEND = "string_euro_trenn_tausend"
 
     # Liste der zu checkenden Daten
     # ------------------------------
@@ -126,6 +125,17 @@ class Parameter:
     KONTO_DATA_INDEX_WERT: int      = 5
     KONTO_DATA_INDEX_COMMENT: int   = 6
     KONTO_DATA_INDEX_ISIN: int      = 7
+    
+    # Reihenfolge Header name in_iniFile und  KONTO_DATA_ITEM_LIST
+    # (das gesamte data_set ist größer, nur eine Teil wird von csv eingelesen)
+    INI_KONTO_HEADER_NAME_INDEX_LLIST     = [(HEADER_BUCHDATUM_NAME,KONTO_DATA_INDEX_BUCHDATUM)
+                                            ,(HEADER_WERTDATUM_NAME,KONTO_DATA_INDEX_WERTDATUM)
+                                            ,(HEADER_WER_NAME,KONTO_DATA_INDEX_WER)
+                                            ,(HEADER_BUCHTYPE_NAME,KONTO_DATA_INDEX_BUCHTYPE)
+                                            ,(HEADER_WERT_NAME,KONTO_DATA_INDEX_WERT)
+                                            ,(HEADER_COMMENT_NAME,KONTO_DATA_INDEX_COMMENT)
+                                            ]
+
     
     KONTO_BUCHUNG_UNBEKANNT: int     = 0
     KONTO_BUCHUNG_EINZAHLUNG: int    = 1

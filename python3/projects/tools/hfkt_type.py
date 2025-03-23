@@ -41,6 +41,7 @@ import string
 # import shutil
 import struct
 import re
+import math
 
 import hfkt as h
 import hfkt_def as hdef
@@ -176,21 +177,20 @@ def num_cent_in_euro(cents):
       """
     return "%.2f" % (float(cents) / 100) + " €"
 
+def numeric_string_to_float(numeric_string,delim=",",thousandsign="."):
+    parts = [part.strip().replace(thousandsign, '') for part in numeric_string.split(delim)]
+    return float('.'.join(parts))
 
-def string_euro_in_int_cent(teuro, delim=","):
+def string_euro_in_int_cent(numeric_string, delim=",",thousandsign="."):
     """
-      Wandelt einen String mit Euro z.B. "4.885,66"
+      Wandelt einen String mit Euro z.B. "4.885,66" => thousandsign="." und delim=","
       in (int)488566
       """
     # Wenn Trennzeichen nicht Punkt, dann
     # nehme den Tausender-Punkt raus,
-    if delim != ".":
-        teuro = hstr.change(teuro, delim, "")
-    # Tausche Trennzeichen gegen Punkt
-    teuro = hstr.change(teuro, delim, ".")
-    # Wandele in cent
-    return int(float(teuro) * 100)
-
+    #-------------------------------------
+    
+    return int(numeric_string_to_float(numeric_string,delim=delim,thousandsign=thousandsign) * 100+0.5)
 
 def str_to_float(txt):
     try:
@@ -319,7 +319,7 @@ def type_proof(wert_in, type):
     '''
     if type == "str":
         return type_proof_string(wert_in)
-    elif (type == "float") or (type == "euro"):
+    elif (type == "float"):
         return type_proof_float(wert_in)
     elif type == "int":
         return type_proof_int(wert_in)
@@ -333,6 +333,8 @@ def type_proof(wert_in, type):
         return type_proof_iban(wert_in)
     elif type == "isin":
         return type_proof_isin(wert_in)
+    elif type == "euro":
+        return type_proof_euro(wert_in)
     else:
         return (hdef.NOT_OKAY, None)  # endif
 
@@ -362,10 +364,6 @@ def type_proof_string(wert_in):
 
 
 # enddef
-
-def type_proof_euro(wert_in):
-    return type_proof_float(wert_in)
-#end def
 def type_proof_float(wert_in):
     if (isinstance(wert_in, float)):
         return (hdef.OKAY, wert_in)
@@ -745,15 +743,33 @@ def isin_from_natid(country_code, number):
 # isin functions ------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------------------
 
-def type_convert_euro_to_cent(wert_euro):
+def type_proof_euro(wert_in,delim=",",thousandsign="."):
     '''
     
+    :param wert_in:
+    :param delim:
+    :param thousandsign:
+    :return: (okay,wert_cent) =  type_proof_euro(wert_in,delim=",",thousandsign=".")
+    '''
+    try:
+        val = numeric_string_to_float(wert_in, delim=delim, thousandsign=thousandsign)
+        okay = hdef.OKAY
+    except:
+        val = None
+        okay = hdef.NOT_OKAY
+    # end try
+    return (okay,val)
+# end def
+def type_convert_euro_to_cent(wert_euro,delim=",", thousandsign="."):
+    '''
+    string_euro_in_int_cent(wert_euro, delim=delim, thousandsign=thousandsign)
     :param wert_euro:
     :return: (okay,wert_cent) =  type_convert_euro_to_cent(wert_euro)
     '''
     (okay, out) = type_proof_euro(wert_euro)
     if okay == hdef.OKAY:
-        wert_cent = int(out*100+0.5)
+        wert_cent = math.copysign(int(math.fabs(out)*100+0.5), out)
+        # wert_cent = int(out*100+0.5)
     else:
         wert_cent = None
     # end if
@@ -768,6 +784,11 @@ def print_python_is_32_or_64_bit():
 # testen mit main
 ###########################################################################
 if __name__ == '__main__':
+    (okay,val) = type_proof_euro("10,220.23",delim=".",thousandsign=",")
+    val = string_euro_in_int_cent("10.220,23", delim=",", thousandsign=".")
+    
+    print(f" val : {val}")
+    
     (okay, out) = type_proof("Zins/Dividende ISIN IE00BM8R0J59 GL X-N.10", "isin")
 
     print(f"okay: {okay}, out : {out}")
