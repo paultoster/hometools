@@ -115,6 +115,7 @@
  is_digit_flag(t) wenn alles Digits sind dann True ansonsten False
  merge_string_liste(liste)   merged die Liste mit strings in einen string
  convert_string_to_float(value)
+ convert_int_cent_to_string_euro(value)
 
 '''
 
@@ -130,6 +131,7 @@
 # is_digit_flag(t) wenn alles Digits sind dann True ansonsten False
 # merge_string_liste(liste)   merged die Liste mit strings in einen string
 # convert_string_to_float(value)
+# str_euro =  convert_int_cent_to_string_euro(int_cent)
 ###################################################################################
 # Listenbearbeitung
 ###################################################################################
@@ -1245,7 +1247,19 @@ def convert_string_to_float(text):
     
     return float(change_max(text=text, muster_alt=",", muster_neu="."))
 
-
+def convert_int_cent_to_string_euro(int_cent):
+    '''
+    
+    :param value:
+    :return: str_euro =  convert_int_cent_to_string_euro(int_cent)
+    '''
+    
+    if( not isinstance(int_cent,int)):
+        int_cent = int(int_cent)
+    # end if
+    
+    str_euro = f"{(float(int_cent)/100.):.2f}"
+    return str_euro
 def vergleiche_text(text1, text2):
     '''
     vergleiche_text(text1,text2) Vergleicht, Ausgabe in Anteil, text als ganzes
@@ -1451,4 +1465,4 @@ def text_to_write(text):
 # testen mit main
 ###########################################################################
 if __name__ == '__main__':
-    pass
+    str_euro = convert_int_cent_to_string_euro(100)

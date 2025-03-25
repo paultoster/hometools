@@ -38,7 +38,7 @@ def bearbeiten(rd):
             
         elif(index == index_anzeige):
             
-            status = ka_konto_anzeige.anzeige_mit_wahl(rd)
+            status = ka_konto_anzeige.anzeige_mit_konto_wahl(rd)
             runflag = False
             
         else:

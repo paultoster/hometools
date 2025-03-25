@@ -48,6 +48,9 @@ liste = multiply_constant(liste, value)
 
 liste = add_constant(liste, value)
 
+lliste = [[0,10,'a',2.],[0,5,'b',2.],[0,5,'bbbbb',3.],[0,15,'rrr',2.]]
+
+lliste = sort_list_of_list(lliste,index,aufsteigend=1) sortiere nach dem index lliste[i][index]
 '''
 ###################################################################################
 # Fileoperating
@@ -168,27 +171,28 @@ liste = add_constant(liste, value)
 #---------------------------------
 # multiply_constant(list,const)  multiplies a list with const value
 
-from tkinter import *
-from tkinter.constants import *
-import tkinter.filedialog
-import tkinter.messagebox
-import tkinter.tix
+# from tkinter import *
+# from tkinter.constants import *
+# import tkinter.filedialog
+# import tkinter.messagebox
+# import tkinter.tix
 import string
-import types
-import copy
-import sys
+# import types
+# import copy
+# import sys
 import os
-import stat
-import time
-import datetime
-import calendar
+# import stat
+# import time
+# import datetime
+# import calendar
 # import csv
-import array
-import shutil
+# import array
+# import shutil
 import math
-import struct
+# import struct
 # import ftfy
-import fnmatch
+# import fnmatch
+from operator import itemgetter
 
 
 KITCHEN_MODUL_AVAILABLE = False
@@ -1335,8 +1339,57 @@ def add_constant(ll, value):
 
 
 #enddef
+
+def sort_list_of_list(lliste,index,aufsteigend=1):
+    '''
+    z.B. lliste = [[0,10,'a',2.],[0,5,'b',2.],[0,5,'bbbbb',3.],[0,15,'rrr',2.]]
+    sortiere nach dem index lliste[i][index]
+    
+    :param lliste:
+    :param index:
+    :param aufsteigend:
+    :return: lliste = sort_list_of_list(lliste,index,aufsteigend=1)
+    '''
+    
+    if aufsteigend:
+        new_llist = sorted(lliste, key=lambda v: (v[index]))
+    else:
+        new_llist = sorted(lliste, key=lambda v: (v[index]), reverse=True)
+    # edn fi
+    
+    return new_llist
+
+
+def sort_list_of_dict(lliste, keyname, aufsteigend=1):
+    '''
+    z.B. lliste = [[0,10,'a',2.],[0,5,'b',2.],[0,5,'bbbbb',3.],[0,15,'rrr',2.]]
+    sortiere nach dem item
+
+    :param lliste:
+    :param index:
+    :param aufsteigend:
+    :return: lliste = sort_list_of_list(lliste,index,aufsteigend=1)
+    '''
+    
+    if aufsteigend:
+        new_llist = sorted(lliste, key=itemgetter(keyname))
+    else:
+        new_llist = sorted(lliste, key=itemgetter(keyname), reverse=True)
+    # edn fi
+    
+    return new_llist
+
+
 ###########################################################################
 # testen mit main
 ###########################################################################
 if __name__ == '__main__':
-    pass
+    # lliste = [[0, 10, 'a', 2.], [0, 5, 'b', 2.], [0, 5, 'bbbbb', 3.], [0, 15, 'rrr', 2.]]
+    # print(sort_list_of_list(lliste, 1))
+    # print(sort_list_of_list(lliste, 1,aufsteigend=0))
+    
+    lliste = [{'name': 'Homer', 'age': 39}, {'name': 'Bart', 'age': 10}, {'name': 'Constantin', 'age': 10}, {'name': 'Alfred', 'age': 10}]
+    print(sort_list_of_dict(lliste, 'name', aufsteigend=1))
+    print(sort_list_of_dict(lliste, 'name', aufsteigend=0))
+    print(sort_list_of_dict(lliste, 'age', aufsteigend=1))
+    print(sort_list_of_dict(lliste, 'age', aufsteigend=0))

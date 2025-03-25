@@ -92,8 +92,8 @@ def konto_auswerten():
             rd.log.write(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
             status = kb.bearbeiten(rd)
 
-            if (status != hdef.OKAY):
-                runflag = False
+            # if (status != hdef.OKAY):
+            #    runflag = False
             # endif
         elif (index == index_iban):
 

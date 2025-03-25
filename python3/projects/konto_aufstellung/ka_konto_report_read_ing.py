@@ -13,7 +13,7 @@ if (tools_path not in sys.path):
 
 # Hilfsfunktionen
 import hfkt_def as hdef
-import hfkt_str as hstr
+import hfkt_list as hlist
 import hfkt_type as htype
 import hfkt_io as hio
 
@@ -24,10 +24,11 @@ def read_csv(rd,ddict,filename):
     :param csv_lliste:
     :param header_lliste
     :param filename:
-    :return: (status,ddict) = read(rd,ddict,filename)
+    :return: (status,ddict,flag_newdata) = read(rd,ddict,filename)
     '''
     status  = hdef.OKAY
     data_dict_list = {}
+    flag_newdata = False
     
     # read csv-File
     #==============
@@ -36,7 +37,7 @@ def read_csv(rd,ddict,filename):
     if (len(csv_lliste) == 0):
         rd.log.write_err(f"Fehler in read_ing_csv read_csv_file()  filename = {filename}", screen=rd.par.LOG_SCREEN_OUT)
         status = hdef.NOT_OKAY
-        return (status,data_dict_list)
+        return (status,data_dict_list,flag_newdata)
     # end if
     
     # build header_liste from ini-File
@@ -50,7 +51,7 @@ def read_csv(rd,ddict,filename):
             rd.log.write_err(f"Fehler in building hear_liste header name: {head_list[0]} not found in ini-File for konto  {ddict['name']} ",
                              screen=rd.par.LOG_SCREEN_OUT)
             status = hdef.NOT_OKAY
-            return (status, data_dict_list)
+            return (status, data_dict_list, flag_newdata)
         # end if
     # end for
     
@@ -61,7 +62,7 @@ def read_csv(rd,ddict,filename):
     if okay != hdef.OKAY:
         rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
         status = hdef.NOT_OKAY
-        return (status, data_dict_list)
+        return (status, data_dict_list, flag_newdata)
     # end if
 
     # get data from csv lliste mit linestartindex, index_liste
@@ -72,7 +73,7 @@ def read_csv(rd,ddict,filename):
     if okay != hdef.OKAY:
         rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
         status = hdef.NOT_OKAY
-        return (status, data_dict_list)
+        return (status, data_dict_list, flag_newdata)
     # end if
     
     # extract new data from data_llist with ddict[rd.par.KONTO_DATA_ID_MAX_NAME
@@ -81,9 +82,9 @@ def read_csv(rd,ddict,filename):
     data_dict_list_to_add = add_isin_from_text_to_data_set(data_dict_list_to_add,rd.par)
     
     # add new found data into ddict and modify idmax in ddict and fill ddict[KONTO_DATA_ID_NEW_LIST]
-    (status, ddict) = add_new_data_in_data_lliste(data_dict_list_to_add, rd.par, ddict)
+    (status, ddict, flag_newdata) = add_new_data_in_data_lliste(data_dict_list_to_add, rd.par, ddict)
     
-    return (status,ddict)
+    return (status,ddict,flag_newdata)
     
 #enddef
 def search_header(csv_lliste,header_name_liste,index_konto_dataset_liste,filename):
@@ -372,33 +373,62 @@ def add_new_data_in_data_lliste(data_dict_list_to_add, par, ddict):
     :param data_dict_list_to_add:
     :param rd:
     :param ddict:
-    :return: (status, ddict) =  add_new_data_in_data_lliste(data_dict_list_to_add,rd, ddict)
+    :return: (status, ddict, flag_newdata) =  add_new_data_in_data_lliste(data_dict_list_to_add,rd, ddict)
     '''
     status = hdef.OKAY
+    flag_newdata = False
+    
+    # sortiere neue Einträge nach buchdatum
+    keyname = par.KONTO_DATA_ITEM_LIST[par.KONTO_DATA_INDEX_BUCHDATUM]
+    data_dict_list_to_add = hlist.sort_list_of_dict(data_dict_list_to_add, keyname, aufsteigend=1)
+    
     idmax = ddict[par.KONTO_DATA_ID_MAX_NAME]
+    
+    # speichere letzen sum wert aus alter Liste
+    if( len(ddict[par.KONTO_DATA_SET_NAME]) == 0):
+        last_sumwert = ddict[par.START_WERT_NAME]
+    else:
+        data_set_list = ddict[par.KONTO_DATA_SET_NAME][-1]
+        last_sumwert  = data_set_list[par.KONTO_DATA_INDEX_SUMWERT]
+    # end if
+    
     for data_dict in data_dict_list_to_add:
         idmax += 1
-        data_set = []
+        data_set_list = []
+        
         # par.KONTO_DATA_INDEX_ID:
-        data_set.append(idmax)
+        data_set_list.append(idmax)
         
         index_liste = \
             [par.KONTO_DATA_INDEX_BUCHDATUM
             , par.KONTO_DATA_INDEX_WERTDATUM
             , par.KONTO_DATA_INDEX_WER
             , par.KONTO_DATA_INDEX_BUCHTYPE
-            , par.KONTO_DATA_INDEX_WERT
-            , par.KONTO_DATA_INDEX_COMMENT
+            , par.KONTO_DATA_INDEX_WERT]
+        
+        for index in index_liste:
+            data_set_list.append(data_dict[par.KONTO_DATA_ITEM_LIST[index]])
+        
+        # par.KONTO_DATA_INDEX_SUMWERT:
+        last_sumwert += data_set_list[-1]
+        data_set_list.append(last_sumwert)
+        
+        index_liste = \
+            [par.KONTO_DATA_INDEX_COMMENT
             , par.KONTO_DATA_INDEX_ISIN]
         
         for index in index_liste:
-            data_set.append(data_dict[par.KONTO_DATA_ITEM_LIST[index]])
+            data_set_list.append(data_dict[par.KONTO_DATA_ITEM_LIST[index]])
             
-        ddict[par.KONTO_DATA_SET_NAME].append(data_set)
+        # par.KONTO_DATA_INDEX_KATEGORIE
+        data_set_list.append("")
+        
+        ddict[par.KONTO_DATA_SET_NAME].append(data_set_list)
         ddict[par.KONTO_DATA_ID_NEW_LIST].append(idmax)
+        flag_newdata = True
     # end for
     ddict[par.KONTO_DATA_ID_MAX_NAME] = idmax
-    return (status, ddict)
+    return (status, ddict, flag_newdata)
 # end def
 
         

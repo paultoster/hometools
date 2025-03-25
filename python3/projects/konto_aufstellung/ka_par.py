@@ -41,6 +41,7 @@ class Parameter:
     STR_EURO_TRENN_TAUSEN_DEFAULT: str = "."
     
     KONTO_SHOW_NUMBER_OF_LINES: int = 15
+    COLOR_SHOW_NEW_DATA_SETS: str = 'brown1'
     
     # ini-file attributes
     KONTO_DATA_DICT_NAMES_NAME: str = "konto_names"
@@ -117,8 +118,10 @@ class Parameter:
                                       , "wer"        # str read from csv/pdf
                                       , "buchtype"   # int raed from csv/pdf
                                       , "wert"       # int read from csv/pdf
+                                      , "sumwert"    # set internally
                                       , "comment"    # str read from csv/pdf
-                                      , "isin")      # str extracted from data
+                                      , "isin"       # str extracted from data
+                                      , "kategorie") # internally set
     
     KONTO_DATA_INDEX_ID: int        = 0
     KONTO_DATA_INDEX_BUCHDATUM: int = 1
@@ -126,8 +129,10 @@ class Parameter:
     KONTO_DATA_INDEX_WER: int       = 3
     KONTO_DATA_INDEX_BUCHTYPE: int  = 4
     KONTO_DATA_INDEX_WERT: int      = 5
-    KONTO_DATA_INDEX_COMMENT: int   = 6
-    KONTO_DATA_INDEX_ISIN: int      = 7
+    KONTO_DATA_INDEX_SUMWERT: int   = 6
+    KONTO_DATA_INDEX_COMMENT: int   = 7
+    KONTO_DATA_INDEX_ISIN: int      = 8
+    KONTO_DATA_INDEX_KATEGORIE: int = 9
     
     # Reihenfolge Header name in_iniFile und  KONTO_DATA_ITEM_LIST
     # (das gesamte data_set ist größer, nur eine Teil wird von csv eingelesen)
@@ -157,6 +162,15 @@ class Parameter:
                                ,(INI_KONTO_BUCH_WP_KOSTEN_NAME,KONTO_BUCHUNG_WP_KOSTEN)
                                ,(INI_KONTO_BUCH_WP_EINNAHMEN_NAME,KONTO_BUCHUNG_WP_EINNAHMEN)
                                ]
+    KONTO_BUCHUNGS_TEXT_LIST = ["unbekannt",
+                                "einzahlung",
+                                "auszahlung",
+                                "kosten",
+                                "wp_kauf",
+                                "wp_verkauf",
+                                "wp_kosten",
+                                "wp_einnahmen"]
+
 
 def get(log):
     

@@ -21,6 +21,7 @@ import sgui
 
 import ka_gui
 import ka_konto_report_read_ing
+import ka_konto_anzeige
 
 def report_einlesen(rd):
     """
@@ -67,13 +68,24 @@ def report_einlesen(rd):
             return status
         # endif
         
-        (status, ddict) = ka_konto_report_read_ing.read_csv(rd, ddict, filename)
+        (status, ddict, flag_newdata) = ka_konto_report_read_ing.read_csv(rd, ddict, filename)
         
         if status != hdef.OKAY:  # Abbruch
             return status
+        # end if
+        
+        if flag_newdata :
+            status = ka_konto_anzeige.anzeige(rd,ddict)
+        # end if
+
+
+        if status != hdef.OKAY:  # Abbruch
+            return status
+        # end if
+        
         # write back modified ddict
         rd.data[choice].ddict = ddict
-        
+
     else:
         errtext = f"Der Auszugstype von [{choice}].{rd.ini.AUSZUGS_TYP_NAME} = {ddict[rd.ini.AUSZUGS_TYP_NAME]} stimmt nicht"
         rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
