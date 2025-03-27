@@ -29,6 +29,8 @@ import hfkt_def as hdef
 import hfkt_type as htype
 import hfkt_date_time as hdt
 
+import ka_konto_data_set
+
 
 @dataclass
 class Parameter:
@@ -42,6 +44,7 @@ class Parameter:
     
     KONTO_SHOW_NUMBER_OF_LINES: int = 15
     COLOR_SHOW_NEW_DATA_SETS: str = 'brown1'
+    
     
     # ini-file attributes
     KONTO_DATA_DICT_NAMES_NAME: str = "konto_names"
@@ -68,7 +71,7 @@ class Parameter:
     START_TAG_NAME: str = "start_tag"
     START_TAG_NAME: str = "start_zeit"
     START_DATUM_NAME: str = "start_datum"
-    AUSZUGS_TYP_NAME: str = "auszug_type"
+    UMSATZ_DATA_TYPE_NAME: str = "umsatz_data_type"
     
     HEADER_BUCHDATUM_NAME: str = "header_buchdatum"
     HEADER_WERTDATUM_NAME: str = "header_wertdatum"
@@ -78,12 +81,12 @@ class Parameter:
     HEADER_BUCHTYPE_NAME: str   = "header_buchtype"
     
     
-    INI_KONTO_BUCH_EINZAHLUNG_NAME: str = "buchung_einzahlung"
-    INI_KONTO_BUCH_AUSZAHLUNG_NAME: str = "buchung_auszahlung"
-    INI_KONTO_BUCH_KOSTEN_NAME: str = "buchung_kosten"
-    INI_KONTO_BUCH_WP_KAUF_NAME: str = "buchung_wp_kauf"
-    INI_KONTO_BUCH_WP_VERKAUF_NAME: str = "buchung_wp_verkauf"
-    INI_KONTO_BUCH_WP_KOSTEN_NAME: str = "buchung_wp_kosten"
+    INI_KONTO_BUCH_EINZAHLUNG_NAME: str   = "buchung_einzahlung"
+    INI_KONTO_BUCH_AUSZAHLUNG_NAME: str   = "buchung_auszahlung"
+    INI_KONTO_BUCH_KOSTEN_NAME: str       = "buchung_kosten"
+    INI_KONTO_BUCH_WP_KAUF_NAME: str      = "buchung_wp_kauf"
+    INI_KONTO_BUCH_WP_VERKAUF_NAME: str   = "buchung_wp_verkauf"
+    INI_KONTO_BUCH_WP_KOSTEN_NAME: str    = "buchung_wp_kosten"
     INI_KONTO_BUCH_WP_EINNAHMEN_NAME: str = "buchung_wp_einnahmen"
     
     INI_KONTO_STR_EURO_TRENN_BRUCH   = "string_euro_trenn_bruch"
@@ -96,7 +99,7 @@ class Parameter:
                         , (WER_NAME, "str")
                         , (START_WERT_NAME, "float")
                         , (START_DATUM_NAME, "dat")
-                        , (AUSZUGS_TYP_NAME, "str")]
+                        , (UMSATZ_DATA_TYPE_NAME, "str")]
     
     IBAN_PREFIX = "iban"
     IBAN_DATA_DICT_NAME: str = "iban_data_dict"
@@ -110,67 +113,40 @@ class Parameter:
     # konto data
     KONTO_NAME_NAME: str = "name"
     KONTO_DATA_SET_NAME: str = "konto_data_set"
+    KONTO_DATA_SET_CLASS: str = "konto_data_class"
     KONTO_DATA_ID_MAX_NAME: str = "konto_id_max"
     KONTO_DATA_ID_NEW_LIST: str = "konto_id_new_list"
-    KONTO_DATA_ITEM_LIST: List[str] = ( "id"         # set internally
-                                      , "buchdatum"  # int read from csv/pdf
-                                      , "wertdatum"  # int read from csv/pdf
-                                      , "wer"        # str read from csv/pdf
-                                      , "buchtype"   # int raed from csv/pdf
-                                      , "wert"       # int read from csv/pdf
-                                      , "sumwert"    # set internally
-                                      , "comment"    # str read from csv/pdf
-                                      , "isin"       # str extracted from data
-                                      , "kategorie") # internally set
     
-    KONTO_DATA_INDEX_ID: int        = 0
-    KONTO_DATA_INDEX_BUCHDATUM: int = 1
-    KONTO_DATA_INDEX_WERTDATUM: int = 2
-    KONTO_DATA_INDEX_WER: int       = 3
-    KONTO_DATA_INDEX_BUCHTYPE: int  = 4
-    KONTO_DATA_INDEX_WERT: int      = 5
-    KONTO_DATA_INDEX_SUMWERT: int   = 6
-    KONTO_DATA_INDEX_COMMENT: int   = 7
-    KONTO_DATA_INDEX_ISIN: int      = 8
-    KONTO_DATA_INDEX_KATEGORIE: int = 9
     
-    # Reihenfolge Header name in_iniFile und  KONTO_DATA_ITEM_LIST
-    # (das gesamte data_set ist größer, nur eine Teil wird von csv eingelesen)
-    INI_KONTO_HEADER_NAME_INDEX_LLIST     = [(HEADER_BUCHDATUM_NAME,KONTO_DATA_INDEX_BUCHDATUM)
-                                            ,(HEADER_WERTDATUM_NAME,KONTO_DATA_INDEX_WERTDATUM)
-                                            ,(HEADER_WER_NAME,KONTO_DATA_INDEX_WER)
-                                            ,(HEADER_BUCHTYPE_NAME,KONTO_DATA_INDEX_BUCHTYPE)
-                                            ,(HEADER_WERT_NAME,KONTO_DATA_INDEX_WERT)
-                                            ,(HEADER_COMMENT_NAME,KONTO_DATA_INDEX_COMMENT)
-                                            ]
+    # Parameter konto_data_set
+    KDSP = ka_konto_data_set.KontoDataSetParameter()
 
+    # dict mit header namen aus ini-dict zum Erkennen im csv
+    KDSP.set_header_ini_name(KDSP.KONTO_DATA_INDEX_BUCHDATUM,  HEADER_BUCHDATUM_NAME)
+    KDSP.set_header_ini_name(KDSP.KONTO_DATA_INDEX_WERTDATUM,  HEADER_WERTDATUM_NAME)
+    KDSP.set_header_ini_name(KDSP.KONTO_DATA_INDEX_WER,        HEADER_WER_NAME)
+    KDSP.set_header_ini_name(KDSP.KONTO_DATA_INDEX_BUCHTYPE,   HEADER_BUCHTYPE_NAME)
+    KDSP.set_header_ini_name(KDSP.KONTO_DATA_INDEX_WERT,       HEADER_WERT_NAME)
+    KDSP.set_header_ini_name(KDSP.KONTO_DATA_INDEX_COMMENT,    HEADER_COMMENT_NAME)
     
-    KONTO_BUCHUNG_UNBEKANNT: int     = 0
-    KONTO_BUCHUNG_EINZAHLUNG: int    = 1
-    KONTO_BUCHUNG_AUSZAHLUNG: int    = 2
-    KONTO_BUCHUNG_KOSTEN: int        = 3
-    KONTO_BUCHUNG_WP_KAUF: int       = 4
-    KONTO_BUCHUNG_WP_VERKAUF: int    = 5
-    KONTO_BUCHUNG_WP_KOSTEN: int     = 6
-    KONTO_BUCHUNG_WP_EINNAHMEN:int   = 7
+    # die dict ini-namen für Auslesen der BUCHUNG
+    KDSP.set_buchtype_ini_name(KDSP.KONTO_BUCHTYPE_EINZAHLUNG,   INI_KONTO_BUCH_EINZAHLUNG_NAME)
+    KDSP.set_buchtype_ini_name(KDSP.KONTO_BUCHTYPE_AUSZAHLUNG,   INI_KONTO_BUCH_AUSZAHLUNG_NAME)
+    KDSP.set_buchtype_ini_name(KDSP.KONTO_BUCHTYPE_KOSTEN,       INI_KONTO_BUCH_KOSTEN_NAME)
+    KDSP.set_buchtype_ini_name(KDSP.KONTO_BUCHTYPE_WP_KAUF,      INI_KONTO_BUCH_WP_KAUF_NAME)
+    KDSP.set_buchtype_ini_name(KDSP.KONTO_BUCHTYPE_WP_VERKAUF,   INI_KONTO_BUCH_WP_VERKAUF_NAME)
+    KDSP.set_buchtype_ini_name(KDSP.KONTO_BUCHTYPE_WP_KOSTEN,    INI_KONTO_BUCH_WP_KOSTEN_NAME)
+    KDSP.set_buchtype_ini_name(KDSP.KONTO_BUCHTYPE_WP_EINNAHMEN, INI_KONTO_BUCH_WP_EINNAHMEN_NAME)
     
-    KONTO_DATA_BUCHTYPE_LIST = [(INI_KONTO_BUCH_EINZAHLUNG_NAME,KONTO_BUCHUNG_EINZAHLUNG)
-                               ,(INI_KONTO_BUCH_AUSZAHLUNG_NAME,KONTO_BUCHUNG_AUSZAHLUNG)
-                               ,(INI_KONTO_BUCH_KOSTEN_NAME,KONTO_BUCHUNG_KOSTEN)
-                               ,(INI_KONTO_BUCH_WP_KAUF_NAME,KONTO_BUCHUNG_WP_KAUF)
-                               ,(INI_KONTO_BUCH_WP_VERKAUF_NAME,KONTO_BUCHUNG_WP_VERKAUF)
-                               ,(INI_KONTO_BUCH_WP_KOSTEN_NAME,KONTO_BUCHUNG_WP_KOSTEN)
-                               ,(INI_KONTO_BUCH_WP_EINNAHMEN_NAME,KONTO_BUCHUNG_WP_EINNAHMEN)
-                               ]
-    KONTO_BUCHUNGS_TEXT_LIST = ["unbekannt",
-                                "einzahlung",
-                                "auszahlung",
-                                "kosten",
-                                "wp_kauf",
-                                "wp_verkauf",
-                                "wp_kosten",
-                                "wp_einnahmen"]
-
+    # die dict liste zum anzeigen in der Tabelle
+    KDSP.set_data_show_dict_list(KDSP.KONTO_DATA_INDEX_BUCHDATUM)
+    KDSP.set_data_show_dict_list(KDSP.KONTO_DATA_INDEX_WERTDATUM)
+    KDSP.set_data_show_dict_list(KDSP.KONTO_DATA_INDEX_WER)
+    KDSP.set_data_show_dict_list(KDSP.KONTO_DATA_INDEX_BUCHTYPE)
+    KDSP.set_data_show_dict_list(KDSP.KONTO_DATA_INDEX_WERT)
+    KDSP.set_data_show_dict_list(KDSP.KONTO_DATA_INDEX_COMMENT)
+    KDSP.set_data_show_dict_list(KDSP.KONTO_DATA_INDEX_ISIN)
+    KDSP.set_data_show_dict_list(KDSP.KONTO_DATA_INDEX_KATEGORIE)
 
 def get(log):
     

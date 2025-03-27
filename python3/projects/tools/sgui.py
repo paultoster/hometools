@@ -62,10 +62,10 @@
 # (data_set,indexAbfrage) = sgui.abfrage_tabelle(header_liste,data_set,data_index_liste):    listeAbfrage = ["okay"]
 # (data_set,indexAbfrage) = sgui.abfrage_tabelle(header_liste,data_set,data_index_liste,listeAbfrage):
 #
-# (data_set, indexAbfrage, irow) = sgui.abfrage_tabelle_get_row(header_liste, data_set):    listeAbfrage = ["okay"]
-# (data_set, indexAbfrage, irow) = sgui.abfrage_tabelle_get_row(header_liste, data_set,
+# (data_set, indexAbfrage, irow,data_changed_pos_list) = sgui.abfrage_tabelle_get_row(header_liste, data_set):    listeAbfrage = ["okay"]
+# (data_set, indexAbfrage, irow,data_changed_pos_list) = sgui.abfrage_tabelle_get_row(header_liste, data_set,
 #                                                               data_index_liste):    listeAbfrage = ["okay"]
-# (data_set, indexAbfrage, irow) = sgui.abfrage_tabelle_get_row(header_liste, data_set, data_index_liste, listeAbfrage):
+# (data_set, indexAbfrage, irow,data_changed_pos_list) = sgui.abfrage_tabelle_get_row(header_liste, data_set, data_index_liste, listeAbfrage):
 #
 # z.B. header_liste     = ["alpha","beta","gamma"]                       Die Name der Bestandteile eines dat-items
 #      data_set         = [[0.1,0.1,0.2],[0.2,0.5,0.2], .... ]           Date-set liste mit Zeilen-Liste, Zeilenliste entspricht dr Headerliste
@@ -139,6 +139,7 @@ if (t_path == os.getcwd()):
     import sstr
     import hfkt as h
     import hfkt_def as hdef
+    import hfkt_type as htype
 else:
     p_list = os.path.normpath(t_path).split(os.sep)
     if (len(p_list) > 1): p_list = p_list[: -1]
@@ -149,6 +150,7 @@ else:
     from tools import sstr
     from tools import hfkt as h
     from tools import hfkt_def as hdef
+    from tools import hfkt_type as htype
 # endif--------------------------------------------------------------------------
 
 OK = 1
@@ -528,8 +530,9 @@ def abfrage_tabelle_get_row(header_liste, data_set, listeAbfrage=None):
     data_set_out = obj.data_set
     indexAbfrage = obj.indexAbfrage
     irow = obj.current_row
+    data_changed_pos_list = obj.double_click_changed_pos_list
     del obj
-    return (data_set_out, indexAbfrage, irow)
+    return (data_set_out, indexAbfrage, irow,data_changed_pos_list)
 
 
 # end def
@@ -540,15 +543,16 @@ def abfrage_tabelle_get_row_set_color(header_liste, data_set, color_liste, liste
     :param data_set:
     :param color_liste:
     :param listeAbfrage:
-    :return: (data_set_out, indexAbfrage, irow) = abfrage_tabelle_get_row_set_color(header_liste, data_set, color_liste, listeAbfrage=None)
+    :return: (data_set_out, indexAbfrage, irow,data_changed_pos_list) = abfrage_tabelle_get_row_set_color(header_liste, data_set, color_liste, listeAbfrage=None)
     '''
     data_index_liste = list(range(0, len(data_set)))
     obj = abfrage_tabelle_class(header_liste, data_set, data_index_liste, color_liste, listeAbfrage)
     data_set_out = obj.data_set
     indexAbfrage = obj.indexAbfrage
     irow = obj.current_row
+    data_changed_pos_list = obj.double_click_changed_pos_list
     del obj
-    return (data_set_out, indexAbfrage, irow)
+    return (data_set_out, indexAbfrage, irow,data_changed_pos_list)
 
 
 # end def
@@ -600,6 +604,12 @@ class abfrage_tabelle_class:
     Gui_rahmen = [None]
     current_row = -1
     
+    double_click_row_list  = []
+    double_click_col_list  = []
+    double_click_text_list = []
+    
+    double_click_changed_pos_list = []
+    
     # -------------------------------------------------------------------------------
     # -------------------------------------------------------------------------------
     def __init__(self, header_liste, data_set, data_index_liste=None, color_liste=None, listeAbfrage=None):
@@ -618,6 +628,9 @@ class abfrage_tabelle_class:
         self.act_frame_id = 0
         self.title = u"Tabelle"
         self.current_row = -1
+        self.double_click_row_list = []
+        self.double_click_col_list = []
+        self.double_click_text_list = []
         
         # data_set
         if (data_set and isinstance(data_set, list)):
@@ -968,14 +981,29 @@ class abfrage_tabelle_class:
             ansonasten False
         '''
         
+        # get data from table
         self.data_set = []
         for line in self.tabGui_TabBox.get_children():
             
+            irow = int(line)
             data = []
-            for i, value in enumerate(self.tabGui_TabBox.item(line)['values']):
-                if (self.type_liste[i] == self.DATA_INTEGER):
+            for icol, value in enumerate(self.tabGui_TabBox.item(line)['values']):
+                
+                #  find if value by double click has changed
+                if (irow in self.double_click_row_list) and (icol in self.double_click_col_list):
+                    for i,irowproof in enumerate(self.double_click_row_list):
+                        icolproof = self.double_click_col_list[i]
+                        textproof = self.double_click_text_list[i]
+                        if (icol == icolproof) and (irow == irowproof) and (textproof != value):
+                            self.double_click_changed_pos_list.append((irow,icol))
+                            break
+                        # endif
+                    # end for
+                #end if
+                
+                if (self.type_liste[icol] == self.DATA_INTEGER):
                     data.append(int(value))
-                elif (self.type_liste[i] == self.DATA_FLOAT):
+                elif (self.type_liste[icol] == self.DATA_FLOAT):
                     data.append(float(value))
                 else:
                     data.append(str(value))
@@ -1030,13 +1058,27 @@ class abfrage_tabelle_class:
         
         # get cell position and cell dimensions
         x, y, width, height = self.tabGui_TabBox.bbox(rowid, column)
-        print(x, y, width, height)
+        # print(x, y, width, height)
         
         # y-axis offset
         pady = height // 2
         
         # place Entry Widget
         text = self.tabGui_TabBox.item(rowid, 'values')[int(column[1:]) - 1]
+        
+        # save text
+        (status,columnid) = htype.type_proof(column,'int')
+        if columnid:
+            columnid -=1
+        # end if
+        if status == hdef.OKAY:
+            self.double_click_row_list.append(int(rowid))
+            self.double_click_col_list.append(columnid)
+            self.double_click_text_list.append(text)
+        # end if
+        
+        # self.flag_changed_by_double_click = False
+        
         self.entryPopup = EntryPopup(self.root, self.tabGui_TabBox, rowid, int(column[1:]) - 1, text)
         self.entryPopup.place(x=x, y=y + pady, width=width, height=height, anchor='w')
     

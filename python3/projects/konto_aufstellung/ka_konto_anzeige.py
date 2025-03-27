@@ -51,21 +51,21 @@ def anzeige_mit_konto_wahl(rd):
     # endwhile
     
     # Konto data in ini
-    ddict = rd.data[choice].ddict
+    konto_dict = rd.data[choice].ddict
     
     # Anzeige
-    (status, ddict) = anzeige(rd,ddict)
+    (status, konto_dict) = anzeige(rd,konto_dict)
     
     if status != hdef.OKAY:  # Abbruch
         return status
     
     # write back modified ddict
-    rd.data[choice].ddict = ddict
+    rd.data[choice].ddict = konto_dict
     
     return status
 # enddef
 
-def anzeige(rd,ddict):
+def anzeige(rd,konto_dict):
     '''
     
     :param rd:
@@ -73,6 +73,7 @@ def anzeige(rd,ddict):
     :return: (status, ddict) =  anzeige(rd,ddict)
     '''
     
+    status = hdef.OKAY
     header_liste = rd.par.KONTO_DATA_ITEM_LIST
     abfrage_liste = ["vor","zurück","ende", "update edit", "add", "delete"]
     i_vor = 0
@@ -82,22 +83,82 @@ def anzeige(rd,ddict):
     i_add = 4
     i_delete = 5
     
-    (istart,iend) = build_range_to_show_dataset(len(ddict[rd.par.KONTO_DATA_SET_NAME]),-1,rd.par.KONTO_SHOW_NUMBER_OF_LINES,1)
-    
     runflag = True
+    istart  = 0
+    dir     = 0
     while (runflag):
         
-        (data_llist,color_list) = build_data_table_list_and_color_list(rd.par,ddict,istart,iend)
+        (header_list, data_llist, new_data_list) = konto_dict[rd.par.KONTO_DATA_SET_CLASS].get_anzeige_data_llist(istart, dir, rd.par.KONTO_SHOW_NUMBER_OF_LINES)
         
-        (d_new, index_abfrage, irow) = ka_gui.konto_abfrage(rd, header_liste, data_llist, abfrage_liste, color_list)
+        # color list with new_data_list
+        color_list = []
+        for flag in new_data_list:
+            if flag:
+                color_list.append(rd.par.COLOR_SHOW_NEW_DATA_SETS)
+            else:
+                color_list.append("")
+            # end if
+        # end for
+        
+        (new_data_llist, index_abfrage, irow, data_changed_pos_list) = ka_gui.konto_abfrage(rd, header_liste, data_llist, abfrage_liste, color_list)
+        
+        # Vorblättern
+        # ----------------------------
+        if (index_abfrage == i_vor):
+            
+            # Daten updaten
+            if len(data_changed_pos_list) > 0:
+                konto_start_wert = konto_dict[rd.par.START_WERT_NAME]
+                konto_dict[rd.par.KONTO_DATA_SET_CLASS].write_anzeige_back_data(new_data_llist, data_changed_pos_list, istart, konto_start_wert)
+            
+            # Vorwärts gehen
+            dir = +1
+            runflag = True
+        
+        # Zurückblättern
+        # ----------------------------
+        elif (index_abfrage == i_back):
+            
+            # Daten updaten
+            if len(data_changed_pos_list) > 0:
+                konto_start_wert = konto_dict[rd.par.START_WERT_NAME]
+                konto_dict[rd.par.KONTO_DATA_SET_CLASS].write_anzeige_back_data(new_data_llist, data_changed_pos_list,
+                                                                                istart, konto_start_wert)
+            
+            # Rückwärts gehen
+            dir = -1
+            runflag = True
         
         # Beenden
         # ----------------------------
-        if (index_abfrage == i_end):
+        elif (index_abfrage == i_end):
             runflag = False
+        
+        # Updaten
+        # ----------------------------
+        elif (index_abfrage == i_update):
+            
+            # Daten updaten
+            if len(data_changed_pos_list) > 0:
+                konto_start_wert = konto_dict[rd.par.START_WERT_NAME]
+                konto_dict[rd.par.KONTO_DATA_SET_CLASS].write_anzeige_back_data(new_data_llist, data_changed_pos_list,
+                                                                                istart, konto_start_wert)
+            
+            # lösche die Änderungs-Liste
+            konto_dict[rd.par.KONTO_DATA_SET_CLASS].delete_new_data_list()
+            runflag = False
+    
+        elif( index_abfrage == i_add ):
+            #####
+            pass
+        elif( index_abfrage == i_delete ):
+            ####
+            pass
         else:
             runflag = False
     # end while
+    
+    return (status, ddict)
 # end def
 def build_range_to_show_dataset(nlines,istart,nshow,dir):
     '''
@@ -172,5 +233,48 @@ def build_data_table_list_and_color_list(par, ddict, istart, iend):
     
     return (data_llist, color_list)
 # end def
-
-
+def write_back_data(par,d_new_llist,data_changed_pos_list,istart,ddict):
+    '''
+    
+    :param par:
+    :param d_new_llist:
+    :param data_changed_pos_list:
+    :param istart:
+    :param ddict:
+    :return: ddict =  write_back_data(par,d_new_llist,data_changed_pos_list,istart,ddict)
+    '''
+    
+    wert_changed = False
+    for (irow,icol) in data_changed_pos_list:
+        
+        if (icol != par.KONTO_DATA_INDEX_ID) and (icol != par.KONTO_DATA_INDEX_BUCHTYPE) and \
+            (icol != par.KONTO_DATA_INDEX_COMMENT) and (icol != par.KONTO_DATA_INDEX_SUMWERT):
+            
+            ddict[par.KONTO_DATA_SET_NAME][istart+irow][icol] = d_new_llist[irow][icol]
+            
+            if (icol == par.KONTO_DATA_INDEX_WERT):
+                wert_changed = True
+        # end if
+    # end for
+    
+    if wert_changed:
+        if istart == 0:
+            sumwert = ddict[par.START_WERT_NAME]
+        else:
+            sumwert = ddict[par.KONTO_DATA_SET_NAME][istart-1][par.KONTO_DATA_INDEX_SUMWERT]
+        # end if
+        
+        i = istart
+        n = len(ddict[par.KONTO_DATA_SET_NAME])
+        while( i < n ):
+            
+            sumwert += ddict[par.KONTO_DATA_SET_NAME][i][par.KONTO_DATA_INDEX_WERT]
+            
+            ddict[par.KONTO_DATA_SET_NAME][i][par.KONTO_DATA_INDEX_SUMWERT] = int(sumwert)
+            
+            i += 1
+        # end while
+    # end if
+    
+    return ddict
+# end def

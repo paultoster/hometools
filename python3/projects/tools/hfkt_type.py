@@ -751,13 +751,19 @@ def type_proof_euro(wert_in,delim=",",thousandsign="."):
     :param thousandsign:
     :return: (okay,wert_cent) =  type_proof_euro(wert_in,delim=",",thousandsign=".")
     '''
-    try:
-        val = numeric_string_to_float(wert_in, delim=delim, thousandsign=thousandsign)
-        okay = hdef.OKAY
-    except:
-        val = None
-        okay = hdef.NOT_OKAY
-    # end try
+    okay = hdef.OKAY
+    if isinstance(wert_in,float):
+        val = wert_in
+    elif isinstance(wert_in,int):
+        val = float(wert_in)
+    else:
+        try:
+            val = numeric_string_to_float(wert_in, delim=delim, thousandsign=thousandsign)
+        except:
+            val = None
+            okay = hdef.NOT_OKAY
+        # end try
+    # end if
     return (okay,val)
 # end def
 def type_convert_euro_to_cent(wert_euro,delim=",", thousandsign="."):
@@ -766,9 +772,9 @@ def type_convert_euro_to_cent(wert_euro,delim=",", thousandsign="."):
     :param wert_euro:
     :return: (okay,wert_cent) =  type_convert_euro_to_cent(wert_euro)
     '''
-    (okay, out) = type_proof_euro(wert_euro)
+    (okay, out) = type_proof_euro(wert_euro,delim=delim,thousandsign=thousandsign)
     if okay == hdef.OKAY:
-        wert_cent = math.copysign(int(math.fabs(out)*100+0.5), out)
+        wert_cent = int(math.copysign(int(math.fabs(out)*100+0.5), out))
         # wert_cent = int(out*100+0.5)
     else:
         wert_cent = None

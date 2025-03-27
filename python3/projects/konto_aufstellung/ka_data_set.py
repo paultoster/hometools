@@ -20,9 +20,11 @@ import traceback
 
 # Hilfsfunktionen
 import hfkt_def as hdef
+import hfkt_type as htype
 
 import ka_iban_data
 import ka_data_pickle
+import ka_konto_data_set
 
 
 # --------------------------------------------------------------------------------------
@@ -55,7 +57,7 @@ def data_get(par, ini):
             return (status, errtext, data)
         # endif
         
-        d = proof_konto_data_from_ini(d, ini.konto_data[konto_name])
+        d = proof_konto_data_from_ini(d, ini.konto_data[konto_name],par)
         d = proof_konto_data_intern(par, d, konto_name)
         if (d.status != hdef.OK):
             status = hdef.NOT_OKAY
@@ -68,7 +70,7 @@ def data_get(par, ini):
     # endfor
     
     # iban-liste --------------------------------------------
-    if (ini.iban_list_file_name in ini.data_pickle_jsonfile_list):
+    if ini.iban_list_file_name in ini.data_pickle_jsonfile_list:
         j = ini.data_pickle_use_json
     else:
         j = 0
@@ -91,11 +93,16 @@ def data_get(par, ini):
     return (status, errtext, data)
 
 
-def data_save(data):
+def data_save(data,par):
     status = hdef.OKAY
     errtext = ""
     
     for key in data:
+        
+        # get data from class to save
+        data[key][par.KONTO_DATA_SET_NAME] = data[key][par.KONTO_DATA_SET_CLASS].data_set_llist
+        data[key][par.KONTO_DATA_ID_MAX_NAME] = data[key][par.KONTO_DATA_SET_CLASS].idmax
+        del data[key][par.KONTO_DATA_SET_CLASS]
         
         data[key].save()
         
@@ -110,7 +117,7 @@ def data_save(data):
 
 # enddef
 
-def proof_konto_data_from_ini(d, ini_data):
+def proof_konto_data_from_ini(d, ini_data,par):
     """
     proof ini_data in d
     :param d:
@@ -125,7 +132,32 @@ def proof_konto_data_from_ini(d, ini_data):
                 d.ddict[key] = ini_data[key]
             # endif
         else:
-            d.ddict[key] = ini_data[key]
+            if key == par.START_WERT_NAME:
+                if isinstance(ini_data[key],str) or isinstance(ini_data[key],float):
+                    # Trennungs zeichen für decimal wert
+                    if par.INI_KONTO_STR_EURO_TRENN_BRUCH in ini_data.keys():
+                        wert_delim = ini_data[par.INI_KONTO_STR_EURO_TRENN_BRUCH]
+                    else:
+                        wert_delim = par.STR_EURO_TRENN_BRUCH_DEFAULT
+                    # end if
+                    
+                    # Trennungszeichen für Tausend
+                    if par.INI_KONTO_STR_EURO_TRENN_TAUSEND in ini_data.keys():
+                        wert_trennt = ini_data[par.INI_KONTO_STR_EURO_TRENN_TAUSEND]
+                    else:
+                        wert_trennt = par.STR_EURO_TRENN_TAUSEN_DEFAULT
+                    # end if
+                    (okay, wert) = htype.type_convert_euro_to_cent(ini_data[key],delim=wert_delim,thousandsign=wert_trennt)
+                    if okay != hdef.OKAY:
+                        raise Exception(f"ka_data_set: Den Startwert = {ini_data[key]} kann nicht gewandelt werden ")
+                    # end if
+                else:
+                    wert = ini_data[key]
+                # end if
+                d.ddict[key] = wert
+            else:
+                d.ddict[key] = ini_data[key]
+            # end if
         # endif
     # end for
     
@@ -150,29 +182,34 @@ def proof_konto_data_intern(par, d, konto_name):
         # end if
     else:
         d.ddict[key] = konto_name
+    # end if
+    
+    
     
     # kont_data set anlegen
     key = par.KONTO_DATA_SET_NAME
     if key in d.ddict:
         if len(d.ddict[key]) > 0:
-            if len(d.ddict[key][0]) != len(par.KONTO_DATA_ITEM_LIST):
+            if len(d.ddict[key][0]) != len(par.KDSP.KONTO_DATA_ITEM_LIST):
                 d.status = hdef.NOT_OKAY
                 d.errtext = f"length of header-list {par.KONTO_DATA_ITEM_LIST} not same with data-dict {d.dict[key]} of konto: {konto_name}"
                 return d
             # end if
+            data_set_llist = d.ddict[key]
         # end if
     else:
-        d.ddict[key] = []
+        data_set_llist = []
     # end if
     
     key = par.KONTO_DATA_ID_MAX_NAME
-    if key not in d.ddict:
-        d.ddict[key] = 0
+    if key in d.ddict:
+        idmax = d.ddict[key]
+    else:
+        idmax = 0
     # end if
-    
-    # Liste für neuen Input
-    key = par.KONTO_DATA_ID_NEW_LIST
-    d.ddict[key] = []
+
+    # class KontoDataSet anlegen
+    d.ddict[par.KONTO_DATA_SET_CLASS] = ka_konto_data_set.KontoDataSet(par.KDSP,data_set_llist,idmax)
     
     return d
 # end def

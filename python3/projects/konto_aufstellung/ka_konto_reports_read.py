@@ -54,10 +54,10 @@ def report_einlesen(rd):
     # endwhile
     
     # Konto data in ini
-    ddict = rd.data[choice].ddict
+    konto_dict = rd.data[choice].ddict
     
     # csv lesen
-    if( ddict[rd.par.AUSZUGS_TYP_NAME] == 'ing_csv'):
+    if( konto_dict[rd.par.UMSATZ_DATA_TYPE_NAME] == 'ing_csv'):
         
         # csv-Datei auswählen
         filename = sgui.abfrage_file(file_types="*.csv",
@@ -68,14 +68,14 @@ def report_einlesen(rd):
             return status
         # endif
         
-        (status, ddict, flag_newdata) = ka_konto_report_read_ing.read_csv(rd, ddict, filename)
+        (status, konto_dict, flag_newdata) = ka_konto_report_read_ing.read_csv(rd, konto_dict, filename)
         
         if status != hdef.OKAY:  # Abbruch
             return status
         # end if
         
         if flag_newdata :
-            status = ka_konto_anzeige.anzeige(rd,ddict)
+            (status,konto_dict) = ka_konto_anzeige.anzeige(rd,konto_dict)
         # end if
 
 
@@ -83,11 +83,11 @@ def report_einlesen(rd):
             return status
         # end if
         
-        # write back modified ddict
-        rd.data[choice].ddict = ddict
+        # write back modified konto_dict
+        rd.data[choice].ddict = konto_dict
 
     else:
-        errtext = f"Der Auszugstype von [{choice}].{rd.ini.AUSZUGS_TYP_NAME} = {ddict[rd.ini.AUSZUGS_TYP_NAME]} stimmt nicht"
+        errtext = f"Der Umsatz data type von [{choice}].{rd.ini.UMSATZ_DATA_TYPE_NAME} = {konto_dict[rd.ini.UMSATZ_DATA_TYPE_NAME]} stimmt nicht"
         rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
         status  = hdef.NOT_OKAY
     #endif

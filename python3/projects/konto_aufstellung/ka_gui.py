@@ -20,7 +20,7 @@ def iban_abfrage(rd,header_liste,data_llist,abfrage_liste):
     :param abfrage_liste:
     :return: (d_new,index_abfrage,irow) =  iban_abfrage(rd,header_liste,data_llist,abfrage_liste)
     '''
-    (d_new, index_abfrage,irow) = sgui.abfrage_tabelle_get_row(header_liste=header_liste
+    (d_new, index_abfrage,irow,_) = sgui.abfrage_tabelle_get_row(header_liste=header_liste
                                                  , data_set=data_llist
                                                  , listeAbfrage=abfrage_liste)
     
@@ -45,14 +45,14 @@ def konto_abfrage(rd, header_liste, data_llist, abfrage_liste,color_list):
     :param data_llist:
     :param abfrage_liste:
     :param color_list
-    :return: (d_new,index_abfrage,irow) = konto_abfrage(rd, header_liste, data_llist, abfrage_liste, color_list)
+    :return: (d_new,index_abfrage,irow,data_changed_pos_list) = konto_abfrage(rd, header_liste, data_llist, abfrage_liste, color_list)
     '''
 
-    (d_new, index_abfrage, irow) = sgui.abfrage_tabelle_get_row_set_color(header_liste=header_liste
+    (d_new, index_abfrage, irow,data_changed_pos_list) = sgui.abfrage_tabelle_get_row_set_color(header_liste=header_liste
                                                                 , data_set=data_llist
                                                                 , color_liste=color_list
                                                                 , listeAbfrage=abfrage_liste)
     
-    return (d_new, index_abfrage, irow)
+    return (d_new, index_abfrage, irow,data_changed_pos_list)
 
 # edn def
