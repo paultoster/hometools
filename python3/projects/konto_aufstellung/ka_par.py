@@ -144,6 +144,7 @@ class Parameter:
     KDSP.set_data_show_dict_list(KDSP.KONTO_DATA_INDEX_WER)
     KDSP.set_data_show_dict_list(KDSP.KONTO_DATA_INDEX_BUCHTYPE)
     KDSP.set_data_show_dict_list(KDSP.KONTO_DATA_INDEX_WERT)
+    KDSP.set_data_show_dict_list(KDSP.KONTO_DATA_INDEX_SUMWERT)
     KDSP.set_data_show_dict_list(KDSP.KONTO_DATA_INDEX_COMMENT)
     KDSP.set_data_show_dict_list(KDSP.KONTO_DATA_INDEX_ISIN)
     KDSP.set_data_show_dict_list(KDSP.KONTO_DATA_INDEX_KATEGORIE)

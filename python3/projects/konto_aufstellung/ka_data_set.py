@@ -208,9 +208,34 @@ def proof_konto_data_intern(par, d, konto_name):
         idmax = 0
     # end if
 
-    # class KontoDataSet anlegen
-    d.ddict[par.KONTO_DATA_SET_CLASS] = ka_konto_data_set.KontoDataSet(par.KDSP,data_set_llist,idmax)
     
+    # konto_start_wert von ini übergeben:
+    key = par.KONTO_DATA_ID_MAX_NAME
+    if key in d.ddict:
+        konto_start_wert = d.ddict[key]
+    else:
+        konto_start_wert = 0
+    # end if
+    
+    # Trennungs zeichen für decimal wert
+    key = par.INI_KONTO_STR_EURO_TRENN_BRUCH
+    if key in d.ddict:
+        wert_delim = d.ddict[key]
+    else:
+        wert_delim = par.STR_EURO_TRENN_BRUCH_DEFAULT
+    # end if
+
+    # Trennungszeichen für Tausend
+    key = par.INI_KONTO_STR_EURO_TRENN_TAUSEND
+    if key in d.ddict:
+        wert_trennt = d.ddict[key]
+    else:
+        wert_trennt = par.STR_EURO_TRENN_TAUSEN_DEFAULT
+    # end if
+
+    # class KontoDataSet anlegen
+    d.ddict[par.KONTO_DATA_SET_CLASS] = ka_konto_data_set.KontoDataSet(par.KDSP,data_set_llist,idmax,konto_start_wert,wert_delim,wert_trennt)
+
     return d
 # end def
 

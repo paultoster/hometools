@@ -74,7 +74,6 @@ def anzeige(rd,konto_dict):
     '''
     
     status = hdef.OKAY
-    header_liste = rd.par.KONTO_DATA_ITEM_LIST
     abfrage_liste = ["vor","zurück","ende", "update edit", "add", "delete"]
     i_vor = 0
     i_back = 1
@@ -88,7 +87,7 @@ def anzeige(rd,konto_dict):
     dir     = 0
     while (runflag):
         
-        (header_list, data_llist, new_data_list) = konto_dict[rd.par.KONTO_DATA_SET_CLASS].get_anzeige_data_llist(istart, dir, rd.par.KONTO_SHOW_NUMBER_OF_LINES)
+        (header_liste, data_llist, new_data_list) = konto_dict[rd.par.KONTO_DATA_SET_CLASS].get_anzeige_data_llist(istart, dir, rd.par.KONTO_SHOW_NUMBER_OF_LINES)
         
         # color list with new_data_list
         color_list = []
@@ -108,9 +107,8 @@ def anzeige(rd,konto_dict):
             
             # Daten updaten
             if len(data_changed_pos_list) > 0:
-                konto_start_wert = konto_dict[rd.par.START_WERT_NAME]
-                konto_dict[rd.par.KONTO_DATA_SET_CLASS].write_anzeige_back_data(new_data_llist, data_changed_pos_list, istart, konto_start_wert)
-            
+                konto_dict[rd.par.KONTO_DATA_SET_CLASS].write_anzeige_back_data(new_data_llist, data_changed_pos_list, istart)
+                
             # Vorwärts gehen
             dir = +1
             runflag = True
@@ -121,9 +119,7 @@ def anzeige(rd,konto_dict):
             
             # Daten updaten
             if len(data_changed_pos_list) > 0:
-                konto_start_wert = konto_dict[rd.par.START_WERT_NAME]
-                konto_dict[rd.par.KONTO_DATA_SET_CLASS].write_anzeige_back_data(new_data_llist, data_changed_pos_list,
-                                                                                istart, konto_start_wert)
+                konto_dict[rd.par.KONTO_DATA_SET_CLASS].write_anzeige_back_data(new_data_llist, data_changed_pos_list,istart)
             
             # Rückwärts gehen
             dir = -1
@@ -140,9 +136,7 @@ def anzeige(rd,konto_dict):
             
             # Daten updaten
             if len(data_changed_pos_list) > 0:
-                konto_start_wert = konto_dict[rd.par.START_WERT_NAME]
-                konto_dict[rd.par.KONTO_DATA_SET_CLASS].write_anzeige_back_data(new_data_llist, data_changed_pos_list,
-                                                                                istart, konto_start_wert)
+                konto_dict[rd.par.KONTO_DATA_SET_CLASS].write_anzeige_back_data(new_data_llist, data_changed_pos_list,istart)
             
             # lösche die Änderungs-Liste
             konto_dict[rd.par.KONTO_DATA_SET_CLASS].delete_new_data_list()
@@ -158,7 +152,7 @@ def anzeige(rd,konto_dict):
             runflag = False
     # end while
     
-    return (status, ddict)
+    return (status, konto_dict)
 # end def
 def build_range_to_show_dataset(nlines,istart,nshow,dir):
     '''
