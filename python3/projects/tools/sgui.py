@@ -55,6 +55,21 @@
 #   listeWerte   = ["Kaffee","kg","Tassen"]
 #   title        = "MAterialauswahl"
 #   listeErgebnis = sgui.abfrage_n_eingabezeilen(liste=listeAnzeige, vorgabe_liste=listeWerte,title=title)
+# oder
+# mit
+# Vorgabe
+# listeAnzeige = ["Materialname", "Materialmesseinheit", "Materialabrechnungseinheit"]
+# listeDefault = ["Kaffee", "kg", "Tassen"]
+# listeErgebnis = sgui.abfrage_n_eingabezeilen(liste=listeAnzeige, vorgabe_liste=listeDefault, title="Materialbestimmung")
+# oder
+# mit
+# eintelnen
+# Comboboxen
+# listeAnzeige = [["Materialname", ["Kaffee", "Tee", "Eis"]], "Materialmesseinheit", "Materialabrechnungseinheit"]
+# listeDefault = ["Tee", "kg", "Tassen"]
+# listeErgebnis = sgui.abfrage_n_eingabezeilen(liste=listeAnzeige, vorgabe_liste=listeDefault, title="Materialbestimmung")
+#
+# if listeErgebnis is empty cancel was clicked
 #
 #   bei cancel Rückgabe leer List
 # ------------------------------------------------------------------------------------------------------
@@ -631,6 +646,7 @@ class abfrage_tabelle_class:
         self.double_click_row_list = []
         self.double_click_col_list = []
         self.double_click_text_list = []
+        self.double_click_changed_pos_list = []
         
         # data_set
         if (data_set and isinstance(data_set, list)):
@@ -645,7 +661,7 @@ class abfrage_tabelle_class:
             self.nheader = nheader
         else:
             self.state = hdef.NOT_OKAY
-            return ([], -1)
+            return None
         # endif
         
         # proof first data set for type
@@ -902,9 +918,11 @@ class abfrage_tabelle_class:
     # -------------------------------------------------------------------------------
     def selectItem(self, a):
         curItem = self.tabGui_TabBox.focus()
-        self.current_row = int(curItem)
-        print(self.tabGui_TabBox.item(curItem))
-        print(f"current_row = {self.current_row}")
+        try:
+            self.current_row = int(curItem)
+        except:
+            print(self.tabGui_TabBox.item(curItem))
+            print(f"current_row = {self.current_row}")
         # curRow = self.tabGui_TabBox.set(a)
         # self.current_row = curRow["loc"]
     
@@ -1143,6 +1161,17 @@ def abfrage_n_eingabezeilen(liste, vorgabe_liste=None, title=None):
       z.B.
       listeAnzeige = ["Materialname","Materialmesseinheit","Materialabrechnungseinheit"]
       listeErgebnis = sgui.abfrage_n_eingabezeilen(listeAnzeige)
+      oder mit Vorgabe
+      listeAnzeige = ["Materialname","Materialmesseinheit","Materialabrechnungseinheit"]
+      listeDefault = ["Kaffee","kg","Tassen"]
+      listeErgebnis = sgui.abfrage_n_eingabezeilen(liste=listeAnzeige,vorgabe_liste=listeDefault,title="Materialbestimmung")
+      oder mit eintelnen Comboboxen
+      listeAnzeige = [["Materialname",["Kaffee","Tee","Eis"]],"Materialmesseinheit","Materialabrechnungseinheit"]
+      listeDefault = ["Tee","kg","Tassen"]
+      listeErgebnis = sgui.abfrage_n_eingabezeilen(liste=listeAnzeige,vorgabe_liste=listeDefault,title="Materialbestimmung")
+      
+      if listeErgebnis is empty cancel was clicked
+      
     """
     obj = abfrage_n_eingabezeilen_class(liste=liste, vorgabe_liste=vorgabe_liste, title=title)
     liste = obj.eingabeListe
@@ -1171,6 +1200,8 @@ class abfrage_n_eingabezeilen_class:
     
     state = hdef.OKAY
     str_liste = []
+    combo_input_llist = []
+    combo_tk_list = []
     eingabeListe = []
     act_frame_id = 0
     StringVarListe = []
@@ -1183,6 +1214,8 @@ class abfrage_n_eingabezeilen_class:
         """
         self.state = hdef.OKAY
         self.str_liste = []
+        self.combo_input_llist = []
+        self.combo_tk_list = []
         self.eingabeListe = []
         self.act_frame_id = 0
         self.StringVarListe = []
@@ -1190,12 +1223,29 @@ class abfrage_n_eingabezeilen_class:
         
         # liste in string-liste wandeln
         for item in liste:
-            if (isinstance(item, str)):
+            
+            if isinstance(item, list):
+                if len(item) > 1:
+                    if isinstance(item[0], str):
+                        self.str_liste.append(item[0])
+                    else:
+                        Exception(f"abfrage_n_eingabezeilen_class: item[0] = {item[0]} of input liste is not a string")
+                    # end if
+                    if isinstance(item[1], list):
+                        self.combo_input_llist.append(item[1])
+                    else:
+                        Exception(f"abfrage_n_eingabezeilen_class: item[0] = {item[1]} of input liste is not a list")
+                    # end if
+                # end if
+            elif isinstance(item, str):
                 self.str_liste.append(item)
+                self.combo_input_llist.append(None)
             elif (isinstance(item, float)):
                 self.str_liste.append("%f" % item)
+                self.combo_input_llist.append(None)
             elif (isinstance(item, int)):
                 self.str_liste.append("%i" % item)
+                self.combo_input_llist.append(None)
             # endif
             self.eingabeListe.append("")
         # endfor
@@ -1291,6 +1341,7 @@ class abfrage_n_eingabezeilen_class:
         
         for i in range(len(self.str_liste)):
             item = self.str_liste[i]
+            combo_input_liste = self.combo_input_llist[i]
             vorg = self.eingabeListe[i]
             gr_entry = Tk.Frame(frame, relief=Tk.GROOVE, bd=2)
             gr_entry.pack(pady=5, fill=Tk.X)
@@ -1304,10 +1355,23 @@ class abfrage_n_eingabezeilen_class:
             stringVarFiltText.set(vorg)
             self.StringVarListe.append(stringVarFiltText)
             
-            # entry Aufruf
-            entry_a = Tk.Entry(gr_entry, width=(100), textvariable=stringVarFiltText)
-            entry_a.pack(side=Tk.RIGHT, pady=1, padx=1)
-        
+            if not combo_input_liste:
+                # entry Aufruf
+                entry_a = Tk.Entry(gr_entry, width=(80), textvariable=stringVarFiltText)
+                entry_a.pack(side=Tk.RIGHT, pady=1, padx=1)
+                self.combo_tk_list.append(None)
+            else:
+                combo_a = ttk.Combobox(gr_entry,state="readonly")
+                combo_a['values'] = combo_input_liste
+                if vorg in combo_input_liste:
+                    index = combo_input_liste.index(vorg)
+                else:
+                    index = 0
+                # end if
+                combo_a.current(index)
+                combo_a.pack(side=Tk.RIGHT, pady=1, padx=1)
+                self.combo_tk_list.append(combo_a)
+            # end if
         # endfor
         
         gr_buts = Tk.Frame(gr_canvas, relief=Tk.GROOVE, bd=2)
@@ -1343,8 +1407,12 @@ class abfrage_n_eingabezeilen_class:
         # Nimmt den aktuellen Cursorstellung
         self.eingabeListe = []
         
-        for item in self.StringVarListe:
-            tt = item.get()
+        for index,item in enumerate(self.StringVarListe):
+            if not self.combo_tk_list[index]:
+                tt = item.get()
+            else:
+                tt = self.combo_tk_list[index].get()
+            # endif
             self.eingabeListe.append(tt)
         # endfor
         
@@ -2766,6 +2834,15 @@ def abfrage_file(file_types="*.*", comment=None, start_dir=None, default_extensi
 # enddef
 
 if __name__ == '__main__':
+    
+    listeAnzeige = [["Materialname", ["Kaffee", "Tee", "Eis"]], ["Materialmesseinheit",["kg","gramm","deca"]], "Materialabrechnungseinheit"]
+    listeDefault = ["Tee", "kg", "Tassen"]
+    listeErgebnis = abfrage_n_eingabezeilen(liste=listeAnzeige, vorgabe_liste=listeDefault,
+                                                 title="Materialbestimmung")
+
+    print(listeErgebnis)
+    """
+
     header_liste = ["Datuam", "Markt", "Kosten"]
     data_set = [["1.2.2010", "Rewe", 10.15, "1.2.2010", "Rewe", 10.15]
         , ["1.2.2010", "Rewe", 10.15, "1.2.2010", "Rewe", 10.15]
@@ -2787,7 +2864,6 @@ if __name__ == '__main__':
     print(data_set)
     print(data_set_out)
     
-    """
     texteingabe = []
     for i in range(30):
       texteingabe.append("ösqodh23odhodhoh")

@@ -37,10 +37,10 @@ def auswahl_konto(rd):
     return (index,choice)
 # enddef
 
-def konto_abfrage(rd, header_liste, data_llist, abfrage_liste,color_list):
+def konto_abfrage( header_liste, data_llist, abfrage_liste,color_list):
     '''
     
-    :param rd:
+    
     :param header_liste:
     :param data_llist:
     :param abfrage_liste:
@@ -56,3 +56,15 @@ def konto_abfrage(rd, header_liste, data_llist, abfrage_liste,color_list):
     return (d_new, index_abfrage, irow,data_changed_pos_list)
 
 # edn def
+def konto_data_set_eingabe(eingabe_liste):
+    '''
+    
+    
+    :param header_liste:
+    :param buchungs_type_list:
+    :return: new_data_list = ka_gui.konto_data_set_eingabe(header_liste,buchungs_type_list)
+    '''
+    new_data_list = sgui.abfrage_n_eingabezeilen(liste=eingabe_liste, title="Eine Kontobewegung eingeben")
+    
+    return new_data_list
+# end if

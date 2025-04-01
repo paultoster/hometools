@@ -6,6 +6,8 @@
 import os
 import sys
 
+import sgui
+
 tools_path = os.getcwd() + "\\.."
 if (tools_path not in sys.path):
     sys.path.append(tools_path)
@@ -87,7 +89,7 @@ def anzeige(rd,konto_dict):
     dir     = 0
     while (runflag):
         
-        (header_liste, data_llist, new_data_list) = konto_dict[rd.par.KONTO_DATA_SET_CLASS].get_anzeige_data_llist(istart, dir, rd.par.KONTO_SHOW_NUMBER_OF_LINES)
+        (istart,header_liste, data_llist, new_data_list) = konto_dict[rd.par.KONTO_DATA_SET_CLASS].get_anzeige_data_llist(istart, dir, rd.par.KONTO_SHOW_NUMBER_OF_LINES)
         
         # color list with new_data_list
         color_list = []
@@ -98,8 +100,13 @@ def anzeige(rd,konto_dict):
                 color_list.append("")
             # end if
         # end for
-        
-        (new_data_llist, index_abfrage, irow, data_changed_pos_list) = ka_gui.konto_abfrage(rd, header_liste, data_llist, abfrage_liste, color_list)
+        if len(data_llist):
+            (new_data_llist, index_abfrage, irow, data_changed_pos_list) = \
+                ka_gui.konto_abfrage(header_liste, data_llist, abfrage_liste, color_list)
+        else:
+            rd.log.write_warn("Noch keine Daten für dieses Konto angelegt, es geht weiter zu Add ",screen=rd.par.LOG_SCREEN_OUT)
+            index_abfrage = i_end
+        # end if
         
         # Vorblättern
         # ----------------------------
@@ -143,11 +150,46 @@ def anzeige(rd,konto_dict):
             runflag = False
     
         elif( index_abfrage == i_add ):
-            #####
-            pass
+            
+            (header_liste, buchungs_type_list,index_in_header_liste) = konto_dict[rd.par.KONTO_DATA_SET_CLASS].get_data_add_listen()
+            
+            # Erstelle die Eingabe liste
+            eingabeListe = []
+            for i,header in enumerate(header_liste):
+                if i == index_in_header_liste:
+                    eingabeListe.append([header,buchungs_type_list])
+                else:
+                    eingabeListe.append(header)
+                # end if
+            # end for
+            
+            new_data_list = ka_gui.konto_data_set_eingabe(eingabeListe)
+            if len(new_data_list):
+                (new_data_set_flag, status, errtext) = konto_dict[rd.par.KONTO_DATA_SET_CLASS].add_new_data_set(new_data_list, header_liste)
+                
+                if status != hdef.OKAY:
+                    rd.log.write_err("konto__anzeige add "+errtext, screen=rd.par.LOG_SCREEN_OUT)
+                    return (status, konto_dict)
+                elif not new_data_set_flag:
+                    runflag = False
+                # endif
+            # endif
+            dir = 0
+            
         elif( index_abfrage == i_delete ):
-            ####
-            pass
+            
+            if( irow >= 0 ):
+                flag = sgui.abfrage_janein(text=f"Soll irow = {irow} (von null gezält) gelöschen werden")
+                if( flag ):
+                    (status,errtext) = konto_dict[rd.par.KONTO_DATA_SET_CLASS].delete_data_list(irow)
+                    if( status != hdef.OKAY ):
+                        rd.log.write_err("konto__anzeige delete " + errtext, screen=rd.par.LOG_SCREEN_OUT)
+                        return (status, konto_dict)
+                    # end if
+                # end if
+            # end if
+            runflag = True
+            dir = 0
         else:
             runflag = False
     # end while

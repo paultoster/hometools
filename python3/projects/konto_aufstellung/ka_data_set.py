@@ -98,12 +98,12 @@ def data_save(data,par):
     errtext = ""
     
     for key in data:
-        
-        # get data from class to save
-        data[key][par.KONTO_DATA_SET_NAME] = data[key][par.KONTO_DATA_SET_CLASS].data_set_llist
-        data[key][par.KONTO_DATA_ID_MAX_NAME] = data[key][par.KONTO_DATA_SET_CLASS].idmax
-        del data[key][par.KONTO_DATA_SET_CLASS]
-        
+        if data[key].ddict[par.DDICT_TYPE_NAE] == par.TYPE_KONTO_DATA:
+            # get data from class to save
+            data[key].ddict[par.KONTO_DATA_SET_NAME] = data[key].ddict[par.KONTO_DATA_SET_CLASS].data_set_llist
+            data[key].ddict[par.KONTO_DATA_ID_MAX_NAME] = data[key].ddict[par.KONTO_DATA_SET_CLASS].idmax
+            del data[key].ddict[par.KONTO_DATA_SET_CLASS]
+        # end if
         data[key].save()
         
         if (data[key].status != hdef.OKAY):
@@ -173,6 +173,8 @@ def proof_konto_data_intern(par, d, konto_name):
     :param konto_name
     :return:d =  proof_konto_data_intern(d)
     '''
+    # type
+    d.ddict[par.DDICT_TYPE_NAE] = par.TYPE_KONTO_DATA
     
     # konto name
     key = par.KONTO_NAME_NAME
@@ -195,8 +197,8 @@ def proof_konto_data_intern(par, d, konto_name):
                 d.errtext = f"length of header-list {par.KONTO_DATA_ITEM_LIST} not same with data-dict {d.dict[key]} of konto: {konto_name}"
                 return d
             # end if
-            data_set_llist = d.ddict[key]
         # end if
+        data_set_llist = d.ddict[key]
     else:
         data_set_llist = []
     # end if
@@ -210,13 +212,21 @@ def proof_konto_data_intern(par, d, konto_name):
 
     
     # konto_start_wert von ini übergeben:
-    key = par.KONTO_DATA_ID_MAX_NAME
+    key = par.START_WERT_NAME
     if key in d.ddict:
         konto_start_wert = d.ddict[key]
     else:
         konto_start_wert = 0
     # end if
-    
+
+    # konto_start_datum von ini übergeben:
+    key = par.START_DATUM_NAME
+    if key in d.ddict:
+        konto_start_datum = d.ddict[key]
+    else:
+        konto_start_datum = 0
+    # end if
+
     # Trennungs zeichen für decimal wert
     key = par.INI_KONTO_STR_EURO_TRENN_BRUCH
     if key in d.ddict:
@@ -234,7 +244,7 @@ def proof_konto_data_intern(par, d, konto_name):
     # end if
 
     # class KontoDataSet anlegen
-    d.ddict[par.KONTO_DATA_SET_CLASS] = ka_konto_data_set.KontoDataSet(par.KDSP,data_set_llist,idmax,konto_start_wert,wert_delim,wert_trennt)
+    d.ddict[par.KONTO_DATA_SET_CLASS] = ka_konto_data_set.KontoDataSet(par.KDSP,data_set_llist,idmax,konto_start_datum,konto_start_wert,wert_delim,wert_trennt)
 
     return d
 # end def
@@ -242,6 +252,8 @@ def proof_konto_data_intern(par, d, konto_name):
 def proof_iban_data_and_add_from_ini(d, par, data, ini):
     status = hdef.OK
     errtext = ""
+    
+    d.ddict[par.DDICT_TYPE_NAE] = par.TYPE_IBAN_DATA
     
     if (par.IBAN_DATA_LIST_NAME not in d.ddict):
         d.ddict[par.IBAN_DATA_LIST_NAME] = []

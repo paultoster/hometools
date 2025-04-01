@@ -42,6 +42,7 @@ import string
 import struct
 import re
 import math
+import zlib
 
 import hfkt as h
 import hfkt_def as hdef
@@ -781,6 +782,29 @@ def type_convert_euro_to_cent(wert_euro,delim=",", thousandsign="."):
     # end if
     return (okay,wert_cent)
 # end def
+def type_convert_to_hashkey(obj, salt=0):
+    """
+    Create a key suitable for use in hashmaps
+  
+    :param obj: object for which to create a key
+    :type: str, bytes, :py:class:`datetime.datetime`, object
+    :param salt: an optional salt to add to the key value
+    :type salt: int
+    :return: numeric key to `obj`
+    :rtype: int
+    """
+    if obj is None:
+        return 0
+    if isinstance(obj, str):
+        return zlib.adler32(obj.encode(), salt) & 0xffffffff
+    elif isinstance(obj, bytes):
+        return zlib.adler32(obj, salt) & 0xffffffff
+    elif isinstance(obj, int):
+        return zlib.adler32(str(obj).encode(), salt) & 0xffffffff
+    elif isinstance(obj, float):
+        return zlib.adler32(str(obj).encode(), salt) & 0xffffffff
+    return hash(obj) & 0xffffffff
+
 # -------------------------------------------------------
 def print_python_is_32_or_64_bit():
     print(struct.calcsize("P") * 8)

@@ -113,7 +113,7 @@ def konto_auswerten():
     # endwhile
     
 
-    (status, errtext) = ka_data_set.data_save(rd.data)
+    (status, errtext) = ka_data_set.data_save(rd.data,rd.par)
 
     if (status != hdef.OK):
         rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)

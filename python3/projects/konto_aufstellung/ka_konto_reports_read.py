@@ -16,11 +16,12 @@ if (tools_path not in sys.path):
 
 # Hilfsfunktionen
 import hfkt_def as hdef
-# import hfkt_log as hlog
+# import hfkt_list as hlist
+# import hfkt_type as htype
+import hfkt_io as hio
 import sgui
 
 import ka_gui
-import ka_konto_report_read_ing
 import ka_konto_anzeige
 
 def report_einlesen(rd):
@@ -68,7 +69,7 @@ def report_einlesen(rd):
             return status
         # endif
         
-        (status, konto_dict, flag_newdata) = ka_konto_report_read_ing.read_csv(rd, konto_dict, filename)
+        (status, konto_dict, flag_newdata) = read_ing_csv(rd, konto_dict, filename)
         
         if status != hdef.OKAY:  # Abbruch
             return status
@@ -94,37 +95,108 @@ def report_einlesen(rd):
         
     return status
 # enddef
+def read_ing_csv(rd, konto_dict, filename):
+    '''
 
-# with open("beispieltext.txt", "w", encoding="utf-8") as file:
-#     file.write(f"{'start----------------'}\n")
-#     doc = pymupdf.open(filename)  # open a document
-#     for page in doc:  # iterate the document pages
-#         text = page.get_text()  # get plain text encoded as UTF-8
-#         print(text)
-#         file.write(f"{'Seite----------------'}\n")
-#         file.write(f"{text}\n")
-#     #endfor
-#     doc.close()
-#     file.write(f"{'Ende----------------'}\n")
-# #endwith
+    :param csv_lliste:
+    :param header_lliste
+    :param filename:
+    :return: (status,konto_dict,flag_newdata) = read(rd,konto_dict,filename)
+    '''
+    status = hdef.OKAY
+    new_data_set_flag = False
+    
+    # read csv-File
+    # ==============
+    csv_lliste = hio.read_csv_file(file_name=filename, delim=";")
+    
+    if (len(csv_lliste) == 0):
+        rd.log.write_err(f"Fehler in read_ing_csv read_csv_file()  filename = {filename}", screen=rd.par.LOG_SCREEN_OUT)
+        status = hdef.NOT_OKAY
+        return (status, konto_dict, new_data_set_flag)
+    # end if
+    
+    # build header dict names
+    # ========================
+    (status, errtext, header_name_dict) = build_ing_csv_header_name_dict(konto_dict, rd.par)
+    if status != hdef.OKAY:
+        rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
+        return (status, konto_dict, new_data_set_flag)
+    # endif
+    
+    # build buch_type_dict
+    # =====================
+    (status, errtext, buch_type_dict) = build_ing_csv_buch_type_dict(konto_dict, rd.par)
+    if status != hdef.OKAY:
+        rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
+        return (status, konto_dict, new_data_set_flag)
+    # endif
+    
+    # csv-daten einlesen
+    # ===================
+    (new_data_set_flag, status, errtex) = konto_dict[rd.par.KONTO_DATA_SET_CLASS].read_csv(csv_lliste
+                                                                                           , header_name_dict
+                                                                                           , buch_type_dict
+                                                                                           , filename)
+    
+    return (status, konto_dict, new_data_set_flag)
 
-# with open("beispieltext_PyPDF2.txt", "w", encoding="utf-8") as file:
-#     file.write(f"{'start----------------'}\n")
-#     with open(filename, "rb") as f:
-#         reader = PyPDF2.PdfReader(f)
-#
-#         # n = len(reader.pages)
-#         for page in reader.pages:
-#             text = page.extract_text()
-#             print(text)
-#             file.write(f"{'Seite----------------'}\n")
-#             file.write(f"{text}\n")
 
-#    text = ""
-#     with open(filename, "rb") as f:
-#         reader = PyPDF2.PdfReader(f)
-#
-#         # n = len(reader.pages)
-#         for page in reader.pages:
-#             text = text + page.extract_text()
-#     # enddef
+# enddef
+def build_ing_csv_header_name_dict(konto_dict, par):
+    '''
+
+    :param konto_dict:
+    :param par:
+    :return: (status,errtext,header_name_dict) = build_header_name_dict(konto_dict,par)
+    '''
+    header_name_dict = {}
+    status = hdef.OKAY
+    errtext = ""
+    for key in par.KDSP.KONTO_DATA_HEADER_INI_NAME_DICT.keys():
+        # no data
+        if (len(par.KDSP.KONTO_DATA_HEADER_INI_NAME_DICT[key]) == 0):
+            status = hdef.NOT_OKAY
+            errtext = f"par.KONTO_DATA_HEADER_INI_NAME_DICT[{key}] is empty"
+            return (status, errtext, header_name_dict)
+        elif (par.KDSP.KONTO_DATA_HEADER_INI_NAME_DICT[key] in konto_dict):
+            header_name_dict[key] = konto_dict[par.KDSP.KONTO_DATA_HEADER_INI_NAME_DICT[key]]
+        else:
+            status = hdef.NOT_OKAY
+            errtext = f"key =  from par.KONTO_DATA_HEADER_INI_NAME_DICT[{key}] = {par.KDSP.KONTO_DATA_HEADER_INI_NAME_DICT[key]} is not in konto_dict"
+            return (status, errtext, header_name_dict)
+        # end if
+    # end for
+    return (status, errtext, header_name_dict)
+
+
+# end def
+def build_ing_csv_buch_type_dict(konto_dict, par):
+    '''
+
+    :param konto_dict ist das dictionary vom Konto mit allen Datan
+    :param par
+    :return: (status,errtext,buch_type_dict) = self.build_buch_type_dict(konto_dict,par)
+    '''
+    
+    status = hdef.OKAY
+    errtext = ""
+    buch_type_dict = {}
+    
+    for key in par.KDSP.KONTO_DATA_BUCHTYPE_INI_NAME_DICT.keys():
+        
+        if (len(par.KDSP.KONTO_DATA_BUCHTYPE_INI_NAME_DICT[key]) == 0):
+            status = hdef.NOT_OKAY
+            errtext = f"key =  from par.KONTO_DATA_BUCHTYPE_INI_NAME_DICT[{key}] = {par.KDSP.KONTO_DATA_BUCHTYPE_INI_NAME_DICT[key]} is empty"
+            return (status, errtext, buch_type_dict)
+        elif (par.KDSP.KONTO_DATA_BUCHTYPE_INI_NAME_DICT[key] in konto_dict):
+            buch_type_dict[key] = konto_dict[par.KDSP.KONTO_DATA_BUCHTYPE_INI_NAME_DICT[key]]
+        else:
+            status = hdef.NOT_OKAY
+            errtext = f"key =  from par.KONTO_DATA_BUCHTYPE_INI_NAME_DICT[{key}] = {self.par.KDSP.KONTO_DATA_BUCHTYPE_INI_NAME_DICT[key]} is not in konto_dict"
+            return (status, errtext, buch_type_dict)
+        # end if
+    # end for
+    return (status, errtext, buch_type_dict)
+# end def
+

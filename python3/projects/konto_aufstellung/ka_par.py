@@ -42,9 +42,14 @@ class Parameter:
     STR_EURO_TRENN_BRUCH_DEFAULT: str = ","
     STR_EURO_TRENN_TAUSEN_DEFAULT: str = "."
     
-    KONTO_SHOW_NUMBER_OF_LINES: int = 15
+    KONTO_SHOW_NUMBER_OF_LINES: int = 1000
     COLOR_SHOW_NEW_DATA_SETS: str = 'brown1'
     
+    TYPE_SONST_DATA: str = "sonst"
+    TYPE_KONTO_DATA: str = "konto"
+    TYPE_IBAN_DATA:  str = "iban"
+    
+    DDICT_TYPE_NAE: str = "dicct_type"
     
     # ini-file attributes
     KONTO_DATA_DICT_NAMES_NAME: str = "konto_names"
