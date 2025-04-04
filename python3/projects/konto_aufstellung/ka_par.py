@@ -29,7 +29,7 @@ import hfkt_def as hdef
 import hfkt_type as htype
 import hfkt_date_time as hdt
 
-import ka_konto_data_set
+import ka_konto_data_set_class
 
 
 @dataclass
@@ -118,42 +118,15 @@ class Parameter:
     # konto data
     KONTO_NAME_NAME: str = "name"
     KONTO_DATA_SET_NAME: str = "konto_data_set"
-    KONTO_DATA_SET_CLASS: str = "konto_data_class"
     KONTO_DATA_ID_MAX_NAME: str = "konto_id_max"
     KONTO_DATA_ID_NEW_LIST: str = "konto_id_new_list"
     
     
     # Parameter konto_data_set
-    KDSP = ka_konto_data_set.KontoDataSetParameter()
-
-    # dict mit header namen aus ini-dict zum Erkennen im csv
-    KDSP.set_header_ini_name(KDSP.KONTO_DATA_INDEX_BUCHDATUM,  HEADER_BUCHDATUM_NAME)
-    KDSP.set_header_ini_name(KDSP.KONTO_DATA_INDEX_WERTDATUM,  HEADER_WERTDATUM_NAME)
-    KDSP.set_header_ini_name(KDSP.KONTO_DATA_INDEX_WER,        HEADER_WER_NAME)
-    KDSP.set_header_ini_name(KDSP.KONTO_DATA_INDEX_BUCHTYPE,   HEADER_BUCHTYPE_NAME)
-    KDSP.set_header_ini_name(KDSP.KONTO_DATA_INDEX_WERT,       HEADER_WERT_NAME)
-    KDSP.set_header_ini_name(KDSP.KONTO_DATA_INDEX_COMMENT,    HEADER_COMMENT_NAME)
     
-    # die dict ini-namen für Auslesen der BUCHUNG
-    KDSP.set_buchtype_ini_name(KDSP.KONTO_BUCHTYPE_EINZAHLUNG,   INI_KONTO_BUCH_EINZAHLUNG_NAME)
-    KDSP.set_buchtype_ini_name(KDSP.KONTO_BUCHTYPE_AUSZAHLUNG,   INI_KONTO_BUCH_AUSZAHLUNG_NAME)
-    KDSP.set_buchtype_ini_name(KDSP.KONTO_BUCHTYPE_KOSTEN,       INI_KONTO_BUCH_KOSTEN_NAME)
-    KDSP.set_buchtype_ini_name(KDSP.KONTO_BUCHTYPE_WP_KAUF,      INI_KONTO_BUCH_WP_KAUF_NAME)
-    KDSP.set_buchtype_ini_name(KDSP.KONTO_BUCHTYPE_WP_VERKAUF,   INI_KONTO_BUCH_WP_VERKAUF_NAME)
-    KDSP.set_buchtype_ini_name(KDSP.KONTO_BUCHTYPE_WP_KOSTEN,    INI_KONTO_BUCH_WP_KOSTEN_NAME)
-    KDSP.set_buchtype_ini_name(KDSP.KONTO_BUCHTYPE_WP_EINNAHMEN, INI_KONTO_BUCH_WP_EINNAHMEN_NAME)
-    
-    # die dict liste zum anzeigen in der Tabelle
-    KDSP.set_data_show_dict_list(KDSP.KONTO_DATA_INDEX_BUCHDATUM)
-    KDSP.set_data_show_dict_list(KDSP.KONTO_DATA_INDEX_WERTDATUM)
-    KDSP.set_data_show_dict_list(KDSP.KONTO_DATA_INDEX_WER)
-    KDSP.set_data_show_dict_list(KDSP.KONTO_DATA_INDEX_BUCHTYPE)
-    KDSP.set_data_show_dict_list(KDSP.KONTO_DATA_INDEX_WERT)
-    KDSP.set_data_show_dict_list(KDSP.KONTO_DATA_INDEX_SUMWERT)
-    KDSP.set_data_show_dict_list(KDSP.KONTO_DATA_INDEX_COMMENT)
-    KDSP.set_data_show_dict_list(KDSP.KONTO_DATA_INDEX_ISIN)
-    KDSP.set_data_show_dict_list(KDSP.KONTO_DATA_INDEX_KATEGORIE)
 
+
+  
 def get(log):
     
     p = Parameter()

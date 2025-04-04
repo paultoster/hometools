@@ -33,16 +33,6 @@ class ka_data_pickle:
 
     OKAY = hdef.OK
     NOT_OKAY = hdef.NOT_OK
-    status = hdef.OKAY
-    errtext = ""
-    logtext = ""
-    name = ""
-    ddict = {}
-    filename = "default_name.pkl"
-    filename_json = "default_name.json"
-    use_json = 0    # 0: keine json-Datei
-                    # 1: schreibe auch json-datei
-                    # 2: lessen von json Datei
 
     def __init__(self, name_prefix: str, body_name: str, use_json: int):
         '''
@@ -51,9 +41,17 @@ class ka_data_pickle:
         :param body_name:   Filesname
         :param use_json:    0: don't 1: write, 2: read
         '''
+        self.status = hdef.OKAY
+        self.errtext = ""
+        self.logtext = ""
+        self.name = ""
+        self.ddict = {}
+
+        # 1: schreibe auch json-datei
+        # 2: lessen von json Datei
         if( len(name_prefix) > 0 ):
-          self.filename      = name_prefix + "_" + body_name + ".pkl"
-          self.filename_json = name_prefix + "_" + body_name + ".json"
+            self.filename      = name_prefix + "_" + body_name + ".pkl"
+            self.filename_json = name_prefix + "_" + body_name + ".json"
         else:
             self.filename = body_name + ".pkl"
             self.filename_json = body_name + ".json"

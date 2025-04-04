@@ -3,6 +3,7 @@
 #   beinhaltet die data_llist ´für eingelesene KontoDaten und funktion dafür
 #
 import os, sys
+import copy
 
 tools_path = os.getcwd() + "\\.."
 if (tools_path not in sys.path):
@@ -23,8 +24,7 @@ from typing import List
 #
 # 1. Parameter dafür
 #-------------------
-@dataclass
-class KontoDataSetParameter:
+class KontoDataSet:
     # Welche items/header hat die Doppelliste
     KONTO_DATA_ITEM_LIST: List[str] = ( "id"         # set internally
                                       , "buchdatum"  # int read from csv/pdf
@@ -60,22 +60,6 @@ class KontoDataSetParameter:
     
     KONTO_DATA_INMUTABLE_INDEX_LIST = [KONTO_DATA_INDEX_ID,KONTO_DATA_INDEX_BUCHTYPE,KONTO_DATA_INDEX_CHASH]
     
-    # KONTO_DATA_HEADER_INI_NAME_DICT = \
-    # {   KONTO_DATA_INDEX_ID: "",
-    #     KONTO_DATA_INDEX_BUCHDATUM: "",
-    #     KONTO_DATA_INDEX_WERTDATUM: "",
-    #     KONTO_DATA_INDEX_WER: "",
-    #     KONTO_DATA_INDEX_BUCHTYPE: "",
-    #     KONTO_DATA_INDEX_WERT: "",
-    #     KONTO_DATA_INDEX_SUMWERT: "",
-    #     KONTO_DATA_INDEX_COMMENT: "",
-    #     KONTO_DATA_INDEX_ISIN: "",
-    #     KONTO_DATA_INDEX_CHASH: "",
-    #     KONTO_DATA_INDEX_KATEGORIE: ""
-    # }
-    KONTO_DATA_HEADER_INI_NAME_DICT = {}
-    KONTO_DATA_HEADER_ABFRAGE_DICT  = {}
-
     KONTO_BUCHTYPE_TEXT_LIST = ["unbekannt",
                                 "einzahlung",
                                 "auszahlung",
@@ -104,83 +88,71 @@ class KontoDataSetParameter:
                                         , KONTO_BUCHTYPE_WP_EINNAHMEN: KONTO_BUCHTYPE_TEXT_LIST[KONTO_BUCHTYPE_WP_EINNAHMEN]
                                         }
                                          
-                                         # KONTO_DATA_BUCHTYPE_INI_NAME_DICT = {KONTO_BUCHTYPE_EINZAHLUNG:""
-    #                                     ,KONTO_BUCHTYPE_AUSZAHLUNG:""
-    #                                     ,KONTO_BUCHTYPE_KOSTEN:""
-    #                                     ,KONTO_BUCHTYPE_WP_KAUF:""
-    #                                     ,KONTO_BUCHTYPE_WP_VERKAUF:""
-    #                                     ,KONTO_BUCHTYPE_WP_KOSTEN:""
-    #                                     ,KONTO_BUCHTYPE_WP_EINNAHMEN:""
-    #                                      }
-    KONTO_DATA_BUCHTYPE_INI_NAME_DICT = {}
+    OKAY = hdef.OK
+    NOT_OKAY = hdef.NOT_OK
     
-    KONTO_DATA_TO_SHOW_DICT ={}
-   
+    
+    def __init__(self):
+        self.KONTO_DATA_HEADER_CSV_NAME_DICT = {}
+        self.KONTO_DATA_HEADER_ABFRAGE_DICT = {}
+    
+        self.KONTO_DATA_BUCHTYPE_CSV_NAME_DICT = {}
+        self.KONTO_DATA_TO_SHOW_DICT = {}
+    
+        self.status = hdef.OK
+        self.errtext = ""
+        self.idmax: int = 0
+        self.konto_start_wert: int = 0
+        self.konto_start_datum: int = 0
+        self.DECIMAL_TRENN_STR: str = ","
+        self.TAUSEND_TRENN_STR: str = "."
+        self.data_set_llist: list = []
+        self.n_data_sets: int = 0
+        self.new_read_id_list: list = []
 
-
-    def set_buchtype_ini_name(self,buchtype_index: int,buchtype_dict_ini_name: str):
-        self.KONTO_DATA_BUCHTYPE_INI_NAME_DICT[buchtype_index] = buchtype_dict_ini_name
-    # enddef
-    def set_header_ini_name(self,dat_set_index: int,header_ini_name: str):
-        self.KONTO_DATA_HEADER_INI_NAME_DICT[dat_set_index] = header_ini_name
+    def set_csv_header_name(self,dat_set_index: int,header_csv_name: str):
+        self.KONTO_DATA_HEADER_CSV_NAME_DICT[dat_set_index] = header_csv_name
         self.KONTO_DATA_HEADER_ABFRAGE_DICT[dat_set_index] = self.KONTO_DATA_ITEM_LIST[dat_set_index]
+    # enddef
+    def set_buchtype_csv_name(self,buchtype_index: int,buchtype_dict_csv_name: str | list):
+        self.KONTO_DATA_BUCHTYPE_CSV_NAME_DICT[buchtype_index] = buchtype_dict_csv_name
     # enddef
     def set_data_show_dict_list(self,dat_set_index: int):
         self.KONTO_DATA_TO_SHOW_DICT[dat_set_index] = self.KONTO_DATA_ITEM_LIST[dat_set_index]
     # enddef
 
-
-class KontoDataSet:
-    
-    status = hdef.OK
-    errtext = ""
-    OKAY = hdef.OK
-    NOT_OKAY = hdef.NOT_OK
-    
-    idmax: int = 0
-    konto_start_wert: int = 0
-    konto_start_datum: int = 0
-    DECIMAL_TRENN_STR: str = ","
-    TAUSEND_TRENN_STR: str = "."
-    data_set_llist: list = []
-    n_data_sets: int = 0
-    new_read_id_list: list = []
-    
-    
-    par = 0
-    def __init__(self,par,data_set_llist,idmax,konto_start_datum,konto_start_wert,decimal_trenn="",tausend_trenn=""):
-        self.par = par
-        self.data_set_llist = data_set_llist
+    def set_starting_data_llist(self,data_set_llist,idmax,konto_start_datum,konto_start_wert,decimal_trenn="",tausend_trenn=""):
+        self.data_set_llist = copy.deepcopy(data_set_llist)
         self.n_data_sets = len(self.data_set_llist)
-        self.idmax = idmax
-        self.konto_start_datum =  konto_start_datum
-        self.konto_start_wert = konto_start_wert
-        self.DECIMAL_TRENN_STR = decimal_trenn
-        self.TAUSEND_TRENN_STR = tausend_trenn
+        self.idmax = copy.deepcopy(idmax)
+        self.konto_start_datum =  copy.deepcopy(konto_start_datum)
+        self.konto_start_wert = copy.deepcopy(konto_start_wert)
+        self.DECIMAL_TRENN_STR = copy.deepcopy(decimal_trenn)
+        self.TAUSEND_TRENN_STR = copy.deepcopy(tausend_trenn)
         
         if self.n_data_sets == 0:
             
             header_liste = []
-            for key in self.par.KONTO_DATA_HEADER_ABFRAGE_DICT.keys():
-                header_liste.append(self.par.KONTO_DATA_HEADER_ABFRAGE_DICT[key])
+            for key in self.KONTO_DATA_HEADER_ABFRAGE_DICT.keys():
+                header_liste.append(self.KONTO_DATA_HEADER_ABFRAGE_DICT[key])
             
             new_data_list = []
             for item in header_liste:
-                if item == self.par.KONTO_DATA_ITEM_LIST[self.par.KONTO_DATA_INDEX_BUCHDATUM]:
+                if item == self.KONTO_DATA_ITEM_LIST[self.KONTO_DATA_INDEX_BUCHDATUM]:
                     new_data_list.append(hdate.secs_time_epoch_to_str(self.konto_start_datum))
-                elif item == self.par.KONTO_DATA_ITEM_LIST[self.par.KONTO_DATA_INDEX_WERTDATUM]:
+                elif item == self.KONTO_DATA_ITEM_LIST[self.KONTO_DATA_INDEX_WERTDATUM]:
                     new_data_list.append(hdate.secs_time_epoch_to_str(self.konto_start_datum))
-                elif item == self.par.KONTO_DATA_ITEM_LIST[self.par.KONTO_DATA_INDEX_WER]:
+                elif item == self.KONTO_DATA_ITEM_LIST[self.KONTO_DATA_INDEX_WER]:
                     new_data_list.append("Startwert")
-                elif item == self.par.KONTO_DATA_ITEM_LIST[self.par.KONTO_DATA_INDEX_BUCHTYPE]:
-                    new_data_list.append(self.par.KONTO_BUCHTYPE_TEXT_LIST[self.par.KONTO_BUCHTYPE_EINZAHLUNG])
-                elif item == self.par.KONTO_DATA_ITEM_LIST[self.par.KONTO_DATA_INDEX_WERT]:
+                elif item == self.KONTO_DATA_ITEM_LIST[self.KONTO_DATA_INDEX_BUCHTYPE]:
+                    new_data_list.append(self.KONTO_BUCHTYPE_TEXT_LIST[self.KONTO_BUCHTYPE_EINZAHLUNG])
+                elif item == self.KONTO_DATA_ITEM_LIST[self.KONTO_DATA_INDEX_WERT]:
                     new_data_list.append("0,00")
-                elif item == self.par.KONTO_DATA_ITEM_LIST[self.par.KONTO_DATA_INDEX_COMMENT]:
+                elif item == self.KONTO_DATA_ITEM_LIST[self.KONTO_DATA_INDEX_COMMENT]:
                     new_data_list.append("Startwert")
-                elif item == self.par.KONTO_DATA_ITEM_LIST[self.par.KONTO_DATA_INDEX_ISIN]:
+                elif item == self.KONTO_DATA_ITEM_LIST[self.KONTO_DATA_INDEX_ISIN]:
                     new_data_list.append("")
-                elif item == self.par.KONTO_DATA_ITEM_LIST[self.par.KONTO_DATA_INDEX_KATEGORIE]:
+                elif item == self.KONTO_DATA_ITEM_LIST[self.KONTO_DATA_INDEX_KATEGORIE]:
                     new_data_list.append("")
                 else:
                     new_data_list.append(0)
@@ -189,7 +161,7 @@ class KontoDataSet:
         # end if
         
         
-    def read_csv(self,csv_lliste,header_name_dict,buch_type_dict,filename):
+    def read_csv(self,csv_lliste,filename):
         '''
         
         :param csv_lliste:  eingelesene csv-Datei
@@ -199,12 +171,12 @@ class KontoDataSet:
         '''
         self.status = hdef.OKAY
         
-        (index_start, index_dict) = self.search_header_line(csv_lliste,header_name_dict ,filename)
+        (index_start, index_dict) = self.search_header_line(csv_lliste ,filename)
         if( self.status != hdef.OKAY ):
             return(False,self.status,self.errtext)
         # endif
         
-        new_data_dict_list = self.get_data_from_csv_lliste(csv_lliste,index_start, index_dict,buch_type_dict,filename)
+        new_data_dict_list = self.get_data_from_csv_lliste(csv_lliste,index_start, index_dict,filename)
         if( self.status != hdef.OKAY ):
             return(False,self.status,self.errtext)
         # endif
@@ -254,18 +226,18 @@ class KontoDataSet:
         :return: self.write_anzeige_back_data(new_data_llist, data_changed_pos_list, istart)
         '''
         
-        icol_liste = list(self.par.KONTO_DATA_TO_SHOW_DICT.keys())
+        icol_liste = list(self.KONTO_DATA_TO_SHOW_DICT.keys())
         
         wert_changed = False
         for (irow, icol) in data_changed_pos_list:
             
             icol_data_set = icol_liste[icol]
-            if icol_data_set not in self.par.KONTO_DATA_INMUTABLE_INDEX_LIST:
+            if icol_data_set not in self.KONTO_DATA_INMUTABLE_INDEX_LIST:
                 
-                wert = self.transform_value( new_data_llist[irow][icol], icol_data_set, self.par.KONTO_DATA_BUCHTYPE_DICT)
+                wert = self.transform_value( new_data_llist[irow][icol], icol_data_set, self.KONTO_DATA_BUCHTYPE_DICT)
                 if self.status == hdef.OKAY:
                     self.data_set_llist[istart + irow][icol_data_set] = wert
-                    if (icol_data_set == self.par.KONTO_DATA_INDEX_WERT):
+                    if (icol_data_set == self.KONTO_DATA_INDEX_WERT):
                         wert_changed = True
                 # end if
             # end if
@@ -275,14 +247,14 @@ class KontoDataSet:
             if istart == 0:
                 sumwert = self.konto_start_wert
             else:
-                sumwert = self.data_set_llist[istart - 1][self.par.KONTO_DATA_INDEX_SUMWERT]
+                sumwert = self.data_set_llist[istart - 1][self.KONTO_DATA_INDEX_SUMWERT]
             # end if
             
             i = istart
             while (i < self.n_data_sets):
-                sumwert += self.data_set_llist[i][self.par.KONTO_DATA_INDEX_WERT]
+                sumwert += self.data_set_llist[i][self.KONTO_DATA_INDEX_WERT]
                 
-                self.data_set_llist[i][self.par.KONTO_DATA_INDEX_SUMWERT] = int(sumwert)
+                self.data_set_llist[i][self.KONTO_DATA_INDEX_SUMWERT] = int(sumwert)
                 
                 i += 1
             # end while
@@ -304,15 +276,15 @@ class KontoDataSet:
         
         index_in_header_liste = -1
         header_liste = []
-        for key in self.par.KONTO_DATA_HEADER_ABFRAGE_DICT.keys():
-            header_liste.append(self.par.KONTO_DATA_HEADER_ABFRAGE_DICT[key])
+        for key in self.KONTO_DATA_HEADER_ABFRAGE_DICT.keys():
+            header_liste.append(self.KONTO_DATA_HEADER_ABFRAGE_DICT[key])
             
-            if key == self.par.KONTO_DATA_INDEX_BUCHTYPE:
+            if key == self.KONTO_DATA_INDEX_BUCHTYPE:
                 index_in_header_liste = len(header_liste)-1
             # endif
         # end for
         
-        buchungs_type_list = self.par.KONTO_BUCHTYPE_TEXT_LIST
+        buchungs_type_list = self.KONTO_BUCHTYPE_TEXT_LIST
         
         return (header_liste,buchungs_type_list,index_in_header_liste)
     # end def
@@ -370,16 +342,19 @@ class KontoDataSet:
     #----------------------------------------------------------------------------------------
     # Internen Funktionen
     #----------------------------------------------------------------------------------------
-    def search_header_line(self,csv_lliste, header_name_dict,filename):
+    def search_header_line(self,csv_lliste,filename):
         '''
         
         :param csv_lliste:
-        :param header_name_dict:
         :param filename:
-        :return: (start_index, index_dict) = self.search_header_line(csv_lliste, header_name_dict,filename)
+        :return: (start_index, index_dict) = self.search_header_line(csv_lliste,filename)
         '''
         
-        nheader = len(self.par.KONTO_DATA_HEADER_INI_NAME_DICT.keys())
+        nheader = len(self.KONTO_DATA_HEADER_CSV_NAME_DICT.keys())
+        if nheader == 0:
+            Exception(f"search_header_line: self.KONTO_DATA_HEADER_CSV_NAME_DICT is empty must be set during setup Parameter in KontoDataSetParameter() ")
+        # end if
+        
         notfound = True
         
         start_index = 0
@@ -389,13 +364,13 @@ class KontoDataSet:
             # for each new line in csv_lliste reset index_liste
             index_dict = {}
             
-            for j,key in enumerate(header_name_dict.keys()):
-                if( header_name_dict[key] in csv_liste):
+            for j,key in enumerate(self.KONTO_DATA_HEADER_CSV_NAME_DICT.keys()):
+                if( self.KONTO_DATA_HEADER_CSV_NAME_DICT[key] in csv_liste):
                     if( j == 0):
                         header_found_liste = []
                     # end if
-                    index_dict[key] = csv_liste.index(header_name_dict[key])
-                    header_found_liste.append(header_name_dict[key])
+                    index_dict[key] = csv_liste.index(self.KONTO_DATA_HEADER_CSV_NAME_DICT[key])
+                    header_found_liste.append(self.KONTO_DATA_HEADER_CSV_NAME_DICT[key])
                 # end if
             # end for
             if len(index_dict.keys()) == nheader:
@@ -410,9 +385,9 @@ class KontoDataSet:
         if notfound:
             okay = hdef.NOT_OKAY
             item = ""
-            for key in header_name_dict.keys():
-                if header_name_dict[key] not in header_found_liste:
-                    item = header_name_dict[key]
+            for key in self.KONTO_DATA_HEADER_CSV_NAME_DICT.keys():
+                if self.KONTO_DATA_HEADER_CSV_NAME_DICT[key] not in header_found_liste:
+                    item = self.KONTO_DATA_HEADER_CSV_NAME_DICT[key]
                     break
                 # end if
             # end for
@@ -420,13 +395,12 @@ class KontoDataSet:
         # end if
         return (start_index,index_dict)
     # end def
-    def get_data_from_csv_lliste(self,csv_lliste,index_start, index_dict,buch_type_dict,filename):
+    def get_data_from_csv_lliste(self,csv_lliste,index_start, index_dict,filename):
         '''
         
         :param csv_lliste:
         :param index_start:
         :param index_dict:
-        :param buch_type_dict:
         :param delim:           text für Komma
         :param trennt:          text für tausender Trennung
         :return: new_data_dict_list = self.get_data_from_csv_lliste(csv_lliste,index_start, index_dict)
@@ -445,11 +419,11 @@ class KontoDataSet:
                 i_csv = index_dict[key]
                 i_dataset = key
                 
-                wert = self.transform_value(csv_data_liste[i_csv], i_dataset, buch_type_dict, add_err_text)
+                wert = self.transform_value(csv_data_liste[i_csv], i_dataset,self.KONTO_DATA_BUCHTYPE_CSV_NAME_DICT , add_err_text)
                 if self.status != hdef.OKAY:
                     return []
                 else:
-                    new_data_dict[self.par.KONTO_DATA_ITEM_LIST[i_dataset]] = wert
+                    new_data_dict[self.KONTO_DATA_ITEM_LIST[i_dataset]] = wert
                 # endif
                 
             # end for
@@ -471,28 +445,28 @@ class KontoDataSet:
             header = header_liste[index]
             value = new_data_list[index]
             flagfound = False
-            for key in self.par.KONTO_DATA_HEADER_ABFRAGE_DICT.keys():
-                if header == self.par.KONTO_DATA_HEADER_ABFRAGE_DICT[key]:
+            for key in self.KONTO_DATA_HEADER_ABFRAGE_DICT.keys():
+                if header == self.KONTO_DATA_HEADER_ABFRAGE_DICT[key]:
                     flagfound = True
                     index = key
                     break
                 # end if
             # endfor
             if flagfound:
-                wert = self.transform_value(value, index, self.par.KONTO_DATA_BUCHTYPE_DICT)
+                wert = self.transform_value(value, index, self.KONTO_DATA_BUCHTYPE_DICT)
                 if self.status != hdef.OKAY:
                     return []
                 else:
                     new_data_dict[header] = wert
                 # endif
             else:
-                self.errtext = f"add_new_data_set: header: {header} with value {value} not found in self.par.KONTO_DATA_HEADER_ABFRAGE_DICT"
+                self.errtext = f"add_new_data_set: header: {header} with value {value} not found in self.KONTO_DATA_HEADER_ABFRAGE_DICT"
                 self.status = hdef.NOT_OKAY
             # end if
         # end for
         return new_data_dict
         
-    def transform_value(self,wert_in,i_col_dataset,buch_type_dict=None,add_err_text=None):
+    def transform_value(self,wert_in,i_col_dataset,buch_type_dict,add_err_text=None):
         '''
         
         :param wert_in:
@@ -503,7 +477,7 @@ class KontoDataSet:
         '''
     
         # buchdatum
-        if (i_col_dataset == self.par.KONTO_DATA_INDEX_BUCHDATUM):
+        if (i_col_dataset == self.KONTO_DATA_INDEX_BUCHDATUM):
             (okay, wert) = htype.type_proof_dat(wert_in)
             if (okay != hdef.OKAY):
                 self.status = hdef.NOT_OKAY
@@ -512,7 +486,7 @@ class KontoDataSet:
                 return wert
             # endif
         # wertdatum
-        elif (i_col_dataset == self.par.KONTO_DATA_INDEX_WERTDATUM):
+        elif (i_col_dataset == self.KONTO_DATA_INDEX_WERTDATUM):
             (okay, wert) = htype.type_proof_dat(wert_in)
             if okay != hdef.OKAY:
                 self.status = hdef.NOT_OKAY
@@ -521,7 +495,7 @@ class KontoDataSet:
                 return wert
             # endif
         # wert
-        elif i_col_dataset == self.par.KONTO_DATA_INDEX_WERT:
+        elif i_col_dataset == self.KONTO_DATA_INDEX_WERT:
             (okay, wert) = htype.type_convert_euro_to_cent(wert_in, delim=self.DECIMAL_TRENN_STR,
                                                            thousandsign=self.TAUSEND_TRENN_STR)
             if okay != hdef.OKAY:
@@ -530,7 +504,7 @@ class KontoDataSet:
                 if add_err_text : self.errtext += add_err_text
                 return wert
             # endif
-        elif i_col_dataset == self.par.KONTO_DATA_INDEX_SUMWERT:
+        elif i_col_dataset == self.KONTO_DATA_INDEX_SUMWERT:
             (okay, wert) = htype.type_convert_euro_to_cent(wert_in, delim=self.DECIMAL_TRENN_STR,
                                                            thousandsign=self.TAUSEND_TRENN_STR)
             if okay != hdef.OKAY:
@@ -539,7 +513,7 @@ class KontoDataSet:
                 if add_err_text : self.errtext += add_err_text
                 return wert
             # endif
-        elif (i_col_dataset == self.par.KONTO_DATA_INDEX_BUCHTYPE):
+        elif (i_col_dataset == self.KONTO_DATA_INDEX_BUCHTYPE):
             (okay, wert) = htype.type_proof_string(wert_in)
             if (okay != hdef.OKAY):
                 self.status = hdef.NOT_OKAY
@@ -547,13 +521,13 @@ class KontoDataSet:
                 if add_err_text : self.errtext += add_err_text
                 return wert
             else:
-                if not buch_type_dict:
+                if len(buch_type_dict.keys()) == 0:
                     self.status = hdef.NOT_OKAY
-                    self.errtext = f"get_data_from_csv_lliste: error input buchtype = <{wert_in}>: buch_type_dict is not set "
+                    self.errtext = f"get_data_from_csv_lliste: error input buchtype = <{wert_in}>: buch_type_dict is not set with KontoDataSetParameter()"
                     if add_err_text: self.errtext += add_err_text
                     return None
                 else:
-                    buchtype = self.get_data_buchtype(wert, buch_type_dict)
+                    buchtype = self.get_data_buchtype(wert,buch_type_dict)
                     if (self.status != hdef.OKAY):
                         self.errtext = f"get_data_from_csv_lliste: error input buchtype = <{wert_in}> is not found "
                         if add_err_text: self.errtext += add_err_text
@@ -562,7 +536,7 @@ class KontoDataSet:
                 # end if
                 wert = buchtype
             # end if
-        elif i_col_dataset == self.par.KONTO_DATA_INDEX_WER:
+        elif i_col_dataset == self.KONTO_DATA_INDEX_WER:
             (okay, wert) = htype.type_proof_string(wert_in)
             if (okay != hdef.OKAY):
                 self.status = hdef.NOT_OKAY
@@ -570,7 +544,7 @@ class KontoDataSet:
                 if add_err_text : self.errtext += add_err_text
                 return wert
             # endif
-        elif i_col_dataset == self.par.KONTO_DATA_INDEX_COMMENT:
+        elif i_col_dataset == self.KONTO_DATA_INDEX_COMMENT:
             (okay, wert) = htype.type_proof_string(wert_in)
             if (okay != hdef.OKAY):
                 self.status = hdef.NOT_OKAY
@@ -582,17 +556,27 @@ class KontoDataSet:
             Exception(f"i_col_dataset = {i_col_dataset} nicht gefunden")
         # endif
         
+        try:
+            print(wert_in)
+            print(wert)
+        except:
+            a = 0
+        # end try
         return wert
     # end def
-    def get_data_buchtype(self,wert, buch_type_dict):
+    def get_data_buchtype(self,wert,buch_type_dict):
         '''
 
         :param wert:
         :param par:
-        :return: (okay, buchtype) =  get_data_buchtype(wert, par):
+        :return: (okay, buchtype) =  get_data_buchtype(wert,buch_type_dict):
         '''
         
         okay = hdef.OKAY
+        
+        if len(buch_type_dict.keys()) == 0:
+            Exception(f"")
+        # endif
         not_found = True
         for key in buch_type_dict.keys():
             
@@ -614,7 +598,7 @@ class KontoDataSet:
         # end for
 
         if not_found:
-            buchtype = self.par.KDSP.KONTO_BUCHUNG_UNBEKANNT
+            buchtype = self.KONTO_BUCHTYPE_UNBEKANNT
             self.status = hdef.NOT_OKAY
         # end if
         
@@ -630,22 +614,17 @@ class KontoDataSet:
         # filt new data
         for new_data_dict in new_data_dict_list:
             
-            wertdat_new = new_data_dict[self.par.KONTO_DATA_ITEM_LIST[self.par.KONTO_DATA_INDEX_BUCHDATUM]]
-            wert_new = new_data_dict[self.par.KONTO_DATA_ITEM_LIST[self.par.KONTO_DATA_INDEX_WERT]]
-            comment_new = new_data_dict[self.par.KONTO_DATA_ITEM_LIST[self.par.KONTO_DATA_INDEX_COMMENT]]
-            chash_new = htype.type_convert_to_hashkey(new_data_dict[self.par.KONTO_DATA_ITEM_LIST[self.par.KONTO_DATA_INDEX_COMMENT]])
+            chash_new = self.build_chash(new_data_dict[self.KONTO_DATA_ITEM_LIST[self.KONTO_DATA_INDEX_COMMENT]] \
+                                        ,new_data_dict[self.KONTO_DATA_ITEM_LIST[self.KONTO_DATA_INDEX_BUCHDATUM]] \
+                                        ,new_data_dict[self.KONTO_DATA_ITEM_LIST[self.KONTO_DATA_INDEX_WERT]])
+                
+                
             flag = True
             for data_set in self.data_set_llist:
                 
-                wertdat = data_set[self.par.KONTO_DATA_INDEX_BUCHDATUM]
-                wert = data_set[self.par.KONTO_DATA_INDEX_WERT]
-                chash = data_set[self.par.KONTO_DATA_INDEX_CHASH]
+                chash = data_set[self.KONTO_DATA_INDEX_CHASH]
                 
-                if wert == -1000000:
-                    comment = data_set[self.par.KONTO_DATA_INDEX_COMMENT]
-                    chash_test = htype.type_convert_to_hashkey(data_set[self.par.KONTO_DATA_INDEX_COMMENT])
-                # end if
-                if (wertdat_new == wertdat and wert_new == wert and chash_new == chash):
+                if (chash_new == chash):
                     flag = False
                     break
                 # end if
@@ -658,7 +637,7 @@ class KontoDataSet:
         
         # sort new data
         # sortiere neue Einträge nach buchdatum
-        keyname = self.par.KONTO_DATA_ITEM_LIST[self.par.KONTO_DATA_INDEX_BUCHDATUM]
+        keyname = self.KONTO_DATA_ITEM_LIST[self.KONTO_DATA_INDEX_BUCHDATUM]
         new_filt_data_dict_list = hlist.sort_list_of_dict(new_filt_data_dict_list, keyname, aufsteigend=1)
 
         return new_filt_data_dict_list
@@ -679,12 +658,12 @@ class KontoDataSet:
             
             data_dict = new_data_dict_list[index]
             
-            if (data_dict[self.par.KONTO_DATA_ITEM_LIST[self.par.KONTO_DATA_INDEX_BUCHTYPE]] == self.par.KONTO_BUCHTYPE_WP_KAUF) or \
-                (data_dict[self.par.KONTO_DATA_ITEM_LIST[self.par.KONTO_DATA_INDEX_BUCHTYPE]] == self.par.KONTO_BUCHTYPE_WP_VERKAUF) or \
-                (data_dict[self.par.KONTO_DATA_ITEM_LIST[self.par.KONTO_DATA_INDEX_BUCHTYPE]] == self.par.KONTO_BUCHTYPE_WP_KOSTEN) or \
-                (data_dict[self.par.KONTO_DATA_ITEM_LIST[self.par.KONTO_DATA_INDEX_BUCHTYPE]] == self.par.KONTO_BUCHTYPE_WP_EINNAHMEN):
+            if (data_dict[self.KONTO_DATA_ITEM_LIST[self.KONTO_DATA_INDEX_BUCHTYPE]] == self.KONTO_BUCHTYPE_WP_KAUF) or \
+                (data_dict[self.KONTO_DATA_ITEM_LIST[self.KONTO_DATA_INDEX_BUCHTYPE]] == self.KONTO_BUCHTYPE_WP_VERKAUF) or \
+                (data_dict[self.KONTO_DATA_ITEM_LIST[self.KONTO_DATA_INDEX_BUCHTYPE]] == self.KONTO_BUCHTYPE_WP_KOSTEN) or \
+                (data_dict[self.KONTO_DATA_ITEM_LIST[self.KONTO_DATA_INDEX_BUCHTYPE]] == self.KONTO_BUCHTYPE_WP_EINNAHMEN):
                 
-                (okay, isin) = htype.type_proof(data_dict[self.par.KONTO_DATA_ITEM_LIST[self.par.KONTO_DATA_INDEX_COMMENT]], 'isin')
+                (okay, isin) = htype.type_proof(data_dict[self.KONTO_DATA_ITEM_LIST[self.KONTO_DATA_INDEX_COMMENT]], 'isin')
                 
                 if (okay != hdef.OKAY):
                     isin = "isinnotfound"
@@ -693,17 +672,40 @@ class KontoDataSet:
                 isin = ""
             # end if
             
-            data_dict[self.par.KONTO_DATA_ITEM_LIST[self.par.KONTO_DATA_INDEX_ISIN]] = isin
+            # ISIN if detected
+            data_dict[self.KONTO_DATA_ITEM_LIST[self.KONTO_DATA_INDEX_ISIN]] = isin
+            
+            # count up IDMAX
             self.idmax += 1
-            data_dict[self.par.KONTO_DATA_ITEM_LIST[self.par.KONTO_DATA_INDEX_ID]] = self.idmax
-            data_dict[self.par.KONTO_DATA_ITEM_LIST[self.par.KONTO_DATA_INDEX_CHASH]] = htype.type_convert_to_hashkey(data_dict[self.par.KONTO_DATA_ITEM_LIST[self.par.KONTO_DATA_INDEX_COMMENT]])
-            data_dict[self.par.KONTO_DATA_ITEM_LIST[self.par.KONTO_DATA_INDEX_KATEGORIE]] = ""
-            data_dict[self.par.KONTO_DATA_ITEM_LIST[self.par.KONTO_DATA_INDEX_SUMWERT]] = 0
+            data_dict[self.KONTO_DATA_ITEM_LIST[self.KONTO_DATA_INDEX_ID]] = self.idmax
+            
+            # build hash value with three items
+            
+            data_dict[self.KONTO_DATA_ITEM_LIST[self.KONTO_DATA_INDEX_CHASH]] = \
+                self.build_chash(data_dict[self.KONTO_DATA_ITEM_LIST[self.KONTO_DATA_INDEX_COMMENT]] \
+                            ,data_dict[self.KONTO_DATA_ITEM_LIST[self.KONTO_DATA_INDEX_BUCHDATUM]] \
+                            ,data_dict[self.KONTO_DATA_ITEM_LIST[self.KONTO_DATA_INDEX_WERT]])
+                
+            data_dict[self.KONTO_DATA_ITEM_LIST[self.KONTO_DATA_INDEX_KATEGORIE]] = ""
+            data_dict[self.KONTO_DATA_ITEM_LIST[self.KONTO_DATA_INDEX_SUMWERT]] = 0
             
             new_data_dict_list[index] = data_dict
         # endfor
         
         return new_data_dict_list
+    # end def
+    def build_chash(self,comment,dat,wert):
+        '''
+        
+        :param self:
+        :param comment:
+        :param dat:
+        :param wert:
+        :return: chash = self.build_chash(self,comment,dat,wert)
+        '''
+        
+        strval = comment + str(dat) + str(wert)
+        return htype.type_convert_to_hashkey(strval)
     # end def
     def add_new_data_dict_and_recalc_sum(self,new_data_dict_list):
         '''
@@ -715,24 +717,24 @@ class KontoDataSet:
         new_data_flag = False
         for data_dict in new_data_dict_list:
             data_set_list = []
-            for index in self.par.KONTO_DATA_INDEX_LIST:
-                data_set_list.append(data_dict[self.par.KONTO_DATA_ITEM_LIST[index]])
+            for index in self.KONTO_DATA_INDEX_LIST:
+                data_set_list.append(data_dict[self.KONTO_DATA_ITEM_LIST[index]])
             # end for
             
             if len(data_set_list) > 0:
                 self.data_set_llist.append(data_set_list)
-                self.new_read_id_list.append(data_set_list[self.par.KONTO_DATA_INDEX_ID])
+                self.new_read_id_list.append(data_set_list[self.KONTO_DATA_INDEX_ID])
                 new_data_flag = True
             # end for
         
         # sort
-        self.data_set_llist = hlist.sort_list_of_list(self.data_set_llist, self.par.KONTO_DATA_INDEX_BUCHDATUM, aufsteigend=1)
+        self.data_set_llist = hlist.sort_list_of_list(self.data_set_llist, self.KONTO_DATA_INDEX_BUCHDATUM, aufsteigend=1)
         
         sumwert = self.konto_start_wert
         for i in range(len(self.data_set_llist)):
-            sumwert += self.data_set_llist[i][self.par.KONTO_DATA_INDEX_WERT]
+            sumwert += self.data_set_llist[i][self.KONTO_DATA_INDEX_WERT]
             
-            self.data_set_llist[i][self.par.KONTO_DATA_INDEX_SUMWERT] = sumwert
+            self.data_set_llist[i][self.KONTO_DATA_INDEX_SUMWERT] = sumwert
         # end for
         
         self.n_data_sets = len(self.data_set_llist)
@@ -769,8 +771,8 @@ class KontoDataSet:
         # 1) header_liste
         #===========================
         header_list = []
-        for key in self.par.KONTO_DATA_TO_SHOW_DICT.keys():
-            header_list.append(self.par.KONTO_DATA_TO_SHOW_DICT[key])
+        for key in self.KONTO_DATA_TO_SHOW_DICT.keys():
+            header_list.append(self.KONTO_DATA_TO_SHOW_DICT[key])
         # end for
         
         # 2) data_llist,new_data_list
@@ -781,23 +783,23 @@ class KontoDataSet:
         while (index <= iend) and (index < self.n_data_sets):
             data_set_list = self.data_set_llist[index]
             data_list = []
-            for key in self.par.KONTO_DATA_TO_SHOW_DICT.keys():
-                if key == self.par.KONTO_DATA_INDEX_BUCHDATUM:
+            for key in self.KONTO_DATA_TO_SHOW_DICT.keys():
+                if key == self.KONTO_DATA_INDEX_BUCHDATUM:
                     data_list.append(hdate.secs_time_epoch_to_str(data_set_list[key]))
-                elif key == self.par.KONTO_DATA_INDEX_WERTDATUM:
+                elif key == self.KONTO_DATA_INDEX_WERTDATUM:
                     data_list.append(hdate.secs_time_epoch_to_str(data_set_list[key]))
-                elif key == self.par.KONTO_DATA_INDEX_BUCHTYPE:
-                    data_list.append(self.par.KONTO_BUCHTYPE_TEXT_LIST[data_set_list[key]])
-                elif key == self.par.KONTO_DATA_INDEX_WERT:
+                elif key == self.KONTO_DATA_INDEX_BUCHTYPE:
+                    data_list.append(self.KONTO_BUCHTYPE_TEXT_LIST[data_set_list[key]])
+                elif key == self.KONTO_DATA_INDEX_WERT:
                     data_list.append(hstr.convert_int_cent_to_string_euro(data_set_list[key],self.DECIMAL_TRENN_STR))
-                elif key == self.par.KONTO_DATA_INDEX_SUMWERT:
+                elif key == self.KONTO_DATA_INDEX_SUMWERT:
                     data_list.append(hstr.convert_int_cent_to_string_euro(data_set_list[key],self.DECIMAL_TRENN_STR))
                 else:
                     data_list.append(data_set_list[key])
                 # end if
             # end for
             data_llist.append(data_list)
-            if data_set_list[self.par.KONTO_DATA_INDEX_ID] in self.new_read_id_list:
+            if data_set_list[self.KONTO_DATA_INDEX_ID] in self.new_read_id_list:
                 new_data_list.append(True)
             else:
                 new_data_list.append(False)

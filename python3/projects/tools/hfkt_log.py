@@ -103,6 +103,8 @@ class log:
         sgui.anzeige_text(text, title=title, textcolor='red')
       elif( title == "warn"):
         sgui.anzeige_text(text, title=title, textcolor='blue')
+      elif( title == "info"):
+        sgui.anzeige_text(text, title=title, textcolor='green')
       else:
         sgui.anzeige_text(text, title=title, textcolor='black')
       #endif
@@ -120,6 +122,10 @@ class log:
   def write_warn(self,text,screen=0,title="warn"):
 
     self.write("WARNING: "+text+"\n",screen,title=title)
+  #-----------------------------------------------------------------------------
+  def write_info(self,text,screen=0,title="info"):
+
+    self.write("INFO: "+text+"\n",screen,title=title)
   #-----------------------------------------------------------------------------
   def get_next_message(self):
     """

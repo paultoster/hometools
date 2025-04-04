@@ -19,7 +19,6 @@ import hfkt_date_time as hdate
 import hfkt_str as hstr
 
 import ka_gui
-import ka_konto_report_read_ing
 
 
 def anzeige_mit_konto_wahl(rd):
@@ -54,25 +53,27 @@ def anzeige_mit_konto_wahl(rd):
     
     # Konto data in ini
     konto_dict = rd.data[choice].ddict
+    konto_obj  = rd.data[choice].obj
     
     # Anzeige
-    (status, konto_dict) = anzeige(rd,konto_dict)
+    (status, konto_dict,konto_obj) = anzeige(rd,konto_dict,konto_obj)
     
     if status != hdef.OKAY:  # Abbruch
         return status
     
     # write back modified ddict
     rd.data[choice].ddict = konto_dict
+    rd.data[choice].obj   = konto_obj
     
     return status
 # enddef
 
-def anzeige(rd,konto_dict):
+def anzeige(rd,konto_dict,konto_obj):
     '''
     
     :param rd:
     :param ddict:
-    :return: (status, ddict) =  anzeige(rd,ddict)
+    :return: (status, konto_dict,konto_obj) =  anzeige(rd,konto_dict,konto_obj)
     '''
     
     status = hdef.OKAY
@@ -89,7 +90,7 @@ def anzeige(rd,konto_dict):
     dir     = 0
     while (runflag):
         
-        (istart,header_liste, data_llist, new_data_list) = konto_dict[rd.par.KONTO_DATA_SET_CLASS].get_anzeige_data_llist(istart, dir, rd.par.KONTO_SHOW_NUMBER_OF_LINES)
+        (istart,header_liste, data_llist, new_data_list) = konto_obj.get_anzeige_data_llist(istart, dir, rd.par.KONTO_SHOW_NUMBER_OF_LINES)
         
         # color list with new_data_list
         color_list = []
@@ -114,7 +115,7 @@ def anzeige(rd,konto_dict):
             
             # Daten updaten
             if len(data_changed_pos_list) > 0:
-                konto_dict[rd.par.KONTO_DATA_SET_CLASS].write_anzeige_back_data(new_data_llist, data_changed_pos_list, istart)
+                konto_obj.write_anzeige_back_data(new_data_llist, data_changed_pos_list, istart)
                 
             # Vorwärts gehen
             dir = +1
@@ -126,7 +127,7 @@ def anzeige(rd,konto_dict):
             
             # Daten updaten
             if len(data_changed_pos_list) > 0:
-                konto_dict[rd.par.KONTO_DATA_SET_CLASS].write_anzeige_back_data(new_data_llist, data_changed_pos_list,istart)
+                konto_obj.write_anzeige_back_data(new_data_llist, data_changed_pos_list,istart)
             
             # Rückwärts gehen
             dir = -1
@@ -143,15 +144,15 @@ def anzeige(rd,konto_dict):
             
             # Daten updaten
             if len(data_changed_pos_list) > 0:
-                konto_dict[rd.par.KONTO_DATA_SET_CLASS].write_anzeige_back_data(new_data_llist, data_changed_pos_list,istart)
+                konto_obj.write_anzeige_back_data(new_data_llist, data_changed_pos_list,istart)
             
             # lösche die Änderungs-Liste
-            konto_dict[rd.par.KONTO_DATA_SET_CLASS].delete_new_data_list()
+            konto_obj.delete_new_data_list()
             runflag = False
     
         elif( index_abfrage == i_add ):
             
-            (header_liste, buchungs_type_list,index_in_header_liste) = konto_dict[rd.par.KONTO_DATA_SET_CLASS].get_data_add_listen()
+            (header_liste, buchungs_type_list,index_in_header_liste) = konto_obj.get_data_add_listen()
             
             # Erstelle die Eingabe liste
             eingabeListe = []
@@ -165,7 +166,7 @@ def anzeige(rd,konto_dict):
             
             new_data_list = ka_gui.konto_data_set_eingabe(eingabeListe)
             if len(new_data_list):
-                (new_data_set_flag, status, errtext) = konto_dict[rd.par.KONTO_DATA_SET_CLASS].add_new_data_set(new_data_list, header_liste)
+                (new_data_set_flag, status, errtext) = konto_obj.add_new_data_set(new_data_list, header_liste)
                 
                 if status != hdef.OKAY:
                     rd.log.write_err("konto__anzeige add "+errtext, screen=rd.par.LOG_SCREEN_OUT)
@@ -181,7 +182,7 @@ def anzeige(rd,konto_dict):
             if( irow >= 0 ):
                 flag = sgui.abfrage_janein(text=f"Soll irow = {irow} (von null gezält) gelöschen werden")
                 if( flag ):
-                    (status,errtext) = konto_dict[rd.par.KONTO_DATA_SET_CLASS].delete_data_list(irow)
+                    (status,errtext) = konto_obj.delete_data_list(irow)
                     if( status != hdef.OKAY ):
                         rd.log.write_err("konto__anzeige delete " + errtext, screen=rd.par.LOG_SCREEN_OUT)
                         return (status, konto_dict)
@@ -194,7 +195,7 @@ def anzeige(rd,konto_dict):
             runflag = False
     # end while
     
-    return (status, konto_dict)
+    return (status, konto_dict,konto_obj)
 # end def
 def build_range_to_show_dataset(nlines,istart,nshow,dir):
     '''

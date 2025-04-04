@@ -796,13 +796,13 @@ def type_convert_to_hashkey(obj, salt=0):
     if obj is None:
         return 0
     if isinstance(obj, str):
-        return zlib.adler32(obj.encode(), salt) & 0xffffffff
+        return zlib.crc32(obj.encode(), salt) & 0xffffffff
     elif isinstance(obj, bytes):
-        return zlib.adler32(obj, salt) & 0xffffffff
+        return zlib.crc32(obj, salt) & 0xffffffff
     elif isinstance(obj, int):
-        return zlib.adler32(str(obj).encode(), salt) & 0xffffffff
+        return zlib.crc32(str(obj).encode(), salt) & 0xffffffff
     elif isinstance(obj, float):
-        return zlib.adler32(str(obj).encode(), salt) & 0xffffffff
+        return zlib.crc32(str(obj).encode(), salt) & 0xffffffff
     return hash(obj) & 0xffffffff
 
 # -------------------------------------------------------

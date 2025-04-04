@@ -5,7 +5,7 @@
 #
 # data[par.konto_names]
 # data[par.IBAN_DATA_DICT_NAME]
-
+import copy
 import os, sys
 import pickle
 import json
@@ -24,7 +24,7 @@ import hfkt_type as htype
 
 import ka_iban_data
 import ka_data_pickle
-import ka_konto_data_set
+import ka_konto_data_set_class
 
 
 # --------------------------------------------------------------------------------------
@@ -50,21 +50,23 @@ def data_get(par, ini):
         # end if
         
         # get data set
-        d = ka_data_pickle.ka_data_pickle(par.KONTO_PREFIX, konto_name, j)
-        if (d.status != hdef.OK):
+        konto_data = ka_data_pickle.ka_data_pickle(par.KONTO_PREFIX, konto_name, j)
+        if (konto_data.status != hdef.OK):
             status = hdef.NOT_OKAY
-            errtext = d.errtext
+            errtext = konto_data.errtext
             return (status, errtext, data)
         # endif
         
-        d = proof_konto_data_from_ini(d, ini.konto_data[konto_name],par)
-        d = proof_konto_data_intern(par, d, konto_name)
-        if (d.status != hdef.OK):
+        konto_data = proof_konto_data_from_ini(konto_data, ini.konto_data[konto_name],par)
+        konto_data = proof_konto_data_intern(par, konto_data, konto_name)
+        konto_data = build_konto_data_set_obj(par, konto_data, konto_name,data)
+        if (konto_data.status != hdef.OK):
             status = hdef.NOT_OKAY
-            errtext = d.errtext
+            errtext = konto_data.errtext
             return (status, errtext, data)
         else:
-            data[konto_name] = d
+            data[konto_name] = copy.deepcopy(konto_data)
+            del konto_data
         # endif
     
     # endfor
@@ -75,15 +77,15 @@ def data_get(par, ini):
     else:
         j = 0
     # end if
-    d = ka_data_pickle.ka_data_pickle(par.IBAN_PREFIX, ini.iban_list_file_name, j)
+    iban_data = ka_data_pickle.ka_data_pickle(par.IBAN_PREFIX, ini.iban_list_file_name, j)
     
-    if (d.status != hdef.OK):
+    if (iban_data.status != hdef.OK):
         status = hdef.NOT_OKAY
-        errtext = d.errtext
+        errtext = iban_data.errtext
         return (status, errtext, data)
     # endif
     
-    (status, errtext, data[par.IBAN_DATA_DICT_NAME]) = proof_iban_data_and_add_from_ini(d, par, data, ini)
+    (status, errtext, data[par.IBAN_DATA_DICT_NAME]) = proof_iban_data_and_add_from_ini(iban_data, par, data, ini)
     
     if (status != hdef.OK):
         status = hdef.NOT_OKAY
@@ -99,10 +101,10 @@ def data_save(data,par):
     
     for key in data:
         if data[key].ddict[par.DDICT_TYPE_NAE] == par.TYPE_KONTO_DATA:
-            # get data from class to save
-            data[key].ddict[par.KONTO_DATA_SET_NAME] = data[key].ddict[par.KONTO_DATA_SET_CLASS].data_set_llist
-            data[key].ddict[par.KONTO_DATA_ID_MAX_NAME] = data[key].ddict[par.KONTO_DATA_SET_CLASS].idmax
-            del data[key].ddict[par.KONTO_DATA_SET_CLASS]
+            # get data from konto set class to save
+            data[key].ddict[par.KONTO_DATA_SET_NAME] = data[key].obj.data_set_llist
+            data[key].ddict[par.KONTO_DATA_ID_MAX_NAME] = data[key].obj.idmax
+            del data[key].obj
         # end if
         data[key].save()
         
@@ -117,19 +119,19 @@ def data_save(data,par):
 
 # enddef
 
-def proof_konto_data_from_ini(d, ini_data,par):
+def proof_konto_data_from_ini(konto_data, ini_data,par):
     """
-    proof ini_data in d
-    :param d:
+    proof ini_data in konto_data
+    :param konto_data:
     :param ini_data:
     :return:
     """
     
     for key in ini_data:
         
-        if (key in d.ddict):
-            if (ini_data[key] != d.ddict[key]):
-                d.ddict[key] = ini_data[key]
+        if (key in konto_data.ddict):
+            if (ini_data[key] != konto_data.ddict[key]):
+                konto_data.ddict[key] = ini_data[key]
             # endif
         else:
             if key == par.START_WERT_NAME:
@@ -154,110 +156,179 @@ def proof_konto_data_from_ini(d, ini_data,par):
                 else:
                     wert = ini_data[key]
                 # end if
-                d.ddict[key] = wert
+                konto_data.ddict[key] = wert
             else:
-                d.ddict[key] = ini_data[key]
+                konto_data.ddict[key] = ini_data[key]
             # end if
         # endif
     # end for
     
-    return d
+    return konto_data
 
 
 # end def
-def proof_konto_data_intern(par, d, konto_name):
+def proof_konto_data_intern(par, konto_data, konto_name):
     '''
 
     :param par
-    :param d:
+    :param konto_data:
     :param konto_name
-    :return:d =  proof_konto_data_intern(d)
+    :return:konto_data =  proof_konto_data_intern(par,konto_data,konto_name)
     '''
     # type
-    d.ddict[par.DDICT_TYPE_NAE] = par.TYPE_KONTO_DATA
+    konto_data.ddict[par.DDICT_TYPE_NAE] = par.TYPE_KONTO_DATA
     
     # konto name
     key = par.KONTO_NAME_NAME
-    if key in d.ddict:
-        if konto_name != d.ddict[key]:
-            d.ddict[key] = konto_name
+    if key in konto_data.ddict:
+        if konto_name != konto_data.ddict[key]:
+            konto_data.ddict[key] = konto_name
         # end if
     else:
-        d.ddict[key] = konto_name
+        konto_data.ddict[key] = konto_name
     # end if
     
+    return konto_data
+# end def
+def build_konto_data_set_obj(par, konto_data, konto_name,data):
+    '''
     
+    :param par:
+    :param konto_data:
+    :param konto_name:
+    :return: konto_data =  build_konto_data_set_obj(par, konto_data, konto_name):
+    '''
+    
+    #----------------------------------------------------------------------------
+    # Set parameter for konto Data
+    #----------------------------------------------------------------------------
+    obj = ka_konto_data_set_class.KontoDataSet()
+    
+    # dict mit Zuordnung header name in ini-File und index in Funktion
+    key_list = [ (par.HEADER_BUCHDATUM_NAME,obj.KONTO_DATA_INDEX_BUCHDATUM)
+                ,(par.HEADER_WERTDATUM_NAME,obj.KONTO_DATA_INDEX_WERTDATUM)
+                ,(par.HEADER_WER_NAME,obj.KONTO_DATA_INDEX_WER)
+                ,(par.HEADER_BUCHTYPE_NAME,obj.KONTO_DATA_INDEX_BUCHTYPE)
+                ,(par.HEADER_WERT_NAME,obj.KONTO_DATA_INDEX_WERT)
+                ,(par.HEADER_COMMENT_NAME,obj.KONTO_DATA_INDEX_COMMENT)]
+    
+    
+    for item in key_list:
+        key  = item[0]
+        index = item[1]
+        if key not in konto_data.ddict.keys():
+            Exception(f"par.HEADER_BUCHDATUM_NAME: {key} not in konto_data resp. ini-data of konto: {konto_name}")
+        obj.set_csv_header_name(index, konto_data.ddict[key] )
+        
+    # die csv-spez. Namen für buchtype kann auch Liste seinini-namen für Auslesen der BUCHUNG
+    key_list = [ (par.INI_KONTO_BUCH_EINZAHLUNG_NAME,obj.KONTO_BUCHTYPE_EINZAHLUNG)
+                ,(par.INI_KONTO_BUCH_AUSZAHLUNG_NAME,obj.KONTO_BUCHTYPE_AUSZAHLUNG)
+                ,(par.INI_KONTO_BUCH_KOSTEN_NAME,obj.KONTO_BUCHTYPE_KOSTEN)
+                ,(par.INI_KONTO_BUCH_WP_KAUF_NAME,obj.KONTO_BUCHTYPE_WP_KAUF)
+                ,(par.INI_KONTO_BUCH_WP_VERKAUF_NAME,obj.KONTO_BUCHTYPE_WP_VERKAUF)
+                ,(par.INI_KONTO_BUCH_WP_KOSTEN_NAME,obj.KONTO_BUCHTYPE_WP_KOSTEN)
+                ,(par.INI_KONTO_BUCH_WP_EINNAHMEN_NAME,obj.KONTO_BUCHTYPE_WP_EINNAHMEN)]
+    #
+    for item in key_list:
+        key  = item[0]
+        index = item[1]
+        if key not in konto_data.ddict.keys():
+            Exception(f"par.HEADER_BUCHDATUM_NAME: {key} not in konto_data resp. ini-data of konto: {konto_name}")
+        obj.set_buchtype_csv_name(index, konto_data.ddict[key] )
+        # if( "ing_bank_giro" in data.keys()):
+        #    print(data["ing_bank_giro"].obj.KONTO_DATA_BUCHTYPE_CSV_NAME_DICT)
+
+        
+    # die items aus dict liste zum Anzeigen in der Tabelle
+    obj.set_data_show_dict_list(obj.KONTO_DATA_INDEX_BUCHDATUM)
+    obj.set_data_show_dict_list(obj.KONTO_DATA_INDEX_WERTDATUM)
+    obj.set_data_show_dict_list(obj.KONTO_DATA_INDEX_WER)
+    obj.set_data_show_dict_list(obj.KONTO_DATA_INDEX_BUCHTYPE)
+    obj.set_data_show_dict_list(obj.KONTO_DATA_INDEX_WERT)
+    obj.set_data_show_dict_list(obj.KONTO_DATA_INDEX_SUMWERT)
+    obj.set_data_show_dict_list(obj.KONTO_DATA_INDEX_COMMENT)
+    obj.set_data_show_dict_list(obj.KONTO_DATA_INDEX_ISIN)
+    obj.set_data_show_dict_list(obj.KONTO_DATA_INDEX_KATEGORIE)
     
     # kont_data set anlegen
     key = par.KONTO_DATA_SET_NAME
-    if key in d.ddict:
-        if len(d.ddict[key]) > 0:
-            if len(d.ddict[key][0]) != len(par.KDSP.KONTO_DATA_ITEM_LIST):
-                d.status = hdef.NOT_OKAY
-                d.errtext = f"length of header-list {par.KONTO_DATA_ITEM_LIST} not same with data-dict {d.dict[key]} of konto: {konto_name}"
-                return d
+    if key in konto_data.ddict:
+        if len(konto_data.ddict[key]) > 0:
+            if len(konto_data.ddict[key][0]) != len(obj.KONTO_DATA_ITEM_LIST):
+                konto_data.status = hdef.NOT_OKAY
+                konto_data.errtext = f"length of header-list {par.KONTO_DATA_ITEM_LIST} not same with data-dict {konto_data.dict[key]} of konto: {konto_name}"
+                return konto_data
             # end if
         # end if
-        data_set_llist = d.ddict[key]
+        data_set_llist = konto_data.ddict[key]
     else:
         data_set_llist = []
     # end if
     
     key = par.KONTO_DATA_ID_MAX_NAME
-    if key in d.ddict:
-        idmax = d.ddict[key]
+    if key in konto_data.ddict:
+        idmax = konto_data.ddict[key]
     else:
         idmax = 0
     # end if
-
     
     # konto_start_wert von ini übergeben:
     key = par.START_WERT_NAME
-    if key in d.ddict:
-        konto_start_wert = d.ddict[key]
+    if key in konto_data.ddict:
+        konto_start_wert = konto_data.ddict[key]
     else:
         konto_start_wert = 0
     # end if
-
+    
     # konto_start_datum von ini übergeben:
     key = par.START_DATUM_NAME
-    if key in d.ddict:
-        konto_start_datum = d.ddict[key]
+    if key in konto_data.ddict:
+        konto_start_datum = konto_data.ddict[key]
     else:
         konto_start_datum = 0
     # end if
-
+    
     # Trennungs zeichen für decimal wert
     key = par.INI_KONTO_STR_EURO_TRENN_BRUCH
-    if key in d.ddict:
-        wert_delim = d.ddict[key]
+    if key in konto_data.ddict:
+        wert_delim = konto_data.ddict[key]
     else:
         wert_delim = par.STR_EURO_TRENN_BRUCH_DEFAULT
     # end if
-
+    
     # Trennungszeichen für Tausend
     key = par.INI_KONTO_STR_EURO_TRENN_TAUSEND
-    if key in d.ddict:
-        wert_trennt = d.ddict[key]
+    if key in konto_data.ddict:
+        wert_trennt = konto_data.ddict[key]
     else:
         wert_trennt = par.STR_EURO_TRENN_TAUSEN_DEFAULT
     # end if
 
     # class KontoDataSet anlegen
-    d.ddict[par.KONTO_DATA_SET_CLASS] = ka_konto_data_set.KontoDataSet(par.KDSP,data_set_llist,idmax,konto_start_datum,konto_start_wert,wert_delim,wert_trennt)
+    obj.set_starting_data_llist(
+        data_set_llist,
+        idmax,
+        konto_start_datum,
+        konto_start_wert,
+        wert_delim,
+        wert_trennt)
+    
+    konto_data.obj = copy.deepcopy(obj)
+    
+    del obj
 
-    return d
+    return konto_data
+
 # end def
-
-def proof_iban_data_and_add_from_ini(d, par, data, ini):
+def proof_iban_data_and_add_from_ini(iban_data, par, data, ini):
     status = hdef.OK
     errtext = ""
     
-    d.ddict[par.DDICT_TYPE_NAE] = par.TYPE_IBAN_DATA
+    iban_data.ddict[par.DDICT_TYPE_NAE] = par.TYPE_IBAN_DATA
     
-    if (par.IBAN_DATA_LIST_NAME not in d.ddict):
-        d.ddict[par.IBAN_DATA_LIST_NAME] = []
-        d.ddict[par.IBAN_DATA_ID_MAX_NAME] = 0
+    if (par.IBAN_DATA_LIST_NAME not in iban_data.ddict):
+        iban_data.ddict[par.IBAN_DATA_LIST_NAME] = []
+        iban_data.ddict[par.IBAN_DATA_ID_MAX_NAME] = 0
     # end if
     
     # Suche nach ibans in konto-Daten
@@ -265,20 +336,20 @@ def proof_iban_data_and_add_from_ini(d, par, data, ini):
         
         dkonto = data[konto_name]
         
-        if not ka_iban_data.iban_find(d.ddict[par.IBAN_DATA_LIST_NAME], dkonto.ddict[par.IBAN_NAME]):
-            idmax = d.ddict[par.IBAN_DATA_ID_MAX_NAME] + 1
-            (status, errtext, _, data_list) = ka_iban_data.iban_add(d.ddict[par.IBAN_DATA_LIST_NAME], idmax,
+        if not ka_iban_data.iban_find(iban_data.ddict[par.IBAN_DATA_LIST_NAME], dkonto.ddict[par.IBAN_NAME]):
+            idmax = iban_data.ddict[par.IBAN_DATA_ID_MAX_NAME] + 1
+            (status, errtext, _, data_list) = ka_iban_data.iban_add(iban_data.ddict[par.IBAN_DATA_LIST_NAME], idmax,
                                                                     dkonto.ddict[par.IBAN_NAME],
                                                                     dkonto.ddict[par.BANK_NAME],
                                                                     dkonto.ddict[par.WER_NAME], "")
             if (status != hdef.OK):
-                return (status, errtext, d)
+                return (status, errtext, iban_data)
             else:
-                d.ddict[par.IBAN_DATA_LIST_NAME] = data_list
-                d.ddict[par.IBAN_DATA_ID_MAX_NAME] = idmax
+                iban_data.ddict[par.IBAN_DATA_LIST_NAME] = data_list
+                iban_data.ddict[par.IBAN_DATA_ID_MAX_NAME] = idmax
             # endif
         # endnif
     # endif
     
-    return (status, errtext, d)
+    return (status, errtext, iban_data)
 # edndef
