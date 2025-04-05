@@ -43,7 +43,7 @@ def data_get(par, ini):
     
     # read konto-pickle-file
     for konto_name in ini.konto_names:
-        if (konto_name in ini.data_pickle_jsonfile_list):
+        if konto_name in ini.data_pickle_jsonfile_list:
             j = ini.data_pickle_use_json
         else:
             j = 0
@@ -67,6 +67,37 @@ def data_get(par, ini):
         else:
             data[konto_name] = copy.deepcopy(konto_data)
             del konto_data
+        # endif
+    
+    # endfor
+    
+    #  depot-data liste --------------------------------------------
+    for depot_name in ini.depot_names:
+        
+        if depot_name in ini.data_pickle_jsonfile_list:
+            j = ini.data_pickle_use_json
+        else:
+            j = 0
+        # end if
+        
+        # get data set
+        depot_data = ka_data_pickle.ka_data_pickle(par.DEPOT_PREFIX, depot_name, j)
+        if (depot_data.status != hdef.OK):
+            status = hdef.NOT_OKAY
+            errtext = depot_data.errtext
+            return (status, errtext, data)
+        # endif
+        
+        depot_data = proof_depot_data_from_ini(depot_data, ini.depot_data[depot_name], par)
+        depot_data = proof_depot_data_intern(par, depot_data, depot_name)
+        depot_data = build_depot_data_set_obj(par, depot_data, depot_name, data)
+        if (depot_data.status != hdef.OK):
+            status = hdef.NOT_OKAY
+            errtext = depot_data.errtext
+            return (status, errtext, data)
+        else:
+            data[depot_name] = copy.deepcopy(depot_data)
+            del depot_data
         # endif
     
     # endfor
@@ -318,6 +349,133 @@ def build_konto_data_set_obj(par, konto_data, konto_name,data):
     del obj
 
     return konto_data
+
+# end def
+def proof_depot_data_from_ini(depot_data, ini_data, par):
+    """
+    proof ini_data in depot_data
+    :param depot_data:
+    :param ini_data:
+    :return:
+    """
+    
+    for key in ini_data:
+        
+        if (key in depot_data.ddict):
+            if (ini_data[key] != depot_data.ddict[key]):
+                depot_data.ddict[key] = ini_data[key]
+            # endif
+        else:
+            depot_data.ddict[key] = ini_data[key]
+            # end if
+        # endif
+    # end for
+    
+    return depot_data
+
+
+# end def
+def proof_depot_data_intern(par, depot_data, depot_name):
+    '''
+
+    :param par
+    :param depot_data:
+    :param konto_name
+    :return:depot_data =  proof_konto_data_intern(par,depot_data,konto_name)
+    '''
+    # type
+    depot_data.ddict[par.DDICT_TYPE_NAE] = par.TYPE_DEPOT_DATA
+    
+    # konto name
+    key = par.DEPOT_NAME_NAME
+    if key in depot_data.ddict:
+        if depot_name != depot_data.ddict[key]:
+            depot_data.ddict[key] = depot_name
+        # end if
+    else:
+        depot_data.ddict[key] = depot_name
+    # end if
+    
+    return depot_data
+
+
+# end def
+def build_depot_data_set_obj(par, depot_data, depot_name, data):
+    '''
+
+    :param par:
+    :param depot_data:
+    :param depot_name:
+    :return: depot_data =  build_konto_data_set_obj(par, depot_data, depot_name):
+    '''
+    
+    # ----------------------------------------------------------------------------
+    # Set parameter for konto Data
+    # ----------------------------------------------------------------------------
+    obj = ka_depot_data_set_class.DepotDataSet()
+    
+    
+    # kont_data set anlegen
+    key = par.DEPOT_DATA_SET_NAME
+    if key in depot_data.ddict:
+        if len(depot_data.ddict[key]) > 0:
+            if len(depot_data.ddict[key][0]) != len(obj.DEPOT_DATA_ITEM_LIST):
+                depot_data.status = hdef.NOT_OKAY
+                depot_data.errtext = f"length of header-list {par.DEPOT_DATA_ITEM_LIST} not same with data-dict {depot_data.dict[key]} of konto: {depot_name}"
+                return depot_data
+            # end if
+        # end if
+        data_set_llist = depot_data.ddict[key]
+    else:
+        data_set_llist = []
+    # end if
+    
+    key = par.DEPOT_DATA_ID_MAX_NAME
+    if key in depot_data.ddict:
+        idmax = depot_data.ddict[key]
+    else:
+        idmax = 0
+    # end if
+    
+    
+    # depot_start_datum von ini übergeben:
+    key = par.START_DATUM_NAME
+    if key in depot_data.ddict:
+        depot_start_datum = depot_data.ddict[key]
+    else:
+        depot_start_datum = 0
+    # end if
+    
+    # Trennungs zeichen für decimal wert
+    key = par.INI_KONTO_STR_EURO_TRENN_BRUCH
+    if key in depot_data.ddict:
+        wert_delim = depot_data.ddict[key]
+    else:
+        wert_delim = par.STR_EURO_TRENN_BRUCH_DEFAULT
+    # end if
+    
+    # Trennungszeichen für Tausend
+    key = par.INI_KONTO_STR_EURO_TRENN_TAUSEND
+    if key in depot_data.ddict:
+        wert_trennt = depot_data.ddict[key]
+    else:
+        wert_trennt = par.STR_EURO_TRENN_TAUSEN_DEFAULT
+    # end if
+    
+    # class KontoDataSet anlegen
+    obj.set_starting_data_llist(
+        data_set_llist,
+        idmax,
+        depot_start_datum,
+        wert_delim,
+        wert_trennt)
+    
+    depot_data.obj = copy.deepcopy(obj)
+    
+    del obj
+    
+    return depot_data
+
 
 # end def
 def proof_iban_data_and_add_from_ini(iban_data, par, data, ini):

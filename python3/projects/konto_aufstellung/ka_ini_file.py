@@ -55,13 +55,17 @@ logtext = ""
 
 class ini:
   status = hdef.OKAY
-  errtext = ""
-  logtext = ""
-  
-  konto_names = []
-  konto_data  = {}
   
   def __init__(self, par,ini_file_name):
+    
+    self.errtext = ""
+    self.logtext = ""
+    
+    self.konto_names = []
+    self.konto_data = {}
+
+    self.depot_names = []
+    self.depot_data = {}
 
     # check ini-filename
     if (not os.path.isfile(ini_file_name)):
@@ -84,6 +88,12 @@ class ini:
     # check konotonames
     if self.check_kontodata(par,data) != hdef.OK:
       return
+    # endif
+  
+    # check depotnames
+    if self.check_depotdata(par, data) != hdef.OK:
+      return
+    
     # endif
   # enddef
   def get_par(self,par):
@@ -124,27 +134,10 @@ class ini:
     #endif
     
     self.konto_names = data.get(par.KONTO_DATA_DICT_NAMES_NAME)
+    self.depot_names = data.get(par.DEPOT_DATA_DICT_NAMES_NAME)
     self.iban_list_file_name = data.get(par.IBAN_LIST_FILE_NAME)
     self.data_pickle_use_json = data.get(par.DATA_PICKLE_USE_JSON)
     self.data_pickle_jsonfile_list = data.get(par.DATA_PICKLE_JSONFILE_LIST)
-
-
-    # # self.konto_names = data.get(par.KONTO_DATA_DICT_NAMES_NAME)
-    # # if not self.konto_names or (len(self.konto_names) == 0):
-    # #   self.status = hdef.NOT_OKAY
-    # #   self.add_err_text(f"In inifile {self.ini_file_name} ist keine Liste mit Kontonamen "
-    # #                     f"{par.KONTO_DATA_DICT_NAMES_NAME} = [kont1,konto2, ...] !!!!")
-    # #   return self.status
-    # # # endif
-    #
-    #
-    # [okay, self.iban_list_file_name] = htype.type_proof(data.get(par.IBAN_LIST_FILE_NAME), "str")
-    # if okay != hdef.OKAY:
-    #   self.status = hdef.NOT_OKAY
-    #   self.add_err_text(f"In inifile {self.ini_file_name} ist keine Name für das iban_file angegeben"
-    #                     f" {par.IBAN_LIST_FILE_NAME} = \"name\" !!!!")
-    #   return self.status
-    # # endif
 
     
     return self.status
@@ -221,6 +214,79 @@ class ini:
     return self.status
 
   #enddef
+  def check_depotdata(self, par, data):
+    """
+    check kontonames sections from ini-file
+    :return: status
+    """
+    liste = self.depot_names
+    self.depot_names = []
+    for depotname in liste:
+      
+      depotdict = data.get(depotname)
+      
+      if self.check_depot(par, depotname, depotdict) != hdef.OK:
+        return hdef.NOT_OKAY
+      else:
+        self.depot_names.append(depotname)
+        self.depot_data[depotname] = depotdict
+      # endif
+    # endfor
+    
+    # endif
+    
+    return self.status
+  
+  # enddef
+  def check_depot(self, par, depotname, depotdict):
+    """
+    check specific kontoname from ini-file
+    :return: status
+    """
+    key_liste = depotdict.keys()
+    
+    # Prüfe die Daten aus proof_liste
+    # --------------------------------
+    proof_length = len(par.start_datum)
+    index_liste = [i for i in range(proof_length)]
+    for index, (proof, ttype) in enumerate(par.INI_DEPOT_PROOF_LISTE):
+      if proof in key_liste:
+        [okay, wert] = htype.type_proof(depotdict[proof], ttype)
+        if okay != hdef.OK:
+          self.status = hdef.NOT_OKAY
+          self.add_err_text(
+            f"In inifile {self.ini_file_name} is variable {depotname}.{proof} = {depotdict[proof]} not correct !!!!")
+          return self.status
+        else:
+          depotdict[proof] = wert
+          index_liste.remove(index)
+        # endif
+      # endi
+    # endfor
+    
+    # Prüfe was nicht definiert wurde
+    # --------------------------------
+    if len(index_liste):
+      self.status = hdef.NOT_OKAY
+      for index in index_liste:
+        self.add_err_text(
+          f"Im inifile {self.ini_file_name} ist Variable \"{depotname}.{par.INI_DEPOT_PROOF_LISTE[index][0]}\" nicht gesetzt !!!!")
+      # endofor
+      return self.status
+    # endif
+    
+    # Bilde/Prüfe Zusatzwerte
+    # ------------------------
+    
+    # aus start_dutum => start_tag und start_zeit
+    (start_tag, start_zeit) = hdt.secs_time_epoch_to_epoch_day_time(depotdict[par.START_DATUM_NAME])
+    
+    depotdict[par.START_TAG_NAME] = start_tag
+    depotdict[par.START_TAG_NAME] = start_zeit
+    
+    return self.status
+  
+  # enddef
   # -----------------------------------------------------------------------------
   # internal add_err_text
   # -----------------------------------------------------------------------------

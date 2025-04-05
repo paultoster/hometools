@@ -47,12 +47,14 @@ class Parameter:
     
     TYPE_SONST_DATA: str = "sonst"
     TYPE_KONTO_DATA: str = "konto"
+    TYPE_DEPOT_DATA: str = "depot"
     TYPE_IBAN_DATA:  str = "iban"
     
     DDICT_TYPE_NAE: str = "dicct_type"
     
     # ini-file attributes
     KONTO_DATA_DICT_NAMES_NAME: str = "konto_names"
+    DEPOT_DATA_DICT_NAMES_NAME: str = "depot_names"
     
     IBAN_LIST_FILE_NAME: str = "iban_list_file_name"
     
@@ -63,6 +65,7 @@ class Parameter:
     DATA_PICKLE_USE_JSON_READ: int = 2
 
     BASE_PROOF_LISTE = [(KONTO_DATA_DICT_NAMES_NAME,"list_str")
+                       ,(DEPOT_DATA_DICT_NAMES_NAME,"list_str")
                        ,(IBAN_LIST_FILE_NAME,"str")
                         ,(DATA_PICKLE_USE_JSON,"int")
                         ,(DATA_PICKLE_JSONFILE_LIST, "list_str")]
@@ -77,6 +80,10 @@ class Parameter:
     START_TAG_NAME: str = "start_zeit"
     START_DATUM_NAME: str = "start_datum"
     UMSATZ_DATA_TYPE_NAME: str = "umsatz_data_type"
+
+    DEPOT_PREFIX: str = "konto"
+    DEPOT_NAME: str = "depot_name"
+    DEPOTSTAND_DATA_TYPE_NAME: str = "depotstand_data_type"
     
     HEADER_BUCHDATUM_NAME: str = "header_buchdatum"
     HEADER_WERTDATUM_NAME: str = "header_wertdatum"
@@ -106,6 +113,11 @@ class Parameter:
                         , (START_DATUM_NAME, "dat")
                         , (UMSATZ_DATA_TYPE_NAME, "str")]
     
+    # Liste der zu checkenden Daten
+    # ------------------------------
+    INI_DEPOT_PROOF_LISTE = [(START_DATUM_NAME, "dat")
+                            ,(DEPOTSTAND_DATA_TYPE_NAME, "str")]
+
     IBAN_PREFIX = "iban"
     IBAN_DATA_DICT_NAME: str = "iban_data_dict"
     IBAN_DATA_LIST_NAME: str = "iban_data_list"
@@ -121,7 +133,12 @@ class Parameter:
     KONTO_DATA_ID_MAX_NAME: str = "konto_id_max"
     KONTO_DATA_ID_NEW_LIST: str = "konto_id_new_list"
     
-    
+    # konto data
+    DEPOT_NAME_NAME: str = "name"
+    DEPOT_DATA_SET_NAME: str = "depot_data_set"
+    DEPPOT_DATA_ID_MAX_NAME: str = "depot_id_max"
+    DEPOT_DATA_ID_NEW_LIST: str = "depot_id_new_list"
+
     # Parameter konto_data_set
     
 
