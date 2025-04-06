@@ -25,6 +25,7 @@ import hfkt_type as htype
 import ka_iban_data
 import ka_data_pickle
 import ka_konto_data_set_class
+import ka_depot_data_set_class
 
 
 # --------------------------------------------------------------------------------------
@@ -430,7 +431,7 @@ def build_depot_data_set_obj(par, depot_data, depot_name, data):
         data_set_llist = []
     # end if
     
-    key = par.DEPOT_DATA_ID_MAX_NAME
+    key = par.DEPPOT_DATA_ID_MAX_NAME
     if key in depot_data.ddict:
         idmax = depot_data.ddict[key]
     else:

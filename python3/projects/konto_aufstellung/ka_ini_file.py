@@ -247,7 +247,7 @@ class ini:
     
     # Prüfe die Daten aus proof_liste
     # --------------------------------
-    proof_length = len(par.start_datum)
+    proof_length = len(par.INI_DEPOT_PROOF_LISTE)
     index_liste = [i for i in range(proof_length)]
     for index, (proof, ttype) in enumerate(par.INI_DEPOT_PROOF_LISTE):
       if proof in key_liste:
