@@ -47,7 +47,7 @@ import zlib
 import hfkt as h
 import hfkt_def as hdef
 import hfkt_str as hstr
-import hfkt_date_time as hdt
+import hfkt_date_time as hdate
 
 # import stat
 
@@ -167,13 +167,18 @@ def suche_in_liste(liste, gesucht):
     return False
 
 
-def string_cent_in_euro(cents):
+def string_cent_in_euroStr(cents):
     """ Wandelt string cents in "xx,yy €"
       """
     return str(float(cents) / 100) + " €"
 
 
 def num_cent_in_euro(cents):
+    """ Wandelt num cents in float
+      """
+    return float(cents) / 100.
+
+def num_cent_in_euroStr(cents):
     """ Wandelt num cents in "xx,yy €"
       """
     return "%.2f" % (float(cents) / 100) + " €"
@@ -310,13 +315,18 @@ def type_proof(wert_in, type):
     (okay,wert) = type_proof(wert_in, type) Prüft den Wert auf seine
     type: "str","float","int","dat","iban"
     "dat": Convert to epoch seconds
+    "datStrP": Convert to date string mit Punkt "20.03.2024"
+    "datStrB": Convert to date string mit Bindesttrich "20-03-2024"
     "iban": string, 2 letters and 20 digits, could be with spaces
     "str": string
     "int": integer
     "float": floating point
     "list": any list
     "list_str": a list with strings
-    "euro"
+    "euro": float
+    "euroStrK": string mit Komma Trennung ('.' 1000er)   10,34
+    "cent": int
+    
     '''
     if type == "str":
         return type_proof_string(wert_in)
@@ -336,6 +346,10 @@ def type_proof(wert_in, type):
         return type_proof_isin(wert_in)
     elif type == "euro":
         return type_proof_euro(wert_in)
+    elif type == "euroStrK":
+        return type_proof_euroStrK(wert_in)
+    elif type == "cent":
+        return type_proof_cent(wert_in)
     else:
         return (hdef.NOT_OKAY, None)  # endif
 
@@ -449,7 +463,7 @@ def type_proof_list(wert_in,type):
 def type_proof_dat(wert_in):
     """ return value in epoch seconds"""
     if (isinstance(wert_in, str)):
-        secs = hdt.secs_time_epoch_from_str_re(wert_in)
+        secs = hdate.secs_time_epoch_from_str_re(wert_in)
 
         if (isinstance(wert_in, list)):
             secs = secs[0]
@@ -750,7 +764,7 @@ def type_proof_euro(wert_in,delim=",",thousandsign="."):
     :param wert_in:
     :param delim:
     :param thousandsign:
-    :return: (okay,wert_cent) =  type_proof_euro(wert_in,delim=",",thousandsign=".")
+    :return: (okay,wert_euro) =  type_proof_euro(wert_in,delim=",",thousandsign=".")
     '''
     okay = hdef.OKAY
     if isinstance(wert_in,float):
@@ -766,6 +780,29 @@ def type_proof_euro(wert_in,delim=",",thousandsign="."):
         # end try
     # end if
     return (okay,val)
+# end def
+def type_proof_euroStrK(wert_in, delim=",", thousandsign="."):
+    '''
+
+    :param wert_in:
+    :param delim:
+    :param thousandsign:
+    :return: (okay,wert) =  type_proof_euroStrK(wert_in,delim=",",thousandsign=".")
+    '''
+    (okay, wert_euro) = type_proof_euro(wert_in, delim=delim, thousandsign=thousandsign)
+    if okay == hdef.OKAY:
+        wert = hstr.convert_int_cent_to_string_euro(float(wert_euro), delim)
+    else:
+        wert = None
+    # end if
+    return (okay, wert)
+# end def
+def type_proof_cent(wert_in):
+    (okay, wert) = type_proof_euro(wert_in)
+    if okay:
+        wert = int(wert)
+    # end if
+    return (okay,wert)
 # end def
 def type_convert_euro_to_cent(wert_euro,delim=",", thousandsign="."):
     '''
@@ -806,6 +843,264 @@ def type_convert_to_hashkey(obj, salt=0):
     return hash(obj) & 0xffffffff
 
 # -------------------------------------------------------
+def type_transform(wert_in: any, type_in: str, type_out: str):
+    '''
+    
+    type: "str","float","int","dat","iban"
+    "dat": Convert to epoch seconds
+    "datStrP": Convert to date string mit Punkt "20.03.2024"
+    "datStrB": Convert to date string mit Bindesttrich "20-03-2024"
+    "iban": string, 2 letters and 20 digits, could be with spaces
+    "str": string
+    "int": integer
+    "float": floating point
+    "list": any list
+    "listStr": a list with strings
+    "euro": float
+    "euroStrK": string mit Komma Trennung ('.' 1000er)   10,34
+    "cent": int
+
+    (okay,wert) = type_transform(wert_in, type_in, type_out) Prüft den Wert auf seine
+    '''
+    okay = hdef.OKAY
+    if type_in == type_out:
+        wert_out = wert_in
+    elif type_in == "dat":
+        (okay, wert_out) = type_transform_dat(wert_in,type_out)
+    elif (type_in == "datStr") or (type_in == "datStrP") or (type_in == "datStrB"):
+        (okay, wert_out) = type_transform_datStr(wert_in, type_out)
+    elif type_in == "str":
+        (okay, wert_out) = type_transform_str(wert_in, type_out)
+    elif type_in == "int":
+        (okay, wert_out) = type_transform_int(wert_in, type_out)
+    elif type_in == "float":
+        (okay, wert_out) = type_transform_float(wert_in, type_out)
+    elif type_in == "euro":
+        (okay, wert_out) = type_transform_euro(wert_in, type_out)
+    elif type_in == "euroStrK":
+        (okay, wert_out) = type_transform_euroStrK(wert_in, type_out)
+    elif type_in == "cent":
+        (okay, wert_out) = type_transform_cent(wert_in, type_out)
+    else:
+    # end if
+def  type_transform_dat(wert_in,type_out)
+    '''
+    :param wert_in:
+    :param type_out:
+    :return: (okay, wert_out) =  type_transform_dat(wert_in,type_out)
+    '''
+    (okay, wert) = type_proof(wert_in, 'dat')
+    if( okay == hdef.OKAY):
+        if (type_out == "datStr") or (type_out == "datStrP"):
+            wert_out = hdate.secs_time_epoch_to_str(wert,delim=".")
+        elif type_out == "datStrB":
+            wert_out = hdate.secs_time_epoch_to_str(wert,delim="-")
+        elif type_out == "int":
+            wert_out = int(wert)
+        else:
+            Exception(f"In type_transform_dat ist type_out: {type_out} nicht möglich")
+        # end if
+    else:
+        wert_out = wert
+    # end if
+    return (okay,wert_out)
+# end def
+def  type_transform_datStr(wert_in,type_out)
+    '''
+    :param wert_in:
+    :param type_out:
+    :return: (okay, wert_out) =  type_transform_dat_StrP(wert_in,type_out)
+    '''
+    (okay, wert) = type_proof(wert_in, 'dat')
+    if( okay == hdef.OKAY):
+        if type_out == "dat":
+            wert_out = wert
+        elif type_out == "int":
+            wert_out = int(wert)
+        else:
+            Exception(f"In type_transform_datStrP ist type_out: {type_out} nicht möglich")
+        # end if
+    else:
+        wert_out = wert
+    # end if
+    return (okay,wert_out)
+# end def
+def  type_transform_str(wert_in,type_out)
+    '''
+    :param wert_in:
+    :param type_out:
+    :return: (okay, wert_out) =  type_transform_dat_str(wert_in,type_out)
+    '''
+    (okay, wert) = type_proof(wert_in, "str")
+    if( okay == hdef.OKAY):
+        if (type_out == "float") or (type_out == "int") or (type_out == "cent") or (type_out == "euro"):
+            (okay, wert_out) = type_proof(wert, type_out)
+        elif type_out == "euroStrK":
+            (okay, wert_out) = type_proof(wert, "euro")
+            if okay == hdef.OKAY:
+                wert_out = hstr.convert_int_cent_to_string_euro(wert_out, ",")
+            # end if
+        elif (type_out == "list") or (type_out == "listStr") or (type_out == "list_str"):
+            wert_out = [wert]
+        else:
+            Exception(f"In type_transform_str ist type_out: {type_out} nicht möglich")
+        # end if
+    else:
+        wert_out = wert
+    # end if
+    return (okay,wert_out)
+# end def
+def  type_transform_int(wert_in,type_out):
+    '''
+    :param wert_in:
+    :param type_out:
+    :return: (okay, wert_out) =  type_transform_dat_int(wert_in,type_out)
+    '''
+    (okay, wert) = type_proof(wert_in, "int")
+    if( okay == hdef.OKAY):
+        if isinstance(type_out, list):
+            if wert in range(len(type_out)) :
+                wert_out = type_out[wert]
+            else:
+                okay = hdef.NOT_OKAY
+                wert_out = None
+            # end if
+        if (type_out == "float") or (type_out == "euro"):
+            (okay, wert_out) = type_proof(wert, type_out)
+        elif type_out == "cent":
+            wert_out = wert
+        elif type_out == "str":
+            (okay, wert_out) = type_proof(wert, "str")
+        elif type_out == "euroStrK":
+            wert_out = hstr.convert_int_cent_to_string_euro(float(wert), ",")
+        elif type_out == "list":
+            wert_out = [wert]
+        elif (type_out == "listStr") or (type_out == "list_str") :
+            wert_out = [str(wert)]
+        else:
+            Exception(f"In type_transform_int ist type_out: {type_out} nicht möglich")
+        # end if
+    else:
+        wert_out = wert
+    # end if
+    return (okay,wert_out)
+# end def
+def  type_transform_float(wert_in,type_out):
+    '''
+    :param wert_in:
+    :param type_out:
+    :return: (okay, wert_out) =  type_transform_dat_int(wert_in,type_out)
+    '''
+    (okay, wert) = type_proof(wert_in, "float")
+    if( okay == hdef.OKAY):
+        if (type_out == "euro"):
+            wert_out = wert
+        elif  (type_out == "int") or (type_out == "cent"):
+            wert_out = int(wert)
+        elif type_out == "str":
+            (okay, wert_out) = type_proof(wert, "str")
+        elif type_out == "euroStrK":
+            (okay, wert_out) = type_proof(wert, "euro")
+            if okay == hdef.OKAY:
+                wert_out = hstr.convert_int_cent_to_string_euro(wert_out, ",")
+            # end if
+        elif type_out == "list":
+            wert_out = [wert]
+        elif (type_out == "listStr") or (type_out == "list_str") :
+            wert_out = [str(wert)]
+        else:
+            Exception(f"In type_transform_int ist type_out: {type_out} nicht möglich")
+        # end if
+    else:
+        wert_out = wert
+    # end if
+    return (okay,wert_out)
+# end def
+def  type_transform_euro(wert_in,type_out):
+    '''
+    :param wert_in:
+    :param type_out:
+    :return: (okay, wert_out) =  type_transform_dat_euro(wert_in,type_out)
+    '''
+    (okay, wert) = type_proof(wert_in, "euro")
+    if( okay == hdef.OKAY):
+        if (type_out == "euro"):
+            wert_out = wert
+        elif  (type_out == "int") or (type_out == "cent"):
+            wert_out = int(wert)
+        elif type_out == "str":
+            (okay, wert_out) = type_proof(wert, "str")
+        elif type_out == "float":
+            wert_out = float(wert)
+        elif type_out == "euroStrK":
+            wert_out = hstr.convert_int_cent_to_string_euro(wert, ",")
+        elif type_out == "list":
+            wert_out = [wert]
+        elif (type_out == "listStr") or (type_out == "list_str") :
+            wert_out = [str(wert)]
+        else:
+            Exception(f"In type_transform_int ist type_out: {type_out} nicht möglich")
+        # end if
+    else:
+        wert_out = wert
+    # end if
+    return (okay,wert_out)
+# end def
+def  type_transform_euroStrK(wert_in,type_out):
+    '''
+    :param wert_in:
+    :param type_out:
+    :return: (okay, wert_out) =  type_transform_dat_euroStrK(wert_in,type_out)
+    '''
+    (okay, wert) = type_proof(wert_in, "euroStrK")
+    if( okay == hdef.OKAY):
+        if (type_out == "euro") or (type_out == "float"):
+            wert_out = numeric_string_to_float(wert)
+        elif type_out == "int":
+            wert_out = int(numeric_string_to_float(wert))
+        elif type_out == "cent":
+            wert_out = string_euro_in_int_cent(wert)
+        elif type_out == "str":
+            (okay, wert_out) = type_proof(wert, "str")
+        elif (type_out == "list") or (type_out == "listStr") or (type_out == "list_str"):
+            wert_out = [wert]
+        else:
+            Exception(f"In type_transform_int ist type_out: {type_out} nicht möglich")
+        # end if
+    else:
+        wert_out = wert
+    # end if
+    return (okay,wert_out)
+# end def
+def  type_transform_cent(wert_in,type_out):
+    '''
+    :param wert_in:
+    :param type_out:
+    :return: (okay, wert_out) =  type_transform_dat_int(wert_in,type_out)
+    '''
+    (okay, wert) = type_proof(wert_in, "cent")
+    if( okay == hdef.OKAY):
+        if (type_out == "float") or (type_out == "euro"):
+            
+            (okay, wert_out) = type_proof(num_cent_in_euro(wert), type_out)
+        elif type_out == "int":
+            wert_out = int(wert)
+        elif type_out == "str":
+            (okay, wert_out) = type_proof(wert, "str")
+        elif type_out == "euroStrK":
+            wert_out = num_cent_in_euroStr(wert)
+        elif type_out == "list":
+            wert_out = [wert]
+        elif (type_out == "listStr") or (type_out == "list_str") :
+            wert_out = [str(wert)]
+        else:
+            Exception(f"In type_transform_int ist type_out: {type_out} nicht möglich")
+        # end if
+    else:
+        wert_out = wert
+    # end if
+    return (okay,wert_out)
+# end def
 def print_python_is_32_or_64_bit():
     print(struct.calcsize("P") * 8)
 

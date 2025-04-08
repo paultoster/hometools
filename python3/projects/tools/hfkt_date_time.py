@@ -748,20 +748,23 @@ def secs_time_epoch_from_str(str_dat, delim="."):
 
 
 ########################################################################################################################
-def secs_time_epoch_to_str(secs):
+def secs_time_epoch_to_str(secs,delim="."):
     """
     Wandelt epochen Zeist in secs nach Datum tt.m.yyyy
     """
+    
+    format = "%d"+delim+"%m"+delim+"%Y"
+    
     if isinstance(secs, list):
         strtime = []
         for seci in secs:
-            strtime.append(datetime.datetime.fromtimestamp(seci).strftime("%d.%m.%Y"))
+            strtime.append(datetime.datetime.fromtimestamp(seci).strftime(format))
         return strtime
     else:
         dt = datetime.datetime.fromtimestamp(secs)
         # ttt = dt.strftime("%d.%m.%Y,%H:%M:%S")
         
-        return dt.strftime("%d.%m.%Y")
+        return dt.strftime(format)
 
 
 # enddef

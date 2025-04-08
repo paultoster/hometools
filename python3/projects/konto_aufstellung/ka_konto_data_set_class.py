@@ -25,19 +25,47 @@ from typing import List
 # 1. Parameter dafür
 #-------------------
 class KontoDataSet:
-    # Welche items/header hat die Doppelliste
-    KONTO_DATA_ITEM_LIST: List[str] = ( "id"         # set internally
-                                      , "buchdatum"  # int read from csv/pdf
-                                      , "wertdatum"  # int read from csv/pdf
-                                      , "wer"        # str read from csv/pdf
-                                      , "buchtype"   # int raed from csv/pdf
-                                      , "wert"       # int read from csv/pdf
-                                      , "sumwert"    # set internally
-                                      , "comment"    # str read from csv/pdf
-                                      , "chash"      # set internally
-                                      , "isin"       # str extracted from data
-                                      , "kategorie") # internally set
+    KONTO_BUCHTYPE_TEXT_LIST = ["unbekannt",
+                                "einzahlung",
+                                "auszahlung",
+                                "kosten",
+                                "wp_kauf",
+                                "wp_verkauf",
+                                "wp_kosten",
+                                "wp_einnahmen"]
+    # BUchungs Typ
+    KONTO_BUCHTYPE_UNBEKANNT: int = 0
+    KONTO_BUCHTYPE_EINZAHLUNG: int = 1
+    KONTO_BUCHTYPE_AUSZAHLUNG: int = 2
+    KONTO_BUCHTYPE_KOSTEN: int = 3
+    KONTO_BUCHTYPE_WP_KAUF: int = 4
+    KONTO_BUCHTYPE_WP_VERKAUF: int = 5
+    KONTO_BUCHTYPE_WP_KOSTEN: int = 6
+    KONTO_BUCHTYPE_WP_EINNAHMEN: int = 7
     
+    KONTO_DATA_BUCHTYPE_DICT = {KONTO_BUCHTYPE_UNBEKANNT: KONTO_BUCHTYPE_TEXT_LIST[KONTO_BUCHTYPE_UNBEKANNT]
+        , KONTO_BUCHTYPE_EINZAHLUNG: KONTO_BUCHTYPE_TEXT_LIST[KONTO_BUCHTYPE_EINZAHLUNG]
+        , KONTO_BUCHTYPE_AUSZAHLUNG: KONTO_BUCHTYPE_TEXT_LIST[KONTO_BUCHTYPE_AUSZAHLUNG]
+        , KONTO_BUCHTYPE_KOSTEN: KONTO_BUCHTYPE_TEXT_LIST[KONTO_BUCHTYPE_KOSTEN]
+        , KONTO_BUCHTYPE_WP_KAUF: KONTO_BUCHTYPE_TEXT_LIST[KONTO_BUCHTYPE_WP_KAUF]
+        , KONTO_BUCHTYPE_WP_VERKAUF: KONTO_BUCHTYPE_TEXT_LIST[KONTO_BUCHTYPE_WP_VERKAUF]
+        , KONTO_BUCHTYPE_WP_KOSTEN: KONTO_BUCHTYPE_TEXT_LIST[KONTO_BUCHTYPE_WP_KOSTEN]
+        , KONTO_BUCHTYPE_WP_EINNAHMEN: KONTO_BUCHTYPE_TEXT_LIST[KONTO_BUCHTYPE_WP_EINNAHMEN]
+                                }
+    # Welche items/header hat die Doppelliste
+    #                         header, type intern, type abzeige
+    KONTO_DATA_ITEM_LLIST = [( "id","int","int")            # set internally
+                           ,( "buchdatum","dat","datstrP")  # int read from csv/pdf
+                           ,( "wertdatum","dat","datstrP")  # int read from csv/pdf
+                           ,("wer","str","str")            # str read from csv/pdf
+                           ,("buchtype","int",KONTO_BUCHTYPE_TEXT_LIST)   # int raed from csv/pdf
+                           ,("wert","cent","eurostrK")         # int read from csv/pdf
+                           ,("sumwert","cent","eurostrK")      # set internally
+                           ,("comment","str","str")        # str read from csv/pdf
+                           ,("chash","int","int")      # set internally
+                           ,("isin","isin","isin")       # str extracted from data
+                           ,("kategorie","str","str") # internally set
+                           ]
     # Indizes in erinem data_set
     KONTO_DATA_INDEX_ID: int = 0
     KONTO_DATA_INDEX_BUCHDATUM: int = 1
@@ -60,34 +88,7 @@ class KontoDataSet:
     
     KONTO_DATA_INMUTABLE_INDEX_LIST = [KONTO_DATA_INDEX_ID,KONTO_DATA_INDEX_BUCHTYPE,KONTO_DATA_INDEX_CHASH]
     
-    KONTO_BUCHTYPE_TEXT_LIST = ["unbekannt",
-                                "einzahlung",
-                                "auszahlung",
-                                "kosten",
-                                "wp_kauf",
-                                "wp_verkauf",
-                                "wp_kosten",
-                                "wp_einnahmen"]
-    # BUchungs Typ
-    KONTO_BUCHTYPE_UNBEKANNT: int     = 0
-    KONTO_BUCHTYPE_EINZAHLUNG: int    = 1
-    KONTO_BUCHTYPE_AUSZAHLUNG: int    = 2
-    KONTO_BUCHTYPE_KOSTEN: int        = 3
-    KONTO_BUCHTYPE_WP_KAUF: int       = 4
-    KONTO_BUCHTYPE_WP_VERKAUF: int    = 5
-    KONTO_BUCHTYPE_WP_KOSTEN: int     = 6
-    KONTO_BUCHTYPE_WP_EINNAHMEN:int   = 7
     
-    KONTO_DATA_BUCHTYPE_DICT          = { KONTO_BUCHTYPE_UNBEKANNT: KONTO_BUCHTYPE_TEXT_LIST[KONTO_BUCHTYPE_UNBEKANNT]
-                                        , KONTO_BUCHTYPE_EINZAHLUNG: KONTO_BUCHTYPE_TEXT_LIST[KONTO_BUCHTYPE_EINZAHLUNG]
-                                        , KONTO_BUCHTYPE_AUSZAHLUNG: KONTO_BUCHTYPE_TEXT_LIST[KONTO_BUCHTYPE_AUSZAHLUNG]
-                                        , KONTO_BUCHTYPE_KOSTEN: KONTO_BUCHTYPE_TEXT_LIST[KONTO_BUCHTYPE_KOSTEN]
-                                        , KONTO_BUCHTYPE_WP_KAUF: KONTO_BUCHTYPE_TEXT_LIST[KONTO_BUCHTYPE_WP_KAUF]
-                                        , KONTO_BUCHTYPE_WP_VERKAUF: KONTO_BUCHTYPE_TEXT_LIST[KONTO_BUCHTYPE_WP_VERKAUF]
-                                        , KONTO_BUCHTYPE_WP_KOSTEN: KONTO_BUCHTYPE_TEXT_LIST[KONTO_BUCHTYPE_WP_KOSTEN]
-                                        , KONTO_BUCHTYPE_WP_EINNAHMEN: KONTO_BUCHTYPE_TEXT_LIST[KONTO_BUCHTYPE_WP_EINNAHMEN]
-                                        }
-                                         
     OKAY = hdef.OK
     NOT_OKAY = hdef.NOT_OK
     
@@ -112,13 +113,13 @@ class KontoDataSet:
 
     def set_csv_header_name(self,dat_set_index: int,header_csv_name: str):
         self.KONTO_DATA_HEADER_CSV_NAME_DICT[dat_set_index] = header_csv_name
-        self.KONTO_DATA_HEADER_ABFRAGE_DICT[dat_set_index] = self.KONTO_DATA_ITEM_LIST[dat_set_index]
+        self.KONTO_DATA_HEADER_ABFRAGE_DICT[dat_set_index] = self.KONTO_DATA_ITEM_LLIST[dat_set_index]
     # enddef
     def set_buchtype_csv_name(self,buchtype_index: int,buchtype_dict_csv_name: str | list):
         self.KONTO_DATA_BUCHTYPE_CSV_NAME_DICT[buchtype_index] = buchtype_dict_csv_name
     # enddef
     def set_data_show_dict_list(self,dat_set_index: int):
-        self.KONTO_DATA_TO_SHOW_DICT[dat_set_index] = self.KONTO_DATA_ITEM_LIST[dat_set_index]
+        self.KONTO_DATA_TO_SHOW_DICT[dat_set_index] = self.KONTO_DATA_ITEM_LLIST[dat_set_index]
     # enddef
 
     def set_starting_data_llist(self,data_set_llist,idmax,konto_start_datum,konto_start_wert,decimal_trenn="",tausend_trenn=""):
