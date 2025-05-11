@@ -18,7 +18,7 @@ if (tools_path not in sys.path):
 import hfkt_def as hdef
 # import hfkt_list as hlist
 # import hfkt_type as htype
-import hfkt_io as hio
+
 import sgui
 
 import ka_gui
@@ -55,8 +55,9 @@ def report_einlesen(rd):
     # endwhile
     
     # Konto data in ini
-    konto_dict = rd.data[choice].ddict
+    konto_dict  = rd.data[choice].ddict
     konto_obj   = rd.data[choice].obj
+    konto_csv   = rd.data[choice].csv
     
     # csv lesen
     if( konto_dict[rd.par.UMSATZ_DATA_TYPE_NAME] == 'ing_csv'):
@@ -69,10 +70,23 @@ def report_einlesen(rd):
         if (len(filename) == 0):  # Abbruch
             return status
         # endif
+    
+        # csv-
+        # csv-Daten einlesen
+        #--------------------
+        (status,errtext,data_matrix,identlist,typelist) = konto_csv.read_data(filename)
         
-        (status, konto_dict,konto_obj, flag_newdata) = read_ing_csv(rd, konto_dict,konto_obj, filename)
+        if status != hdef.OKAY:
+            rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
+            return status
+        # end if
         
-        if status != hdef.OKAY:  # Abbruch
+        # eingelsene Daten in konto einsortieren
+        #---------------------------------------
+        (status,errtext,flag_newdata) = konto_obj.set_new_data(data_matrix,identlist,typelist)
+        
+        if status != hdef.OKAY:
+            rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
             return status
         # end if
         
@@ -81,7 +95,6 @@ def report_einlesen(rd):
         else:
             rd.log.write_info("Keine neuen Daten eingelesen !!!!", screen=rd.par.LOG_SCREEN_OUT)
         # end if
-
 
         if status != hdef.OKAY:  # Abbruch
             return status
@@ -99,109 +112,3 @@ def report_einlesen(rd):
         
     return status
 # enddef
-def read_ing_csv(rd, konto_dict, konto_obj,filename):
-    '''
-
-    :param csv_lliste:
-    :param header_lliste
-    :param filename:
-    :return: (status,konto_dict,flag_newdata) = read(rd,konto_dict,filename)
-    '''
-    status = hdef.OKAY
-    errtext = ""
-    new_data_set_flag = False
-    
-    # read csv-File
-    # ==============
-    csv_lliste = hio.read_csv_file(file_name=filename, delim=";")
-    
-    if (len(csv_lliste) == 0):
-        rd.log.write_err(f"Fehler in read_ing_csv read_csv_file()  filename = {filename}", screen=rd.par.LOG_SCREEN_OUT)
-        status = hdef.NOT_OKAY
-        return (status, konto_dict, new_data_set_flag)
-    # end if
-    
-    # build header dict names
-    # ========================
-    # (status, errtext, header_name_dict) = build_ing_csv_header_name_dict(konto_dict, rd.par)
-    # if status != hdef.OKAY:
-    #     rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
-    #     return (status, konto_dict, new_data_set_flag)
-    # # endif
-    
-    # build buch_type_dict
-    # =====================
-    # (status, errtext, buch_type_dict) = build_ing_csv_buch_type_dict(konto_dict, rd.par)
-    # if status != hdef.OKAY:
-    #     rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
-    #     return (status, konto_dict, new_data_set_flag)
-    # # endif
-    
-    # csv-daten einlesen
-    # ===================
-    (new_data_set_flag, status, errtex) = konto_obj.read_csv( csv_lliste,  filename)
-    
-    if status != hdef.OKAY:
-        rd.log.write_err(f"Fehler in konto_obj.read_csv(): {errtex}", screen=rd.par.LOG_SCREEN_OUT)
-    
-    return (status, konto_dict,konto_obj, new_data_set_flag)
-
-
-# enddef
-# # def build_ing_csv_header_name_dict(konto_dict, par):
-# #     '''
-# #
-# #     :param konto_dict:
-# #     :param par:
-# #     :return: (status,errtext,header_name_dict) = build_header_name_dict(konto_dict,par)
-# #     '''
-# #     header_name_dict = {}
-# #     status = hdef.OKAY
-# #     errtext = ""
-# #     for key in par.KDSP.KONTO_DATA_HEADER_INI_NAME_DICT.keys():
-# #         # no data
-# #         if (len(par.KDSP.KONTO_DATA_HEADER_INI_NAME_DICT[key]) == 0):
-# #             status = hdef.NOT_OKAY
-# #             errtext = f"par.KONTO_DATA_HEADER_INI_NAME_DICT[{key}] is empty"
-# #             return (status, errtext, header_name_dict)
-# #         elif (par.KDSP.KONTO_DATA_HEADER_INI_NAME_DICT[key] in konto_dict):
-# #             header_name_dict[key] = konto_dict[par.KDSP.KONTO_DATA_HEADER_INI_NAME_DICT[key]]
-# #         else:
-# #             status = hdef.NOT_OKAY
-# #             errtext = f"key =  from par.KONTO_DATA_HEADER_INI_NAME_DICT[{key}] = {par.KDSP.KONTO_DATA_HEADER_INI_NAME_DICT[key]} is not in konto_dict"
-# #             return (status, errtext, header_name_dict)
-# #         # end if
-# #     # end for
-# #     return (status, errtext, header_name_dict)
-# #
-# #
-# # # end def
-# def build_ing_csv_buch_type_dict(konto_dict, par):
-#     '''
-#
-#     :param konto_dict ist das dictionary vom Konto mit allen Datan
-#     :param par
-#     :return: (status,errtext,buch_type_dict) = self.build_buch_type_dict(konto_dict,par)
-#     '''
-#
-#     status = hdef.OKAY
-#     errtext = ""
-#     buch_type_dict = {}
-#
-#     for key in par.KDSP.KONTO_DATA_BUCHTYPE_INI_NAME_DICT.keys():
-#
-#         if (len(par.KDSP.KONTO_DATA_BUCHTYPE_INI_NAME_DICT[key]) == 0):
-#             status = hdef.NOT_OKAY
-#             errtext = f"key =  from par.KONTO_DATA_BUCHTYPE_INI_NAME_DICT[{key}] = {par.KDSP.KONTO_DATA_BUCHTYPE_INI_NAME_DICT[key]} is empty"
-#             return (status, errtext, buch_type_dict)
-#         elif (par.KDSP.KONTO_DATA_BUCHTYPE_INI_NAME_DICT[key] in konto_dict):
-#             buch_type_dict[key] = konto_dict[par.KDSP.KONTO_DATA_BUCHTYPE_INI_NAME_DICT[key]]
-#         else:
-#             status = hdef.NOT_OKAY
-#             errtext = f"key =  from par.KONTO_DATA_BUCHTYPE_INI_NAME_DICT[{key}] = {self.par.KDSP.KONTO_DATA_BUCHTYPE_INI_NAME_DICT[key]} is not in konto_dict"
-#             return (status, errtext, buch_type_dict)
-#         # end if
-#     # end for
-#     return (status, errtext, buch_type_dict)
-# # end def
-

@@ -103,6 +103,7 @@ class Parameter:
     
     INI_KONTO_STR_EURO_TRENN_BRUCH   = "string_euro_trenn_bruch"
     INI_KONTO_STR_EURO_TRENN_TAUSEND = "string_euro_trenn_tausend"
+    INI_KONTO_CSV_TRENN_DATA         = "string_csv_trenn_zeichen"
 
     # Liste der zu checkenden Daten
     # ------------------------------

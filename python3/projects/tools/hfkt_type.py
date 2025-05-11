@@ -478,12 +478,11 @@ def type_proof_dat(wert_in):
             return type_proof_dat(wert_in[0])
         except:
             return (hdef.NOT_OKAY, None)  # endtry
+
+    elif isinstance(wert_in, int) and wert_in >= 0:
+        return (hdef.OKAY,wert_in)
     else:
-        try:
-            datum = h.datum_int_to_str(int(wert_in))
-            return type_proof_dat(datum)
-        except:
-            return (hdef.NOT_OKAY, None)  # endtry  # endif
+        return (hdef.NOT_OKAY, None)  # endtry  # endif
 
 
 # enddef
@@ -843,7 +842,7 @@ def type_convert_to_hashkey(obj, salt=0):
     return hash(obj) & 0xffffffff
 
 # -------------------------------------------------------
-def type_transform(wert_in: any, type_in: str, type_out: str):
+def type_transform(wert_in: any, type_in: str | list, type_out: str | list):
     '''
     
     type: "str","float","int","dat","iban"
@@ -881,9 +880,16 @@ def type_transform(wert_in: any, type_in: str, type_out: str):
         (okay, wert_out) = type_transform_euroStrK(wert_in, type_out)
     elif type_in == "cent":
         (okay, wert_out) = type_transform_cent(wert_in, type_out)
+    elif isinstance(type_in, list):
+        (okay, wert_out) = type_transform_list(wert_in, type_in,type_out)
     else:
+        okay = hdef.NOT_OKAY
+        wert_out = None
+        raise Exception(f"type_transform: type_in = {type_in} not known")
     # end if
-def  type_transform_dat(wert_in,type_out)
+    return (okay,wert_out)
+# end def
+def  type_transform_dat(wert_in,type_out):
     '''
     :param wert_in:
     :param type_out:
@@ -898,14 +904,14 @@ def  type_transform_dat(wert_in,type_out)
         elif type_out == "int":
             wert_out = int(wert)
         else:
-            Exception(f"In type_transform_dat ist type_out: {type_out} nicht möglich")
+            raise Exception(f"In type_transform_dat ist type_out: {type_out} nicht möglich")
         # end if
     else:
         wert_out = wert
     # end if
     return (okay,wert_out)
 # end def
-def  type_transform_datStr(wert_in,type_out)
+def  type_transform_datStr(wert_in,type_out):
     '''
     :param wert_in:
     :param type_out:
@@ -918,14 +924,14 @@ def  type_transform_datStr(wert_in,type_out)
         elif type_out == "int":
             wert_out = int(wert)
         else:
-            Exception(f"In type_transform_datStrP ist type_out: {type_out} nicht möglich")
+            raise Exception(f"In type_transform_datStrP ist type_out: {type_out} nicht möglich")
         # end if
     else:
         wert_out = wert
     # end if
     return (okay,wert_out)
 # end def
-def  type_transform_str(wert_in,type_out)
+def  type_transform_str(wert_in,type_out):
     '''
     :param wert_in:
     :param type_out:
@@ -943,7 +949,7 @@ def  type_transform_str(wert_in,type_out)
         elif (type_out == "list") or (type_out == "listStr") or (type_out == "list_str"):
             wert_out = [wert]
         else:
-            Exception(f"In type_transform_str ist type_out: {type_out} nicht möglich")
+            raise Exception(f"In type_transform_str ist type_out: {type_out} nicht möglich")
         # end if
     else:
         wert_out = wert
@@ -978,7 +984,7 @@ def  type_transform_int(wert_in,type_out):
         elif (type_out == "listStr") or (type_out == "list_str") :
             wert_out = [str(wert)]
         else:
-            Exception(f"In type_transform_int ist type_out: {type_out} nicht möglich")
+            raise Exception(f"In type_transform_int ist type_out: {type_out} nicht möglich")
         # end if
     else:
         wert_out = wert
@@ -1009,7 +1015,7 @@ def  type_transform_float(wert_in,type_out):
         elif (type_out == "listStr") or (type_out == "list_str") :
             wert_out = [str(wert)]
         else:
-            Exception(f"In type_transform_int ist type_out: {type_out} nicht möglich")
+            raise Exception(f"In type_transform_int ist type_out: {type_out} nicht möglich")
         # end if
     else:
         wert_out = wert
@@ -1039,7 +1045,7 @@ def  type_transform_euro(wert_in,type_out):
         elif (type_out == "listStr") or (type_out == "list_str") :
             wert_out = [str(wert)]
         else:
-            Exception(f"In type_transform_int ist type_out: {type_out} nicht möglich")
+            raise Exception(f"In type_transform_int ist type_out: {type_out} nicht möglich")
         # end if
     else:
         wert_out = wert
@@ -1065,7 +1071,7 @@ def  type_transform_euroStrK(wert_in,type_out):
         elif (type_out == "list") or (type_out == "listStr") or (type_out == "list_str"):
             wert_out = [wert]
         else:
-            Exception(f"In type_transform_int ist type_out: {type_out} nicht möglich")
+            raise Exception(f"In type_transform_int ist type_out: {type_out} nicht möglich")
         # end if
     else:
         wert_out = wert
@@ -1094,12 +1100,64 @@ def  type_transform_cent(wert_in,type_out):
         elif (type_out == "listStr") or (type_out == "list_str") :
             wert_out = [str(wert)]
         else:
-            Exception(f"In type_transform_int ist type_out: {type_out} nicht möglich")
+            wert_out = None
+            raise Exception(f"In type_transform_int ist type_out: {type_out} nicht möglich")
         # end if
     else:
         wert_out = wert
     # end if
     return (okay,wert_out)
+# end def
+def type_transform_list(wert_in,liste,type_out):
+    '''
+    :param wert_in:
+    :param type_out:
+    :return: (okay, wert_out) =  type_transform_list(wert_in,type_out)
+    '''
+    okay = hdef.NOT_OKAY
+    if isinstance(liste,list):
+        if (type_out == "int"):
+            wert_out = find_value_in_list(wert_in,liste)
+            if wert_out != None:
+                okay = hdef.OKAY
+            # end if
+        elif isinstance(type_out,list):
+            index = find_value_in_list(wert_in, liste)
+            if index != None:
+                n = len(type_out)
+                if n > index:
+                    wert_out = type_out[index]
+                    okay = hdef.OKAY
+                # end if
+            # end if
+        else:
+            wert_out = None
+            raise Exception(f"In type_transform_int ist type_out: {type_out} nicht möglich")
+        # end if
+    else:
+        wert_out = None
+    # end if
+    return (okay,wert_out)
+# end def
+def find_value_in_list(wert_in,liste):
+    index = None
+    counter = 0
+    for item in liste:
+        if isinstance(item,list):
+            index1 = find_value_in_list(wert_in,liste)
+            if index1 != None:
+                index = counter
+                break
+            # end if
+        else:
+            if wert_in == item:
+                index = counter
+                break
+            # end if
+        # end if
+        counter += 1
+    # end for
+    return index
 # end def
 def print_python_is_32_or_64_bit():
     print(struct.calcsize("P") * 8)

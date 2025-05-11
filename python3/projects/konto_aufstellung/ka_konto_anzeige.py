@@ -152,7 +152,7 @@ def anzeige(rd,konto_dict,konto_obj):
     
         elif( index_abfrage == i_add ):
             
-            (header_liste, buchungs_type_list,index_in_header_liste) = konto_obj.get_data_add_listen()
+            (header_liste, buchungs_type_list,index_in_header_liste) = konto_obj.get_data_to_add_lists()
             
             # Erstelle die Eingabe liste
             eingabeListe = []

@@ -1229,12 +1229,12 @@ class abfrage_n_eingabezeilen_class:
                     if isinstance(item[0], str):
                         self.str_liste.append(item[0])
                     else:
-                        Exception(f"abfrage_n_eingabezeilen_class: item[0] = {item[0]} of input liste is not a string")
+                        raise Exception(f"abfrage_n_eingabezeilen_class: item[0] = {item[0]} of input liste is not a string")
                     # end if
                     if isinstance(item[1], list):
                         self.combo_input_llist.append(item[1])
                     else:
-                        Exception(f"abfrage_n_eingabezeilen_class: item[0] = {item[1]} of input liste is not a list")
+                        raise Exception(f"abfrage_n_eingabezeilen_class: item[0] = {item[1]} of input liste is not a list")
                     # end if
                 # end if
             elif isinstance(item, str):

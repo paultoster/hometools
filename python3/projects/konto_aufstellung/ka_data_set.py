@@ -25,6 +25,7 @@ import hfkt_type as htype
 import ka_iban_data
 import ka_data_pickle
 import ka_konto_data_set_class
+import ka_konto_csv_read_class
 import ka_depot_data_set_class
 
 
@@ -232,57 +233,14 @@ def build_konto_data_set_obj(par, konto_data, konto_name,data):
     '''
     
     #----------------------------------------------------------------------------
-    # Set parameter for konto Data
+    # Set parameter for konto Data set
     #----------------------------------------------------------------------------
+    
+    # class KontoDataSet anlegen
     obj = ka_konto_data_set_class.KontoDataSet()
     
-    # dict mit Zuordnung header name in ini-File und index in Funktion
-    key_list = [ (par.HEADER_BUCHDATUM_NAME,obj.KONTO_DATA_INDEX_BUCHDATUM)
-                ,(par.HEADER_WERTDATUM_NAME,obj.KONTO_DATA_INDEX_WERTDATUM)
-                ,(par.HEADER_WER_NAME,obj.KONTO_DATA_INDEX_WER)
-                ,(par.HEADER_BUCHTYPE_NAME,obj.KONTO_DATA_INDEX_BUCHTYPE)
-                ,(par.HEADER_WERT_NAME,obj.KONTO_DATA_INDEX_WERT)
-                ,(par.HEADER_COMMENT_NAME,obj.KONTO_DATA_INDEX_COMMENT)]
-    
-    
-    for item in key_list:
-        key  = item[0]
-        index = item[1]
-        if key not in konto_data.ddict.keys():
-            Exception(f"par.HEADER_BUCHDATUM_NAME: {key} not in konto_data resp. ini-data of konto: {konto_name}")
-        obj.set_csv_header_name(index, konto_data.ddict[key] )
-        
-    # die csv-spez. Namen für buchtype kann auch Liste seinini-namen für Auslesen der BUCHUNG
-    key_list = [ (par.INI_KONTO_BUCH_EINZAHLUNG_NAME,obj.KONTO_BUCHTYPE_EINZAHLUNG)
-                ,(par.INI_KONTO_BUCH_AUSZAHLUNG_NAME,obj.KONTO_BUCHTYPE_AUSZAHLUNG)
-                ,(par.INI_KONTO_BUCH_KOSTEN_NAME,obj.KONTO_BUCHTYPE_KOSTEN)
-                ,(par.INI_KONTO_BUCH_WP_KAUF_NAME,obj.KONTO_BUCHTYPE_WP_KAUF)
-                ,(par.INI_KONTO_BUCH_WP_VERKAUF_NAME,obj.KONTO_BUCHTYPE_WP_VERKAUF)
-                ,(par.INI_KONTO_BUCH_WP_KOSTEN_NAME,obj.KONTO_BUCHTYPE_WP_KOSTEN)
-                ,(par.INI_KONTO_BUCH_WP_EINNAHMEN_NAME,obj.KONTO_BUCHTYPE_WP_EINNAHMEN)]
-    #
-    for item in key_list:
-        key  = item[0]
-        index = item[1]
-        if key not in konto_data.ddict.keys():
-            Exception(f"par.HEADER_BUCHDATUM_NAME: {key} not in konto_data resp. ini-data of konto: {konto_name}")
-        obj.set_buchtype_csv_name(index, konto_data.ddict[key] )
-        # if( "ing_bank_giro" in data.keys()):
-        #    print(data["ing_bank_giro"].obj.KONTO_DATA_BUCHTYPE_CSV_NAME_DICT)
-
-        
-    # die items aus dict liste zum Anzeigen in der Tabelle
-    obj.set_data_show_dict_list(obj.KONTO_DATA_INDEX_BUCHDATUM)
-    obj.set_data_show_dict_list(obj.KONTO_DATA_INDEX_WERTDATUM)
-    obj.set_data_show_dict_list(obj.KONTO_DATA_INDEX_WER)
-    obj.set_data_show_dict_list(obj.KONTO_DATA_INDEX_BUCHTYPE)
-    obj.set_data_show_dict_list(obj.KONTO_DATA_INDEX_WERT)
-    obj.set_data_show_dict_list(obj.KONTO_DATA_INDEX_SUMWERT)
-    obj.set_data_show_dict_list(obj.KONTO_DATA_INDEX_COMMENT)
-    obj.set_data_show_dict_list(obj.KONTO_DATA_INDEX_ISIN)
-    obj.set_data_show_dict_list(obj.KONTO_DATA_INDEX_KATEGORIE)
-    
     # kont_data set anlegen
+    #----------------------
     key = par.KONTO_DATA_SET_NAME
     if key in konto_data.ddict:
         if len(konto_data.ddict[key]) > 0:
@@ -297,6 +255,8 @@ def build_konto_data_set_obj(par, konto_data, konto_name,data):
         data_set_llist = []
     # end if
     
+    # konto data id
+    #--------------
     key = par.KONTO_DATA_ID_MAX_NAME
     if key in konto_data.ddict:
         idmax = konto_data.ddict[key]
@@ -305,6 +265,7 @@ def build_konto_data_set_obj(par, konto_data, konto_name,data):
     # end if
     
     # konto_start_wert von ini übergeben:
+    #-----------------------------------
     key = par.START_WERT_NAME
     if key in konto_data.ddict:
         konto_start_wert = konto_data.ddict[key]
@@ -313,6 +274,7 @@ def build_konto_data_set_obj(par, konto_data, konto_name,data):
     # end if
     
     # konto_start_datum von ini übergeben:
+    #-------------------------------------
     key = par.START_DATUM_NAME
     if key in konto_data.ddict:
         konto_start_datum = konto_data.ddict[key]
@@ -321,6 +283,7 @@ def build_konto_data_set_obj(par, konto_data, konto_name,data):
     # end if
     
     # Trennungs zeichen für decimal wert
+    #-----------------------------------
     key = par.INI_KONTO_STR_EURO_TRENN_BRUCH
     if key in konto_data.ddict:
         wert_delim = konto_data.ddict[key]
@@ -329,6 +292,7 @@ def build_konto_data_set_obj(par, konto_data, konto_name,data):
     # end if
     
     # Trennungszeichen für Tausend
+    #-----------------------------
     key = par.INI_KONTO_STR_EURO_TRENN_TAUSEND
     if key in konto_data.ddict:
         wert_trennt = konto_data.ddict[key]
@@ -336,7 +300,7 @@ def build_konto_data_set_obj(par, konto_data, konto_name,data):
         wert_trennt = par.STR_EURO_TRENN_TAUSEN_DEFAULT
     # end if
 
-    # class KontoDataSet anlegen
+    # KontoDataSet data_llist übergeben
     obj.set_starting_data_llist(
         data_set_llist,
         idmax,
@@ -347,8 +311,66 @@ def build_konto_data_set_obj(par, konto_data, konto_name,data):
     
     konto_data.obj = copy.deepcopy(obj)
     
-    del obj
+    
+    
+    #----------------------------------------------------------------------------
+    # Set parameter for konto csv read
+    #----------------------------------------------------------------------------
+    csv = ka_konto_csv_read_class.KontoCsvRead()
 
+    # Trennungszeichen in csv-Datei
+    #--------------------------------
+    key = par.INI_KONTO_CSV_TRENN_DATA
+    if key in konto_data.ddict:
+        wert_trenn = konto_data.ddict[key]
+    else:
+        raise Exception(f"key {par.INI_KONTO_CSV_TRENN_DATA} not ini-File of konto: {konto_name}")
+    # end if
+    csv.set_csv_trennzeichen(wert_trenn)
+
+    # build buchungstype list from ini-File for csv-file
+    #---------------------------------------------------
+    csv_buchungs_typ_liste = []
+    ddict    = {obj.KONTO_BUCHTYPE_INDEX_EINZAHLUNG:par.INI_KONTO_BUCH_EINZAHLUNG_NAME,
+                obj.KONTO_BUCHTYPE_INDEX_AUSZAHLUNG:par.INI_KONTO_BUCH_AUSZAHLUNG_NAME,
+                obj.KONTO_BUCHTYPE_INDEX_KOSTEN:par.INI_KONTO_BUCH_KOSTEN_NAME,
+                obj.KONTO_BUCHTYPE_INDEX_WP_KAUF:par.INI_KONTO_BUCH_WP_KAUF_NAME,
+                obj.KONTO_BUCHTYPE_INDEX_WP_VERKAUF:par.INI_KONTO_BUCH_WP_VERKAUF_NAME,
+                obj.KONTO_BUCHTYPE_INDEX_WP_KOSTEN:par.INI_KONTO_BUCH_WP_KOSTEN_NAME,
+                obj.KONTO_BUCHTYPE_INDEX_WP_EINNAHMEN:par.INI_KONTO_BUCH_WP_EINNAHMEN_NAME}
+    #
+    for index,buchtype_name in ddict.items():
+        if buchtype_name not in konto_data.ddict.keys():
+            raise Exception(f"In ini-File Parameter {buchtype_name} is not set of konto: {konto_name}")
+        # end if
+        csv_buchungs_typ_liste.append(konto_data.ddict[buchtype_name])
+    # end for
+
+    # Bilde list für header name csv, index und buchungstype
+    #-------------------------------------------------------
+    d =     {obj.KONTO_DATA_NAME_BUCHDATUM: par.HEADER_BUCHDATUM_NAME
+            ,obj.KONTO_DATA_NAME_WERTDATUM: par.HEADER_WERTDATUM_NAME
+            ,obj.KONTO_DATA_NAME_WER: par.HEADER_WER_NAME
+            ,obj.KONTO_DATA_NAME_BUCHTYPE: par.HEADER_BUCHTYPE_NAME
+            ,obj.KONTO_DATA_NAME_WERT: par.HEADER_WERT_NAME
+            ,obj.KONTO_DATA_NAME_COMMENT: par.HEADER_COMMENT_NAME}
+    
+    # Übergebe den Headernamen (aus ini) für das entsprechende item und den type
+    # standard ist string, für buchtype die erstelle Liste csv_buchungs_typ_liste
+    for konto_data_name,csv_name in d.items():
+        if csv_name not in konto_data.ddict.keys():
+            raise Exception(f"header {csv_name} not ini-File of konto: {konto_name}")
+        index = obj.get_index(konto_data_name)
+        if index == obj.KONTO_DATA_INDEX_BUCHTYPE:
+            csv.set_csv_header_name(index, csv_name, csv_buchungs_typ_liste)
+        else:
+            csv.set_csv_header_name(index, csv_name, "str")
+    
+    konto_data.csv = copy.deepcopy(csv)
+    
+    del obj
+    del csv
+    
     return konto_data
 
 # end def

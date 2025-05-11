@@ -310,7 +310,7 @@ class DepotDataSet:
     #
     #     nheader = len(self.KONTO_DATA_HEADER_CSV_NAME_DICT.keys())
     #     if nheader == 0:
-    #         Exception(f"search_header_line: self.KONTO_DATA_HEADER_CSV_NAME_DICT is empty must be set during setup Parameter in KontoDataSetParameter() ")
+    #         raise Exception(f"search_header_line: self.KONTO_DATA_HEADER_CSV_NAME_DICT is empty must be set during setup Parameter in KontoDataSetParameter() ")
     #     # end if
     #
     #     notfound = True
@@ -511,7 +511,7 @@ class DepotDataSet:
     #             return wert
     #         # endif
     #     else:
-    #         Exception(f"i_col_dataset = {i_col_dataset} nicht gefunden")
+    #         raise Exception(f"i_col_dataset = {i_col_dataset} nicht gefunden")
     #     # endif
     #
     #     try:
@@ -533,7 +533,7 @@ class DepotDataSet:
     #     okay = hdef.OKAY
     #
     #     if len(buch_type_dict.keys()) == 0:
-    #         Exception(f"")
+    #         raise Exception(f"")
     #     # endif
     #     not_found = True
     #     for key in buch_type_dict.keys():
