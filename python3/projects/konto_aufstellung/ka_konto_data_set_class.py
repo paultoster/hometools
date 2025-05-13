@@ -60,8 +60,10 @@ class KontoDataSet:
         , KONTO_BUCHTYPE_INDEX_WP_KOSTEN: "wp_kosten"
         , KONTO_BUCHTYPE_INDEX_WP_EINNAHMEN: "wp_einnahmen"}
     KONTO_BUCHTYPE_TEXT_LIST = []
+    KONTO_BUCHTYPE_INDEX_LIST = []
     for key in KONTO_DATA_BUCHTYPE_DICT.keys():
         KONTO_BUCHTYPE_TEXT_LIST.append(KONTO_DATA_BUCHTYPE_DICT[key])
+        KONTO_BUCHTYPE_INDEX_LIST.append(key)
     # end for
     
     # Indizes in erinem data_set
@@ -101,7 +103,7 @@ class KontoDataSet:
         [KONTO_DATA_INDEX_BUCHDATUM, KONTO_DATA_NAME_BUCHDATUM, "dat"],
         [KONTO_DATA_INDEX_WERTDATUM, KONTO_DATA_NAME_WERTDATUM, "dat"],
         [KONTO_DATA_INDEX_WER, KONTO_DATA_NAME_WER, "str"],
-        [KONTO_DATA_INDEX_BUCHTYPE, KONTO_DATA_INDEX_BUCHTYPE, "int"],
+        [KONTO_DATA_INDEX_BUCHTYPE, KONTO_DATA_NAME_BUCHTYPE, KONTO_BUCHTYPE_INDEX_LIST],
         [KONTO_DATA_INDEX_WERT, KONTO_DATA_NAME_WERT, "cent"],
         [KONTO_DATA_INDEX_SUMWERT, KONTO_DATA_NAME_SUMWERT, "cent"],
         [KONTO_DATA_INDEX_COMMENT, KONTO_DATA_NAME_COMMENT, "str"],
@@ -124,15 +126,15 @@ class KontoDataSet:
     # end for
     
     KONTO_DATA_EXTERN_LLIST = [
-        [KONTO_DATA_INDEX_BUCHDATUM, "buchdatum", "datStrP"],
-        [KONTO_DATA_INDEX_WERTDATUM, "wertdatum", "datStrP"],
-        [KONTO_DATA_INDEX_WER, "wer", "str"],
-        [KONTO_DATA_INDEX_BUCHTYPE, "buchtype", KONTO_BUCHTYPE_TEXT_LIST],
-        [KONTO_DATA_INDEX_WERT, "wert", "euroStrK"],
-        [KONTO_DATA_INDEX_SUMWERT, "sumwert", "euroStrK"],
-        [KONTO_DATA_INDEX_COMMENT, "comment", "str"],
-        [KONTO_DATA_INDEX_ISIN, "isin", "str"],
-        [KONTO_DATA_INDEX_KATEGORIE, "kategorie", "str"],
+        [KONTO_DATA_INDEX_BUCHDATUM, KONTO_DATA_NAME_BUCHDATUM, "datStrP"],
+        [KONTO_DATA_INDEX_WERTDATUM, KONTO_DATA_NAME_WERTDATUM, "datStrP"],
+        [KONTO_DATA_INDEX_WER, KONTO_DATA_NAME_WER, "str"],
+        [KONTO_DATA_INDEX_BUCHTYPE, KONTO_DATA_NAME_BUCHTYPE, KONTO_BUCHTYPE_TEXT_LIST],
+        [KONTO_DATA_INDEX_WERT, KONTO_DATA_NAME_WERT, "euroStrK"],
+        [KONTO_DATA_INDEX_SUMWERT,KONTO_DATA_NAME_SUMWERT, "euroStrK"],
+        [KONTO_DATA_INDEX_COMMENT, KONTO_DATA_NAME_COMMENT, "str"],
+        [KONTO_DATA_INDEX_ISIN, KONTO_DATA_NAME_ISIN, "str"],
+        [KONTO_DATA_INDEX_KATEGORIE, KONTO_DATA_NAME_KATEGORIE, "str"],
     ]
     KONTO_DATA_EXTERN_NAME_DICT = {}
     KONTO_DATA_EXTERN_TYPE_DICT = {}
@@ -203,7 +205,7 @@ class KontoDataSet:
                     # end if
                     new_data_list.append(wert)
                     new_data_index_list.append(index)
-                    new_data_type_list.append("dat")
+                    new_data_type_list.append(self.KONTO_DATA_EXTERN_TYPE_DICT[index])
                 # --------------------------------------
                 # wertdatum
                 elif index == self.KONTO_DATA_INDEX_WERTDATUM:
@@ -214,7 +216,7 @@ class KontoDataSet:
                     # end if
                     new_data_list.append(wert)
                     new_data_index_list.append(index)
-                    new_data_type_list.append("dat")
+                    new_data_type_list.append(self.KONTO_DATA_EXTERN_TYPE_DICT[index])
                 # --------------------------------------
                 # wer
                 elif index == self.KONTO_DATA_INDEX_WER:
@@ -232,18 +234,18 @@ class KontoDataSet:
                 elif index == self.KONTO_DATA_INDEX_WERT:
                     new_data_list.append(0.0)
                     new_data_index_list.append(index)
-                    new_data_type_list.append("float")
+                    new_data_type_list.append("euro")
                 # --------------------------------------
                 # sumwert
                 elif index == self.KONTO_DATA_INDEX_SUMWERT:
-                    (okay, wert) = htype.type_transform(self.konto_start_wert, self.KONTO_DATA_TYPE_DICT[index],self.KONTO_DATA_EXTERN_TYPE_DICT[index])
+                    (okay, wert) = htype.type_transform(self.konto_start_wert, "cent",self.KONTO_DATA_EXTERN_TYPE_DICT[index])
                     if okay != hdef.OKAY:
                         raise Exception(
                             f"Fehler initialisierung  summe {self.konto_start_wert} von type: {self.KONTO_DATA_TYPE_DICT[index]} in type {self.KONTO_DATA_EXTERN_TYPE_DICT[index]} wandeln !!!")
                     # end if
                     new_data_list.append(wert)
                     new_data_index_list.append(index)
-                    new_data_type_list.append("cent")
+                    new_data_type_list.append(self.KONTO_DATA_EXTERN_TYPE_DICT[index])
                 # --------------------------------------
                 # comment
                 elif index == self.KONTO_DATA_INDEX_COMMENT:
@@ -286,7 +288,7 @@ class KontoDataSet:
         '''
         self.status = hdef.OKAY
         
-        (new_data_dict_list, new_type_dict) = self.filt_and_sort_new_data_dict(new_data_matrix, new_data_idenx_list,new_data_type_list)
+        (new_data_dict_list, new_type_dict) = self.filt_and_new_data_dict(new_data_matrix, new_data_idenx_list,new_data_type_list)
         if self.status != hdef.OKAY:
             return (False, self.status, self.errtext)
         # endif
@@ -295,6 +297,11 @@ class KontoDataSet:
         if self.status != hdef.OKAY:
             return (False, self.status, self.errtext)
         # endif
+        
+        # sort new data
+        #--------------
+        new_data_dict_list = hlist.sort_list_of_dict(new_data_dict_list, self.KONTO_DATA_INDEX_BUCHDATUM, aufsteigend=1)
+
         
         new_data_dict_list = self.build_internal_values_new_data_dict(new_data_dict_list)
         if self.status != hdef.OKAY:
@@ -345,15 +352,18 @@ class KontoDataSet:
             
             index_data_set = index_liste[icol]
             if index_data_set not in self.KONTO_DATA_IMMUTABLE_INDEX_LIST:
-                
-                wert = self.transform_value(new_data_llist[irow][icol],
-                                            self.KONTO_DATA_EXTERN_TYPE_DICT[index_data_set],
-                                            self.KONTO_DATA_TYPE_DICT[index_data_set])
-                if self.status == hdef.OKAY:
-                    self.data_set_llist[istart + irow][index_data_set] = wert
-                    if (index_data_set == self.KONTO_DATA_INDEX_WERT):
-                        wert_changed = True
+                (okay, wert) = htype.type_transform(new_data_llist[irow][icol], self.KONTO_DATA_EXTERN_TYPE_DICT[index_data_set],
+                                                    self.KONTO_DATA_TYPE_DICT[index_data_set])
+                if okay != hdef.OKAY:
+                    raise Exception(
+                        f"Fehler transform  {new_data_llist[irow][icol]} von type: {self.KONTO_DATA_EXTERN_TYPE_DICT[index_data_set]} in type {self.KONTO_DATA_TYPE_DICT[index_data_set]} wandeln !!!")
                 # end if
+                self.data_set_llist[istart + irow][index_data_set] = wert
+                if index_data_set == self.KONTO_DATA_INDEX_WERT:
+                    wert_changed = True
+                # end if
+            else:
+                print(f"Der Wert von {self.KONTO_DATA_EXTERN_NAME_DICT[index_data_set]} mit dem Wert {new_data_llist[irow][icol]} darf nicht verändert werden !!!!!!!")
             # end if
         # end for
         
@@ -635,7 +645,7 @@ class KontoDataSet:
     #-------------------------------------------------------------------------------------------------------------------
     # intern functions
     #-------------------------------------------------------------------------------------------------------------------
-    def filt_and_sort_new_data_dict(self, new_data_matrix, new_data_idenx_list, new_data_type_list):
+    def filt_and_new_data_dict(self, new_data_matrix, new_data_idenx_list, new_data_type_list):
         '''
         
         :param new_data_matrix:
@@ -689,8 +699,6 @@ class KontoDataSet:
         
         # sort new data
         # sortiere neue Einträge nach buchdatum
-        keyname = self.KONTO_DATA_INDEX_BUCHDATUM
-        new_filt_data_dict_list = hlist.sort_list_of_dict(new_filt_data_dict_list, keyname, aufsteigend=1)
 
         if self.KONTO_DATA_INDEX_CHASH in new_data_dict.keys():
             new_type_dict[self.KONTO_DATA_INDEX_CHASH] = self.KONTO_DATA_TYPE_DICT[self.KONTO_DATA_INDEX_CHASH]
@@ -723,6 +731,7 @@ class KontoDataSet:
             # end for
             new_data_dict_list[index] = data_dict
         # end for
+        
         return new_data_dict_list
     
     # end def
@@ -850,19 +859,25 @@ class KontoDataSet:
             data_set_list = self.data_set_llist[index]
             data_list = []
             for key in self.KONTO_DATA_EXTERN_NAME_DICT.keys():
-                if key == self.KONTO_DATA_INDEX_BUCHDATUM:
-                    data_list.append(hdate.secs_time_epoch_to_str(data_set_list[key]))
-                elif key == self.KONTO_DATA_INDEX_WERTDATUM:
-                    data_list.append(hdate.secs_time_epoch_to_str(data_set_list[key]))
-                elif key == self.KONTO_DATA_INDEX_BUCHTYPE:
-                    data_list.append(self.KONTO_BUCHTYPE_TEXT_LIST[data_set_list[key]])
-                elif key == self.KONTO_DATA_INDEX_WERT:
-                    data_list.append(hstr.convert_int_cent_to_string_euro(data_set_list[key], self.DECIMAL_TRENN_STR))
-                elif key == self.KONTO_DATA_INDEX_SUMWERT:
-                    data_list.append(hstr.convert_int_cent_to_string_euro(data_set_list[key], self.DECIMAL_TRENN_STR))
-                else:
-                    data_list.append(data_set_list[key])
+                (okay, wert) = htype.type_transform(data_set_list[key],self.KONTO_DATA_TYPE_DICT[key],self.KONTO_DATA_EXTERN_TYPE_DICT[key])
+                if okay != hdef.OKAY:
+                    raise Exception(
+                        f"Fehler transform  {data_set_list[key]} von type: {self.KONTO_DATA_TYPE_DICT[key]} in type {self.KONTO_DATA_EXTERN_TYPE_DICT[key]} wandeln !!!")
                 # end if
+                data_list.append(wert)
+                # if key == self.KONTO_DATA_INDEX_BUCHDATUM:
+                #     data_list.append(hdate.secs_time_epoch_to_str(data_set_list[key]))
+                # elif key == self.KONTO_DATA_INDEX_WERTDATUM:
+                #     data_list.append(hdate.secs_time_epoch_to_str(data_set_list[key]))
+                # elif key == self.KONTO_DATA_INDEX_BUCHTYPE:
+                #     data_list.append(self.KONTO_BUCHTYPE_TEXT_LIST[data_set_list[key]])
+                # elif key == self.KONTO_DATA_INDEX_WERT:
+                #     data_list.append(hstr.convert_int_cent_to_string_euro(data_set_list[key], self.DECIMAL_TRENN_STR))
+                # elif key == self.KONTO_DATA_INDEX_SUMWERT:
+                #     data_list.append(hstr.convert_int_cent_to_string_euro(data_set_list[key], self.DECIMAL_TRENN_STR))
+                # else:
+                #     data_list.append(data_set_list[key])
+                # # end if
             # end for
             data_llist.append(data_list)
             if data_set_list[self.KONTO_DATA_INDEX_ID] in self.new_read_id_list:

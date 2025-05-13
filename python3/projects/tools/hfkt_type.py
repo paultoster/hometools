@@ -44,6 +44,8 @@ import re
 import math
 import zlib
 
+from pandas.core.dtypes.inference import is_float
+
 import hfkt as h
 import hfkt_def as hdef
 import hfkt_str as hstr
@@ -167,10 +169,11 @@ def suche_in_liste(liste, gesucht):
     return False
 
 
-def string_cent_in_euroStr(cents):
-    """ Wandelt string cents in "xx,yy €"
+def string_cent_in_euroStr(cents,delim=",",thousandsign="."):
+    """ Wandelt string cents in "xx,yy"
       """
-    return str(float(cents) / 100) + " €"
+    
+    return num_cent_in_euroStr(float(cents), delim=delim, thousandsign=thousandsign)
 
 
 def num_cent_in_euro(cents):
@@ -178,11 +181,56 @@ def num_cent_in_euro(cents):
       """
     return float(cents) / 100.
 
-def num_cent_in_euroStr(cents):
+def num_euro_in_euroStr(euro,delim=",",thousandsign="."):
+    return num_cent_in_euroStr(euro*100., delim=delim, thousandsign=thousandsign)
+def num_cent_in_euroStr(cents,delim=",",thousandsign="."):
     """ Wandelt num cents in "xx,yy €"
       """
-    return "%.2f" % (float(cents) / 100) + " €"
-
+    if cents < 0 :
+        negflag = True
+        value = -cents
+    else:
+        negflag = False
+        value = cents
+    # end if
+    
+    numeric_string = "%.2f" % (float(value) / 100)
+    list = numeric_string.split(".")
+    
+    thousands = []
+    n = len(list[0])
+    count = 0
+    if n < 4:
+        thousands.append(list[0])
+        count += 1
+    else:
+        n0 = n%3
+        if n0 != 0:
+            thousands.append(list[0][0:n0])
+            count += 1
+        # end if
+        for i in range(int((n-n0)/3)):
+            thousands.append(list[0][n0+i*3:n0+(i+1)*3])
+            count += 1
+        # end for
+    # end if
+    
+    euroStr = ''
+    for i,thousand in enumerate(thousands):
+        euroStr += thousand
+        if i < (count-1):
+            euroStr += thousandsign
+        # end if
+    # end for
+    euroStr += delim
+    euroStr += list[1]
+    
+    if negflag:
+        euroStr = "-" + euroStr
+    # endif
+    
+    return euroStr
+# end def
 def numeric_string_to_float(numeric_string,delim=",",thousandsign="."):
     parts = [part.strip().replace(thousandsign, '') for part in numeric_string.split(delim)]
     return float('.'.join(parts))
@@ -195,8 +243,8 @@ def string_euro_in_int_cent(numeric_string, delim=",",thousandsign="."):
     # Wenn Trennzeichen nicht Punkt, dann
     # nehme den Tausender-Punkt raus,
     #-------------------------------------
-    
-    return int(numeric_string_to_float(numeric_string,delim=delim,thousandsign=thousandsign) * 100+0.5)
+    value = numeric_string_to_float(numeric_string,delim=delim,thousandsign=thousandsign)
+    return int(value* 100.+ math.copysign(0.5, value) )
 
 def str_to_float(txt):
     try:
@@ -790,16 +838,24 @@ def type_proof_euroStrK(wert_in, delim=",", thousandsign="."):
     '''
     (okay, wert_euro) = type_proof_euro(wert_in, delim=delim, thousandsign=thousandsign)
     if okay == hdef.OKAY:
-        wert = hstr.convert_int_cent_to_string_euro(float(wert_euro), delim)
+        wert = num_euro_in_euroStr(float(wert_euro), delim,thousandsign)
+        wert = hstr.convert_float_euro_to_string_euro(float(wert_euro), delim,thousandsign)
     else:
         wert = None
     # end if
     return (okay, wert)
 # end def
 def type_proof_cent(wert_in):
-    (okay, wert) = type_proof_euro(wert_in)
-    if okay:
-        wert = int(wert)
+    okay = hdef.OKAY
+    if is_int(wert_in):
+        wert = wert_in
+    elif is_float(wert_in):
+        wert = int(wert_in + math.copysign(0.5, wert_in))
+    elif is_string(wert_in):
+        wert = string_euro_in_int_cent(wert_in, delim=",", thousandsign=".")
+    else:
+        wert = None
+        okay = hdef.NOT_OKAY
     # end if
     return (okay,wert)
 # end def
@@ -811,8 +867,7 @@ def type_convert_euro_to_cent(wert_euro,delim=",", thousandsign="."):
     '''
     (okay, out) = type_proof_euro(wert_euro,delim=delim,thousandsign=thousandsign)
     if okay == hdef.OKAY:
-        wert_cent = int(math.copysign(int(math.fabs(out)*100+0.5), out))
-        # wert_cent = int(out*100+0.5)
+        wert_cent = int(out*100.+math.copysign(0.5,out))
     else:
         wert_cent = None
     # end if
@@ -944,8 +999,10 @@ def  type_transform_str(wert_in,type_out):
         elif type_out == "euroStrK":
             (okay, wert_out) = type_proof(wert, "euro")
             if okay == hdef.OKAY:
-                wert_out = hstr.convert_int_cent_to_string_euro(wert_out, ",")
+                wert_out = hstr.convert_float_euro_to_string_euro(wert_out, ",")
             # end if
+        elif type_out == "dat" or type_out == "date":
+            (okay, wert_out) = type_proof(wert, type_out)
         elif (type_out == "list") or (type_out == "listStr") or (type_out == "list_str"):
             wert_out = [wert]
         else:
@@ -978,7 +1035,7 @@ def  type_transform_int(wert_in,type_out):
         elif type_out == "str":
             (okay, wert_out) = type_proof(wert, "str")
         elif type_out == "euroStrK":
-            wert_out = hstr.convert_int_cent_to_string_euro(float(wert), ",")
+            wert_out = num_cent_in_euroStr(float(wert))
         elif type_out == "list":
             wert_out = [wert]
         elif (type_out == "listStr") or (type_out == "list_str") :
@@ -1008,7 +1065,7 @@ def  type_transform_float(wert_in,type_out):
         elif type_out == "euroStrK":
             (okay, wert_out) = type_proof(wert, "euro")
             if okay == hdef.OKAY:
-                wert_out = hstr.convert_int_cent_to_string_euro(wert_out, ",")
+                wert_out = num_cent_in_euroStr(wert_out)
             # end if
         elif type_out == "list":
             wert_out = [wert]
@@ -1039,7 +1096,7 @@ def  type_transform_euro(wert_in,type_out):
         elif type_out == "float":
             wert_out = float(wert)
         elif type_out == "euroStrK":
-            wert_out = hstr.convert_int_cent_to_string_euro(wert, ",")
+            wert_out = num_euro_in_euroStr(wert)
         elif type_out == "list":
             wert_out = [wert]
         elif (type_out == "listStr") or (type_out == "list_str") :
@@ -1087,14 +1144,13 @@ def  type_transform_cent(wert_in,type_out):
     (okay, wert) = type_proof(wert_in, "cent")
     if( okay == hdef.OKAY):
         if (type_out == "float") or (type_out == "euro"):
-            
-            (okay, wert_out) = type_proof(num_cent_in_euro(wert), type_out)
+            wert_out = num_cent_in_euro(wert)
         elif type_out == "int":
             wert_out = int(wert)
         elif type_out == "str":
             (okay, wert_out) = type_proof(wert, "str")
         elif type_out == "euroStrK":
-            wert_out = num_cent_in_euroStr(wert)
+            wert_out = num_cent_in_euroStr(float(wert))
         elif type_out == "list":
             wert_out = [wert]
         elif (type_out == "listStr") or (type_out == "list_str") :
@@ -1144,7 +1200,7 @@ def find_value_in_list(wert_in,liste):
     counter = 0
     for item in liste:
         if isinstance(item,list):
-            index1 = find_value_in_list(wert_in,liste)
+            index1 = find_value_in_list(wert_in,item)
             if index1 != None:
                 index = counter
                 break

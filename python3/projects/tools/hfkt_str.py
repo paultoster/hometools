@@ -1247,7 +1247,9 @@ def convert_string_to_float(text):
     
     return float(change_max(text=text, muster_alt=",", muster_neu="."))
 
-def convert_int_cent_to_string_euro(int_cent,DECIMAL_TRENN_STR="."):
+def convert_float_euro_to_string_euro(float_euro,DECIMAL_TRENN_STR=".",thousandsign=""):
+    return convert_int_cent_to_string_euro(float_euro*100,DECIMAL_TRENN_STR=DECIMAL_TRENN_STR,thousandsign=thousandsign)
+def convert_int_cent_to_string_euro(int_cent,DECIMAL_TRENN_STR=".",thousandsign=""):
     '''
     
     :param value:

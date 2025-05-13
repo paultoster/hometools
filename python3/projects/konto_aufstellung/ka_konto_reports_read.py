@@ -83,7 +83,7 @@ def report_einlesen(rd):
         
         # eingelsene Daten in konto einsortieren
         #---------------------------------------
-        (status,errtext,flag_newdata) = konto_obj.set_new_data(data_matrix,identlist,typelist)
+        (flag_newdata,status,errtext) = konto_obj.set_new_data(data_matrix,identlist,typelist)
         
         if status != hdef.OKAY:
             rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)

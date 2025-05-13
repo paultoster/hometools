@@ -40,7 +40,7 @@ class KontoCsvRead:
         
         # read csv-File
         # ==============
-        csv_lliste = hio.read_csv_file(file_name=filename, delim=";")
+        csv_lliste = hio.read_csv_file(file_name=filename, delim=self.CSV_TRENN_ZEICHEN)
         
         if (len(csv_lliste) == 0):
             self.errtext = f"Fehler in read_ing_csv read_csv_file()  filename = {self.filename}"
@@ -84,6 +84,7 @@ class KontoCsvRead:
         notfound = True
         
         start_index = 0
+        header_found_liste = []
         
         for i, csv_liste in enumerate(csv_lliste):
             

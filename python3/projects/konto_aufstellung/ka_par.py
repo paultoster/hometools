@@ -134,6 +134,8 @@ class Parameter:
     KONTO_DATA_ID_MAX_NAME: str = "konto_id_max"
     KONTO_DATA_ID_NEW_LIST: str = "konto_id_new_list"
     
+    INI_DATA_KEYS_NAME: str = "ini_data_keys"
+    
     # konto data
     DEPOT_NAME_NAME: str = "name"
     DEPOT_DATA_SET_NAME: str = "depot_data_set"

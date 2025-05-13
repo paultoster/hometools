@@ -152,7 +152,7 @@ def data_save(data,par):
 
 # enddef
 
-def proof_konto_data_from_ini(konto_data, ini_data,par):
+def proof_konto_data_from_ini(konto_data, ini_data_dict,par):
     """
     proof ini_data in konto_data
     :param konto_data:
@@ -160,41 +160,61 @@ def proof_konto_data_from_ini(konto_data, ini_data,par):
     :return:
     """
     
-    for key in ini_data:
+    for key in ini_data_dict.keys():
         
         if (key in konto_data.ddict):
-            if (ini_data[key] != konto_data.ddict[key]):
-                konto_data.ddict[key] = ini_data[key]
+            if (ini_data_dict[key] != konto_data.ddict[key]):
+                konto_data.ddict[key] = ini_data_dict[key]
             # endif
         else:
             if key == par.START_WERT_NAME:
-                if isinstance(ini_data[key],str) or isinstance(ini_data[key],float):
+                if isinstance(ini_data_dict[key],str) or isinstance(ini_data_dict[key],float):
                     # Trennungs zeichen für decimal wert
-                    if par.INI_KONTO_STR_EURO_TRENN_BRUCH in ini_data.keys():
-                        wert_delim = ini_data[par.INI_KONTO_STR_EURO_TRENN_BRUCH]
+                    if par.INI_KONTO_STR_EURO_TRENN_BRUCH in ini_data_dict.keys():
+                        wert_delim = ini_data_dict[par.INI_KONTO_STR_EURO_TRENN_BRUCH]
                     else:
                         wert_delim = par.STR_EURO_TRENN_BRUCH_DEFAULT
                     # end if
                     
                     # Trennungszeichen für Tausend
-                    if par.INI_KONTO_STR_EURO_TRENN_TAUSEND in ini_data.keys():
-                        wert_trennt = ini_data[par.INI_KONTO_STR_EURO_TRENN_TAUSEND]
+                    if par.INI_KONTO_STR_EURO_TRENN_TAUSEND in ini_data_dict.keys():
+                        wert_trennt = ini_data_dict[par.INI_KONTO_STR_EURO_TRENN_TAUSEND]
                     else:
                         wert_trennt = par.STR_EURO_TRENN_TAUSEN_DEFAULT
                     # end if
-                    (okay, wert) = htype.type_convert_euro_to_cent(ini_data[key],delim=wert_delim,thousandsign=wert_trennt)
+                    (okay, wert) = htype.type_convert_euro_to_cent(ini_data_dict[key],delim=wert_delim,thousandsign=wert_trennt)
                     if okay != hdef.OKAY:
-                        raise Exception(f"ka_data_set: Den Startwert = {ini_data[key]} kann nicht gewandelt werden ")
+                        raise Exception(f"ka_data_set: Den Startwert = {ini_data_dict[key]} kann nicht gewandelt werden ")
                     # end if
                 else:
-                    wert = ini_data[key]
+                    wert = ini_data_dict[key]
                 # end if
                 konto_data.ddict[key] = wert
             else:
-                konto_data.ddict[key] = ini_data[key]
+                konto_data.ddict[key] = ini_data_dict[key]
             # end if
         # endif
     # end for
+    
+    # proof if all ini-Data in konto_data and vice versa
+    #---------------------------------------------------
+    ini_keys = list(ini_data_dict.keys())
+    
+    if par.INI_DATA_KEYS_NAME not in konto_data.ddict:
+        konto_data.ddict[par.INI_DATA_KEYS_NAME] = ini_keys
+    else:
+        data_ini_keys = konto_data.ddict[par.INI_DATA_KEYS_NAME]
+        flag = False
+        for key in data_ini_keys:
+            if (key not in ini_keys) and (key in konto_data.ddict.keys() ):
+                del konto_data.ddict[key]
+                flag = True
+            # end if
+        # end for
+        if flag :
+            konto_data.ddict[par.INI_DATA_KEYS_NAME] = ini_keys
+        # end if
+    # end if
     
     return konto_data
 
@@ -244,9 +264,9 @@ def build_konto_data_set_obj(par, konto_data, konto_name,data):
     key = par.KONTO_DATA_SET_NAME
     if key in konto_data.ddict:
         if len(konto_data.ddict[key]) > 0:
-            if len(konto_data.ddict[key][0]) != len(obj.KONTO_DATA_ITEM_LIST):
+            if len(konto_data.ddict[key][0]) != len(obj.KONTO_DATA_NAME_LIST):
                 konto_data.status = hdef.NOT_OKAY
-                konto_data.errtext = f"length of header-list {par.KONTO_DATA_ITEM_LIST} not same with data-dict {konto_data.dict[key]} of konto: {konto_name}"
+                konto_data.errtext = f"length of header-list {par.KONTO_DATA_NAME_LIST} not same with data-dict {konto_data.dict[key]} of konto: {konto_name}"
                 return konto_data
             # end if
         # end if
@@ -269,6 +289,17 @@ def build_konto_data_set_obj(par, konto_data, konto_name,data):
     key = par.START_WERT_NAME
     if key in konto_data.ddict:
         konto_start_wert = konto_data.ddict[key]
+        if isinstance(konto_start_wert,float ):
+            (okay, konto_start_wert) = htype.type_transform_float(konto_start_wert,'cent')
+            if okay != hdef.OKAY:
+                raise Exception(f"konto_start_wert = konto_data.ddict[{key}] of konto_name = {konto_name} lässt sich von float (euro) in cent nicht wandeln")
+            # end if
+        else:
+            (okay, konto_start_wert) = htype.type_proof_cent(konto_start_wert)
+            if okay != hdef.OKAY:
+                raise Exception(f"konto_start_wert = konto_data.ddict[{key}] of konto_name = {konto_name} ist nicht in cent")
+            # end if
+        # end if
     else:
         konto_start_wert = 0
     # end if
@@ -278,6 +309,11 @@ def build_konto_data_set_obj(par, konto_data, konto_name,data):
     key = par.START_DATUM_NAME
     if key in konto_data.ddict:
         konto_start_datum = konto_data.ddict[key]
+        (okay, konto_start_datum) = htype.type_proof_dat(konto_start_datum)
+        if okay != hdef.OKAY:
+            raise Exception(
+                f"konto_start_datum = konto_data.ddict[{key}] of konto_name = {konto_name} ist kein Datum")
+        # end if
     else:
         konto_start_datum = 0
     # end if
@@ -331,7 +367,8 @@ def build_konto_data_set_obj(par, konto_data, konto_name,data):
     # build buchungstype list from ini-File for csv-file
     #---------------------------------------------------
     csv_buchungs_typ_liste = []
-    ddict    = {obj.KONTO_BUCHTYPE_INDEX_EINZAHLUNG:par.INI_KONTO_BUCH_EINZAHLUNG_NAME,
+    ddict    = {obj.KONTO_BUCHTYPE_INDEX_UNBEKANNT:'unbekannt',                          # muss sdazu , um gleiche Länge der Liste zu bekommen
+                obj.KONTO_BUCHTYPE_INDEX_EINZAHLUNG:par.INI_KONTO_BUCH_EINZAHLUNG_NAME,
                 obj.KONTO_BUCHTYPE_INDEX_AUSZAHLUNG:par.INI_KONTO_BUCH_AUSZAHLUNG_NAME,
                 obj.KONTO_BUCHTYPE_INDEX_KOSTEN:par.INI_KONTO_BUCH_KOSTEN_NAME,
                 obj.KONTO_BUCHTYPE_INDEX_WP_KAUF:par.INI_KONTO_BUCH_WP_KAUF_NAME,
@@ -340,10 +377,14 @@ def build_konto_data_set_obj(par, konto_data, konto_name,data):
                 obj.KONTO_BUCHTYPE_INDEX_WP_EINNAHMEN:par.INI_KONTO_BUCH_WP_EINNAHMEN_NAME}
     #
     for index,buchtype_name in ddict.items():
-        if buchtype_name not in konto_data.ddict.keys():
-            raise Exception(f"In ini-File Parameter {buchtype_name} is not set of konto: {konto_name}")
+        if index == obj.KONTO_BUCHTYPE_INDEX_UNBEKANNT:
+            csv_buchungs_typ_liste.append(buchtype_name)
+        else:
+            if buchtype_name not in konto_data.ddict.keys():
+                raise Exception(f"In ini-File Parameter {buchtype_name} is not set of konto: {konto_name}")
+            # end if
+            csv_buchungs_typ_liste.append(konto_data.ddict[buchtype_name])
         # end if
-        csv_buchungs_typ_liste.append(konto_data.ddict[buchtype_name])
     # end for
 
     # Bilde list für header name csv, index und buchungstype
@@ -362,9 +403,9 @@ def build_konto_data_set_obj(par, konto_data, konto_name,data):
             raise Exception(f"header {csv_name} not ini-File of konto: {konto_name}")
         index = obj.get_index(konto_data_name)
         if index == obj.KONTO_DATA_INDEX_BUCHTYPE:
-            csv.set_csv_header_name(index, csv_name, csv_buchungs_typ_liste)
+            csv.set_csv_header_name(index, konto_data.ddict[csv_name], csv_buchungs_typ_liste)
         else:
-            csv.set_csv_header_name(index, csv_name, "str")
+            csv.set_csv_header_name(index, konto_data.ddict[csv_name], "str")
     
     konto_data.csv = copy.deepcopy(csv)
     
