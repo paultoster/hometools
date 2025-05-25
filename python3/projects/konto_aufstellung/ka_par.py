@@ -42,17 +42,18 @@ class Parameter:
     STR_EURO_TRENN_BRUCH_DEFAULT: str = ","
     STR_EURO_TRENN_TAUSEN_DEFAULT: str = "."
     
-    KONTO_SHOW_NUMBER_OF_LINES: int = 1000
+    KONTO_SHOW_NUMBER_OF_LINES: int = 30
     COLOR_SHOW_NEW_DATA_SETS: str = 'brown1'
-    
-    TYPE_SONST_DATA: str = "sonst"
+
+    TYPE_PROG_DATA: str = "prog"
     TYPE_KONTO_DATA: str = "konto"
     TYPE_DEPOT_DATA: str = "depot"
     TYPE_IBAN_DATA:  str = "iban"
     
-    DDICT_TYPE_NAE: str = "dicct_type"
+    DDICT_TYPE_NAME: str = "dict_type"
     
     # ini-file attributes
+    ALLG_DATA_DICT_NAMES_NAME: str = "allg_names"
     KONTO_DATA_DICT_NAMES_NAME: str = "konto_names"
     DEPOT_DATA_DICT_NAMES_NAME: str = "depot_names"
     
@@ -71,6 +72,8 @@ class Parameter:
                         ,(DATA_PICKLE_JSONFILE_LIST, "list_str")]
     
     # konto daten in ini-file
+    ALLG_PREFIX_NAME: str = "allg"
+    PROGRAM_NAME: str = "prog_data"
     KONTO_PREFIX: str = "konto"
     IBAN_NAME: str = "iban"
     BANK_NAME: str = "bank"
@@ -128,10 +131,11 @@ class Parameter:
     # konto names from ini
     KONTO_NAMES: str = field(default_factory=str)
     
+    KONTO_DATA_ID_MAX_NAME: str = "konto_id_max"
+    
     # konto data
     KONTO_NAME_NAME: str = "name"
     KONTO_DATA_SET_NAME: str = "konto_data_set"
-    KONTO_DATA_ID_MAX_NAME: str = "konto_id_max"
     KONTO_DATA_ID_NEW_LIST: str = "konto_id_new_list"
     
     INI_DATA_KEYS_NAME: str = "ini_data_keys"

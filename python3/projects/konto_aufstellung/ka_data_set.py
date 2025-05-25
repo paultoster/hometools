@@ -27,7 +27,7 @@ import ka_data_pickle
 import ka_konto_data_set_class
 import ka_konto_csv_read_class
 import ka_depot_data_set_class
-
+import ka_data_class_defs
 
 # --------------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------------
@@ -43,23 +43,45 @@ def data_get(par, ini):
     errtext = ""
     data = {}
     
+    # read allgeimeine-pickle-file
+    for allg_name in ini.allg_names:
+        if allg_name in ini.data_pickle_jsonfile_list:
+            use_json = ini.data_pickle_use_json
+        else:
+            use_json = 0
+        # end if
+        allg_data = ka_data_pickle.ka_data_pickle(par.ALLG_PREFIX_NAME, allg_name,use_json)
+        
+        if allg_name == par.PROGRAM_NAME:
+            allg_data = set_prog_data(par,allg_data)
+        # end if
+        
+        if (allg_data.status != hdef.OK):
+            status = hdef.NOT_OKAY
+            errtext = allg_data.errtext
+            return (status, errtext, data)
+        else:
+            data[allg_name] = allg_data
+        # endif
+    # end for
+    
     # read konto-pickle-file
     for konto_name in ini.konto_names:
         if konto_name in ini.data_pickle_jsonfile_list:
-            j = ini.data_pickle_use_json
+            use_json = ini.data_pickle_use_json
         else:
-            j = 0
+            use_json = 0
         # end if
         
         # get data set
-        konto_data = ka_data_pickle.ka_data_pickle(par.KONTO_PREFIX, konto_name, j)
+        konto_data = ka_data_pickle.ka_data_pickle(par.KONTO_PREFIX, konto_name, use_json)
         if (konto_data.status != hdef.OK):
             status = hdef.NOT_OKAY
             errtext = konto_data.errtext
             return (status, errtext, data)
         # endif
         
-        konto_data = proof_konto_data_from_ini(konto_data, ini.konto_data[konto_name],par)
+        konto_data = proof_konto_data_from_ini(par,konto_data, ini.konto_data[konto_name])
         konto_data = proof_konto_data_intern(par, konto_data, konto_name)
         konto_data = build_konto_data_set_obj(par, konto_data, konto_name,data)
         if (konto_data.status != hdef.OK):
@@ -77,13 +99,13 @@ def data_get(par, ini):
     for depot_name in ini.depot_names:
         
         if depot_name in ini.data_pickle_jsonfile_list:
-            j = ini.data_pickle_use_json
+            use_json = ini.data_pickle_use_json
         else:
-            j = 0
+            use_json = 0
         # end if
         
         # get data set
-        depot_data = ka_data_pickle.ka_data_pickle(par.DEPOT_PREFIX, depot_name, j)
+        depot_data = ka_data_pickle.ka_data_pickle(par.DEPOT_PREFIX, depot_name, use_json)
         if (depot_data.status != hdef.OK):
             status = hdef.NOT_OKAY
             errtext = depot_data.errtext
@@ -133,11 +155,14 @@ def data_save(data,par):
     errtext = ""
     
     for key in data:
-        if data[key].ddict[par.DDICT_TYPE_NAE] == par.TYPE_KONTO_DATA:
+        if data[key].ddict[par.DDICT_TYPE_NAME] == par.TYPE_KONTO_DATA:
             # get data from konto set class to save
             data[key].ddict[par.KONTO_DATA_SET_NAME] = data[key].obj.data_set_llist
-            data[key].ddict[par.KONTO_DATA_ID_MAX_NAME] = data[key].obj.idmax
+            #data[key].ddict[par.KONTO_DATA_ID_MAX_NAME] = data[key].obj.idmax
             del data[key].obj
+        elif data[key].ddict[par.DDICT_TYPE_NAME] == par.TYPE_PROG_DATA:
+            data[key].ddict[par.KONTO_DATA_ID_MAX_NAME] = data[key].idfunc.get_act_id()
+            del data[key].idfunc
         # end if
         data[key].save()
         
@@ -152,7 +177,29 @@ def data_save(data,par):
 
 # enddef
 
-def proof_konto_data_from_ini(konto_data, ini_data_dict,par):
+def set_prog_data(par,allg_data):
+    '''
+    
+    :param allg_data:
+    :return: allg_data = set_prog_data(allg_data)
+    '''
+
+    allg_data.ddict[par.DDICT_TYPE_NAME] = par.TYPE_PROG_DATA
+
+    # class id anlegen
+    allg_data.idfunc = ka_data_class_defs.IDCount()
+
+    key = par.KONTO_DATA_ID_MAX_NAME
+    if key in allg_data.ddict:
+        allg_data.idfunc.set_act_id(allg_data.ddict[key])
+    else:
+        allg_data.idfunc.set_act_id(0)
+    # end if
+
+    return allg_data
+
+# end def
+def proof_konto_data_from_ini(par,konto_data, ini_data_dict):
     """
     proof ini_data in konto_data
     :param konto_data:
@@ -229,7 +276,7 @@ def proof_konto_data_intern(par, konto_data, konto_name):
     :return:konto_data =  proof_konto_data_intern(par,konto_data,konto_name)
     '''
     # type
-    konto_data.ddict[par.DDICT_TYPE_NAE] = par.TYPE_KONTO_DATA
+    konto_data.ddict[par.DDICT_TYPE_NAME] = par.TYPE_KONTO_DATA
     
     # konto name
     key = par.KONTO_NAME_NAME
@@ -273,15 +320,6 @@ def build_konto_data_set_obj(par, konto_data, konto_name,data):
         data_set_llist = konto_data.ddict[key]
     else:
         data_set_llist = []
-    # end if
-    
-    # konto data id
-    #--------------
-    key = par.KONTO_DATA_ID_MAX_NAME
-    if key in konto_data.ddict:
-        idmax = konto_data.ddict[key]
-    else:
-        idmax = 0
     # end if
     
     # konto_start_wert von ini übergeben:
@@ -339,7 +377,7 @@ def build_konto_data_set_obj(par, konto_data, konto_name,data):
     # KontoDataSet data_llist übergeben
     obj.set_starting_data_llist(
         data_set_llist,
-        idmax,
+        data[par.PROGRAM_NAME].idfunc,
         konto_start_datum,
         konto_start_wert,
         wert_delim,
@@ -448,7 +486,7 @@ def proof_depot_data_intern(par, depot_data, depot_name):
     :return:depot_data =  proof_konto_data_intern(par,depot_data,konto_name)
     '''
     # type
-    depot_data.ddict[par.DDICT_TYPE_NAE] = par.TYPE_DEPOT_DATA
+    depot_data.ddict[par.DDICT_TYPE_NAME] = par.TYPE_DEPOT_DATA
     
     # konto name
     key = par.DEPOT_NAME_NAME
@@ -546,7 +584,7 @@ def proof_iban_data_and_add_from_ini(iban_data, par, data, ini):
     status = hdef.OK
     errtext = ""
     
-    iban_data.ddict[par.DDICT_TYPE_NAE] = par.TYPE_IBAN_DATA
+    iban_data.ddict[par.DDICT_TYPE_NAME] = par.TYPE_IBAN_DATA
     
     if (par.IBAN_DATA_LIST_NAME not in iban_data.ddict):
         iban_data.ddict[par.IBAN_DATA_LIST_NAME] = []

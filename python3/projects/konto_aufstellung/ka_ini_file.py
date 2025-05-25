@@ -103,14 +103,13 @@ class ini:
 
   def check_base_input(self,par,data):
     
-    key_liste = data.keys()
-    
+    data_key_liste = data.keys()
     # Prüfe die Daten aus proof_liste
     #--------------------------------
     proof_length = len(par.BASE_PROOF_LISTE)
     index_liste  = [i for i in range(proof_length)]
     for index,(proof,ttype) in enumerate(par.BASE_PROOF_LISTE):
-      if proof in key_liste:
+      if proof in data_key_liste:
         [okay,wert] = htype.type_proof(data[proof],ttype)
         if okay != hdef.OK:
           self.status = hdef.NOT_OKAY
@@ -133,6 +132,7 @@ class ini:
       return self.status
     #endif
     
+    self.allg_names  = data.get(par.ALLG_DATA_DICT_NAMES_NAME)
     self.konto_names = data.get(par.KONTO_DATA_DICT_NAMES_NAME)
     self.depot_names = data.get(par.DEPOT_DATA_DICT_NAMES_NAME)
     self.iban_list_file_name = data.get(par.IBAN_LIST_FILE_NAME)

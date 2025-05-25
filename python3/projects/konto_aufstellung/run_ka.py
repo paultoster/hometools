@@ -14,6 +14,7 @@ if (tools_path not in sys.path):
     sys.path.append(tools_path)
 # endif
 
+WORKING_DIRECTORY = "K:/data/orga/Otnok"
 LOG_FILE_NAME = "ka.log"
 INI_FILE_NAME = "ka.ini"
 
@@ -23,6 +24,7 @@ import ka_ini_file
 import ka_data_set
 import ka_konto_bearbeiten as kb
 import ka_iban_bearbeiten as ib
+import ka_depot_bearbeiten as db
 import ka_gui
 
 
@@ -76,10 +78,11 @@ def konto_auswerten():
 
     runflag = True
 
-    start_auswahl = ["Ende","Iban","Konto" ]
+    start_auswahl = ["Ende","Iban","Konto","Depot"]
     index_ende  = 0
     index_iban  = 1
     index_konto = 2
+    index_depot = 3
 
     while (runflag):
 
@@ -103,6 +106,11 @@ def konto_auswerten():
             # if (status != hdef.OKAY):
             #     runflag = False
             # endif
+        elif (index == index_depot):
+
+            rd.log.write(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
+            status = db.bearbeiten(rd)
+
         else:
             errtext = f"Auswahl: {index} nicht bekannt"
             rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
@@ -128,9 +136,12 @@ def konto_auswerten():
 
 
 if __name__ == '__main__':
+
+    # chnage to directory of data-Files
+    os.chdir(WORKING_DIRECTORY)
     
     konto_auswerten()
 
-    print(f"Ende siehe logfile: {LOG_FILE_NAME}")
+    print(f"Ende siehe logfile: {os.path.join(WORKING_DIRECTORY, LOG_FILE_NAME)}")
 
 # endif

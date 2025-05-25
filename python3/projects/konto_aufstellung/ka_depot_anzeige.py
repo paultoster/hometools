@@ -21,7 +21,7 @@ import hfkt_str as hstr
 import ka_gui
 
 
-def anzeige_mit_konto_wahl(rd):
+def anzeige_mit_depot_wahl(rd):
     '''
     
     :param rd:
@@ -35,35 +35,35 @@ def anzeige_mit_konto_wahl(rd):
     runflag = True
     while (runflag):
         
-        (index, choice) = ka_gui.auswahl_konto(rd)
+        (index, choice) = ka_gui.auswahl_depot(rd)
         
         if index < 0:
             return status
-        elif choice in rd.ini.konto_names:
+        elif choice in rd.ini.depot_names:
             
-            rd.log.write(f"konto  \"{choice}\" ausgewählt")
+            rd.log.write(f"depot  \"{choice}\" ausgewählt")
             break
         else:
             status = hdef.NOT_OKAY
-            errtext = f"Konto Auswahl: {choice} nicht bekannt"
+            errtext = f"Depot Auswahl: {choice} nicht bekannt"
             rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
             return status
         # endif
     # endwhile
     
     # Konto data in ini
-    konto_dict = rd.data[choice].ddict
-    konto_obj  = rd.data[choice].obj
+    depot_dict = rd.data[choice].ddict
+    depot_obj  = rd.data[choice].obj
     
     # Anzeigen
-    (status, konto_dict,konto_obj) = anzeige(rd,konto_dict,konto_obj)
+    (status, depot_dict,depot_obj) = anzeige(rd,depot_dict,depot_obj)
     
     if status != hdef.OKAY:  # Abbruch
         return status
     
     # write back modified ddict
-    rd.data[choice].ddict = konto_dict
-    rd.data[choice].obj   = konto_obj
+    rd.data[choice].ddict = depot_dict
+    rd.data[choice].obj   = depot_obj
     
     return status
 # enddef

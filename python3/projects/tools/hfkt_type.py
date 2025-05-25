@@ -819,12 +819,16 @@ def type_proof_euro(wert_in,delim=",",thousandsign="."):
     elif isinstance(wert_in,int):
         val = float(wert_in)
     else:
-        try:
-            val = numeric_string_to_float(wert_in, delim=delim, thousandsign=thousandsign)
-        except:
-            val = None
-            okay = hdef.NOT_OKAY
-        # end try
+        if len(wert_in) == 0:
+            val = 0.0
+        else:
+            try:
+                val = numeric_string_to_float(wert_in, delim=delim, thousandsign=thousandsign)
+            except:
+                val = None
+                okay = hdef.NOT_OKAY
+            # end try
+        # end if
     # end if
     return (okay,val)
 # end def
@@ -836,6 +840,8 @@ def type_proof_euroStrK(wert_in, delim=",", thousandsign="."):
     :param thousandsign:
     :return: (okay,wert) =  type_proof_euroStrK(wert_in,delim=",",thousandsign=".")
     '''
+    if delim == ",":
+        wert_in = check_euroStrK_witheuroStrP(wert_in, delim=delim, thousandsign=thousandsign)
     (okay, wert_euro) = type_proof_euro(wert_in, delim=delim, thousandsign=thousandsign)
     if okay == hdef.OKAY:
         wert = num_euro_in_euroStr(float(wert_euro), delim,thousandsign)
@@ -844,6 +850,58 @@ def type_proof_euroStrK(wert_in, delim=",", thousandsign="."):
         wert = None
     # end if
     return (okay, wert)
+# end def
+def  check_euroStrK_witheuroStrP(wert_in, delim, thousandsign):
+    '''
+    Prüft, ob nicht ausversehen ein Punkt anstatt Komma gesetzt ist
+    
+    :param wert_in:
+    :param delim:
+    :param thousandsign:
+    :return: wert_in =  check_euroStrK_witheuroStrP(wert_in, delim, thousandsign)
+    '''
+    
+    list1 = wert_in.split(".")
+    n1 = len(list1)
+    list2 = list1[-1].split(",")
+    n2 = len(list2)
+    list = []
+    n = 0
+    for i in range(n1-1):
+        list.append(list1[i])
+        n += 1
+    # end if
+    for i in range(n2):
+        list.append(list2[i])
+        n += 1
+    # end if
+    if( n2 > 1 ):
+        flag_delim = True
+    else:
+        flag_delim = False
+    # end if
+    if (n == 1) or ((thousandsign == ".") and (len(list[-1]) == 3)):        # kein Punkt wird verwendet or wenn das letzte Päcken 3 Stellen sind dann wir von tausender ausgegangen
+        pass
+    else:
+        wert_in = ""
+        if flag_delim:
+            for i in range(n-1):
+                wert_in += list[i]
+                if i < (n-2):
+                    wert_in += thousandsign
+            # end for
+            wert_in += delim
+            wert_in += list[-1]
+        else:
+            for i in range(n-1):
+                wert_in += list[i]
+                if i < (n-2):
+                    wert_in += thousandsign
+            # end for
+            wert_in += list[-1]
+        # end if
+    # end if
+    return wert_in
 # end def
 def type_proof_cent(wert_in):
     okay = hdef.OKAY
@@ -936,7 +994,10 @@ def type_transform(wert_in: any, type_in: str | list, type_out: str | list):
     elif type_in == "cent":
         (okay, wert_out) = type_transform_cent(wert_in, type_out)
     elif isinstance(type_in, list):
+        # if wert_in == "Kirchensteuer":
+        #    print("halt")
         (okay, wert_out) = type_transform_list(wert_in, type_in,type_out)
+        
     else:
         okay = hdef.NOT_OKAY
         wert_out = None
@@ -1184,7 +1245,11 @@ def type_transform_list(wert_in,liste,type_out):
                 if n > index:
                     wert_out = type_out[index]
                     okay = hdef.OKAY
+                else:
+                    wert_out = None
                 # end if
+            else:
+                wert_out = None
             # end if
         else:
             wert_out = None

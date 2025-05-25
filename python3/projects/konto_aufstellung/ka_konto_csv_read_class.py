@@ -91,12 +91,17 @@ class KontoCsvRead:
             # for each new line in csv_lliste reset index_liste
             index_dict = {}
             
+            if i == 13:
+                print("halt")
+            
             for j, key in enumerate(self.CSV_DATA_NAME_DICT.keys()):
-                if (self.CSV_DATA_NAME_DICT[key] in csv_liste):
+                
+                index = self.search_header_line_find_name_in_list(self.CSV_DATA_NAME_DICT[key],csv_liste)
+                if isinstance(index,int):
                     if (j == 0):
                         header_found_liste = []
                     # end if
-                    index_dict[key] = csv_liste.index(self.CSV_DATA_NAME_DICT[key])
+                    index_dict[key] = index
                     header_found_liste.append(self.CSV_DATA_NAME_DICT[key])
                 # end if
             # end for
@@ -110,18 +115,60 @@ class KontoCsvRead:
             index_dict = {}  # liste mit position in csv-datei Spalte und mit index in konto_dataset
         # end for
         if notfound:
-            okay = hdef.NOT_OKAY
-            item = ""
-            for key in self.CSV_DATA_NAME_DICT.keys():
-                if self.CSV_DATA_NAME_DICT[key] not in header_found_liste:
-                    item = self.CSV_DATA_NAME_DICT[key]
-                    break
-                # end if
-            # end for
-            self.errtext = f"header item: {item} not found in csv_file: {self.filename}"
+            self.status = hdef.NOT_OKAY
+            item = self.search_header_line_get_missing_item(header_found_liste)
+            self.errtext = f"header item: <{item}> not found in csv_file: <{self.filename}>"
         # end if
         return (start_index, index_dict)
-    
+    # end def
+    def search_header_line_find_name_in_list(self,name: str|list,csv_liste: list):
+        '''
+        name is a string or a list of strings
+        index is position in csv_liste
+        if found index is an integer
+        if not found index is None
+        
+        :param name:
+        :param csv_liste:
+        :return: index = self.search_header_line_find_name_in_list(name,csv_liste)
+        '''
+        if isinstance(name,str):
+            name_list = [name]
+        elif isinstance(name,list):
+            name_list = name
+        else:
+            raise Exception(f"search_header_line_find_name_in_list: name is not str nor list name = {name}")
+        # end if
+        for namename in name_list:
+            if namename in csv_liste:
+                return csv_liste.index(namename)
+            # end if
+        # end for
+        return None
+    # end def
+    def search_header_line_get_missing_item(self,header_found_liste):
+        '''
+        searches for missing item in CSV_DATA_NAME_DICT
+        :param header_found_liste:
+        :return: item = self.search_header_line_get_missing_item(header_found_liste)
+        '''
+        item = "not found!!"
+        for key in self.CSV_DATA_NAME_DICT.keys():
+            index = self.search_header_line_find_name_in_list(self.CSV_DATA_NAME_DICT[key] ,header_found_liste)
+            if not isinstance(index,int):
+                if isinstance(self.CSV_DATA_NAME_DICT[key],str):
+                    item = self.CSV_DATA_NAME_DICT[key]
+                    break
+                elif isinstance(self.CSV_DATA_NAME_DICT[key],list):
+                    item = ""
+                    for name in self.CSV_DATA_NAME_DICT[key]:
+                        item += name + "/"
+                    # end for
+                    break;
+                # end if
+            # end if
+        # end for
+        return item
     # end def
     def get_data_from_csv_lliste(self, csv_lliste, index_start, index_dict):
         '''
