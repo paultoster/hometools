@@ -410,6 +410,12 @@ def build_konto_data_csv_obj(par, konto_data, konto_name,ini_data_dict):
         raise Exception(f"build_konto_data_csv_obj: import_data_type = konto_data.ddict[{key}] of konto_name = {konto_name} ist nicht im ini-File")
     # end if
     
+    # No import type
+    if( len(import_data_type) == 0 ) or (import_data_type == "none"):
+        konto_data.csv = None
+        return konto_data
+    # end if
+    
     if import_data_type not in ini_data_dict[par.INI_CSV_IMPORT_TYPE_NAMES_NAME]:
         raise Exception(
             f"build_konto_data_csv_obj: import_data_type = {import_data_type} of konto_name = {konto_name} ist nicht in der Liste der csv_import_type_names = {par.INI_CSV_IMPORT_TYPE_NAMES_NAME} im ini-File")
@@ -637,7 +643,7 @@ def proof_iban_data_and_add_from_ini(iban_data, par, data, inidict):
         dkonto = data[konto_name]
         
         if not ka_iban_data.iban_find(iban_data.ddict[par.IBAN_DATA_LIST_NAME], dkonto.ddict[par.INI_IBAN_NAME]):
-            idmax = iban_data.ddict[par.INI_IBAN_DATA_ID_MAX_NAME] + 1
+            idmax = iban_data.ddict[par.IBAN_DATA_ID_MAX_NAME] + 1
             (status, errtext, _, data_list) = ka_iban_data.iban_add(iban_data.ddict[par.IBAN_DATA_LIST_NAME], idmax,
                                                                     dkonto.ddict[par.INI_IBAN_NAME],
                                                                     dkonto.ddict[par.INI_BANK_NAME],

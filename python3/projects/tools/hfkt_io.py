@@ -696,25 +696,24 @@ def write_csv_file_header_data(file_name,csv_header,csv_data,delim=";"):
         return hdef.OK/NOT_OKAY
 
     '''
-    f=file(file_name,"w")
-    n = len(csv_header)
-    for i in range(n):
-      f.write(str(csv_header[i]))
-      if( i+1 < n ):
-        f.write(delim)
-      else:
-        f.write("\n")
-    for line in csv_data:
-      n = len(line)
-      for i in range(n):
-        f.write(str(line[i]))
-        if( i+1 < n ):
-          f.write(delim)
-        else:
-          f.write("\n")
-
-    f.close()
-
+    with open(file_name, 'w') as f:
+    
+        n = len(csv_header)
+        for i in range(n):
+          f.write(str(csv_header[i]))
+          if( i+1 < n ):
+            f.write(delim)
+          else:
+            f.write("\n")
+        for line in csv_data:
+          n = len(line)
+          for i in range(n):
+            f.write(str(line[i]))
+            if( i+1 < n ):
+              f.write(delim)
+            else:
+              f.write("\n")
+    
     return hdef.OK
 
 def read_ascii_build_list_of_lines(file_name):

@@ -41,6 +41,7 @@ class Parameter:
     
     STR_EURO_TRENN_BRUCH_DEFAULT: str = ","
     STR_EURO_TRENN_TAUSEN_DEFAULT: str = "."
+    CSV_AUSGABE_TRENN_ZEICHEN: str = ";"
     
     KONTO_SHOW_NUMBER_OF_LINES: int = 100000
     COLOR_SHOW_NEW_DATA_SETS: str = 'brown1'

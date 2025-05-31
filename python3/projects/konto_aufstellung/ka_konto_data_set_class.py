@@ -774,13 +774,17 @@ class KontoDataSet:
         return (istart, iend)
     
     # end def
-    def build_data_table_list_and_color_list(self, istart, iend):
+    def build_data_table_list_and_color_list(self, istart=0, iend=-1):
         '''
         
         :param istart:
         :param iend:
         :return: (header_list, data_llist, new_data_list) = self.build_data_table_list_and_color_list(istart,iend)
         '''
+        
+        if iend < 0:
+            iend = self.n_data_sets-1
+        # end if
         
         # 1) header_liste
         # ===========================
