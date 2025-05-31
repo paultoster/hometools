@@ -42,85 +42,106 @@ class Parameter:
     STR_EURO_TRENN_BRUCH_DEFAULT: str = ","
     STR_EURO_TRENN_TAUSEN_DEFAULT: str = "."
     
-    KONTO_SHOW_NUMBER_OF_LINES: int = 30
+    KONTO_SHOW_NUMBER_OF_LINES: int = 100000
     COLOR_SHOW_NEW_DATA_SETS: str = 'brown1'
 
-    TYPE_PROG_DATA: str = "prog"
-    TYPE_KONTO_DATA: str = "konto"
-    TYPE_DEPOT_DATA: str = "depot"
-    TYPE_IBAN_DATA:  str = "iban"
     
-    DDICT_TYPE_NAME: str = "dict_type"
     
     # ini-file attributes
-    ALLG_DATA_DICT_NAMES_NAME: str = "allg_names"
-    KONTO_DATA_DICT_NAMES_NAME: str = "konto_names"
-    DEPOT_DATA_DICT_NAMES_NAME: str = "depot_names"
+    INI_ALLG_DATA_DICT_NAMES_NAME: str = "allg_names"
+    INI_KONTO_DATA_DICT_NAMES_NAME: str = "konto_names"
+    INI_DEPOT_DATA_DICT_NAMES_NAME: str = "depot_names"
+    INI_CSV_IMPORT_TYPE_NAMES_NAME: str = "csv_import_type_names"
+    INI_IBAN_LIST_FILE_NAME: str = "iban_list_file_name"
     
-    IBAN_LIST_FILE_NAME: str = "iban_list_file_name"
-    
-    DATA_PICKLE_USE_JSON: str = "data_pickle_use_json"
-    DATA_PICKLE_JSONFILE_LIST: str = "data_pickle_jsonfile_list"
-    DATA_PICKLE_USE_JSON_NO: int = 0
-    DATA_PICKLE_USE_JSON_WRITE: int = 1
-    DATA_PICKLE_USE_JSON_READ: int = 2
+    INI_DATA_PICKLE_USE_JSON: str = "data_pickle_use_json"
+    INI_DATA_PICKLE_JSONFILE_LIST: str = "data_pickle_jsonfile_list"
+    INI_DATA_PICKLE_USE_JSON_NO: int = 0
+    INI_DATA_PICKLE_USE_JSON_WRITE: int = 1
+    INI_DATA_PICKLE_USE_JSON_READ: int = 2
 
-    BASE_PROOF_LISTE = [(KONTO_DATA_DICT_NAMES_NAME,"list_str")
-                       ,(DEPOT_DATA_DICT_NAMES_NAME,"list_str")
-                       ,(IBAN_LIST_FILE_NAME,"str")
-                        ,(DATA_PICKLE_USE_JSON,"int")
-                        ,(DATA_PICKLE_JSONFILE_LIST, "list_str")]
+    INI_BASE_PROOF_LISTE = [(INI_KONTO_DATA_DICT_NAMES_NAME,"list_str")
+                           ,(INI_DEPOT_DATA_DICT_NAMES_NAME,"list_str")
+                           ,(INI_CSV_IMPORT_TYPE_NAMES_NAME,"list_str")
+                           ,(INI_IBAN_LIST_FILE_NAME,"str")
+                           ,(INI_DATA_PICKLE_USE_JSON,"int")
+                           ,(INI_DATA_PICKLE_JSONFILE_LIST, "list_str")]
     
-    # konto daten in ini-file
-    ALLG_PREFIX_NAME: str = "allg"
-    PROGRAM_NAME: str = "prog_data"
-    KONTO_PREFIX: str = "konto"
-    IBAN_NAME: str = "iban"
-    BANK_NAME: str = "bank"
-    WER_NAME: str = "wer"
-    START_WERT_NAME: str = "start_wert"
-    START_TAG_NAME: str = "start_tag"
-    START_TAG_NAME: str = "start_zeit"
-    START_DATUM_NAME: str = "start_datum"
-    UMSATZ_DATA_TYPE_NAME: str = "umsatz_data_type"
+    INI_IBAN_NAME: str = "iban"
+    INI_BANK_NAME: str = "bank"
+    INI_WER_NAME: str = "wer"
+    INI_START_WERT_NAME: str = "start_wert"
+    INI_START_TAG_NAME: str = "start_tag"
+    INI_START_ZEIT_NAME: str = "start_zeit"
+    INI_START_DATUM_NAME: str = "start_datum"
+    INI_IMPORT_DATA_TYPE_NAME: str = "import_data_type"
 
-    DEPOT_PREFIX: str = "konto"
-    DEPOT_NAME: str = "depot_name"
-    DEPOTSTAND_DATA_TYPE_NAME: str = "depotstand_data_type"
+    # Liste der zu checkenden Daten
+    # ------------------------------
+    INI_KONTO_PROOF_LISTE = [(INI_IBAN_NAME, "iban")
+                            , (INI_BANK_NAME, "str")
+                            , (INI_WER_NAME, "str")
+                            , (INI_START_WERT_NAME, "euroStrK")
+                            , (INI_START_DATUM_NAME, "dat")
+                            , (INI_IMPORT_DATA_TYPE_NAME, "str")]
     
-    HEADER_BUCHDATUM_NAME: str = "header_buchdatum"
-    HEADER_WERTDATUM_NAME: str = "header_wertdatum"
-    HEADER_WER_NAME: str       = "header_wer"
-    HEADER_COMMENT_NAME: str   = "header_comment"
-    HEADER_WERT_NAME: str      = "header_wert"
-    HEADER_BUCHTYPE_NAME: str   = "header_buchtype"
+    INI_DEPOTSTAND_DATA_TYPE_NAME: str = "depotstand_data_type"
     
+    # Liste der zu checkenden Daten
+    # ------------------------------
+    INI_DEPOT_PROOF_LISTE = [(INI_START_DATUM_NAME, "dat")
+                            , (INI_DEPOTSTAND_DATA_TYPE_NAME, "str")]
     
-    INI_KONTO_BUCH_EINZAHLUNG_NAME: str   = "buchung_einzahlung"
-    INI_KONTO_BUCH_AUSZAHLUNG_NAME: str   = "buchung_auszahlung"
-    INI_KONTO_BUCH_KOSTEN_NAME: str       = "buchung_kosten"
-    INI_KONTO_BUCH_WP_KAUF_NAME: str      = "buchung_wp_kauf"
-    INI_KONTO_BUCH_WP_VERKAUF_NAME: str   = "buchung_wp_verkauf"
-    INI_KONTO_BUCH_WP_KOSTEN_NAME: str    = "buchung_wp_kosten"
-    INI_KONTO_BUCH_WP_EINNAHMEN_NAME: str = "buchung_wp_einnahmen"
+    INI_CSV_TRENNZEICHEN: str = "trenn_zeichen"
+    INI_CSV_HEADER_NAMEN: str = "header_namen"
+    INI_CSV_HEADER_ZUORDNUNG: str = "header_zuordnung"
+    INI_CSV_HEADER_DATA_TYPE: str = "header_data_type"
     
-    INI_KONTO_STR_EURO_TRENN_BRUCH   = "string_euro_trenn_bruch"
+    INI_CSV_BUCHTYPE_NAMEN: str = "buchtype_namen"
+    INI_CSV_BUCHTYPE_ZUORDNUNG: str = "buchtype_zuordnung"
+    
+    INI_CSV_PROOF_LISTE = [(INI_CSV_TRENNZEICHEN, "str")
+        , (INI_CSV_HEADER_NAMEN, "list")
+        , (INI_CSV_HEADER_ZUORDNUNG, "list_str")
+        , (INI_CSV_HEADER_DATA_TYPE, "list_str")
+        , (INI_CSV_BUCHTYPE_NAMEN, "list")
+        , (INI_CSV_BUCHTYPE_ZUORDNUNG, "list_str")]
+    
+    # HEADER_BUCHDATUM_NAME: str = "header_buchdatum"
+    # HEADER_WERTDATUM_NAME: str = "header_wertdatum"
+    # HEADER_WER_NAME: str       = "header_wer"
+    # HEADER_COMMENT_NAME: str   = "header_comment"
+    # HEADER_WERT_NAME: str      = "header_wert"
+    # HEADER_BUCHTYPE_NAME: str   = "header_buchtype"
+    
+    # INI_KONTO_BUCH_EINZAHLUNG_NAME: str   = "buchung_einzahlung"
+    # INI_KONTO_BUCH_AUSZAHLUNG_NAME: str   = "buchung_auszahlung"
+    # INI_KONTO_BUCH_KOSTEN_NAME: str       = "buchung_kosten"
+    # INI_KONTO_BUCH_WP_KAUF_NAME: str      = "buchung_wp_kauf"
+    # INI_KONTO_BUCH_WP_VERKAUF_NAME: str   = "buchung_wp_verkauf"
+    # INI_KONTO_BUCH_WP_KOSTEN_NAME: str    = "buchung_wp_kosten"
+    # INI_KONTO_BUCH_WP_EINNAHMEN_NAME: str = "buchung_wp_einnahmen"
+    
+    INI_KONTO_STR_EURO_TRENN_BRUCH = "string_euro_trenn_bruch"
     INI_KONTO_STR_EURO_TRENN_TAUSEND = "string_euro_trenn_tausend"
-    INI_KONTO_CSV_TRENN_DATA         = "string_csv_trenn_zeichen"
-
-    # Liste der zu checkenden Daten
-    # ------------------------------
-    INI_KONTO_PROOF_LISTE = [(IBAN_NAME, "iban")
-                        , (BANK_NAME, "str")
-                        , (WER_NAME, "str")
-                        , (START_WERT_NAME, "float")
-                        , (START_DATUM_NAME, "dat")
-                        , (UMSATZ_DATA_TYPE_NAME, "str")]
+    INI_KONTO_CSV_TRENN_DATA = "string_csv_trenn_zeichen"
     
-    # Liste der zu checkenden Daten
-    # ------------------------------
-    INI_DEPOT_PROOF_LISTE = [(START_DATUM_NAME, "dat")
-                            ,(DEPOTSTAND_DATA_TYPE_NAME, "str")]
+
+    DDICT_TYPE_NAME: str = "dict_type"
+    PROG_DATA_TYPE_NAME: str = "prog_data"
+    KONTO_DATA_TYPE_NAME: str = "konto"
+    DEPOT_DATA_TYPE_NAME: str = "depot"
+    IBAN_DATA_TYPE_NAME:  str = "iban"
+
+    # konto daten data set
+    ALLG_PREFIX_NAME: str = "allg"
+    # konto daten data set
+    KONTO_PREFIX: str = "konto"
+    KONTO_NAME: str = "konto_name"
+    # konto daten data set
+    DEPOT_PREFIX: str = "depot"
+    DEPOT_NAME: str = "depot_name"
+    
 
     IBAN_PREFIX = "iban"
     IBAN_DATA_DICT_NAME: str = "iban_data_dict"
@@ -134,14 +155,12 @@ class Parameter:
     KONTO_DATA_ID_MAX_NAME: str = "konto_id_max"
     
     # konto data
-    KONTO_NAME_NAME: str = "name"
     KONTO_DATA_SET_NAME: str = "konto_data_set"
     KONTO_DATA_ID_NEW_LIST: str = "konto_id_new_list"
     
     INI_DATA_KEYS_NAME: str = "ini_data_keys"
     
     # konto data
-    DEPOT_NAME_NAME: str = "name"
     DEPOT_DATA_SET_NAME: str = "depot_data_set"
     DEPPOT_DATA_ID_MAX_NAME: str = "depot_id_max"
     DEPOT_DATA_ID_NEW_LIST: str = "depot_id_new_list"

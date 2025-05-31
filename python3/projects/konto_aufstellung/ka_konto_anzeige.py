@@ -39,7 +39,7 @@ def anzeige_mit_konto_wahl(rd):
         
         if index < 0:
             return status
-        elif choice in rd.ini.konto_names:
+        elif choice in rd.ini.ddict[rd.par.INI_KONTO_DATA_DICT_NAMES_NAME]:
             
             rd.log.write(f"konto  \"{choice}\" ausgewählt")
             break
@@ -87,7 +87,7 @@ def anzeige(rd,konto_dict,konto_obj):
     i_delete = 6
     
     runflag = True
-    istart  = 0
+    istart  = 1000000
     dir     = 0
     while (runflag):
         
@@ -148,8 +148,8 @@ def anzeige(rd,konto_dict,konto_obj):
                 konto_obj.write_anzeige_back_data(new_data_llist, data_changed_pos_list,istart)
                 if status != hdef.OKAY:
                     rd.log.write_err("konto__anzeige edit " + errtext, screen=rd.par.LOG_SCREEN_OUT)
-                    return (status, konto_dict)
-                elif not new_data_set_flag:
+                    return (status, konto_dict,konto_obj)
+                else:
                     runflag = False
                 # endif
 
@@ -162,7 +162,7 @@ def anzeige(rd,konto_dict,konto_obj):
                 (data_set, header_liste,buchungs_type_list, buchtype_index_in_header_liste) = konto_obj.get_edit_data(irow)
             else:
                 rd.log.write_err("konto__anzeige edit: irow out of range ", screen=rd.par.LOG_SCREEN_OUT)
-                return (hdef.NOT_OK, konto_dict)
+                return (hdef.NOT_OK, konto_dict,konto_obj)
             # endif
 
             # Erstelle die Eingabe liste
@@ -182,7 +182,7 @@ def anzeige(rd,konto_dict,konto_obj):
                 
                 if status != hdef.OKAY:
                     rd.log.write_err("konto__anzeige edit " + errtext, screen=rd.par.LOG_SCREEN_OUT)
-                    return (status, konto_dict)
+                    return (status, konto_dict,konto_obj)
                 elif not new_data_set_flag:
                     runflag = False
                 # endif
@@ -209,7 +209,7 @@ def anzeige(rd,konto_dict,konto_obj):
                 
                 if status != hdef.OKAY:
                     rd.log.write_err("konto__anzeige add "+errtext, screen=rd.par.LOG_SCREEN_OUT)
-                    return (status, konto_dict)
+                    return (status, konto_dict,konto_obj)
                 elif not new_data_set_flag:
                     runflag = False
                 # endif
@@ -224,7 +224,7 @@ def anzeige(rd,konto_dict,konto_obj):
                     (status,errtext) = konto_obj.delete_data_list(irow)
                     if( status != hdef.OKAY ):
                         rd.log.write_err("konto__anzeige delete " + errtext, screen=rd.par.LOG_SCREEN_OUT)
-                        return (status, konto_dict)
+                        return (status, konto_dict,konto_obj)
                     # end if
                 # end if
             # end if

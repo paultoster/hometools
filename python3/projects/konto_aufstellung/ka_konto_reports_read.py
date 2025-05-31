@@ -42,7 +42,7 @@ def report_einlesen(rd):
         
         if index < 0:
             return status
-        elif choice in rd.ini.konto_names:
+        elif choice in rd.ini.ddict[rd.par.INI_KONTO_DATA_DICT_NAMES_NAME]:
             
             rd.log.write(f"konto  \"{choice}\" ausgewählt")
             break
@@ -60,7 +60,7 @@ def report_einlesen(rd):
     konto_csv   = rd.data[choice].csv
     
     # csv lesen
-    if( konto_dict[rd.par.UMSATZ_DATA_TYPE_NAME] == 'ing_csv'):
+    if( konto_dict[rd.par.INI_IMPORT_DATA_TYPE_NAME] in rd.ini.ddict[rd.par.INI_CSV_IMPORT_TYPE_NAMES_NAME] ):
         
         # csv-Datei auswählen
         filename = sgui.abfrage_file(file_types="*.csv",

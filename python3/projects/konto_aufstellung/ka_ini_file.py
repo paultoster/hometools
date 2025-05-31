@@ -4,34 +4,6 @@
 #
 # data.structure
 #
-# self.IBAN_NAME                        Iban
-# self.WER_NAME                         Inhaber
-# self.START_WERT_NAME                  Startwert
-# self.START_TAG_NAME                   Starttag
-# self.START_TAG_NAME                  Startzeit
-# self.START_DATUM_NAME                 Startdatum
-# self.AUSZUGS_TYP_NAME                 Type von Kontoauszug
-#
-# self.konto_names = []                Namen der Konten
-# self.iban_list_file_name             Name des Iban-Fielnames
-# self.data_pickle_use_json            # 0: keine json-Datei
-#                                      # 1: schreibe auch json-datei
-#                                      # 2: lessen von json Datei
-# self.data_pickle_jsonfile_list       list of pickle names as self.data_pickle_use_json, self.konto_names[i]
-# dict=self.konto_data[kontoname]      dict von Konto
-#
-# dict.[self.IBAN_NAME]                        IBAN-Nummer als string
-# dict.[self.WER_NAME]                         Wem gehört
-# dict.[self.START_WERT_NAME]                  Startwert Euro
-# dict.[self.START_DATUM_NAME]                 Startdatum secs
-# dict.[self.START_TAG_NAME]                   Tag seit Start int
-# dict.[START_TAG_NAME]                       Startdatum secs
-# dict.[self.AUSZUGS_TYP_NAME]                 Name des types für den Kontoauszug name1_pdf, name2_csv, etc
-#
-#
-# self.KONTO_DATEN_LESEN_TXT
-# self.konto_bearb_auswahl = []        Auswahl der Bearbeitungen des Kontos
-# self.ENDE_RETURN_TXT                   Zeichen für Ende
 #
 
 
@@ -61,12 +33,6 @@ class ini:
     self.errtext = ""
     self.logtext = ""
     
-    self.konto_names = []
-    self.konto_data = {}
-
-    self.depot_names = []
-    self.depot_data = {}
-
     # check ini-filename
     if (not os.path.isfile(ini_file_name)):
       self.status = hdef.NOT_OKAY
@@ -77,46 +43,51 @@ class ini:
     else:
       self.ini_file_name = ini_file_name
       with open(ini_file_name, "rb") as f:
-        data = tomllib.load(f)
+        self.ddict = tomllib.load(f)
     #endif
 
     # check base input
-    if self.check_base_input(par,data) != hdef.OK:
+    if self.check_base_input(par) != hdef.OK:
       return
     # endif
 
     # check konotonames
-    if self.check_kontodata(par,data) != hdef.OK:
+    if self.check_kontodata(par) != hdef.OK:
       return
     # endif
   
     # check depotnames
-    if self.check_depotdata(par, data) != hdef.OK:
+    if self.check_depotdata(par) != hdef.OK:
       return
-    
+
+    # check csv import
+    if self.check_csv_import(par) != hdef.OK:
+      return
+    # endif
+
     # endif
   # enddef
-  def get_par(self,par):
-    par.KONTO_NAMES = self.konto_names
-    return par
-  # end def
+  # def get_par(self,par):
+  #   par.KONTO_NAMES = self.ddict[par.KONTO_DATA_DICT_NAMES_NAME]
+  #   return par
+  # # end def
 
-  def check_base_input(self,par,data):
+  def check_base_input(self,par):
     
-    data_key_liste = data.keys()
+    data_key_liste = self.ddict.keys()
     # Prüfe die Daten aus proof_liste
     #--------------------------------
-    proof_length = len(par.BASE_PROOF_LISTE)
+    proof_length = len(par.INI_BASE_PROOF_LISTE)
     index_liste  = [i for i in range(proof_length)]
-    for index,(proof,ttype) in enumerate(par.BASE_PROOF_LISTE):
+    for index,(proof,ttype) in enumerate(par.INI_BASE_PROOF_LISTE):
       if proof in data_key_liste:
-        [okay,wert] = htype.type_proof(data[proof],ttype)
+        [okay,wert] = htype.type_proof(self.ddict[proof],ttype)
         if okay != hdef.OK:
           self.status = hdef.NOT_OKAY
-          self.add_err_text(f"In inifile {self.ini_file_name} is variable {data[proof]} not correct !!!!")
+          self.add_err_text(f"In inifile {self.ini_file_name} is variable {self.ddict[proof]} not correct !!!!")
           return self.status
         else:
-          data[proof] = wert
+          self.ddict[proof] = wert
           index_liste.remove(index)
         #endif
       #endi
@@ -127,52 +98,43 @@ class ini:
     if len(index_liste):
       self.status = hdef.NOT_OKAY
       for index in index_liste:
-        self.add_err_text(f"Im inifile {self.ini_file_name} ist Variable \"{par.BASE_PROOF_LISTE[index][0]}\" nicht gesetzt !!!!")
+        self.add_err_text(f"Im inifile {self.ini_file_name} ist Variable \"{par.INI_BASE_PROOF_LISTE[index][0]}\" nicht gesetzt !!!!")
       #endofor
       return self.status
     #endif
-    
-    self.allg_names  = data.get(par.ALLG_DATA_DICT_NAMES_NAME)
-    self.konto_names = data.get(par.KONTO_DATA_DICT_NAMES_NAME)
-    self.depot_names = data.get(par.DEPOT_DATA_DICT_NAMES_NAME)
-    self.iban_list_file_name = data.get(par.IBAN_LIST_FILE_NAME)
-    self.data_pickle_use_json = data.get(par.DATA_PICKLE_USE_JSON)
-    self.data_pickle_jsonfile_list = data.get(par.DATA_PICKLE_JSONFILE_LIST)
-
     
     return self.status
   # enddef
 
 
-  def check_kontodata(self,par,data):
+  def check_kontodata(self,par):
     """
     check kontonames sections from ini-file
-    :return: status
+    :return: status = self.check_kontodata(par)
     """
-    liste = self.konto_names
-    self.konto_names = []
-    for kontoname in liste:
-
-      kontodict = data.get(kontoname)
-
-      if self.check_konto(par,kontoname, kontodict) != hdef.OK:
+    
+    for kontoname in self.ddict[par.INI_KONTO_DATA_DICT_NAMES_NAME]:
+      
+      if kontoname not in self.ddict:
+        self.status = hdef.NOT_OKAY
+        self.add_err_text(
+          f"In inifile {self.ini_file_name} ist Konto-Sektion [{kontoname}] nicht vorhanden !!!!")
+        return self.status
+      
+      if self.check_konto(par,kontoname) != hdef.OK:
         return hdef.NOT_OKAY
-      else:
-        self.konto_names.append(kontoname)
-        self.konto_data[kontoname] = kontodict
       #endif
     #endfor
 
-    #endif
     
     return self.status
   #enddef
-  def check_konto(self,par,kontoname,kontodict):
+  def check_konto(self,par,kontoname):
     """
     check specific kontoname from ini-file
     :return: status
     """
-    key_liste = kontodict.keys()
+    key_liste = self.ddict[kontoname].keys()
 
     # Prüfe die Daten aus proof_liste
     #--------------------------------
@@ -180,13 +142,13 @@ class ini:
     index_liste  = [i for i in range(proof_length)]
     for index,(proof,ttype) in enumerate(par.INI_KONTO_PROOF_LISTE):
       if proof in key_liste:
-        [okay,wert] = htype.type_proof(kontodict[proof],ttype)
+        [okay,wert] = htype.type_proof(self.ddict[kontoname][proof],ttype)
         if okay != hdef.OK:
           self.status = hdef.NOT_OKAY
-          self.add_err_text(f"In inifile {self.ini_file_name} is variable {kontoname}.{proof} = {kontodict[proof]} not correct !!!!")
+          self.add_err_text(f"In inifile {self.ini_file_name} is variable {kontoname}.{proof} = {self.ddict[kontoname][proof]} not correct !!!!")
           return self.status
         else:
-          kontodict[proof] = wert
+          self.ddict[kontoname][proof] = wert
           index_liste.remove(index)
         #endif
       #endi
@@ -206,44 +168,39 @@ class ini:
     #------------------------
 
     # aus start_dutum => start_tag und start_zeit
-    (start_tag,start_zeit) = hdt.secs_time_epoch_to_epoch_day_time(kontodict[par.START_DATUM_NAME])
+    (start_tag,start_zeit) = hdt.secs_time_epoch_to_epoch_day_time(self.ddict[kontoname][par.INI_START_DATUM_NAME])
     
-    kontodict[par.START_TAG_NAME]  = start_tag
-    kontodict[par.START_TAG_NAME] = start_zeit
+    self.ddict[kontoname][par.INI_START_TAG_NAME]  = start_tag
+    self.ddict[kontoname][par.INI_START_ZEIT_NAME] = start_zeit
     
     return self.status
 
   #enddef
-  def check_depotdata(self, par, data):
+  def check_depotdata(self, par):
     """
     check kontonames sections from ini-file
     :return: status
     """
-    liste = self.depot_names
-    self.depot_names = []
-    for depotname in liste:
-      
-      depotdict = data.get(depotname)
-      
-      if self.check_depot(par, depotname, depotdict) != hdef.OK:
+    for depotname in self.ddict[par.INI_DEPOT_DATA_DICT_NAMES_NAME]:
+
+      if depotname not in self.ddict:
+        self.status = hdef.NOT_OKAY
+        self.add_err_text(
+          f"In inifile {self.ini_file_name} ist Depot-Sektion [{depotname}] nicht vorhanden !!!!")
+        return self.status
+
+      if self.check_depot(par, depotname) != hdef.OK:
         return hdef.NOT_OKAY
-      else:
-        self.depot_names.append(depotname)
-        self.depot_data[depotname] = depotdict
-      # endif
     # endfor
     
-    # endif
-    
     return self.status
-  
   # enddef
-  def check_depot(self, par, depotname, depotdict):
+  def check_depot(self, par, depotname):
     """
     check specific kontoname from ini-file
     :return: status
     """
-    key_liste = depotdict.keys()
+    key_liste = self.ddict[depotname].keys()
     
     # Prüfe die Daten aus proof_liste
     # --------------------------------
@@ -251,14 +208,14 @@ class ini:
     index_liste = [i for i in range(proof_length)]
     for index, (proof, ttype) in enumerate(par.INI_DEPOT_PROOF_LISTE):
       if proof in key_liste:
-        [okay, wert] = htype.type_proof(depotdict[proof], ttype)
+        [okay, wert] = htype.type_proof(self.ddict[depotname][proof], ttype)
         if okay != hdef.OK:
           self.status = hdef.NOT_OKAY
           self.add_err_text(
-            f"In inifile {self.ini_file_name} is variable {depotname}.{proof} = {depotdict[proof]} not correct !!!!")
+            f"In inifile {self.ini_file_name} is variable {depotname}.{proof} = {self.ddict[depotname][proof]} not correct !!!!")
           return self.status
         else:
-          depotdict[proof] = wert
+          self.ddict[depotname][proof] = wert
           index_liste.remove(index)
         # endif
       # endi
@@ -277,12 +234,67 @@ class ini:
     
     # Bilde/Prüfe Zusatzwerte
     # ------------------------
+    return self.status
+  
+  # enddef
+  def check_csv_import(self, par):
+    """
+    check csv_import_type sections from ini-file
+    :return: status = self.check_csv_import(par)
+    """
     
-    # aus start_dutum => start_tag und start_zeit
-    (start_tag, start_zeit) = hdt.secs_time_epoch_to_epoch_day_time(depotdict[par.START_DATUM_NAME])
+    for csv_import_type in self.ddict[par.INI_CSV_IMPORT_TYPE_NAMES_NAME]:
+      
+      if csv_import_type not in self.ddict:
+        self.status = hdef.NOT_OKAY
+        self.add_err_text(
+          f"In inifile {self.ini_file_name} ist csv-import-Sektion [{csv_import_type}] nicht vorhanden !!!!")
+        return self.status
+      
+      if self.check_csv_import_type(par, csv_import_type) != hdef.OK:
+        return hdef.NOT_OKAY
+      # endif
+    # endfor
     
-    depotdict[par.START_TAG_NAME] = start_tag
-    depotdict[par.START_TAG_NAME] = start_zeit
+    return self.status
+  
+  # enddef
+  def check_csv_import_type(self, par, csv_import_type):
+    """
+    check specific kontoname from ini-file
+    :return: status
+    """
+    key_liste = self.ddict[csv_import_type].keys()
+    
+    # Prüfe die Daten aus proof_liste
+    # --------------------------------
+    proof_length = len(par.INI_CSV_PROOF_LISTE)
+    index_liste = [i for i in range(proof_length)]
+    for index, (proof, ttype) in enumerate(par.INI_CSV_PROOF_LISTE):
+      if proof in key_liste:
+        [okay, wert] = htype.type_proof(self.ddict[csv_import_type][proof], ttype)
+        if okay != hdef.OK:
+          self.status = hdef.NOT_OKAY
+          self.add_err_text(
+            f"In inifile {self.ini_file_name} is variable {csv_import_type}.{proof} = {self.ddict[csv_import_type][proof]} not correct !!!!")
+          return self.status
+        else:
+          self.ddict[csv_import_type][proof] = wert
+          index_liste.remove(index)
+        # endif
+      # endi
+    # endfor
+    
+    # Prüfe was nicht definiert wurde
+    # --------------------------------
+    if len(index_liste):
+      self.status = hdef.NOT_OKAY
+      for index in index_liste:
+        self.add_err_text(
+          f"Im inifile {self.ini_file_name} ist Variable \"{csv_import_type}.{par.INI_KONTO_PROOF_LISTE[index][0]}\" nicht gesetzt !!!!")
+      # endofor
+      return self.status
+    # endif
     
     return self.status
   

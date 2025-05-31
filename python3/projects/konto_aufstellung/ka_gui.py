@@ -28,20 +28,20 @@ def iban_abfrage(rd,header_liste,data_llist,abfrage_liste):
 # end def
 
 def auswahl_konto(rd):
-    index = sgui.abfrage_liste_index(rd.ini.konto_names, "Konto auswählen")
+    index = sgui.abfrage_liste_index(rd.ini.ddict[rd.par.INI_KONTO_DATA_DICT_NAMES_NAME], "Konto auswählen")
     if index < 0:
         choice =  ""
     else:
-        choice = rd.ini.konto_names[index]
+        choice = rd.ini.ddict[rd.par.INI_KONTO_DATA_DICT_NAMES_NAME][index]
     # endif
     return (index,choice)
 # enddef
 def auswahl_depot(rd):
-    index = sgui.abfrage_liste_index(rd.ini.depot_names, "Depot auswählen")
+    index = sgui.abfrage_liste_index(rd.ini.ddict[rd.par.INI_DEPOT_DATA_DICT_NAMES_NAME], "Depot auswählen")
     if index < 0:
         choice =  ""
     else:
-        choice = rd.ini.depot_names[index]
+        choice = rd.ini.ddict[rd.par.INI_DEPOT_DATA_DICT_NAMES_NAME][index]
     # endif
     return (index,choice)
 # enddef
@@ -65,7 +65,7 @@ def konto_abfrage( header_liste, data_llist, abfrage_liste,color_list):
     return (d_new, index_abfrage, irow,data_changed_pos_list)
 
 # edn def
-def konto_data_set_eingabe(eingabe_liste,data_set):
+def konto_data_set_eingabe(eingabe_liste,data_set=None):
     '''
     
     
@@ -73,7 +73,10 @@ def konto_data_set_eingabe(eingabe_liste,data_set):
     :param buchungs_type_list:
     :return: new_data_list = ka_gui.konto_data_set_eingabe(header_liste,buchungs_type_list)
     '''
-    new_data_list = sgui.abfrage_n_eingabezeilen(liste=eingabe_liste,vorgabe_liste=data_set, title="Eine Kontobewegung eingeben")
+    if data_set is None:
+        new_data_list = sgui.abfrage_n_eingabezeilen(liste=eingabe_liste,title="Eine Kontobewegung eingeben")
+    else:
+        new_data_list = sgui.abfrage_n_eingabezeilen(liste=eingabe_liste,vorgabe_liste=data_set, title="Eine Kontobewegung eingeben")
     
     return new_data_list
 # end if

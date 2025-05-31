@@ -166,8 +166,18 @@ class KontoDataSet:
         self.data_set_llist: list = []
         self.n_data_sets: int = 0
         self.new_read_id_list: list = []
-    
-    def get_index(self, konto_data_name: str):
+        
+    def get_buchtype_index(self,buchttype_name: str):
+        index = None
+        for key, val in self.KONTO_DATA_BUCHTYPE_DICT.items():
+            if val == buchttype_name:
+                index = key
+                break
+            # end if
+        # end for
+        return index
+    # end def
+    def get_name_index(self, konto_data_name: str):
         index = None
         for key, val in self.KONTO_DATA_NAME_DICT.items():
             if val == konto_data_name:
@@ -569,182 +579,6 @@ class KontoDataSet:
         return (self.status, self.errtext)
     
     # end def
-    # def get_data_from_new_data_list(self, new_data_list, header_liste):
-    #     '''
-    #
-    #     :param new_data_list:
-    #     :param header_liste:
-    #     :return: new_data_dict = self.get_data_from_new_data_list(new_data_list, header_liste)
-    #     '''
-    #     new_data_dict = {}
-    #     for index in range(min(len(new_data_list), len(header_liste))):
-    #
-    #         header = header_liste[index]
-    #         value = new_data_list[index]
-    #         flagfound = False
-    #         for key in self.KONTO_DATA_TYPE_DICT.keys():
-    #             if header == self.KONTO_DATA_TYPE_DICT[key]:
-    #                 flagfound = True
-    #                 index = key
-    #                 break
-    #             # end if
-    #         # endfor
-    #         if flagfound:
-    #             wert = self.transform_value(value, index)
-    #             if self.status != hdef.OKAY:
-    #                 return []
-    #             else:
-    #                 new_data_dict[header] = wert
-    #             # endif
-    #         else:
-    #             self.errtext = f"add_new_data_set: header: {header} with value {value} not found in self.KONTO_DATA_TYPE_INTERN_DICT"
-    #             self.status = hdef.NOT_OKAY
-    #         # end if
-    #     # end for
-    #     return new_data_dict
-    #
-    # def transform_value(self, wert_in, data_type_from, data_type_to, add_err_text=None):
-    #     '''
-    #
-    #     :param wert_in:
-    #     :param i_col_dataset:
-    #     :param buch_type_dict:
-    #     :param add_err_text:
-    #     :return: wert = self.transform_value(wert_in,i_col_dataset,buch_type_dict,add_err_text="")
-    #     '''
-    #
-    #     (okay, wert) = htype.type_transform(wert_in, data_type_from, data_type_to)
-    #     if (okay != hdef.OKAY):
-    #         self.status = hdef.NOT_OKAY
-    #         self.errtext = f"transform_value_datum: error input = {wert_in} from type {data_type_from} into type {data_type_to} is not valid "
-    #         if add_err_text: self.errtext += add_err_text
-    #         return wert
-    #     # endif
-    #
-    #     return wert
-    #
-    #     # # buchdatum
-    #     # if (i_col_dataset == self.KONTO_DATA_INDEX_BUCHDATUM):
-    #     #     (okay, wert) = htype.type_proof_dat(wert_in)
-    #     #     if (okay != hdef.OKAY):
-    #     #         self.status = hdef.NOT_OKAY
-    #     #         self.errtext = f"transform_value_datum: error input buchdatum = <{wert_in}> is not valid "
-    #     #         if add_err_text : self.errtext += add_err_text
-    #     #         return wert
-    #     #     # endif
-    #     # # wertdatum
-    #     # elif (i_col_dataset == self.KONTO_DATA_INDEX_WERTDATUM):
-    #     #     (okay, wert) = htype.type_proof_dat(wert_in)
-    #     #     if okay != hdef.OKAY:
-    #     #         self.status = hdef.NOT_OKAY
-    #     #         self.errtext = f"transform_value_datum: error input wertdatum = <{wert_in}> is not valid "
-    #     #         if add_err_text : self.errtext += add_err_text
-    #     #         return wert
-    #     #     # endif
-    #     # # wert
-    #     # elif i_col_dataset == self.KONTO_DATA_INDEX_WERT:
-    #     #     (okay, wert) = htype.type_convert_euro_to_cent(wert_in, delim=self.DECIMAL_TRENN_STR,
-    #     #                                                    thousandsign=self.TAUSEND_TRENN_STR)
-    #     #     if okay != hdef.OKAY:
-    #     #         self.status = hdef.NOT_OKAY
-    #     #         self.errtext = f"get_data_from_csv_lliste: error input wert = <{wert_in}> is not valid "
-    #     #         if add_err_text : self.errtext += add_err_text
-    #     #         return wert
-    #     #     # endif
-    #     # elif i_col_dataset == self.KONTO_DATA_INDEX_SUMWERT:
-    #     #     (okay, wert) = htype.type_convert_euro_to_cent(wert_in, delim=self.DECIMAL_TRENN_STR,
-    #     #                                                    thousandsign=self.TAUSEND_TRENN_STR)
-    #     #     if okay != hdef.OKAY:
-    #     #         self.status = hdef.NOT_OKAY
-    #     #         self.errtext = f"get_data_from_csv_lliste: error input sumwert = <{wert_in}> is not valid  "
-    #     #         if add_err_text : self.errtext += add_err_text
-    #     #         return wert
-    #     #     # endif
-    #     # elif (i_col_dataset == self.KONTO_DATA_INDEX_BUCHTYPE):
-    #     #     (okay, wert) = htype.type_proof_string(wert_in)
-    #     #     if (okay != hdef.OKAY):
-    #     #         self.status = hdef.NOT_OKAY
-    #     #         self.errtext = f"get_data_from_csv_lliste: error input buchtype = <{wert_in}> is not valid "
-    #     #         if add_err_text : self.errtext += add_err_text
-    #     #         return wert
-    #     #     else:
-    #     #         if len(buch_type_dict.keys()) == 0:
-    #     #             self.status = hdef.NOT_OKAY
-    #     #             self.errtext = f"get_data_from_csv_lliste: error input buchtype = <{wert_in}>: buch_type_dict is not set with KontoDataSetParameter()"
-    #     #             if add_err_text: self.errtext += add_err_text
-    #     #             return None
-    #     #         else:
-    #     #             buchtype = self.get_data_buchtype(wert,buch_type_dict)
-    #     #             if (self.status != hdef.OKAY):
-    #     #                 self.errtext = f"get_data_from_csv_lliste: error input buchtype = <{wert_in}> is not found "
-    #     #                 if add_err_text: self.errtext += add_err_text
-    #     #                 return None
-    #     #             # end if
-    #     #         # end if
-    #     #         wert = buchtype
-    #     #     # end if
-    #     # elif i_col_dataset == self.KONTO_DATA_INDEX_WER:
-    #     #     (okay, wert) = htype.type_proof_string(wert_in)
-    #     #     if (okay != hdef.OKAY):
-    #     #         self.status = hdef.NOT_OKAY
-    #     #         self.errtext = f"get_data_from_csv_lliste: error input wer = <{wert_in}> is not valid "
-    #     #         if add_err_text : self.errtext += add_err_text
-    #     #         return wert
-    #     #     # endif
-    #     # elif i_col_dataset == self.KONTO_DATA_INDEX_COMMENT:
-    #     #     (okay, wert) = htype.type_proof_string(wert_in)
-    #     #     if (okay != hdef.OKAY):
-    #     #         self.status = hdef.NOT_OKAY
-    #     #         self.errtext = f"get_data_from_csv_lliste: error input comment = <{wert_in}> is not valid "
-    #     #         if add_err_text : self.errtext += add_err_text
-    #     #         return wert
-    #     #     # endif
-    #     # else:
-    #     #     raise Exception(f"i_col_dataset = {i_col_dataset} nicht gefunden")
-    #     # # endif
-    #
-    # # end def
-    # def get_data_buchtype(self, wert, buch_type_dict):
-    #     '''
-    #
-    #     :param wert:
-    #     :param par:
-    #     :return: (okay, buchtype) =  get_data_buchtype(wert,buch_type_dict):
-    #     '''
-    #
-    #     okay = hdef.OKAY
-    #
-    #     if len(buch_type_dict.keys()) == 0:
-    #         raise Exception(f"get_data_buchtype: Parameter buch_type_dict is empty")
-    #     # endif
-    #     not_found = True
-    #     for key in buch_type_dict.keys():
-    #
-    #         if isinstance(buch_type_dict[key], str):
-    #             liste = [buch_type_dict[key]]
-    #         else:
-    #             liste = buch_type_dict[key]
-    #         # end if
-    #
-    #         for item in liste:
-    #             if wert == item:
-    #                 buchtype = key
-    #                 not_found = False
-    #                 break
-    #             # end if
-    #         # end for
-    #         if not not_found:
-    #             break
-    #     # end for
-    #
-    #     if not_found:
-    #         buchtype = self.KONTO_BUCHTYPE_INDEX_UNBEKANNT
-    #         self.status = hdef.NOT_OKAY
-    #     # end if
-    #
-    #     return buchtype
-    #
-    # # end def
     #-------------------------------------------------------------------------------------------------------------------
     # intern functions
     #-------------------------------------------------------------------------------------------------------------------

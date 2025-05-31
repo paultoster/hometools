@@ -62,13 +62,13 @@ def konto_auswerten():
     if (rd.ini.status != hdef.OK):
         rd.log.write_err(rd.ini.errtext, screen=rd.par.LOG_SCREEN_OUT)
         return
-    else:
-        rd.par = rd.ini.get_par(rd.par)
+    # else:
+    #     rd.par = rd.ini.get_par(rd.par)
     # endif
         
     # data_base
     # -----------
-    (status, errtext, rd.data) = ka_data_set.data_get(rd.par,rd.ini)
+    (status, errtext, rd.data) = ka_data_set.data_get(rd.par,rd.ini.ddict)
 
     if (status != hdef.OK):
         rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
