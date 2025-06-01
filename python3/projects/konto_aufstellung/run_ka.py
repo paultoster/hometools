@@ -78,39 +78,45 @@ def konto_auswerten():
 
     runflag = True
 
-    start_auswahl = ["Ende","Iban","Konto","Depot"]
-    index_ende  = 0
-    index_iban  = 1
-    index_konto = 2
-    index_depot = 3
+    start_auswahl = ["Cancel (no save)","Ende","Iban","Konto","Depot"]
+    index_cancel_no_save  = 0
+    index_ende    = 1
+    index_iban    = 2
+    index_konto   = 3
+    index_depot   = 4
+    save_flag = True
 
     while (runflag):
-
+        
+        save_flag = True
         index = ka_gui.listen_abfrage(rd,start_auswahl,"Startauswahl")
 
-        if ((index == index_ende) or (index < 0)):
+        if index < 0: # cancel button
+            runflag = True
+        elif index == index_cancel_no_save:
+            
+            flag = ka_gui.janein_abfrage(rd, "Soll wirklich nicht gespeichert werden?", "Nicht Speichern ja/nein")
+            if flag:
+                runflag = False
+                save_flag = False
+            # end if
+        elif index == index_ende :
             runflag = False
-        elif (index == index_konto):
-
+        elif index == index_konto:
             rd.log.write(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
             status = kb.bearbeiten(rd)
-
             # if (status != hdef.OKAY):
             #    runflag = False
             # endif
-        elif (index == index_iban):
-
+        elif index == index_iban:
             rd.log.write(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
             status = ib.bearbeiten(rd)
-
             # if (status != hdef.OKAY):
             #     runflag = False
             # endif
-        elif (index == index_depot):
-
+        elif index == index_depot:
             rd.log.write(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
             status = db.bearbeiten(rd)
-
         else:
             errtext = f"Auswahl: {index} nicht bekannt"
             rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
@@ -120,12 +126,15 @@ def konto_auswerten():
 
     # endwhile
     
+    if save_flag:
+        (status, errtext) = ka_data_set.data_save(rd.data,rd.par)
 
-    (status, errtext) = ka_data_set.data_save(rd.data,rd.par)
-
-    if (status != hdef.OK):
-        rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
-        # endif
+        if (status != hdef.OK):
+            rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
+        # end if
+    # else:
+    #     rd.log.write_info("Keine Datensicherung",screen=rd.par.LOG_SCREEN_OUT)
+    # end if
 
     # close log-file
     rd.log.close()

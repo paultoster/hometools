@@ -91,9 +91,6 @@ class KontoCsvRead:
             # for each new line in csv_lliste reset index_liste
             index_dict = {}
             
-            if i == 13:
-                print("halt")
-            
             for j, key in enumerate(self.CSV_DATA_NAME_DICT.keys()):
                 
                 index = self.search_header_line_find_name_in_list(self.CSV_DATA_NAME_DICT[key],csv_liste)

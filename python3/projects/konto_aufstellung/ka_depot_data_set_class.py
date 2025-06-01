@@ -25,16 +25,90 @@ from typing import List
 # 1. Parameter dafür
 #-------------------
 class DepotDataSet:
+    
+    # BUchungs Typ
+    DEPOT_BUCHTYPE_INDEX_UNBEKANNT: int = 0
+    DEPOT_BUCHTYPE_INDEX_WP_KAUF: int = 4
+    DEPOT_BUCHTYPE_INDEX_WP_VERKAUF: int = 5
+    DEPOT_BUCHTYPE_INDEX_WP_KOSTEN: int = 6
+    DEPOT_BUCHTYPE_INDEX_WP_EINNAHMEN: int = 7
+    
+    DEPOT_DATA_BUCHTYPE_DICT = {DEPOT_BUCHTYPE_INDEX_UNBEKANNT: "unbekannt"
+        , DEPOT_BUCHTYPE_INDEX_WP_KAUF: "wp_kauf"
+        , DEPOT_BUCHTYPE_INDEX_WP_VERKAUF: "wp_verkauf"
+        , DEPOT_BUCHTYPE_INDEX_WP_KOSTEN: "wp_kosten"
+        , DEPOT_BUCHTYPE_INDEX_WP_EINNAHMEN: "wp_einnahmen"}
+    
+    DEPOT_BUCHTYPE_TEXT_LIST = []
+    DEPOT_BUCHTYPE_INDEX_LIST = []
+    for key in DEPOT_DATA_BUCHTYPE_DICT.keys():
+        DEPOT_BUCHTYPE_TEXT_LIST.append(DEPOT_DATA_BUCHTYPE_DICT[key])
+        DEPOT_BUCHTYPE_INDEX_LIST.append(key)
+    # end for
+    
+    # Indizes in erinem data_set
+    DEPOT_DATA_INDEX_KONTO_ID: int = 0
+    DEPOT_DATA_INDEX_BUCHDATUM: int = 1
+    DEPOT_DATA_INDEX_BUCHTYPE: int = 2
+    DEPOT_DATA_INDEX_ISIN: int = 3
+    DEPOT_DATA_INDEX_ANZAHL: int = 4
+    DEPOT_DATA_INDEX_WERT: int = 5
+    DEPOT_DATA_INDEX_KOSTEN: int = 6
+    DEPOT_DATA_INDEX_STEUER: int = 7
+    DEPOT_DATA_INDEX_SUMWERT: int = 8
+    DEPOT_DATA_INDEX_KATEGORIE: int = 9
+    
+    DEPOT_DATA_INDEX_LIST = [DEPOT_DATA_INDEX_KONTO_ID, DEPOT_DATA_INDEX_BUCHDATUM
+        , DEPOT_DATA_INDEX_BUCHTYPE, DEPOT_DATA_INDEX_ISIN, DEPOT_DATA_INDEX_ANZAHL
+        , DEPOT_DATA_INDEX_WERT, DEPOT_DATA_INDEX_KOSTEN, DEPOT_DATA_INDEX_STEUER
+        , DEPOT_DATA_INDEX_SUMWERT, DEPOT_DATA_INDEX_KATEGORIE]
+    
+    DEPOT_DATA_NAME_KONTO_ID: str = "id"
+    DEPOT_DATA_NAME_BUCHDATUM = "buchdatum"
+    DEPOT_DATA_NAME_BUCHTYPE = "buchtype"
+    DEPOT_DATA_NAME_ISIN = "isin"
+    DEPOT_DATA_NAME_ANZAHL = "anzahl"
+    DEPOT_DATA_NAME_WERT = "wert"
+    DEPOT_DATA_NAME_KOSTEN = "kosten"
+    DEPOT_DATA_NAME_STEUER = "steuer"
+    DEPOT_DATA_NAME_SUMWERT = "sumwert"
+    DEPOT_DATA_NAME_KATEGORIE = "kategorie"
+    
+    DEPOT_DATA_LLIST = [
+        [DEPOT_DATA_INDEX_KONTO_ID, DEPOT_DATA_NAME_KONTO_ID, "int"],
+        [DEPOT_DATA_INDEX_BUCHDATUM, DEPOT_DATA_NAME_BUCHDATUM, "dat"],
+        [DEPOT_DATA_INDEX_BUCHTYPE, DEPOT_DATA_NAME_BUCHTYPE, DEPOT_BUCHTYPE_INDEX_LIST],
+        [DEPOT_DATA_INDEX_ISIN, DEPOT_DATA_NAME_ISIN, "str"],
+        [DEPOT_DATA_INDEX_ANZAHL, DEPOT_DATA_NAME_ANZAHL, "str"],
+        [DEPOT_DATA_INDEX_WERT, DEPOT_DATA_NAME_WERT, "cent"],
+        [DEPOT_DATA_NAME_KOSTEN, DEPOT_DATA_NAME_KOSTEN, "cent"],
+        [DEPOT_DATA_NAME_STEUER, DEPOT_DATA_NAME_STEUER, "cent"],
+        [DEPOT_DATA_INDEX_SUMWERT, DEPOT_DATA_NAME_SUMWERT, "cent"],
+        [DEPOT_DATA_INDEX_KATEGORIE, DEPOT_DATA_NAME_KATEGORIE, "str"],
+    ]
+    DEPOT_DATA_NAME_DICT = {}
+    DEPOT_DATA_TYPE_DICT = {}
+    DEPOT_DATA_NAME_LIST = []
+    DEPOT_DATA_TYPE_LIST = []
+    # DEPOT_DATA_INDEX_LIST = []
+    for liste in DEPOT_DATA_LLIST:
+        DEPOT_DATA_NAME_DICT[liste[0]] = liste[1]
+        DEPOT_DATA_TYPE_DICT[liste[0]] = liste[2]
+        DEPOT_DATA_NAME_LIST.append(liste[1])
+        DEPOT_DATA_TYPE_LIST.append(liste[2])
+        # DEPOT_DATA_INDEX_LIST.append(liste[0])
+    
+    # end for
+    
     # Welche items/header hat die Doppelliste
-    DEPOT_DATA_ITEM_LIST: List[str] = ( "id"         # set internally
-                                      , "isin"       # str extracted from data
-                                      , "buchdatum"  # int read from csv/pdf
-                                      , "wertdatum"  # int read from csv/pdf
-                                      , "buchtype"   # int raed from csv/pdf
-                                      , "wert"       # int read from csv/pdf
+    DEPOT_DATA_ITEM_LIST: List[str] = ( "id"         # von konto
+                                      , "wertdatum"  # von konto
+                                      , "isin"       # von konto
+                                      , "anzahl"     # von konto
+                                      , "buchtype"   # von konto
+                                      , "wert"       # von konto
                                       , "sumwert"    # set internally
-                                      , "comment"    # str read from csv/pdf
-                                      , "chash"      # set internally
+                                      , "comment"    # set internally
                                       , "kategorie") # internally set
     
     # Indizes in erinem data_set
@@ -97,7 +171,6 @@ class DepotDataSet:
         self.data_set_llist: list = []
         self.n_data_sets: int = 0
         self.new_read_id_list: list = []
-
     def set_csv_header_name(self,dat_set_index: int,header_csv_name: str):
         self.DEPOT_DATA_HEADER_CSV_NAME_DICT[dat_set_index] = header_csv_name
         self.DEPOT_DATA_HEADER_ABFRAGE_DICT[dat_set_index] = self.DEPOT_DATA_ITEM_LIST[dat_set_index]
@@ -109,15 +182,9 @@ class DepotDataSet:
         self.DEPOT_DATA_TO_SHOW_DICT[dat_set_index] = self.DEPOT_DATA_ITEM_LIST[dat_set_index]
     # enddef
 
-    def set_starting_data_llist(self,data_set_llist,idmax,depot_start_datum,decimal_trenn="",tausend_trenn=""):
+    def set_starting_data_llist(self,data_set_llist):
         self.data_set_llist = copy.deepcopy(data_set_llist)
         self.n_data_sets = len(self.data_set_llist)
-        self.idmax = copy.deepcopy(idmax)
-        self.depot_start_datum =  copy.deepcopy(depot_start_datum)
-        self.DECIMAL_TRENN_STR = copy.deepcopy(decimal_trenn)
-        self.TAUSEND_TRENN_STR = copy.deepcopy(tausend_trenn)
-        
-        
     # end def
     # def read_csv(self,csv_lliste,filename):
     #     '''

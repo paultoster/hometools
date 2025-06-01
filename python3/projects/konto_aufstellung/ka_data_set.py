@@ -163,12 +163,15 @@ def data_save(data,par):
     errtext = ""
     
     for key in data:
-        if data[key].ddict[par.DDICT_TYPE_NAME] == par.TYPE_KONTO_DATA:
+        if data[key].ddict[par.DDICT_TYPE_NAME] == par.KONTO_DATA_TYPE_NAME:
             # get data from konto set class to save
-            data[key].ddict[par.KONTO_DATA_SET_NAME] = data[key].obj.data_set_llist
-            #data[key].ddict[par.KONTO_DATA_ID_MAX_NAME] = data[key].obj.idmax
+            if par.KONTO_DATA_SET_NAME in data[key].ddict.keys():
+                data[key].ddict[par.KONTO_DATA_SET_NAME] = data[key].obj.data_set_llist
+            # end if
+            data[key].ddict[par.KONTO_DATA_SET_DICT_LIST_NAME] = data[key].obj.get_data_set_dict_list()
+            data[key].ddict[par.KONTO_DATA_TYPE_DICT_NAME] = data[key].obj.get_data_type_dict()
             del data[key].obj
-        elif data[key].ddict[par.DDICT_TYPE_NAME] == par.TYPE_PROG_DATA:
+        elif data[key].ddict[par.DDICT_TYPE_NAME] == par.PROG_DATA_TYPE_NAME:
             data[key].ddict[par.KONTO_DATA_ID_MAX_NAME] = data[key].idfunc.get_act_id()
             del data[key].idfunc
         # end if
@@ -314,21 +317,62 @@ def build_konto_data_set_obj(par, konto_data, konto_name,idfunc):
     # class KontoDataSet anlegen
     obj = ka_konto_data_set_class.KontoDataSet()
     
-    # kont_data set anlegen
-    #----------------------
-    key = par.KONTO_DATA_SET_NAME
+    # # kont_data set anlegen
+    # #----------------------
+    # key = par.KONTO_DATA_SET_NAME
+    # if key in konto_data.ddict:
+    #     if len(konto_data.ddict[key]) > 0:
+    #         if len(konto_data.ddict[key][0]) != len(obj.KONTO_DATA_NAME_LIST):
+    #             konto_data.status = hdef.NOT_OKAY
+    #             konto_data.errtext = f"length of header-list {par.KONTO_DATA_NAME_LIST} not same with data-dict {konto_data.dict[key]} of konto: {konto_name}"
+    #             return konto_data
+    #         # end if
+    #     # end if
+    #     data_set_llist = konto_data.ddict[key]
+    # else:
+    #     data_set_llist = []
+    # # end if
+
+    # neue Datenbeschreibung
+    key = par.KONTO_DATA_SET_DICT_LIST_NAME
     if key in konto_data.ddict:
-        if len(konto_data.ddict[key]) > 0:
-            if len(konto_data.ddict[key][0]) != len(obj.KONTO_DATA_NAME_LIST):
-                konto_data.status = hdef.NOT_OKAY
-                konto_data.errtext = f"length of header-list {par.KONTO_DATA_NAME_LIST} not same with data-dict {konto_data.dict[key]} of konto: {konto_name}"
-                return konto_data
-            # end if
-        # end if
-        data_set_llist = konto_data.ddict[key]
+        konto_data_set_dict_list = konto_data.ddict[key]
     else:
-        data_set_llist = []
+        konto_data_set_dict_list = []
     # end if
+    
+    key = par.KONTO_DATA_TYPE_DICT_NAME
+    if key in konto_data.ddict:
+        konto_data_type_dict = konto_data.ddict[key]
+    else:
+        konto_data_type_dict =   {}
+    # end if
+    if par.KONTO_DATA_SET_NAME in konto_data.ddict:
+        del konto_data.ddict[par.KONTO_DATA_SET_NAME]
+    # end if
+
+    # if (key1 in konto_data.ddict) and (key1 in konto_data.ddict):
+    #     data_set_llist = obj.set_dat_set_dict_list(konto_data.ddict[key1],konto_data.ddict[key2])
+    #     if par.KONTO_DATA_SET_NAME in konto_data.ddict:
+    #         del konto_data.ddict[par.KONTO_DATA_SET_NAME]
+    #     # end if
+    # else:
+    #     # kont_data set anlegen
+    #     #----------------------
+    #     key = par.KONTO_DATA_SET_NAME
+    #     if key in konto_data.ddict:
+    #         if len(konto_data.ddict[key]) > 0:
+    #             if len(konto_data.ddict[key][0]) != len(obj.KONTO_DATA_NAME_LIST):
+    #                 konto_data.status = hdef.NOT_OKAY
+    #                 konto_data.errtext = f"length of header-list {par.KONTO_DATA_NAME_LIST} not same with data-dict {konto_data.dict[key]} of konto: {konto_name}"
+    #                 return konto_data
+    #             # end if
+    #         # end if
+    #         data_set_llist = konto_data.ddict[key]
+    #     else:
+    #         data_set_llist = []
+    #     # end if
+    # # end if
     
     # konto_start_wert von ini übergeben:
     #-----------------------------------
@@ -384,7 +428,8 @@ def build_konto_data_set_obj(par, konto_data, konto_name,idfunc):
 
     # KontoDataSet data_llist übergeben
     obj.set_starting_data_llist(
-        data_set_llist,
+        konto_data_set_dict_list,
+        konto_data_type_dict,
         idfunc,
         konto_start_datum,
         konto_start_wert,
@@ -499,22 +544,22 @@ def build_konto_data_csv_obj(par, konto_data, konto_name,ini_data_dict):
     return konto_data
 
 # end def
-def proof_depot_data_from_ini(depot_data, ini_data, par):
+def proof_depot_data_from_ini(depot_data, ini_data_dict, par):
     """
-    proof ini_data in depot_data
+    proof ini_data_dict in depot_data
     :param depot_data:
-    :param ini_data:
+    :param ini_data_dict:
     :return:
     """
     
-    for key in ini_data:
+    for key in ini_data_dict:
         
         if (key in depot_data.ddict):
-            if (ini_data[key] != depot_data.ddict[key]):
-                depot_data.ddict[key] = ini_data[key]
+            if (ini_data_dict[key] != depot_data.ddict[key]):
+                depot_data.ddict[key] = ini_data_dict[key]
             # endif
         else:
-            depot_data.ddict[key] = ini_data[key]
+            depot_data.ddict[key] = ini_data_dict[key]
             # end if
         # endif
     # end for
@@ -532,10 +577,10 @@ def proof_depot_data_intern(par, depot_data, depot_name):
     :return:depot_data =  proof_konto_data_intern(par,depot_data,konto_name)
     '''
     # type
-    depot_data.ddict[par.DDICT_TYPE_NAME] = par.TYPE_DEPOT_DATA
+    depot_data.ddict[par.DDICT_TYPE_NAME] = par.DEPOT_DATA_TYPE_NAME
     
-    # konto name
-    key = par.DEPOT_NAME_NAME
+    # depot name
+    key = par.DEPOT_NAME
     if key in depot_data.ddict:
         if depot_name != depot_data.ddict[key]:
             depot_data.ddict[key] = depot_name
@@ -578,45 +623,8 @@ def build_depot_data_set_obj(par, depot_data, depot_name, data):
         data_set_llist = []
     # end if
     
-    key = par.DEPPOT_DATA_ID_MAX_NAME
-    if key in depot_data.ddict:
-        idmax = depot_data.ddict[key]
-    else:
-        idmax = 0
-    # end if
-    
-    
-    # depot_start_datum von ini übergeben:
-    key = par.START_DATUM_NAME
-    if key in depot_data.ddict:
-        depot_start_datum = depot_data.ddict[key]
-    else:
-        depot_start_datum = 0
-    # end if
-    
-    # Trennungs zeichen für decimal wert
-    key = par.INI_KONTO_STR_EURO_TRENN_BRUCH
-    if key in depot_data.ddict:
-        wert_delim = depot_data.ddict[key]
-    else:
-        wert_delim = par.STR_EURO_TRENN_BRUCH_DEFAULT
-    # end if
-    
-    # Trennungszeichen für Tausend
-    key = par.INI_KONTO_STR_EURO_TRENN_TAUSEND
-    if key in depot_data.ddict:
-        wert_trennt = depot_data.ddict[key]
-    else:
-        wert_trennt = par.STR_EURO_TRENN_TAUSEN_DEFAULT
-    # end if
-    
     # class KontoDataSet anlegen
-    obj.set_starting_data_llist(
-        data_set_llist,
-        idmax,
-        depot_start_datum,
-        wert_delim,
-        wert_trennt)
+    obj.set_starting_data_llist(data_set_llist)
     
     depot_data.obj = copy.deepcopy(obj)
     

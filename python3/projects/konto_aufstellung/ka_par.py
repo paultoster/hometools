@@ -86,12 +86,13 @@ class Parameter:
                             , (INI_START_DATUM_NAME, "dat")
                             , (INI_IMPORT_DATA_TYPE_NAME, "str")]
     
-    INI_DEPOTSTAND_DATA_TYPE_NAME: str = "depotstand_data_type"
+    INI_DEPOT_BANK_NAME: str = "konto"
     
-    # Liste der zu checkenden Daten
-    # ------------------------------
-    INI_DEPOT_PROOF_LISTE = [(INI_START_DATUM_NAME, "dat")
-                            , (INI_DEPOTSTAND_DATA_TYPE_NAME, "str")]
+    # Liste der zu checkenden Daten von DEPOT
+    # ---------------------------------------
+    INI_DEPOT_PROOF_LISTE = [ (INI_BANK_NAME, "str")
+                            , (INI_WER_NAME, "str")
+                            , (INI_DEPOT_BANK_NAME,"str")]
     
     INI_CSV_TRENNZEICHEN: str = "trenn_zeichen"
     INI_CSV_HEADER_NAMEN: str = "header_namen"
@@ -157,15 +158,14 @@ class Parameter:
     
     # konto data
     KONTO_DATA_SET_NAME: str = "konto_data_set"
+    KONTO_DATA_SET_DICT_LIST_NAME: str = "konto_data_set_dict_list"
+    KONTO_DATA_TYPE_DICT_NAME: str = "konto_data_type_dict"
     KONTO_DATA_ID_NEW_LIST: str = "konto_id_new_list"
     
     INI_DATA_KEYS_NAME: str = "ini_data_keys"
     
     # konto data
     DEPOT_DATA_SET_NAME: str = "depot_data_set"
-    DEPPOT_DATA_ID_MAX_NAME: str = "depot_id_max"
-    DEPOT_DATA_ID_NEW_LIST: str = "depot_id_new_list"
-
     # Parameter konto_data_set
     
 

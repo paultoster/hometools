@@ -51,7 +51,8 @@ class KontoDataSet:
     KONTO_BUCHTYPE_INDEX_WP_VERKAUF: int = 5
     KONTO_BUCHTYPE_INDEX_WP_KOSTEN: int = 6
     KONTO_BUCHTYPE_INDEX_WP_EINNAHMEN: int = 7
-    
+    KONTO_BUCHTYPE_INDEX_EINNAHMEN: int = 8
+
     KONTO_DATA_BUCHTYPE_DICT = {KONTO_BUCHTYPE_INDEX_UNBEKANNT: "unbekannt"
         , KONTO_BUCHTYPE_INDEX_EINZAHLUNG: "einzahlung"
         , KONTO_BUCHTYPE_INDEX_AUSZAHLUNG: "auszahlung"
@@ -59,7 +60,9 @@ class KontoDataSet:
         , KONTO_BUCHTYPE_INDEX_WP_KAUF: "wp_kauf"
         , KONTO_BUCHTYPE_INDEX_WP_VERKAUF: "wp_verkauf"
         , KONTO_BUCHTYPE_INDEX_WP_KOSTEN: "wp_kosten"
-        , KONTO_BUCHTYPE_INDEX_WP_EINNAHMEN: "wp_einnahmen"}
+        , KONTO_BUCHTYPE_INDEX_WP_EINNAHMEN: "wp_einnahmen"
+        , KONTO_BUCHTYPE_INDEX_EINNAHMEN:"einnahmen"}
+    
     KONTO_BUCHTYPE_TEXT_LIST = []
     KONTO_BUCHTYPE_INDEX_LIST = []
     for key in KONTO_DATA_BUCHTYPE_DICT.keys():
@@ -188,9 +191,9 @@ class KontoDataSet:
         return index
     # end def
     
-    def set_starting_data_llist(self, data_set_llist, idfunc, konto_start_datum, konto_start_wert, decimal_trenn="",
+    def set_starting_data_llist(self,konto_data_set_dict_list,konto_data_type_dict, idfunc, konto_start_datum, konto_start_wert, decimal_trenn="",
                                 tausend_trenn=""):
-        self.data_set_llist = data_set_llist
+        self.data_set_llist = self.set_dat_set_dict_list(konto_data_set_dict_list,konto_data_type_dict)
         self.n_data_sets = len(self.data_set_llist)
         self.idfunc = ka_data_class_defs.IDCount()
         self.konto_start_datum = konto_start_datum
@@ -391,6 +394,63 @@ class KontoDataSet:
         return (new_data_set_flag, self.status, self.errtext)
     
     # enddef
+    def get_data_set_dict_list(self):
+        '''
+         konto_data_set_dict =
+        :return:
+        '''
+        
+        konto_data_dict_list = []
+        for liste in self.data_set_llist:
+            ddict = {}
+            for index in self.KONTO_DATA_INDEX_LIST:
+                ddict[self.KONTO_DATA_NAME_DICT[index]] = liste[index]
+            # end for
+            konto_data_dict_list.append(ddict)
+        # end for
+        
+        return konto_data_dict_list
+    # end def
+    def set_dat_set_dict_list(self,konto_data_dict_list,konto_data_type_dict):
+        '''
+        
+        :param konto_data_dict_list:
+        :param konto_data_type_dict:
+        :return:
+        '''
+        # base_konto_data_set_list = [None for item in self.KONTO_DATA_INDEX_LIST]
+        
+        konto_data_llist = []
+        for data_dict in konto_data_dict_list:
+            konto_data_set_list = [None for item in self.KONTO_DATA_INDEX_LIST]
+            for key in data_dict.keys():
+                index = hlist.find_first_key_dict_value(self.KONTO_DATA_NAME_DICT, key)
+                if index is not None:
+                    (okay, wert) = htype.type_proof(data_dict[key],konto_data_type_dict[key])
+                    if okay == hdef.OK:
+                        konto_data_set_list[index]= wert
+                    else:
+                        raise Exception("Problem")
+                    # end if
+                # end if
+            # end for
+            konto_data_llist.append(konto_data_set_list)
+            del konto_data_set_list
+        # end for
+
+        return konto_data_llist
+    def get_data_type_dict(self):
+        '''
+        
+        :return:
+        '''
+        data_type_dict = {}
+        for key in self.KONTO_DATA_NAME_DICT.keys():
+            data_type_dict[self.KONTO_DATA_NAME_DICT[key]] = self.KONTO_DATA_TYPE_DICT[key]
+        # end for
+        
+        return  data_type_dict
+    # end def
     def get_anzeige_data_llist(self, istart: int, dir: int, number_of_lines: int):
         '''
         

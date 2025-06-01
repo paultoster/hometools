@@ -378,12 +378,14 @@ def type_proof(wert_in, type):
     '''
     if type == "str":
         return type_proof_string(wert_in)
-    elif (type == "float"):
+    elif type == "float":
         return type_proof_float(wert_in)
     elif type == "int":
         return type_proof_int(wert_in)
     elif type == "list":
         return type_proof_list(wert_in, "")
+    elif isinstance(type,list):
+        return type_proof_list(wert_in, type)
     elif type == "list_str":
         return type_proof_list(wert_in, "str")
     elif (type == "dat") or (type == "date"):
@@ -487,7 +489,8 @@ def type_proof_int(wert_in):
 
 def type_proof_list(wert_in,type):
     
-    if( isinstance(wert_in,list) ):
+    
+    if isinstance(wert_in,list):
         if( len(type) == 0 ):
             return (hdef.OKAY, wert_in)
         elif( type == "str" ):
@@ -503,6 +506,11 @@ def type_proof_list(wert_in,type):
         else:
             return (hdef.NOT_OKAY,wert_in)
         #end if
+    elif isinstance(type,list):
+        if wert_in in type:
+            return (hdef.OKAY, wert_in)
+        else:
+            return (hdef.NOT_OKAY, None)
     else:
         return (hdef.NOT_OKAY,wert_in)
     # end if

@@ -1379,7 +1379,17 @@ def sort_list_of_dict(lliste, keyname, aufsteigend=1):
     
     return new_llist
 
-
+def find_keys_of_dict_value_as_list(ddict,value):
+    keys = [key for key, val in ddict.items() if val == value]
+    return keys
+# end def
+def find_first_key_dict_value(ddict,value):
+    keys = find_keys_of_dict_value_as_list(ddict,value)
+    if len(keys):
+        return keys[0]
+    else:
+        return None
+# end def
 ###########################################################################
 # testen mit main
 ###########################################################################

@@ -3,8 +3,12 @@ import hfkt_def as hdef
 import hfkt_log as hlog
 import sgui
 
+def janein_abfrage(rd,ausgabe_text,ausgabe_title):
 
+    flag = sgui.abfrage_janein(text=ausgabe_text,title=ausgabe_title)
+    return flag
 
+# end def
 def listen_abfrage(rd,auswahl_liste,auswahl_title):
 
     index = sgui.abfrage_liste_index(auswahl_liste, auswahl_title)
