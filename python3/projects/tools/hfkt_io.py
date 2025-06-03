@@ -50,27 +50,27 @@
 '''
 
 from tkinter import *
-from tkinter.constants import *
+#from tkinter.constants import *
 import tkinter.filedialog
 import tkinter.messagebox
 import tkinter.tix
 import string
-import types
-import copy
+#import types
+#import copy
 import sys
 import os
-import stat
-import time
-import datetime
-import calendar
-# import csv
-import array
-import shutil
-import math
-import struct
+#import stat
+#import time
+#import datetime
+#import calendar
+import csv
+#import array
+#import shutil
+#import math
+#import struct
 # import ftfy
-import fnmatch
-
+#import fnmatch
+import codecs
 #-------------------------------------------------------------------------------
 t_path, _ = os.path.split(__file__)
 if( t_path == os.getcwd() ):
@@ -629,24 +629,67 @@ def abfrage_str_box(comment="",width=400):
 def read_csv_file(file_name,delim=";"):
     liste = []
     if( os.path.isfile(file_name) ):
-      with open(file_name,'r') as f:
+        
+        flag = 0
+        with codecs.open(file_name,'r',encoding='utf-8') as f:
+            try:
+                lines = f.read()
+                index = hstr.such(lines, "\r\n")
+                if index >= 0:
+                    line_liste = lines.split("\r\n")
+                else:
+                    line_liste = lines.split("\n")
+                # end if
+                f.close()
+                flag = 1
+            except:
+                f.close()
+            if flag == 1:
+                while len(line_liste[-1]) == 0:
+                    del line_liste[-1]
+                # end if
+                n = len(line_liste)
+                i = 0
+                while i < n:
+                    line = line_liste[i]
+                    # line = hstr.elim_e(line,'\n')
+                    abostroph_liste = hstr.such_alle(line, "\"")
+                    
+                    while (len(abostroph_liste) % 2 != 0) and (i + 1 < n):
+                        i = i + 1
+                        # line += hstr.elim_e(line_liste[i],'\n')
+                        line += line_liste[i]
+                        abostroph_liste = hstr.such_alle(line, "\"")
+                    # end if
+                    
+                    row = hstr.split_text(line, delim)
+                    
+                    liste.append(row)
+                    i = i + 1
+                # end while
+            # end if
+        # end with
+        if flag == 0:
+            with open(file_name, newline='') as csvfile:
+                try:
+                    spamreader  = csv.reader(csvfile, delimiter=delim, quotechar='"')
+                    for row in spamreader:
+                        liste.append(row)
+                    flag = 1
+                except:
+                    raise Exception("Problem read_csv_file() ")
+                # end try
+            # end with
+        # end if
 
-        lines = f.readlines()
+    # end if
+    # reader = csv.reader(open(file_name, "rb"), delimiter=delim, quoting=csv.QUOTE_MINIMAL)
+    # try:
+    #     for row in reader:
+    #         liste.append(row)
 
-        f.close()
-
-        for line in lines:
-           
-           line = hstr.elim_e(line,'\n')
-           row = hstr.split_text(line,delim)
-           liste.append(row)
-        # reader = csv.reader(open(file_name, "rb"), delimiter=delim, quoting=csv.QUOTE_MINIMAL)
-        # try:
-        #     for row in reader:
-        #         liste.append(row)
-
-        # except csv.Error:
-        #     sys.exit('file %s, line %d: %s' % (file_name, reader.line_num))
+    # except csv.Error:
+    #     sys.exit('file %s, line %d: %s' % (file_name, reader.line_num))
 
     return liste
 def read_csv_file_header_data(file_name,delim=";"):

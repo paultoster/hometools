@@ -146,10 +146,13 @@ def anzeige(rd,konto_dict,konto_obj):
             # Daten updaten
             if len(data_changed_pos_list) > 0:
                 konto_obj.write_anzeige_back_data(new_data_llist, data_changed_pos_list,istart)
-                if status != hdef.OKAY:
-                    rd.log.write_err("konto__anzeige edit " + errtext, screen=rd.par.LOG_SCREEN_OUT)
+                if konto_obj.status != hdef.OKAY:
+                    rd.log.write_err("konto_anzeige update " + konto_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
                     return (status, konto_dict,konto_obj)
                 else:
+                    if len(konto_obj.infotext):
+                        rd.log.write_info("konto_anzeige update " + konto_obj.infotext, screen=rd.par.LOG_SCREEN_OUT)
+                    # end if
                     runflag = False
                 # endif
 

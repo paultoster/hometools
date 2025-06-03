@@ -186,6 +186,8 @@ class KontoCsvRead:
             
             for konto_dat_set_index in self.CSV_DATA_NAME_DICT.keys():
                 i_csv = index_dict[konto_dat_set_index]
+                if len(csv_data_liste) < (i_csv+1):
+                    print("halt")
                 new_data_list.append(csv_data_liste[i_csv])
             # end for
             new_data_matrix.append(new_data_list)

@@ -162,6 +162,7 @@ class KontoDataSet:
         
         self.status = hdef.OK
         self.errtext = ""
+        self.infotext = ""
         self.konto_start_wert: int = 0
         self.konto_start_datum: int = 0
         self.DECIMAL_TRENN_STR: str = ","
@@ -287,6 +288,10 @@ class KontoDataSet:
             ((new_data_set_flag,status,errtext) ) = self.set_new_data(new_data_matrix , new_data_index_list, new_data_type_list)
             if status != hdef.OKAY:
                 raise Exception(f"Problem start Zeile erzeugen set_new_data() errtext = {errtext} !!!")
+            # end
+        else:
+            if self.data_set_llist[0][self.KONTO_DATA_INDEX_SUMWERT] != self.konto_start_wert:
+                self.update_sumwert_in_lliste(0)
             # end if
         # end if
     
@@ -479,6 +484,8 @@ class KontoDataSet:
         :param istart:
         :return: self.write_anzeige_back_data(new_data_llist, data_changed_pos_list, istart)
         '''
+        self.infotext = ""
+        self.errtext = ""
         
         index_liste = list(self.KONTO_DATA_EXTERN_NAME_DICT.keys())
         
@@ -490,36 +497,46 @@ class KontoDataSet:
                 (okay, wert) = htype.type_transform(new_data_llist[irow][icol], self.KONTO_DATA_EXTERN_TYPE_DICT[index_data_set],
                                                     self.KONTO_DATA_TYPE_DICT[index_data_set])
                 if okay != hdef.OKAY:
-                    raise Exception(
-                        f"Fehler transform  {new_data_llist[irow][icol]} von type: {self.KONTO_DATA_EXTERN_TYPE_DICT[index_data_set]} in type {self.KONTO_DATA_TYPE_DICT[index_data_set]} wandeln !!!")
+                    self.status = hdef.NOT_OKAY
+                    self.errtext = f"Fehler transform  {new_data_llist[irow][icol]} von type: {self.KONTO_DATA_EXTERN_TYPE_DICT[index_data_set]} in type {self.KONTO_DATA_TYPE_DICT[index_data_set]} wandeln !!!"
+                    return
                 # end if
                 self.data_set_llist[istart + irow][index_data_set] = wert
                 if index_data_set == self.KONTO_DATA_INDEX_WERT:
                     wert_changed = True
                 # end if
             else:
-                print(f"Der Wert von {self.KONTO_DATA_EXTERN_NAME_DICT[index_data_set]} mit dem Wert {new_data_llist[irow][icol]} darf nicht verändert werden !!!!!!!")
+                self.infotext = f"Der Wert von {self.KONTO_DATA_EXTERN_NAME_DICT[index_data_set]} mit dem Wert {new_data_llist[irow][icol]} darf nicht verändert werden !!!!!!!"
             # end if
         # end for
         
         if wert_changed:
-            if istart == 0:
-                sumwert = self.konto_start_wert
-            else:
-                sumwert = self.data_set_llist[istart - 1][self.KONTO_DATA_INDEX_SUMWERT]
-            # end if
-            
-            i = istart
-            while (i < self.n_data_sets):
-                sumwert += self.data_set_llist[i][self.KONTO_DATA_INDEX_WERT]
-                
-                self.data_set_llist[i][self.KONTO_DATA_INDEX_SUMWERT] = int(sumwert)
-                
-                i += 1
-            # end while
+            self.update_sumwert_in_lliste(istart)
         # end if
     
     # end def
+    def update_sumwert_in_lliste(self,istart):
+        '''
+        
+        :return:
+        '''
+        
+        if istart == 0:
+            sumwert = self.konto_start_wert
+        else:
+            sumwert = self.data_set_llist[istart - 1][self.KONTO_DATA_INDEX_SUMWERT]
+        # end if
+        
+        i = istart
+        while i < self.n_data_sets:
+            sumwert += self.data_set_llist[i][self.KONTO_DATA_INDEX_WERT]
+            
+            self.data_set_llist[i][self.KONTO_DATA_INDEX_SUMWERT] = int(sumwert)
+            
+            i += 1
+        
+        # end while
+        
     def delete_new_data_list(self):
         '''
         
@@ -754,8 +771,12 @@ class KontoDataSet:
                 (data_dict[self.KONTO_DATA_INDEX_BUCHTYPE] == self.KONTO_BUCHTYPE_INDEX_WP_KOSTEN) or \
                 (data_dict[self.KONTO_DATA_INDEX_BUCHTYPE] == self.KONTO_BUCHTYPE_INDEX_WP_EINNAHMEN):
                 
-                (okay, isin) = htype.type_proof_isin(data_dict[self.KONTO_DATA_INDEX_COMMENT])
-                
+                if self.KONTO_DATA_INDEX_ISIN in data_dict.keys():
+                    (okay, isin) = htype.type_proof_isin(data_dict[self.KONTO_DATA_INDEX_ISIN])
+                # end if
+                if (okay != hdef.OKAY) and (self.KONTO_DATA_INDEX_COMMENT in data_dict.keys()):
+                    (okay, isin) = htype.type_proof_isin(data_dict[self.KONTO_DATA_INDEX_COMMENT])
+                # end if
                 if (okay != hdef.OKAY):
                     isin = "isinnotfound"
                 # end if
@@ -771,6 +792,13 @@ class KontoDataSet:
             
             data_dict[self.KONTO_DATA_INDEX_KATEGORIE] = ""
             data_dict[self.KONTO_DATA_INDEX_SUMWERT] = 0
+            
+            # proof if evry index is set
+            for index in self.KONTO_DATA_INDEX_LIST:
+                if index not in data_dict.keys():
+                    data_dict[index] = htype.type_get_default(self.KONTO_DATA_TYPE_DICT[index])
+                # end if
+            # end ofr
             
             new_data_dict_list[index] = data_dict
         # endfor

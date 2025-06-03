@@ -22,6 +22,8 @@
 # flag = isempty(val) Prüft, ob leer nach type
 # (okay,wert) = type_proof(wert_in, type) Prüft den Wert auf seine type: "str","float","int","dat","iban","euro"
 # (okay,wert_cent) = type_convert_euro_to_cent(wert_euro)
+# wert type_get_default(type)
+#
 #
 # print_python_is_32_or_64_bit
 # ---------------------------------
@@ -356,7 +358,45 @@ def type_proof_str_excel_float(wert_in):
 
 
 # enddef
+def type_get_default(type):
+    '''
+    
+    :param type: siehe unten
+    :return: wert = type_get_default(type)
+    '''
+    if type == "str":
+        return ""
+    elif type == "datStrP":
+        return hdate.str_akt_datum(delim=".")
+    elif type == "datStrB":
+        return hdate.str_akt_datum(delim="-")
+    elif type == "float":
+        return 0.0
+    elif type == "int":
+        return 0
+    elif type == "list":
+        return []
+    elif isinstance(type,list):
+        return type[0]
+    elif type == "list_str":
+        return []
+    elif (type == "dat") or (type == "date"):
+        return 0
+    elif type == "iban":
+        return ""
+    elif type == "isin":
+        return ""
+    elif type == "euro":
+        return 0.0
+    elif type == "euroStrK":
+        return "0,0"
+    elif type == "cent":
+        return 0
+    else:
+        return None
+    # endif
 
+# end def
 # -------------------------------------------------------
 def type_proof(wert_in, type):
     '''
@@ -401,7 +441,8 @@ def type_proof(wert_in, type):
     elif type == "cent":
         return type_proof_cent(wert_in)
     else:
-        return (hdef.NOT_OKAY, None)  # endif
+        return (hdef.NOT_OKAY, None)
+    # endif
 
 
 # enddef
@@ -657,11 +698,51 @@ def type_proof_isin(wert_in):
 # isin functions start  -----------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------------------
 def find_ISIN(S):
-    ISIN_list = []
-    for i in range(len(S) - 12):
-        if S[i:i+2].isalpha() and  S[i+2:i+11].isalnum() and S[i+11:i+12].isdigit():
-            ISIN_list.append(S[i:i+12])
+    
+    
+    found = 0
+    try:
+        
+        pattern = r"\b[A-Z]{2}[A-Z0-9]{9}[0-9]\b"
+        ISIN_list = re.findall(pattern, S)
+        if len(ISIN_list): found = 1
+    except:
+        found = 0
+    # end try
+    if found == 0:
+        try:
+            
+            pattern = r"[A-Z]{2}[A-Z0-9]{9}[0-9]"
+            ISIN_list = re.findall(pattern, S)
+            if len(ISIN_list): found = 1
+        except:
+            found = 0
+        # end try
+    # end if
+    if found == 0:
+        try:
+            
+            pattern = r"^[A-Z]{2}[A-Z0-9]{9}[0-9]$"
+            ISIN_list = re.findall(pattern, S)
+            if len(ISIN_list): found = 1
+        except:
+            found = 0
+        # end try
+    # end if
+    
+    if found == 0:
+        ISIN_list = []
+        i = 0
+        while i <= len(S) - 12:
+            if S[i:i + 2].isalpha() and S[i + 2:i + 12].isdigit():
+                ISIN_list.append(S[i:i + 12])
+                i += 12
+            else:
+                i += 1
+    # endif
     return ISIN_list
+
+
 # end def
 
 # isin.py - functions for handling ISIN numbers
@@ -1296,6 +1377,11 @@ def print_python_is_32_or_64_bit():
 # testen mit main
 ###########################################################################
 if __name__ == '__main__':
+    
+    
+    (okay,value) = type_proof_isin("DE0007030009")
+    (okay,value) = type_proof_isin("EU000A1HBXS7")
+
     (okay,val) = type_proof_euro("10,220.23",delim=".",thousandsign=",")
     val = string_euro_in_int_cent("10.220,23", delim=",", thousandsign=".")
     

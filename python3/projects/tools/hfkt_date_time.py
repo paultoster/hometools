@@ -8,7 +8,7 @@
  def int_akt_datum():
  def intliste_akt_datum():
  def int_akt_time():
- def str_akt_datum():
+ def str_akt_datum(delim="."):
  def str_datum(int_dat):
  secs = secs_akt_time_epoch()
  secs = secs_time_epoch_from_int(intval)
@@ -171,14 +171,15 @@ def int_akt_time():
 
 
 ########################################################################################################################
-def str_akt_datum():
+def str_akt_datum(delim="."):
     """ Das aktuelle Datum wird als string zurückgegeben
-          format: tt.mm.jjjj
+          delim = ".": format: tt.mm.jjjj
+          delim = "-": format: tt-mm-jjjj
       """
     t = time.localtime()
 
-    st = hstr.get_str_from_int(t.tm_mday, 2) + "."
-    st += hstr.get_str_from_int(t.tm_mon, 2) + "."
+    st = hstr.get_str_from_int(t.tm_mday, 2) + delim
+    st += hstr.get_str_from_int(t.tm_mon, 2) + delim
     st += hstr.get_str_from_int(t.tm_year, 4)
     return st
 
@@ -670,7 +671,7 @@ def secs_time_epoch_from_int(intval, plus_hours=0):
 
 def secs_time_epoch_from_str_re(str_dat):
     """
-    Das Str-Datum (z.B. "17.12.2004", "17-12-2004", "17/12/2004") wird mit re versucht zu erkennen und
+    Das Str-Datum (z.B. "17.12.2004", "17-12-2004", "17/12/2004", 2004.12.17, 2004-12-17 2004/12/17) wird mit re versucht zu erkennen und
     in Sekunden in epochaler Zeit umgerechnet
     secs = secs_time_epoch_from_str_datefinder(str_dat)
     """
@@ -700,6 +701,87 @@ def secs_time_epoch_from_str_re(str_dat):
         # endfor
     except:
         found = 0
+    # end if
+    
+    if found == 0:
+        try:
+            
+            pattern = r"\b(19\d\d|20\d\d|\d\d)[-/\.]([1-9]|0[1-9]|[12]\d|3[01])[-/\.]([1-9]|0[1-9]|1[0-9]|2[0-9]|3[0-1])\b"
+            form = "%d.%m.%Y"
+            
+            dates = re.findall(pattern, str_dat)
+            for d in dates:
+                strdat = d[2] + "." + d[1] + "."
+                if len(d) == 2:
+                    strdat += str(datetime.datetime.now().year)
+                else:
+                    if len(d[0]) <= 2:
+                        strdat += "20" + d[0]
+                    else:
+                        strdat += d[0]  # endif
+                # endif
+                
+                t = datetime.datetime.strptime(strdat, form)
+                liste.append(int(t.timestamp()))
+                found = 1
+            # endfor
+        except:
+            found = 0
+        # end except
+    # end if
+    
+    if found == 0:
+        try:
+            
+            pattern = r"(19\d\d|20\d\d|\d\d)[-/\.]([1-9]|0[1-9]|[12]\d|3[01])[-/\.]([1-9]|0[1-9]|1[0-9]|2[0-9]|3[0-1])"
+            form = "%d.%m.%Y"
+            
+            dates = re.findall(pattern, str_dat)
+            for d in dates:
+                strdat = d[2] + "." + d[1] + "."
+                if len(d) == 2:
+                    strdat += str(datetime.datetime.now().year)
+                else:
+                    if len(d[0]) <= 2:
+                        strdat += "20" + d[0]
+                    else:
+                        strdat += d[0]  # endif
+                # endif
+                
+                t = datetime.datetime.strptime(strdat, form)
+                liste.append(int(t.timestamp()))
+                found = 1
+            # endfor
+        except:
+            found = 0
+        # end except
+    # end if
+    
+    if found == 0:
+        try:
+            
+            pattern = r"([1-9]|0[1-9]|1[0-9]|2[0-9]|3[0-1])[-/\.]([1-9]|0[1-9]|[12]\d|3[01])[-/\.](19\d\d|20\d\d|\d\d)"
+            form = "%d.%m.%Y"
+            
+            dates = re.findall(pattern, str_dat)
+            for d in dates:
+                strdat = d[2] + "." + d[1] + "."
+                if len(d) == 2:
+                    strdat += str(datetime.datetime.now().year)
+                else:
+                    if len(d[0]) <= 2:
+                        strdat += "20" + d[0]
+                    else:
+                        strdat += d[0]  # endif
+                # endif
+                
+                t = datetime.datetime.strptime(strdat, form)
+                liste.append(int(t.timestamp()))
+                found = 1
+            # endfor
+        except:
+            found = 0
+        # end except
     # end if
     
     if( found == 0 ):
@@ -819,3 +901,14 @@ def epoch_day_time_to_secs_time_epoch(eday: int, edaysecs: int) -> int:
     return secs  # enddef
 
 # enddef
+###########################################################################
+# testen mit main
+###########################################################################
+if __name__ == '__main__':
+
+    value1= secs_time_epoch_from_str_re("2022-07-27 T00:00 abc 2021.6.2")
+    value2 = secs_time_epoch_from_str_re("2022-07-27")
+    value3 = secs_time_epoch_from_str_re("27-07-2022")
+    print(value1)
+    print(value2)
+    print(value3)
