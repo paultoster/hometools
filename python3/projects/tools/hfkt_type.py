@@ -195,6 +195,9 @@ def num_cent_in_euroStr(cents,delim=",",thousandsign="."):
         negflag = False
         value = cents
     # end if
+    if isinstance(value,float):
+        value = int(value + math.copysign(0.5, value))
+    # end if
     
     numeric_string = "%.2f" % (float(value) / 100)
     list = numeric_string.split(".")
@@ -934,7 +937,7 @@ def type_proof_euroStrK(wert_in, delim=",", thousandsign="."):
     (okay, wert_euro) = type_proof_euro(wert_in, delim=delim, thousandsign=thousandsign)
     if okay == hdef.OKAY:
         wert = num_euro_in_euroStr(float(wert_euro), delim,thousandsign)
-        wert = hstr.convert_float_euro_to_string_euro(float(wert_euro), delim,thousandsign)
+        # wert = hstr.convert_float_euro_to_string_euro(float(wert_euro), delim,thousandsign)
     else:
         wert = None
     # end if
@@ -1377,8 +1380,7 @@ def print_python_is_32_or_64_bit():
 # testen mit main
 ###########################################################################
 if __name__ == '__main__':
-    
-    
+    wert = numeric_string_to_float("154.372,55",delim=",",thousandsign=".")
     (okay,value) = type_proof_isin("DE0007030009")
     (okay,value) = type_proof_isin("EU000A1HBXS7")
 

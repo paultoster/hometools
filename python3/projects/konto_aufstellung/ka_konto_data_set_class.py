@@ -533,6 +533,8 @@ class KontoDataSet:
             
             self.data_set_llist[i][self.KONTO_DATA_INDEX_SUMWERT] = int(sumwert)
             
+            print(f"i={i} wert = {self.data_set_llist[i][self.KONTO_DATA_INDEX_WERT]} sumwert = {self.data_set_llist[i][self.KONTO_DATA_INDEX_SUMWERT]} | {sumwert} ")
+            
             i += 1
         
         # end while

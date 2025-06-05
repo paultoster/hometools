@@ -85,12 +85,21 @@ def konto_auswerten():
     index_konto   = 3
     index_depot   = 4
     save_flag = True
+    abfrage_liste = ["okay","cancel","ende"]
+    i_abfrage_okay = 0
+    i_abfrage_cancel = 1
+    i_abfrage_ende = 2
 
     while (runflag):
         
         save_flag = True
-        index = ka_gui.listen_abfrage(rd,start_auswahl,"Startauswahl")
-
+        (index,indexAbfrage) = ka_gui.listen_abfrage(rd,start_auswahl,abfrage_liste,"Startauswahl")
+        
+        if indexAbfrage == i_abfrage_cancel:
+            index = index_cancel_no_save
+        elif indexAbfrage == i_abfrage_ende:
+            index = index_ende
+        
         if index < 0: # cancel button
             runflag = True
         elif index == index_cancel_no_save:

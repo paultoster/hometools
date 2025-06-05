@@ -9,10 +9,11 @@ def janein_abfrage(rd,ausgabe_text,ausgabe_title):
     return flag
 
 # end def
-def listen_abfrage(rd,auswahl_liste,auswahl_title):
-
-    index = sgui.abfrage_liste_index(auswahl_liste, auswahl_title)
-    return index
+def listen_abfrage(rd,auswahl_liste,abfrage_liste,auswahl_title):
+    
+    # index = sgui.abfrage_liste_index(auswahl_liste, auswahl_title)
+    [index,indexAbfrage] = sgui.abfrage_liste_index_abfrage_index(auswahl_liste,abfrage_liste,auswahl_title)
+    return (index,indexAbfrage)
 # enddef
 
 def iban_abfrage(rd,header_liste,data_llist,abfrage_liste):
