@@ -74,7 +74,15 @@ def konto_auswerten():
         rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
         return
     # endif
-    
+
+    # id consistency check
+    #---------------------
+    (status, errtext) = rd_consistency_check(rd.par,rd.ini.ddict,rd.data)
+    if (status != hdef.OK):
+        rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
+        return
+    # endif
+
 
     runflag = True
 
@@ -93,7 +101,7 @@ def konto_auswerten():
     while (runflag):
         
         save_flag = True
-        (index,indexAbfrage) = ka_gui.listen_abfrage(rd,start_auswahl,abfrage_liste,"Startauswahl")
+        (index,indexAbfrage) = ka_gui.listen_abfrage(rd,start_auswahl,"Startauswahl",abfrage_liste)
         
         if indexAbfrage == i_abfrage_cancel:
             index = index_cancel_no_save
@@ -151,7 +159,35 @@ def konto_auswerten():
     return
     
 # enddef
-
+def rd_consistency_check(par,ini_dict,data):
+    '''
+    
+    :param data:
+    :return: (status, errtext) = rd_consistency_check(rd.data)
+    '''
+    # proof id-consistency konto-pickle-file
+    data[par.PROG_DATA_TYPE_NAME].idfunc.reset_consistency_check()
+    for konto_name in ini_dict[par.INI_KONTO_DATA_DICT_NAMES_NAME]:
+        n = data[konto_name].obj.get_num_data()
+        
+        for i in range(n):
+            # get id
+            id = data[konto_name].obj.get_data_item_at_i(i
+                , data[konto_name].obj.KONTO_DATA_NAME_DICT[data[konto_name].obj.KONTO_DATA_INDEX_ID]
+                , data[konto_name].obj.KONTO_DATA_TYPE_DICT[data[konto_name].obj.KONTO_DATA_INDEX_ID])
+            # proof
+            (okay, errtext) = data[par.PROG_DATA_TYPE_NAME].idfunc.proof_and_add_consistency_check_id(id, konto_name)
+            
+            if okay != hdef.OKAY:
+                data[par.PROG_DATA_TYPE_NAME].idfunc.reset_consistency_check()
+                return (okay,errtext)
+            # end if
+        # end ofr
+    # end for
+    # reset dict
+    data[par.PROG_DATA_TYPE_NAME].idfunc.reset_consistency_check()
+    return (hdef.OKAY, "")
+# end def
 
 if __name__ == '__main__':
 

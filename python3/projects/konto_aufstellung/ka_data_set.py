@@ -30,8 +30,10 @@ import ka_depot_data_set_class
 import ka_data_class_defs
 
 # --------------------------------------------------------------------------------------
+#
+# Get DATA Start
+#
 # --------------------------------------------------------------------------------------
-
 def data_get(par, inidict):
     '''
 
@@ -100,10 +102,9 @@ def data_get(par, inidict):
             data[konto_name] = copy.deepcopy(konto_data)
             del konto_data
         # endif
-    
     # endfor
     
-    #  depot-data liste --------------------------------------------
+    #  depot-data pickle --------------------------------------------
     for depot_name in inidict[par.INI_DEPOT_DATA_DICT_NAMES_NAME]:
         
         if depot_name in inidict[par.INI_DATA_PICKLE_JSONFILE_LIST]:
@@ -134,7 +135,7 @@ def data_get(par, inidict):
     
     # endfor
     
-    # iban-liste --------------------------------------------
+    # iban-liste pickle --------------------------------------------
     if inidict[par.INI_IBAN_LIST_FILE_NAME] in inidict[par.INI_DATA_PICKLE_JSONFILE_LIST]:
         use_json = inidict[par.INI_DATA_PICKLE_USE_JSON]
     else:
@@ -156,8 +157,12 @@ def data_get(par, inidict):
     # endif
     
     return (status, errtext, data)
-
-
+# end def
+# --------------------------------------------------------------------------------------
+#
+# Set DATA Save to pickle
+#
+# --------------------------------------------------------------------------------------
 def data_save(data,par):
     status = hdef.OKAY
     errtext = ""
@@ -170,6 +175,11 @@ def data_save(data,par):
             # end if
             data[key].ddict[par.KONTO_DATA_SET_DICT_LIST_NAME] = data[key].obj.get_data_set_dict_list()
             data[key].ddict[par.KONTO_DATA_TYPE_DICT_NAME] = data[key].obj.get_data_type_dict()
+            del data[key].obj
+        elif data[key].ddict[par.DDICT_TYPE_NAME] == par.DEPOT_DATA_TYPE_NAME:
+            data[key].ddict[par.DEPOT_DATA_ISIN_LIST_NAME] = data[key].obj.get_to_store_data_isin_list()
+            data[key].ddict[par.DEPOT_DATA_SET_DICT_LIST_NAME] = data[key].obj.get_data_set_dict_list()
+            data[key].ddict[par.DEPOT_DATA_TYPE_DICT_NAME] = data[key].obj.get_data_type_dict()
             del data[key].obj
         elif data[key].ddict[par.DDICT_TYPE_NAME] == par.PROG_DATA_TYPE_NAME:
             data[key].ddict[par.KONTO_DATA_ID_MAX_NAME] = data[key].idfunc.get_act_id()
@@ -187,7 +197,11 @@ def data_save(data,par):
 
 
 # enddef
-
+# --------------------------------------------------------------------------------------
+#
+# Set PROG DATA
+#
+# --------------------------------------------------------------------------------------
 def set_prog_data(par,allg_data):
     '''
     
@@ -210,6 +224,11 @@ def set_prog_data(par,allg_data):
     return allg_data
 
 # end def
+# --------------------------------------------------------------------------------------
+#
+# Set KONTO DATA
+#
+# --------------------------------------------------------------------------------------
 def proof_konto_data_from_ini(par,konto_data, ini_data_dict):
     """
     proof ini_data in konto_data
@@ -315,7 +334,7 @@ def build_konto_data_set_obj(par, konto_data, konto_name,idfunc):
     #----------------------------------------------------------------------------
     
     # class KontoDataSet anlegen
-    obj = ka_konto_data_set_class.KontoDataSet()
+    obj = ka_konto_data_set_class.KontoDataSet(konto_name)
     
     # # kont_data set anlegen
     # #----------------------
@@ -351,28 +370,6 @@ def build_konto_data_set_obj(par, konto_data, konto_name,idfunc):
         del konto_data.ddict[par.KONTO_DATA_SET_NAME]
     # end if
 
-    # if (key1 in konto_data.ddict) and (key1 in konto_data.ddict):
-    #     data_set_llist = obj.set_dat_set_dict_list(konto_data.ddict[key1],konto_data.ddict[key2])
-    #     if par.KONTO_DATA_SET_NAME in konto_data.ddict:
-    #         del konto_data.ddict[par.KONTO_DATA_SET_NAME]
-    #     # end if
-    # else:
-    #     # kont_data set anlegen
-    #     #----------------------
-    #     key = par.KONTO_DATA_SET_NAME
-    #     if key in konto_data.ddict:
-    #         if len(konto_data.ddict[key]) > 0:
-    #             if len(konto_data.ddict[key][0]) != len(obj.KONTO_DATA_NAME_LIST):
-    #                 konto_data.status = hdef.NOT_OKAY
-    #                 konto_data.errtext = f"length of header-list {par.KONTO_DATA_NAME_LIST} not same with data-dict {konto_data.dict[key]} of konto: {konto_name}"
-    #                 return konto_data
-    #             # end if
-    #         # end if
-    #         data_set_llist = konto_data.ddict[key]
-    #     else:
-    #         data_set_llist = []
-    #     # end if
-    # # end if
     
     # konto_start_wert von ini übergeben:
     #-----------------------------------
@@ -544,6 +541,11 @@ def build_konto_data_csv_obj(par, konto_data, konto_name,ini_data_dict):
     return konto_data
 
 # end def
+# --------------------------------------------------------------------------------------
+#
+# Set DEPOT DATA
+#
+# --------------------------------------------------------------------------------------
 def proof_depot_data_from_ini(depot_data, ini_data_dict, par):
     """
     proof ini_data_dict in depot_data
@@ -605,26 +607,41 @@ def build_depot_data_set_obj(par, depot_data, depot_name, data):
     # ----------------------------------------------------------------------------
     # Set parameter for konto Data
     # ----------------------------------------------------------------------------
-    obj = ka_depot_data_set_class.DepotDataSet()
+    obj = ka_depot_data_set_class.DepotDataSet(depot_name)
     
     
-    # kont_data set anlegen
-    key = par.DEPOT_DATA_SET_NAME
+    # isin_list set anlegen
+    #----------------------
+    key = par.DEPOT_DATA_ISIN_LIST_NAME
     if key in depot_data.ddict:
-        if len(depot_data.ddict[key]) > 0:
-            if len(depot_data.ddict[key][0]) != len(obj.DEPOT_DATA_ITEM_LIST):
-                depot_data.status = hdef.NOT_OKAY
-                depot_data.errtext = f"length of header-list {par.DEPOT_DATA_ITEM_LIST} not same with data-dict {depot_data.dict[key]} of konto: {depot_name}"
-                return depot_data
-            # end if
-        # end if
-        data_set_llist = depot_data.ddict[key]
+        isin_list = depot_data.ddict[key]
     else:
-        data_set_llist = []
+        isin_list = []
+    # end if
+    
+    # neue Datenbeschreibung
+    key = par.DEPOT_DATA_SET_DICT_LIST_NAME
+    if key in depot_data.ddict:
+        depot_data_set_dict_list = depot_data.ddict[key]
+    else:
+        depot_data_set_dict_list = []
+    # end if
+    
+    key = par.DEPOT_DATA_TYPE_DICT_NAME
+    if key in depot_data.ddict:
+        depot_data_type_dict = depot_data.ddict[key]
+    else:
+        depot_data_type_dict = {}
     # end if
     
     # class KontoDataSet anlegen
-    obj.set_starting_data_llist(data_set_llist)
+    obj.set_stored_data(isin_list,depot_data_set_dict_list,depot_data_type_dict)
+    if obj.status != hdef.OKAY:
+        raise Exception(obj.errtext)
+    # end if
+    if key in depot_data.ddict:
+        del depot_data.ddict[key]
+    # end if
     
     depot_data.obj = copy.deepcopy(obj)
     
@@ -634,6 +651,11 @@ def build_depot_data_set_obj(par, depot_data, depot_name, data):
 
 
 # end def
+# --------------------------------------------------------------------------------------
+#
+# Set IBAN DATA
+#
+# --------------------------------------------------------------------------------------
 def proof_iban_data_and_add_from_ini(iban_data, par, data, inidict):
     status = hdef.OK
     errtext = ""

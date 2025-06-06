@@ -26,7 +26,7 @@ def bearbeiten(rd):
     
     while (runflag):
 
-        index = ka_gui.listen_abfrage(rd,start_auswahl,"Auswahl Konto")
+        (index,_) = ka_gui.listen_abfrage(rd,start_auswahl,"Auswahl Konto")
         
         rd.log.write(f"Konto Abfrage  \"{start_auswahl[index]}\" ausgewählt")
         

@@ -42,7 +42,7 @@ def konto_einlesen(rd):
         
         if index < 0:
             return status
-        elif choice in rd.ini.ddict[rd.par.INI_KONTO_DATA_DICT_NAMES_NAME]:
+        elif choice in rd.ini.ddict[rd.par.INI_DEPOT_DATA_DICT_NAMES_NAME]:
             
             rd.log.write(f"depot  \"{choice}\" ausgewählt")
             break
@@ -54,10 +54,34 @@ def konto_einlesen(rd):
         # endif
     # endwhile
     
-    # Konto data in ini
+    # Depot data
     depot_dict  = rd.data[choice].ddict
     depot_obj   = rd.data[choice].obj
-
+    
+    # konto_obj set anlegen
+    #----------------------
+    konto_key = depot_dict[rd.par.INI_DEPOT_KONTO_NAME]
+    
+    if konto_key not in rd.data:
+        status = hdef.NOT_OKAY
+        errtext = f"Von Depot Auswahl: {choice} benutztes Konto: {konto_key} ist nicht im data-dict"
+        rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
+        return status
+    else:
+        depot_obj.set_konto_obj(rd.data[konto_key].obj)
+    # end if
+    
+    depot_obj.update_konto_data()
+    
+    if len(depot_obj.infotext):
+        rd.log.write_info("konto_einlesen: " + depot_obj.infotext, screen=rd.par.LOG_SCREEN_OUT)
+    # end if
+    
+    if depot_obj.status != hdef.OKAY:
+        status = hdef.NOT_OKAY
+        rd.log.write_err(depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
+        return status
+    # end if
 
     return status
 # enddef

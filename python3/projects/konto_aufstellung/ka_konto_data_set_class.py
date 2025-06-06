@@ -156,7 +156,8 @@ class KontoDataSet:
     OKAY = hdef.OK
     NOT_OKAY = hdef.NOT_OK
     
-    def __init__(self):
+    def __init__(self,konto_name):
+        self.konto_name: str = konto_name
         self.KONTO_DATA_CSV_NAME_DICT = {}
         self.KONTO_DATA_CSV_TYPE_DICT = {}
         
@@ -194,6 +195,7 @@ class KontoDataSet:
     
     def set_starting_data_llist(self,konto_data_set_dict_list,konto_data_type_dict, idfunc, konto_start_datum, konto_start_wert, decimal_trenn="",
                                 tausend_trenn=""):
+        
         self.data_set_llist = self.set_dat_set_dict_list(konto_data_set_dict_list,konto_data_type_dict)
         self.n_data_sets = len(self.data_set_llist)
         self.idfunc = ka_data_class_defs.IDCount()
@@ -428,10 +430,10 @@ class KontoDataSet:
         konto_data_llist = []
         for data_dict in konto_data_dict_list:
             konto_data_set_list = [None for item in self.KONTO_DATA_INDEX_LIST]
-            for key in data_dict.keys():
-                index = hlist.find_first_key_dict_value(self.KONTO_DATA_NAME_DICT, key)
+            for name in data_dict.keys():
+                index = hlist.find_first_key_dict_value(self.KONTO_DATA_NAME_DICT, name)
                 if index is not None:
-                    (okay, wert) = htype.type_proof(data_dict[key],konto_data_type_dict[key])
+                    (okay, wert) = htype.type_transform(data_dict[name],konto_data_type_dict[name],self.KONTO_DATA_TYPE_DICT[index])
                     if okay == hdef.OK:
                         konto_data_set_list[index]= wert
                     else:
@@ -764,9 +766,9 @@ class KontoDataSet:
         # chash hash.Wert vom ursprünglichen Kommentar
         # kategorie als leerer string
         n = len(new_data_dict_list)
-        for index in range(n):
+        for i in range(n):
             
-            data_dict = new_data_dict_list[index]
+            data_dict = new_data_dict_list[i]
             
             if (data_dict[self.KONTO_DATA_INDEX_BUCHTYPE] == self.KONTO_BUCHTYPE_INDEX_WP_KAUF) or \
                 (data_dict[self.KONTO_DATA_INDEX_BUCHTYPE] == self.KONTO_BUCHTYPE_INDEX_WP_VERKAUF) or \
@@ -802,7 +804,7 @@ class KontoDataSet:
                 # end if
             # end ofr
             
-            new_data_dict_list[index] = data_dict
+            new_data_dict_list[i] = data_dict
         # endfor
         return new_data_dict_list
     # end def
@@ -921,5 +923,44 @@ class KontoDataSet:
             index += 1
         # end while
         return (header_list, data_llist, new_data_list)
+    # end def
+    #-------------------------------------------------------------------------------------------------------------------
+    # Werte abfrage
+    #-------------------------------------------------------------------------------------------------------------------
+    def get_num_data(self):
+        return self.n_data_sets
+    # endif
+    def set_konto_name(self):
+        return self.konto_name
+    def get_buchtype_str(self,i):
+        if i < self.n_data_sets:
+            return self.KONTO_DATA_BUCHTYPE_DICT[self.data_set_llist[i][self.KONTO_DATA_INDEX_BUCHTYPE]]
+        else:
+            return None
+    # end def
+    def get_data_item_at_i(self,i,data_name,data_type):
+        '''
+        
+        :param i:
+        :param data_name:
+        :param data_taype:
+        :return: value = self.get_data_item_at_i(i,data_name,data_type)
+        '''
+        if i < self.n_data_sets:
+            if data_name in self.KONTO_DATA_NAME_LIST:
+                index = self.KONTO_DATA_NAME_LIST.index(data_name)
+                val = self.data_set_llist[i][index]
+                (okay,value) = htype.type_transform(val,self.KONTO_DATA_TYPE_DICT[index],data_type)
+                if okay != hdef.OKAY:
+                    raise Exception(
+                        f"get_data_item_at_i: Fehler type_transform <{val}> von type: <{self.KONTO_DATA_TYPE_DICT[index]}> in type <{data_type}> wandeln !!!")
+                # end if
+                return value
+            else:
+                raise Exception(
+                    f"get_data_item_at_i: Fehler data_name: <{data_name}> not in KONTO_DATA_NAME_LIST: <{self.KONTO_DATA_NAME_LIST}> !!!")
+            # end if
+        else:
+            return None
     # end def
 # end class
