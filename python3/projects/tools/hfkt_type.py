@@ -48,10 +48,10 @@ import zlib
 
 from pandas.core.dtypes.inference import is_float
 
-import hfkt as h
-import hfkt_def as hdef
-import hfkt_str as hstr
-import hfkt_date_time as hdate
+import tools.hfkt as h
+import tools.hfkt_def as hdef
+import tools.hfkt_str as hstr
+import tools.hfkt_date_time as hdate
 
 # import stat
 
@@ -429,7 +429,7 @@ def type_proof(wert_in, type):
         return type_proof_list(wert_in, "")
     elif isinstance(type,list):
         return type_proof_list(wert_in, type)
-    elif type == "list_str":
+    elif (type == "list_str") or (type == "listStr"):
         return type_proof_list(wert_in, "str")
     elif (type == "dat") or (type == "date"):
         return type_proof_dat(wert_in)

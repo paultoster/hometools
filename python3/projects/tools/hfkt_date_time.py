@@ -49,7 +49,7 @@ from typing import Any
 import dateparser
 
 # import hfkt_def as hdef
-import hfkt_str as hstr
+import tools.hfkt_str as hstr
 
 # import datetime
 
