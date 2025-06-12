@@ -417,7 +417,7 @@ def type_proof(wert_in, type):
     "euro": float
     "euroStrK": string mit Komma Trennung ('.' 1000er)   10,34
     "cent": int
-    
+    "percentStr" string mit '%'
     '''
     if type == "str":
         return type_proof_string(wert_in)
@@ -443,6 +443,8 @@ def type_proof(wert_in, type):
         return type_proof_euroStrK(wert_in)
     elif type == "cent":
         return type_proof_cent(wert_in)
+    elif type == "percentStr":
+        return type_proof_percentStr(wert_in)
     else:
         return (hdef.NOT_OKAY, None)
     # endif
@@ -482,7 +484,13 @@ def type_proof_float(wert_in):
         except:
             return (hdef.NOT_OKAY, None)  # endtry
     elif (isinstance(wert_in, str)):
-        wert = str_to_float_possible(wert_in)
+        
+        (okay, val_in) = type_transform_euroStrK(wert_in,"euro")
+        if okay == hdef.OKAY:
+            wert = float(val_in)
+        else:
+            wert = str_to_float_possible(wert_in)
+        # end if
         if (wert == None):
             okay = hdef.NOT_OKAY
         else:
@@ -1009,6 +1017,26 @@ def type_proof_cent(wert_in):
     # end if
     return (okay,wert)
 # end def
+def type_proof_percentStr(wert_in):
+    '''
+    
+    :param wert_in:
+    :return:
+    '''
+    (okay, wert) = type_proof_string(wert_in)
+    
+    if (okay == hdef.OKAY):
+        
+        wert_val = hstr.elim_ae(wert.replace('%',''),' ')
+        (okay,value) = type_transform_euroStrK(wert_val,'euro')
+        if okay != hdef.OKAY:
+            wert = None
+    # end if
+    return (okay, wert)
+
+
+# end def
+
 def type_convert_euro_to_cent(wert_euro,delim=",", thousandsign="."):
     '''
     string_euro_in_int_cent(wert_euro, delim=delim, thousandsign=thousandsign)
@@ -1063,6 +1091,7 @@ def type_transform(wert_in: any, type_in: str | list, type_out: str | list):
     "euro": float
     "euroStrK": string mit Komma Trennung ('.' 1000er)   10,34
     "cent": int
+    "percentStr"
 
     (okay,wert) = type_transform(wert_in, type_in, type_out) Prüft den Wert auf seine
     '''
@@ -1085,6 +1114,8 @@ def type_transform(wert_in: any, type_in: str | list, type_out: str | list):
         (okay, wert_out) = type_transform_euroStrK(wert_in, type_out)
     elif type_in == "cent":
         (okay, wert_out) = type_transform_cent(wert_in, type_out)
+    elif type_in == "percentStr":
+        (okay, wert_out) = type_transform_percentStr(wert_in, type_out)
     elif isinstance(type_in, list):
         # if wert_in == "Kirchensteuer":
         #    print("halt")
@@ -1310,10 +1341,34 @@ def  type_transform_cent(wert_in,type_out):
             wert_out = [str(wert)]
         else:
             wert_out = None
-            raise Exception(f"In type_transform_int ist type_out: {type_out} nicht möglich")
+            raise Exception(f"type_transform_cent: In type_transform_int ist type_out: {type_out} nicht möglich")
         # end if
     else:
         wert_out = wert
+    # end if
+    return (okay,wert_out)
+# end def
+def type_transform_percentStr(wert_in, type_out):
+    '''
+    
+    :param wert_in:
+    :param type_out:
+    :return: (okay, wert_out) = type_transform_percentStr(wert_in, type_out):
+    '''
+    (okay, wert) = type_proof(wert_in, "percentStr")
+    if okay == hdef.OKAY:
+        if type_out == "str":
+            wert_out = wert
+        elif type_out == "int":
+            wert = hstr.elim_ae(wert.replace('%', ''),' ')
+            (okay, wert_out) = type_transform(wert, "str", "int")
+        elif type_out == "float":
+            wert = hstr.elim_ae(wert.replace('%', ''), ' ')
+            (okay,wert_out) = type_transform(wert,"str","float")
+        else:
+            wert_out = None
+            raise Exception(f"type_transform_percentStr: In type_transform_int ist type_out: {type_out} nicht möglich")
+        # end if
     # end if
     return (okay,wert_out)
 # end def

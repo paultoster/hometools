@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, time
 
 tools_path = os.getcwd() + "\\.."
 if (tools_path not in sys.path):
@@ -6,6 +6,7 @@ if (tools_path not in sys.path):
 # endif
 
 import wp_abfrage.wp_basic_info_fkt as wp_basic
+import wp_storage
 
 import tools.hfkt_def as hdef
 import tools.hfkt_type as htyp
@@ -17,13 +18,15 @@ class WPData:
     self.check_isin_input(isin_input)
     
     '''
-    def __init__(self,store_path):
+    def __init__(self,store_path,use_json):
         self.ddict = {}
         self.ddict["store_path"] = store_path
+        self.ddict["pre_file_name"] = "wp_data_"
+        self.ddict["use_json"] = use_json # 0: don't 1: write, 2: read
         self.ddict["isin_input_is_list"] = False
         self.ddict["isin_list"] = []
         self.ddict["output_list"] = []
-        self.ddict["wp_data_file_dict"] = {}
+        self.ddict["wp_isin_file_dict_list"] = []
 
         self.status = hdef.OKAY
         self.errtext = ""
@@ -51,13 +54,32 @@ class WPData:
         
         self.ddict["output_list"] = [None] * len(self.ddict["isin_list"])
         for i, isin in enumerate(self.ddict["isin_list"]):
-            (status, errtext, info_dict) = wp_basic.wp_basic_info_fkt(isin, self.ddict)
+            
+            print(f"Build basic_info from isin: {isin}:")
+            start_time = time.time()
+            
+            # basic info data einlesen
+            if wp_storage.info_storage_eixst(isin, self.ddict):
+                print(f"            ... read File")
+                (status, errtext, info_dict) = wp_storage.read_info_dict(isin, self.ddict)
+            else:
+                print(f"            ... read HTML")
+                (status, errtext, info_dict) = wp_basic.wp_basic_info_fkt(isin, self.ddict)
+                if status == hdef.OKAY:
+                    (status, errtext) = wp_storage.save_info_dict(isin, info_dict, self.ddict)
+                # end if
+            # end if
+            
             if status == hdef.OKAY:
                 self.ddict["output_list"][i] = info_dict
             else:
                 self.status = status
                 self.errtext = errtext
+                return (self.status, self.errtext, None)
             # end if
+            
+            end_time = time.time()
+            print('Execution time: ', end_time - start_time, ' s')
         # end for
         
         if self.ddict["isin_input_is_list"]:
@@ -125,10 +147,11 @@ class WPData:
     # end def
 
 if __name__ == '__main__':
-    isin = ["IE00B4L5Y983","IE00BKZGB098"]
-    store_path = "K:/data/orga/wp_store"
+    isin = ["IE00B4L5Y983","IE00BKZGB098","DE0007100000"]
     
-    wp = WPData(store_path)
+    store_path = "K:/data/orga/wp_store"
+    use_json = 0 # 0: don't 1: write, 2: read
+    wp = WPData(store_path,use_json)
     if wp.status != hdef.OKAY:
         print(f"WPData: Fehler  errtext = {wp.errtext}")
         exit(1)
