@@ -1,5 +1,7 @@
 import os, sys
 
+import hfkt_str
+
 tools_path = os.getcwd() + "\\.."
 if (tools_path not in sys.path):
     sys.path.append(tools_path)
@@ -137,8 +139,12 @@ class KontoCsvRead:
             raise Exception(f"search_header_line_find_name_in_list: name is not str nor list name = {name}")
         # end if
         for namename in name_list:
-            if namename in csv_liste:
-                return csv_liste.index(namename)
+            for index,item in enumerate(csv_liste):
+                tt = hfkt_str.elim_ae(item," ")
+                if( namename == tt):
+                    return index
+            # if namename in csv_liste:
+            #     return csv_liste.index(namename)
             # end if
         # end for
         return None

@@ -6,13 +6,17 @@ if (tools_path not in sys.path):
 # endif
 
 import wp_abfrage.wp_basic_info_fkt as wp_basic
-import wp_storage
+import wp_abfrage.wp_wkn as wp_wkn
 
 import tools.hfkt_def as hdef
 import tools.hfkt_type as htyp
 
 class WPData:
     '''
+    Basis Funktion:
+    (status, errtext, output)       = self.get_basic_info(isin)
+    (status, errtext, output_liste) = self.get_basic_info(isin_liste)
+    
     Hilfsfunktionen:
     self.check_store_path()
     self.check_isin_input(isin_input)
@@ -22,11 +26,14 @@ class WPData:
         self.ddict = {}
         self.ddict["store_path"] = store_path
         self.ddict["pre_file_name"] = "wp_data_"
+        self.ddict["wkn_isin_filename"] = "wkn_isin_dict"
         self.ddict["use_json"] = use_json # 0: don't 1: write, 2: read
         self.ddict["isin_input_is_list"] = False
         self.ddict["isin_list"] = []
         self.ddict["output_list"] = []
         self.ddict["wp_isin_file_dict_list"] = []
+        self.ddict["wkn_isin_sleep_time"] = 10
+        self.ddict["wkn_isin_n_times"] = 2
 
         self.status = hdef.OKAY
         self.errtext = ""
@@ -52,35 +59,11 @@ class WPData:
             return (self.status, self.errtext, None)
         # end if
         
-        self.ddict["output_list"] = [None] * len(self.ddict["isin_list"])
-        for i, isin in enumerate(self.ddict["isin_list"]):
-            
-            print(f"Build basic_info from isin: {isin}:")
-            start_time = time.time()
-            
-            # basic info data einlesen
-            if wp_storage.info_storage_eixst(isin, self.ddict):
-                print(f"            ... read File")
-                (status, errtext, info_dict) = wp_storage.read_info_dict(isin, self.ddict)
-            else:
-                print(f"            ... read HTML")
-                (status, errtext, info_dict) = wp_basic.wp_basic_info_fkt(isin, self.ddict)
-                if status == hdef.OKAY:
-                    (status, errtext) = wp_storage.save_info_dict(isin, info_dict, self.ddict)
-                # end if
-            # end if
-            
-            if status == hdef.OKAY:
-                self.ddict["output_list"][i] = info_dict
-            else:
-                self.status = status
-                self.errtext = errtext
-                return (self.status, self.errtext, None)
-            # end if
-            
-            end_time = time.time()
-            print('Execution time: ', end_time - start_time, ' s')
-        # end for
+        (self.status, self.errtext, self.ddict) = wp_basic.wp_basic_info_with_isin_list(self.ddict)
+        
+        if self.status != hdef.OKAY:
+            return (self.status, self.errtext, None)
+        # end if
         
         if self.ddict["isin_input_is_list"]:
             output = self.ddict["output_list"]
@@ -93,6 +76,19 @@ class WPData:
         # end if
         
         return (self.status, self.errtext, output)
+    # end def
+    def get_isin_from_wkn(self,wkn):
+        '''
+        
+        :param wkn:
+        :return: (okay,isin) = self.wpfunc.get_isin_from_wkn(wkn)
+        '''
+        (self.status, self.errtext, isin) = wp_wkn.wp_search_wkn(wkn,self.ddict)
+        if self.status != hdef.OKAY:
+            print(f"get_isin_from_wkn not working errtext: {self.errtext}")
+            isin = ""
+        # end if
+        return (self.status,isin)
     # end def
     def check_store_path(self):
         '''
@@ -138,16 +134,23 @@ class WPData:
         for isin in self.ddict["isin_list"]:
             (okay,value) = htyp.type_proof(isin,'isin')
             if okay != hdef.OKAY:
-                self.status = hdef.NOT_OKAY
-                self.errtext = f"isin = {isin} ist kein passender Wert"
-                return
-            # end dif
+                
+                (okay, value) = htyp.type_proof(isin, 'wkn')
+                if okay != hdef.OKAY:
+                    self.status = hdef.NOT_OKAY
+                    self.errtext = f"isin = {isin} ist kein passender Wert"
+                    return
+                # end if
+            # end if
         # end for
     
     # end def
 
 if __name__ == '__main__':
+
+
     isin = ["IE00B4L5Y983","IE00BKZGB098","DE0007100000"]
+    
     
     store_path = "K:/data/orga/wp_store"
     use_json = 0 # 0: don't 1: write, 2: read
@@ -157,6 +160,13 @@ if __name__ == '__main__':
         exit(1)
     # end if
     
+    wkn = "A0S9GB"
+    (status,isin) = wp.get_isin_from_wkn(wkn)
+
+    if status == hdef.OKAY:
+        print(f"isin = {isin}")
+    # end if
+
     (status,errtext,info_dict_list) = wp.get_basic_info(isin)
     if status != hdef.OKAY:
         print(f"get_basic_info: Fehler   errtext = {errtext}")

@@ -6,10 +6,13 @@ import re
 import tools.hfkt_def as hdef
 import tools.hfkt_str as hstr
 import tools.hfkt_type as htype
+import time
 
+import wp_abfrage.wp_storage as wp_storage
 
-def wp_basic_info_fkt(isin,ddict):
+def wp_basic_info_with_isin_list(ddict):
     '''
+    
     info_dict["type"] = "etf","aktie"
     info_dict["name"]
     info_dict["isin"]
@@ -22,17 +25,59 @@ def wp_basic_info_fkt(isin,ddict):
     info_dict["ter"] = value
     info_dict["volumen"] = value
     info_dict["anzahl"] = value
-    
-    :param isin:
+
     :param ddict:
-    :return: (status, errtext, info_dict) =  wp_basic_info_fkt(isin,ddict)
+    :return: (status,errtext,ddict) = wp_basic_info_with_isin_list(ddict)
     '''
-    
-    (status, errtext, info_dict) =  wp_basic_info_extraetf_ETF(isin)
-    
-    if status == hdef.NOT_FOUND:
-        (status, errtext, info_dict) = wp_basic_info_extraetf_Aktie(isin)
-    return (status, errtext, info_dict)
+
+    #---------------------------------------------------------------------
+    # output vorbelegen
+    #---------------------------------------------------------------------
+    ddict["output_list"] = [None] * len(ddict["isin_list"])
+
+    #---------------------------------------------------------------------
+    # iteriere über isin_list
+    #---------------------------------------------------------------------
+    for i, isin in enumerate(ddict["isin_list"]):
+        
+        print(f"Build basic_info from isin: {isin}:")
+        start_time = time.time()
+        
+        #---------------------------------------------
+        # basic info data einlesen wenn vorhanden
+        #---------------------------------------------
+        if wp_storage.info_storage_eixst(isin, ddict):
+            print(f"            ... read File")
+            (status, errtext, info_dict) = wp_storage.read_info_dict(isin, ddict)
+        # ---------------------------------------------
+        # basic info data vo html suchen
+        # ---------------------------------------------
+        else:
+            print(f"            ... read HTML")
+            (status, errtext, info_dict) = wp_basic_info_extraetf_ETF(isin)
+            if status == hdef.NOT_FOUND:
+                (status, errtext, info_dict) = wp_basic_info_extraetf_Aktie(isin)
+
+            if status == hdef.OKAY:
+                (status, errtext) = wp_storage.save_info_dict(isin, info_dict, ddict)
+            # end if
+        # end if
+        
+        #---------------------------------------------
+        # Einzel dict info_dict in Liste einsortieren
+        #---------------------------------------------
+        if status == hdef.OKAY:
+            ddict["output_list"][i] = info_dict
+        else:
+            status = status
+            errtext = errtext
+            return (status, errtext, None)
+        # end if
+        
+        end_time = time.time()
+        print('Execution time: ', end_time - start_time, ' s')
+    # end for
+    return (status, errtext, ddict)
 # end def
 def wp_basic_info_extraetf_ETF(isin):
     status = hdef.OKAY

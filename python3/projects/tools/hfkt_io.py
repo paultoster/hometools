@@ -639,6 +639,7 @@ def read_csv_file(file_name,delim=";"):
                     line_liste = lines.split("\r\n")
                 else:
                     line_liste = lines.split("\n")
+                    line_liste = hstr.split_text(lines, "\n")
                 # end if
                 f.close()
                 flag = 1
@@ -651,7 +652,7 @@ def read_csv_file(file_name,delim=";"):
                 n = len(line_liste)
                 i = 0
                 while i < n:
-                    line = line_liste[i]
+                    line = hstr.change(line_liste[i],'\ufeff','')
                     # line = hstr.elim_e(line,'\n')
                     abostroph_liste = hstr.such_alle(line, "\"")
                     

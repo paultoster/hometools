@@ -50,7 +50,11 @@ class ini:
     if self.check_base_input(par) != hdef.OK:
       return
     # endif
-
+    
+    if self.check_prog_data(par) != hdef.OK:
+      return
+    #end if
+ 
     # check konotonames
     if self.check_kontodata(par) != hdef.OK:
       return
@@ -105,8 +109,52 @@ class ini:
     
     return self.status
   # enddef
+  def check_prog_data(self, par):
+    '''
+    
+    :param par:
+    :return:
+    '''
+    
+    if par.INI_PROG_DATA_NAME not in self.ddict.keys():
+      self.status = hdef.NOT_OKAY
+      self.add_err_text(
+        f"In inifile {self.ini_file_name} ist ProgData-Sektion [{par.INI_PROG_DATA_NAME}] nicht vorhanden !!!!")
+      return self.status
+    # end if
+  
+    key_liste = self.ddict[par.INI_PROG_DATA_NAME].keys()
 
+    # Prüfe die Daten aus proof_liste
+    #--------------------------------
+    proof_length = len(par.INI_PROG_DATA_PROOF_LISTE)
+    index_liste  = [i for i in range(proof_length)]
+    for index,(proof,ttype) in enumerate(par.INI_PROG_DATA_PROOF_LISTE):
+      if proof in key_liste:
+        [okay,wert] = htype.type_proof(self.ddict[par.INI_PROG_DATA_NAME][proof],ttype)
+        if okay != hdef.OK:
+          self.status = hdef.NOT_OKAY
+          self.add_err_text(f"In inifile {self.ini_file_name} is variable {par.INI_PROG_DATA_NAME}.{proof} = {self.ddict[par.INI_PROG_DATA_NAME][proof]} not correct !!!!")
+          return self.status
+        else:
+          self.ddict[par.INI_PROG_DATA_NAME][proof] = wert
+          index_liste.remove(index)
+        #endif
+      #endi
+    #endfor
 
+    # Prüfe was nicht definiert wurde
+    #--------------------------------
+    if len(index_liste):
+      self.status = hdef.NOT_OKAY
+      for index in index_liste:
+        self.add_err_text(f"Im inifile {self.ini_file_name} ist Variable \"{par.INI_PROG_DATA_NAME}.{par.INI_PROG_DATA_PROOF_LISTE[index][0]}\" nicht gesetzt !!!!")
+      # end for
+      return self.status
+    #endif
+    
+    return self.status
+  # end def
   def check_kontodata(self,par):
     """
     check kontonames sections from ini-file

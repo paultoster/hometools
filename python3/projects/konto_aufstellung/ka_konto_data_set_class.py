@@ -69,6 +69,20 @@ class KontoDataSet:
         KONTO_BUCHTYPE_TEXT_LIST.append(KONTO_DATA_BUCHTYPE_DICT[key])
         KONTO_BUCHTYPE_INDEX_LIST.append(key)
     # end for
+    # dict[index][0] = '+' muss größer gleich null sein
+    #                  '-' muss kleiner null sein
+    # dict[index][1] = wenn Bedignung nicht erfüllt, dann nehme das
+    
+    KONTO_DATA_BUCHTYPE_PROOF_DICT = {KONTO_BUCHTYPE_INDEX_EINZAHLUNG:[+1,KONTO_BUCHTYPE_INDEX_AUSZAHLUNG]
+                                     ,KONTO_BUCHTYPE_INDEX_AUSZAHLUNG:[-1,KONTO_BUCHTYPE_INDEX_EINZAHLUNG]
+                                     , KONTO_BUCHTYPE_INDEX_KOSTEN:    [-1, KONTO_BUCHTYPE_INDEX_EINNAHMEN]
+                                     , KONTO_BUCHTYPE_INDEX_EINNAHMEN: [+1, KONTO_BUCHTYPE_INDEX_KOSTEN]
+                                     , KONTO_BUCHTYPE_INDEX_WP_KAUF:    [-1, KONTO_BUCHTYPE_INDEX_WP_VERKAUF]
+                                     , KONTO_BUCHTYPE_INDEX_WP_VERKAUF: [+1, KONTO_BUCHTYPE_INDEX_WP_KAUF]
+                                     , KONTO_BUCHTYPE_INDEX_WP_KOSTEN:    [-1, KONTO_BUCHTYPE_INDEX_WP_EINNAHMEN]
+                                     , KONTO_BUCHTYPE_INDEX_WP_EINNAHMEN: [+1, KONTO_BUCHTYPE_INDEX_WP_KOSTEN]
+                                      }
+    
     
     # Indizes in erinem data_set
     KONTO_DATA_INDEX_ID: int = 0
@@ -171,6 +185,8 @@ class KontoDataSet:
         self.data_set_llist: list = []
         self.n_data_sets: int = 0
         self.new_read_id_list: list = []
+        self.idfunc = None
+        self.wpfunc = None
         
     def get_buchtype_index(self,buchttype_name: str):
         index = None
@@ -193,12 +209,13 @@ class KontoDataSet:
         return index
     # end def
     
-    def set_starting_data_llist(self,konto_data_set_dict_list,konto_data_type_dict, idfunc, konto_start_datum, konto_start_wert, decimal_trenn="",
+    def set_starting_data_llist(self,konto_data_set_dict_list,konto_data_type_dict, idfunc,wpfunc, konto_start_datum, konto_start_wert, decimal_trenn="",
                                 tausend_trenn=""):
         
         self.data_set_llist = self.set_dat_set_dict_list(konto_data_set_dict_list,konto_data_type_dict)
         self.n_data_sets = len(self.data_set_llist)
-        self.idfunc = ka_data_class_defs.IDCount()
+        self.idfunc = idfunc
+        self.wpfunc = wpfunc
         self.konto_start_datum = konto_start_datum
         self.konto_start_wert = konto_start_wert
         self.DECIMAL_TRENN_STR = decimal_trenn
@@ -376,6 +393,10 @@ class KontoDataSet:
         if self.status != hdef.OKAY:
             return (False, self.status, self.errtext)
         # endif
+        
+        # proof data dict list 1) buchtype zu Wert
+        #------------------------------------------
+        new_data_dict_list = self.proof_new_data_dict(new_data_dict_list)
         
         # sort new data
         #--------------
@@ -739,6 +760,8 @@ class KontoDataSet:
             for konto_data_index in data_dict.keys():
                 value_to_transform = data_dict[konto_data_index]
                 value_typ = new_type_dict[konto_data_index]
+                # if( value_to_transform == '"-70,04"'):
+                #     print(value_to_transform)
                 (okay, wert) = htype.type_transform(value_to_transform, value_typ,self.KONTO_DATA_TYPE_DICT[konto_data_index])
                 if okay != hdef.OKAY:
                     raise Exception(
@@ -753,6 +776,43 @@ class KontoDataSet:
         
         return new_data_dict_list
     
+    # end def
+    
+    def proof_new_data_dict(self,new_data_dict_list):
+        '''
+        
+        :param new_data_dict_list:
+        :return: new_data_dict_list = self.proof_new_data_dict(new_data_dict_list)
+        '''
+        n = len(new_data_dict_list)
+        for index in range(n):
+            data_dict = new_data_dict_list[index]
+            change_flag = False
+            if (self.KONTO_DATA_INDEX_BUCHTYPE in data_dict) and (self.KONTO_DATA_INDEX_WERT in data_dict):
+                buchtype_index = data_dict[self.KONTO_DATA_INDEX_BUCHTYPE]
+                if buchtype_index in self.KONTO_DATA_BUCHTYPE_PROOF_DICT.keys():
+                    wert_type = self.KONTO_DATA_BUCHTYPE_PROOF_DICT[buchtype_index][0]
+                    
+                    if  wert_type > 0: # soll positiv sein
+                        if data_dict[self.KONTO_DATA_INDEX_WERT] < 0:
+                            data_dict[self.KONTO_DATA_INDEX_BUCHTYPE] = self.KONTO_DATA_BUCHTYPE_PROOF_DICT[buchtype_index][1]
+                            change_flag = True
+                        # end if
+                    else: # soll negative sein
+                        if data_dict[self.KONTO_DATA_INDEX_WERT] > 0:
+                            data_dict[self.KONTO_DATA_INDEX_BUCHTYPE] = self.KONTO_DATA_BUCHTYPE_PROOF_DICT[buchtype_index][1]
+                            change_flag = True
+                        # end if
+                    # end if
+                # end if
+            # end if
+            
+            if change_flag:
+                new_data_dict_list[index] = data_dict
+        
+        # end for
+        
+        return new_data_dict_list
     # end def
     def build_internal_values_new_data_dict(self, new_data_dict_list):
         '''
@@ -775,12 +835,39 @@ class KontoDataSet:
                 (data_dict[self.KONTO_DATA_INDEX_BUCHTYPE] == self.KONTO_BUCHTYPE_INDEX_WP_KOSTEN) or \
                 (data_dict[self.KONTO_DATA_INDEX_BUCHTYPE] == self.KONTO_BUCHTYPE_INDEX_WP_EINNAHMEN):
                 
+                # if isin is explicit set use proofed isin
                 if self.KONTO_DATA_INDEX_ISIN in data_dict.keys():
                     (okay, isin) = htype.type_proof_isin(data_dict[self.KONTO_DATA_INDEX_ISIN])
+                else:
+                    okay = hdef.NOT_OKAY
                 # end if
+                
+                # if not search isin from comment
                 if (okay != hdef.OKAY) and (self.KONTO_DATA_INDEX_COMMENT in data_dict.keys()):
                     (okay, isin) = htype.type_proof_isin(data_dict[self.KONTO_DATA_INDEX_COMMENT])
                 # end if
+                
+                #if not search wkn from comment
+                if (okay != hdef.OKAY) and (self.KONTO_DATA_INDEX_COMMENT in data_dict.keys()):
+                    (okay, wkn) = htype.type_proof_wkn(data_dict[self.KONTO_DATA_INDEX_COMMENT])
+                # end if
+                
+                # search for special
+                if okay != hdef.OKAY:
+                    if self.KONTO_DATA_INDEX_COMMENT in data_dict.keys():
+                        index = hstr.such(data_dict[self.KONTO_DATA_INDEX_COMMENT],"XETRA-GOLD")
+                        if index >= 0:
+                            isin = "DE000A0S9GB0"
+                            okay = hdef.OKAY
+                        # end if
+                    # end if
+                else: # found wkn
+                    print(f"Start getting isin from wkn: {wkn} ")
+                    (okay,isin) = self.wpfunc.get_isin_from_wkn(wkn)
+                    print(f"End getting isin from wkn: {wkn}, isin = {isin} ")
+                # end if
+                
+                
                 if (okay != hdef.OKAY):
                     isin = "isinnotfound"
                 # end if

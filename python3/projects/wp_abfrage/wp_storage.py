@@ -5,14 +5,14 @@ import zlib
 import traceback
 
 import tools.hfkt_def as hdef
-import tools.hfkt_str as hstr
+# import tools.hfkt_str as hstr
 
 def info_storage_eixst(isin,ddict):
     
     if ddict["use_json"] == 2:
-        file_name = build_file_name_json(isin,ddict)
+        file_name = build_file_name_json(ddict["pre_file_name"] + str(isin),ddict)
     else:
-        file_name = build_file_name_pickle(isin,ddict)
+        file_name = build_file_name_pickle(ddict["pre_file_name"] + str(isin),ddict)
     # end if
 
     if os.path.isfile(file_name):
@@ -33,72 +33,24 @@ def read_info_dict(isin,ddict):
 
     if (ddict["use_json"] == 2):  # read json
         
-        file_name = build_file_name_json(isin, ddict)
+        file_name = build_file_name_json(ddict["pre_file_name"]+str(isin), ddict)
         
         if (os.path.isfile(file_name)):
-            
-            try:
-                with open(file_name, "r") as f:
-                    info_dict = json.load(f)
-                    f.close()
-            except PermissionError:
-                status = hdef.NOT_OKAY
-                errtext = f"File {file_name} does not exist!"
-                return (status, errtext, {})
-            except IOError:
-                status = hdef.NOT_OKAY
-                errtext = f"An error occurred while reading the file {file_name}"
-                return (status, errtext, {})
-            except Exception as e:
-                status = hdef.NOT_OKAY
-                errtext = f"An error occurred while reading the file {file_name} with {traceback.format_exc(e)}"
-                return (status, errtext, {})
-            # endtry
+            (status, errtext, info_dict) = read_json(file_name)
         else:
             status = hdef.NOT_OKAY
             errtext = f"File {file_name} does not exist!"
             return (status, errtext, {})
-        
         # end if
     
     else:  # normal pickle load
-        file_name = build_file_name_pickle(isin, ddict)
+        file_name = build_file_name_pickle(ddict["pre_file_name"] + str(isin), ddict)
+        
         # Wenn die Datei vorhanden ist:
         if (os.path.isfile(file_name)):
-            
-            try:
-                with open(file_name, "rb") as f:
-                    uncompressed_data = zlib.decompress(f.read())
-                    f.close()
-            except PermissionError:
-                status = hdef.NOT_OKAY
-                errtext = f"File {file_name} does not exist!"
-                return (status, errtext, {})
-            except IOError:
-                status = hdef.NOT_OKAY
-                errtext = f"An error occurred while reading the file {file_name}"
-                return (status, errtext, {})
-            except Exception as e:
-                status = hdef.NOT_OKAY
-                errtext = f"An error occurred while reading the file {file_name} with {traceback.format_exc(e)}"
-                return (status, errtext, {})
-            # endtry
-            
-            try:
-                info_dict = pickle.loads(uncompressed_data)
-            except pickle.UnpicklingError as e:
-                status = hdef.NOT_OKAY
-                errtext = f"An error occurred while run pickle with loaded file: {file_name} with {traceback.format_exc(e)}"
-                return (status, errtext, {})
-            except Exception as e:
-                status = hdef.NOT_OKAY
-                errtext = f"An error occurred while run pickle with loaded file: {file_name} with {traceback.format_exc(e)}"
-                return (status, errtext, {})
-            # endtry
+            (status, errtext, info_dict) = read_pickle(file_name)
         else:
-            
             info_dict = {}
-        
         # endif
     
     # end if
@@ -115,21 +67,128 @@ def save_info_dict(isin, info_dict, ddict):
     '''
     status = hdef.OKAY
     errtext = ""
-
-    
-    
+   
     # save pckl
-    file_name = build_file_name_pickle(isin, ddict)
+    file_name = build_file_name_pickle(ddict["pre_file_name"] + str(isin), ddict)
+    
+    (status, errtext) = save_pickle(info_dict, file_name)
+    
+    if (ddict["use_json"] == 1):  # write json
+        file_name = build_file_name_json(ddict["pre_file_name"]+str(isin), ddict)
+        
+        (status, errtext) = save_json(info_dict, file_name)
+    # end if
+    
+    return (status,errtext)
+# end def
+def build_file_name_pickle(body, ddict):
+    '''
+
+    :param isin:
+    :param ddict:
+    :return: file_name
+    '''
+    return os.path.join(ddict["store_path"], body + ".pkl")
+# end def
+def build_file_name_json(body,ddict):
+    '''
+
+    :param isin:
+    :param ddict:
+    :return: file_name
+    '''
+    return os.path.join(ddict["store_path"], body+".json")
+# end def
+def read_pickle(file_name):
+    '''
+
+    :param file_name:
+    :return: (status,errtext,ddict) = read_pickle(file_name)
+    '''
+    status = hdef.OKAY
+    errtext = ""
     try:
-        uncompressed_data = pickle.dumps(info_dict)
-    except (pickle.PickleError, pickle.PicklingError) as e:
+        with open(file_name, "rb") as f:
+            uncompressed_data = zlib.decompress(f.read())
+            f.close()
+    except PermissionError:
+        status = hdef.NOT_OKAY
+        errtext = f"File {file_name} does not exist!"
+        return (status, errtext, {})
+    except IOError:
+        status = hdef.NOT_OKAY
+        errtext = f"An error occurred while reading the file {file_name}"
+        return (status, errtext, {})
+    except Exception as e:
+        status = hdef.NOT_OKAY
+        errtext = f"An error occurred while reading the file {file_name} with {traceback.format_exc(e)}"
+        return (status, errtext, {})
+    # endtry
+    
+    try:
+        ddict = pickle.loads(uncompressed_data)
+    except pickle.UnpicklingError as e:
         status = hdef.NOT_OKAY
         errtext = f"An error occurred while run pickle with loaded file: {file_name} with {traceback.format_exc(e)}"
-        return (status,errtext)
+        return (status, errtext, {})
     except Exception as e:
         status = hdef.NOT_OKAY
         errtext = f"An error occurred while run pickle with loaded file: {file_name} with {traceback.format_exc(e)}"
-        return (status,errtext)
+        return (status, errtext, {})
+    # endtry
+    
+    return (status, errtext, ddict)
+
+
+# end def
+def read_json(file_name):
+    '''
+    
+    :param file_name:
+    :return: (status,errtext,ddict) = read_json(file_name)
+    '''
+    status = hdef.OKAY
+    errtext = ""
+    try:
+        with open(file_name, "r") as f:
+            ddict = json.load(f)
+            f.close()
+    except PermissionError:
+        status = hdef.NOT_OKAY
+        errtext = f"File {file_name} does not exist!"
+        return (status, errtext, {})
+    except IOError:
+        status = hdef.NOT_OKAY
+        errtext = f"An error occurred while reading the file {file_name}"
+        return (status, errtext, {})
+    except Exception as e:
+        status = hdef.NOT_OKAY
+        errtext = f"An error occurred while reading the file {file_name} with {traceback.format_exc(e)}"
+        return (status, errtext, {})
+    # endtry
+    
+    return (status, errtext, ddict)
+
+# end def
+def save_pickle(ddict, file_name):
+    '''
+    
+    :param ddict:
+    :param file_name:
+    :return: (status, errtext) =  save_pickle(ddict, file_name):
+    '''
+    status = hdef.OKAY
+    errtext = ""
+    try:
+        uncompressed_data = pickle.dumps(ddict)
+    except (pickle.PickleError, pickle.PicklingError) as e:
+        status = hdef.NOT_OKAY
+        errtext = f"An error occurred while run pickle with loaded file: {file_name} with {traceback.format_exc(e)}"
+        return (status, errtext)
+    except Exception as e:
+        status = hdef.NOT_OKAY
+        errtext = f"An error occurred while run pickle with loaded file: {file_name} with {traceback.format_exc(e)}"
+        return (status, errtext)
     # endtry
     
     try:
@@ -139,67 +198,114 @@ def save_info_dict(isin, info_dict, ddict):
     except PermissionError:
         status = hdef.NOT_OKAY
         errtext = f"File {file_name} does not exist!"
-        return (status,errtext)
+        return (status, errtext)
     except IOError:
         status = hdef.NOT_OKAY
         errtext = f"An error occurred while reading the file {file_name}"
-        return (status,errtext)
+        return (status, errtext)
     except Exception as e:
         status = hdef.NOT_OKAY
         errtext = f"An error occurred while reading the file {file_name} with {traceback.format_exc(e)}"
-        return (status,errtext)
+        return (status, errtext)
     # endtry
+    return (status, errtext)
+# end if
+
+def save_json(ddict,file_name):
+    '''
     
-    if (ddict["use_json"] == 1):  # write json
-        file_name = build_file_name_json(isin, ddict)
+    :param ddict:
+    :param file_name:
+    :return: (status, errtext) = save_json(ddict,file_name)
+    '''
+    status = hdef.OKAY
+    errtext = ""
+    try:
+        json_obj = json.dumps(ddict, indent=2)
         
-        try:
-            json_obj = json.dumps(info_dict, indent=2)
-            
-            # print json to screen with human-friendly formatting
-            # pprint.pprint(json_obj, compact=True)
-            
-            # write json to file with human-friendly formatting
-            # pretty_json_str = pprint.pformat(json_obj, compact=False)
-            
-            with open(file_name, 'w') as f:
-                f.write(json_obj)
-            
-            # with open(file_name, 'w') as outfile:
-            #     json.dump(self.ddict, outfile, indent=2)
+        # print json to screen with human-friendly formatting
+        # pprint.pprint(json_obj, compact=True)
         
-        except PermissionError:
-            status = hdef.NOT_OKAY
-            errtext = f"File {file_name} does not exist!"
-            return (status,errtext)
-        except IOError:
-            status = hdef.NOT_OKAY
-            errtext = f"An error occurred while reading the file {file_name}"
-            return (status,errtext)
-        except Exception as e:
-            status = hdef.NOT_OKAY
-            errtext = f"An error occurred while reading the file {file_name} with {traceback.format_exc(e)}"
-            return (status,errtext)
-        # end try
+        # write json to file with human-friendly formatting
+        # pretty_json_str = pprint.pformat(json_obj, compact=False)
+        
+        with open(file_name, 'w') as f:
+            f.write(json_obj)
+        
+        # with open(file_name, 'w') as outfile:
+        #     json.dump(self.ddict, outfile, indent=2)
+    
+    except PermissionError:
+        status = hdef.NOT_OKAY
+        errtext = f"File {file_name} does not exist!"
+        return (status, errtext)
+    except IOError:
+        status = hdef.NOT_OKAY
+        errtext = f"An error occurred while reading the file {file_name}"
+        return (status, errtext)
+    except Exception as e:
+        status = hdef.NOT_OKAY
+        errtext = f"An error occurred while reading the file {file_name} with {traceback.format_exc(e)}"
+        return (status, errtext)
+    # end try
+    return (status,errtext)
+
+def read_wkn_isin_file(ddict):
+    '''
+    wkn_isin_dict[wkn] = isin
+    :param ddict:
+    :return: wkn_isin_dict = read_wkn_isin_file(ddict)
+    '''
+    if ddict["use_json"] == 2:
+        file_name = build_file_name_json(ddict["wkn_isin_filename"],ddict)
+    else:
+        file_name = build_file_name_pickle(ddict["wkn_isin_filename"],ddict)
     # end if
     
-    return (status,errtext)
+    if not os.path.isfile(file_name):
+        wkn_isin_dict = {}
+    else: # read
+        if ddict["use_json"] == 2: # json
+            (status, errtext, wkn_isin_dict) = read_json(file_name)
+            if status != hdef.OKAY:
+                raise Exception(f"read_wkn_isin_file: Problems reading {file_name} errtext: {errtext}")
+            # end if
+        else:
+            (status, errtext, wkn_isin_dict) = read_pickle(file_name)
+            if status != hdef.OKAY:
+                raise Exception(f"read_wkn_isin_file: Problems reading {file_name} errtext: {errtext}")
+            # end if
+        #end if
+    # end if
+    return wkn_isin_dict
+# end if
+def save_wkn_isin_file_json(wkn_isin_dict,ddict):
+    '''
+    
+    :param wkn_isin_dict:
+    :param ddict:
+    :return:
+    '''
+    file_name = build_file_name_json(ddict["wkn_isin_filename"], ddict)
+
+    (status, errtext) = save_json(wkn_isin_dict,file_name)
+    if status != hdef.OKAY:
+        raise Exception(f"save_wkn_isin_file_json: Problems saving {file_name} errtext: {errtext}")
+    # end if
+    return
 # end def
-def build_file_name_pickle(isin, ddict):
+def save_wkn_isin_file_pickle(wkn_isin_dict, ddict):
     '''
 
-    :param isin:
+    :param wkn_isin_dict:
     :param ddict:
-    :return: file_name
+    :return:
     '''
-    return os.path.join(ddict["store_path"], ddict["pre_file_name"] + str(isin) + ".pkl")
-# end def
-def build_file_name_json(isin,ddict):
-    '''
-
-    :param isin:
-    :param ddict:
-    :return: file_name
-    '''
-    return os.path.join(ddict["store_path"], ddict["pre_file_name"]+str(isin)+".json")
+    file_name = build_file_name_pickle(ddict["wkn_isin_filename"], ddict)
+    
+    (status, errtext) = save_pickle(wkn_isin_dict, file_name)
+    if status != hdef.OKAY:
+        raise Exception(f"save_wkn_isin_file_pickle: Problems saving {file_name} errtext: {errtext}")
+    # end if
+    return
 # end def

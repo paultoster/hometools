@@ -34,7 +34,7 @@ import ka_data_class_defs
 # Get DATA Start
 #
 # --------------------------------------------------------------------------------------
-def data_get(par, inidict):
+def data_get(par, inidict, wpfunc):
     '''
 
     :param par:
@@ -48,6 +48,8 @@ def data_get(par, inidict):
     # read allgeime-pickle-file
     #--------------------------
     for allg_name in inidict[par.INI_ALLG_DATA_DICT_NAMES_NAME]:
+        
+        
         
         if allg_name in inidict[par.INI_DATA_PICKLE_JSONFILE_LIST]:
             use_json = inidict[par.INI_DATA_PICKLE_USE_JSON]
@@ -69,9 +71,16 @@ def data_get(par, inidict):
             status = hdef.NOT_OKAY
             errtext = allg_data.errtext
             return (status, errtext, data)
-        else:
-            data[allg_name] = allg_data
         # endif
+        
+        allg_data = proof_allg_data_from_ini(par, allg_data, inidict[allg_name])
+    
+        if (allg_data.status != hdef.OK):
+            status = hdef.NOT_OKAY
+            errtext = allg_data.errtext
+            return (status, errtext, data)
+    
+        data[allg_name] = allg_data
     # end for
     
     # read konto-pickle-file
@@ -92,7 +101,7 @@ def data_get(par, inidict):
         
         konto_data = proof_konto_data_from_ini(par,konto_data, inidict[konto_name])
         konto_data = proof_konto_data_intern(par, konto_data, konto_name)
-        konto_data = build_konto_data_set_obj(par, konto_data, konto_name,data[par.PROG_DATA_TYPE_NAME].idfunc)
+        konto_data = build_konto_data_set_obj(par, konto_data, konto_name,data[par.PROG_DATA_TYPE_NAME].idfunc,wpfunc)
         konto_data = build_konto_data_csv_obj(par, konto_data, konto_name,inidict)
         if (konto_data.status != hdef.OK):
             status = hdef.NOT_OKAY
@@ -229,6 +238,57 @@ def set_prog_data(par,allg_data):
 # Set KONTO DATA
 #
 # --------------------------------------------------------------------------------------
+def proof_allg_data_from_ini(par, allg_data, ini_data_dict):
+    """
+    
+    :param allg_data:
+    :param ini_data:
+    :return:
+    """
+    
+    for key in ini_data_dict.keys():
+        
+        if (key in allg_data.ddict):
+            if (ini_data_dict[key] != allg_data.ddict[key]):
+                allg_data.ddict[key] = ini_data_dict[key]
+            # endif
+        else:
+            allg_data.ddict[key] = ini_data_dict[key]
+        # endif
+    # end for
+    
+    # proof if all ini-Data in allg_data and vice versa
+    # ---------------------------------------------------
+    ini_keys = list(ini_data_dict.keys())
+    
+    if par.INI_DATA_KEYS_NAME not in allg_data.ddict:
+        allg_data.ddict[par.INI_DATA_KEYS_NAME] = ini_keys
+    else:
+        data_ini_keys = allg_data.ddict[par.INI_DATA_KEYS_NAME]
+        flag = False
+        for key in data_ini_keys:
+            if (key not in ini_keys) and (key in allg_data.ddict.keys()):
+                del allg_data.ddict[key]
+                flag = True
+            # end if
+        # end for
+        if flag:
+            allg_data.ddict[par.INI_DATA_KEYS_NAME] = ini_keys
+        # end if
+    # end if
+    
+    allg_data.wp_store_path = allg_data.ddict[par.INI_WP_STORE_PATH_NAME]
+    allg_data.wp_use_json = allg_data.ddict[par.INI_WP_USE_JSON_NAME]
+
+    return allg_data
+
+
+# end def
+# --------------------------------------------------------------------------------------
+#
+# Set KONTO DATA
+#
+# --------------------------------------------------------------------------------------
 def proof_konto_data_from_ini(par,konto_data, ini_data_dict):
     """
     proof ini_data in konto_data
@@ -320,7 +380,7 @@ def proof_konto_data_intern(par, konto_data, konto_name):
     
     return konto_data
 # end def
-def build_konto_data_set_obj(par, konto_data, konto_name,idfunc):
+def build_konto_data_set_obj(par, konto_data, konto_name,idfunc,wpfunc):
     '''
     
     :param par:
@@ -428,6 +488,7 @@ def build_konto_data_set_obj(par, konto_data, konto_name,idfunc):
         konto_data_set_dict_list,
         konto_data_type_dict,
         idfunc,
+        wpfunc,
         konto_start_datum,
         konto_start_wert,
         wert_delim,

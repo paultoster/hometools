@@ -32,7 +32,7 @@ import ka_gui
 import hfkt_def as hdef
 import hfkt_log as hlog
 
-
+import wp_abfrage.wp_base
 
 @dataclass
 class RootData:
@@ -40,6 +40,7 @@ class RootData:
     log: hlog.log = field(default_factory=hlog.log)
     ini: ka_ini_file.ini = field(default_factory=ka_ini_file.ini)
     data: dict = field(default_factory=dict)
+    wp: wp_abfrage.wp_base.WPData = field(default_factory=wp_abfrage.wp_base.WPData)
 
 
 def konto_auswerten():
@@ -66,9 +67,17 @@ def konto_auswerten():
     #     rd.par = rd.ini.get_par(rd.par)
     # endif
         
+    # wp funktion wert papier rd.ini.ddict["wp_abfrage"]["store_path"]
+    rd.wpfunc = wp_abfrage.wp_base.WPData(rd.ini.ddict[rd.par.INI_PROG_DATA_NAME][rd.par.INI_WP_STORE_PATH_NAME]
+                                         ,rd.ini.ddict[rd.par.INI_PROG_DATA_NAME][rd.par.INI_WP_USE_JSON_NAME])
+    if (rd.wpfunc.status != hdef.OK):
+        rd.log.write_err(rd.wpfunc.errtext, screen=rd.par.LOG_SCREEN_OUT)
+        return
+    # endif
+
     # data_base
     # -----------
-    (status, errtext, rd.data) = ka_data_set.data_get(rd.par,rd.ini.ddict)
+    (status, errtext, rd.data) = ka_data_set.data_get(rd.par,rd.ini.ddict,rd.wpfunc)
 
     if (status != hdef.OK):
         rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
@@ -82,6 +91,7 @@ def konto_auswerten():
         rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
         return
     # endif
+    
 
 
     runflag = True

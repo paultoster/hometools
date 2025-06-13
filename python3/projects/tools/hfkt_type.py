@@ -48,7 +48,7 @@ import zlib
 
 from pandas.core.dtypes.inference import is_float
 
-import tools.hfkt as h
+# import tools.hfkt as h
 import tools.hfkt_def as hdef
 import tools.hfkt_str as hstr
 import tools.hfkt_date_time as hdate
@@ -389,6 +389,8 @@ def type_get_default(type):
         return ""
     elif type == "isin":
         return ""
+    elif type == "wkn":
+        return ""
     elif type == "euro":
         return 0.0
     elif type == "euroStrK":
@@ -409,6 +411,7 @@ def type_proof(wert_in, type):
     "datStrP": Convert to date string mit Punkt "20.03.2024"
     "datStrB": Convert to date string mit Bindesttrich "20-03-2024"
     "iban": string, 2 letters and 20 digits, could be with spaces
+    "wkn": string, 6 alphanum big letters
     "str": string
     "int": integer
     "float": floating point
@@ -437,6 +440,8 @@ def type_proof(wert_in, type):
         return type_proof_iban(wert_in)
     elif type == "isin":
         return type_proof_isin(wert_in)
+    elif type == "wkn":
+        return type_proof_wkn(wert_in)
     elif type == "euro":
         return type_proof_euro(wert_in)
     elif type == "euroStrK":
@@ -455,7 +460,8 @@ def type_proof(wert_in, type):
 
 def type_proof_string(wert_in):
     if (isinstance(wert_in, str)):
-        return (hdef.OKAY, wert_in)
+        wert = hstr.elim_ae(wert_in,"\"")
+        return (hdef.OKAY, wert)
     elif (isinstance(wert_in, list) or isinstance(wert_in, tuple)):
         try:
             return type_proof_string(wert_in[0])
@@ -904,6 +910,85 @@ def isin_from_natid(country_code, number):
 #----------------------------------------------------------------------------------------------------
 # isin functions ------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------------------
+def type_proof_wkn(wert_in):
+    """ return value str
+    """
+    
+    (okay, wert) = type_proof_string(wert_in)
+    
+    if (okay == hdef.OKAY):
+        
+        wkns = find_WKN(wert)
+        if (len(wkns) > 0):
+            wert = wkns[0]
+        else:
+            wert = None
+            okay = hdef.NOT_OKAY
+        # end if
+    # end if
+    return (okay, wert)
+
+
+# end def
+
+#----------------------------------------------------------------------------------------------------
+# wkn functions start  -----------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------
+def find_WKN(S):
+    
+    
+    found = 0
+    WKN_list = []
+    if found == 0:
+        s_liste = S.split()
+        n       = len(s_liste)
+        indices = [i for i, x in enumerate(s_liste) if (x == "WKN:") or (x == "wkn:")]
+        for ind in indices:
+            if ind+1 < n:
+                canidate = s_liste[ind+1]
+                if (len(canidate)==6) and (canidate.isalnum()):
+                    WKN_list.append(canidate)
+                    found = 1
+                # end if
+            # end if
+        # end if
+    # end if
+    if found == 0:
+        try:
+            pattern = r"\b[A-Z0-9]{6}\b"
+            WKN_list = re.findall(pattern, S)
+            if len(WKN_list): found = 1
+        except:
+            found = 0
+    # end if
+    
+    # end try
+    # if found == 0:
+    #     try:
+    #
+    #         pattern = r"[A-Z0-9]{6}"
+    #         WKN_list = re.findall(pattern, S)
+    #         if len(WKN_list): found = 1
+    #     except:
+    #         found = 0
+    #     # end try
+    # # end if
+    if found == 0:
+        try:
+            
+            pattern = r"^[A-Z0-9]{6}$"
+            WKN_list = re.findall(pattern, S)
+            if len(WKN_list): found = 1
+        except:
+            found = 0
+        # end try
+    # end if
+
+    return WKN_list
+
+
+# end def
+
 
 def type_proof_euro(wert_in,delim=",",thousandsign="."):
     '''
@@ -940,12 +1025,17 @@ def type_proof_euroStrK(wert_in, delim=",", thousandsign="."):
     :param thousandsign:
     :return: (okay,wert) =  type_proof_euroStrK(wert_in,delim=",",thousandsign=".")
     '''
-    if delim == ",":
-        wert_in = check_euroStrK_witheuroStrP(wert_in, delim=delim, thousandsign=thousandsign)
-    (okay, wert_euro) = type_proof_euro(wert_in, delim=delim, thousandsign=thousandsign)
+    (okay,wert_in) = type_proof_string(wert_in)
     if okay == hdef.OKAY:
-        wert = num_euro_in_euroStr(float(wert_euro), delim,thousandsign)
-        # wert = hstr.convert_float_euro_to_string_euro(float(wert_euro), delim,thousandsign)
+        if delim == ",":
+            wert_in = check_euroStrK_witheuroStrP(wert_in, delim=delim, thousandsign=thousandsign)
+        (okay, wert_euro) = type_proof_euro(wert_in, delim=delim, thousandsign=thousandsign)
+        if okay == hdef.OKAY:
+            wert = num_euro_in_euroStr(float(wert_euro), delim,thousandsign)
+            # wert = hstr.convert_float_euro_to_string_euro(float(wert_euro), delim,thousandsign)
+        else:
+            wert = None
+        # end if
     else:
         wert = None
     # end if
@@ -1435,6 +1525,7 @@ def print_python_is_32_or_64_bit():
 # testen mit main
 ###########################################################################
 if __name__ == '__main__':
+    
     wert = numeric_string_to_float("154.372,55",delim=",",thousandsign=".")
     (okay,value) = type_proof_isin("DE0007030009")
     (okay,value) = type_proof_isin("EU000A1HBXS7")
