@@ -422,6 +422,18 @@ class KontoDataSet:
         return (new_data_set_flag, self.status, self.errtext)
     
     # enddef
+    def update_isin_find(self):
+        
+        index_id = self.KONTO_DATA_INDEX_LIST.index(self.KONTO_DATA_INDEX_ID)
+        
+        for i,data_set in enumerate(self.data_set_llist):
+            (data_set,change_flag) = self.update_isin_data_set_list(data_set)
+            if change_flag:
+                self.data_set_llist[i] = data_set
+                self.new_read_id_list.append(data_set[index_id])
+            # end if
+            
+        # end ofr
     def get_data_set_dict_list(self):
         '''
          konto_data_set_dict =
@@ -512,7 +524,7 @@ class KontoDataSet:
         
         index_liste = list(self.KONTO_DATA_EXTERN_NAME_DICT.keys())
         
-        wert_changed = False
+        changed = False
         for (irow, icol) in data_changed_pos_list:
             
             index_data_set = index_liste[icol]
@@ -525,15 +537,20 @@ class KontoDataSet:
                     return
                 # end if
                 self.data_set_llist[istart + irow][index_data_set] = wert
-                if index_data_set == self.KONTO_DATA_INDEX_WERT:
-                    wert_changed = True
+                # if index_data_set == self.KONTO_DATA_INDEX_WERT:
+                changed = True
                 # end if
             else:
                 self.infotext = f"Der Wert von {self.KONTO_DATA_EXTERN_NAME_DICT[index_data_set]} mit dem Wert {new_data_llist[irow][icol]} darf nicht verändert werden !!!!!!!"
             # end if
         # end for
         
-        if wert_changed:
+
+        
+        if changed:
+            # sort
+            self.sort_data_set_llist()
+            # recalc
             self.update_sumwert_in_lliste(istart)
         # end if
     
@@ -834,43 +851,18 @@ class KontoDataSet:
                 (data_dict[self.KONTO_DATA_INDEX_BUCHTYPE] == self.KONTO_BUCHTYPE_INDEX_WP_VERKAUF) or \
                 (data_dict[self.KONTO_DATA_INDEX_BUCHTYPE] == self.KONTO_BUCHTYPE_INDEX_WP_KOSTEN) or \
                 (data_dict[self.KONTO_DATA_INDEX_BUCHTYPE] == self.KONTO_BUCHTYPE_INDEX_WP_EINNAHMEN):
-                
-                # if isin is explicit set use proofed isin
                 if self.KONTO_DATA_INDEX_ISIN in data_dict.keys():
-                    (okay, isin) = htype.type_proof_isin(data_dict[self.KONTO_DATA_INDEX_ISIN])
+                    isin_in = data_dict[self.KONTO_DATA_INDEX_ISIN]
                 else:
-                    okay = hdef.NOT_OKAY
+                    isin_in = None
+                # end if
+                if self.KONTO_DATA_INDEX_COMMENT in data_dict.keys():
+                    comment = data_dict[self.KONTO_DATA_INDEX_COMMENT]
+                else:
+                    comment = ""
                 # end if
                 
-                # if not search isin from comment
-                if (okay != hdef.OKAY) and (self.KONTO_DATA_INDEX_COMMENT in data_dict.keys()):
-                    (okay, isin) = htype.type_proof_isin(data_dict[self.KONTO_DATA_INDEX_COMMENT])
-                # end if
-                
-                #if not search wkn from comment
-                if (okay != hdef.OKAY) and (self.KONTO_DATA_INDEX_COMMENT in data_dict.keys()):
-                    (okay, wkn) = htype.type_proof_wkn(data_dict[self.KONTO_DATA_INDEX_COMMENT])
-                # end if
-                
-                # search for special
-                if okay != hdef.OKAY:
-                    if self.KONTO_DATA_INDEX_COMMENT in data_dict.keys():
-                        index = hstr.such(data_dict[self.KONTO_DATA_INDEX_COMMENT],"XETRA-GOLD")
-                        if index >= 0:
-                            isin = "DE000A0S9GB0"
-                            okay = hdef.OKAY
-                        # end if
-                    # end if
-                else: # found wkn
-                    print(f"Start getting isin from wkn: {wkn} ")
-                    (okay,isin) = self.wpfunc.get_isin_from_wkn(wkn)
-                    print(f"End getting isin from wkn: {wkn}, isin = {isin} ")
-                # end if
-                
-                
-                if (okay != hdef.OKAY):
-                    isin = "isinnotfound"
-                # end if
+                isin = self.search_isin(isin_in,comment)
             else:
                 isin = ""
             # end if
@@ -895,6 +887,112 @@ class KontoDataSet:
         # endfor
         return new_data_dict_list
     # end def
+    def update_isin_data_set_list(self,data_set):
+        '''
+        
+        :param data_set:
+        :return: (data_set, change_flag) = self.update_isin_data_set_list(data_set)
+        '''
+    
+        change_flag = False
+        
+        index_buch_type = self.KONTO_DATA_INDEX_LIST.index(self.KONTO_DATA_INDEX_BUCHTYPE)
+        index_isin = self.KONTO_DATA_INDEX_LIST.index(self.KONTO_DATA_INDEX_ISIN)
+        index_comment = self.KONTO_DATA_INDEX_LIST.index(self.KONTO_DATA_INDEX_COMMENT)
+
+        if (data_set[index_buch_type] == self.KONTO_BUCHTYPE_INDEX_WP_KAUF) or \
+            (data_set[index_buch_type] == self.KONTO_BUCHTYPE_INDEX_WP_VERKAUF) or \
+            (data_set[index_buch_type] == self.KONTO_BUCHTYPE_INDEX_WP_KOSTEN) or \
+            (data_set[index_buch_type] == self.KONTO_BUCHTYPE_INDEX_WP_EINNAHMEN):
+        
+            isin_in = data_set[index_isin]
+            
+            if (len(isin_in) == 0) or (isin_in == "isinnotfound"):
+                isin_in = None
+                
+            comment = data_set[index_comment]
+        
+            isin = self.search_isin(isin_in, comment)
+        else:
+            isin = ""
+        # endif
+        
+        if( isin != data_set[index_isin]):
+            data_set[index_isin] = isin
+            change_flag = True
+        # end if
+    
+        return (data_set, change_flag)
+    # end def
+    def search_isin(self,isin_in, comment):
+        '''
+        
+        :param isin_in:
+        :param comment:
+        :return: isin = self.search_isin(isin_in, comment)
+        '''
+    
+        # if isin is explicit set use proofed isin
+        if isin_in is not None:
+            (okay, isin) = htype.type_proof_isin(isin_in)
+        else:
+            okay = hdef.NOT_OKAY
+        # end if
+    
+        # if not search isin from comment
+        if (okay != hdef.OKAY) and (len(comment) > 0):
+            (okay, isin) = htype.type_proof_isin(comment)
+        # end if
+    
+        # if not search wkn from comment
+        if (okay != hdef.OKAY) and (len(comment) > 0):
+            (okay, isin) = self.search_wkn_from_comment(comment)
+        # end if
+    
+        if (okay != hdef.OKAY):
+            isin = "isinnotfound"
+        # end if
+        
+        return isin
+    
+    def search_wkn_from_comment(self,comment):
+        '''
+        
+        :param comment:
+        :return: (okay, wkn,isin) = self.search_wkn_from_comment(comment)
+        '''
+        
+        isin = ""
+        
+        (okay, wkn) = htype.type_proof_wkn(comment)
+        
+        # search for special
+        if okay != hdef.OKAY:
+                index = hstr.such(comment, "XETRA-GOLD")
+                if index >= 0:
+                    isin = "DE000A0S9GB0"
+                    wkn  = "A0S9GB"
+                    okay = hdef.OKAY
+                else:
+                    isin = ""
+                    wkn = ""
+                    okay = hdef.NOT_OKAY
+                # end if
+            # end if
+        else:
+            print(f"Start getting isin from wkn: {wkn} ")
+            (okay, isin) = self.wpfunc.get_isin_from_wkn(wkn)
+            print(f"End getting isin from wkn: {wkn}, isin = {isin} ")
+        # end if
+        
+        # search wpname in comment
+        if okay != hdef.OKAY:
+            (okay,isin) = self.wpfunc.find_wpname_in_comment_get_isin(comment)
+        # end if
+        
+        return (okay,isin)
+    # end def
+    
     def add_new_data_dict(self, new_data_dict_list):
         '''
         

@@ -27,6 +27,7 @@ class WPData:
         self.ddict["store_path"] = store_path
         self.ddict["pre_file_name"] = "wp_data_"
         self.ddict["wkn_isin_filename"] = "wkn_isin_dict"
+        self.ddict["wpname_isin_filename"] = "wpname_isin_dict"
         self.ddict["use_json"] = use_json # 0: don't 1: write, 2: read
         self.ddict["isin_input_is_list"] = False
         self.ddict["isin_list"] = []
@@ -89,6 +90,62 @@ class WPData:
             isin = ""
         # end if
         return (self.status,isin)
+    # end def
+    def get_isin_from_wpname(self, wpname):
+        '''
+
+        :param wpname:
+        :return:
+        '''
+        (self.status, self.errtext, isin) = wp_wkn.wp_search_wpname(wpname, self.ddict)
+        
+        if self.status != hdef.OKAY:
+            print(f"get_isin_from_wpname not working errtext: {self.errtext}")
+            isin = ""
+        # end if
+        return (self.status, isin)
+    
+    def find_wpname_in_comment_get_isin(self,comment):
+        '''
+        
+        :param comment:
+        :return:
+        '''
+        
+        (self.status, self.errtext, isin) = wp_wkn.wp_search_wpname_in_comment(comment, self.ddict)
+
+        if self.status != hdef.OKAY:
+            print(f"find_wpname_in_comment_get_isin not working errtext: {self.errtext}")
+        # end if
+        return (self.status,isin)
+    # end def
+    def set_wkn_isin(self, wkn, isin):
+        '''
+
+        :param wpname:
+        :return:
+        '''
+        (self.status, self.errtext) = wp_wkn.wp_add_wkn_isin(wkn, isin, self.ddict)
+        
+        if self.status != hdef.OKAY:
+            print(f"set_wkn_isin not working errtext: {self.errtext}")
+        # end if
+        return self.status
+    
+    # end def
+    def set_wpname_isin(self, wpname, isin):
+        '''
+
+        :param wpname:
+        :return:
+        '''
+        (self.status, self.errtext) = wp_wkn.wp_add_wpname_isin(wpname, isin, self.ddict)
+        
+        if self.status != hdef.OKAY:
+            print(f"set_wpname_isin not working errtext: {self.errtext}")
+        # end if
+        return self.status
+    
     # end def
     def check_store_path(self):
         '''

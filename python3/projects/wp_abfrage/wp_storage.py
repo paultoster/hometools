@@ -250,62 +250,62 @@ def save_json(ddict,file_name):
     # end try
     return (status,errtext)
 
-def read_wkn_isin_file(ddict):
+def read_dict_file(filebodyname,ddict):
     '''
-    wkn_isin_dict[wkn] = isin
+    dict_dict[wkn] = isin
     :param ddict:
-    :return: wkn_isin_dict = read_wkn_isin_file(ddict)
+    :return: dict_dict = read_dict_file(ddict)
     '''
     if ddict["use_json"] == 2:
-        file_name = build_file_name_json(ddict["wkn_isin_filename"],ddict)
+        file_name = build_file_name_json(filebodyname,ddict)
     else:
-        file_name = build_file_name_pickle(ddict["wkn_isin_filename"],ddict)
+        file_name = build_file_name_pickle(filebodyname,ddict)
     # end if
     
     if not os.path.isfile(file_name):
-        wkn_isin_dict = {}
+        dict_dict = {}
     else: # read
         if ddict["use_json"] == 2: # json
-            (status, errtext, wkn_isin_dict) = read_json(file_name)
+            (status, errtext, dict_dict) = read_json(file_name)
             if status != hdef.OKAY:
-                raise Exception(f"read_wkn_isin_file: Problems reading {file_name} errtext: {errtext}")
+                raise Exception(f"read_dict_file: Problems reading {file_name} errtext: {errtext}")
             # end if
         else:
-            (status, errtext, wkn_isin_dict) = read_pickle(file_name)
+            (status, errtext, dict_dict) = read_pickle(file_name)
             if status != hdef.OKAY:
-                raise Exception(f"read_wkn_isin_file: Problems reading {file_name} errtext: {errtext}")
+                raise Exception(f"read_dict_file: Problems reading {file_name} errtext: {errtext}")
             # end if
         #end if
     # end if
-    return wkn_isin_dict
+    return dict_dict
 # end if
-def save_wkn_isin_file_json(wkn_isin_dict,ddict):
+def save_dict_file_json(dict_dict,filebodyname,ddict):
     '''
     
-    :param wkn_isin_dict:
+    :param dict_dict:
     :param ddict:
     :return:
     '''
-    file_name = build_file_name_json(ddict["wkn_isin_filename"], ddict)
+    file_name = build_file_name_json(filebodyname, ddict)
 
-    (status, errtext) = save_json(wkn_isin_dict,file_name)
+    (status, errtext) = save_json(dict_dict,file_name)
     if status != hdef.OKAY:
-        raise Exception(f"save_wkn_isin_file_json: Problems saving {file_name} errtext: {errtext}")
+        raise Exception(f"save_dict_file_json: Problems saving {file_name} errtext: {errtext}")
     # end if
     return
 # end def
-def save_wkn_isin_file_pickle(wkn_isin_dict, ddict):
+def save_dict_file_pickle(dict_dict, filebodyname, ddict):
     '''
 
-    :param wkn_isin_dict:
+    :param dict_dict:
     :param ddict:
     :return:
     '''
-    file_name = build_file_name_pickle(ddict["wkn_isin_filename"], ddict)
+    file_name = build_file_name_pickle(filebodyname, ddict)
     
-    (status, errtext) = save_pickle(wkn_isin_dict, file_name)
+    (status, errtext) = save_pickle(dict_dict, file_name)
     if status != hdef.OKAY:
-        raise Exception(f"save_wkn_isin_file_pickle: Problems saving {file_name} errtext: {errtext}")
+        raise Exception(f"save_dict_file_pickle: Problems saving {file_name} errtext: {errtext}")
     # end if
     return
 # end def

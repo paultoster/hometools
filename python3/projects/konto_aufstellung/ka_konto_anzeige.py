@@ -17,6 +17,7 @@ if (tools_path not in sys.path):
 import hfkt_def as hdef
 import hfkt_date_time as hdate
 import hfkt_str as hstr
+import hfkt_type as htype
 
 import ka_gui
 
@@ -77,14 +78,16 @@ def anzeige(rd,konto_dict,konto_obj):
     '''
     
     status = hdef.OKAY
-    abfrage_liste = ["vor","zurück","ende", "update edit", "edit","add", "delete"]
+    abfrage_liste = ["vor","zurück","ende", "update(edit)","update(isin)", "edit","edit(isin)","add", "delete"]
     i_vor = 0
     i_back = 1
     i_end = 2
     i_update = 3
-    i_edit = 4
-    i_add = 5
-    i_delete = 6
+    i_update_isin = 4
+    i_edit = 5
+    i_edit_isin = 6
+    i_add = 7
+    i_delete = 8
     
     runflag = True
     istart  = 1000000
@@ -158,9 +161,23 @@ def anzeige(rd,konto_dict,konto_obj):
 
             # lösche die Änderungs-Liste
             konto_obj.delete_new_data_list()
-            runflag = False
-    
+            runflag = True
+        
+        
+        # Updaten isin
+        # ----------------------------
+        elif index_abfrage == i_update_isin:
+            
+            konto_obj.update_isin_find()
+            
+            if konto_obj.status != hdef.OKAY:
+                rd.log.write_err("konto_anzeige update isin " + konto_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
+                return (status, konto_dict, konto_obj)
+            
+            runflag = True
+            
         elif index_abfrage == i_edit:
+            
             if (irow >= 0):
                 (data_set, header_liste,buchungs_type_list, buchtype_index_in_header_liste) = konto_obj.get_edit_data(irow)
             else:
@@ -186,12 +203,111 @@ def anzeige(rd,konto_dict,konto_obj):
                 if status != hdef.OKAY:
                     rd.log.write_err("konto__anzeige edit " + errtext, screen=rd.par.LOG_SCREEN_OUT)
                     return (status, konto_dict,konto_obj)
-                elif not new_data_set_flag:
-                    runflag = False
                 # endif
             # endif
             dir = 0
-        
+            runflag = True
+        elif index_abfrage == i_edit_isin:
+            
+            if (irow >= 0):
+                (data_set, header_liste, buchungs_type_list, buchtype_index_in_header_liste) = konto_obj.get_edit_data(
+                    irow)
+            else:
+                rd.log.write_err("konto__anzeige edit: irow out of range ", screen=rd.par.LOG_SCREEN_OUT)
+                return (hdef.NOT_OK, konto_dict, konto_obj)
+            # endif
+            
+            # Erstelle die Eingabe liste
+            eingabeListe = []
+            vorgabeListe = []
+            
+            # wpname
+            #-----------------------------------------------------------------------------------------------------------
+            eingabeListe.append("möglich. wpname")
+            index = header_liste.index(konto_obj.KONTO_DATA_NAME_COMMENT)
+            vorgabeListe.append(data_set[index])
+
+            (okay, wkn, isin_comment) = konto_obj.search_wkn_from_comment(data_set[index])
+
+            # isin
+            #-----------------------------------------------------------------------------------------------------------
+            eingabeListe.append("möglich. isin")
+            index_isin = header_liste.index(konto_obj.KONTO_DATA_NAME_ISIN)
+            isin       = data_set[index_isin]
+            if (len(isin) == 0) and (okay == hdef.OKAY):
+                isin = isin_comment
+                (okay, isin) = htype.type_proof_isin(isin)
+            # end if
+            
+            vorgabeListe.append(isin)
+            
+            # wkn
+            #-----------------------------------------------------------------------------------------------------------
+            eingabeListe.append("möglich. wkn")
+            
+            if isin_comment == hdef.OKAY:
+                vorgabeListe.append(wkn)
+            else:
+                vorgabeListe.append("")
+                
+                
+            # Daten in den title
+            data_title = ""
+            for d in data_set:
+                (okay,dstr) = htype.type_proof_string(d)
+                if okay == hdef.OKAY:
+                    data_title += "|"+dstr
+                # end fi
+            # end for
+            
+            # Abfrage
+            #-----------------------------------------------------------------------------------------------------------
+            ergebnisListe = ka_gui.konto_data_set_eingabe(eingabeListe, vorgabeListe
+                                                          ,title=f"{data_title} wpnname,isin und wkn ausfüllen (wpnname,isin evt. leer, kein EIntrag)")
+
+            # Daten übernehmen
+            #-----------------------------------------------------------------------------------------------------------
+            flag = False
+            if len(ergebnisListe):
+                
+                status = hdef.OKAY
+                # wpname
+                if( len(ergebnisListe[0]) and len(ergebnisListe[1]) ):
+                    status = rd.wpfunc.set_wpname_isin(ergebnisListe[0],ergebnisListe[1])
+                # end if
+                
+                # isin
+                if( (status == hdef.OKAY) and len(ergebnisListe[1]) and (data_set[index_isin] != ergebnisListe[1])):
+                    flag = True
+                    data_set[index_isin] = ergebnisListe[1]
+                # end if
+                
+                # wkn
+                if (status == hdef.OKAY) and len(ergebnisListe[2]):
+                    if len(data_set[index_isin]) and (data_set[index_isin] != 'isinnotfound'):
+                        status = rd.wpfunc.set_wkn_isin(ergebnisListe[2], data_set[index_isin])
+                        if status != hdef.OKAY:
+                            flag = False
+                        # end if
+                    else:
+                        (okay, isin) = rd.wpfunc.get_isin_from_wkn(ergebnisListe[2])
+                        if okay == hdef.OKAY:
+                            data_set[index_isin] = isin
+                        # end if
+                    # end if
+                # end if
+                
+            # update dateset
+            if flag:
+                (new_data_set_flag, status, errtext) = konto_obj.set_data_set_extern_liste(data_set, irow)
+                
+                if status != hdef.OKAY:
+                    rd.log.write_err("konto__anzeige edit isin" + errtext, screen=rd.par.LOG_SCREEN_OUT)
+                    return (status, konto_dict, konto_obj)
+                # endif
+            # endif
+            dir = 0
+            runflag = True
         elif index_abfrage == i_add :
             
             (header_liste, buchungs_type_list,buchtype_index_in_header_liste) = konto_obj.get_data_to_add_lists()
@@ -213,12 +329,10 @@ def anzeige(rd,konto_dict,konto_obj):
                 if status != hdef.OKAY:
                     rd.log.write_err("konto__anzeige add "+errtext, screen=rd.par.LOG_SCREEN_OUT)
                     return (status, konto_dict,konto_obj)
-                elif not new_data_set_flag:
-                    runflag = False
                 # endif
             # endif
             dir = 0
-            
+            runflag = True
         elif( index_abfrage == i_delete ):
             
             if( irow >= 0 ):
@@ -234,7 +348,7 @@ def anzeige(rd,konto_dict,konto_obj):
             runflag = True
             dir = 0
         else:
-            runflag = False
+            runflag = True
     # end while
     
     return (status, konto_dict,konto_obj)

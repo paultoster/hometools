@@ -74,7 +74,7 @@ def konto_abfrage( header_liste, data_llist, abfrage_liste,color_list):
     return (d_new, index_abfrage, irow,data_changed_pos_list)
 
 # edn def
-def konto_data_set_eingabe(eingabe_liste,data_set=None):
+def konto_data_set_eingabe(eingabe_liste,data_set=None,title=None):
     '''
     
     
@@ -82,10 +82,16 @@ def konto_data_set_eingabe(eingabe_liste,data_set=None):
     :param buchungs_type_list:
     :return: new_data_list = ka_gui.konto_data_set_eingabe(header_liste,buchungs_type_list)
     '''
+    
+
     if data_set is None:
-        new_data_list = sgui.abfrage_n_eingabezeilen(liste=eingabe_liste,title="Eine Kontobewegung eingeben")
+        if title is None:
+            title = "Eine Kontobewegung eingeben"
+        new_data_list = sgui.abfrage_n_eingabezeilen(liste=eingabe_liste,title=title)
     else:
-        new_data_list = sgui.abfrage_n_eingabezeilen(liste=eingabe_liste,vorgabe_liste=data_set, title="Eine Kontobewegung eingeben")
+        if title is None:
+            title = "Eine Kontobewegung eingeben"
+        new_data_list = sgui.abfrage_n_eingabezeilen(liste=eingabe_liste,vorgabe_liste=data_set, title=title)
     
     return new_data_list
 # end if

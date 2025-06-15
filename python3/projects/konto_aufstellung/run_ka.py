@@ -40,7 +40,7 @@ class RootData:
     log: hlog.log = field(default_factory=hlog.log)
     ini: ka_ini_file.ini = field(default_factory=ka_ini_file.ini)
     data: dict = field(default_factory=dict)
-    wp: wp_abfrage.wp_base.WPData = field(default_factory=wp_abfrage.wp_base.WPData)
+    wpfunc: wp_abfrage.wp_base.WPData = field(default_factory=wp_abfrage.wp_base.WPData)
 
 
 def konto_auswerten():
