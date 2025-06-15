@@ -1,5 +1,5 @@
 import os, sys
-
+import copy
 import hfkt_str
 
 tools_path = os.getcwd() + "\\.."
@@ -10,6 +10,7 @@ if (tools_path not in sys.path):
 
 import hfkt_def as hdef
 import hfkt_io as hio
+import hfkt_list as hlist
 
 class KontoCsvRead:
     def __init__(self):
@@ -17,7 +18,7 @@ class KontoCsvRead:
         self.status = hdef.OK
         self.errtext = ""
         self.CSV_TRENN_ZEICHEN = ";"
-        self.CSV_DATA_NAME_DICT  = {}
+        self.CSV_DATA_NAME_LIST  = []
         self.CSV_DATA_IDENT_LIST = []
         self.CSV_DATA_TYPE_LIST  = []
         self.filename           = ""
@@ -26,8 +27,8 @@ class KontoCsvRead:
         self.CSV_TRENN_ZEICHEN = wert_trennzeichen
     # end def
     def set_csv_header_name(self,dat_set_index: int,csv_name: str,csv_type: str | list):
-        self.CSV_DATA_NAME_DICT[dat_set_index] = csv_name
         self.CSV_DATA_IDENT_LIST.append(dat_set_index)
+        self.CSV_DATA_NAME_LIST.append(csv_name)
         self.CSV_DATA_TYPE_LIST.append(csv_type)
     # end def
     
@@ -50,6 +51,8 @@ class KontoCsvRead:
             return (self.status,self.errtext,[],[],[])
         # end if
         
+        csv_lliste = self.fix_length_for_missing_items(csv_lliste)
+        
         # Suche in csv-Daten header line
         # ==============================
         (index_start, index_dict) = self.search_header_line(csv_lliste)
@@ -61,13 +64,40 @@ class KontoCsvRead:
         new_data_matrix = self.get_data_from_csv_lliste(csv_lliste, index_start, index_dict)
         if self.status != hdef.OKAY:
             return (self.status,self.errtext,[],[],[])
+        # end if
         
-        return (self.status,self.errtext,new_data_matrix,self.CSV_DATA_IDENT_LIST,self.CSV_DATA_TYPE_LIST)
+        # merge incase of double comments
+        (merged_new_data_matrix, new_data_idenx_list, new_data_type_list) = self.proof_merge_double_items(new_data_matrix)
+        
+        return (self.status,self.errtext,merged_new_data_matrix,new_data_idenx_list,new_data_type_list)
     # end def
     
     # ----------------------------------------------------------------------------------------
     # Internen Funktionen
     # ----------------------------------------------------------------------------------------
+    def fix_length_for_missing_items(self,csv_lliste):
+        '''
+        
+        :param csv_lliste:
+        :return: csv_lliste = self.fix_length_for_missing_items(csv_lliste)
+        '''
+        n = 0
+        for csv_liste in csv_lliste:
+            n = max(n,len(csv_liste))
+        # end for
+        
+        for i,csv_liste in enumerate(csv_lliste):
+            flag = False
+            for j in range(len(csv_liste),n):
+                csv_liste.append("")
+                flag = True
+            # end for
+            if flag:
+                csv_lliste[i] = csv_liste
+            # end if
+        # end for
+
+        return csv_lliste
     def search_header_line(self, csv_lliste):
         '''
 
@@ -77,7 +107,7 @@ class KontoCsvRead:
         :out index_dict: dictionary with key=index of konto_data referring to csv_headername, value: index of column in csv_list
         '''
         
-        nheader = len(self.CSV_DATA_NAME_DICT.keys())
+        nheader = len(self.CSV_DATA_IDENT_LIST)
         if nheader == 0:
             raise Exception(
                 f"search_header_line: self.KONTO_DATA_HEADER_CSV_NAME_DICT is empty must be set during setup Parameter in KontoDataSetParameter() ")
@@ -93,15 +123,15 @@ class KontoCsvRead:
             # for each new line in csv_lliste reset index_liste
             index_dict = {}
             
-            for j, key in enumerate(self.CSV_DATA_NAME_DICT.keys()):
+            for j in range(len(self.CSV_DATA_IDENT_LIST)):
                 
-                index = self.search_header_line_find_name_in_list(self.CSV_DATA_NAME_DICT[key],csv_liste)
+                index = self.search_header_line_find_name_in_list(self.CSV_DATA_NAME_LIST[j],csv_liste)
                 if isinstance(index,int):
                     if (j == 0):
                         header_found_liste = []
                     # end if
-                    index_dict[key] = index
-                    header_found_liste.append(self.CSV_DATA_NAME_DICT[key])
+                    index_dict[j] = index
+                    header_found_liste.append(self.CSV_DATA_NAME_LIST[j])
                 # end if
             # end for
             if len(index_dict.keys()) == nheader:
@@ -151,20 +181,20 @@ class KontoCsvRead:
     # end def
     def search_header_line_get_missing_item(self,header_found_liste):
         '''
-        searches for missing item in CSV_DATA_NAME_DICT
+        searches for missing item in CSV_DATA_NAME_LIST
         :param header_found_liste:
         :return: item = self.search_header_line_get_missing_item(header_found_liste)
         '''
         item = "not found!!"
-        for key in self.CSV_DATA_NAME_DICT.keys():
-            index = self.search_header_line_find_name_in_list(self.CSV_DATA_NAME_DICT[key] ,header_found_liste)
+        for i in range(len(self.CSV_DATA_NAME_LIST)):
+            index = self.search_header_line_find_name_in_list(self.CSV_DATA_NAME_LIST[i] ,header_found_liste)
             if not isinstance(index,int):
-                if isinstance(self.CSV_DATA_NAME_DICT[key],str):
-                    item = self.CSV_DATA_NAME_DICT[key]
+                if isinstance(self.CSV_DATA_NAME_LIST[i],str):
+                    item = self.CSV_DATA_NAME_LIST[i]
                     break
-                elif isinstance(self.CSV_DATA_NAME_DICT[key],list):
+                elif isinstance(self.CSV_DATA_NAME_LIST[i],list):
                     item = ""
-                    for name in self.CSV_DATA_NAME_DICT[key]:
+                    for name in self.CSV_DATA_NAME_LIST[i]:
                         item += name + "/"
                     # end for
                     break;
@@ -180,7 +210,7 @@ class KontoCsvRead:
         :param index_start:
         :param index_dict:
         :return: new_data_matrix = self.get_data_from_csv_lliste(csv_lliste,index_start, index_dict)
-        :out new_data_matrix: matrix with sorted data-inputs from csv-file in order of self.CSV_DATA_NAME_DICT
+        :out new_data_matrix: matrix with sorted data-inputs from csv-file in order of self.CSV_DATA_NAME_LIST
         '''
         new_data_matrix = []
         n = len(csv_lliste)
@@ -190,8 +220,8 @@ class KontoCsvRead:
             nitems = len(csv_data_liste)
             new_data_list = []
             
-            for konto_dat_set_index in self.CSV_DATA_NAME_DICT.keys():
-                i_csv = index_dict[konto_dat_set_index]
+            for i in range(len(self.CSV_DATA_IDENT_LIST)):
+                i_csv = index_dict[i]
                 if len(csv_data_liste) < (i_csv+1):
                     print("halt")
                 new_data_list.append(csv_data_liste[i_csv])
@@ -201,3 +231,43 @@ class KontoCsvRead:
         
         return new_data_matrix
     # end def
+    def proof_merge_double_items(self,new_data_matrix):
+        '''
+        
+        :param new_data_matrix:
+        :return: (merged_new_data_matrix, new_data_idenx_list, new_data_type_list) = self.proof_merge_double_items(new_data_matrix)
+        '''
+        
+        csv_data_iden_list = copy.copy(self.CSV_DATA_IDENT_LIST)
+        csv_data_type_list = copy.copy(self.CSV_DATA_TYPE_LIST)
+        lliste = hlist.search_double_value_in_list_return_indexllist(self.CSV_DATA_IDENT_LIST)
+        
+        if len(lliste) > 0:
+            elim_index_liste = []
+            # proof i string typ
+            for liste in lliste:
+                
+                if self.CSV_DATA_TYPE_LIST[liste[0]] != 'str':
+                    raise Exception(f" zusammen führen von doppelten idents {self.CSV_DATA_IDENT_LIST[liste[0]]} nicht möglixh da kein 'str' type={self.CSV_DATA_TYPE_LIST[liste[0]]}")
+                # end if
+                for i,data_set_list in enumerate(new_data_matrix):
+                    for j in range(1,len(liste)):
+                        data_set_list[liste[0]] += " "+data_set_list[liste[j]]
+                        elim_index_liste.append(liste[j])
+                    # end for
+                    new_data_matrix[i]  = data_set_list
+                # end for
+            # end for
+            
+            if len(elim_index_liste):
+                elim_index_liste.sort()
+                elim_index_liste = list(set(elim_index_liste))
+                csv_data_iden_list = hlist.erase_from_list(csv_data_iden_list,elim_index_liste)
+                csv_data_type_list = hlist.erase_from_list(csv_data_type_list,elim_index_liste)
+                new_data_matrix    = hlist.erase_from_llist(new_data_matrix,elim_index_liste)
+            # end if
+        # end if
+        
+        return (new_data_matrix, csv_data_iden_list, csv_data_type_list)
+    # end def
+    

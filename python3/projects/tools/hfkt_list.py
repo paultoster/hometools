@@ -29,7 +29,8 @@
 
  list_out = erase_from_list(list_in,index/index_list) löscht index oder indexliste von list_in
 
-
+ llist = erase_from_llist(llist,index_list)
+ 
  list_moved =  list_move_items(list_in,index_liste,index_end = -1):
                 list_move_items(list_in,[0,1,2,10,12])    moves index 0,1,2,10,12 to new list
                 list_move_items(list_in,1,12)             moves index 1,2,... 10,11,12 to new list
@@ -51,6 +52,16 @@ liste = add_constant(liste, value)
 lliste = [[0,10,'a',2.],[0,5,'b',2.],[0,5,'bbbbb',3.],[0,15,'rrr',2.]]
 
 lliste = sort_list_of_list(lliste,index,aufsteigend=1) sortiere nach dem index lliste[i][index]
+
+index_liste = search_value_in_list_return_indexlist(liste,value)
+
+newlist = sort_list_of_dict(lliste, keyname, aufsteigend=1)
+
+keylist = find_keys_of_dict_value_as_list(ddict,value)
+
+value = find_first_key_dict_value(ddict,value) if not in value = None
+
+
 '''
 ###################################################################################
 # Fileoperating
@@ -1269,6 +1280,20 @@ def erase_from_list(list_in,index_list):
 
   return list_in
 
+def erase_from_llist(llist,index_list):
+    '''
+    löscht von eine doppellist
+    :param llist_in:
+    :param index_list:
+    :return: llist = erase_from_llist(llist,index_list)
+    '''
+    
+    for i,liste in enumerate(llist):
+        llist[i] = erase_from_list(liste, index_list)
+    # end for
+    return llist
+# end def
+
 def list_move_items(list_in,index_liste,index_end = -1):
   """
     list_moved = list_move_items(list_in,[0,1,2,10,12])    moves index 0,1,2,10,12 to new list
@@ -1359,7 +1384,29 @@ def sort_list_of_list(lliste,index,aufsteigend=1):
     
     return new_llist
 
+def search_double_value_in_list_return_indexlist(liste,value):
+    '''
+    
+    :param liste:
+    :param value:
+    :return: index_liste = search_value_in_list_retunr_indexlist(liste,value)
+    '''
+    return [i for i, x in enumerate(liste) if x == value]
+# end def
 
+def search_double_value_in_list_return_indexllist(liste):
+    indexllist = []
+    set_liste = set(liste)
+    if( len(set_liste) != len(liste) ):
+        for val in set_liste:
+            liste1 = search_double_value_in_list_return_indexlist(liste,val)
+            if len(liste1) > 1:
+                indexllist.append(liste1)
+            # end if
+        # end for
+    # end if
+    return indexllist
+# end def
 def sort_list_of_dict(lliste, keyname, aufsteigend=1):
     '''
     z.B. lliste = [[0,10,'a',2.],[0,5,'b',2.],[0,5,'bbbbb',3.],[0,15,'rrr',2.]]
