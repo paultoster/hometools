@@ -13,32 +13,34 @@ if (tools_path not in sys.path):
 
 import hfkt_def as hdef
 import hfkt_type as htype
-import ka_data_class_defs
+
+import ka_depot_wp_data_set_class as wpclass
+
 #
 # 1. Parameter dafür
 #-------------------
-class DepotDataSet:
-    
+class DepotParam:
+    ISIN: str = "isin"
+
     # BUchungs Typ
     DEPOT_BUCHTYPE_INDEX_UNBEKANNT: int = 0
     DEPOT_BUCHTYPE_INDEX_WP_KAUF: int = 1
     DEPOT_BUCHTYPE_INDEX_WP_VERKAUF: int = 2
     DEPOT_BUCHTYPE_INDEX_WP_KOSTEN: int = 3
     DEPOT_BUCHTYPE_INDEX_WP_EINNAHMEN: int = 4
-    
+
     DEPOT_DATA_BUCHTYPE_DICT = {DEPOT_BUCHTYPE_INDEX_UNBEKANNT: "unbekannt"
         , DEPOT_BUCHTYPE_INDEX_WP_KAUF: "wp_kauf"
         , DEPOT_BUCHTYPE_INDEX_WP_VERKAUF: "wp_verkauf"
         , DEPOT_BUCHTYPE_INDEX_WP_KOSTEN: "wp_kosten"
         , DEPOT_BUCHTYPE_INDEX_WP_EINNAHMEN: "wp_einnahmen"}
-    
+
     DEPOT_BUCHTYPE_TEXT_LIST = []
     DEPOT_BUCHTYPE_INDEX_LIST = []
     for key in DEPOT_DATA_BUCHTYPE_DICT.keys():
         DEPOT_BUCHTYPE_TEXT_LIST.append(DEPOT_DATA_BUCHTYPE_DICT[key])
         DEPOT_BUCHTYPE_INDEX_LIST.append(key)
     # end for
-    
     # Indizes in erinem data_set
     DEPOT_DATA_INDEX_KONTO_ID: int = 0
     DEPOT_DATA_INDEX_BUCHDATUM: int = 1
@@ -96,64 +98,89 @@ class DepotDataSet:
         # DEPOT_DATA_INDEX_LIST.append(liste[0])
     
     # end for
-    
-    
-    OKAY = hdef.OK
-    NOT_OKAY = hdef.NOT_OK
-    
-    
-    def __init__(self,depot_name):
+
+
+class DepotDataSet:
+    def __init__(self,depot_name,isin_liste):
     
         self.depot_name = depot_name
+        self.par = DepotParam()
+        
         self.DEPOT_DATA_TO_SHOW_DICT = {}
     
         self.status = hdef.OK
         self.errtext = ""
         self.infotext = ""
-        self.depot_start_datum: int = 0
-        self.DECIMAL_TRENN_STR: str = ","
-        self.TAUSEND_TRENN_STR: str = "."
-        self.isin_list = []
-        self.isin_data_obj_list  = []
-        self.n_isin_list = 0
-        self.konto_obj = None
+        
+        
+        self.wp_data_obj_dict  = {}
+        self.n_wp_data_obj     = 0
+        for isin in isin_liste:
+            self.wp_data_obj_dict[isin] = None
+            self.n_wp_data_obj += 1
     # def set_data_show_dict_list(self,dat_set_index: int):
     #     self.DEPOT_DATA_TO_SHOW_DICT[dat_set_index] = self.DEPOT_DATA_ITEM_LIST[dat_set_index]
     # # enddef
 
-    def set_stored_data(self,isin_list,depot_data_set_dict_list,depot_data_type_dict):
+    def set_stored_wp_data_set_dict(self,isin,depot_wp_name,wp_data_set_dict):
         
-        # lösche objekte, wenn vorhanden
-        if len(self.isin_data_obj_list):
-            del self.isin_data_obj_list
-            self.isin_data_obj_list = []
+        if isin not in self.wp_data_obj_dict.keys():
+            raise Exception(f"isin: {isin} ist nicht in wp_data_obj_dict")
+        elif self.wp_data_obj_dict.keys[isin] is not None:
+            raise Exception(f"set_stored_wp_data_set_dict: isin: {isin} ist doppelt")
+        else:
+            self.wp_data_obj_dict[isin] = wpclass.WpDataSet(isin,depot_wp_name,self.par)
+            if self.wp_data_obj_dict[isin].status != hdef.OKAY:
+                raise Exception(f"set_stored_wp_data_set_dict: isin: {isin} Problem Erstellen Data Klasse {self.wp_data_obj_dict[isin].errtext}")
+            self.wp_data_obj_dict[isin].set_stored_wp_data_set_dict(wp_data_set_dict)
+            if self.wp_data_obj_dict[isin].status != hdef.OKAY:
+                raise Exception(
+                    f"set_stored_wp_data_set_dict: isin: {isin} Problem Füllen Data Klasse {self.wp_data_obj_dict[isin].errtext}")
+        # end if
+    # end def
+    def get_wp_data_set_dict_to_store(self,isin):
+        '''
+        
+        :param isin:
+        :return: wp_data_set_dict = self.get_wp_data_set_dict_to_store(isin)
+        '''
+        
+        if isin not in self.wp_data_obj_dict.keys():
+            raise Exception(f"get_wp_data_set_dict_to_store: isin: {isin} ist nicht dictonary self.wp_data_obj_dict")
+        else:
+            wp_data_set_dict =  self.wp_data_obj_dict[isin].get_wp_data_set_dict_to_store()
         # end if
         
-        self.isin_list   = copy.deepcopy(isin_list)
-        self.n_isin_list = len(isin_list)
+        return wp_data_set_dict
+    def get_to_store_isin_list(self):
+        return self.wp_data_obj_dict.keys()
+    # end def
+    def get_to_store_depot_wp_name_list(self):
         
-        self.isin_data_obj_list = []
-        for isin in self.isin_list:
-            data_dict_list = self.filter_isin_data_set_dict_list(isin,depot_data_set_dict_list)
-
-            isin_obj = self.build_isin_data_obj(isin)
-            if self.status != hdef.OKAY:
-                return
-            isin_obj.set_dat_set_named_dict_list(data_dict_list,depot_data_type_dict)
-            if isin_obj.status != hdef.OKAY:
-                self.status = hdef.NOT_OKAY
-                self.errtext = isin_obj.errtext
-                return
-            self.isin_data_obj_list.append(isin_obj)
-        # end for
+        liste = []
+        for isin in self.wp_data_obj_dict.keys():
+            
+            liste.append(self.wp_data_obj_dict[isin].get_depot_wp_name())
+        
+        
+        
     # end def
-    def get_to_store_data_isin_list(self):
-        return self.isin_list
+    def get_wp_data_set_dict_to_store(self,isin):
+        '''
+        
+        :param isin:
+        :return: ddict = self.get_wp_data_set_dict_to_store(isin)
+        '''
+        
+        if isin in self.wp_data_obj_dict.keys():
+            return self.wp_data_obj_dict[isin].get_wp_data_set_dict_to_store()
+        else:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"get_wp_data_set_dict_to_store: isin = {isin} not inwp_data_obj_dict"
+            return {}
+        # end def
     # end def
-    def set_konto_obj(self,konto_obj):
-        self.konto_obj = konto_obj
-    # end def
-    def update_konto_data(self):
+    def update_from_konto_data(self,konto_obj):
         '''
         
         :return:
@@ -162,26 +189,31 @@ class DepotDataSet:
         self.errtext = ""
         self.infotext = ""
         
-        n = self.konto_obj.get_num_data()
+        n = konto_obj.get_number_of_data()
         flag = False
         new_data_dict_list = []
         for i in range(n):
-            buchtype_str = self.konto_obj.get_buchtype_str(i)
+            buchtype_str = konto_obj.get_buchtype_str(i)
             
-            if buchtype_str in self.DEPOT_DATA_BUCHTYPE_DICT.values():
-                (new_data_dict, new_type_dict) = self.get_konto_data_at_i(i,buchtype_str)
+            if buchtype_str in self.par.DEPOT_DATA_BUCHTYPE_DICT.values():
                 
-                (flag,isin_index) = self.proof_raw_dict_isin_id(new_data_dict)
+                buch_type \
+                    = self.par.DEPOT_BUCHTYPE_INDEX_LIST[
+                    self.par.DEPOT_BUCHTYPE_TEXT_LIST.index(buchtype_str)]
+                
+                (new_data_dict, new_type_dict) = self.get_konto_data_at_i(i,buch_type,konto_obj)
+                
+                (flag,isin) = self.proof_raw_dict_isin_id(new_data_dict)
                 if self.status != hdef.OKAY:
                     return
                 # end if
                 
                 if flag:
-                    self.isin_data_obj_list[isin_index].add_data_set_dict(new_data_dict,new_type_dict)
+                    self.wp_data_obj_dict[isin].add_data_set_dict_to_table(new_data_dict,new_type_dict)
                     
-                    if self.isin_data_obj_list[isin_index].status != hdef.OKAY:
+                    if self.wp_data_obj_dict[isin].status != hdef.OKAY:
                         self.status = hdef.NOT_OKAY
-                        self.errtext = self.isin_data_obj_list[isin_index].errtext
+                        self.errtext = self.wp_data_obj_dict[isin].errtext
                         return
                     # end if
                 # end if
@@ -191,30 +223,30 @@ class DepotDataSet:
         
         if not flag:
             if n == 0:
-                self.infotext = f"Im Konto: <{self.konto_obj.set_konto_name()}> sind keine Daten vorhanden"
+                self.infotext = f"Im Konto: <{konto_obj.set_konto_name()}> sind keine Daten vorhanden"
             else:
-                self.infotext = f"Vom Konto: <{self.konto_obj.set_konto_name()}> keine neuen daten eingelesen"
+                self.infotext = f"Vom Konto: <{konto_obj.set_konto_name()}> keine neuen daten eingelesen"
             # end if
         # end if
     # end if
-    def get_konto_data_at_i(self,i,buchtype_str):
+    def get_konto_data_at_i(self,i,buch_type,konto_obj):
         '''
         
         :param i:
-        :param buchtype_str:
-        :return:  (new_data_dict,new_type_dict) = self.get_konto_data_at_i(i,buchtype_str)
+        :param buch_type:
+        :return:  (new_data_dict,new_type_dict) = self.get_konto_data_at_i(i,buch_type,konto_obj)
         '''
         new_data_dict = {}
         new_type_dict = {}
-        for index in self.DEPOT_KONTO_DATA_INDEX_LIST:
+        for index in self.par.DEPOT_KONTO_DATA_INDEX_LIST:
             
             # buchtype
-            if index == self.DEPOT_DATA_INDEX_BUCHTYPE:
-                new_data_dict[index] = self.DEPOT_BUCHTYPE_INDEX_LIST[self.DEPOT_BUCHTYPE_TEXT_LIST.index(buchtype_str)]
+            if index == self.par.DEPOT_DATA_INDEX_BUCHTYPE:
+                new_data_dict[index] = buch_type
             else: # sonst
-                new_data_dict[index] = self.konto_obj.get_data_item_at_i(i,self.DEPOT_DATA_NAME_DICT[index],self.DEPOT_DATA_TYPE_DICT[index])
+                new_data_dict[index] = konto_obj.get_data_item_at_i(i,self.par.DEPOT_DATA_NAME_DICT[index],self.par.DEPOT_DATA_TYPE_DICT[index])
             # end if
-            new_type_dict[index] = self.DEPOT_DATA_TYPE_DICT[index]
+            new_type_dict[index] = self.par.DEPOT_DATA_TYPE_DICT[index]
         # end ofr
         
         return (new_data_dict,new_type_dict)
@@ -226,59 +258,35 @@ class DepotDataSet:
         :return: (flag,isin_index) = self.get_from_konto_data_raw_dict(raw_data_dict,new_type_dict)
         '''
         
-        flag = False
-        
         # proof isin
         # -----------
-        (okay, value) = htype.type_proof(new_data_dict[self.DEPOT_DATA_INDEX_ISIN]
-                                          ,self.DEPOT_DATA_TYPE_DICT[self.DEPOT_DATA_INDEX_ISIN])
+        (okay, isin) = htype.type_proof(new_data_dict[self.par.DEPOT_DATA_INDEX_ISIN]
+                                          ,self.par.DEPOT_DATA_TYPE_DICT[self.par.DEPOT_DATA_INDEX_ISIN])
         if okay != hdef.OKAY:
             self.status  = okay
-            self.errtext = f"proof_raw_dict_isin_id: isin: <{new_data_dict[self.DEPOT_DATA_INDEX_ISIN]}> has not correct type: <{self.DEPOT_DATA_TYPE_DICT[self.DEPOT_DATA_INDEX_ISIN]}> !!!"
-            return (flag,-1)
+            self.errtext = f"proof_raw_dict_isin_id: isin: <{new_data_dict[self.par.DEPOT_DATA_INDEX_ISIN]}> has not correct type: <{self.DEPOT_DATA_TYPE_DICT[self.DEPOT_DATA_INDEX_ISIN]}> !!!"
+            return (False,-1)
         # end if
         
-        # search isin in self.isin_list
-        if value not in self.isin_list:
-            # build data object for isin
-            self.isin_data_obj_list.append(self.build_isin_data_obj(value))
-            if self.status != hdef.OKAY:
-                return
-            self.isin_list.append(value)
-            self.n_isin_list += 1
-        # edn if
-        
-        # get index
-        isin_index = self.isin_list.index(value)
+        # search isin in self.wp class
+        wpobj = self.get_wp_data_obj(isin)
         
         # proof id in data object
-        new_id = new_data_dict[self.DEPOT_DATA_INDEX_KONTO_ID]
-        
-        liste = self.isin_data_obj_list[isin_index].find_in_col(new_id, self.DEPOT_DATA_TYPE_DICT[self.DEPOT_DATA_INDEX_KONTO_ID], self.DEPOT_DATA_INDEX_KONTO_ID)
-        if self.isin_data_obj_list[isin_index].status != hdef.OKAY:
-            self.status = hdef.NOT_OKAY
-            self.errtext = self.isin_data_obj_list[isin_index].errtext
-            return (flag,isin_index)
-        # end if
-        
-        # wenn liste gefüllt, dann existiert id schon
-        if len(liste) == 0:
+        if wpobj.exist_id_in_table(new_data_dict[self.par.DEPOT_DATA_INDEX_KONTO_ID]):
+            flag = False
+        else:
             flag = True
-        # end if
-        
-        return (flag,isin_index)
+            
+        return (flag,isin)
     # end def
-    def build_isin_data_obj(self,isin):
-        isin_data_obj = ka_data_class_defs.DataSet(isin)
-        for index in self.DEPOT_DATA_NAME_DICT.keys():
-            isin_data_obj.set_definition(index, self.DEPOT_DATA_NAME_DICT[index], self.DEPOT_DATA_TYPE_DICT[index])
-            if isin_data_obj.status != hdef.OKAY:
-                self.status = isin_data_obj.status
-                self.errtext = isin_data_obj.errtext
-                break
-            # end if
-        # end for
-        return isin_data_obj
+    def get_wp_data_obj(self,isin):
+        
+        if isin not in self.wp_data_obj_dict.keys():
+            depot_wp_name = self.depot_name + "_" + isin
+            self.wp_data_obj_dict[isin] = wpclass.WpDataSet(isin,depot_wp_name,self.par)
+            self.n_wp_data_obj += 1
+        return self.wp_data_obj_dict[isin]
+    # end def
     def get_data_set_dict_list(self):
         '''
         

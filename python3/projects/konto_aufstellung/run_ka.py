@@ -178,7 +178,7 @@ def rd_consistency_check(par,ini_dict,data):
     # proof id-consistency konto-pickle-file
     data[par.PROG_DATA_TYPE_NAME].idfunc.reset_consistency_check()
     for konto_name in ini_dict[par.INI_KONTO_DATA_DICT_NAMES_NAME]:
-        n = data[konto_name].obj.get_num_data()
+        n = data[konto_name].obj.get_number_of_data()
         
         for i in range(n):
             # get id

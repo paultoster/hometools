@@ -33,7 +33,7 @@ def bearbeiten(rd):
             runflag = False
         elif (index == index_read_konto):
 
-            status = ka_depot_read.konto_einlesen(rd)
+            status = ka_depot_read.depot_konto_einlesen(rd)
             runflag = False
             
         elif(index == index_anzeige):

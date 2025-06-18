@@ -24,7 +24,7 @@ import sgui
 import ka_gui
 import ka_konto_anzeige
 
-def konto_einlesen(rd):
+def depot_konto_einlesen(rd):
     """
 
     :param rd:
@@ -67,11 +67,9 @@ def konto_einlesen(rd):
         errtext = f"Von Depot Auswahl: {choice} benutztes Konto: {konto_key} ist nicht im data-dict"
         rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
         return status
-    else:
-        depot_obj.set_konto_obj(rd.data[konto_key].obj)
     # end if
     
-    depot_obj.update_konto_data()
+    depot_obj.update_from_konto_data(rd.data[konto_key].obj)
     
     if len(depot_obj.infotext):
         rd.log.write_info("konto_einlesen: " + depot_obj.infotext, screen=rd.par.LOG_SCREEN_OUT)

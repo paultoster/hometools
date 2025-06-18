@@ -45,8 +45,9 @@ def data_get(par, inidict, wpfunc):
     errtext = ""
     data = {}
     
+    #================================================================================
     # read allgeime-pickle-file
-    #--------------------------
+    #================================================================================
     for allg_name in inidict[par.INI_ALLG_DATA_DICT_NAMES_NAME]:
         
         
@@ -83,7 +84,9 @@ def data_get(par, inidict, wpfunc):
         data[allg_name] = allg_data
     # end for
     
+    #================================================================================
     # read konto-pickle-file
+    #================================================================================
     for konto_name in inidict[par.INI_KONTO_DATA_DICT_NAMES_NAME]:
         if konto_name in inidict[par.INI_DATA_PICKLE_JSONFILE_LIST]:
             use_json = inidict[par.INI_DATA_PICKLE_USE_JSON]
@@ -113,7 +116,9 @@ def data_get(par, inidict, wpfunc):
         # endif
     # endfor
     
+    #================================================================================
     #  depot-data pickle --------------------------------------------
+    #================================================================================
     for depot_name in inidict[par.INI_DEPOT_DATA_DICT_NAMES_NAME]:
         
         if depot_name in inidict[par.INI_DATA_PICKLE_JSONFILE_LIST]:
@@ -132,19 +137,41 @@ def data_get(par, inidict, wpfunc):
         
         depot_data = proof_depot_data_from_ini(depot_data, inidict[depot_name], par)
         depot_data = proof_depot_data_intern(par, depot_data, depot_name)
-        depot_data = build_depot_data_set_obj(par, depot_data, depot_name, data)
+        depot_data = build_depot_data_set_obj(par, depot_data, depot_name)
         if (depot_data.status != hdef.OK):
             status = hdef.NOT_OKAY
             errtext = depot_data.errtext
             return (status, errtext, data)
-        else:
-            data[depot_name] = copy.deepcopy(depot_data)
-            del depot_data
-        # endif
-    
+        # end if
+        
+        # load each depot_wp_data_set
+        for i,isin in enumerate(depot_data.ddict[par.DEPOT_DATA_ISIN_LIST_NAME]):
+            
+            depot_wp_name = depot_data.ddict[par.DEPOT_DATA_DEPOT_WP_LIST_NAME][i]
+            # get data set
+            depot_wp_data = ka_data_pickle.ka_data_pickle(par.DEPOT_WP_PREFIX, depot_wp_name, use_json)
+            if (depot_wp_data.status != hdef.OK):
+                status = hdef.NOT_OKAY
+                errtext = depot_wp_data.errtext
+                return (status, errtext, data)
+            # endif
+            
+            if par.DDICT_TYPE_NAME not in depot_wp_data.ddict.keys():
+                depot_wp_data.ddict[par.DDICT_TYPE_NAME] = par.DEPOT_WP_DATA_TYPE_NAME
+            
+            depot_data.obj.set_stored_wp_data_set_dict(isin, depot_wp_name, depot_wp_data.ddict)
+            
+            data[depot_wp_name] = copy.deepcopy(depot_wp_data)
+            del depot_wp_data
+        # end for
+        
+        data[depot_name] = copy.deepcopy(depot_data)
+        del depot_data
     # endfor
     
+    #================================================================================
     # iban-liste pickle --------------------------------------------
+    #================================================================================
     if inidict[par.INI_IBAN_LIST_FILE_NAME] in inidict[par.INI_DATA_PICKLE_JSONFILE_LIST]:
         use_json = inidict[par.INI_DATA_PICKLE_USE_JSON]
     else:
@@ -175,8 +202,12 @@ def data_get(par, inidict, wpfunc):
 def data_save(data,par):
     status = hdef.OKAY
     errtext = ""
-    
+
+    # first get depot wk data into data dict
     for key in data:
+        #--------------------------------------------------------------------
+        # konto data
+        #--------------------------------------------------------------------
         if data[key].ddict[par.DDICT_TYPE_NAME] == par.KONTO_DATA_TYPE_NAME:
             # get data from konto set class to save
             if par.KONTO_DATA_SET_NAME in data[key].ddict.keys():
@@ -185,15 +216,36 @@ def data_save(data,par):
             data[key].ddict[par.KONTO_DATA_SET_DICT_LIST_NAME] = data[key].obj.get_data_set_dict_list()
             data[key].ddict[par.KONTO_DATA_TYPE_DICT_NAME] = data[key].obj.get_data_type_dict()
             del data[key].obj
+        # --------------------------------------------------------------------
+        # depot data
+        # --------------------------------------------------------------------
         elif data[key].ddict[par.DDICT_TYPE_NAME] == par.DEPOT_DATA_TYPE_NAME:
-            data[key].ddict[par.DEPOT_DATA_ISIN_LIST_NAME] = data[key].obj.get_to_store_data_isin_list()
-            data[key].ddict[par.DEPOT_DATA_SET_DICT_LIST_NAME] = data[key].obj.get_data_set_dict_list()
-            data[key].ddict[par.DEPOT_DATA_TYPE_DICT_NAME] = data[key].obj.get_data_type_dict()
+            data[key].ddict[par.DEPOT_DATA_ISIN_LIST_NAME] = data[key].obj.get_to_store_isin_list()
+            data[key].ddict[par.DEPOT_DATA_DEPOT_WP_LIST_NAME] = data[key].obj.get_to_store_depot_wp_name_list()
+            
+            # --------------------------------------------------------------------
+            # einzelne wp daten  aus dem depot
+            # --------------------------------------------------------------------
+            for i, isin in data[key].ddict[par.DEPOT_DATA_ISIN_LIST_NAME]:
+                data[data[key].ddict[par.DEPOT_DATA_DEPOT_WP_LIST_NAME][i]].ddict \
+                    = data[key].obj.get_wp_data_set_dict_to_store(isin)
+                
+                if data[key].status != hdef.OKAY:
+                    raise Exception(f"ddict aus wp_data_set für isin = {isin} gibt es nicht, errtext={errtext}")
+                # end if
             del data[key].obj
+        # --------------------------------------------------------------------
+        # program data
+        # --------------------------------------------------------------------
         elif data[key].ddict[par.DDICT_TYPE_NAME] == par.PROG_DATA_TYPE_NAME:
             data[key].ddict[par.KONTO_DATA_ID_MAX_NAME] = data[key].idfunc.get_act_id()
             del data[key].idfunc
         # end if
+    # end for
+    
+    # save all data[key]ddict:
+    for key in data:
+
         data[key].save()
         
         if (data[key].status != hdef.OKAY):
@@ -652,11 +704,23 @@ def proof_depot_data_intern(par, depot_data, depot_name):
         depot_data.ddict[key] = depot_name
     # end if
     
+    # isin list name
+    key = par.DEPOT_DATA_ISIN_LIST_NAME
+    if key not in depot_data.ddict.keys():
+        depot_data.ddict[key] = []
+    # end if
+
+    # depot wp list name
+    key = par.DEPOT_DATA_DEPOT_WP_LIST_NAME
+    if key not in depot_data.ddict.keys():
+        depot_data.ddict[key] = []
+    # end if
+
     return depot_data
 
 
 # end def
-def build_depot_data_set_obj(par, depot_data, depot_name, data):
+def build_depot_data_set_obj(par, depot_data, depot_name):
     '''
 
     :param par:
@@ -668,9 +732,6 @@ def build_depot_data_set_obj(par, depot_data, depot_name, data):
     # ----------------------------------------------------------------------------
     # Set parameter for konto Data
     # ----------------------------------------------------------------------------
-    obj = ka_depot_data_set_class.DepotDataSet(depot_name)
-    
-    
     # isin_list set anlegen
     #----------------------
     key = par.DEPOT_DATA_ISIN_LIST_NAME
@@ -680,38 +741,30 @@ def build_depot_data_set_obj(par, depot_data, depot_name, data):
         isin_list = []
     # end if
     
-    # neue Datenbeschreibung
-    key = par.DEPOT_DATA_SET_DICT_LIST_NAME
-    if key in depot_data.ddict:
-        depot_data_set_dict_list = depot_data.ddict[key]
-    else:
-        depot_data_set_dict_list = []
-    # end if
-    
-    key = par.DEPOT_DATA_TYPE_DICT_NAME
-    if key in depot_data.ddict:
-        depot_data_type_dict = depot_data.ddict[key]
-    else:
-        depot_data_type_dict = {}
-    # end if
-    
-    # class KontoDataSet anlegen
-    obj.set_stored_data(isin_list,depot_data_set_dict_list,depot_data_type_dict)
-    if obj.status != hdef.OKAY:
-        raise Exception(obj.errtext)
-    # end if
-    if key in depot_data.ddict:
-        del depot_data.ddict[key]
-    # end if
-    
+    obj = ka_depot_data_set_class.DepotDataSet(depot_name,isin_list)
+
     depot_data.obj = copy.deepcopy(obj)
     
     del obj
+    
+    #
+    # # class KontoDataSet anlegen
+    # obj.set_stored_data(isin_list,depot_data_set_dict_list,depot_data_type_dict)
+    # if obj.status != hdef.OKAY:
+    #     raise Exception(obj.errtext)
+    # # end if
+    # if key in depot_data.ddict:
+    #     del depot_data.ddict[key]
+    # # end if
+    #
     
     return depot_data
 
 
 # end def
+
+
+
 # --------------------------------------------------------------------------------------
 #
 # Set IBAN DATA

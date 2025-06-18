@@ -142,6 +142,7 @@ class Parameter:
     PROG_DATA_TYPE_NAME: str = "prog_data"
     KONTO_DATA_TYPE_NAME: str = "konto"
     DEPOT_DATA_TYPE_NAME: str = "depot"
+    DEPOT_WP_DATA_TYPE_NAME: str = "depot_wp"
     IBAN_DATA_TYPE_NAME:  str = "iban"
 
     # konto daten data set
@@ -152,6 +153,7 @@ class Parameter:
     # konto daten data set
     DEPOT_PREFIX: str = "depot"
     DEPOT_NAME: str = "depot_name"
+    DEPOT_WP_PREFIX: str = "depot_wp"
     
 
     IBAN_PREFIX = "iban"
@@ -176,8 +178,7 @@ class Parameter:
     # depot data
     # DEPOT_DATA_SET_NAME: str = "depot_data_set"
     DEPOT_DATA_ISIN_LIST_NAME: str = "depot_data_isin_list"
-    DEPOT_DATA_TYPE_DICT_NAME: str = "depot_data_type_dict"
-    DEPOT_DATA_SET_DICT_LIST_NAME: str = "depot_data_set_dict_list"
+    DEPOT_DATA_DEPOT_WP_LIST_NAME: str = "depot_wp_name_list"
     # Parameter konto_data_set
     
 
