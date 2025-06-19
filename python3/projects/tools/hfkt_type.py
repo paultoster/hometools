@@ -1279,8 +1279,10 @@ def  type_transform_str(wert_in,type_out):
             (okay, wert_out) = type_proof(wert, type_out)
         elif (type_out == "list") or (type_out == "listStr") or (type_out == "list_str"):
             wert_out = [wert]
+        elif type_out == "isin":
+            (okay, wert_out) = type_proof(wert, type_out)
         else:
-            raise Exception(f"In type_transform_str ist type_out: {type_out} nicht möglich")
+            raise Exception(f"type_transform_str: In type_transform_str ist type_out: {type_out} nicht möglich")
         # end if
     else:
         wert_out = wert

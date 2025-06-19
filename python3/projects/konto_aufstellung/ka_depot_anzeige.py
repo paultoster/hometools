@@ -55,6 +55,8 @@ def anzeige_mit_depot_wahl(rd):
     depot_dict = rd.data[choice].ddict
     depot_obj  = rd.data[choice].obj
     
+    (anzeige) = depot_obj.get_depot_daten_sets_overview()
+    
     # Anzeigen
     (status, depot_dict,depot_obj) = anzeige(rd,depot_dict,depot_obj)
     

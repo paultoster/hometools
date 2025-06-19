@@ -18,7 +18,7 @@ def bearbeiten(rd):
     status = hdef.OKAY
     runflag = True
 
-    start_auswahl = ["Cancel","Daten von Konto einlesen","DataSet anzeigen/bearbeiten" ]
+    start_auswahl = ["Cancel","DepotDatenSet von KontoDaten einlesen","DepotDatenSet anzeigen/bearbeiten" ]
     index_cancel  = 0
     index_read_konto  = 1
     index_anzeige = 2

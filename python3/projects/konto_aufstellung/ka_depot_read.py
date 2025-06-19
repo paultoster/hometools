@@ -73,6 +73,7 @@ def depot_konto_einlesen(rd):
     
     if len(depot_obj.infotext):
         rd.log.write_info("konto_einlesen: " + depot_obj.infotext, screen=rd.par.LOG_SCREEN_OUT)
+        depot_obj.delete_infotext()
     # end if
     
     if depot_obj.status != hdef.OKAY:

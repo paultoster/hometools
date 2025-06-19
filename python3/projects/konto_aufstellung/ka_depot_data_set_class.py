@@ -42,21 +42,31 @@ class DepotParam:
         DEPOT_BUCHTYPE_INDEX_LIST.append(key)
     # end for
     # Indizes in erinem data_set
-    DEPOT_DATA_INDEX_KONTO_ID: int = 0
-    DEPOT_DATA_INDEX_BUCHDATUM: int = 1
-    DEPOT_DATA_INDEX_BUCHTYPE: int = 2
-    DEPOT_DATA_INDEX_ISIN: int = 3
-    DEPOT_DATA_INDEX_ANZAHL: int = 4
-    DEPOT_DATA_INDEX_WERT: int = 5
-    DEPOT_DATA_INDEX_KOSTEN: int = 6
-    DEPOT_DATA_INDEX_STEUER: int = 7
-    DEPOT_DATA_INDEX_SUMWERT: int = 8
-    DEPOT_DATA_INDEX_KATEGORIE: int = 9
+    index:int = 0
+    DEPOT_DATA_INDEX_KONTO_ID = index
+    index += 1
+    DEPOT_DATA_INDEX_BUCHDATUM = index
+    index += 1
+    DEPOT_DATA_INDEX_BUCHTYPE = index
+    index += 1
+    DEPOT_DATA_INDEX_ISIN = index
+    index += 1
+    DEPOT_DATA_INDEX_ANZAHL = index
+    index += 1
+    DEPOT_DATA_INDEX_WERT = index
+    index += 1
+    DEPOT_DATA_INDEX_KOSTEN = index
+    index += 1
+    DEPOT_DATA_INDEX_STEUER = index
+    # index += 1
+    # DEPOT_DATA_INDEX_SUMWERT = index
+    index += 1
+    DEPOT_DATA_INDEX_KATEGORIE = index
     
     DEPOT_DATA_INDEX_LIST = [DEPOT_DATA_INDEX_KONTO_ID, DEPOT_DATA_INDEX_BUCHDATUM
         , DEPOT_DATA_INDEX_BUCHTYPE, DEPOT_DATA_INDEX_ISIN, DEPOT_DATA_INDEX_ANZAHL
         , DEPOT_DATA_INDEX_WERT, DEPOT_DATA_INDEX_KOSTEN, DEPOT_DATA_INDEX_STEUER
-        , DEPOT_DATA_INDEX_SUMWERT, DEPOT_DATA_INDEX_KATEGORIE]
+        , DEPOT_DATA_INDEX_KATEGORIE]
     
     # Diese Daten kommen vom Konto
     DEPOT_KONTO_DATA_INDEX_LIST = [DEPOT_DATA_INDEX_KONTO_ID, DEPOT_DATA_INDEX_BUCHDATUM
@@ -70,21 +80,21 @@ class DepotParam:
     DEPOT_DATA_NAME_WERT = "wert"
     DEPOT_DATA_NAME_KOSTEN = "kosten"
     DEPOT_DATA_NAME_STEUER = "steuer"
-    DEPOT_DATA_NAME_SUMWERT = "sumwert"
+    # DEPOT_DATA_NAME_SUMWERT = "sumwert"
     DEPOT_DATA_NAME_KATEGORIE = "kategorie"
     
     DEPOT_DATA_LLIST = [
         [DEPOT_DATA_INDEX_KONTO_ID, DEPOT_DATA_NAME_KONTO_ID, "int"],
         [DEPOT_DATA_INDEX_BUCHDATUM, DEPOT_DATA_NAME_BUCHDATUM, "dat"],
         [DEPOT_DATA_INDEX_BUCHTYPE, DEPOT_DATA_NAME_BUCHTYPE, DEPOT_BUCHTYPE_INDEX_LIST],
-        [DEPOT_DATA_INDEX_ISIN, DEPOT_DATA_NAME_ISIN, "str"],
+        [DEPOT_DATA_INDEX_ISIN, DEPOT_DATA_NAME_ISIN, "isin"],
         [DEPOT_DATA_INDEX_ANZAHL, DEPOT_DATA_NAME_ANZAHL, "int"],
         [DEPOT_DATA_INDEX_WERT, DEPOT_DATA_NAME_WERT, "cent"],
         [DEPOT_DATA_INDEX_KOSTEN, DEPOT_DATA_NAME_KOSTEN, "cent"],
         [DEPOT_DATA_INDEX_STEUER, DEPOT_DATA_NAME_STEUER, "cent"],
-        [DEPOT_DATA_INDEX_SUMWERT, DEPOT_DATA_NAME_SUMWERT, "cent"],
         [DEPOT_DATA_INDEX_KATEGORIE, DEPOT_DATA_NAME_KATEGORIE, "str"],
     ]
+    # [DEPOT_DATA_INDEX_SUMWERT, DEPOT_DATA_NAME_SUMWERT, "cent"],
     DEPOT_DATA_NAME_DICT = {}
     DEPOT_DATA_TYPE_DICT = {}
     DEPOT_DATA_NAME_LIST = []
@@ -121,9 +131,20 @@ class DepotDataSet:
     # def set_data_show_dict_list(self,dat_set_index: int):
     #     self.DEPOT_DATA_TO_SHOW_DICT[dat_set_index] = self.DEPOT_DATA_ITEM_LIST[dat_set_index]
     # # enddef
-
+    def delete_infotext(self):
+        self.infotext = ""
+    # end def
     def set_stored_wp_data_set_dict(self,isin,depot_wp_name,wp_data_set_dict):
+        '''
         
+        Die gespeicherten Daten aus pickle werden an interne Datenbank übergeben
+        init-Phase
+        
+        :param isin:
+        :param depot_wp_name:
+        :param wp_data_set_dict:
+        :return: self.set_stored_wp_data_set_dict(self,isin,depot_wp_name,wp_data_set_dict)
+        '''
         if isin not in self.wp_data_obj_dict.keys():
             raise Exception(f"isin: {isin} ist nicht in wp_data_obj_dict")
         elif self.wp_data_obj_dict.keys[isin] is not None:
@@ -140,6 +161,9 @@ class DepotDataSet:
     # end def
     def get_wp_data_set_dict_to_store(self,isin):
         '''
+
+        Die interne Daten für Datenspeicherung mit pickle vorbereiten
+        Ende
         
         :param isin:
         :return: wp_data_set_dict = self.get_wp_data_set_dict_to_store(isin)
@@ -190,7 +214,7 @@ class DepotDataSet:
         self.infotext = ""
         
         n = konto_obj.get_number_of_data()
-        flag = False
+        flag_read = False
         new_data_dict_list = []
         for i in range(n):
             buchtype_str = konto_obj.get_buchtype_str(i)
@@ -203,12 +227,12 @@ class DepotDataSet:
                 
                 (new_data_dict, new_type_dict) = self.get_konto_data_at_i(i,buch_type,konto_obj)
                 
-                (flag,isin) = self.proof_raw_dict_isin_id(new_data_dict)
+                (flag_read,isin) = self.proof_raw_dict_isin_id(new_data_dict)
                 if self.status != hdef.OKAY:
                     return
                 # end if
                 
-                if flag:
+                if flag_read:
                     self.wp_data_obj_dict[isin].add_data_set_dict_to_table(new_data_dict,new_type_dict)
                     
                     if self.wp_data_obj_dict[isin].status != hdef.OKAY:
@@ -221,12 +245,14 @@ class DepotDataSet:
             
         # end for
         
-        if not flag:
+        if not flag_read:
             if n == 0:
                 self.infotext = f"Im Konto: <{konto_obj.set_konto_name()}> sind keine Daten vorhanden"
             else:
-                self.infotext = f"Vom Konto: <{konto_obj.set_konto_name()}> keine neuen daten eingelesen"
+                self.infotext = f"Vom Konto: <{konto_obj.set_konto_name()}> keine neuen Daten eingelesen"
             # end if
+        else:
+            self.infotext = f"Vom Konto: <{konto_obj.set_konto_name()}> n: {n} neuen Daten eingelesen"
         # end if
     # end if
     def get_konto_data_at_i(self,i,buch_type,konto_obj):
@@ -326,4 +352,13 @@ class DepotDataSet:
             # end if
         # end for
         return data_dict_list
+    # end def
+    def get_depot_daten_sets_overview(self):
+        '''
+        
+        :return:
+        '''
+        
+        #######
+    # end def
 # end class

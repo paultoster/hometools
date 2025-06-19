@@ -21,7 +21,7 @@ class WpDataSet:
         for index in self.par.DEPOT_DATA_NAME_DICT.keys():
             self.data_set_obj.set_definition(index, self.par.DEPOT_DATA_NAME_DICT[index]
                                              , self.par.DEPOT_DATA_TYPE_DICT[index])
-            if self.data_set_obj != hdef.OKAY:
+            if self.data_set_obj.status != hdef.OKAY:
                 self.status = self.data_set_obj.status
                 self.errtext = self.data_set_obj.errtext
                 break
@@ -50,14 +50,16 @@ class WpDataSet:
     # end def
     def exist_id_in_table(self,new_id):
         
-        liste = self.data_set_obj.find_in_col(self, new_id
+        liste = self.data_set_obj.find_in_col(new_id
                ,self.par.DEPOT_DATA_TYPE_DICT[self.par.DEPOT_DATA_INDEX_KONTO_ID]
                ,self.par.DEPOT_DATA_INDEX_KONTO_ID)
         
-        if len(liste):
+        if liste is None:
             return False
-        else:
+        if len(liste):
             return True
+        else:
+            return False
         # end if
     # end def
     def add_data_set_dict_to_table(self,new_data_dict,new_type_dict):

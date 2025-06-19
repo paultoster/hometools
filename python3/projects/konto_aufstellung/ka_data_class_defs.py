@@ -110,35 +110,42 @@ class DataSet:
         # end if
         return
     # end def
-    def set_dat_set_named_dict_list(self, data_dict_list, data_type_dict):
-        '''
-
-        :param konto_data_dict_list:
-        :param konto_data_type_dict:
-        :return:
-        '''
-        # base_konto_data_set_list = [None for item in self.KONTO_DATA_INDEX_LIST]
-        
-        for data_dict in data_dict_list:
-            data_set_list = [htype.type_get_default(self.type_dict[icol]) for icol in range(self.ncol)]
-            for name in data_dict.keys():
-                index = hlist.find_first_key_dict_value(self.name_dict, name)
-                if index is not None:
-                    (okay, wert) = htype.type_transform(data_dict[name],data_type_dict[name],self.type_dict[index])
-                    if okay == hdef.OK:
-                        data_set_list[index]= wert
-                    else:
-                        self.status = hdef.NOT_OKAY
-                        self.errtext = f"add_data_set_dict: Problem type_transform of <{data_dict[name]}> von type: <{data_type_dict[name]}> zu <{self.type_dict[index]}> "
-                        return
-                    # end if
-                # end if
-            # end for
-            self.data_set_llist.append(data_set_list)
-            self.n_data_sets += 1
-        # end for
-    # edn def
+    # def set_dat_set_named_dict_list(self, data_dict_list, data_type_dict):
+    #     '''
+    #
+    #     :param konto_data_dict_list:
+    #     :param konto_data_type_dict:
+    #     :return:
+    #     '''
+    #     # base_konto_data_set_list = [None for item in self.KONTO_DATA_INDEX_LIST]
+    #
+    #     for data_dict in data_dict_list:
+    #         data_set_list = [htype.type_get_default(self.type_dict[icol]) for icol in range(self.ncol)]
+    #         for name in data_dict.keys():
+    #             index = hlist.find_first_key_dict_value(self.name_dict, name)
+    #             if index is not None:
+    #                 (okay, wert) = htype.type_transform(data_dict[name],data_type_dict[name],self.type_dict[index])
+    #                 if okay == hdef.OK:
+    #                     data_set_list[index]= wert
+    #                 else:
+    #                     self.status = hdef.NOT_OKAY
+    #                     self.errtext = f"add_data_set_dict: Problem type_transform of <{data_dict[name]}> von type: <{data_type_dict[name]}> zu <{self.type_dict[index]}> "
+    #                     return
+    #                 # end if
+    #             # end if
+    #         # end for
+    #         self.data_set_llist.append(data_set_list)
+    #         self.n_data_sets += 1
+    #     # end for
+    # # edn def
     def add_data_set_dict(self,data_dict: dict,type_dict:dict):
+        
+        if( not self.def_okay ):
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"add_data_set_dict: Definition der TAbelle nicht okay def_okay = False "
+            return
+        # end if
+        
         data_set_list =  [htype.type_get_default(self.type_dict[icol]) for icol in range(self.ncol)]
         for key in data_dict.keys():
             # index = hlist.find_first_key_dict_value(self.name_dict, key)
@@ -154,10 +161,10 @@ class DataSet:
                 # end if
             # end if
         # end for
-        
+
         self.data_set_llist.append(data_set_list)
         self.n_data_sets += 1
-        
+
         return
     # end if
     
