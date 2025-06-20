@@ -45,7 +45,8 @@ class WPData:
         '''
 
         :param isin:
-        :return:
+        :return: (status, errtext, output_dict_liste) = self.get_basic_info(isin_liste)
+                 (status, errtext, output_dict) = self.get_basic_info(isin)
         '''
         
         self.status = hdef.OKAY
@@ -206,7 +207,7 @@ class WPData:
 if __name__ == '__main__':
 
 
-    isin = ["IE00B4L5Y983","IE00BKZGB098","DE0007100000"]
+    isin = "AU3TB0000192"
     
     
     store_path = "K:/data/orga/wp_store"
@@ -217,11 +218,11 @@ if __name__ == '__main__':
         exit(1)
     # end if
     
-    wkn = "A0S9GB"
-    (status,isin) = wp.get_isin_from_wkn(wkn)
+    # wkn = "A0S9GB"
+    # (status,isin) = wp.get_isin_from_wkn(wkn)
 
-    if status == hdef.OKAY:
-        print(f"isin = {isin}")
+    # if status == hdef.OKAY:
+    #     print(f"isin = {isin}")
     # end if
 
     (status,errtext,info_dict_list) = wp.get_basic_info(isin)

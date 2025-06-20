@@ -72,10 +72,10 @@ class Parameter:
     # ------------------------------
     INI_PROG_DATA_NAME: str = "prog_data"
     
-    INI_WP_STORE_PATH_NAME: str = "wp_store_path"
-    INI_WP_USE_JSON_NAME: str = "wp_use_json"
-    INI_PROG_DATA_PROOF_LISTE = [(INI_WP_STORE_PATH_NAME, "str")
-                                ,(INI_WP_USE_JSON_NAME, "int")]
+    INI_WP_DATA_STORE_PATH_NAME: str = "wp_data_store_path"
+    INI_WP_DATA_USE_JSON_NAME: str = "wp_data_use_json"
+    INI_PROG_DATA_PROOF_LISTE = [(INI_WP_DATA_STORE_PATH_NAME, "str")
+                                ,(INI_WP_DATA_USE_JSON_NAME, "int")]
 
     INI_IBAN_NAME: str = "iban"
     INI_BANK_NAME: str = "bank"

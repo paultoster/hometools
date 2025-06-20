@@ -108,10 +108,13 @@ class DepotParam:
         # DEPOT_DATA_INDEX_LIST.append(liste[0])
     
     # end for
-
+    
+    DEPOT_WP_STORE_PATH = "."
+    DEPOT_WP_USE_JSON   = False
+    
 
 class DepotDataSet:
-    def __init__(self,depot_name,isin_liste):
+    def __init__(self,depot_name,isin_liste,wp_func_obj):
     
         self.depot_name = depot_name
         self.par = DepotParam()
@@ -128,9 +131,13 @@ class DepotDataSet:
         for isin in isin_liste:
             self.wp_data_obj_dict[isin] = None
             self.n_wp_data_obj += 1
+            
+        self.wp_func_obj = wp_func_obj
+    
     # def set_data_show_dict_list(self,dat_set_index: int):
     #     self.DEPOT_DATA_TO_SHOW_DICT[dat_set_index] = self.DEPOT_DATA_ITEM_LIST[dat_set_index]
-    # # enddef
+    
+    # end def
     def delete_infotext(self):
         self.infotext = ""
     # end def
@@ -150,13 +157,13 @@ class DepotDataSet:
         elif self.wp_data_obj_dict.keys[isin] is not None:
             raise Exception(f"set_stored_wp_data_set_dict: isin: {isin} ist doppelt")
         else:
-            self.wp_data_obj_dict[isin] = wpclass.WpDataSet(isin,depot_wp_name,self.par)
-            if self.wp_data_obj_dict[isin].status != hdef.OKAY:
-                raise Exception(f"set_stored_wp_data_set_dict: isin: {isin} Problem Erstellen Data Klasse {self.wp_data_obj_dict[isin].errtext}")
-            self.wp_data_obj_dict[isin].set_stored_wp_data_set_dict(wp_data_set_dict)
-            if self.wp_data_obj_dict[isin].status != hdef.OKAY:
+            wp_obj = self.get_wp_data_obj(isin)
+            if wp_obj.status != hdef.OKAY:
+                raise Exception(f"set_stored_wp_data_set_dict: isin: {isin} Problem Erstellen Data Klasse {wp_obj.errtext}")
+            wp_obj.set_stored_wp_data_set_dict(wp_data_set_dict)
+            if wp_obj.status != hdef.OKAY:
                 raise Exception(
-                    f"set_stored_wp_data_set_dict: isin: {isin} Problem Füllen Data Klasse {self.wp_data_obj_dict[isin].errtext}")
+                    f"set_stored_wp_data_set_dict: isin: {isin} Problem Füllen Data Klasse {wp_obj.errtext}")
         # end if
     # end def
     def get_wp_data_set_dict_to_store(self,isin):
@@ -295,10 +302,13 @@ class DepotDataSet:
         # end if
         
         # search isin in self.wp class
-        wpobj = self.get_wp_data_obj(isin)
+        wp_obj = self.get_wp_data_obj(isin)
+        if self.status != hdef.OKAY:
+            return (False,isin)
+        # end if
         
         # proof id in data object
-        if wpobj.exist_id_in_table(new_data_dict[self.par.DEPOT_DATA_INDEX_KONTO_ID]):
+        if wp_obj.exist_id_in_table(new_data_dict[self.par.DEPOT_DATA_INDEX_KONTO_ID]):
             flag = False
         else:
             flag = True
@@ -309,7 +319,12 @@ class DepotDataSet:
         
         if isin not in self.wp_data_obj_dict.keys():
             depot_wp_name = self.depot_name + "_" + isin
-            self.wp_data_obj_dict[isin] = wpclass.WpDataSet(isin,depot_wp_name,self.par)
+            self.wp_data_obj_dict[isin] = wpclass.WpDataSet(isin,depot_wp_name,self.par,self.wp_func_obj)
+            if self.wp_data_obj_dict[isin].status != hdef.OKAY:
+                self.status = hdef.NOT_OKAY
+                self.errtext = self.wp_data_obj_dict[isin].errtext
+                return None
+            # end if
             self.n_wp_data_obj += 1
         return self.wp_data_obj_dict[isin]
     # end def

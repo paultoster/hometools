@@ -7,7 +7,7 @@ import ka_data_class_defs as ka_class
 class WpDataSet:
     
     
-    def __init__(self,isin,depot_wp_name,par):
+    def __init__(self,isin,depot_wp_name,par,wp_func_obj):
         
         self.isin = isin
         self.depot_wp_name = depot_wp_name
@@ -27,6 +27,18 @@ class WpDataSet:
                 break
             # end if
         # end for
+        
+        # get basic infos
+        self.wp_func_obj = wp_func_obj
+        (status,errtext,info_dict) = self.wp_func_obj.get_basic_info(isin)
+        if status != hdef.OKAY:
+            self.status  = hdef.NOT_OKAY
+            self.errtext = errtext
+        else:
+            self.wp_data_dict = info_dict
+        # end if
+        
+        
         return
     # end def
     def set_stored_wp_data_set_dict(self,wp_data_set_dict):

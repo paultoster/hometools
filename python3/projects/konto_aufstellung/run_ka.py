@@ -68,8 +68,8 @@ def konto_auswerten():
     # endif
         
     # wp funktion wert papier rd.ini.ddict["wp_abfrage"]["store_path"]
-    rd.wpfunc = wp_abfrage.wp_base.WPData(rd.ini.ddict[rd.par.INI_PROG_DATA_NAME][rd.par.INI_WP_STORE_PATH_NAME]
-                                         ,rd.ini.ddict[rd.par.INI_PROG_DATA_NAME][rd.par.INI_WP_USE_JSON_NAME])
+    rd.wpfunc = wp_abfrage.wp_base.WPData(rd.ini.ddict[rd.par.INI_PROG_DATA_NAME][rd.par.INI_WP_DATA_STORE_PATH_NAME]
+                                         ,rd.ini.ddict[rd.par.INI_PROG_DATA_NAME][rd.par.INI_WP_DATA_USE_JSON_NAME])
     if (rd.wpfunc.status != hdef.OK):
         rd.log.write_err(rd.wpfunc.errtext, screen=rd.par.LOG_SCREEN_OUT)
         return

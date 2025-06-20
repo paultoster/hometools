@@ -137,7 +137,7 @@ def data_get(par, inidict, wpfunc):
         
         depot_data = proof_depot_data_from_ini(depot_data, inidict[depot_name], par)
         depot_data = proof_depot_data_intern(par, depot_data, depot_name)
-        depot_data = build_depot_data_set_obj(par, depot_data, depot_name)
+        depot_data = build_depot_data_set_obj(par, depot_data, depot_name,wpfunc)
         if (depot_data.status != hdef.OK):
             status = hdef.NOT_OKAY
             errtext = depot_data.errtext
@@ -329,8 +329,8 @@ def proof_allg_data_from_ini(par, allg_data, ini_data_dict):
         # end if
     # end if
     
-    allg_data.wp_store_path = allg_data.ddict[par.INI_WP_STORE_PATH_NAME]
-    allg_data.wp_use_json = allg_data.ddict[par.INI_WP_USE_JSON_NAME]
+    allg_data.wp_store_path = allg_data.ddict[par.INI_WP_DATA_STORE_PATH_NAME]
+    allg_data.wp_use_json = allg_data.ddict[par.INI_WP_DATA_USE_JSON_NAME]
 
     return allg_data
 
@@ -720,7 +720,7 @@ def proof_depot_data_intern(par, depot_data, depot_name):
 
 
 # end def
-def build_depot_data_set_obj(par, depot_data, depot_name):
+def build_depot_data_set_obj(par, depot_data, depot_name,wpfunc):
     '''
 
     :param par:
@@ -741,7 +741,7 @@ def build_depot_data_set_obj(par, depot_data, depot_name):
         isin_list = []
     # end if
     
-    obj = ka_depot_data_set_class.DepotDataSet(depot_name,isin_list)
+    obj = ka_depot_data_set_class.DepotDataSet(depot_name,isin_list,wpfunc)
 
     depot_data.obj = copy.deepcopy(obj)
     
