@@ -47,10 +47,13 @@ import math
 import re
 from typing import Any
 import dateparser
+import os
 
 # import hfkt_def as hdef
-import tools.hfkt_str as hstr
-
+if os.path.isfile('hfkt_def.py'):
+    import hfkt_str as hstr
+else:
+    import tools.hfkt_str as hstr
 # import datetime
 
 

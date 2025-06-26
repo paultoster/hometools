@@ -9,6 +9,7 @@ import tools.hfkt_type as htype
 import time
 
 import wp_abfrage.wp_storage as wp_storage
+imoprt wp_abfrage.wp_playright as wp_pr
 
 def wp_basic_info_with_isin_list(ddict):
     '''
@@ -54,11 +55,14 @@ def wp_basic_info_with_isin_list(ddict):
         # ---------------------------------------------
         else:
             print(f"            ... read HTML")
-            (status, errtext, info_dict) = wp_basic_info_extraetf_ETF(isin)
+            info_dict = get_default_info_dict(isin)
+            (status, errtext, info_dict) = wp_basic_info_extraetf_ETF(isin,info_dict)
             if status == hdef.NOT_FOUND:
-                (status, errtext, info_dict) = wp_basic_info_extraetf_Aktie(isin)
+                (status, errtext, info_dict) = wp_basic_info_extraetf_Aktie(isin,info_dict)
             if status == hdef.NOT_FOUND:
-                (status, errtext, info_dict) = wp_basic_info_extraetf_Fond(isin)
+                (status, errtext, info_dict) = wp_basic_info_extraetf_Fond(isin,info_dict)
+            if status == hdef.NOT_FOUND:
+                (status, errtext, info_dict) = wp_basic_info_ariva_Anleihe(isin,info_dict)
 
             if status == hdef.OKAY:
                 (status, errtext) = wp_storage.save_info_dict(isin, info_dict, ddict)
@@ -84,10 +88,34 @@ def wp_basic_info_with_isin_list(ddict):
     # end for
     return (status, errtext, ddict)
 # end def
-def wp_basic_info_extraetf_ETF(isin):
+def get_default_info_dict(isin):
+    info_dict = {}
+    info_dict["type"] = ""
+    info_dict["name"] = ""
+    info_dict["beschreibung"] = ""
+    info_dict["isin"] = isin
+    info_dict["wkn"]  = ""
+    info_dict["ticker"] = ""
+    info_dict["indexabbildung"] = ""
+    info_dict["ertragsverwendung"] = ""
+    info_dict["ter"] = ""
+    info_dict["volumen"] = ""
+    info_dict["anzahl"] = ""
+    info_dict["zahltdiv"] = 0
+    info_dict["indexabbildung"] = ""
+    info_dict["ertragsverwendung"] = ""
+    info_dict["ter"] = ""
+    info_dict["volumen"] = ""
+    info_dict["anzahl"] = ""
+    info_dict["kgv"] = ""
+    info_dict["marktkapitalisierung"] = ""
+    info_dict["marktkapitalisierung"] = ""
+    info_dict["dividendenrendite"] = ""
+    info_dict["gewinn"] = ""
+# end def
+def wp_basic_info_extraetf_ETF(isin,info_dict):
     status = hdef.OKAY
     errtext = ""
-    info_dict = {}
     
     url = f"https://extraetf.com/de/etf-profile/{isin}"
     try:
@@ -240,10 +268,10 @@ def wp_basic_info_extraetf_ETF(isin):
 
     return (status,errtext,info_dict)
 # end def
-def wp_basic_info_extraetf_Aktie(isin):
+def wp_basic_info_extraetf_Aktie(isin,info_dict):
     status = hdef.OKAY
     errtext = ""
-    info_dict = {}
+    
     
     url = f"https://extraetf.com/de/stock-profile/{isin}"
     try:
@@ -354,10 +382,10 @@ def wp_basic_info_extraetf_Aktie(isin):
     return (status, errtext, info_dict)
 # end if
 
-def wp_basic_info_extraetf_Fond(isin):
+def wp_basic_info_extraetf_Fond(isin,info_dict):
     status = hdef.OKAY
     errtext = ""
-    info_dict = {}
+    
     
     url = f"https://extraetf.com/de/fund-profile/{isin}"
     try:
@@ -465,6 +493,103 @@ def wp_basic_info_extraetf_Fond(isin):
     # end if
     
     return (status, errtext, info_dict)
-# end if
+# end def
 
+def wp_basic_info_ariva_Anleihe(isin,info_dict):
+    status = hdef.OKAY
+    errtext = ""
+    
+    (status,errtext,url) = wp_pr.get_ariva_url_playwright(isin)
+    
+    if status != hdef.OKAY:
+        return (status,errtext,info_dict)
+    # end if
+    
+    
+    try:
+        newpage = urllib.request.urlopen(url)
+    except urllib.error.HTTPError as e:
+        status = hdef.NOT_FOUND
+        errtext = f"wp_basic_info_ariva_Anleihe isin: {isin} Error code: {e.code}"
+    except urllib.error.URLError as e:
+        status = hdef.NOT_FOUND
+        errtext = f"wp_basic_info_ariva_Anleihe isin: {isin} Reason: {e.reason}"
+    # end try
+    if status != hdef.OKAY:
+        return (status, errtext, info_dict)
+    # end if
+
+    
+    soup = bs(newpage, 'html.parser')
+    
+    info_dict["type"] = "anleihe"
+    
+    # -------------------------------------------------------------------------
+    # name
+    # -------------------------------------------------------------------------
+    liste = soup.find_all("span", itemprop="name")
+    name = ""
+    for item in liste:
+        nname = item.text
+        if len(nname) > len(name):
+            name = nname
+        # end if
+    # end for
+    name = hstr.change(name, '\n', ' ')
+    name = hstr.elim_ae(name.replace('\xa0', ' '), ' ')
+    info_dict["name"] = name
+    
+    # -------------------------------------------------------------------------
+    # type, isin, wkn
+    # -------------------------------------------------------------------------
+    liste = soup.find_all("div", "verlauf snapshotInfo")
+    type_text = ""
+    isin_text = ""
+    wkn_text = ""
+    
+    for i, item in enumerate(liste):
+        tt = item.text
+        tt = hstr.change(tt, '\n', ' ')
+        tt = hstr.change_max(tt, '  ', ' ')
+        splitliste = tt.split(' ')
+        typeflag = False
+        isinflag = False
+        wknflag = False
+        count = 0
+        for body in splitliste:
+            if typeflag:
+                type_text = body
+                count += 1
+                typeflag = False
+            elif isinflag:
+                isin_text = body
+                count += 1
+                isinflag = False
+            elif wknflag:
+                wkn_text = body
+                count += 1
+                wknflag = False
+            # end if
+            
+            if count == 3:
+                break
+            # end if
+            
+            if body == "Typ:":
+                typeflag = True
+            elif body == "ISIN:":
+                isinflag = True
+            elif body == "WKN:":
+                wknflag = True
+            # end fif
+        # end for
+        if len(type_text):
+            info_dict["type"] = type_text
+        if len(wkn_text):
+            info_dict["wkn"] = wkn_text
+        if len(isin_text):
+            info_dict["isin"] = isin_text
+    # end for
+    return (status, errtext, info_dict)
+# end def
 

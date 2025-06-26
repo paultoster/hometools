@@ -2,7 +2,7 @@
 #
 # 18.06.23 von hfkt.py
 #############################
-
+import os.path
 ##################################################################################
 # Sonstiges
 ###################################################################################
@@ -46,12 +46,17 @@ import re
 import math
 import zlib
 
-from pandas.core.dtypes.inference import is_float
+# from pandas.core.dtypes.inference import is_float
 
+if os.path.isfile('hfkt_def.py'):
+    import hfkt_def as hdef
+    import hfkt_str as hstr
+    import hfkt_date_time as hdate
+else:
+    import tools.hfkt_def as hdef
+    import tools.hfkt_str as hstr
+    import tools.hfkt_date_time as hdate
 # import tools.hfkt as h
-import tools.hfkt_def as hdef
-import tools.hfkt_str as hstr
-import tools.hfkt_date_time as hdate
 
 # import stat
 
@@ -264,6 +269,13 @@ def str_to_float(txt):
 
 ###########################################################################
 ###########################################################################
+def is_float(val):
+    '''
+    Prüft, ob Type float flag = True/False
+    '''
+    return isinstance(val, float)
+
+
 def is_int(val):
     '''
     Prüft, ob Type int flag = True/False
