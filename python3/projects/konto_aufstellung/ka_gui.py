@@ -29,11 +29,16 @@ def iban_abfrage(rd,header_liste,data_llist,abfrage_liste):
     :param abfrage_liste:
     :return: (d_new,index_abfrage,irow) =  iban_abfrage(rd,header_liste,data_llist,abfrage_liste)
     '''
-    (d_new, index_abfrage,irow,_) = sgui.abfrage_tabelle_get_row(header_liste=header_liste
-                                                 , data_set=data_llist
-                                                 , listeAbfrage=abfrage_liste)
+   
+    dict_inp = {}
+    dict_inp["header_liste"] = header_liste
+    dict_inp["data_set_lliste"] = data_llist
+    dict_inp["abfrage_liste"] = abfrage_liste
     
-    return (d_new,index_abfrage,irow)
+    dict_out = sgui.abfrage_tabelle(dict_inp)
+    
+    
+    return (dict_out["data_set"],dict_out["index_abfrage"] ,dict_out["irow_select"] )
 # end def
 
 def auswahl_konto(rd):
@@ -66,12 +71,15 @@ def konto_abfrage( header_liste, data_llist, abfrage_liste,color_list):
     :return: (d_new,index_abfrage,irow,data_changed_pos_list) = konto_abfrage(rd, header_liste, data_llist, abfrage_liste, color_list)
     '''
 
-    (d_new, index_abfrage, irow,data_changed_pos_list) = sgui.abfrage_tabelle_get_row_set_color(header_liste=header_liste
-                                                                , data_set=data_llist
-                                                                , color_liste=color_list
-                                                                , listeAbfrage=abfrage_liste)
+    dict_inp = {}
+    dict_inp["header_liste"] = header_liste
+    dict_inp["data_set_lliste"] = data_llist
+    dict_inp["row_color_dliste"] = color_list
+    dict_inp["abfrage_liste"] = abfrage_liste
     
-    return (d_new, index_abfrage, irow,data_changed_pos_list)
+    dict_out = sgui.abfrage_tabelle(dict_inp)
+    
+    return (dict_out["data_set"], dict_out["index_abfrage"], dict_out["irow_select"], dict_out["data_change_irow_icol_liste"])
 
 # edn def
 def konto_data_set_eingabe(eingabe_liste,data_set=None,title=None):

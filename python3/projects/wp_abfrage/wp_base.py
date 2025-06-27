@@ -25,7 +25,7 @@ class WPData:
     def __init__(self,store_path,use_json):
         self.ddict = {}
         self.ddict["store_path"] = store_path
-        self.ddict["pre_file_name"] = "wp_data_"
+        self.ddict["basic_info_pre_file_name"] = "wp_basic_info_data_"
         self.ddict["wkn_isin_filename"] = "wkn_isin_dict"
         self.ddict["wpname_isin_filename"] = "wpname_isin_dict"
         self.ddict["use_json"] = use_json # 0: don't 1: write, 2: read
@@ -208,7 +208,7 @@ if __name__ == '__main__':
 
 
     isin = "AU3TB0000192"
-    
+    isin = "DE000ETFL482"
     
     store_path = "K:/data/orga/wp_store"
     use_json = 0 # 0: don't 1: write, 2: read

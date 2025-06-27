@@ -524,636 +524,636 @@ class abfrage_liste_class:
 # ========================== abfrage_liste ======================================
 # ===============================================================================
 
-# ===============================================================================
-# ========================== abfrage_tabelle=====================================
+# # ===============================================================================
+# # ========================== abfrage_tabelle=====================================
+# #
+# # gibt den geänderten data_set zurück
+# # data_index_liste
+# def abfrage_tabelle(header_liste, data_set, listeAbfrage=None):
+#     data_index_liste = list(range(0, len(data_set)))
+#     color_liste = []
+#     obj = abfrage_tabelle_class(header_liste, data_set, data_index_liste, color_liste, listeAbfrage)
+#     data_set_out = obj.data_set
+#     indexAbfrage = obj.indexAbfrage
+#     del obj
+#     return (data_set_out, indexAbfrage)
 #
-# gibt den geänderten data_set zurück
-# data_index_liste
-def abfrage_tabelle(header_liste, data_set, listeAbfrage=None):
-    data_index_liste = list(range(0, len(data_set)))
-    color_liste = []
-    obj = abfrage_tabelle_class(header_liste, data_set, data_index_liste, color_liste, listeAbfrage)
-    data_set_out = obj.data_set
-    indexAbfrage = obj.indexAbfrage
-    del obj
-    return (data_set_out, indexAbfrage)
-
-
-# end def
-def abfrage_tabelle_get_row(header_liste, data_set, listeAbfrage=None):
-    data_index_liste = list(range(0, len(data_set)))
-    color_liste = []
-    obj = abfrage_tabelle_class(header_liste, data_set, data_index_liste, color_liste, listeAbfrage)
-    data_set_out = obj.data_set
-    indexAbfrage = obj.indexAbfrage
-    irow = obj.current_row
-    data_changed_pos_list = obj.double_click_changed_pos_list
-    del obj
-    return (data_set_out, indexAbfrage, irow,data_changed_pos_list)
-
-
-# end def
-def abfrage_tabelle_get_row_set_color(header_liste, data_set, color_liste, listeAbfrage=None):
-    '''
-    
-    :param header_liste:
-    :param data_set:
-    :param color_liste:
-    :param listeAbfrage:
-    :return: (data_set_out, indexAbfrage, irow,data_changed_pos_list) = abfrage_tabelle_get_row_set_color(header_liste, data_set, color_liste, listeAbfrage=None)
-    '''
-    data_index_liste = list(range(0, len(data_set)))
-    obj = abfrage_tabelle_class(header_liste, data_set, data_index_liste, color_liste, listeAbfrage)
-    data_set_out = obj.data_set
-    indexAbfrage = obj.indexAbfrage
-    irow = obj.current_row
-    data_changed_pos_list = obj.double_click_changed_pos_list
-    del obj
-    return (data_set_out, indexAbfrage, irow,data_changed_pos_list)
-
-
-# end def
-class abfrage_tabelle_class:
-    """
-      (data_set,indexAbfrage) = sgui.abfrage_tabelle(header_liste,data_set):    listeAbfrage = ["okay"]
-      (data_set,indexAbfrage) = sgui.abfrage_tabelle(header_liste,data_set,data_index_liste):    listeAbfrage = ["okay"]
-      (data_set,indexAbfrage) = sgui.abfrage_tabelle(header_liste,data_set,data_index_liste,listeAbfrage):
-  
-      (data_set,indexAbfrage,irow) = sgui.abfrage_tabelle_get_row(header_liste,data_set):    listeAbfrage = ["okay"]
-      (data_set,indexAbfrage,irow) = sgui.abfrage_tabelle_get_row(header_liste,data_set,data_index_liste):    listeAbfrage = ["okay"]
-      (data_set,indexAbfrage,irow) = sgui.abfrage_tabelle_get_row(header_liste,data_set,data_index_liste,listeAbfrage):
-  
-      z.B. header_liste     = ["alpha","beta","gamma"]                       Die Name der Bestandteile eines dat-items
-           data_set         = [[0.1,0.1,0.2],[0.2,0.5,0.2], .... ]           Date-set liste mit Zeilen-Liste, Zeilenliste entspricht dr Headerliste
-           data_index_liste = [1,2, ...}                                     inizes zu den jeweiligen Daten packet
-           listeAbfrage     = ["Ok","Cancel","Aendern"]                      Abfrage möglichkeiten indexAbfrage zeigt dann den Wert
-  
-      irow = 0,1,2,3, .... -1 not clicked
-    """
-    GUI_GEOMETRY_WIDTH = GUI_GEOMETRY_WIDTH_BASE
-    GUI_GEOMETRY_HEIGHT = GUI_GEOMETRY_HEIGHT_BASE
-    GUI_GEOMETRY_POSX = 0
-    GUI_GEOMETRY_POSY = 0
-    GUI_ICON_FILE = GUI_ICON_FILE_BASE
-    GUI_TITLE = "Tabelle"
-    
-    GUI_TAB_ID = 0
-    
-    DATA_FLOAT = 0
-    DATA_INTEGER = 1
-    DATA_STRING = 2
-    
-    status = hdef.OKAY
-    header_liste = []
-    data_set = []
-    ndata = 0
-    nheader = 0
-    index_liste = []
-    type_liste = []
-    
-    index_liste = []
-    str_auswahl_liste = []
-    index_auswahl_liste = []
-    indexListe = []
-    index = -1
-    indexAbfrage = -1
-    act_frame_id = 0
-    Gui_rahmen = [None]
-    current_row = -1
-    
-    double_click_row_list  = []
-    double_click_col_list  = []
-    double_click_text_list = []
-    
-    double_click_changed_pos_list = []
-    
-    # -------------------------------------------------------------------------------
-    # -------------------------------------------------------------------------------
-    def __init__(self, header_liste, data_set, data_index_liste=None, color_liste=None, listeAbfrage=None):
-        """
-        """
-        self.status = hdef.OKAY
-        self.header_liste = []
-        self.index_liste = []
-        self.color_liste = []
-        self.unique_colors = []
-        self.str_auswahl_liste = []
-        self.index_auswahl_liste = []
-        self.indexListe = []
-        self.abfrage_liste = [u'okay']
-        self.index = -1
-        self.act_frame_id = 0
-        self.title = u"Tabelle"
-        self.current_row = -1
-        self.double_click_row_list = []
-        self.double_click_col_list = []
-        self.double_click_text_list = []
-        self.double_click_changed_pos_list = []
-        
-        # data_set
-        if (data_set and isinstance(data_set, list)):
-            nheader = 0
-            self.ndata = len(data_set)
-            for data in data_set:
-                if (len(data) > nheader):
-                    nheader = len(data)
-                # endif
-            # endfor
-            self.data_set = data_set
-            self.nheader = nheader
-        else:
-            self.status = hdef.NOT_OKAY
-            return None
-        # endif
-        
-        # proof first data set for type
-        data = self.data_set[0]
-        self.type_liste = []
-        for item in data:
-            if (isinstance(item, float)):
-                self.type_liste.append(self.DATA_FLOAT)
-            elif (isinstance(item, int)):
-                self.type_liste.append(self.DATA_INTEGER)
-            else:
-                self.type_liste.append(self.DATA_STRING)
-            # endif
-        # endfor
-        
-        # header liste
-        if (len(header_liste) and (isinstance(header_liste, list) or isinstance(header_liste, tuple))):
-            self.header_liste = []
-            for item in header_liste:
-                self.header_liste.append(item)
-            # endfor
-        # endif
-        
-        n = len(self.header_liste)
-        if (n < self.nheader):
-            for i in range(n, self.nheader):
-                self.header_liste.append(f"item{i}")
-            # endfor
-        # endif
-        
-        # index liste
-        if (data_index_liste and isinstance(data_index_liste, list)):
-            self.index_liste = []
-            for index in data_index_liste:
-                self.index_liste.append(index)
-            # endfor
-            
-            n = len(self.index_liste)
-            if (n < self.ndata):
-                
-                if (n == 0):
-                    ii = 0
-                else:
-                    ii = self.index_liste[-1]
-                
-                for i in range(n, self.ndata):
-                    ii += 1
-                    self.index_liste.append(ii)
-                # endfor
-            # endif
-        # endif
-        
-        # color_list
-        if color_liste and isinstance(color_liste, list):
-            self.color_liste = []
-            for colores in color_liste:
-                if isinstance(colores, str):
-                    self.color_liste.append(colores)
-                else:
-                    self.color_liste.append('')
-                # end if
-            # end for
-            n = len(self.color_liste)
-            if n < self.ndata:
-                for i in range(n, self.ndata):
-                    self.color_liste.append('')
-                # end for
-            # end if
-        else:
-            self.color_liste = []
-            for i in range(self.ndata):
-                self.color_liste.append('')
-            # end for
-        # end if
-        
-        # unique colors
-        self.unique_colors = []
-        for x in self.color_liste:
-            if (len(x) > 0) and (x not in self.unique_colors):
-                self.unique_colors.append(x)
-            # end if
-        # end for
-        
-        # Liste der Abfrage buttons
-        if listeAbfrage:
-            self.abfrage_liste = []
-            for item in listeAbfrage:
-                if isinstance(item, str):
-                    self.abfrage_liste.append(item)
-                elif isinstance(item, float):
-                    self.abfrage_liste.append("%f" % item)
-                elif isinstance(item, int):
-                    self.abfrage_liste.append("%i" % item)
-                # endif
-        # endif
-        
-        # Titel:
-        # if( title and isinstance(title, str)):
-        #   self.title = title
-        # endif
-        
-        # Auswahlliste wird auf gesamte Liste gesetzt
-        # self.str_auswahl_liste   = self.str_liste
-        # self.index_auswahl_liste = self.index_liste
-        
-        # TK-Grafik anlegen
-        # ------------------
-        self.root = Tk.Tk()
-        self.root.protocol("WM_DELETE_WINDOW", self.exitMenu)
-        # geo = str(self.GUI_GEOMETRY_WIDTH)+"x"+str(self.GUI_GEOMETRY_HEIGHT)
-        # self.root.geometry(geo)
-        self.root.wm_geometry("%dx%d+%d+%d" % (
-        self.GUI_GEOMETRY_WIDTH, self.GUI_GEOMETRY_HEIGHT, self.GUI_GEOMETRY_POSX, self.GUI_GEOMETRY_POSY))
-        
-        if (os.path.isfile(self.GUI_ICON_FILE)):
-            self.root.wm_iconbitmap(self.GUI_ICON_FILE)
-        self.root.title(self.GUI_TITLE)
-        
-        # Gui anlegen
-        # --------------
-        self.createTabellenGui()
-        
-        # Menue anlegen
-        # --------------
-        # self.createMenu()
-        self.makeTabGui()
-        self.flag_mainloop = True
-        
-        self.root.mainloop()
-    
-    def __del__(self):
-        if (self.flag_mainloop):
-            self.root.destroy()
-            self.flag_mainloop = False
-    
-    def exitMenu(self):
-        ''' Beenden der Gui
-        '''
-        # Vor Beenden Speichern abfragen
-        # ans = tkinter.messagebox.askyesno(parent=self.root,title='Sichern', message='Soll Datenbasis gesichert werden')
-        # if( ans ): self.base.save_db_file()
-        
-        if (self.flag_mainloop):
-            self.root.destroy()
-            self.flag_mainloop = False
-    
-    # -------------------------------------------------------------------------------
-    # -------------------------------------------------------------------------------
-    def createTabellenGui(self):
-        ''' Gui für Liste
-        '''
-        self.Gui_rahmen[self.GUI_TAB_ID] = Tk.LabelFrame(self.root, bd=2, text=self.title, font=('Verdana', 10, 'bold'))
-        
-        gr_entry = Tk.Frame(self.Gui_rahmen[self.GUI_TAB_ID], relief=Tk.GROOVE, bd=2)
-        gr_entry.pack(pady=5)
-        
-        # label links oben mit text Filte
-        # label_a = Tk.Label(gr_entry,text='Filter:',font=('Verdana',10,'bold'))
-        # label_a.pack(side=Tk.LEFT,pady=1,padx=1)
-        
-        # entry StringVar fuer die Eingabe
-        # self.StringVarFiltText = Tk.StringVar()
-        # self.StringVarFiltText.set("")
-        # self.StringVarFiltText.trace("w",self.runDoFilter)
-        
-        # entry Aufruf
-        # entry_a = Tk.Entry(gr_entry,width=(100),textvariable=self.StringVarFiltText)
-        # entry_a.pack(side=Tk.LEFT,pady=1,padx=1)
-        
-        gr_tabbox = Tk.Frame(self.Gui_rahmen[self.GUI_TAB_ID])
-        gr_tabbox.pack(expand=1, fill=Tk.BOTH)
-        
-        # Scrollbar
-        scroll_tabbox_y = Tk.Scrollbar(gr_tabbox)
-        scroll_tabbox_y.pack(side=Tk.RIGHT, fill=Tk.Y)
-        
-        scroll_tabbox_x = Tk.Scrollbar(gr_tabbox, orient="horizontal")
-        scroll_tabbox_x.pack(side=Tk.BOTTOM, fill=Tk.X)
-        
-        if (len(self.index_liste) == self.ndata):
-            self.tabGui_TabBox = ttk.Treeview(gr_tabbox, columns=self.header_liste)  # , show="headings"
-        else:
-            self.tabGui_TabBox = ttk.Treeview(gr_tabbox, columns=self.header_liste, show="headings")
-        # endf
-        
-        self.tabGui_TabBox.bind('<ButtonRelease-1>', self.selectItem)
-        # self.tabGui_TabBox.bind('<KeyPress-Down>', self.set_selection)
-        # self.tabGui_TabBox.bind('<KeyPress-Up>', self.set_selection)
-        # self.tabGui_TabBox.bind('<KeyRelease-Down>', self.move_item_down)
-        # self.tabGui_TabBox.bind('<KeyRelease-Up>', self.move_item_up)
-        
-        # Listbox ttk.Treeview(self, columns=("ID", "Name", "Category", "Price"), show="headings")
-        # Tk.Listbox(gr_listbox,selectmode=Tk.EXTENDED,yscrollcommand=scroll_listbox.set,font=('Verdana',15,'bold'))
-        
-        # columns
-        if (len(self.index_liste) == self.ndata):
-            self.tabGui_TabBox.column("#0", width=30, minwidth=20)
-        # endif
-        for name in self.header_liste:
-            self.tabGui_TabBox.column(name, anchor=Tk.W)
-        # endfor
-        
-        if (len(self.index_liste) == self.ndata):
-            self.tabGui_TabBox.heading("#0", text="index", anchor=Tk.W)
-        # endif
-        for name in self.header_liste:
-            self.tabGui_TabBox.heading(name, text=name, anchor=Tk.W)
-        # endfor
-        
-        self.tabGui_TabBox.tag_configure('oddrow', background='white')
-        self.tabGui_TabBox.tag_configure('evenrow', background='lightblue')
-        for colores in self.unique_colors:
-            self.tabGui_TabBox.tag_configure(colores, background=colores)
-        # end for
-        
-        self.tabGui_TabBox.bind("<Double-1>", self.SelectOnDoubleClick)
-        
-        self.tabGui_TabBox.pack(fill=Tk.BOTH, expand=1)
-        
-        scroll_tabbox_y.config(command=self.tabGui_TabBox.yview)
-        scroll_tabbox_x.config(command=self.tabGui_TabBox.xview)
-        
-        gr_buts = Tk.Frame(self.Gui_rahmen[self.GUI_TAB_ID], relief=Tk.GROOVE, bd=2)
-        gr_buts.pack(fill=Tk.X, pady=5)
-        
-        self.Button = []
-        for name in self.abfrage_liste:
-            b_back = Tk.Button(gr_buts, text=name,
-                               command=lambda m=name: self.selectTabGui(m))  # lambda m=method: self.populateMethod(m))
-            b_back.pack(side=Tk.LEFT, pady=4, padx=2)
-            self.Button.append(b_back)
-        # endfor
-    
-    # -------------------------------------------------------------------------------
-    # -------------------------------------------------------------------------------
-    #  def runDoFilter(self,*dummy):
-    #
-    #    tt = self.StringVarFiltText.get()
-    #
-    #    self.str_auswahl_liste   = []
-    #    self.index_auswahl_liste = []
-    #
-    #    for i in range(0,len(self.str_liste),1):
-    #
-    #      ii = self.str_liste[i].find(tt)
-    #      if( ii > -1 ):
-    #        self.str_auswahl_liste.append(self.str_liste[i])
-    #        self.index_auswahl_liste.append(self.index_liste[i])
-    #      #endif
-    #    #endfor
-    #
-    #    self.makeTabGui()
-    #
-    # -------------------------------------------------------------------------------
-    def selectItem(self, a):
-        curItem = self.tabGui_TabBox.focus()
-        try:
-            self.current_row = int(curItem)
-        except:
-            print(self.tabGui_TabBox.item(curItem))
-            print(f"current_row = {self.current_row}")
-        # curRow = self.tabGui_TabBox.set(a)
-        # self.current_row = curRow["loc"]
-    
-    # def set_selection(self, event):
-    #   self.current_row = event.widget.selection();
-    #   event.widget.configure(selectmode=Tk.NONE)
-    #
-    #
-    # def reset_selection(self, event):
-    #   event.widget.selection_set(self.current_row)
-    #   event.widget.focus(self.current_row)
-    #   event.widget.configure(selectmode=Tk.BROWSE)
-    #
-    #
-    # def move_item_up(self, event):
-    #   self.reset_selection(event)
-    #   event.widget.move(self.current_row, '', event.widget.index(self.current_row) - 1)
-    #
-    #
-    # def move_item_down(self, event):
-    #   self.reset_selection(event)
-    #   event.widget.move(self.current_row, '', event.widget.index(self.current_row) + 1)
-    
-    # -------------------------------------------------------------------------------
-    def makeTabGui(self):
-        ''' list-Gui f�llen
-        '''
-        
-        # delete tabbox
-        # n = self.    tabGui_TabBox.size()
-        # if( n > 0 ): self.    tabGui_TabBox.delete(0, n)
-        
-        self.tabGui_TabBox.pack(expand=1, fill=Tk.BOTH)
-        
-        # Gruppenname aktualisieren
-        # self.select    tabGui()
-        # fill listbox
-        # Insert sample data into the Treeview
-        if (len(self.index_liste) == self.ndata):
-            for i, data in enumerate(self.data_set):
-                if( len(self.color_liste[i]) > 0 ):
-                    self.tabGui_TabBox.insert(parent="", index="end", iid=self.index_liste[i], text=self.index_liste[i],
-                                              values=data, tags=(self.color_liste[i],))
-                elif (self.index_liste[i] % 2 == 0):
-                    self.tabGui_TabBox.insert(parent="", index="end", iid=self.index_liste[i], text=self.index_liste[i],
-                                              values=data, tags=('evenrow',))
-                else:
-                    self.tabGui_TabBox.insert(parent="", index="end", iid=self.index_liste[i], text=self.index_liste[i],
-                                              values=data, tags=('oddrow',))
-                # endif
-            # endfor
-        else:
-            count = 0
-            for data in self.data_set:
-                if (count % 2 == 0):
-                    self.tabGui_TabBox.insert("", "end", values=data, tags=('evenrow',))
-                else:
-                    self.tabGui_TabBox.insert("", "end", values=data, tags=('oddrow',))
-                # endif
-                count += 1
-            # endfor
-        # endif
-        
-        self.setActFrameID(self.GUI_TAB_ID)
-    
-    # -------------------------------------------------------------------------------
-    # -------------------------------------------------------------------------------
-    def selectTabGui(self, button_name):
-        ''' eine Gruppe ausw�hlen �ber selection, wenn nicht dann weiter
-            aktuellen Namen verwenden
-            Ergebnis wird in self.actual_group_name gespeichert
-            R�ckgabewert:
-            Wenn self.actual_group_name belegt ist, dann True
-            ansonasten False
-        '''
-        
-        # get data from table
-        self.data_set = []
-        for line in self.tabGui_TabBox.get_children():
-            
-            irow = int(line)
-            data = []
-            for icol, value in enumerate(self.tabGui_TabBox.item(line)['values']):
-                
-                #  find if value by double click has changed
-                if (irow in self.double_click_row_list) and (icol in self.double_click_col_list):
-                    for i,irowproof in enumerate(self.double_click_row_list):
-                        icolproof = self.double_click_col_list[i]
-                        textproof = self.double_click_text_list[i]
-                        if (icol == icolproof) and (irow == irowproof) and (textproof != value):
-                            self.double_click_changed_pos_list.append((irow,icol))
-                            break
-                        # endif
-                    # end for
-                #end if
-                
-                if (self.type_liste[icol] == self.DATA_INTEGER):
-                    data.append(int(value))
-                elif (self.type_liste[icol] == self.DATA_FLOAT):
-                    data.append(float(value))
-                else:
-                    data.append(str(value))
-                # endif
-            # endfor
-            self.data_set.append(data)
-        # endfor
-        
-        # Nimmt den aktuellen Cursorstellung
-        self.indexListe = []
-        
-        self.index = self.current_row
-        
-        # if( len(select) > 0  ):
-        #   for i in range(0,len(select),1):
-        #     ii = select[i]
-        #     if( ii < len(self.index_auswahl_liste) ):
-        #       self.indexListe.append(self.index_auswahl_liste[ii])
-        #     #endif
-        #   #endfor
-        #   if( len(self.indexListe) > 0 ):
-        #     self.index = self.indexListe[0]
-        # #endif
-        flag = False
-        icount = 0
-        for name in self.abfrage_liste:
-            if (name == button_name):
-                flag = True
-                self.indexAbfrage = icount
-                break
-            icount += 1
-            # endif
-        # endfor
-        
-        self.exitMenu()
-    
-    def SelectOnDoubleClick(self, event):
-        '''Executed, when a row is double-clicked'''
-        # close previous popups
-        try:  # in case there was no previous popup
-            self.entryPopup.destroy()
-        except AttributeError:
-            pass
-        
-        # what row and column was clicked on
-        rowid = self.tabGui_TabBox.identify_row(event.y)
-        column = self.tabGui_TabBox.identify_column(event.x)
-        
-        # return if the header was double clicked
-        if not rowid:
-            return
-        
-        # get cell position and cell dimensions
-        x, y, width, height = self.tabGui_TabBox.bbox(rowid, column)
-        # print(x, y, width, height)
-        
-        # y-axis offset
-        pady = height // 2
-        
-        # place Entry Widget
-        text = self.tabGui_TabBox.item(rowid, 'values')[int(column[1:]) - 1]
-        
-        # save text
-        (status,columnid) = htype.type_proof(column,'int')
-        if columnid:
-            columnid -=1
-        # end if
-        if status == hdef.OKAY:
-            self.double_click_row_list.append(int(rowid))
-            self.double_click_col_list.append(columnid)
-            self.double_click_text_list.append(text)
-        # end if
-        
-        # self.flag_changed_by_double_click = False
-        
-        self.entryPopup = EntryPopup(self.root, self.tabGui_TabBox, rowid, int(column[1:]) - 1, text)
-        self.entryPopup.place(x=x, y=y + pady, width=width, height=height, anchor='w')
-    
-    # -------------------------------------------------------------------------------
-    # -------------------------------------------------------------------------------
-    def setActFrameID(self, id):
-        ''' Setzt Gui mit ID
-        '''
-        if (self.act_frame_id == self.GUI_TAB_ID):
-            self.Gui_rahmen[self.GUI_TAB_ID].pack_forget()
-        
-        self.act_frame_id = id
-        if (self.act_frame_id == self.GUI_TAB_ID):
-            self.Gui_rahmen[self.GUI_TAB_ID].pack(expand=1, fill=Tk.BOTH)
-
-
-# -------------------------------------------------------------------------------
-# ------------------------ entry pop up -----------------------------------------
-class EntryPopup(ttk.Entry):
-    def __init__(self, root, tree, iid, column, text, **kw):
-        super().__init__(root, **kw)
-        self.tv = tree  # reference to parent window's treeview
-        self.iid = iid  # row id
-        self.column = column
-        
-        self.insert(0, text)
-        self['exportselection'] = False  # Prevents selected text from being copied to
-        # clipboard when widget loses focus
-        self.focus_force()  # Set focus to the Entry widget
-        self.select_all()  # Highlight all text within the entry widget
-        self.bind("<Return>", self.on_return)  # Enter key bind
-        self.bind("<Control-a>", self.select_all)  # CTRL + A key bind
-        self.bind("<Escape>", lambda *ignore: self.destroy())  # ESC key bind
-    
-    def on_return(self, event):
-        '''Insert text into treeview, and delete the entry popup'''
-        rowid = self.tv.focus()  # Find row id of the cell which was clicked
-        vals = self.tv.item(rowid, 'values')  # Returns a tuple of all values from the row with id, "rowid"
-        vals = list(vals)  # Convert the values to a list so it becomes mutable
-        vals[self.column] = self.get()  # Update values with the new text from the entry widget
-        self.tv.item(rowid, values=vals)  # Update the Treeview cell with updated row values
-        self.destroy()  # Destroy the Entry Widget
-    
-    def select_all(self, *ignore):
-        ''' Set selection on the whole text '''
-        self.selection_range(0, 'end')
-        return 'break'  # returns 'break' to interrupt default key-bindings
-
-
-# ------------------------ entry pop up -----------------------------------------
-# -------------------------------------------------------------------------------
-
-
-# ========================== abfrage_tabelle ======================================
-# ===============================================================================
+#
+# # end def
+# def abfrage_tabelle_get_row(header_liste, data_set, listeAbfrage=None):
+#     data_index_liste = list(range(0, len(data_set)))
+#     color_liste = []
+#     obj = abfrage_tabelle_class(header_liste, data_set, data_index_liste, color_liste, listeAbfrage)
+#     data_set_out = obj.data_set
+#     indexAbfrage = obj.indexAbfrage
+#     irow = obj.current_row
+#     data_changed_pos_list = obj.double_click_changed_pos_list
+#     del obj
+#     return (data_set_out, indexAbfrage, irow,data_changed_pos_list)
+#
+#
+# # end def
+# def abfrage_tabelle_get_row_set_color(header_liste, data_set, color_liste, listeAbfrage=None):
+#     '''
+#
+#     :param header_liste:
+#     :param data_set:
+#     :param color_liste:
+#     :param listeAbfrage:
+#     :return: (data_set_out, indexAbfrage, irow,data_changed_pos_list) = abfrage_tabelle_get_row_set_color(header_liste, data_set, color_liste, listeAbfrage=None)
+#     '''
+#     data_index_liste = list(range(0, len(data_set)))
+#     obj = abfrage_tabelle_class(header_liste, data_set, data_index_liste, color_liste, listeAbfrage)
+#     data_set_out = obj.data_set
+#     indexAbfrage = obj.indexAbfrage
+#     irow = obj.current_row
+#     data_changed_pos_list = obj.double_click_changed_pos_list
+#     del obj
+#     return (data_set_out, indexAbfrage, irow,data_changed_pos_list)
+#
+#
+# # end def
+# class abfrage_tabelle_class:
+#     """
+#       (data_set,indexAbfrage) = sgui.abfrage_tabelle(header_liste,data_set):    listeAbfrage = ["okay"]
+#       (data_set,indexAbfrage) = sgui.abfrage_tabelle(header_liste,data_set,data_index_liste):    listeAbfrage = ["okay"]
+#       (data_set,indexAbfrage) = sgui.abfrage_tabelle(header_liste,data_set,data_index_liste,listeAbfrage):
+#
+#       (data_set,indexAbfrage,irow) = sgui.abfrage_tabelle_get_row(header_liste,data_set):    listeAbfrage = ["okay"]
+#       (data_set,indexAbfrage,irow) = sgui.abfrage_tabelle_get_row(header_liste,data_set,data_index_liste):    listeAbfrage = ["okay"]
+#       (data_set,indexAbfrage,irow) = sgui.abfrage_tabelle_get_row(header_liste,data_set,data_index_liste,listeAbfrage):
+#
+#       z.B. header_liste     = ["alpha","beta","gamma"]                       Die Name der Bestandteile eines dat-items
+#            data_set         = [[0.1,0.1,0.2],[0.2,0.5,0.2], .... ]           Date-set liste mit Zeilen-Liste, Zeilenliste entspricht dr Headerliste
+#            data_index_liste = [1,2, ...}                                     inizes zu den jeweiligen Daten packet
+#            listeAbfrage     = ["Ok","Cancel","Aendern"]                      Abfrage möglichkeiten indexAbfrage zeigt dann den Wert
+#
+#       irow = 0,1,2,3, .... -1 not clicked
+#     """
+#     GUI_GEOMETRY_WIDTH = GUI_GEOMETRY_WIDTH_BASE
+#     GUI_GEOMETRY_HEIGHT = GUI_GEOMETRY_HEIGHT_BASE
+#     GUI_GEOMETRY_POSX = 0
+#     GUI_GEOMETRY_POSY = 0
+#     GUI_ICON_FILE = GUI_ICON_FILE_BASE
+#     GUI_TITLE = "Tabelle"
+#
+#     GUI_TAB_ID = 0
+#
+#     DATA_FLOAT = 0
+#     DATA_INTEGER = 1
+#     DATA_STRING = 2
+#
+#     status = hdef.OKAY
+#     header_liste = []
+#     data_set = []
+#     ndata = 0
+#     nheader = 0
+#     index_liste = []
+#     type_liste = []
+#
+#     index_liste = []
+#     str_auswahl_liste = []
+#     index_auswahl_liste = []
+#     indexListe = []
+#     index = -1
+#     indexAbfrage = -1
+#     act_frame_id = 0
+#     Gui_rahmen = [None]
+#     current_row = -1
+#
+#     double_click_row_list  = []
+#     double_click_col_list  = []
+#     double_click_text_list = []
+#
+#     double_click_changed_pos_list = []
+#
+#     # -------------------------------------------------------------------------------
+#     # -------------------------------------------------------------------------------
+#     def __init__(self, header_liste, data_set, data_index_liste=None, color_liste=None, listeAbfrage=None):
+#         """
+#         """
+#         self.status = hdef.OKAY
+#         self.header_liste = []
+#         self.index_liste = []
+#         self.color_liste = []
+#         self.unique_colors = []
+#         self.str_auswahl_liste = []
+#         self.index_auswahl_liste = []
+#         self.indexListe = []
+#         self.abfrage_liste = [u'okay']
+#         self.index = -1
+#         self.act_frame_id = 0
+#         self.title = u"Tabelle"
+#         self.current_row = -1
+#         self.double_click_row_list = []
+#         self.double_click_col_list = []
+#         self.double_click_text_list = []
+#         self.double_click_changed_pos_list = []
+#
+#         # data_set
+#         if (data_set and isinstance(data_set, list)):
+#             nheader = 0
+#             self.ndata = len(data_set)
+#             for data in data_set:
+#                 if (len(data) > nheader):
+#                     nheader = len(data)
+#                 # endif
+#             # endfor
+#             self.data_set = data_set
+#             self.nheader = nheader
+#         else:
+#             self.status = hdef.NOT_OKAY
+#             return None
+#         # endif
+#
+#         # proof first data set for type
+#         data = self.data_set[0]
+#         self.type_liste = []
+#         for item in data:
+#             if (isinstance(item, float)):
+#                 self.type_liste.append(self.DATA_FLOAT)
+#             elif (isinstance(item, int)):
+#                 self.type_liste.append(self.DATA_INTEGER)
+#             else:
+#                 self.type_liste.append(self.DATA_STRING)
+#             # endif
+#         # endfor
+#
+#         # header liste
+#         if (len(header_liste) and (isinstance(header_liste, list) or isinstance(header_liste, tuple))):
+#             self.header_liste = []
+#             for item in header_liste:
+#                 self.header_liste.append(item)
+#             # endfor
+#         # endif
+#
+#         n = len(self.header_liste)
+#         if (n < self.nheader):
+#             for i in range(n, self.nheader):
+#                 self.header_liste.append(f"item{i}")
+#             # endfor
+#         # endif
+#
+#         # index liste
+#         if (data_index_liste and isinstance(data_index_liste, list)):
+#             self.index_liste = []
+#             for index in data_index_liste:
+#                 self.index_liste.append(index)
+#             # endfor
+#
+#             n = len(self.index_liste)
+#             if (n < self.ndata):
+#
+#                 if (n == 0):
+#                     ii = 0
+#                 else:
+#                     ii = self.index_liste[-1]
+#
+#                 for i in range(n, self.ndata):
+#                     ii += 1
+#                     self.index_liste.append(ii)
+#                 # endfor
+#             # endif
+#         # endif
+#
+#         # color_list
+#         if color_liste and isinstance(color_liste, list):
+#             self.color_liste = []
+#             for colores in color_liste:
+#                 if isinstance(colores, str):
+#                     self.color_liste.append(colores)
+#                 else:
+#                     self.color_liste.append('')
+#                 # end if
+#             # end for
+#             n = len(self.color_liste)
+#             if n < self.ndata:
+#                 for i in range(n, self.ndata):
+#                     self.color_liste.append('')
+#                 # end for
+#             # end if
+#         else:
+#             self.color_liste = []
+#             for i in range(self.ndata):
+#                 self.color_liste.append('')
+#             # end for
+#         # end if
+#
+#         # unique colors
+#         self.unique_colors = []
+#         for x in self.color_liste:
+#             if (len(x) > 0) and (x not in self.unique_colors):
+#                 self.unique_colors.append(x)
+#             # end if
+#         # end for
+#
+#         # Liste der Abfrage buttons
+#         if listeAbfrage:
+#             self.abfrage_liste = []
+#             for item in listeAbfrage:
+#                 if isinstance(item, str):
+#                     self.abfrage_liste.append(item)
+#                 elif isinstance(item, float):
+#                     self.abfrage_liste.append("%f" % item)
+#                 elif isinstance(item, int):
+#                     self.abfrage_liste.append("%i" % item)
+#                 # endif
+#         # endif
+#
+#         # Titel:
+#         # if( title and isinstance(title, str)):
+#         #   self.title = title
+#         # endif
+#
+#         # Auswahlliste wird auf gesamte Liste gesetzt
+#         # self.str_auswahl_liste   = self.str_liste
+#         # self.index_auswahl_liste = self.index_liste
+#
+#         # TK-Grafik anlegen
+#         # ------------------
+#         self.root = Tk.Tk()
+#         self.root.protocol("WM_DELETE_WINDOW", self.exitMenu)
+#         # geo = str(self.GUI_GEOMETRY_WIDTH)+"x"+str(self.GUI_GEOMETRY_HEIGHT)
+#         # self.root.geometry(geo)
+#         self.root.wm_geometry("%dx%d+%d+%d" % (
+#         self.GUI_GEOMETRY_WIDTH, self.GUI_GEOMETRY_HEIGHT, self.GUI_GEOMETRY_POSX, self.GUI_GEOMETRY_POSY))
+#
+#         if (os.path.isfile(self.GUI_ICON_FILE)):
+#             self.root.wm_iconbitmap(self.GUI_ICON_FILE)
+#         self.root.title(self.GUI_TITLE)
+#
+#         # Gui anlegen
+#         # --------------
+#         self.createTabellenGui()
+#
+#         # Menue anlegen
+#         # --------------
+#         # self.createMenu()
+#         self.makeTabGui()
+#         self.flag_mainloop = True
+#
+#         self.root.mainloop()
+#
+#     def __del__(self):
+#         if (self.flag_mainloop):
+#             self.root.destroy()
+#             self.flag_mainloop = False
+#
+#     def exitMenu(self):
+#         ''' Beenden der Gui
+#         '''
+#         # Vor Beenden Speichern abfragen
+#         # ans = tkinter.messagebox.askyesno(parent=self.root,title='Sichern', message='Soll Datenbasis gesichert werden')
+#         # if( ans ): self.base.save_db_file()
+#
+#         if (self.flag_mainloop):
+#             self.root.destroy()
+#             self.flag_mainloop = False
+#
+#     # -------------------------------------------------------------------------------
+#     # -------------------------------------------------------------------------------
+#     def createTabellenGui(self):
+#         ''' Gui für Liste
+#         '''
+#         self.Gui_rahmen[self.GUI_TAB_ID] = Tk.LabelFrame(self.root, bd=2, text=self.title, font=('Verdana', 10, 'bold'))
+#
+#         gr_entry = Tk.Frame(self.Gui_rahmen[self.GUI_TAB_ID], relief=Tk.GROOVE, bd=2)
+#         gr_entry.pack(pady=5)
+#
+#         # label links oben mit text Filte
+#         # label_a = Tk.Label(gr_entry,text='Filter:',font=('Verdana',10,'bold'))
+#         # label_a.pack(side=Tk.LEFT,pady=1,padx=1)
+#
+#         # entry StringVar fuer die Eingabe
+#         # self.StringVarFiltText = Tk.StringVar()
+#         # self.StringVarFiltText.set("")
+#         # self.StringVarFiltText.trace("w",self.runDoFilter)
+#
+#         # entry Aufruf
+#         # entry_a = Tk.Entry(gr_entry,width=(100),textvariable=self.StringVarFiltText)
+#         # entry_a.pack(side=Tk.LEFT,pady=1,padx=1)
+#
+#         gr_tabbox = Tk.Frame(self.Gui_rahmen[self.GUI_TAB_ID])
+#         gr_tabbox.pack(expand=1, fill=Tk.BOTH)
+#
+#         # Scrollbar
+#         scroll_tabbox_y = Tk.Scrollbar(gr_tabbox)
+#         scroll_tabbox_y.pack(side=Tk.RIGHT, fill=Tk.Y)
+#
+#         scroll_tabbox_x = Tk.Scrollbar(gr_tabbox, orient="horizontal")
+#         scroll_tabbox_x.pack(side=Tk.BOTTOM, fill=Tk.X)
+#
+#         if (len(self.index_liste) == self.ndata):
+#             self.tabGui_TabBox = ttk.Treeview(gr_tabbox, columns=self.header_liste)  # , show="headings"
+#         else:
+#             self.tabGui_TabBox = ttk.Treeview(gr_tabbox, columns=self.header_liste, show="headings")
+#         # endf
+#
+#         self.tabGui_TabBox.bind('<ButtonRelease-1>', self.selectItem)
+#         # self.tabGui_TabBox.bind('<KeyPress-Down>', self.set_selection)
+#         # self.tabGui_TabBox.bind('<KeyPress-Up>', self.set_selection)
+#         # self.tabGui_TabBox.bind('<KeyRelease-Down>', self.move_item_down)
+#         # self.tabGui_TabBox.bind('<KeyRelease-Up>', self.move_item_up)
+#
+#         # Listbox ttk.Treeview(self, columns=("ID", "Name", "Category", "Price"), show="headings")
+#         # Tk.Listbox(gr_listbox,selectmode=Tk.EXTENDED,yscrollcommand=scroll_listbox.set,font=('Verdana',15,'bold'))
+#
+#         # columns
+#         if (len(self.index_liste) == self.ndata):
+#             self.tabGui_TabBox.column("#0", width=30, minwidth=20)
+#         # endif
+#         for name in self.header_liste:
+#             self.tabGui_TabBox.column(name, anchor=Tk.W)
+#         # endfor
+#
+#         if (len(self.index_liste) == self.ndata):
+#             self.tabGui_TabBox.heading("#0", text="index", anchor=Tk.W)
+#         # endif
+#         for name in self.header_liste:
+#             self.tabGui_TabBox.heading(name, text=name, anchor=Tk.W)
+#         # endfor
+#
+#         self.tabGui_TabBox.tag_configure('oddrow', background='white')
+#         self.tabGui_TabBox.tag_configure('evenrow', background='lightblue')
+#         for colores in self.unique_colors:
+#             self.tabGui_TabBox.tag_configure(colores, background=colores)
+#         # end for
+#
+#         self.tabGui_TabBox.bind("<Double-1>", self.SelectOnDoubleClick)
+#
+#         self.tabGui_TabBox.pack(fill=Tk.BOTH, expand=1)
+#
+#         scroll_tabbox_y.config(command=self.tabGui_TabBox.yview)
+#         scroll_tabbox_x.config(command=self.tabGui_TabBox.xview)
+#
+#         gr_buts = Tk.Frame(self.Gui_rahmen[self.GUI_TAB_ID], relief=Tk.GROOVE, bd=2)
+#         gr_buts.pack(fill=Tk.X, pady=5)
+#
+#         self.Button = []
+#         for name in self.abfrage_liste:
+#             b_back = Tk.Button(gr_buts, text=name,
+#                                command=lambda m=name: self.selectTabGui(m))  # lambda m=method: self.populateMethod(m))
+#             b_back.pack(side=Tk.LEFT, pady=4, padx=2)
+#             self.Button.append(b_back)
+#         # endfor
+#
+#     # -------------------------------------------------------------------------------
+#     # -------------------------------------------------------------------------------
+#     #  def runDoFilter(self,*dummy):
+#     #
+#     #    tt = self.StringVarFiltText.get()
+#     #
+#     #    self.str_auswahl_liste   = []
+#     #    self.index_auswahl_liste = []
+#     #
+#     #    for i in range(0,len(self.str_liste),1):
+#     #
+#     #      ii = self.str_liste[i].find(tt)
+#     #      if( ii > -1 ):
+#     #        self.str_auswahl_liste.append(self.str_liste[i])
+#     #        self.index_auswahl_liste.append(self.index_liste[i])
+#     #      #endif
+#     #    #endfor
+#     #
+#     #    self.makeTabGui()
+#     #
+#     # -------------------------------------------------------------------------------
+#     def selectItem(self, a):
+#         curItem = self.tabGui_TabBox.focus()
+#         try:
+#             self.current_row = int(curItem)
+#         except:
+#             print(self.tabGui_TabBox.item(curItem))
+#             print(f"current_row = {self.current_row}")
+#         # curRow = self.tabGui_TabBox.set(a)
+#         # self.current_row = curRow["loc"]
+#
+#     # def set_selection(self, event):
+#     #   self.current_row = event.widget.selection();
+#     #   event.widget.configure(selectmode=Tk.NONE)
+#     #
+#     #
+#     # def reset_selection(self, event):
+#     #   event.widget.selection_set(self.current_row)
+#     #   event.widget.focus(self.current_row)
+#     #   event.widget.configure(selectmode=Tk.BROWSE)
+#     #
+#     #
+#     # def move_item_up(self, event):
+#     #   self.reset_selection(event)
+#     #   event.widget.move(self.current_row, '', event.widget.index(self.current_row) - 1)
+#     #
+#     #
+#     # def move_item_down(self, event):
+#     #   self.reset_selection(event)
+#     #   event.widget.move(self.current_row, '', event.widget.index(self.current_row) + 1)
+#
+#     # -------------------------------------------------------------------------------
+#     def makeTabGui(self):
+#         ''' list-Gui f�llen
+#         '''
+#
+#         # delete tabbox
+#         # n = self.    tabGui_TabBox.size()
+#         # if( n > 0 ): self.    tabGui_TabBox.delete(0, n)
+#
+#         self.tabGui_TabBox.pack(expand=1, fill=Tk.BOTH)
+#
+#         # Gruppenname aktualisieren
+#         # self.select    tabGui()
+#         # fill listbox
+#         # Insert sample data into the Treeview
+#         if (len(self.index_liste) == self.ndata):
+#             for i, data in enumerate(self.data_set):
+#                 if( len(self.color_liste[i]) > 0 ):
+#                     self.tabGui_TabBox.insert(parent="", index="end", iid=self.index_liste[i], text=self.index_liste[i],
+#                                               values=data, tags=(self.color_liste[i],))
+#                 elif (self.index_liste[i] % 2 == 0):
+#                     self.tabGui_TabBox.insert(parent="", index="end", iid=self.index_liste[i], text=self.index_liste[i],
+#                                               values=data, tags=('evenrow',))
+#                 else:
+#                     self.tabGui_TabBox.insert(parent="", index="end", iid=self.index_liste[i], text=self.index_liste[i],
+#                                               values=data, tags=('oddrow',))
+#                 # endif
+#             # endfor
+#         else:
+#             count = 0
+#             for data in self.data_set:
+#                 if (count % 2 == 0):
+#                     self.tabGui_TabBox.insert("", "end", values=data, tags=('evenrow',))
+#                 else:
+#                     self.tabGui_TabBox.insert("", "end", values=data, tags=('oddrow',))
+#                 # endif
+#                 count += 1
+#             # endfor
+#         # endif
+#
+#         self.setActFrameID(self.GUI_TAB_ID)
+#
+#     # -------------------------------------------------------------------------------
+#     # -------------------------------------------------------------------------------
+#     def selectTabGui(self, button_name):
+#         ''' eine Gruppe ausw�hlen �ber selection, wenn nicht dann weiter
+#             aktuellen Namen verwenden
+#             Ergebnis wird in self.actual_group_name gespeichert
+#             R�ckgabewert:
+#             Wenn self.actual_group_name belegt ist, dann True
+#             ansonasten False
+#         '''
+#
+#         # get data from table
+#         self.data_set = []
+#         for line in self.tabGui_TabBox.get_children():
+#
+#             irow = int(line)
+#             data = []
+#             for icol, value in enumerate(self.tabGui_TabBox.item(line)['values']):
+#
+#                 #  find if value by double click has changed
+#                 if (irow in self.double_click_row_list) and (icol in self.double_click_col_list):
+#                     for i,irowproof in enumerate(self.double_click_row_list):
+#                         icolproof = self.double_click_col_list[i]
+#                         textproof = self.double_click_text_list[i]
+#                         if (icol == icolproof) and (irow == irowproof) and (textproof != value):
+#                             self.double_click_changed_pos_list.append((irow,icol))
+#                             break
+#                         # endif
+#                     # end for
+#                 #end if
+#
+#                 if (self.type_liste[icol] == self.DATA_INTEGER):
+#                     data.append(int(value))
+#                 elif (self.type_liste[icol] == self.DATA_FLOAT):
+#                     data.append(float(value))
+#                 else:
+#                     data.append(str(value))
+#                 # endif
+#             # endfor
+#             self.data_set.append(data)
+#         # endfor
+#
+#         # Nimmt den aktuellen Cursorstellung
+#         self.indexListe = []
+#
+#         self.index = self.current_row
+#
+#         # if( len(select) > 0  ):
+#         #   for i in range(0,len(select),1):
+#         #     ii = select[i]
+#         #     if( ii < len(self.index_auswahl_liste) ):
+#         #       self.indexListe.append(self.index_auswahl_liste[ii])
+#         #     #endif
+#         #   #endfor
+#         #   if( len(self.indexListe) > 0 ):
+#         #     self.index = self.indexListe[0]
+#         # #endif
+#         flag = False
+#         icount = 0
+#         for name in self.abfrage_liste:
+#             if (name == button_name):
+#                 flag = True
+#                 self.indexAbfrage = icount
+#                 break
+#             icount += 1
+#             # endif
+#         # endfor
+#
+#         self.exitMenu()
+#
+#     def SelectOnDoubleClick(self, event):
+#         '''Executed, when a row is double-clicked'''
+#         # close previous popups
+#         try:  # in case there was no previous popup
+#             self.entryPopup.destroy()
+#         except AttributeError:
+#             pass
+#
+#         # what row and column was clicked on
+#         rowid = self.tabGui_TabBox.identify_row(event.y)
+#         column = self.tabGui_TabBox.identify_column(event.x)
+#
+#         # return if the header was double clicked
+#         if not rowid:
+#             return
+#
+#         # get cell position and cell dimensions
+#         x, y, width, height = self.tabGui_TabBox.bbox(rowid, column)
+#         # print(x, y, width, height)
+#
+#         # y-axis offset
+#         pady = height // 2
+#
+#         # place Entry Widget
+#         text = self.tabGui_TabBox.item(rowid, 'values')[int(column[1:]) - 1]
+#
+#         # save text
+#         (status,columnid) = htype.type_proof(column,'int')
+#         if columnid:
+#             columnid -=1
+#         # end if
+#         if status == hdef.OKAY:
+#             self.double_click_row_list.append(int(rowid))
+#             self.double_click_col_list.append(columnid)
+#             self.double_click_text_list.append(text)
+#         # end if
+#
+#         # self.flag_changed_by_double_click = False
+#
+#         self.entryPopup = EntryPopup(self.root, self.tabGui_TabBox, rowid, int(column[1:]) - 1, text)
+#         self.entryPopup.place(x=x, y=y + pady, width=width, height=height, anchor='w')
+#
+#     # -------------------------------------------------------------------------------
+#     # -------------------------------------------------------------------------------
+#     def setActFrameID(self, id):
+#         ''' Setzt Gui mit ID
+#         '''
+#         if (self.act_frame_id == self.GUI_TAB_ID):
+#             self.Gui_rahmen[self.GUI_TAB_ID].pack_forget()
+#
+#         self.act_frame_id = id
+#         if (self.act_frame_id == self.GUI_TAB_ID):
+#             self.Gui_rahmen[self.GUI_TAB_ID].pack(expand=1, fill=Tk.BOTH)
+#
+#
+# # -------------------------------------------------------------------------------
+# # ------------------------ entry pop up -----------------------------------------
+# class EntryPopup(ttk.Entry):
+#     def __init__(self, root, tree, iid, column, text, **kw):
+#         super().__init__(root, **kw)
+#         self.tv = tree  # reference to parent window's treeview
+#         self.iid = iid  # row id
+#         self.column = column
+#
+#         self.insert(0, text)
+#         self['exportselection'] = False  # Prevents selected text from being copied to
+#         # clipboard when widget loses focus
+#         self.focus_force()  # Set focus to the Entry widget
+#         self.select_all()  # Highlight all text within the entry widget
+#         self.bind("<Return>", self.on_return)  # Enter key bind
+#         self.bind("<Control-a>", self.select_all)  # CTRL + A key bind
+#         self.bind("<Escape>", lambda *ignore: self.destroy())  # ESC key bind
+#
+#     def on_return(self, event):
+#         '''Insert text into treeview, and delete the entry popup'''
+#         rowid = self.tv.focus()  # Find row id of the cell which was clicked
+#         vals = self.tv.item(rowid, 'values')  # Returns a tuple of all values from the row with id, "rowid"
+#         vals = list(vals)  # Convert the values to a list so it becomes mutable
+#         vals[self.column] = self.get()  # Update values with the new text from the entry widget
+#         self.tv.item(rowid, values=vals)  # Update the Treeview cell with updated row values
+#         self.destroy()  # Destroy the Entry Widget
+#
+#     def select_all(self, *ignore):
+#         ''' Set selection on the whole text '''
+#         self.selection_range(0, 'end')
+#         return 'break'  # returns 'break' to interrupt default key-bindings
+#
+#
+# # ------------------------ entry pop up -----------------------------------------
+# # -------------------------------------------------------------------------------
+#
+#
+# # ========================== abfrage_tabelle ======================================
+# # ===============================================================================
 
 # ===============================================================================
 # ========================== abfrage_tabelle2 =====================================
@@ -1180,7 +1180,7 @@ class EntryPopup(ttk.Entry):
 # return ddict_out
 # mit
 # ddict_out["data_set"]                     return modified data set
-# ddict_out["index_abfrage"]                index of ddict_inp["abfrage_liste"] if clicked otherwise -1
+# dindex of ddict_inp["abfrage_liste"] if clicked otherwise -1
 # ddict_out["irow_select"]                  selcted row if click otherwise -1
 # ddict_out["status"]                       status
 # ddict_out["errtext"]                      errtext
@@ -1188,8 +1188,10 @@ class EntryPopup(ttk.Entry):
 # ddict_out["data_change_flag"]             are dates changed
 
 
-def abfrage_tabelle2(ddict_inp):
-    obj = abfrage_tabelle2_class(ddict_inp)
+def abfrage_tabelle(ddict_inp):
+    
+    
+    obj = abfrage_tabelle_class(ddict_inp)
 
     ddict_out = {}
     ddict_out["data_set"] = obj.data_set
@@ -1204,7 +1206,7 @@ def abfrage_tabelle2(ddict_inp):
     return ddict_out
 
 
-class abfrage_tabelle2_class:
+class abfrage_tabelle_class:
     """
 
     """
@@ -1827,7 +1829,7 @@ class abfrage_tabelle2_class:
 
 
 
-# ========================== abfrage_tabelle2 ======================================
+# ========================== abfrage_tabelle ======================================
 # ===============================================================================
 
 # ===============================================================================
@@ -3651,14 +3653,14 @@ if __name__ == '__main__':
 
     ddict_inp = abfrage_dict(ddict_inp, title="modify dictionary")
 
-    ddict_out = abfrage_tabelle2(ddict_inp)
+    ddict_out = abfrage_tabelle(ddict_inp)
 
     print(ddict_out.keys())
-    print(f"data_set = {ddict_out["data_set"]}")
-    print(f"index_abfrage = {ddict_out["index_abfrage"]}")
-    print(f"irow_select = {ddict_out["irow_select"]}")
-    print(f"status = {ddict_out["status"]}")
-    print(f"errtext = \"{ddict_out["errtext"]}\"")
+    print(f"data_set = {ddict_out['data_set']}")
+    print(f"index_abfrage = {ddict_out['index_abfrage']}")
+    print(f"irow_select = {ddict_out['irow_select']}")
+    print(f"status = {ddict_out['status']}")
+    print(f"errtext = \"{ddict_out['errtext']}\"")
     """
 
     header_liste = ["Datuam", "Markt", "Kosten"]

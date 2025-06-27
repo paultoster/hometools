@@ -1473,6 +1473,8 @@ def type_transform_percentStr(wert_in, type_out):
             wert_out = None
             raise Exception(f"type_transform_percentStr: In type_transform_int ist type_out: {type_out} nicht möglich")
         # end if
+    else:
+        wert_out = None
     # end if
     return (okay,wert_out)
 # end def

@@ -137,6 +137,10 @@ class ka_data_pickle:
             self.status = hdef.NOT_OKAY
             self.errtext = f"An error occurred while run pickle with loaded file: {self.filename} with {traceback.format_exc(e)}"
             return
+        except TypeError as e:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"An TypeError error occurred while run pickle with loaded file: {self.filename} with {e.args[0]}"
+            return
         except Exception as e:
             self.status = hdef.NOT_OKAY
             self.errtext = f"An error occurred while run pickle with loaded file: {self.filename} with {traceback.format_exc(e)}"

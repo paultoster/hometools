@@ -1,15 +1,21 @@
 
 from bs4 import BeautifulSoup as bs
 import urllib.request
-import re
+import os
+
 
 import tools.hfkt_def as hdef
 import tools.hfkt_str as hstr
 import tools.hfkt_type as htype
 import time
 
-import wp_abfrage.wp_storage as wp_storage
-imoprt wp_abfrage.wp_playright as wp_pr
+if os.path.isfile('wp_base.py'):
+    import wp_storage as wp_storage
+    import wp_playright as wp_pr
+else:
+    import wp_abfrage.wp_storage as wp_storage
+    import wp_abfrage.wp_playright as wp_pr
+# end if
 
 def wp_basic_info_with_isin_list(ddict):
     '''
@@ -48,20 +54,28 @@ def wp_basic_info_with_isin_list(ddict):
         # basic info data einlesen wenn vorhanden
         #---------------------------------------------
         if wp_storage.info_storage_eixst(isin, ddict):
-            print(f"            ... read File")
+            print(f"            ... lese File")
             (status, errtext, info_dict) = wp_storage.read_info_dict(isin, ddict)
         # ---------------------------------------------
         # basic info data vo html suchen
         # ---------------------------------------------
         else:
-            print(f"            ... read HTML")
+            print(f"            ... lese HTML")
+            
+            print(f"            versuche extraetf_ETF")
             info_dict = get_default_info_dict(isin)
             (status, errtext, info_dict) = wp_basic_info_extraetf_ETF(isin,info_dict)
             if status == hdef.NOT_FOUND:
+                print(f"            versuche extraetf_Aktie")
+                info_dict = get_default_info_dict(isin)
                 (status, errtext, info_dict) = wp_basic_info_extraetf_Aktie(isin,info_dict)
             if status == hdef.NOT_FOUND:
+                print(f"            versuche extraetf_Fond")
+                info_dict = get_default_info_dict(isin)
                 (status, errtext, info_dict) = wp_basic_info_extraetf_Fond(isin,info_dict)
             if status == hdef.NOT_FOUND:
+                print(f"            versuche ariva_Anleihe")
+                info_dict = get_default_info_dict(isin)
                 (status, errtext, info_dict) = wp_basic_info_ariva_Anleihe(isin,info_dict)
 
             if status == hdef.OKAY:
@@ -112,6 +126,7 @@ def get_default_info_dict(isin):
     info_dict["marktkapitalisierung"] = ""
     info_dict["dividendenrendite"] = ""
     info_dict["gewinn"] = ""
+    return info_dict
 # end def
 def wp_basic_info_extraetf_ETF(isin,info_dict):
     status = hdef.OKAY
@@ -254,8 +269,8 @@ def wp_basic_info_extraetf_ETF(isin,info_dict):
     #-----------------------------------------------------
     info_dict["zahltdiv"] = 0
     if "dividendenrendite" in info_dict.keys():
-        (okay,value) =htype.type_transform(info_dict["ertragsverwendung"],"percentStr","float")
-        if okay == hdef.okay:
+        (okay,value) =htype.type_transform(info_dict["dividendenrendite"],"percentStr","float")
+        if okay == hdef.OKAY:
             if value > 0.1:
                 info_dict["zahltdiv"] = 1
             # end if

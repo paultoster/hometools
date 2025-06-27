@@ -10,9 +10,9 @@ import tools.hfkt_def as hdef
 def info_storage_eixst(isin,ddict):
     
     if ddict["use_json"] == 2:
-        file_name = build_file_name_json(ddict["pre_file_name"] + str(isin),ddict)
+        file_name = build_file_name_json(ddict["basic_info_pre_file_name"] + str(isin),ddict)
     else:
-        file_name = build_file_name_pickle(ddict["pre_file_name"] + str(isin),ddict)
+        file_name = build_file_name_pickle(ddict["basic_info_pre_file_name"] + str(isin),ddict)
     # end if
 
     if os.path.isfile(file_name):
@@ -33,7 +33,7 @@ def read_info_dict(isin,ddict):
 
     if (ddict["use_json"] == 2):  # read json
         
-        file_name = build_file_name_json(ddict["pre_file_name"]+str(isin), ddict)
+        file_name = build_file_name_json(ddict["basic_info_pre_file_name"]+str(isin), ddict)
         
         if (os.path.isfile(file_name)):
             (status, errtext, info_dict) = read_json(file_name)
@@ -44,7 +44,7 @@ def read_info_dict(isin,ddict):
         # end if
     
     else:  # normal pickle load
-        file_name = build_file_name_pickle(ddict["pre_file_name"] + str(isin), ddict)
+        file_name = build_file_name_pickle(ddict["basic_info_pre_file_name"] + str(isin), ddict)
         
         # Wenn die Datei vorhanden ist:
         if (os.path.isfile(file_name)):
@@ -69,12 +69,12 @@ def save_info_dict(isin, info_dict, ddict):
     errtext = ""
    
     # save pckl
-    file_name = build_file_name_pickle(ddict["pre_file_name"] + str(isin), ddict)
+    file_name = build_file_name_pickle(ddict["basic_info_pre_file_name"] + str(isin), ddict)
     
     (status, errtext) = save_pickle(info_dict, file_name)
     
     if (ddict["use_json"] == 1):  # write json
-        file_name = build_file_name_json(ddict["pre_file_name"]+str(isin), ddict)
+        file_name = build_file_name_json(ddict["basic_info_pre_file_name"]+str(isin), ddict)
         
         (status, errtext) = save_json(info_dict, file_name)
     # end if

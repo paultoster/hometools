@@ -184,7 +184,7 @@ class DepotDataSet:
         
         return wp_data_set_dict
     def get_to_store_isin_list(self):
-        return self.wp_data_obj_dict.keys()
+        return list(self.wp_data_obj_dict.keys())
     # end def
     def get_to_store_depot_wp_name_list(self):
         
@@ -193,7 +193,7 @@ class DepotDataSet:
             
             liste.append(self.wp_data_obj_dict[isin].get_depot_wp_name())
         
-        
+        return liste
         
     # end def
     def get_wp_data_set_dict_to_store(self,isin):

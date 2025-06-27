@@ -7,7 +7,7 @@ def get_ariva_url_playwright(isin):
     errtext = ""
     
     icount = 0
-    while (icount < 2) or (status != hdef.OKAY):
+    while (icount < 2) and (status != hdef.OKAY):
         
         try:
             with sync_playwright() as playwright:
