@@ -138,7 +138,7 @@ class DataSet:
     #         self.n_data_sets += 1
     #     # end for
     # # edn def
-    def add_data_set_dict(self,data_dict: dict,type_dict:dict):
+    def add_data_set_dict(self,data_dict: dict,new_header_dict: dict,type_dict:dict):
         
         if( not self.def_okay ):
             self.status = hdef.NOT_OKAY
@@ -148,15 +148,19 @@ class DataSet:
         
         data_set_list =  [htype.type_get_default(self.type_dict[icol]) for icol in range(self.ncol)]
         for key in data_dict.keys():
-            # index = hlist.find_first_key_dict_value(self.name_dict, key)
-            if key in self.name_dict.keys():
+            new_name = new_header_dict[key]
+            
+            # suche in self.name_dict
+            keys = [k for k, v in self.name_dict.items() if v == new_name]
+            
+            if keys and (keys[0] == key):
                 (okay, wert) = htype.type_transform(data_dict[key], type_dict[key],
                                                     self.type_dict[key])
                 if okay == hdef.OK:
                     data_set_list[key] = wert
                 else:
                     self.status = hdef.NOT_OKAY
-                    self.errtext = f"add_data_set_dict: Problem type_transform of <{data_dict[key]}> von type: <{type_dict[key]}> zu <{self.type_dict[index]}> "
+                    self.errtext = f"add_data_set_dict: Problem type_transform of <{data_dict[key]}> von type: <{type_dict[key]}> zu <{self.type_dict[key]}> "
                     return
                 # end if
             # end if

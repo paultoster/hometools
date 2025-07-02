@@ -8,7 +8,25 @@ class WpDataSet:
     
     
     def __init__(self,isin,depot_wp_name,par,wp_func_obj):
-        
+        '''
+            self.wp_info_dict["type"] = "etf","aktie"
+            self.wp_info_dict["name"]
+            self.wp_info_dict["isin"]
+            self.wp_info_dict["wkn"]
+            self.wp_info_dict["ticker"]
+            self.wp_info_dict["zahltdiv"] = 0/1
+                                                                    ETF
+            self.wp_info_dict["indexabbildung"] = value
+            self.wp_info_dict["ertragsverwendung"] = value
+            self.wp_info_dict["ter"] = value
+            self.wp_info_dict["volumen"] = value
+            self.wp_info_dict["anzahl"] = value
+
+        :param isin:
+        :param depot_wp_name:
+        :param par:
+        :param wp_func_obj:
+        '''
         self.isin = isin
         self.depot_wp_name = depot_wp_name
         self.par  = par
@@ -35,11 +53,34 @@ class WpDataSet:
             self.status  = hdef.NOT_OKAY
             self.errtext = errtext
         else:
-            self.wp_data_dict = info_dict
+            self.wp_info_dict = info_dict
         # end if
         
         
         return
+    # end def
+    def get_name(self):
+        '''
+        
+        :return:
+        '''
+        return self.wp_info_dict["name"]
+    # end def
+    def get_zahltdiv(self):
+        '''
+        
+        :return:
+        '''
+        return self.wp_info_dict["zahltdiv"]
+    # end def
+    def get_summen_anzahl(self):
+        '''
+        
+        :return:
+        '''
+        
+        #####
+        return 0
     # end def
     def set_stored_wp_data_set_dict(self,wp_data_set_dict):
         self.status = hdef.OK
@@ -74,7 +115,7 @@ class WpDataSet:
             return False
         # end if
     # end def
-    def add_data_set_dict_to_table(self,new_data_dict,new_type_dict):
+    def add_data_set_dict_to_table(self,new_data_dict,new_header_dict,new_type_dict):
         '''
         
         :param new_data_dict:
@@ -82,7 +123,7 @@ class WpDataSet:
         :return:
         '''
         
-        self.data_set_obj.add_data_set_dict(new_data_dict,new_type_dict)
+        self.data_set_obj.add_data_set_dict(new_data_dict,new_header_dict,new_type_dict)
         
         if self.data_set_obj.status != hdef.OKAY:
             self.status  = self.data_set_obj.status

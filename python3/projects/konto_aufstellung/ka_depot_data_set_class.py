@@ -82,6 +82,8 @@ class DepotParam:
     DEPOT_DATA_NAME_STEUER = "steuer"
     # DEPOT_DATA_NAME_SUMWERT = "sumwert"
     DEPOT_DATA_NAME_KATEGORIE = "kategorie"
+    DEPOT_DATA_NAME_WP_NAME = "wp_name"
+    DEPOT_DATA_NAME_ZAHLTDIV = "zahltdiv"
     
     DEPOT_DATA_LLIST = [
         [DEPOT_DATA_INDEX_KONTO_ID, DEPOT_DATA_NAME_KONTO_ID, "int"],
@@ -232,7 +234,7 @@ class DepotDataSet:
                     = self.par.DEPOT_BUCHTYPE_INDEX_LIST[
                     self.par.DEPOT_BUCHTYPE_TEXT_LIST.index(buchtype_str)]
                 
-                (new_data_dict, new_type_dict) = self.get_konto_data_at_i(i,buch_type,konto_obj)
+                (new_data_dict, new_header_dict, new_type_dict) = self.get_konto_data_at_i(i,buch_type,konto_obj)
                 
                 (flag_read,isin) = self.proof_raw_dict_isin_id(new_data_dict)
                 if self.status != hdef.OKAY:
@@ -240,7 +242,7 @@ class DepotDataSet:
                 # end if
                 
                 if flag_read:
-                    self.wp_data_obj_dict[isin].add_data_set_dict_to_table(new_data_dict,new_type_dict)
+                    self.wp_data_obj_dict[isin].add_data_set_dict_to_table(new_data_dict,new_header_dict,new_type_dict)
                     
                     if self.wp_data_obj_dict[isin].status != hdef.OKAY:
                         self.status = hdef.NOT_OKAY
@@ -267,10 +269,11 @@ class DepotDataSet:
         
         :param i:
         :param buch_type:
-        :return:  (new_data_dict,new_type_dict) = self.get_konto_data_at_i(i,buch_type,konto_obj)
+        :return:  (new_data_dict,new_header_dict,new_type_dict) = self.get_konto_data_at_i(i,buch_type,konto_obj)
         '''
         new_data_dict = {}
         new_type_dict = {}
+        new_header_dict = {}
         for index in self.par.DEPOT_KONTO_DATA_INDEX_LIST:
             
             # buchtype
@@ -280,12 +283,14 @@ class DepotDataSet:
                 new_data_dict[index] = konto_obj.get_data_item_at_i(i,self.par.DEPOT_DATA_NAME_DICT[index],self.par.DEPOT_DATA_TYPE_DICT[index])
             # end if
             new_type_dict[index] = self.par.DEPOT_DATA_TYPE_DICT[index]
+            new_header_dict[index] = self.par.DEPOT_DATA_NAME_DICT[index]
         # end ofr
         
-        return (new_data_dict,new_type_dict)
+        return (new_data_dict,new_header_dict,new_type_dict)
     # end def
     def proof_raw_dict_isin_id(self,new_data_dict):
         '''
+        Prüft ob isin okay und ob isin es Stammdaten vorhanden und ob schon ein wp-objekt angelegt ist
         
         :param raw_data_dict:
         :return: (flag,isin_index) = self.get_from_konto_data_raw_dict(raw_data_dict,new_type_dict)
@@ -370,10 +375,43 @@ class DepotDataSet:
     # end def
     def get_depot_daten_sets_overview(self):
         '''
-        
-        :return:
+        hole von jedem WP die Zusammenfassungen
+        :return: (data_lliste, header_liste,type_liste) = self.get_depot_daten_sets_overview()
         '''
         
-        #######
+        
+        header_liste = [self.par.DEPOT_DATA_NAME_ISIN,
+                        self.par.DEPOT_DATA_NAME_WP_NAME,
+                        self.par.DEPOT_DATA_NAME_ZAHLTDIV,
+                        self.par.DEPOT_DATA_NAME_ANZAHL]
+        type_liste = ["isin",
+                      "str",
+                      "int"
+                      "int"]
+        data_lliste = []
+        for isin in self.wp_data_obj_dict.keys():
+            dataliste = []
+            
+            # 1. isin
+            #---------
+            dataliste.append(isin)
+            
+            # 2. Name
+            #--------
+            name = self.wp_data_obj_dict[isin].get_name()
+            dataliste.append(isin)
+            
+            # 3. Zahlt Dividende
+            dataliste.append(self.wp_data_obj_dict[isin].get_zahltdiv())
+
+            # 4. Anzahl
+            dataliste.append(self.wp_data_obj_dict[isin].get_summen_anzahl())
+
+            data_lliste.append(dataliste)
+        # end for
+        
+        return (data_lliste, header_liste,type_liste)
+
+        
     # end def
 # end class
