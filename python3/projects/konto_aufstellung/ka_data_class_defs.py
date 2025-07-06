@@ -138,7 +138,7 @@ class DataSet:
     #         self.n_data_sets += 1
     #     # end for
     # # edn def
-    def add_data_set_dict(self,data_dict: dict,new_header_dict: dict,type_dict:dict):
+    def add_data_set_dict(self,new_data_dict: dict,new_header_dict: dict,new_type_dict:dict):
         
         if( not self.def_okay ):
             self.status = hdef.NOT_OKAY
@@ -147,20 +147,20 @@ class DataSet:
         # end if
         
         data_set_list =  [htype.type_get_default(self.type_dict[icol]) for icol in range(self.ncol)]
-        for key in data_dict.keys():
+        for key in new_data_dict.keys():
             new_name = new_header_dict[key]
             
             # suche in self.name_dict
             keys = [k for k, v in self.name_dict.items() if v == new_name]
             
             if keys and (keys[0] == key):
-                (okay, wert) = htype.type_transform(data_dict[key], type_dict[key],
+                (okay, wert) = htype.type_transform(new_data_dict[key], new_type_dict[key],
                                                     self.type_dict[key])
                 if okay == hdef.OK:
                     data_set_list[key] = wert
                 else:
                     self.status = hdef.NOT_OKAY
-                    self.errtext = f"add_data_set_dict: Problem type_transform of <{data_dict[key]}> von type: <{type_dict[key]}> zu <{self.type_dict[key]}> "
+                    self.errtext = f"add_data_set_dict: Problem type_transform of <{new_data_dict[key]}> von type: <{new_type_dict[key]}> zu <{self.type_dict[key]}> "
                     return
                 # end if
             # end if
@@ -316,23 +316,38 @@ class DataSet:
     #     self.data_set_llist[irow][icol] = wert
     #     return
     # # end defget_data_item
-    def get_data_item(self, irow: int, icol: int, type: any = None):
+    def get_data_item(self, irow: int, icol: int|str, type: any = None):
         '''
         
         :param icol:
         :param irow:
         :param type:
-        :return: wert = self.get_data_item(irow, icol, type)
-        :return: wert = self.get_data_item(irow, icol)
+        :return: wert = self.get_data_item(irow, icol [, type])
+        :return: wert = self.get_data_item(irow, headername [,type])
         '''
+        if isinstance(icol,str): # header name
+            # search headername
+            keys = [k for k, v in self.name_dict.items() if v == icol]
+            
+            if len(keys) == 0:
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"get_data_item_by_header:  Fehler headername = {icol} kann nicht im header of data_set gefunden werden (header_dict: {self.name_dict.items()} !!!"
+                return None
+            else:
+                icol = keys[0]
+            # end if
+        # end if
+        
         if irow >= self.n_data_sets:
             self.status = hdef.NOT_OKAY
             self.errtext = f"get_data_item:  Fehler irow = {irow} >= self.n_data_sets = {self.n_data_sets} !!!"
             return None
+        # end if
         if icol >= self.ncol:
             self.status = hdef.NOT_OKAY
             self.errtext = f"get_data_item: Fehler get_data_item: icol = {icol} >= self.ncol = {self.ncol} !!!"
             return None
+        # end if
         if type:
             (okay, wert) = htype.type_transform(self.data_set_llist[irow][icol], self.type_dict[icol],type)
             if okay != hdef.OKAY:
@@ -344,6 +359,48 @@ class DataSet:
             wert = self.data_set_llist[irow][icol]
         # end if
         return wert
+    # end def
+    def get_data_item_special(self, calc_type: str, icol: int|str, type: any = None):
+        '''
+        
+        :param calc_type:  bis jetzt summe
+        :param icol/headername:  icol integer or name des Haders
+        :param type: wenn in ein bestimten type umgerechnet werden soll
+        :return: wert = self.get_data_item_by_header("sum", icol [,type])
+        :return: wert = self.get_data_item_by_header("sum", "headername" [,type])
+        '''
+        
+        
+        # calc_type == "sum":
+        #   calc_type = 'sum'
+        #else:
+        #    calc_type = 'value'
+            
+        
+        
+
+        wert = 0.0
+        for irow in range(self.n_data_sets):
+            self.get_data_item(self, irow, icol, "float")
+            value = htype.type_transform(self.data_set_llist[irow][icol]
+                                                , self.type_dict[icol], "float")
+            if not value:
+                return None
+            # end if
+            wert += value
+        # end for
+        if type:
+            (okay, wert) = htype.type_transform(wert,
+                                                self.type_dict[icol], type)
+            if okay != hdef.OKAY:
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"get_data_item_by_header: Fehler transform data_item = {self.data_set_llist[irow][icol]} von type: {self.type_dict[icol]} in type {type} wandeln !!! !!!"
+                return None
+            # end if
+        # end if
+
+        return wert
+    
     # end def
     def find_in_col(self, value, type, icol):
         '''

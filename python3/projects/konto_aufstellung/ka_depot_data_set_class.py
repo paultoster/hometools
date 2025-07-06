@@ -383,11 +383,13 @@ class DepotDataSet:
         header_liste = [self.par.DEPOT_DATA_NAME_ISIN,
                         self.par.DEPOT_DATA_NAME_WP_NAME,
                         self.par.DEPOT_DATA_NAME_ZAHLTDIV,
-                        self.par.DEPOT_DATA_NAME_ANZAHL]
+                        self.par.DEPOT_DATA_NAME_ANZAHL,
+                        self.par.DEPOT_DATA_NAME_WERT]
         type_liste = ["isin",
                       "str",
-                      "int"
-                      "int"]
+                      "int",
+                      "float",
+                      "float"]
         data_lliste = []
         for isin in self.wp_data_obj_dict.keys():
             dataliste = []
@@ -405,7 +407,22 @@ class DepotDataSet:
             dataliste.append(self.wp_data_obj_dict[isin].get_zahltdiv())
 
             # 4. Anzahl
-            dataliste.append(self.wp_data_obj_dict[isin].get_summen_anzahl())
+            anzahl = self.wp_data_obj_dict[isin].get_summen_anzahl()
+            if anzahl is None:
+                self.status = self.wp_data_obj_dict[isin].status
+                self.errtext = self.wp_data_obj_dict[isin].errtext
+                return ([],[],[])
+            # end if
+            dataliste.append(anzahl)
+
+            # 5. Sumwert
+            sumwert = self.wp_data_obj_dict[isin].get_summen_wert()
+            if sumwert is None:
+                self.status = self.wp_data_obj_dict[isin].status
+                self.errtext = self.wp_data_obj_dict[isin].errtext
+                return ([],[],[])
+            # end if
+            dataliste.append(sumwert)
 
             data_lliste.append(dataliste)
         # end for

@@ -76,11 +76,45 @@ class WpDataSet:
     def get_summen_anzahl(self):
         '''
         
-        :return:
+        :return: Summe der Anzahl von Aktien
         '''
+        summe = 0.0
+        for irow in range(self.data_set_obj.n_data_sets):
+            anzahl = self.data_set_obj.get_data_item(irow,self.par.DEPOT_DATA_NAME_ANZAHL,"float")
+            if self.data_set_obj.status != hdef.OKAY:
+                self.status = self.data_set_obj.status
+                self.errtext = self.data_set_obj.errtext
+                return None
+            # end if
+            buchtype = self.data_set_obj.get_data_item(irow,self.par.DEPOT_DATA_NAME_BUCHTYPE)
+            if self.data_set_obj.status != hdef.OKAY:
+                self.status = self.data_set_obj.status
+                self.errtext = self.data_set_obj.errtext
+                return None
+            # end if
+            if buchtype == self.par.DEPOT_BUCHTYPE_INDEX_WP_KAUF:
+                summe += abs(anzahl)
+            elif buchtype == self.par.DEPOT_BUCHTYPE_INDEX_WP_VERKAUF:
+                summe -= abs(anzahl)
+            # end if
+        # end for
         
-        #####
-        return 0
+        return summe
+    # end def
+    def get_summen_wert(self):
+        summe = 0.0
+    
+        for irow in range(self.data_set_obj.n_data_sets):
+            wert = self.data_set_obj.get_data_item(irow, self.par.DEPOT_DATA_NAME_WERT, "float")
+            if self.data_set_obj.status != hdef.OKAY:
+                self.status = self.data_set_obj.status
+                self.errtext = self.data_set_obj.errtext
+                return None
+            # end if
+            summe += abs(wert)
+        # end for
+        
+        return summe
     # end def
     def set_stored_wp_data_set_dict(self,wp_data_set_dict):
         self.status = hdef.OK
