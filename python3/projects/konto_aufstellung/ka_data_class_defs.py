@@ -71,6 +71,13 @@ class DataSet:
         :return: self.add_data_set(data_set, col_list, type_list)                        add with col_list, type_list always
         :return: self.add_data_set(data_set, col_list)                                   add with col_list  always without transforming
         :return: self.add_data_set(data_set)                                             add always without transforming and in order of data_set
+                 self.def get_data_item(irow, icol [,type]):
+                 value = self.def get_data_item(irow, headername [,type]):
+                 value = self.def get_data_item_special(calc_type, icol [,type]): calc_type = "sum"
+                 value = self.def get_data_item_special(calc_type, headername [,type]): calc_type = "sum"
+                 irow_list = self.find_in_col(value,type, icol)
+                 data_dict_list = get_data_set_dict_list()
+                 data_type_dict = self.get_data_type_dict()
     '''
     def __init__(self,name):
         self.name = name
@@ -110,34 +117,6 @@ class DataSet:
         # end if
         return
     # end def
-    # def set_dat_set_named_dict_list(self, data_dict_list, data_type_dict):
-    #     '''
-    #
-    #     :param konto_data_dict_list:
-    #     :param konto_data_type_dict:
-    #     :return:
-    #     '''
-    #     # base_konto_data_set_list = [None for item in self.KONTO_DATA_INDEX_LIST]
-    #
-    #     for data_dict in data_dict_list:
-    #         data_set_list = [htype.type_get_default(self.type_dict[icol]) for icol in range(self.ncol)]
-    #         for name in data_dict.keys():
-    #             index = hlist.find_first_key_dict_value(self.name_dict, name)
-    #             if index is not None:
-    #                 (okay, wert) = htype.type_transform(data_dict[name],data_type_dict[name],self.type_dict[index])
-    #                 if okay == hdef.OK:
-    #                     data_set_list[index]= wert
-    #                 else:
-    #                     self.status = hdef.NOT_OKAY
-    #                     self.errtext = f"add_data_set_dict: Problem type_transform of <{data_dict[name]}> von type: <{data_type_dict[name]}> zu <{self.type_dict[index]}> "
-    #                     return
-    #                 # end if
-    #             # end if
-    #         # end for
-    #         self.data_set_llist.append(data_set_list)
-    #         self.n_data_sets += 1
-    #     # end for
-    # # edn def
     def add_data_set_dict(self,new_data_dict: dict,new_header_dict: dict,new_type_dict:dict):
         
         if( not self.def_okay ):
@@ -172,150 +151,6 @@ class DataSet:
         return
     # end if
     
-    # def add_data_set_list(self, data_llist: list, col_list: list = None, type_list: list = None,add_if_new_in_col: int = None):
-    #     '''
-    #
-    #     :param data_llist: list of of data_sets
-    #     :param col_list:  list of index position from data_set
-    #     :param type_list: list of type in order of data_set
-    #     :param add_if_new_in_col: Wenn Wert aus der Spalte col neu ist
-    #     :return: self.add_data_set_list(data_llist, col_list, type_list, add_if_new_in_col)     add with col_list, type_list if add_if_new_in_col=icol
-    #     :return: self.add_data_set_list(data_llist, col_list, type_list)                        add with col_list, type_list always
-    #     :return: self.add_data_set_list(data_llist, col_list)                                   add with col_list  always without transforming
-    #     :return: self.add_data_set_list(data_llist)                                             add always without transforming and in order of data_set
-    #     '''
-    #     for data_set in data_llist:
-    #         self.add_data_set(data_set,col_list,type_list,add_if_new_in_col)
-    #     # end for
-    #     return
-    # # end def
-    # def add_data_set(self, data_set:list, col_list:list=None, type_list:list=None, add_if_new_in_col:int=None):
-    #     '''
-    #
-    #     :param data_set: list of data
-    #     :param col_list:  list of index position from data_set
-    #     :param type_list: list of type in order of data_set
-    #     :param add_if_new_in_col: Wenn Wert aus der Spalte col neu ist
-    #     :return: self.add_data_set(data_set, col_list, type_list, add_if_new_in_col)     add with col_list, type_list if add_if_new_in_col=icol
-    #     :return: self.add_data_set(data_set, col_list, type_list)                        add with col_list, type_list always
-    #     :return: self.add_data_set(data_set, col_list)                                   add with col_list  always without transforming
-    #     :return: self.add_data_set(data_set)                                             add always without transforming and in order of data_set
-    #     :return: self.add_data_item(data_item, icol, type,add_if_new):   add value item in icol with type to tranform, add if add_if_new=True
-    #     :return: self.add_data_item(data_item, icol, type)               add value item in icol with type to tranform, add always
-    #     :return: self.add_data_item(data_item, icol):                    add value item in icol w/o tranform, add always
-    #     :return: self.set_data_item(data_item, irow, icol, type)   set value item in icol of irow in data_llist with type to tranform
-    #     :return: self.set_data_item(data_item, irow, icol)         set value item in icol of irow in data_llist w/o tranform
-    #     :return: wert = self.get_data_item(irow, icol, type)
-    #     :return: wert = self.get_data_item(irow, icol)
-    #     '''
-    #     if self.def_okay == False:
-    #         self.status = hdef.NOT_OKAY
-    #         self.errtext = f"add_data_set: add_data_set: Data-Set nicht richtig definiert"
-    #         return
-    #     # end if
-    #
-    #     n_data_set = min(len(data_set),self.ncol)
-    #     if not col_list:
-    #         col_list = list(range(n_data_set))
-    #     # endif
-    #     n_data_set = min(len(col_list), n_data_set)
-    #     if not type_list:
-    #         type_list = []
-    #         for i in range(n_data_set):
-    #             type_list.append(self.type_dict[i])
-    #         # end for
-    #     # end if
-    #     n_data_set = min(len(type_list), n_data_set)
-    #
-    #     # proof for new
-    #     if add_if_new_in_col and (add_if_new_in_col < n_data_set):
-    #         irow_list = self.find_in_col(data_set[add_if_new_in_col],col_list[add_if_new_in_col])
-    #         if len(irow_list) == 0:
-    #             flag_add_data_set = True
-    #         else:
-    #             flag_add_data_set = False
-    #         # end if
-    #     else:
-    #         flag_add_data_set = True
-    #     # end if
-    #
-    #     # Starte Hinzufügen data_set
-    #     if flag_add_data_set:
-    #         new_data_set =[''] * self.ncol
-    #         for i in range(n_data_set):
-    #             icol = max(min(col_list[i],self.ncol-1),0)
-    #             (okay, wert) = htype.type_transform(data_set[i], type_list[i],self.type_dict[icol])
-    #             if okay != hdef.OKAY:
-    #                 self.status = hdef.NOT_OKAY
-    #                 self.errtext = f"add_data_set: Fehler transform  {data_set[i]} von type: {type_list[i]} in type {self.type_dict[icol]} wandeln !!! "
-    #                 return
-    #             # end if
-    #             new_data_set[icol] = wert
-    #         # end for
-    #         self.data_set_llist.append(new_data_set)
-    #         self.n_data_sets += 1
-    #     # end if
-    #     return
-    # # edn def
-    # def add_data_item(self, data_item: any, icol: int, type: any = None,add_if_new: bool = None):
-    #     '''
-    #
-    #     :param data_item:
-    #     :param icol:
-    #     :param type:
-    #     :param add_if_new:
-    #     :return: self.add_data_item(data_item, icol, type,add_if_new):   add value item in icol with type to tranform, add if add_if_new=True
-    #     :return: self.add_data_item(data_item, icol, type)               add value item in icol with type to tranform, add always
-    #     :return: self.add_data_item(data_item, icol):                    add value item in icol w/o tranform, add always
-    #
-    #     '''
-    #     data_set = [data_item]
-    #     col_list = [icol]
-    #     if type:
-    #         type_list = [type]
-    #     else:
-    #         type_list = None
-    #     # end if
-    #     if add_if_new:
-    #         add_if_new_in_col = icol
-    #     else:
-    #         add_if_new_in_col = None
-    #     # end if
-    #     self.add_data_set(data_set, col_list, type_list, add_if_new_in_col)
-    #
-    #     return
-    # # end def
-    # def set_data_item(self, data_item: any, irow: int, icol: int, type: any = None):
-    #     '''
-    #
-    #     :param data_item:
-    #     :param icol:
-    #     :param irow:
-    #     :param type:
-    #     :return: self.set_data_item(data_item, irow, icol, type)   set value item in icol of irow in data_llist with type to tranform
-    #     :return: self.set_data_item(data_item, irow, icol)         set value item in icol of irow in data_llist w/o tranform
-    #     '''
-    #     if irow >= self.n_data_sets:
-    #         self.status = hdef.NOT_OKAY
-    #         self.errtext = f"set_data_item: Fehler set_data_item: irow = {irow} >= self.n_data_sets = {self.n_data_sets} !!! "
-    #         return
-    #     if icol >= self.ncol:
-    #         self.status = hdef.NOT_OKAY
-    #         self.errtext = f"set_data_item: Fehler set_data_item: icol = {icol} >= self.ncol = {self.ncol} !!! !!! "
-    #         return
-    #     if type:
-    #         (okay, wert) = htype.type_transform(data_item, type, self.type_dict[icol])
-    #         if okay != hdef.OKAY:
-    #             self.status = hdef.NOT_OKAY
-    #             self.errtext = f"set_data_item:  Fehler transform data_item = {data_item} von type: {type} in type {self.type_dict[icol]} wandeln !!!"
-    #             return
-    #         # end if
-    #     else:
-    #         wert = data_item
-    #     # end if
-    #     self.data_set_llist[irow][icol] = wert
-    #     return
-    # # end defget_data_item
     def get_data_item(self, irow: int, icol: int|str, type: any = None):
         '''
         
@@ -432,7 +267,7 @@ class DataSet:
     # end def
     def get_data_set_dict_list(self):
         '''
-         konto_data_set_dict =
+         data_dict_list = self.get_data_set_dict_list()
         :return:
         '''
         
@@ -450,7 +285,7 @@ class DataSet:
     def get_data_type_dict(self):
         '''
     
-        :return:
+        :return: data_type_dict = self.get_data_type_dict()
         '''
         data_type_dict = {}
         for key in self.name_dict.keys():
@@ -458,5 +293,41 @@ class DataSet:
         # end for
         
         return data_type_dict
+    # end def
+    def get_data_set_lliste(self,header_liste,type_liste):
+        '''
+        
+        :param header_liste:
+        :param type_liste:
+        :return: data_set_lliste = self.get_data_set_lliste(header_liste,type_liste)
+        '''
+        output_data_lliste = []
+        icol_liste = []
+        for header in header_liste:
+            key = hlist.find_first_key_dict_value(self.name_dict, header)
+            if  key is None:
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"get_data_set_llist:  Fehler header = {header} ist nicht in name_dict = {self.name_dict} !!!!!!"
+                return output_data_lliste
+            else:
+                icol_liste.append(key)
+            # end if
+        # end if
+        n = len(icol_liste)
+        
+        for data_liste in self.data_set_llist:
+            output_data_liste = [None for j in range(n)]
+            for i,icol in enumerate(icol_liste):
+                (okay, value) = htype.type_transform(data_liste[icol], self.type_dict[icol], type_liste[i])
+                if okay != hdef.OKAY:
+                    self.status = hdef.NOT_OKAY
+                    self.errtext = f"find_in_col:  Fehler transform data_item = <{data_liste[icol]}> von type: <{self.type_dict[icol]}> in type {type_liste[i]} wandeln !!!!!!"
+                    return []
+                # end if
+                output_data_liste[i] = value
+            # end for
+            output_data_lliste.append(output_data_liste)
+        # end for
+        return output_data_lliste
     # end def
 # end class

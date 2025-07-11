@@ -102,4 +102,43 @@ def konto_data_set_eingabe(eingabe_liste,data_set=None,title=None):
         new_data_list = sgui.abfrage_n_eingabezeilen(liste=eingabe_liste,vorgabe_liste=data_set, title=title)
     
     return new_data_list
-# end if
+# end def
+def  depot_overview(header_liste, data_lliste, abfrage_liste):
+    '''
+    
+    :param header_liste:
+    :param data_lliste:
+    :param abfrage_liste:
+    :return: choice =  ka_gui.depot_overview(header_liste, data_lliste, abfrage_liste)
+    '''
+
+
+
+    dict_inp = {}
+    dict_inp["header_liste"] = header_liste
+    dict_inp["data_set_lliste"] = data_lliste
+    dict_inp["abfrage_liste"] = abfrage_liste
+    
+    dict_out = sgui.abfrage_tabelle(dict_inp)
+
+    return (dict_out["index_abfrage"],dict_out["irow_select"])
+# end def
+def depot_isin(header_liste, data_lliste, abfrage_liste,title):
+    '''
+    
+    :param header_liste:
+    :param data_lliste:
+    :param abfrage_liste:
+    :param title:
+    :return: (choice, irow) = ka_gui.depot_isin(header_liste, data_lliste, abfrage_liste,title)
+    '''
+    
+    dict_inp = {}
+    dict_inp["header_liste"] = header_liste
+    dict_inp["data_set_lliste"] = data_lliste
+    dict_inp["abfrage_liste"] = abfrage_liste
+    dict_inp["title"] = title
+    
+    dict_out = sgui.abfrage_tabelle(dict_inp)
+    
+    return (dict_out["index_abfrage"], dict_out["irow_select"])

@@ -35,41 +35,182 @@ def anzeige_mit_depot_wahl(rd):
     runflag = True
     while (runflag):
         
-        (index, choice) = ka_gui.auswahl_depot(rd)
+        (index, auswahl) = ka_gui.auswahl_depot(rd)
         
         if index < 0:
             return status
-        elif choice in rd.ini.ddict[rd.par.INI_DEPOT_DATA_DICT_NAMES_NAME]:
+        elif auswahl in rd.ini.ddict[rd.par.INI_DEPOT_DATA_DICT_NAMES_NAME]:
             
-            rd.log.write(f"depot  \"{choice}\" ausgewählt")
+            rd.log.write(f"depot  \"{auswahl}\" ausgewählt")
             break
         else:
             status = hdef.NOT_OKAY
-            errtext = f"Depot Auswahl: {choice} nicht bekannt"
+            errtext = f"Depot Auswahl: {auswahl} nicht bekannt"
             rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
             return status
         # endif
     # endwhile
     
     # Konto data in ini
-    depot_dict = rd.data[choice].ddict
-    depot_obj  = rd.data[choice].obj
+    depot_dict = rd.data[auswahl].ddict
+    depot_obj  = rd.data[auswahl].obj
     
-    (anzeige) = depot_obj.get_depot_daten_sets_overview()
+    # choice = 0 Zusammenfassung
+    #        = 1 Auswahl isin
+    #        = 2 edit isin in irow
+    #        = 3 delete isin in irow
+    #        = -1 Ende
+    choice = 0 # Zusammenfassung
+    runflag = True
+    nur_was_im_depot = False # True: alle, False: nur aktive
     
-    # Anzeigen
-    (status, depot_dict,depot_obj) = anzeige(rd,depot_dict,depot_obj)
+    while runflag:
+
+        if choice < 0:
+            return status
+        elif choice == 0:
+            (data_lliste, header_liste, type_liste) = depot_obj.get_depot_daten_sets_overview(nur_was_im_depot)
+            if depot_obj.status != hdef.OKAY:  # Abbruch
+                rd.log.write_err(depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
+                return depot_obj.status
     
-    if status != hdef.OKAY:  # Abbruch
-        return status
+            icol_isin = header_liste.index(depot_obj.par.DEPOT_DATA_NAME_ISIN)
+    
+            # Overview Anzeigen
+            #--------------------------------------
+            (sw, isin) = anzeige_overview(rd,data_lliste, header_liste,icol_isin)
+            
+            if sw < 0:
+                runflag = False
+            elif sw == 1:
+                choice = 1
+                runflag = True
+            else:
+                nur_was_im_depot = not nur_was_im_depot
+                choice = 0
+                runflag = True
+            # end if
+        elif choice == 1: # isin spezifisch
+            
+            (data_lliste, header_liste, type_liste,title) = depot_obj.get_depot_daten_sets_isin(isin)
+            if depot_obj.status != hdef.OKAY:  # Abbruch
+                rd.log.write_err(depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
+                return depot_obj.status
+            # end if
+            
+            # isin Anzeige
+            #--------------------------------------
+            (sw, irow) = anzeige_isin(rd,data_lliste, header_liste,title)
+
+            if sw < 0:
+                runflag = False
+            elif sw == 1: # zurück
+                choice = 0
+                runflag = True
+            elif sw == 2:  # edit
+                choice = 2
+                runflag = True
+            else: # delete
+                choice = 3
+                runflag = True
+            # end if
+
+        elif choice == 2: # edit
+            choice = 0
+            runflag = True
+        else: # delete
+            choice = 0
+            runflag = True
+        # end if
+        
+    # end whileq
     
     # write back modified ddict
-    rd.data[choice].ddict = depot_dict
-    rd.data[choice].obj   = depot_obj
+    rd.data[auswahl].ddict = depot_dict
+    rd.data[auswahl].obj   = depot_obj
     
     return status
 # enddef
+def anzeige_overview(rd,data_lliste, header_liste, icol_isin):
+    '''
+    
+    :param data_lliste:
+    :param header_liste:
+    :return: (sw, isin) = anzeige_overview(data_lliste, header_liste)
+    sw = 1  Auswahl isin
+       = 2  toggle die Zusammenfassung
+       = -1 Ende
+    '''
+    abfrage_liste = ["ende", "auswahl","toggle"]
+    i_end = 0
+    i_auswahl = 1
+    # i_toggle = 2
+    
+    runflag = True
+    isin    = None
+    
+    while (runflag):
+        
+        (sw,irow) =  ka_gui.depot_overview(header_liste, data_lliste, abfrage_liste)
+        
+        if sw <= i_end:
+            sw = -1
+            runflag = False
+        elif sw == i_auswahl:
+            if irow < 0:
+                rd.log.write_warn("Keine Zeile ausgewählt")
+                runflag = True
+            else:
+                isin = data_lliste[irow][icol_isin]
+                runflag = False
+            # end if
+        else:  # i_toggle
+            sw = 2
+            runflag = False
+        # end if
+    # end while
+    return (sw, isin)
+# end def
+def anzeige_isin(rd, data_lliste, header_liste, title):
+    '''
 
+    :param data_lliste:
+    :param header_liste:
+    :return: (sw, isin) = anzeige_isin(data_lliste, header_liste,title)
+    sw = 1  zurück
+       = 2  edit
+       = 3  delete
+       = -1 Ende
+    '''
+    abfrage_liste = ["ende", "zurück", "edit","delete"]
+    i_end = 0
+    i_zurueck = 1
+    # i_edit = 2
+    # i_delete = 3
+    
+    runflag = True
+    while (runflag):
+        
+        (sw, irow) = ka_gui.depot_isin(header_liste, data_lliste, abfrage_liste,title)
+        
+        if sw <= i_end:
+            sw = -1
+            runflag = False
+        elif sw == i_zurueck:
+            runflag = False
+        else: # if (sw == i_edit) or (sw == i_delete) :
+            if irow < 0:
+                rd.log.write_warn("Keine Zeile ausgewählt")
+                runflag = True
+            else:
+                runflag = False
+            # end if
+        # end if
+    # end while
+    return (sw, irow)
+
+
+# end def
 def anzeige(rd,konto_dict,konto_obj):
     '''
     

@@ -242,6 +242,7 @@ class DepotDataSet:
                 # end if
                 
                 if flag_read:
+                    
                     self.wp_data_obj_dict[isin].add_data_set_dict_to_table(new_data_dict,new_header_dict,new_type_dict)
                     
                     if self.wp_data_obj_dict[isin].status != hdef.OKAY:
@@ -274,6 +275,7 @@ class DepotDataSet:
         new_data_dict = {}
         new_type_dict = {}
         new_header_dict = {}
+        wert_index = None
         for index in self.par.DEPOT_KONTO_DATA_INDEX_LIST:
             
             # buchtype
@@ -284,8 +286,21 @@ class DepotDataSet:
             # end if
             new_type_dict[index] = self.par.DEPOT_DATA_TYPE_DICT[index]
             new_header_dict[index] = self.par.DEPOT_DATA_NAME_DICT[index]
+            
+            if self.par.DEPOT_DATA_NAME_DICT[index] == self.par.DEPOT_DATA_NAME_WERT:
+                wert_index = index
+            # end if
         # end ofr
         
+        if wert_index is not None:
+            if (buch_type == self.par.DEPOT_BUCHTYPE_INDEX_WP_KAUF) or \
+                (buch_type == self.par.DEPOT_BUCHTYPE_INDEX_WP_EINNAHMEN):
+                new_data_dict[wert_index] = abs(new_data_dict[wert_index])
+            elif (buch_type == self.par.DEPOT_BUCHTYPE_INDEX_WP_KOSTEN) or \
+                (buch_type == self.par.DEPOT_BUCHTYPE_INDEX_WP_EINNAHMEN):
+                new_data_dict[wert_index] = -abs(new_data_dict[wert_index])
+            # end if
+            
         return (new_data_dict,new_header_dict,new_type_dict)
     # end def
     def proof_raw_dict_isin_id(self,new_data_dict):
@@ -373,10 +388,12 @@ class DepotDataSet:
         # end for
         return data_dict_list
     # end def
-    def get_depot_daten_sets_overview(self):
+    def get_depot_daten_sets_overview(self,nur_was_im_depot):
         '''
         hole von jedem WP die Zusammenfassungen
-        :return: (data_lliste, header_liste,type_liste) = self.get_depot_daten_sets_overview()
+        :param nur_was_im_depot = False alle zeigen
+                                = True nur die nch im Depot sinf (anzahl > 0)
+        :return: (data_lliste, header_liste,type_liste) = self.get_depot_daten_sets_overview(nur_was_im_depot)
         '''
         
         
@@ -392,43 +409,93 @@ class DepotDataSet:
                       "float"]
         data_lliste = []
         for isin in self.wp_data_obj_dict.keys():
-            dataliste = []
-            
-            # 1. isin
-            #---------
-            dataliste.append(isin)
-            
-            # 2. Name
-            #--------
-            name = self.wp_data_obj_dict[isin].get_name()
-            dataliste.append(isin)
-            
-            # 3. Zahlt Dividende
-            dataliste.append(self.wp_data_obj_dict[isin].get_zahltdiv())
 
-            # 4. Anzahl
+            # Precalc Anzahl
             anzahl = self.wp_data_obj_dict[isin].get_summen_anzahl()
             if anzahl is None:
                 self.status = self.wp_data_obj_dict[isin].status
                 self.errtext = self.wp_data_obj_dict[isin].errtext
                 return ([],[],[])
             # end if
-            dataliste.append(anzahl)
 
-            # 5. Sumwert
-            sumwert = self.wp_data_obj_dict[isin].get_summen_wert()
-            if sumwert is None:
-                self.status = self.wp_data_obj_dict[isin].status
-                self.errtext = self.wp_data_obj_dict[isin].errtext
-                return ([],[],[])
+            if (nur_was_im_depot and (anzahl > 0.01)) or \
+               (not nur_was_im_depot):
+
+                dataliste = []
+                
+                # 1. isin
+                #---------
+                dataliste.append(isin)
+                
+                # 2. Name
+                #--------
+                name = self.wp_data_obj_dict[isin].get_name()
+                dataliste.append(name)
+                
+                # 3. Zahlt Dividende
+                dataliste.append(self.wp_data_obj_dict[isin].get_zahltdiv())
+    
+                # 4. Anzahl
+                dataliste.append(anzahl)
+    
+                # 5. Sumwert
+                sumwert = self.wp_data_obj_dict[isin].get_summen_wert()
+                if sumwert is None:
+                    self.status = self.wp_data_obj_dict[isin].status
+                    self.errtext = self.wp_data_obj_dict[isin].errtext
+                    return ([],[],[])
+                # end if
+                dataliste.append(sumwert)
+    
+                data_lliste.append(dataliste)
             # end if
-            dataliste.append(sumwert)
-
-            data_lliste.append(dataliste)
         # end for
         
         return (data_lliste, header_liste,type_liste)
 
         
+    # end def
+    def get_depot_daten_sets_isin(self,isin):
+        '''
+        
+        :param isin: isin number
+        :return: (data_lliste, header_liste,type_liste,titlename) = self.get_depot_daten_sets_isin(isin)
+        
+    DEPOT_DATA_NAME_WP_NAME = "wp_name"
+    DEPOT_DATA_NAME_ZAHLTDIV = "zahltdiv"
+    DEPOT_DATA_NAME_ISIN
+        '''
+        
+        if isin not in self.wp_data_obj_dict.keys():
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"get_depot_daten_sets_isin: gewünschte isin = {isin} is nicht in Depot enthalten"
+            return ([], [], [],"")
+        # end if
+        
+        header_liste = [self.par.DEPOT_DATA_NAME_BUCHDATUM,
+                        self.par.DEPOT_DATA_NAME_BUCHTYPE,
+                        self.par.DEPOT_DATA_NAME_ANZAHL,
+                        self.par.DEPOT_DATA_NAME_WERT,
+                        self.par.DEPOT_DATA_NAME_KOSTEN,
+                        self.par.DEPOT_DATA_NAME_STEUER,
+                        self.par.DEPOT_DATA_NAME_KATEGORIE]
+        type_liste = ["datStrP",
+                      self.par.DEPOT_BUCHTYPE_TEXT_LIST,
+                      "float",
+                      "float",
+                      "float",
+                      "float",
+                      "str"]
+        
+        data_lliste = self.wp_data_obj_dict[isin].get_data_set_lliste(header_liste,type_liste)
+        if self.wp_data_obj_dict[isin].status != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = self.wp_data_obj_dict[isin].errtext
+            return ([], [], [], "")
+        # end if
+        
+        titlename = f"WP: {isin}/{self.wp_data_obj_dict[isin].wp_info_dict['name']}/zahltdiv:{self.wp_data_obj_dict[isin].wp_info_dict['zahltdiv']}"
+
+        return (data_lliste, header_liste,type_liste,titlename)
     # end def
 # end class

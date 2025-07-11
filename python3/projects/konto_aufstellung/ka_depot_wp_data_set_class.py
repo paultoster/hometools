@@ -157,9 +157,29 @@ class WpDataSet:
         :return:
         '''
         
+        
+        
         self.data_set_obj.add_data_set_dict(new_data_dict,new_header_dict,new_type_dict)
         
         if self.data_set_obj.status != hdef.OKAY:
             self.status  = self.data_set_obj.status
             self.errtext = self.data_set_obj.errtext
+        # end if
+    # end def
+    def get_data_set_lliste(self,header_liste,type_liste):
+        '''
+        
+        :param header_liste:
+        :param type_liste:
+        :return: data_lliste = self.get_data_setheader_liste,type_liste)
+        '''
+        
+        data_lliste = self.data_set_obj.get_data_set_lliste(header_liste, type_liste)
+
+        if self.data_set_obj.status != hdef.OKAY:
+            self.status  = self.data_set_obj.status
+            self.errtext = self.data_set_obj.errtext
+        # end if
+
+        return  data_lliste
 # end class

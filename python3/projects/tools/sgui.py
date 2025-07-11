@@ -1230,7 +1230,7 @@ class abfrage_tabelle_class:
         self.flag_make_tab_gui = False
         self.data_change_irow_icol_liste = []
         self.data_change_flag = False
-
+        self.flag_mainloop = False
         # ddict_inp["header_liste"] = header_liste
         # ---------------------------------------------------------------
         key = "header_liste"
@@ -1275,7 +1275,7 @@ class abfrage_tabelle_class:
         # ddict_inp["title"]
         # ---------------------------------------------------------------
         key = "title"
-        if (key not in ddict_inp.keys()) or (not isinstance(ddict_inp[key], list)):
+        if (key not in ddict_inp.keys()) or (not isinstance(ddict_inp[key], str)):
             self.title = u"Tabelle"
         else:
             self.title = ddict_inp[key]
@@ -1341,7 +1341,7 @@ class abfrage_tabelle_class:
         # ddict_inp["GUI_GEOMETRY_WIDTH"] = 1000
         # ---------------------------------------------------------------
         key = "GUI_GEOMETRY_WIDTH"
-        if (key not in ddict_inp.keys()) or (not isinstance(ddict_inp[key], list)):
+        if (key not in ddict_inp.keys()):
             self.GUI_GEOMETRY_WIDTH = GUI_GEOMETRY_WIDTH_BASE
         else:
             self.GUI_GEOMETRY_WIDTH = ddict_inp[key]
@@ -1351,7 +1351,7 @@ class abfrage_tabelle_class:
         # ddict_inp["GUI_GEOMETRY_HEIGHT"] = 600
         # ---------------------------------------------------------------
         key = "GUI_GEOMETRY_HEIGHT"
-        if (key not in ddict_inp.keys()) or (not isinstance(ddict_inp[key], list)):
+        if (key not in ddict_inp.keys()):
             self.GUI_GEOMETRY_HEIGHT = GUI_GEOMETRY_HEIGHT_BASE
         else:
             self.GUI_GEOMETRY_WIDTH = ddict_inp[key]
@@ -1360,16 +1360,16 @@ class abfrage_tabelle_class:
         # ddict_inp["GUI_GEOMETRY_POSX"] = 0
         # ---------------------------------------------------------------
         key = "GUI_GEOMETRY_POSX"
-        if (key not in ddict_inp.keys()) or (not isinstance(ddict_inp[key], list)):
+        if (key not in ddict_inp.keys()):
             self.GUI_GEOMETRY_POSX = 0
         else:
             self.GUI_GEOMETRY_POSX = ddict_inp[key]
         # end if
 
-        # ddict_inp["GUI_GEOMETRY_POSX"] = 0
+        # ddict_inp["GUI_GEOMETRY_POSY"] = 0
         # ---------------------------------------------------------------
         key = "GUI_GEOMETRY_POSY"
-        if (key not in ddict_inp.keys()) or (not isinstance(ddict_inp[key], list)):
+        if (key not in ddict_inp.keys()):
             self.GUI_GEOMETRY_POSY = 0
         else:
             self.GUI_GEOMETRY_POSY = ddict_inp[key]
@@ -1378,16 +1378,16 @@ class abfrage_tabelle_class:
         # ddict_inp["GUI_ICON_FILE"]
         # ---------------------------------------------------------------
         key = "GUI_ICON_FILE"
-        if (key not in ddict_inp.keys()) or (not isinstance(ddict_inp[key], list)):
+        if (key not in ddict_inp.keys()) or (not isinstance(ddict_inp[key], str)):
             self.GUI_ICON_FILE = GUI_ICON_FILE_BASE
         else:
             self.GUI_ICON_FILE = ddict_inp[key]
         # end if
 
-        # ddict_inp["GUI_ICON_FILE"]
+        # ddict_inp["GUI_TITLE"]
         # ---------------------------------------------------------------
         key = "GUI_TITLE"
-        if (key not in ddict_inp.keys()) or (not isinstance(ddict_inp[key], list)):
+        if (key not in ddict_inp.keys()) or (not isinstance(ddict_inp[key], str)):
             self.GUI_TITLE = "Tabelle"
         else:
             self.GUI_TITLE = ddict_inp[key]
@@ -1408,18 +1408,21 @@ class abfrage_tabelle_class:
         # self.type_liste
         # ---------------------------------------------------------------
         # proof first data set for type
-        data = self.data_set[0]
-        self.type_liste = []
-        for item in data:
-            if (isinstance(item, float)):
-                self.type_liste.append(self.DATA_FLOAT)
-            elif (isinstance(item, int)):
-                self.type_liste.append(self.DATA_INTEGER)
-            else:
-                self.type_liste.append(self.DATA_STRING)
-            # endif
-        # endfor
-
+        if len(self.data_set) > 0:
+            data = self.data_set[0]
+            self.type_liste = []
+            for item in data:
+                if (isinstance(item, float)):
+                    self.type_liste.append(self.DATA_FLOAT)
+                elif (isinstance(item, int)):
+                    self.type_liste.append(self.DATA_INTEGER)
+                else:
+                    self.type_liste.append(self.DATA_STRING)
+                # endif
+            # endfor
+        else:
+            self.type_liste = [self.DATA_STRING for item in self.header_liste]
+        # endif
 
 
         # ---------------------------------------------------------------
