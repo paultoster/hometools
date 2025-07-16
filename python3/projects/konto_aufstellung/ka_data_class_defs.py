@@ -86,10 +86,11 @@ class DataSet:
         self.n_data_sets = 0
         self.name_dict = {}
         self.type_dict = {}
+        self.store_type_dict = {}
         self.def_okay  = False   # is definition okay
         self.status    = hdef.OKAY
         self.errtext   = ""
-    def set_definition(self,icol:int,name:str,type: str | list):
+    def set_definition(self,icol:int,name:str,type: str | list,store_type: str| list):
         '''
         Deinition einer Spalte
         :param icol: Spalte gezählt von 0
@@ -104,6 +105,7 @@ class DataSet:
         else:
             self.name_dict[icol] = name
             self.type_dict[icol] = type
+            self.store_type_dict[icol] = store_type
             self.name_dict = dict(sorted(self.name_dict.items()))
             self.type_dict = dict(sorted(self.type_dict.items()))
             key_list = list(self.name_dict.keys())
@@ -118,11 +120,18 @@ class DataSet:
         return
     # end def
     def add_data_set_dict(self,new_data_dict: dict,new_header_dict: dict,new_type_dict:dict):
+        '''
+        
+        :param new_data_dict:
+        :param new_header_dict:
+        :param new_type_dict:
+        :return: status = self.add_data_set_dict(new_data_dict: dict,new_header_dict: dict,new_type_dict:dict)
+        '''
         
         if( not self.def_okay ):
             self.status = hdef.NOT_OKAY
             self.errtext = f"add_data_set_dict: Definition der TAbelle nicht okay def_okay = False "
-            return
+            return self.status
         # end if
         
         data_set_list =  [htype.type_get_default(self.type_dict[icol]) for icol in range(self.ncol)]
@@ -130,9 +139,9 @@ class DataSet:
             new_name = new_header_dict[key]
             
             # suche in self.name_dict
-            keys = [k for k, v in self.name_dict.items() if v == new_name]
+            key_name_dict = hlist.find_first_key_dict_value(self.name_dict,new_name)
             
-            if keys and (keys[0] == key):
+            if (key_name_dict is not None) and (key_name_dict == key):
                 (okay, wert) = htype.type_transform(new_data_dict[key], new_type_dict[key],
                                                     self.type_dict[key])
                 if okay == hdef.OK:
@@ -148,7 +157,7 @@ class DataSet:
         self.data_set_llist.append(data_set_list)
         self.n_data_sets += 1
 
-        return
+        return self.status
     # end if
     
     def get_data_item(self, irow: int, icol: int|str, type: any = None):
@@ -162,14 +171,13 @@ class DataSet:
         '''
         if isinstance(icol,str): # header name
             # search headername
-            keys = [k for k, v in self.name_dict.items() if v == icol]
-            
-            if len(keys) == 0:
+            key = self.find_header_index(icol)
+            if key is None:
                 self.status = hdef.NOT_OKAY
                 self.errtext = f"get_data_item_by_header:  Fehler headername = {icol} kann nicht im header of data_set gefunden werden (header_dict: {self.name_dict.items()} !!!"
                 return None
             else:
-                icol = keys[0]
+                icol = key
             # end if
         # end if
         
@@ -210,10 +218,7 @@ class DataSet:
         #   calc_type = 'sum'
         #else:
         #    calc_type = 'value'
-            
         
-        
-
         wert = 0.0
         for irow in range(self.n_data_sets):
             self.get_data_item(self, irow, icol, "float")
@@ -265,23 +270,81 @@ class DataSet:
         # end for
         return irow_list
     # end def
-    def get_data_set_dict_list(self):
+    def find_header_index(self,header):
+        '''
+        
+        :param header:
+        :return: icol = self.find_header_index(header)
+        '''
+    
+        # search headername
+        key = hlist.find_first_key_dict_value(self.name_dict, header)
+    
+        if key is None:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"find_header_index:  Fehler headername = {header} kann nicht im header of data_set gefunden werden (header_dict: {self.name_dict.items()} !!!"
+            return None
+        # end if
+        return key # == icol
+    # end def
+    def get_data_set_dict_list(self,header_liste=None,type_liste=None):
         '''
          data_dict_list = self.get_data_set_dict_list()
         :return:
         '''
         
+        if header_liste is None:
+            name_dict = self.name_dict
+            type_dict = self.store_type_dict
+        else:
+            (name_dict,type_dict) = self.build_name_and_type_dict(header_liste,type_liste)
+            if self.status != hdef.OKAY:
+                return []
+        # end if
+        
         data_dict_list = []
         for liste in self.data_set_llist:
             ddict = {}
-            for index in self.name_dict.keys():
-                ddict[self.name_dict[index]] = liste[index]
+            for index in name_dict.keys():
+                if type_dict[index] != self.type_dict[index]:
+                    (okay, value) = htype.type_transform(liste[index], self.type_dict[index], type_dict[index])
+                    if okay != hdef.OKAY:
+                        self.status = hdef.NOT_OKAY
+                        self.errtext = f"get_data_set_dict_list:  Fehler transform data_item = <{liste[index]}> von type: <{self.type_dict[index]}> in type {type_dict[index]} wandeln !!!!!!"
+                        return []
+                else:
+                    value = liste[index]
+                # end if
+                ddict[name_dict[index]] = value
             # end for
             data_dict_list.append(ddict)
         # end for
         
-        return data_dict_list
+        return (data_dict_list,name_dict,type_dict)
     # end def
+    def build_name_and_type_dict(self,header_liste,type_liste):
+        '''
+        
+        :param header_liste:
+        :param type_liste:
+        :return:
+        '''
+        
+        header_dict = {}
+        type_dict = {}
+        for i,header in enumerate(header_liste):
+            
+            key = self.find_header_index(header)
+            if key is None:
+                return ({},{})
+            # end if
+            header_dict[key] = header
+            type_dict[key] = type_liste[i]
+            
+        # end for
+        
+        return (header_dict,type_dict)
+        
     def get_data_type_dict(self):
         '''
     
@@ -304,10 +367,8 @@ class DataSet:
         output_data_lliste = []
         icol_liste = []
         for header in header_liste:
-            key = hlist.find_first_key_dict_value(self.name_dict, header)
+            key = self.find_header_index(header)
             if  key is None:
-                self.status = hdef.NOT_OKAY
-                self.errtext = f"get_data_set_llist:  Fehler header = {header} ist nicht in name_dict = {self.name_dict} !!!!!!"
                 return output_data_lliste
             else:
                 icol_liste.append(key)
@@ -321,7 +382,7 @@ class DataSet:
                 (okay, value) = htype.type_transform(data_liste[icol], self.type_dict[icol], type_liste[i])
                 if okay != hdef.OKAY:
                     self.status = hdef.NOT_OKAY
-                    self.errtext = f"find_in_col:  Fehler transform data_item = <{data_liste[icol]}> von type: <{self.type_dict[icol]}> in type {type_liste[i]} wandeln !!!!!!"
+                    self.errtext = f"get_data_set_lliste:  Fehler transform data_item = <{data_liste[icol]}> von type: <{self.type_dict[icol]}> in type {type_liste[i]} wandeln !!!!!!"
                     return []
                 # end if
                 output_data_liste[i] = value
@@ -329,5 +390,157 @@ class DataSet:
             output_data_lliste.append(output_data_liste)
         # end for
         return output_data_lliste
+    # end def
+    def get_one_data_set_liste(self,irow, header_liste, type_liste):
+        '''
+
+        :param header_liste:
+        :param type_liste:
+        :return: output_data_set = self.get_one_data_set_liste(irow,header_liste,type_liste)
+        '''
+        output_data_set = []
+        icol_liste = []
+        for header in header_liste:
+            key = hlist.find_first_key_dict_value(self.name_dict, header)
+            if key is None:
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"get_one_data_set_liste:  Fehler header = {header} ist nicht in name_dict = {self.name_dict} !!!!!!"
+                return output_data_set
+            else:
+                icol_liste.append(key)
+            # end if
+        # end if
+        n = len(icol_liste)
+        
+        if irow >= self.n_data_sets:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"find_in_col:  Fehler irow = <{irow}> is größßer gleich n_data_sets: <{self.n_data_sets}> !!!!!!"
+            return output_data_set
+        # end if
+        
+        data_liste = self.data_set_llist[irow]
+        
+        
+        output_data_set = [None for j in range(n)]
+        for i, icol in enumerate(icol_liste):
+            (okay, value) = htype.type_transform(data_liste[icol], self.type_dict[icol], type_liste[i])
+            if okay != hdef.OKAY:
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"get_one_data_set_liste:  Fehler transform data_item = <{data_liste[icol]}> von type: <{self.type_dict[icol]}> in type {type_liste[i]} wandeln !!!!!!"
+                return []
+            # end if
+            output_data_set[i] = value
+        # end for
+        
+    
+        return output_data_set
+    # end def
+    def set_data_set_dict_list(self,data_set_dict_list,header_liste:list|dict=None,type_liste:list|dict=None):
+        '''
+        
+        :param header_liste:
+        :param type_liste:
+        :return: status = self.set_data_set_dict_list(header_liste=None,type_liste=None)
+        '''
+        if header_liste is None:
+            name_dict = self.name_dict
+            type_dict = self.store_type_dict
+        elif isinstance(header_liste,list):
+                (name_dict,type_dict) = self.build_name_and_type_dict(header_liste,type_liste)
+                if self.status != hdef.OKAY:
+                    return self.status
+                # end if
+        else:
+            name_dict = header_liste
+            type_dict = type_liste
+        # end if
+        
+        for data_set_dict in data_set_dict_list:
+        
+            data_set_dict_out = self.proof_data_set_dict(data_set_dict, name_dict)
+            self.status = self.add_data_set_dict(data_set_dict_out, name_dict, type_dict)
+            
+            if self.status != hdef.OKAY:
+                return self.status
+            # end if
+        # end for
+        return self.status
+    # end def
+    def proof_data_set_dict(self,data_set_dict, name_dict):
+        '''
+        
+        Prüfe ob keys in data_set_dict namen sind (str) oder index (int)
+        Wenn Namen, dann in index wandeln
+        :param data_set_dict:
+        :param name_dict:
+        :return:
+        '''
+        
+        data_set_dict_out = {}
+        for key in data_set_dict.keys():
+            if isinstance(key,str):
+                keyout = hlist.find_first_key_dict_value(name_dict,key)
+                if keyout is None:
+                    raise Exception(f"proof_data_set_dict: Finde nicht value = {key} in name_dict = {name_dict}")
+                # end if
+                data_set_dict_out[keyout] = data_set_dict[key]
+            elif isinstance(key,int):
+                data_set_dict_out[key] = data_set_dict[key]
+            else:
+                raise Exception(f"proof_data_set_dict: key = {key} is string noch int")
+            # end if
+        # end for
+        return data_set_dict_out
+    # end def
+    def set_data_item(self, value: any, irow: int, icol: int | str, type: any = None):
+        '''
+        
+        :param irow:
+        :param icol:
+        :param type:
+        :return: flag = self.set_data_item(value,irow, icol, type)
+                 flag = self.set_data_item(value,irow, icol)
+        '''
+        
+        if isinstance(icol, str):  # header name
+            # search headername
+            key = self.find_header_index(icol)
+            if key is None:
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"get_data_item_by_header:  Fehler headername = {icol} kann nicht im header of data_set gefunden werden (header_dict: {self.name_dict.items()} !!!"
+                return False
+            else:
+                icol = key
+            # end if
+        # end if
+        
+        if irow >= self.n_data_sets:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"set_data_item:  Fehler irow = {irow} >= self.n_data_sets = {self.n_data_sets} !!!"
+            return False
+        # end if
+        if icol >= self.ncol:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"set_data_item: Fehler get_data_item: icol = {icol} >= self.ncol = {self.ncol} !!!"
+            return False
+        # end if
+        if type:
+            (okay, wert) = htype.type_transform(value, type,self.type_dict[icol])
+            if okay != hdef.OKAY:
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"set_data_item: Fehler transform data_item = {value} von type: {type}  in type {self.type_dict[icol]} wandeln !!! !!!"
+                return False
+            # end if
+            self.data_set_llist[irow][icol] = wert
+        else: # ohne type
+            (okay, wert) = htype.type_proof(value, self.type_dict[icol])
+            if okay != hdef.OKAY:
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"set_data_item: Fehler type_proof data_item = {value} sollte type: {self.type_dict[icol]} sein !!! !!!"
+                return False
+            # end if
+            self.data_set_llist[irow][icol] = wert
+        # end if
+        return True
     # end def
 # end class

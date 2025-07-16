@@ -21,7 +21,11 @@ import ka_depot_wp_data_set_class as wpclass
 #-------------------
 class DepotParam:
     ISIN: str = "isin"
-
+    WP_NAME: str = "wp_name"
+    WP_KATEGORIE: str = "wp_kategorie"
+    WP_DATA_SET_DICT_LIST: str = "wp_data_set_dict_list"
+    WP_DATA_SET_NAME_DICT: str = "wp_data_set_name_dict"
+    WP_DATA_SET_TYPE_DICT: str = "wp_data_set_type_dict"
     # BUchungs Typ
     DEPOT_BUCHTYPE_INDEX_UNBEKANNT: int = 0
     DEPOT_BUCHTYPE_INDEX_WP_KAUF: int = 1
@@ -47,9 +51,9 @@ class DepotParam:
     index += 1
     DEPOT_DATA_INDEX_BUCHDATUM = index
     index += 1
-    DEPOT_DATA_INDEX_BUCHTYPE = index
-    index += 1
     DEPOT_DATA_INDEX_ISIN = index
+    index += 1
+    DEPOT_DATA_INDEX_BUCHTYPE = index
     index += 1
     DEPOT_DATA_INDEX_ANZAHL = index
     index += 1
@@ -60,17 +64,19 @@ class DepotParam:
     DEPOT_DATA_INDEX_STEUER = index
     # index += 1
     # DEPOT_DATA_INDEX_SUMWERT = index
-    index += 1
-    DEPOT_DATA_INDEX_KATEGORIE = index
+    # index += 1
+    # DEPOT_DATA_INDEX_KATEGORIE = index
     
     DEPOT_DATA_INDEX_LIST = [DEPOT_DATA_INDEX_KONTO_ID, DEPOT_DATA_INDEX_BUCHDATUM
-        , DEPOT_DATA_INDEX_BUCHTYPE, DEPOT_DATA_INDEX_ISIN, DEPOT_DATA_INDEX_ANZAHL
-        , DEPOT_DATA_INDEX_WERT, DEPOT_DATA_INDEX_KOSTEN, DEPOT_DATA_INDEX_STEUER
-        , DEPOT_DATA_INDEX_KATEGORIE]
+        , DEPOT_DATA_INDEX_ISIN,DEPOT_DATA_INDEX_BUCHTYPE, DEPOT_DATA_INDEX_ANZAHL
+        , DEPOT_DATA_INDEX_WERT, DEPOT_DATA_INDEX_KOSTEN, DEPOT_DATA_INDEX_STEUER]
     
     # Diese Daten kommen vom Konto
-    DEPOT_KONTO_DATA_INDEX_LIST = [DEPOT_DATA_INDEX_KONTO_ID, DEPOT_DATA_INDEX_BUCHDATUM
-        , DEPOT_DATA_INDEX_BUCHTYPE, DEPOT_DATA_INDEX_ISIN, DEPOT_DATA_INDEX_WERT]
+    DEPOT_KONTO_DATA_INDEX_LIST = [DEPOT_DATA_INDEX_KONTO_ID, DEPOT_DATA_INDEX_BUCHDATUM, DEPOT_DATA_INDEX_ISIN
+        , DEPOT_DATA_INDEX_BUCHTYPE, DEPOT_DATA_INDEX_WERT]
+    
+    DEPOT_DATA_IMMUTABLE_INDEX_LIST = [DEPOT_DATA_INDEX_KONTO_ID, DEPOT_DATA_INDEX_BUCHDATUM, DEPOT_DATA_INDEX_ISIN
+                                      ,DEPOT_DATA_INDEX_WERT]
     
     DEPOT_DATA_NAME_KONTO_ID: str = "id"
     DEPOT_DATA_NAME_BUCHDATUM = "buchdatum"
@@ -81,32 +87,36 @@ class DepotParam:
     DEPOT_DATA_NAME_KOSTEN = "kosten"
     DEPOT_DATA_NAME_STEUER = "steuer"
     # DEPOT_DATA_NAME_SUMWERT = "sumwert"
+
     DEPOT_DATA_NAME_KATEGORIE = "kategorie"
     DEPOT_DATA_NAME_WP_NAME = "wp_name"
     DEPOT_DATA_NAME_ZAHLTDIV = "zahltdiv"
     
     DEPOT_DATA_LLIST = [
-        [DEPOT_DATA_INDEX_KONTO_ID, DEPOT_DATA_NAME_KONTO_ID, "int"],
-        [DEPOT_DATA_INDEX_BUCHDATUM, DEPOT_DATA_NAME_BUCHDATUM, "dat"],
-        [DEPOT_DATA_INDEX_BUCHTYPE, DEPOT_DATA_NAME_BUCHTYPE, DEPOT_BUCHTYPE_INDEX_LIST],
-        [DEPOT_DATA_INDEX_ISIN, DEPOT_DATA_NAME_ISIN, "isin"],
-        [DEPOT_DATA_INDEX_ANZAHL, DEPOT_DATA_NAME_ANZAHL, "int"],
-        [DEPOT_DATA_INDEX_WERT, DEPOT_DATA_NAME_WERT, "cent"],
-        [DEPOT_DATA_INDEX_KOSTEN, DEPOT_DATA_NAME_KOSTEN, "cent"],
-        [DEPOT_DATA_INDEX_STEUER, DEPOT_DATA_NAME_STEUER, "cent"],
-        [DEPOT_DATA_INDEX_KATEGORIE, DEPOT_DATA_NAME_KATEGORIE, "str"],
+        [DEPOT_DATA_INDEX_KONTO_ID, DEPOT_DATA_NAME_KONTO_ID, "int","int"],
+        [DEPOT_DATA_INDEX_BUCHDATUM, DEPOT_DATA_NAME_BUCHDATUM, "dat","datStrP"],
+        [DEPOT_DATA_INDEX_ISIN, DEPOT_DATA_NAME_ISIN, "isin","isin"],
+        [DEPOT_DATA_INDEX_BUCHTYPE, DEPOT_DATA_NAME_BUCHTYPE, DEPOT_BUCHTYPE_INDEX_LIST,DEPOT_BUCHTYPE_TEXT_LIST],
+        [DEPOT_DATA_INDEX_ANZAHL, DEPOT_DATA_NAME_ANZAHL, "float","float"],
+        [DEPOT_DATA_INDEX_WERT, DEPOT_DATA_NAME_WERT, "cent","euroStrK"],
+        [DEPOT_DATA_INDEX_KOSTEN, DEPOT_DATA_NAME_KOSTEN, "cent","euroStrK"],
+        [DEPOT_DATA_INDEX_STEUER, DEPOT_DATA_NAME_STEUER, "cent","euroStrK"],
     ]
     # [DEPOT_DATA_INDEX_SUMWERT, DEPOT_DATA_NAME_SUMWERT, "cent"],
     DEPOT_DATA_NAME_DICT = {}
     DEPOT_DATA_TYPE_DICT = {}
+    DEPOT_DATA_STORE_TYPE_DICT = {}
     DEPOT_DATA_NAME_LIST = []
     DEPOT_DATA_TYPE_LIST = []
+    
     # DEPOT_DATA_INDEX_LIST = []
     for liste in DEPOT_DATA_LLIST:
         DEPOT_DATA_NAME_DICT[liste[0]] = liste[1]
         DEPOT_DATA_TYPE_DICT[liste[0]] = liste[2]
+        DEPOT_DATA_STORE_TYPE_DICT[liste[0]] = liste[3]
         DEPOT_DATA_NAME_LIST.append(liste[1])
         DEPOT_DATA_TYPE_LIST.append(liste[2])
+        
         # DEPOT_DATA_INDEX_LIST.append(liste[0])
     
     # end for
@@ -126,15 +136,16 @@ class DepotDataSet:
         self.status = hdef.OK
         self.errtext = ""
         self.infotext = ""
-        
+
+        self.wp_func_obj = wp_func_obj
         
         self.wp_data_obj_dict  = {}
         self.n_wp_data_obj     = 0
         for isin in isin_liste:
-            self.wp_data_obj_dict[isin] = None
-            self.n_wp_data_obj += 1
             
-        self.wp_func_obj = wp_func_obj
+            self.wp_data_obj_dict[isin] = self.build_wp_data_obj(isin)
+            if self.status == hdef.OKAY:
+                self.n_wp_data_obj += 1
     
     # def set_data_show_dict_list(self,dat_set_index: int):
     #     self.DEPOT_DATA_TO_SHOW_DICT[dat_set_index] = self.DEPOT_DATA_ITEM_LIST[dat_set_index]
@@ -143,7 +154,24 @@ class DepotDataSet:
     def delete_infotext(self):
         self.infotext = ""
     # end def
-    def set_stored_wp_data_set_dict(self,isin,depot_wp_name,wp_data_set_dict):
+    def get_kategorie(self,isin):
+        if isin in self.wp_data_obj_dict.keys():
+            kategorie = self.wp_data_obj_dict[isin].get_kategorie()
+        else:
+            raise Exception(f"get_kategorie: isin = {isin} nicht vorhanden")
+        # end if
+        return kategorie
+    # end def
+    def set_kategorie(self,isin,kategorie):
+        if isin in self.wp_data_obj_dict.keys():
+            self.wp_data_obj_dict[isin].set_kategorie(kategorie)
+        else:
+            raise Exception(f"set_kategorie: isin = {isin} nicht vorhanden")
+        # end if
+        return
+    # end def
+
+    def set_stored_wp_data_set_dict(self,wp_data_set_dict):
         '''
         
         Die gespeicherten Daten aus pickle werden an interne Datenbank übergeben
@@ -154,18 +182,27 @@ class DepotDataSet:
         :param wp_data_set_dict:
         :return: self.set_stored_wp_data_set_dict(self,isin,depot_wp_name,wp_data_set_dict)
         '''
-        if isin not in self.wp_data_obj_dict.keys():
-            raise Exception(f"isin: {isin} ist nicht in wp_data_obj_dict")
-        elif self.wp_data_obj_dict.keys[isin] is not None:
-            raise Exception(f"set_stored_wp_data_set_dict: isin: {isin} ist doppelt")
-        else:
-            wp_obj = self.get_wp_data_obj(isin)
-            if wp_obj.status != hdef.OKAY:
-                raise Exception(f"set_stored_wp_data_set_dict: isin: {isin} Problem Erstellen Data Klasse {wp_obj.errtext}")
-            wp_obj.set_stored_wp_data_set_dict(wp_data_set_dict)
-            if wp_obj.status != hdef.OKAY:
-                raise Exception(
-                    f"set_stored_wp_data_set_dict: isin: {isin} Problem Füllen Data Klasse {wp_obj.errtext}")
+        if self.par.ISIN in wp_data_set_dict:
+            isin =  wp_data_set_dict[self.par.ISIN]
+            # depot_wp_name = wp_data_set_dict[self.par.WP_NAME]
+            
+            if isin not in self.wp_data_obj_dict.keys():
+                raise Exception(f"isin: {isin} ist nicht in wp_data_obj_dict")
+            else:
+                wp_obj = self.get_wp_data_obj(isin)
+                if wp_obj.status != hdef.OKAY:
+                    raise Exception(f"set_stored_wp_data_set_dict: isin: {isin} Problem Erstellen Data Klasse {wp_obj.errtext}")
+                wp_obj.set_stored_wp_data_set_dict(wp_data_set_dict[self.par.WP_DATA_SET_DICT_LIST],
+                                                   wp_data_set_dict[self.par.WP_DATA_SET_NAME_DICT],
+                                                   wp_data_set_dict[self.par.WP_DATA_SET_TYPE_DICT])
+                if wp_obj.status != hdef.OKAY:
+                    raise Exception(
+                        f"set_stored_wp_data_set_dict: isin: {isin} Problem Füllen Data Klasse {wp_obj.errtext}")
+                
+                if self.par.WP_KATEGORIE in wp_data_set_dict.keys():
+                    wp_obj.set_kategorie(wp_data_set_dict[self.par.WP_KATEGORIE])
+                # end if
+            # end
         # end if
     # end def
     def get_wp_data_set_dict_to_store(self,isin):
@@ -179,9 +216,15 @@ class DepotDataSet:
         '''
         
         if isin not in self.wp_data_obj_dict.keys():
-            raise Exception(f"get_wp_data_set_dict_to_store: isin: {isin} ist nicht dictonary self.wp_data_obj_dict")
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"get_wp_data_set_dict_to_store: isin: {isin} ist nicht dictonary self.wp_data_obj_dict"
+            wp_data_set_dict = {}
         else:
             wp_data_set_dict =  self.wp_data_obj_dict[isin].get_wp_data_set_dict_to_store()
+            if self.wp_data_obj_dict[isin].status != hdef.OKAY:
+                self.status = hdef.NOT_OKAY
+                self.errtext = self.wp_data_obj_dict[isin].errtext
+            # end if
         # end if
         
         return wp_data_set_dict
@@ -337,17 +380,31 @@ class DepotDataSet:
     # end def
     def get_wp_data_obj(self,isin):
         
-        if isin not in self.wp_data_obj_dict.keys():
-            depot_wp_name = self.depot_name + "_" + isin
-            self.wp_data_obj_dict[isin] = wpclass.WpDataSet(isin,depot_wp_name,self.par,self.wp_func_obj)
-            if self.wp_data_obj_dict[isin].status != hdef.OKAY:
-                self.status = hdef.NOT_OKAY
-                self.errtext = self.wp_data_obj_dict[isin].errtext
+        if (isin not in self.wp_data_obj_dict.keys()) or (self.wp_data_obj_dict[isin] is None):
+            self.wp_data_obj_dict[isin] = self.build_wp_data_obj(isin)
+            if self.status != hdef.OKAY:
                 return None
             # end if
+        
             self.n_wp_data_obj += 1
+        # end if
         return self.wp_data_obj_dict[isin]
     # end def
+    def build_wp_data_obj(self,isin):
+        '''
+        
+        :param isin:
+        :return:
+        '''
+        depot_wp_name = self.depot_name + "_" + isin
+        wp_obj = wpclass.WpDataSet(isin, depot_wp_name, self.par, self.wp_func_obj)
+    
+        if wp_obj.status != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = wp_obj.errtext
+        return wp_obj
+    # end def
+    
     def get_data_set_dict_list(self):
         '''
         
@@ -388,6 +445,18 @@ class DepotDataSet:
         # end for
         return data_dict_list
     # end def
+    def get_titlename(self,isin):
+        '''
+        
+        :return:
+        '''
+        if isin in self.wp_data_obj_dict.keys():
+            titlename = f"WP: {isin}/{self.wp_data_obj_dict[isin].wp_info_dict['name']}/zahltdiv:{self.wp_data_obj_dict[isin].wp_info_dict['zahltdiv']}"
+        else:
+            titlename = f"WP: {isin}//"
+        # end if
+        return titlename
+    # end def
     def get_depot_daten_sets_overview(self,nur_was_im_depot):
         '''
         hole von jedem WP die Zusammenfassungen
@@ -401,12 +470,14 @@ class DepotDataSet:
                         self.par.DEPOT_DATA_NAME_WP_NAME,
                         self.par.DEPOT_DATA_NAME_ZAHLTDIV,
                         self.par.DEPOT_DATA_NAME_ANZAHL,
-                        self.par.DEPOT_DATA_NAME_WERT]
+                        self.par.DEPOT_DATA_NAME_WERT,
+                        self.par.DEPOT_DATA_NAME_KATEGORIE]
         type_liste = ["isin",
                       "str",
                       "int",
                       "float",
-                      "float"]
+                      "float"
+                      "str"]
         data_lliste = []
         for isin in self.wp_data_obj_dict.keys():
 
@@ -446,7 +517,11 @@ class DepotDataSet:
                     return ([],[],[])
                 # end if
                 dataliste.append(sumwert)
-    
+                
+                # 6. Kategorie
+                kategorie = self.wp_data_obj_dict[isin].get_kategorie()
+                dataliste.append(kategorie)
+                
                 data_lliste.append(dataliste)
             # end if
         # end for
@@ -494,8 +569,89 @@ class DepotDataSet:
             return ([], [], [], "")
         # end if
         
-        titlename = f"WP: {isin}/{self.wp_data_obj_dict[isin].wp_info_dict['name']}/zahltdiv:{self.wp_data_obj_dict[isin].wp_info_dict['zahltdiv']}"
+        if self.par.DEPOT_DATA_INDEX_BUCHTYPE in self.par.DEPOT_DATA_NAME_DICT.keys():
+            buchtype_index_in_header_liste = self.par.DEPOT_DATA_INDEX_LIST.index(self.par.DEPOT_DATA_INDEX_BUCHTYPE)
+        else:
+            buchtype_index_in_header_liste = -1
+        # endif
 
-        return (data_lliste, header_liste,type_liste,titlename)
+        return (data_lliste, header_liste,type_liste)
     # end def
+
+
+    def get_depot_daten_sets_isin_irow(self, isin,irow):
+        '''
+    
+        :param isin: isin number
+        :param irow: row number
+        :return: (data_lliste, header_liste,type_liste,titlename,buchungs_type_list, buchtype_index_in_header_liste)
+                                                                             = self.get_depot_daten_sets_isin_irow(isin,irow)
+    
+        '''
+        
+        if isin not in self.wp_data_obj_dict.keys():
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"get_depot_daten_sets_isin: gewünschte isin = {isin} is nicht in Depot enthalten"
+            return ([], [], [], "",[],0)
+        # end if
+        
+        header_liste = [self.par.DEPOT_DATA_NAME_BUCHDATUM,
+                        self.par.DEPOT_DATA_NAME_BUCHTYPE,
+                        self.par.DEPOT_DATA_NAME_ANZAHL,
+                        self.par.DEPOT_DATA_NAME_WERT,
+                        self.par.DEPOT_DATA_NAME_KOSTEN,
+                        self.par.DEPOT_DATA_NAME_STEUER,
+                        self.par.DEPOT_DATA_NAME_KATEGORIE]
+                
+        type_liste = ["datStrP",
+                      self.par.DEPOT_BUCHTYPE_TEXT_LIST,
+                      "float",
+                      "float",
+                      "float",
+                      "float",
+                      "str"]
+        
+        output_data_set = self.wp_data_obj_dict[isin].get_one_data_set_liste(irow,header_liste, type_liste)
+        if self.wp_data_obj_dict[isin].status != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = self.wp_data_obj_dict[isin].errtext
+            return ([], [], [], "",[],0)
+        # end if
+        
+        buchtype_index_in_header_liste = 1 # siehe header_liste
+        buchungs_type_list = self.par.DEPOT_BUCHTYPE_TEXT_LIST
+
+        return (output_data_set, header_liste, type_liste,buchungs_type_list,buchtype_index_in_header_liste)
+    # end def
+    def set_data_set_isin_irow(self,new_data_list, header_liste, type_liste,isin, irow):
+        '''
+        
+        :param new_data_list:
+        :param isin:
+        :param irow:
+        :return: new_data_set_flag = self.set_data_set_isin_irow(new_data_list,header_liste, type_liste, isin, irow)
+        '''
+    
+        new_data_set_flag = False
+        
+        if isin not in self.wp_data_obj_dict.keys():
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"get_depot_daten_sets_isin: gewünschte isin = {isin} is nicht in Depot enthalten"
+            return False
+        # end if
+        
+        new_data_set_flag = self.wp_data_obj_dict[isin].set_edit_data_set_in_irow(new_data_list, header_liste, type_liste,irow)
+
+        if self.wp_data_obj_dict[isin].status != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = self.wp_data_obj_dict[isin].errtext
+            return False
+        elif len(self.wp_data_obj_dict[isin].infotext) != 0:
+            self.infotext = f"set_data_set_isin_irow: {self.wp_data_obj_dict[isin].infotext}"
+            self.wp_data_obj_dict[isin].infotext = ""
+        # end if
+        
+        return new_data_set_flag
+# end def
+
 # end class

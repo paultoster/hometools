@@ -448,6 +448,10 @@ def type_proof(wert_in, type):
         return type_proof_list(wert_in, "str")
     elif (type == "dat") or (type == "date"):
         return type_proof_dat(wert_in)
+    elif (type == "datStr") or (type == "datStrP"):
+        return type_proof_datStrP(wert_in)
+    elif (type == "datStrB"):
+        return type_proof_datStrB(wert_in)
     elif type == "iban":
         return type_proof_iban(wert_in)
     elif type == "isin":
@@ -503,7 +507,7 @@ def type_proof_float(wert_in):
             return (hdef.NOT_OKAY, None)  # endtry
     elif (isinstance(wert_in, str)):
         
-        (okay, val_in) = type_transform_euroStrK(wert_in,"euro")
+        (okay, val_in) = type_transform_str(wert_in,"float")
         if okay == hdef.OKAY:
             wert = float(val_in)
         else:
@@ -613,6 +617,56 @@ def type_proof_dat(wert_in):
 
 # enddef
 
+def type_proof_datStrP(wert_in):
+    """ return value in epoch seconds"""
+    if (isinstance(wert_in, str)):
+        
+        flag = hdate.is_datum_str(wert_in, delim=".")
+        
+        if flag:
+            return (hdef.OKAY, wert_in)
+    
+    elif (isinstance(wert_in, list) or isinstance(wert_in, tuple)):
+        
+        for item in wert_in:
+            flag = hdate.is_datum_str(item, delim=".")
+            if not flag:
+                return (hdef.NOT_OKAY, None)
+            # end if
+        # end ofr
+        return (hdef.OKAY, wert_in)
+    
+    # end if
+    
+    return (hdef.NOT_OKAY, None)
+
+
+# enddef
+def type_proof_datStrB(wert_in):
+    """ return value in epoch seconds"""
+    if (isinstance(wert_in, str)):
+        
+        flag = hdate.is_datum_str(wert_in, delim="-")
+        
+        if flag:
+            return (hdef.OKAY, wert_in)
+    
+    elif (isinstance(wert_in, list) or isinstance(wert_in, tuple)):
+        
+        for item in wert_in:
+            flag = hdate.is_datum_str(item, delim="-")
+            if not flag:
+                return (hdef.NOT_OKAY, None)
+            # end if
+        # end ofr
+        return (hdef.OKAY, wert_in)
+    
+    # end if
+    
+    return (hdef.NOT_OKAY, None)
+
+
+# enddef
 
 def type_proof_iban(wert_in):
     """ return value in epoch seconds"""
@@ -1280,8 +1334,20 @@ def  type_transform_str(wert_in,type_out):
     '''
     (okay, wert) = type_proof(wert_in, "str")
     if( okay == hdef.OKAY):
-        if (type_out == "float") or (type_out == "int") or (type_out == "cent") or (type_out == "euro"):
-            (okay, wert_out) = type_proof(wert, type_out)
+        if (type_out == "float") or (type_out == "euro"):
+            try:
+                wert_out = float(wert_in)
+            except:
+                okay = hdef.NOT_OKAY
+                wert_out = None
+            # end try
+        elif (type_out == "int") or (type_out == "cent"):
+            try:
+                wert_out = int(wert_in)
+            except:
+                okay = hdef.NOT_OKAY
+                wert_out = None
+            # end try
         elif type_out == "euroStrK":
             (okay, wert_out) = type_proof(wert, "euro")
             if okay == hdef.OKAY:

@@ -582,7 +582,7 @@ def is_datum_str(str_dat, delim="."):
     elif 99 < int(liste[2]) < 1970:  # jahr 0-99 oder 1970-20xx
         flag = False
     else:
-        flag = False
+        flag = True
 
     return flag
 

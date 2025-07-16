@@ -10,6 +10,7 @@ OK       = 1
 NOT_OKAY = 0
 NOT_OK   = 0
 NOT_FOUND = -1
+WARNING   = 2
 
 # default log-file
 DEFAULT_LOG_FILE_NAME = "logfile.txt"

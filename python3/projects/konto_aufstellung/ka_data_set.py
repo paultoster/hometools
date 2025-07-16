@@ -147,9 +147,14 @@ def data_get(par, inidict, wpfunc):
         # load each depot_wp_data_set
         for i,isin in enumerate(depot_data.ddict[par.DEPOT_DATA_ISIN_LIST_NAME]):
             
-            depot_wp_name = depot_data.ddict[par.DEPOT_DATA_DEPOT_WP_LIST_NAME][i]
+            wp_list_name = depot_data.ddict[par.DEPOT_DATA_DEPOT_WP_LIST_NAME][i]
             # get data set
-            depot_wp_data = ka_data_pickle.ka_data_pickle(par.DEPOT_WP_PREFIX, depot_wp_name, use_json)
+            if wp_list_name in inidict[par.INI_DATA_PICKLE_JSONFILE_LIST]:
+                use_json_wp = inidict[par.INI_DATA_PICKLE_USE_JSON]
+            else:
+                use_json_wp = 0
+            # end if
+            depot_wp_data = ka_data_pickle.ka_data_pickle(par.DEPOT_WP_PREFIX, wp_list_name, use_json_wp)
             if (depot_wp_data.status != hdef.OK):
                 status = hdef.NOT_OKAY
                 errtext = depot_wp_data.errtext
@@ -159,9 +164,9 @@ def data_get(par, inidict, wpfunc):
             if par.DDICT_TYPE_NAME not in depot_wp_data.ddict.keys():
                 depot_wp_data.ddict[par.DDICT_TYPE_NAME] = par.DEPOT_WP_DATA_TYPE_NAME
             
-            depot_data.obj.set_stored_wp_data_set_dict(isin, depot_wp_name, depot_wp_data.ddict)
+            depot_data.obj.set_stored_wp_data_set_dict(depot_wp_data.ddict)
             
-            data[depot_wp_name] = copy.deepcopy(depot_wp_data)
+            data[wp_list_name] = copy.deepcopy(depot_wp_data)
             del depot_wp_data
         # end for
         
@@ -199,7 +204,7 @@ def data_get(par, inidict, wpfunc):
 # Set DATA Save to pickle
 #
 # --------------------------------------------------------------------------------------
-def data_save(data,par):
+def data_save(data,par,inidict):
     status = hdef.OKAY
     errtext = ""
 
@@ -224,15 +229,36 @@ def data_save(data,par):
             data[key].ddict[par.DEPOT_DATA_DEPOT_WP_LIST_NAME] = data[key].obj.get_to_store_depot_wp_name_list()
             
             # --------------------------------------------------------------------
-            # einzelne wp daten  aus dem depot
+            # einzelne wp daten  aus dem depot speichern
             # --------------------------------------------------------------------
-            for i, isin in data[key].ddict[par.DEPOT_DATA_ISIN_LIST_NAME]:
-                data[data[key].ddict[par.DEPOT_DATA_DEPOT_WP_LIST_NAME][i]].ddict \
-                    = data[key].obj.get_wp_data_set_dict_to_store(isin)
+            data_wp = {}
+            for i,wp_list_name in enumerate(data[key].ddict[par.DEPOT_DATA_DEPOT_WP_LIST_NAME]):
                 
-                if data[key].status != hdef.OKAY:
-                    raise Exception(f"ddict aus wp_data_set für isin = {isin} gibt es nicht, errtext={errtext}")
+                if wp_list_name not in data.keys():
+                    if wp_list_name in inidict[par.INI_DATA_PICKLE_JSONFILE_LIST]:
+                        use_json = inidict[par.INI_DATA_PICKLE_USE_JSON]
+                    else:
+                        use_json = 0
+                    # end if
+                    data_wp[wp_list_name] = ka_data_pickle.ka_data_pickle(par.DEPOT_WP_PREFIX, wp_list_name, use_json)
+                else:
+                    data_wp[wp_list_name] = data[wp_list_name]
                 # end if
+                isin = data[key].ddict[par.DEPOT_DATA_ISIN_LIST_NAME][i]
+                data_wp[wp_list_name].ddict = data[key].obj.get_wp_data_set_dict_to_store(isin)
+                if data[key].obj.status != hdef.OKAY:
+                    raise Exception(f"ddict aus wp_data_set für isin = {isin} gibt es nicht, errtext={data[key].obj.errtext}")
+                # end if
+                
+                data_wp[wp_list_name].save()
+                
+                if (data_wp[wp_list_name].status != hdef.OKAY):
+                    status = hdef.NOT_OKAY
+                    errtext = data_wp[wp_list_name].errtext
+                    return (status, errtext)
+                # endif
+            # end for
+            
             del data[key].obj
         # --------------------------------------------------------------------
         # program data
@@ -489,7 +515,7 @@ def build_konto_data_set_obj(par, konto_data, konto_name,idfunc,wpfunc):
     if key in konto_data.ddict:
         konto_start_wert = konto_data.ddict[key]
         if isinstance(konto_start_wert,str ):
-            (okay, konto_start_wert) = htype.type_transform_str(konto_start_wert,'cent')
+            (okay, konto_start_wert) = htype.type_transform_euroStrK(konto_start_wert,'cent')
             if okay != hdef.OKAY:
                 raise Exception(f"konto_start_wert = konto_data.ddict[{key}] of konto_name = {konto_name} lässt sich von float (euro) in cent nicht wandeln")
             # end if

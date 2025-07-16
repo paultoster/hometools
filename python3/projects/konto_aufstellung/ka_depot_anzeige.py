@@ -59,6 +59,7 @@ def anzeige_mit_depot_wahl(rd):
     #        = 1 Auswahl isin
     #        = 2 edit isin in irow
     #        = 3 delete isin in irow
+    #        = 4 kategorie
     #        = -1 Ende
     choice = 0 # Zusammenfassung
     runflag = True
@@ -85,18 +86,24 @@ def anzeige_mit_depot_wahl(rd):
             elif sw == 1:
                 choice = 1
                 runflag = True
-            else:
+            elif sw == 2:
                 nur_was_im_depot = not nur_was_im_depot
                 choice = 0
                 runflag = True
+            else: # sw == 3
+                choice = 4
+                runflag = True
+
             # end if
         elif choice == 1: # isin spezifisch
             
-            (data_lliste, header_liste, type_liste,title) = depot_obj.get_depot_daten_sets_isin(isin)
+            (data_lliste, header_liste, type_liste) = depot_obj.get_depot_daten_sets_isin(isin)
             if depot_obj.status != hdef.OKAY:  # Abbruch
                 rd.log.write_err(depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
                 return depot_obj.status
             # end if
+            
+            title = depot_obj.get_titlename()
             
             # isin Anzeige
             #--------------------------------------
@@ -115,10 +122,50 @@ def anzeige_mit_depot_wahl(rd):
                 runflag = True
             # end if
 
-        elif choice == 2: # edit
+        elif choice == 2: # edit irow and isin
+            
+            # get data
+            (data_set, header_liste,type_liste, titlename,buchungs_type_list, buchtype_index_in_header_liste) \
+                = depot_obj.get_depot_daten_sets_isin_irow(isin, irow)
+            
+            if depot_obj.status != hdef.OKAY:  # Abbruch
+                rd.log.write_err(depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
+                return depot_obj.status
+            # end if
+            
+            titlename = depot_obj.get_titlename(isin)
+            
+            # edit data
+            new_data_list = ka_gui.konto_depot_data_set_eingabe(header_liste, buchtype_index_in_header_liste,
+                                                          buchungs_type_list, data_set,titlename)
+            
+            if len(new_data_list):
+                new_data_set_flag = depot_obj.set_data_set_isin_irow(new_data_list, header_liste,type_liste,isin, irow)
+                
+                if depot_obj.status != hdef.OKAY:
+                    rd.log.write_err("anzeige_mit_depot_wahl edit " + depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
+                    return status
+                elif len(depot_obj.infotext) != 0:
+                    rd.log.write_info("anzeige_mit_depot_wahl edit " + depot_obj.infotext, screen=rd.par.LOG_SCREEN_OUT)
+                # endif
+            # endif
+
             choice = 0
             runflag = True
-        else: # delete
+        elif choice == 3: # delete
+            choice = 0
+            runflag = True
+        else: # choice == 4
+            
+            kategorie = depot_obj.get_kategorie(isin)
+            titlename = depot_obj.get_titlename(isin)
+ 
+            # edit kateorie
+            kategorie_liste = ka_gui.konto_depot_kategorie(kategorie, titlename)
+            
+            if len(kategorie_liste):
+                depot_obj.set_kategorie(isin,kategorie_liste[0])
+            
             choice = 0
             runflag = True
         # end if
@@ -141,11 +188,11 @@ def anzeige_overview(rd,data_lliste, header_liste, icol_isin):
        = 2  toggle die Zusammenfassung
        = -1 Ende
     '''
-    abfrage_liste = ["ende", "auswahl","toggle"]
+    abfrage_liste = ["ende", "wp auswahl","toggle indepot","edit kategorie"]
     i_end = 0
     i_auswahl = 1
-    # i_toggle = 2
-    
+    i_toggle = 2
+    # i_kategorie = 3
     runflag = True
     isin    = None
     
@@ -164,9 +211,19 @@ def anzeige_overview(rd,data_lliste, header_liste, icol_isin):
                 isin = data_lliste[irow][icol_isin]
                 runflag = False
             # end if
-        else:  # i_toggle
+        elif sw == i_toggle:
             sw = 2
             runflag = False
+        else:
+            
+            if irow < 0:
+                rd.log.write_warn("Keine Zeile ausgewählt")
+                runflag = True
+            else:
+                isin = data_lliste[irow][icol_isin]
+                runflag = False
+                sw = 3
+            # end if
         # end if
     # end while
     return (sw, isin)

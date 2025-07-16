@@ -154,7 +154,7 @@ def konto_auswerten():
     # endwhile
     
     if save_flag:
-        (status, errtext) = ka_data_set.data_save(rd.data,rd.par)
+        (status, errtext) = ka_data_set.data_save(rd.data,rd.par,rd.ini.ddict)
 
         if (status != hdef.OK):
             rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)

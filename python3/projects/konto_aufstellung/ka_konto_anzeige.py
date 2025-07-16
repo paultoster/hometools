@@ -185,17 +185,8 @@ def anzeige(rd,konto_dict,konto_obj):
                 return (hdef.NOT_OK, konto_dict,konto_obj)
             # endif
 
-            # Erstelle die Eingabe liste
-            eingabeListe = []
-            for i, header in enumerate(header_liste):
-                if i == buchtype_index_in_header_liste:
-                    eingabeListe.append([header, buchungs_type_list])  # Auswahl ist die buchungs_type_list
-                else:
-                    eingabeListe.append(header)
-                # end if
-            # end for
             
-            new_data_list = ka_gui.konto_data_set_eingabe(eingabeListe,data_set)
+            new_data_list = ka_gui.konto_depot_data_set_eingabe(header_liste,buchtype_index_in_header_liste,buchungs_type_list,data_set)
             
             if len(new_data_list):
                 (new_data_set_flag, status, errtext) = konto_obj.set_data_set_extern_liste(new_data_list,irow)

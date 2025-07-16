@@ -82,7 +82,7 @@ def konto_abfrage( header_liste, data_llist, abfrage_liste,color_list):
     return (dict_out["data_set"], dict_out["index_abfrage"], dict_out["irow_select"], dict_out["data_change_irow_icol_liste"])
 
 # edn def
-def konto_data_set_eingabe(eingabe_liste,data_set=None,title=None):
+def konto_depot_data_set_eingabe(header_liste,buchtype_index_in_header_liste,buchungs_type_list,data_set=None,title=None):
     '''
     
     
@@ -91,7 +91,16 @@ def konto_data_set_eingabe(eingabe_liste,data_set=None,title=None):
     :return: new_data_list = ka_gui.konto_data_set_eingabe(header_liste,buchungs_type_list)
     '''
     
-
+    # Erstelle die Eingabe liste
+    eingabe_liste = []
+    for i, header in enumerate(header_liste):
+        if i == buchtype_index_in_header_liste:
+            eingabe_liste.append([header, buchungs_type_list])  # Auswahl ist die buchungs_type_list
+        else:
+            eingabe_liste.append(header)
+        # end if
+    # end for
+    
     if data_set is None:
         if title is None:
             title = "Eine Kontobewegung eingeben"
@@ -103,6 +112,16 @@ def konto_data_set_eingabe(eingabe_liste,data_set=None,title=None):
     
     return new_data_list
 # end def
+def konto_depot_kategorie(kategorie, titlename):
+    '''
+    
+    :param kategorie:
+    :param titlename:
+    :return: kategorie = ka_gui.konto_depot_kategorie(kategorie, titlename)
+    '''
+    kategorie = sgui.abfrage_n_eingabezeilen(liste=["kategorie"], vorgabe_liste=[kategorie], title=titlename)
+    return kategorie
+# end dfe
 def  depot_overview(header_liste, data_lliste, abfrage_liste):
     '''
     
