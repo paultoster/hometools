@@ -182,7 +182,7 @@ def rd_consistency_check(par,ini_dict,data):
         
         for i in range(n):
             # get id
-            id = data[konto_name].obj.get_data_item_at_i(i
+            id = data[konto_name].obj.get_data_item_at_irow(i
                 , data[konto_name].obj.KONTO_DATA_NAME_DICT[data[konto_name].obj.KONTO_DATA_INDEX_ID]
                 , data[konto_name].obj.KONTO_DATA_TYPE_DICT[data[konto_name].obj.KONTO_DATA_INDEX_ID])
             # proof

@@ -151,6 +151,18 @@ class DepotDataSet:
     #     self.DEPOT_DATA_TO_SHOW_DICT[dat_set_index] = self.DEPOT_DATA_ITEM_LIST[dat_set_index]
     
     # end def
+    def reset_status(self):
+        
+        self.status = hdef.OKAY
+        self.errtext = ""
+        
+        for isin in self.wp_data_obj_dict.keys():
+            self.wp_data_obj_dict[isin].reset_status()
+        # end for
+    # end def
+    def reset_infotext(self):
+        self.infotext = ""
+    # end def
     def delete_infotext(self):
         self.infotext = ""
     # end def
@@ -325,7 +337,7 @@ class DepotDataSet:
             if index == self.par.DEPOT_DATA_INDEX_BUCHTYPE:
                 new_data_dict[index] = buch_type
             else: # sonst
-                new_data_dict[index] = konto_obj.get_data_item_at_i(i,self.par.DEPOT_DATA_NAME_DICT[index],self.par.DEPOT_DATA_TYPE_DICT[index])
+                new_data_dict[index] = konto_obj.get_data_item_at_irow(i,self.par.DEPOT_DATA_NAME_DICT[index],self.par.DEPOT_DATA_TYPE_DICT[index])
             # end if
             new_type_dict[index] = self.par.DEPOT_DATA_TYPE_DICT[index]
             new_header_dict[index] = self.par.DEPOT_DATA_NAME_DICT[index]
@@ -552,15 +564,13 @@ class DepotDataSet:
                         self.par.DEPOT_DATA_NAME_ANZAHL,
                         self.par.DEPOT_DATA_NAME_WERT,
                         self.par.DEPOT_DATA_NAME_KOSTEN,
-                        self.par.DEPOT_DATA_NAME_STEUER,
-                        self.par.DEPOT_DATA_NAME_KATEGORIE]
+                        self.par.DEPOT_DATA_NAME_STEUER]
         type_liste = ["datStrP",
                       self.par.DEPOT_BUCHTYPE_TEXT_LIST,
                       "float",
                       "float",
                       "float",
-                      "float",
-                      "str"]
+                      "float"]
         
         data_lliste = self.wp_data_obj_dict[isin].get_data_set_lliste(header_liste,type_liste)
         if self.wp_data_obj_dict[isin].status != hdef.OKAY:
@@ -592,7 +602,7 @@ class DepotDataSet:
         if isin not in self.wp_data_obj_dict.keys():
             self.status = hdef.NOT_OKAY
             self.errtext = f"get_depot_daten_sets_isin: gewünschte isin = {isin} is nicht in Depot enthalten"
-            return ([], [], [], "",[],0)
+            return ([], [], [], [],0)
         # end if
         
         header_liste = [self.par.DEPOT_DATA_NAME_BUCHDATUM,
@@ -600,22 +610,20 @@ class DepotDataSet:
                         self.par.DEPOT_DATA_NAME_ANZAHL,
                         self.par.DEPOT_DATA_NAME_WERT,
                         self.par.DEPOT_DATA_NAME_KOSTEN,
-                        self.par.DEPOT_DATA_NAME_STEUER,
-                        self.par.DEPOT_DATA_NAME_KATEGORIE]
+                        self.par.DEPOT_DATA_NAME_STEUER]
                 
         type_liste = ["datStrP",
                       self.par.DEPOT_BUCHTYPE_TEXT_LIST,
                       "float",
                       "float",
                       "float",
-                      "float",
-                      "str"]
+                      "float"]
         
         output_data_set = self.wp_data_obj_dict[isin].get_one_data_set_liste(irow,header_liste, type_liste)
         if self.wp_data_obj_dict[isin].status != hdef.OKAY:
             self.status = hdef.NOT_OKAY
             self.errtext = self.wp_data_obj_dict[isin].errtext
-            return ([], [], [], "",[],0)
+            return ([], [], [], [],0)
         # end if
         
         buchtype_index_in_header_liste = 1 # siehe header_liste
@@ -652,6 +660,48 @@ class DepotDataSet:
         # end if
         
         return new_data_set_flag
-# end def
+    # end def
+    def delete_in_data_set(self,isin,irow,konto_obj):
+        '''
+        
+        :param isin:
+        :param irow:
+        :param konto_obj:
+        :return:
+        '''
 
+        if isin not in self.wp_data_obj_dict.keys():
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"delete_in_data_set: gewünschte isin = {isin} is nicht in Depot enthalten"
+            return False
+        # end if
+        
+        # id
+        id = self.wp_data_obj_dict[isin].get_id_of_irow(irow)
+
+        if self.wp_data_obj_dict[isin].status != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = self.wp_data_obj_dict[isin].errtext
+            return self.status
+        # end if
+
+        # finde konto row in konto_data_set
+        irow_konto = konto_obj.get_irow_by_id(id)
+        if irow_konto < 0:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"In Konto: {konto_obj.konto_name} konnte id = {id} nicht gefunden werden !!!!"
+            return self.status
+        # end if
+
+        self.wp_data_obj_dict[isin].delete_in_wp_data_set(irow)
+
+        if self.wp_data_obj_dict[isin].status != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = self.wp_data_obj_dict[isin].errtext
+            return self.status
+        # end if
+        
+        (self.status, self.errtext) = konto_obj.delete_data_list(irow_konto)
+        
+        return self.status
 # end class

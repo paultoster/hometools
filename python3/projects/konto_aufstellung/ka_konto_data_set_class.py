@@ -691,7 +691,7 @@ class KontoDataSet:
             self.status = hdef.NOT_OKAY
             self.errtext = f"KontoDataSet.delete_data_list: irow = {irow} >= len(data_set_llist) = {len(self.data_set_llist)}"
         else:
-            self.data_set_llist.pop(irow)
+            del self.data_set_llist[irow]
             self.n_data_sets = len(self.data_set_llist)
         # end if
         
@@ -1115,6 +1115,33 @@ class KontoDataSet:
     def get_number_of_data(self):
         return self.n_data_sets
     # endif
+    def get_irow_by_id(self,id):
+        '''
+        
+        :param id:
+        :return:
+        '''
+        (okay, wert) = htype.type_proof(id, self.KONTO_DATA_TYPE_DICT[self.KONTO_DATA_INDEX_ID])
+        if okay != hdef.OKAY:
+            raise Exception(
+                f"Fehler type proof of  id = {id} von type: {self.KONTO_DATA_TYPE_DICT[self.KONTO_DATA_INDEX_ID]} !!!")
+        # end if
+        
+        index_liste = hlist.search_value_in_llist_return_indexlist(self.data_set_llist, self.KONTO_DATA_INDEX_ID, wert)
+        
+        if len(index_liste) > 1:
+            raise Exception(
+                f"Fehler mit  id = {id}, kommt im data_set mehrfach vor index_liste = {index_liste} !!!")
+        # end if
+        
+        if len(index_liste) == 1:
+            irow = index_liste[0]
+        else:
+            irow = -1
+        # end if
+        
+        return irow
+    # end def
     def set_konto_name(self):
         return self.konto_name
     def get_buchtype_str(self,i):
@@ -1123,27 +1150,27 @@ class KontoDataSet:
         else:
             return None
     # end def
-    def get_data_item_at_i(self,i,data_name,data_type):
+    def get_data_item_at_irow(self,irow,data_name,data_type):
         '''
         
-        :param i:
+        :param irow:
         :param data_name:
         :param data_taype:
-        :return: value = self.get_data_item_at_i(i,data_name,data_type)
+        :return: value = self.get_data_item_at_irow(i,data_name,data_type)
         '''
-        if i < self.n_data_sets:
+        if irow < self.n_data_sets:
             if data_name in self.KONTO_DATA_NAME_LIST:
                 index = self.KONTO_DATA_NAME_LIST.index(data_name)
-                val = self.data_set_llist[i][index]
+                val = self.data_set_llist[irow][index]
                 (okay,value) = htype.type_transform(val,self.KONTO_DATA_TYPE_DICT[index],data_type)
                 if okay != hdef.OKAY:
                     raise Exception(
-                        f"get_data_item_at_i: Fehler type_transform <{val}> von type: <{self.KONTO_DATA_TYPE_DICT[index]}> in type <{data_type}> wandeln !!!")
+                        f"get_data_item_at_irow: Fehler type_transform <{val}> von type: <{self.KONTO_DATA_TYPE_DICT[index]}> in type <{data_type}> wandeln !!!")
                 # end if
                 return value
             else:
                 raise Exception(
-                    f"get_data_item_at_i: Fehler data_name: <{data_name}> not in KONTO_DATA_NAME_LIST: <{self.KONTO_DATA_NAME_LIST}> !!!")
+                    f"get_data_item_at_irow: Fehler data_name: <{data_name}> not in KONTO_DATA_NAME_LIST: <{self.KONTO_DATA_NAME_LIST}> !!!")
             # end if
         else:
             return None

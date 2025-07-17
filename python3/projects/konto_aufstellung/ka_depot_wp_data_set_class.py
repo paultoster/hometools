@@ -61,6 +61,11 @@ class WpDataSet:
         
         return
     # end def
+    def reset_status(self):
+        self.status = hdef.OKAY
+        self.errtext = ""
+        self.data_set_obj.reset_status()
+    # end def
     def get_name(self):
         '''
         
@@ -120,6 +125,17 @@ class WpDataSet:
     # end def
     def get_kategorie(self):
         return self.kategorie
+    # end def
+    def get_id_of_irow(self,irow):
+        '''
+        
+        :param irow:
+        :return:
+        '''
+        id = self.data_set_obj.get_data_item(irow, self.par.DEPOT_DATA_NAME_KONTO_ID)
+        self.status = self.data_set_obj.status
+        self.errtext = self.data_set_obj.errtext
+        return id
     # end def
     def set_kategorie(self,kategorie):
         self.kategorie = kategorie
@@ -268,5 +284,14 @@ class WpDataSet:
                 # end if
             # end if
         return True
+    # end def
+    def delete_in_wp_data_set(self,irow):
+        '''
+        
+        :param irow:
+        :return:
+        '''
+        self.status = self.data_set_obj.delete_row_in_data_set(irow)
+        return self.status
     # end def
 # end class

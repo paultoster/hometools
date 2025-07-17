@@ -90,6 +90,10 @@ class DataSet:
         self.def_okay  = False   # is definition okay
         self.status    = hdef.OKAY
         self.errtext   = ""
+    def reset_status(self):
+        self.status = hdef.OKAY
+        self.errtext = ""
+    # end def
     def set_definition(self,icol:int,name:str,type: str | list,store_type: str| list):
         '''
         Deinition einer Spalte
@@ -542,5 +546,29 @@ class DataSet:
             self.data_set_llist[irow][icol] = wert
         # end if
         return True
+    # end def
+    def delete_row_in_data_set(self,irow):
+        '''
+        
+        :param irow:
+        :return:
+        '''
+
+        if not self.def_okay:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"delete_row_in_data_set: Definition der TAbelle nicht okay def_okay = False "
+            return self.status
+        # end if
+        
+        if irow >= self.n_data_sets:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"delete_row_in_data_set: irow ist nicht im range, irow = {irow} > n_data_sets = {self.n_data_sets} !!!!! "
+            return self.status
+        # end if
+        
+        del self.data_set_llist[irow]
+        self.n_data_sets -= 1
+
+        return self.status
     # end def
 # end class

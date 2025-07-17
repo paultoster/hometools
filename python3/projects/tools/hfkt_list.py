@@ -53,7 +53,13 @@ lliste = [[0,10,'a',2.],[0,5,'b',2.],[0,5,'bbbbb',3.],[0,15,'rrr',2.]]
 
 lliste = sort_list_of_list(lliste,index,aufsteigend=1) sortiere nach dem index lliste[i][index]
 
+(liste = search_double_value_in_list_return_indexlist(liste,value))
+
+index_liste = search_double_value_in_list_return_indexllist(liste)
+
 index_liste = search_value_in_list_return_indexlist(liste,value)
+
+index_liste = search_value_in_llist_return_indexlist(lliste,icol,value)
 
 newlist = sort_list_of_dict(lliste, keyname, aufsteigend=1)
 
@@ -353,6 +359,42 @@ def search_double_value_in_list_return_indexllist(liste):
     # end if
     return indexllist
 # end def
+
+def search_value_in_list_return_indexlist(liste,value):
+    '''
+    
+    :param liste:
+    :param value:
+    :return: index_liste = search_value_in_list_return_indexlist(liste,value)
+    '''
+    
+    index_liste = []
+    for i,item in enumerate(liste):
+        if value == item:
+            index_liste.append(i)
+        # end if
+    # end for
+    return index_liste
+# end def
+def search_value_in_llist_return_indexlist(lliste, icol,value):
+    '''
+
+    :param liste:
+    :param value:
+    :return: index_liste = search_value_in_llist_return_indexlist(lliste,icol,value)
+    '''
+    
+    index_liste = []
+    for i, liste in enumerate(lliste):
+        if (icol >= 0) and (icol < len(liste)):
+            if value == liste[icol]:
+                index_liste.append(i)
+            # end if
+        # end if
+    # end for
+    return index_liste
+# end def
+
 def sort_list_of_dict(lliste, keyname, aufsteigend=1):
     '''
     z.B. lliste = [[0,10,'a',2.],[0,5,'b',2.],[0,5,'bbbbb',3.],[0,15,'rrr',2.]]

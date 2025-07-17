@@ -72,8 +72,10 @@ def anzeige_mit_depot_wahl(rd):
         elif choice == 0:
             (data_lliste, header_liste, type_liste) = depot_obj.get_depot_daten_sets_overview(nur_was_im_depot)
             if depot_obj.status != hdef.OKAY:  # Abbruch
+                status = depot_obj.status
                 rd.log.write_err(depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
-                return depot_obj.status
+                depot_obj.reset_status()
+                return status
     
             icol_isin = header_liste.index(depot_obj.par.DEPOT_DATA_NAME_ISIN)
     
@@ -84,14 +86,14 @@ def anzeige_mit_depot_wahl(rd):
             if sw < 0:
                 runflag = False
             elif sw == 1:
-                choice = 1
+                choice = 1      # auswahl isin
                 runflag = True
-            elif sw == 2:
+            elif sw == 2: # toggle
                 nur_was_im_depot = not nur_was_im_depot
-                choice = 0
+                choice = 0      # auswahl overview
                 runflag = True
             else: # sw == 3
-                choice = 4
+                choice = 4      # auswahl kategorie
                 runflag = True
 
             # end if
@@ -99,11 +101,13 @@ def anzeige_mit_depot_wahl(rd):
             
             (data_lliste, header_liste, type_liste) = depot_obj.get_depot_daten_sets_isin(isin)
             if depot_obj.status != hdef.OKAY:  # Abbruch
+                status = depot_obj.status
                 rd.log.write_err(depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
-                return depot_obj.status
+                depot_obj.reset_status()
+                return status
             # end if
             
-            title = depot_obj.get_titlename()
+            title = depot_obj.get_titlename(isin)
             
             # isin Anzeige
             #--------------------------------------
@@ -117,7 +121,7 @@ def anzeige_mit_depot_wahl(rd):
             elif sw == 2:  # edit
                 choice = 2
                 runflag = True
-            else: # delete
+            else:           # delete
                 choice = 3
                 runflag = True
             # end if
@@ -125,12 +129,14 @@ def anzeige_mit_depot_wahl(rd):
         elif choice == 2: # edit irow and isin
             
             # get data
-            (data_set, header_liste,type_liste, titlename,buchungs_type_list, buchtype_index_in_header_liste) \
+            (data_set, header_liste,type_liste,buchungs_type_list, buchtype_index_in_header_liste) \
                 = depot_obj.get_depot_daten_sets_isin_irow(isin, irow)
             
             if depot_obj.status != hdef.OKAY:  # Abbruch
+                status = depot_obj.status
                 rd.log.write_err(depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
-                return depot_obj.status
+                depot_obj.reset_status()
+                return status
             # end if
             
             titlename = depot_obj.get_titlename(isin)
@@ -143,16 +149,51 @@ def anzeige_mit_depot_wahl(rd):
                 new_data_set_flag = depot_obj.set_data_set_isin_irow(new_data_list, header_liste,type_liste,isin, irow)
                 
                 if depot_obj.status != hdef.OKAY:
+                    status = depot_obj.status
                     rd.log.write_err("anzeige_mit_depot_wahl edit " + depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
+                    depot_obj.reset_status()
                     return status
                 elif len(depot_obj.infotext) != 0:
                     rd.log.write_info("anzeige_mit_depot_wahl edit " + depot_obj.infotext, screen=rd.par.LOG_SCREEN_OUT)
+                    depot_obj.reset_infotext()
                 # endif
             # endif
 
             choice = 0
             runflag = True
         elif choice == 3: # delete
+            
+            # get data
+            (data_set, header_liste,_,_,_) = depot_obj.get_depot_daten_sets_isin_irow(isin, irow)
+
+            ddict0 = {}
+            for i,name in enumerate(header_liste):
+                ddict0[name] = data_set[i]
+            # end for
+            titlename = depot_obj.get_titlename(isin)
+            flag = ka_gui.janein_abfrage(rd, f"Soll wirklich isin/name/zahltdiv = {titlename} mit datasetdict : {ddict0} gelöscht werden", "Nicht Löschen ja/nein")
+
+            if flag:
+                # konto_obj set anlegen
+                # ----------------------
+                konto_key = depot_dict[rd.par.INI_DEPOT_KONTO_NAME]
+                
+                if konto_key not in rd.data:
+                    status = hdef.NOT_OKAY
+                    errtext = f"Von Depot Auswahl: {auswahl} benutztes Konto: {konto_key} ist nicht im data-dict"
+                    rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
+                    return status
+                # end if
+                
+                status =depot_obj.delete_in_data_set(isin,irow,rd.data[konto_key].obj)
+                
+                if status != hdef.OKAY:  # Abbruch
+                    rd.log.write_err(depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
+                    status = depot_obj.reset_status()
+                    return status
+                # end if
+            # end if
+            
             choice = 0
             runflag = True
         else: # choice == 4
