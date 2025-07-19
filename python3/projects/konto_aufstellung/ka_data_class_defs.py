@@ -326,9 +326,9 @@ class DataSet:
         
         return (data_dict_list,name_dict,type_dict)
     # end def
-    def build_name_and_type_dict(self,header_liste,type_liste):
+    def build_name_and_type_dict(self, header_liste, type_liste):
         '''
-        
+
         :param header_liste:
         :param type_liste:
         :return:
@@ -336,19 +336,41 @@ class DataSet:
         
         header_dict = {}
         type_dict = {}
-        for i,header in enumerate(header_liste):
+        for i, header in enumerate(header_liste):
             
             key = self.find_header_index(header)
             if key is None:
-                return ({},{})
+                return ({}, {})
             # end if
             header_dict[key] = header
             type_dict[key] = type_liste[i]
-            
+        
         # end for
         
-        return (header_dict,type_dict)
+        return (header_dict, type_dict)
+    
+    def build_name_dict(self, header_liste):
+        '''
+
+        :param header_liste:
+        :param type_liste:
+        :return:
+        '''
         
+        header_dict = {}
+        
+        for i, header in enumerate(header_liste):
+            
+            key = self.find_header_index(header)
+            if key is None:
+                return {}
+            # end if
+            header_dict[key] = header
+        
+        # end for
+        
+        return header_dict
+    # end def
     def get_data_type_dict(self):
         '''
     
@@ -395,6 +417,44 @@ class DataSet:
         # end for
         return output_data_lliste
     # end def
+    def get_one_data_set_dict(self,irow, header_dict_or_list: list|dict, type_dict_or_list: list|dict):
+        '''
+        
+        :param irow:
+        :param header_dict:
+        :param type_dict:
+        :return: ddict = self.get_one_data_set_dict(irow, header_dict, type_dict):
+        '''
+        if isinstance(header_dict_or_list,list):
+                (name_dict,type_dict) = self.build_name_and_type_dict(header_dict_or_list,type_dict_or_list)
+                if self.status != hdef.OKAY:
+                    return self.status
+                # end if
+        else:
+            name_dict = header_dict_or_list
+            type_dict = type_dict_or_list
+        # end if
+    
+        icol_liste = []
+        for key in name_dict.keys():
+            icol_liste.append(key)
+        # end for
+        n = len(icol_liste)
+        
+        data_liste = self.data_set_llist[irow]
+        output_data_set_dict = {}
+        for i, icol in enumerate(icol_liste):
+            (okay, value) = htype.type_transform(data_liste[icol], self.type_dict[icol], type_dict[i])
+            if okay != hdef.OKAY:
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"get_one_data_set_dict:  Fehler transform data_item = <{data_liste[icol]}> von type: <{self.type_dict[icol]}> in type {type_liste[i]} wandeln !!!!!!"
+                return {}
+            # end if
+            output_data_set_dict[icol] = value
+        # end for
+        
+        return output_data_set_dict
+    
     def get_one_data_set_liste(self,irow, header_liste, type_liste):
         '''
 

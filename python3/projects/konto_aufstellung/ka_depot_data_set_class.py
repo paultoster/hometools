@@ -57,6 +57,8 @@ class DepotParam:
     index += 1
     DEPOT_DATA_INDEX_ANZAHL = index
     index += 1
+    DEPOT_DATA_INDEX_KURS = index
+    index += 1
     DEPOT_DATA_INDEX_WERT = index
     index += 1
     DEPOT_DATA_INDEX_KOSTEN = index
@@ -68,7 +70,7 @@ class DepotParam:
     # DEPOT_DATA_INDEX_KATEGORIE = index
     
     DEPOT_DATA_INDEX_LIST = [DEPOT_DATA_INDEX_KONTO_ID, DEPOT_DATA_INDEX_BUCHDATUM
-        , DEPOT_DATA_INDEX_ISIN,DEPOT_DATA_INDEX_BUCHTYPE, DEPOT_DATA_INDEX_ANZAHL
+        , DEPOT_DATA_INDEX_ISIN,DEPOT_DATA_INDEX_BUCHTYPE, DEPOT_DATA_INDEX_ANZAHL,DEPOT_DATA_INDEX_KURS
         , DEPOT_DATA_INDEX_WERT, DEPOT_DATA_INDEX_KOSTEN, DEPOT_DATA_INDEX_STEUER]
     
     # Diese Daten kommen vom Konto
@@ -83,6 +85,7 @@ class DepotParam:
     DEPOT_DATA_NAME_BUCHTYPE = "buchtype"
     DEPOT_DATA_NAME_ISIN = "isin"
     DEPOT_DATA_NAME_ANZAHL = "anzahl"
+    DEPOT_DATA_NAME_KURS = "kurs"
     DEPOT_DATA_NAME_WERT = "wert"
     DEPOT_DATA_NAME_KOSTEN = "kosten"
     DEPOT_DATA_NAME_STEUER = "steuer"
@@ -98,6 +101,7 @@ class DepotParam:
         [DEPOT_DATA_INDEX_ISIN, DEPOT_DATA_NAME_ISIN, "isin","isin"],
         [DEPOT_DATA_INDEX_BUCHTYPE, DEPOT_DATA_NAME_BUCHTYPE, DEPOT_BUCHTYPE_INDEX_LIST,DEPOT_BUCHTYPE_TEXT_LIST],
         [DEPOT_DATA_INDEX_ANZAHL, DEPOT_DATA_NAME_ANZAHL, "float","float"],
+        [DEPOT_DATA_INDEX_ANZAHL, DEPOT_DATA_NAME_KURS, "cent","euroStrK"],
         [DEPOT_DATA_INDEX_WERT, DEPOT_DATA_NAME_WERT, "cent","euroStrK"],
         [DEPOT_DATA_INDEX_KOSTEN, DEPOT_DATA_NAME_KOSTEN, "cent","euroStrK"],
         [DEPOT_DATA_INDEX_STEUER, DEPOT_DATA_NAME_STEUER, "cent","euroStrK"],
@@ -279,25 +283,25 @@ class DepotDataSet:
         
         n = konto_obj.get_number_of_data()
         flag_read = False
-        new_data_dict_list = []
+        # new_data_dict_list = []
+        n_new_read = 0
+        n_update   = 0
         for i in range(n):
             buchtype_str = konto_obj.get_buchtype_str(i)
             
             if buchtype_str in self.par.DEPOT_DATA_BUCHTYPE_DICT.values():
                 
-                buch_type \
-                    = self.par.DEPOT_BUCHTYPE_INDEX_LIST[
-                    self.par.DEPOT_BUCHTYPE_TEXT_LIST.index(buchtype_str)]
+                buch_type = self.par.DEPOT_BUCHTYPE_INDEX_LIST[self.par.DEPOT_BUCHTYPE_TEXT_LIST.index(buchtype_str)]
                 
                 (new_data_dict, new_header_dict, new_type_dict) = self.get_konto_data_at_i(i,buch_type,konto_obj)
                 
-                (flag_read,isin) = self.proof_raw_dict_isin_id(new_data_dict)
+                (flag_read,isin,id) = self.proof_raw_dict_isin_id(new_data_dict) # proof id
                 if self.status != hdef.OKAY:
                     return
                 # end if
                 
                 if flag_read:
-                    
+                    n_new_read += 1
                     self.wp_data_obj_dict[isin].add_data_set_dict_to_table(new_data_dict,new_header_dict,new_type_dict)
                     
                     if self.wp_data_obj_dict[isin].status != hdef.OKAY:
@@ -305,21 +309,38 @@ class DepotDataSet:
                         self.errtext = self.wp_data_obj_dict[isin].errtext
                         return
                     # end if
+                else: # proof for update
+                    
+                    flag_update = self.wp_data_obj_dict[isin].update_item_if_different(id,new_data_dict,new_header_dict,new_type_dict)
+                
+                    if self.wp_data_obj_dict[isin].status != hdef.OKAY:
+                        self.status = hdef.NOT_OKAY
+                        self.errtext = self.wp_data_obj_dict[isin].errtext
+                        return
+                    # end if
+                    
+                    if flag_update:
+                        n_update += 1
+                    # end if
                 # end if
             # end if
-            
         # end for
         
-        if not flag_read:
-            if n == 0:
-                self.infotext = f"Im Konto: <{konto_obj.set_konto_name()}> sind keine Daten vorhanden"
-            else:
-                self.infotext = f"Vom Konto: <{konto_obj.set_konto_name()}> keine neuen Daten eingelesen"
-            # end if
-        else:
-            self.infotext = f"Vom Konto: <{konto_obj.set_konto_name()}> n: {n} neuen Daten eingelesen"
+        if n_new_read > 0:
+            self.infotext = f"{self.errtext}\nVom Konto: <{konto_obj.set_konto_name()}> n_new: {n_new_read} neuen Daten eingelesen"
         # end if
-    # end if
+        if n_update > 0:
+            self.infotext = f"{self.errtext}\nVom Konto: <{konto_obj.set_konto_name()}> n_update: {n_update}  Daten upgedatet"
+        # end if
+        if (n_new_read == 0) and (n_update == 0):
+            if n == 0:
+                self.infotext = f"{self.errtext}\nIm Konto: <{konto_obj.set_konto_name()}> sind keine Daten vorhanden"
+            else:
+                self.infotext = f"{self.errtext}\nVom Konto: <{konto_obj.set_konto_name()}> keine neuen Daten eingelesen"
+            # end if
+        # end if
+        return
+    # end def
     def get_konto_data_at_i(self,i,buch_type,konto_obj):
         '''
         
@@ -363,7 +384,7 @@ class DepotDataSet:
         Prüft ob isin okay und ob isin es Stammdaten vorhanden und ob schon ein wp-objekt angelegt ist
         
         :param raw_data_dict:
-        :return: (flag,isin_index) = self.get_from_konto_data_raw_dict(raw_data_dict,new_type_dict)
+        :return: (flag,isin_index,id) = self.get_from_konto_data_raw_dict(raw_data_dict,new_type_dict)
         '''
         
         # proof isin
@@ -382,13 +403,14 @@ class DepotDataSet:
             return (False,isin)
         # end if
         
+        id = new_data_dict[self.par.DEPOT_DATA_INDEX_KONTO_ID]
         # proof id in data object
-        if wp_obj.exist_id_in_table(new_data_dict[self.par.DEPOT_DATA_INDEX_KONTO_ID]):
+        if wp_obj.exist_id_in_table(id):
             flag = False
         else:
             flag = True
             
-        return (flag,isin)
+        return (flag,isin,id)
     # end def
     def get_wp_data_obj(self,isin):
         
@@ -630,6 +652,32 @@ class DepotDataSet:
         buchungs_type_list = self.par.DEPOT_BUCHTYPE_TEXT_LIST
 
         return (output_data_set, header_liste, type_liste,buchungs_type_list,buchtype_index_in_header_liste)
+    # end def
+    def get_immutable_list_from_header_list(self,isin,header_liste):
+        '''
+        
+        :param isin
+        :param header_liste:
+        :return: immutable_liste = self.get_immutable_list_from_header_list(isin,header_liste)
+        '''
+        immutable_liste = []
+        
+        if isin not in self.wp_data_obj_dict.keys():
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"get_depot_daten_sets_isin: gewünschte isin = {isin} is nicht in Depot enthalten"
+            return immutable_liste
+        
+        # end if
+        
+        immutable_liste = self.wp_data_obj_dict[isin].get_wp_immutable_list_from_header_list(header_liste)
+        
+        if self.wp_data_obj_dict[isin].status != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = self.wp_data_obj_dict[isin].errtext
+            return False
+        # end if
+        
+        return immutable_liste
     # end def
     def set_data_set_isin_irow(self,new_data_list, header_liste, type_liste,isin, irow):
         '''

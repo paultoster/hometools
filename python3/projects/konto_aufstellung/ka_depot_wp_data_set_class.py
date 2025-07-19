@@ -1,6 +1,7 @@
 
 import hfkt_def as hdef
 import hfkt_type as htype
+import hfkt_list as hlist
 
 import ka_data_class_defs as ka_class
 
@@ -154,6 +155,32 @@ class WpDataSet:
     def get_depot_wp_name(self):
         return self.depot_wp_name
     # end def
+    def get_wp_immutable_list_from_header_list(self,header_liste):
+        '''
+        
+        :param header_liste:
+        :return: immutable_liste = self.get_wp_immutable_list_from_header_list(header_liste)
+        '''
+        immutable_liste = []
+        header_dict = self.data_set_obj.build_name_dict(header_liste)
+    
+        if self.data_set_obj.status != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = self.data_set_obj.errtext
+            return immutable_liste
+        # end if
+        
+        
+        for key in header_dict.keys():
+            if key in self.par.DEPOT_DATA_IMMUTABLE_INDEX_LIST:
+                immutable_liste.append(True)
+            else:
+                immutable_liste.append(False)
+            # end if
+        # end for
+        
+        return immutable_liste
+    # end def
     def get_wp_data_set_dict_to_store(self):
         '''
         
@@ -204,6 +231,53 @@ class WpDataSet:
             self.status  = self.data_set_obj.status
             self.errtext = self.data_set_obj.errtext
         # end if
+    # end def
+    def update_item_if_different(self,id, update_data_dict, update_header_dict,update_type_dict):
+        '''
+        
+        :param new_data_dict:
+        :param new_header_dict:
+        :param new_type_dict:
+        :return: flag_update = self.update_item_if_different(id, new_data_dict, new_header_dict,new_type_dict)
+        '''
+        
+        flag_update = False
+        
+        icol = hlist.find_first_key_dict_value(update_header_dict,self.par.DEPOT_DATA_NAME_KONTO_ID)
+        
+        if icol is not None:
+            irow_list = self.data_set_obj.find_in_col(id, update_type_dict[icol], icol)
+            
+            if len(irow_list) > 1:
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"update_item_if_different: id = {id} ist mehrfach vorhanden irow_list = {irow_list}"
+                return flag_update
+            elif len(irow_list) == 0:
+                return flag_update
+            # end if
+            
+            irow = irow_list[0]
+            data_set_dict = self.data_set_obj.get_one_data_set_dict(irow,update_header_dict,update_type_dict)
+            
+            if self.data_set_obj.status != hdef.OKAY:
+                self.status = self.data_set_obj.status
+                self.errtext = self.data_set_obj.errtext
+                return flag_update
+            # end if
+            
+            for key in data_set_dict.keys():
+                
+                if data_set_dict[key] != update_data_dict[key]:
+                    flag_update =self.data_set_obj.set_data_item(update_data_dict[key], irow, key, update_type_dict[key])
+    
+                    if self.data_set_obj.status != hdef.OKAY:
+                        self.status = self.data_set_obj.status
+                        self.errtext = self.data_set_obj.errtext
+                        return flag_update
+                    # end if
+                # end if
+            # end for
+        return flag_update
     # end def
     def get_data_set_lliste(self,header_liste,type_liste):
         '''

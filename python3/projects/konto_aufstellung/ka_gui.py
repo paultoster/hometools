@@ -82,7 +82,7 @@ def konto_abfrage( header_liste, data_llist, abfrage_liste,color_list):
     return (dict_out["data_set"], dict_out["index_abfrage"], dict_out["irow_select"], dict_out["data_change_irow_icol_liste"])
 
 # edn def
-def konto_depot_data_set_eingabe(header_liste,buchtype_index_in_header_liste,buchungs_type_list,data_set=None,title=None):
+def konto_depot_data_set_eingabe(header_liste,buchtype_index_in_header_liste,buchungs_type_list,data_set=None,title=None,immutable_liste=None):
     '''
     
     
@@ -101,15 +101,25 @@ def konto_depot_data_set_eingabe(header_liste,buchtype_index_in_header_liste,buc
         # end if
     # end for
     
-    if data_set is None:
-        if title is None:
-            title = "Eine Kontobewegung eingeben"
-        new_data_list = sgui.abfrage_n_eingabezeilen(liste=eingabe_liste,title=title)
-    else:
-        if title is None:
-            title = "Eine Kontobewegung eingeben"
-        new_data_list = sgui.abfrage_n_eingabezeilen(liste=eingabe_liste,vorgabe_liste=data_set, title=title)
-    
+    if title is None:
+        title = "Eine Kontobewegung eingeben"
+    # end if
+    if immutable_liste is None:
+        immutable_liste = []
+        for i in range(len(eingabe_liste)):
+            immutable_liste.append(False)
+        # end for
+    # end if
+    ddict = {}
+    ddict["liste_abfrage"] = eingabe_liste
+    ddict["title"] = title
+    ddict["liste_immutable"] = immutable_liste
+
+    if data_set is not None:
+        ddict["liste_vorgabe"] = data_set
+    # end if
+    new_data_list = sgui.abfrage_n_eingabezeilen_dict(ddict)
+
     return new_data_list
 # end def
 def konto_depot_kategorie(kategorie, titlename):

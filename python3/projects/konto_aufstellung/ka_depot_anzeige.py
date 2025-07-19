@@ -139,11 +139,20 @@ def anzeige_mit_depot_wahl(rd):
                 return status
             # end if
             
+            immutable_liste = depot_obj.get_immutable_list_from_header_list(isin,header_liste)
+            
+            if depot_obj.status != hdef.OKAY:  # Abbruch
+                status = depot_obj.status
+                rd.log.write_err(depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
+                depot_obj.reset_status()
+                return status
+            # end if
+
             titlename = depot_obj.get_titlename(isin)
             
             # edit data
             new_data_list = ka_gui.konto_depot_data_set_eingabe(header_liste, buchtype_index_in_header_liste,
-                                                          buchungs_type_list, data_set,titlename)
+                                                          buchungs_type_list, data_set,titlename,immutable_liste)
             
             if len(new_data_list):
                 new_data_set_flag = depot_obj.set_data_set_isin_irow(new_data_list, header_liste,type_liste,isin, irow)
