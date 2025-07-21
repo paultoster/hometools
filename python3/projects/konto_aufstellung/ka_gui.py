@@ -132,7 +132,7 @@ def konto_depot_kategorie(kategorie, titlename):
     kategorie = sgui.abfrage_n_eingabezeilen(liste=["kategorie"], vorgabe_liste=[kategorie], title=titlename)
     return kategorie
 # end dfe
-def  depot_overview(header_liste, data_lliste, abfrage_liste):
+def  depot_overview(header_liste, data_lliste, abfrage_liste,titlename):
     '''
     
     :param header_liste:
@@ -147,6 +147,7 @@ def  depot_overview(header_liste, data_lliste, abfrage_liste):
     dict_inp["header_liste"] = header_liste
     dict_inp["data_set_lliste"] = data_lliste
     dict_inp["abfrage_liste"] = abfrage_liste
+    dict_inp["title"] = titlename
     
     dict_out = sgui.abfrage_tabelle(dict_inp)
 

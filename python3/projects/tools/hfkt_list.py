@@ -62,6 +62,7 @@ index_liste = search_value_in_list_return_indexlist(liste,value)
 index_liste = search_value_in_llist_return_indexlist(lliste,icol,value)
 
 newlist = sort_list_of_dict(lliste, keyname, aufsteigend=1)
+newlist = sort_list(liste,aufsteigend=1)
 
 keylist = find_keys_of_dict_value_as_list(ddict,value)
 
@@ -394,6 +395,24 @@ def search_value_in_llist_return_indexlist(lliste, icol,value):
     # end for
     return index_liste
 # end def
+
+def sort_list(liste,aufsteigend=1):
+    '''
+    
+    :param liste:
+    :param aufsteigend: 0/1
+    :return: newlist = sort_list(liste,aufsteigend=1)
+    '''
+
+
+    if aufsteigend:
+        new_llist = sorted(lliste)
+    else:
+        new_llist = sorted(lliste, reverse=True)
+    # edn fi
+    
+    return new_llist
+
 
 def sort_list_of_dict(lliste, keyname, aufsteigend=1):
     '''

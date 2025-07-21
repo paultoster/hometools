@@ -81,7 +81,8 @@ def anzeige_mit_depot_wahl(rd):
     
             # Overview Anzeigen
             #--------------------------------------
-            (sw, isin) = anzeige_overview(rd,data_lliste, header_liste,icol_isin)
+            titlename = f"Depot: {depot_obj.get_depot_name()}"
+            (sw, isin) = anzeige_overview(rd,data_lliste, header_liste,icol_isin,titlename)
             
             if sw < 0:
                 runflag = False
@@ -228,7 +229,7 @@ def anzeige_mit_depot_wahl(rd):
     
     return status
 # enddef
-def anzeige_overview(rd,data_lliste, header_liste, icol_isin):
+def anzeige_overview(rd,data_lliste, header_liste, icol_isin,titlename):
     '''
     
     :param data_lliste:
@@ -248,7 +249,7 @@ def anzeige_overview(rd,data_lliste, header_liste, icol_isin):
     
     while (runflag):
         
-        (sw,irow) =  ka_gui.depot_overview(header_liste, data_lliste, abfrage_liste)
+        (sw,irow) =  ka_gui.depot_overview(header_liste, data_lliste, abfrage_liste,titlename)
         
         if sw <= i_end:
             sw = -1

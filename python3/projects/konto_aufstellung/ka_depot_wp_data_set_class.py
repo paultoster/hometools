@@ -45,6 +45,7 @@ class WpDataSet:
             if self.data_set_obj.status != hdef.OKAY:
                 self.status = self.data_set_obj.status
                 self.errtext = self.data_set_obj.errtext
+                self.data_set_objreset_status()
                 break
             # end if
         # end for
@@ -92,12 +93,14 @@ class WpDataSet:
             if self.data_set_obj.status != hdef.OKAY:
                 self.status = self.data_set_obj.status
                 self.errtext = self.data_set_obj.errtext
+                self.data_set_objreset_status()
                 return None
             # end if
             buchtype = self.data_set_obj.get_data_item(irow,self.par.DEPOT_DATA_NAME_BUCHTYPE)
             if self.data_set_obj.status != hdef.OKAY:
                 self.status = self.data_set_obj.status
                 self.errtext = self.data_set_obj.errtext
+                self.data_set_objreset_status()
                 return None
             # end if
             if buchtype == self.par.DEPOT_BUCHTYPE_INDEX_WP_KAUF:
@@ -117,9 +120,10 @@ class WpDataSet:
             if self.data_set_obj.status != hdef.OKAY:
                 self.status = self.data_set_obj.status
                 self.errtext = self.data_set_obj.errtext
+                self.data_set_objreset_status()
                 return None
             # end if
-            summe += abs(wert)
+            summe += wert
         # end for
         
         return summe
@@ -136,6 +140,7 @@ class WpDataSet:
         id = self.data_set_obj.get_data_item(irow, self.par.DEPOT_DATA_NAME_KONTO_ID)
         self.status = self.data_set_obj.status
         self.errtext = self.data_set_obj.errtext
+        self.data_set_objreset_status()
         return id
     # end def
     def set_kategorie(self,kategorie):
@@ -149,6 +154,7 @@ class WpDataSet:
         if self.data_set_obj.status != hdef.OKAY:
             self.status = self.data_set_obj.status
             self.errtext = self.data_set_obj.errtext
+            self.data_set_objreset_status()
         # end if
         return self.status
     # end def
@@ -167,6 +173,7 @@ class WpDataSet:
         if self.data_set_obj.status != hdef.OKAY:
             self.status = hdef.NOT_OKAY
             self.errtext = self.data_set_obj.errtext
+            self.data_set_objreset_status()
             return immutable_liste
         # end if
         
@@ -197,6 +204,7 @@ class WpDataSet:
         if self.data_set_obj.status != hdef.OKAY:
             self.status = hdef.NOT_OKAY
             self.errtext = self.data_set_obj.errtext
+            self.data_set_objreset_status()
         # end if
 
         return wp_data_set_dict
@@ -230,6 +238,7 @@ class WpDataSet:
         if self.data_set_obj.status != hdef.OKAY:
             self.status  = self.data_set_obj.status
             self.errtext = self.data_set_obj.errtext
+            self.data_set_obj.reset_status()
         # end if
     # end def
     def update_item_if_different(self,id, update_data_dict, update_header_dict,update_type_dict):
@@ -262,6 +271,7 @@ class WpDataSet:
             if self.data_set_obj.status != hdef.OKAY:
                 self.status = self.data_set_obj.status
                 self.errtext = self.data_set_obj.errtext
+                self.data_set_objreset_status()
                 return flag_update
             # end if
             
@@ -273,6 +283,7 @@ class WpDataSet:
                     if self.data_set_obj.status != hdef.OKAY:
                         self.status = self.data_set_obj.status
                         self.errtext = self.data_set_obj.errtext
+                        self.data_set_objreset_status()
                         return flag_update
                     # end if
                 # end if
@@ -292,6 +303,7 @@ class WpDataSet:
         if self.data_set_obj.status != hdef.OKAY:
             self.status  = self.data_set_obj.status
             self.errtext = self.data_set_obj.errtext
+            self.data_set_objreset_status()
         # end if
 
         return  data_lliste
@@ -312,6 +324,7 @@ class WpDataSet:
         if self.data_set_obj.status != hdef.OKAY:
             self.status = self.data_set_obj.status
             self.errtext = self.data_set_obj.errtext
+            self.data_set_objreset_status()
         # end if
         
         return data_set
@@ -340,6 +353,7 @@ class WpDataSet:
             if icol is None:
                 self.status = hdef.NOT_OKAY
                 self.errtext = self.data_set_obj.errtext
+                self.data_set_objreset_status()
                 return False
             # end if
             value_old = self.data_set_obj.get_data_item(irow,icol,type)
@@ -353,6 +367,7 @@ class WpDataSet:
                     if not flag:
                         self.status = hdef.NOT_OKAY
                         self.errtext = self.data_set_obj.errtext
+                        self.data_set_objreset_status()
                         return False
                     # endif
                 # end if

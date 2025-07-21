@@ -13,15 +13,17 @@ import sgui
 import ka_gui
 import ka_depot_read
 import ka_depot_anzeige
+import ka_depot_write
 
 def bearbeiten(rd):
     status = hdef.OKAY
     runflag = True
 
-    start_auswahl = ["Cancel","DepotDatenSet von KontoDaten einlesen","DepotDatenSet anzeigen/bearbeiten" ]
+    start_auswahl = ["Cancel","DepotDatenSet von KontoDaten einlesen","DepotDatenSet anzeigen/bearbeiten","DepotDatenSet in ods (excel) ausgeben"]
     index_cancel  = 0
     index_read_konto  = 1
     index_anzeige = 2
+    index_ods = 3
     
     while (runflag):
 
@@ -36,11 +38,16 @@ def bearbeiten(rd):
             status = ka_depot_read.depot_konto_einlesen(rd)
             runflag = False
             
-        elif(index == index_anzeige):
+        elif (index == index_anzeige):
             
             status = ka_depot_anzeige.anzeige_mit_depot_wahl(rd)
             runflag = False
+        
+        elif (index == index_ods):
             
+            status = ka_depot_write.ods_ausgabe_mit_depot_wahl(rd)
+            runflag = False
+        
         else:
             errtext = f"Depot Abfrage Auswahl: {index} nicht bekannt"
             rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)

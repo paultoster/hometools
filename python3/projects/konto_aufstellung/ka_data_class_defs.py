@@ -145,11 +145,11 @@ class DataSet:
             # suche in self.name_dict
             key_name_dict = hlist.find_first_key_dict_value(self.name_dict,new_name)
             
-            if (key_name_dict is not None) and (key_name_dict == key):
+            if key_name_dict is not None:
                 (okay, wert) = htype.type_transform(new_data_dict[key], new_type_dict[key],
-                                                    self.type_dict[key])
+                                                    self.type_dict[key_name_dict])
                 if okay == hdef.OK:
-                    data_set_list[key] = wert
+                    data_set_list[key_name_dict] = wert
                 else:
                     self.status = hdef.NOT_OKAY
                     self.errtext = f"add_data_set_dict: Problem type_transform of <{new_data_dict[key]}> von type: <{new_type_dict[key]}> zu <{self.type_dict[key]}> "
@@ -553,6 +553,7 @@ class DataSet:
             else:
                 raise Exception(f"proof_data_set_dict: key = {key} is string noch int")
             # end if
+            
         # end for
         return data_set_dict_out
     # end def
