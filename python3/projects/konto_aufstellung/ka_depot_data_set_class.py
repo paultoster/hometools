@@ -33,11 +33,17 @@ class DepotParam:
     DEPOT_BUCHTYPE_INDEX_WP_KOSTEN: int = 3
     DEPOT_BUCHTYPE_INDEX_WP_EINNAHMEN: int = 4
 
-    DEPOT_DATA_BUCHTYPE_DICT = {DEPOT_BUCHTYPE_INDEX_UNBEKANNT: "unbekannt"
-        , DEPOT_BUCHTYPE_INDEX_WP_KAUF: "wp_kauf"
-        , DEPOT_BUCHTYPE_INDEX_WP_VERKAUF: "wp_verkauf"
-        , DEPOT_BUCHTYPE_INDEX_WP_KOSTEN: "wp_kosten"
-        , DEPOT_BUCHTYPE_INDEX_WP_EINNAHMEN: "wp_einnahmen"}
+    DEPOT_BUCHTYPE_NAME_UNBEKANNT: str = "unbekannt"
+    DEPOT_BUCHTYPE_NAME_WP_KAUF: str = "wp_kauf"
+    DEPOT_BUCHTYPE_NAME_WP_VERKAUF: str = "wp_verkauf"
+    DEPOT_BUCHTYPE_NAME_WP_KOSTEN: str = "wp_kosten"
+    DEPOT_BUCHTYPE_NAME_WP_EINNAHMEN: str = "wp_einnahmen"
+
+    DEPOT_DATA_BUCHTYPE_DICT = {DEPOT_BUCHTYPE_INDEX_UNBEKANNT: DEPOT_BUCHTYPE_NAME_UNBEKANNT
+        , DEPOT_BUCHTYPE_INDEX_WP_KAUF: DEPOT_BUCHTYPE_NAME_WP_KAUF
+        , DEPOT_BUCHTYPE_INDEX_WP_VERKAUF: DEPOT_BUCHTYPE_NAME_WP_VERKAUF
+        , DEPOT_BUCHTYPE_INDEX_WP_KOSTEN: DEPOT_BUCHTYPE_NAME_WP_KOSTEN
+        , DEPOT_BUCHTYPE_INDEX_WP_EINNAHMEN: DEPOT_BUCHTYPE_NAME_WP_EINNAHMEN}
 
     DEPOT_BUCHTYPE_TEXT_LIST = []
     DEPOT_BUCHTYPE_INDEX_LIST = []
@@ -384,19 +390,10 @@ class DepotDataSet:
             new_header_dict[index] = self.par.DEPOT_DATA_NAME_DICT[index]
             
             if self.par.DEPOT_DATA_NAME_DICT[index] == self.par.DEPOT_DATA_NAME_WERT:
-                wert_index = index
+                new_data_dict[wert_index] = abs(new_data_dict[wert_index])
             # end if
         # end ofr
         
-        # if wert_index is not None:
-        #     if (buch_type == self.par.DEPOT_BUCHTYPE_INDEX_WP_KAUF) or \
-        #         (buch_type == self.par.DEPOT_BUCHTYPE_INDEX_WP_EINNAHMEN):
-        #         new_data_dict[wert_index] = abs(new_data_dict[wert_index])
-        #     elif (buch_type == self.par.DEPOT_BUCHTYPE_INDEX_WP_KOSTEN) or \
-        #         (buch_type == self.par.DEPOT_BUCHTYPE_INDEX_WP_EINNAHMEN):
-        #         new_data_dict[wert_index] = -abs(new_data_dict[wert_index])
-        #     # end if
-            
         return (new_data_dict,new_header_dict,new_type_dict)
     # end def
     def proof_raw_dict_isin_id(self,new_data_dict):
@@ -532,7 +529,7 @@ class DepotDataSet:
                       "str",
                       "int",
                       "float",
-                      "float"
+                      "euroStrK"
                       "str"]
         data_lliste = []
         for isin in self.isin_liste:
@@ -606,15 +603,17 @@ class DepotDataSet:
         header_liste = [self.par.DEPOT_DATA_NAME_BUCHDATUM,
                         self.par.DEPOT_DATA_NAME_BUCHTYPE,
                         self.par.DEPOT_DATA_NAME_ANZAHL,
+                        self.par.DEPOT_DATA_NAME_KURS,
                         self.par.DEPOT_DATA_NAME_WERT,
                         self.par.DEPOT_DATA_NAME_KOSTEN,
                         self.par.DEPOT_DATA_NAME_STEUER]
         type_liste = ["datStrP",
                       self.par.DEPOT_BUCHTYPE_TEXT_LIST,
                       "float",
-                      "float",
-                      "float",
-                      "float"]
+                      "euroStrK",
+                      "euroStrK",
+                      "euroStrK",
+                      "euroStrK"]
         
         data_lliste = self.wp_data_obj_dict[isin].get_data_set_lliste(header_liste,type_liste)
         if self.wp_data_obj_dict[isin].status != hdef.OKAY:
@@ -652,6 +651,7 @@ class DepotDataSet:
         header_liste = [self.par.DEPOT_DATA_NAME_BUCHDATUM,
                         self.par.DEPOT_DATA_NAME_BUCHTYPE,
                         self.par.DEPOT_DATA_NAME_ANZAHL,
+                        self.par.DEPOT_DATA_NAME_KURS,
                         self.par.DEPOT_DATA_NAME_WERT,
                         self.par.DEPOT_DATA_NAME_KOSTEN,
                         self.par.DEPOT_DATA_NAME_STEUER]
@@ -659,9 +659,10 @@ class DepotDataSet:
         type_liste = ["datStrP",
                       self.par.DEPOT_BUCHTYPE_TEXT_LIST,
                       "float",
-                      "float",
-                      "float",
-                      "float"]
+                      "euroStrK",
+                      "euroStrK",
+                      "euroStrK",
+                      "euroStrK"]
         
         output_data_set = self.wp_data_obj_dict[isin].get_one_data_set_liste(irow,header_liste, type_liste)
         if self.wp_data_obj_dict[isin].status != hdef.OKAY:
@@ -774,4 +775,76 @@ class DepotDataSet:
         (self.status, self.errtext) = konto_obj.delete_data_list(irow_konto)
         
         return self.status
+    def set_kurs_value(self,isin,irow):
+        '''
+        
+        :param isin:
+        :param irow:
+        :return: status = self.set_kurs_value(isin,irow)
+        '''
+        
+        if isin not in self.isin_liste:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"set_kurs_value: gewünschte isin = {isin} is nicht in Depot enthalten"
+            return self.status
+        # end if
+        
+        header_liste = [self.par.DEPOT_DATA_NAME_BUCHDATUM,
+                        self.par.DEPOT_DATA_NAME_BUCHTYPE,
+                        self.par.DEPOT_DATA_NAME_ANZAHL,
+                        self.par.DEPOT_DATA_NAME_KURS,
+                        self.par.DEPOT_DATA_NAME_WERT,
+                        self.par.DEPOT_DATA_NAME_KOSTEN,
+                        self.par.DEPOT_DATA_NAME_STEUER]
+        
+        type_liste = ["dat",
+                      self.par.DEPOT_BUCHTYPE_TEXT_LIST,
+                      "float",
+                      "cent",
+                      "cent",
+                      "cent",
+                      "cent"]
+        index_datum = 0
+        index_buchtype = 1
+        index_anzahl = 2
+        index_kurs = 3
+        index_wert = 4
+        index_kosten = 5
+        index_steuer = 6
+        
+        
+        data_set = self.wp_data_obj_dict[isin].get_one_data_set_liste(irow, header_liste, type_liste)
+        if self.wp_data_obj_dict[isin].status != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = self.wp_data_obj_dict[isin].errtext
+            return self.status
+        # end if
+        flag = False
+        if data_set[index_buchtype] == self.par.DEPOT_BUCHTYPE_NAME_WP_KAUF:
+            if data_set[index_anzahl] > 0.01:
+                kurs = (data_set[index_wert]-data_set[index_kosten]-data_set[index_kosten])/data_set[index_anzahl]
+                data_set[index_kurs] = int(kurs + 0.5)
+                flag = True
+        elif data_set[index_buchtype] == self.par.DEPOT_BUCHTYPE_NAME_WP_VERKAUF:
+            if data_set[index_anzahl] > 0.01:
+                kurs = (data_set[index_wert]+data_set[index_kosten]+data_set[index_kosten])/data_set[index_anzahl]
+                data_set[index_kurs] = int(kurs+0.5)
+                flag = True
+        elif data_set[index_buchtype] == self.par.DEPOT_BUCHTYPE_NAME_WP_KOSTEN:
+            print("Kursabfrage fehlt!!")
+        elif data_set[index_buchtype] == self.par.DEPOT_BUCHTYPE_NAME_WP_EINNAHMEN:
+            print("Kursabfrage fehlt!!")
+        # end if
+        
+        if flag:
+            self.wp_data_obj_dict[isin].set_item_in_irow(data_set[index_kurs], self.par.DEPOT_DATA_NAME_KURS, "cent", irow)
+
+            if self.wp_data_obj_dict[isin].status != hdef.OKAY:
+                self.status = hdef.NOT_OKAY
+                self.errtext = self.wp_data_obj_dict[isin].errtext
+                return self.status
+            # end if
+
+        return self.status
+    # end dfe
 # end class

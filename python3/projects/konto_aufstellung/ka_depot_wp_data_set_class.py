@@ -45,7 +45,7 @@ class WpDataSet:
             if self.data_set_obj.status != hdef.OKAY:
                 self.status = self.data_set_obj.status
                 self.errtext = self.data_set_obj.errtext
-                self.data_set_objreset_status()
+                self.data_set_obj.reset_status()
                 break
             # end if
         # end for
@@ -93,14 +93,14 @@ class WpDataSet:
             if self.data_set_obj.status != hdef.OKAY:
                 self.status = self.data_set_obj.status
                 self.errtext = self.data_set_obj.errtext
-                self.data_set_objreset_status()
+                self.data_set_obj.reset_status()
                 return None
             # end if
             buchtype = self.data_set_obj.get_data_item(irow,self.par.DEPOT_DATA_NAME_BUCHTYPE)
             if self.data_set_obj.status != hdef.OKAY:
                 self.status = self.data_set_obj.status
                 self.errtext = self.data_set_obj.errtext
-                self.data_set_objreset_status()
+                self.data_set_obj.reset_status()
                 return None
             # end if
             if buchtype == self.par.DEPOT_BUCHTYPE_INDEX_WP_KAUF:
@@ -120,7 +120,7 @@ class WpDataSet:
             if self.data_set_obj.status != hdef.OKAY:
                 self.status = self.data_set_obj.status
                 self.errtext = self.data_set_obj.errtext
-                self.data_set_objreset_status()
+                self.data_set_obj.reset_status()
                 return None
             # end if
             summe += wert
@@ -140,21 +140,27 @@ class WpDataSet:
         id = self.data_set_obj.get_data_item(irow, self.par.DEPOT_DATA_NAME_KONTO_ID)
         self.status = self.data_set_obj.status
         self.errtext = self.data_set_obj.errtext
-        self.data_set_objreset_status()
+        self.data_set_obj.reset_status()
         return id
     # end def
     def set_kategorie(self,kategorie):
         self.kategorie = kategorie
-    def set_stored_wp_data_set_dict(self,wp_data_set_dict,header_dict=None,type_dict=None):
+    def set_stored_wp_data_set_dict(self,wp_data_set_dict_list,header_dict=None,type_dict=None):
         self.status = hdef.OK
         self.errtext = ""
         
-        self.data_set_obj.set_data_set_dict_list(wp_data_set_dict,header_dict,type_dict)
+        # for i in range(len(wp_data_set_dict_list)):
+        #     (okay,wert) = htype.type_transform(wp_data_set_dict_list[i]['wert'],type_dict[6],'euro')
+        #     value = abs(wert)
+        #     (okay,wert) = htype.type_transform(abs(wert),'euro',type_dict[6])
+        #     wp_data_set_dict_list[i]['wert'] = wert
+        
+        self.data_set_obj.set_data_set_dict_list(wp_data_set_dict_list,header_dict,type_dict)
         
         if self.data_set_obj.status != hdef.OKAY:
             self.status = self.data_set_obj.status
             self.errtext = self.data_set_obj.errtext
-            self.data_set_objreset_status()
+            self.data_set_obj.reset_status()
         # end if
         return self.status
     # end def
@@ -173,7 +179,7 @@ class WpDataSet:
         if self.data_set_obj.status != hdef.OKAY:
             self.status = hdef.NOT_OKAY
             self.errtext = self.data_set_obj.errtext
-            self.data_set_objreset_status()
+            self.data_set_obj.reset_status()
             return immutable_liste
         # end if
         
@@ -204,7 +210,7 @@ class WpDataSet:
         if self.data_set_obj.status != hdef.OKAY:
             self.status = hdef.NOT_OKAY
             self.errtext = self.data_set_obj.errtext
-            self.data_set_objreset_status()
+            self.data_set_obj.reset_status()
         # end if
 
         return wp_data_set_dict
@@ -271,7 +277,7 @@ class WpDataSet:
             if self.data_set_obj.status != hdef.OKAY:
                 self.status = self.data_set_obj.status
                 self.errtext = self.data_set_obj.errtext
-                self.data_set_objreset_status()
+                self.data_set_obj.reset_status()
                 return flag_update
             # end if
             
@@ -283,7 +289,7 @@ class WpDataSet:
                     if self.data_set_obj.status != hdef.OKAY:
                         self.status = self.data_set_obj.status
                         self.errtext = self.data_set_obj.errtext
-                        self.data_set_objreset_status()
+                        self.data_set_obj.reset_status()
                         return flag_update
                     # end if
                 # end if
@@ -303,7 +309,7 @@ class WpDataSet:
         if self.data_set_obj.status != hdef.OKAY:
             self.status  = self.data_set_obj.status
             self.errtext = self.data_set_obj.errtext
-            self.data_set_objreset_status()
+            self.data_set_obj.reset_status()
         # end if
 
         return  data_lliste
@@ -324,7 +330,7 @@ class WpDataSet:
         if self.data_set_obj.status != hdef.OKAY:
             self.status = self.data_set_obj.status
             self.errtext = self.data_set_obj.errtext
-            self.data_set_objreset_status()
+            self.data_set_obj.reset_status()
         # end if
         
         return data_set
@@ -343,35 +349,52 @@ class WpDataSet:
             header = header_liste[i]
             type   = type_liste[i]
             
-            (okay,wert) = htype.type_proof(value,type)
-            if okay != hdef.OKAY:
-                raise Exception(
-                    f"Fehler value: {value} kann nicht in  type: {type}  gerechnet werden !!!")
-            # end if
-            
-            icol =  self.data_set_obj.find_header_index(header)
-            if icol is None:
-                self.status = hdef.NOT_OKAY
-                self.errtext = self.data_set_obj.errtext
-                self.data_set_objreset_status()
+            flag = self.set_item_in_irow(value, header, type,irow)
+            if not flag:
                 return False
-            # end if
-            value_old = self.data_set_obj.get_data_item(irow,icol,type)
+        # end for
+        return True
+    # end def
+    def set_item_in_irow(self,value, header, type,irow):
+        '''
+        
+        :param data:
+        :param header:
+        :param type:
+        :param irow:
+        :return: flag = self.set_item_in_irow(data, header, type,irow)
+        '''
+        
+        (okay, wert) = htype.type_proof(value, type)
+        if okay != hdef.OKAY:
+            raise Exception(
+                f"Fehler value: {value} kann nicht in  type: {type}  gerechnet werden !!!")
+        # end if
+        
+        icol = self.data_set_obj.find_header_index(header)
+        if icol is None:
+            self.status = hdef.NOT_OKAY
+            self.errtext = self.data_set_obj.errtext
+            self.data_set_obj.reset_status()
+            return False
+        # end if
+        value_old = self.data_set_obj.get_data_item(irow, icol, type)
+        
+        if wert != value_old:
             
-            if wert != value_old:
-            
-                if icol in self.par.DEPOT_DATA_IMMUTABLE_INDEX_LIST:
-                    self.infotext = f"set_edit_data_set_in_irow: header: {header} / icol: {icol} darf nicht verändert werden"
-                else:
-                    flag = self.data_set_obj.set_data_item(value, irow, icol, type)
-                    if not flag:
-                        self.status = hdef.NOT_OKAY
-                        self.errtext = self.data_set_obj.errtext
-                        self.data_set_objreset_status()
-                        return False
-                    # endif
-                # end if
+            if icol in self.par.DEPOT_DATA_IMMUTABLE_INDEX_LIST:
+                self.infotext = f"set_edit_data_set_in_irow: header: {header} / icol: {icol} darf nicht verändert werden"
+            else:
+                flag = self.data_set_obj.set_data_item(wert, irow, icol, type)
+                if not flag:
+                    self.status = hdef.NOT_OKAY
+                    self.errtext = self.data_set_obj.errtext
+                    self.data_set_obj.reset_status()
+                    return False
+                # endif
             # end if
+        # end if
+    
         return True
     # end def
     def delete_in_wp_data_set(self,irow):

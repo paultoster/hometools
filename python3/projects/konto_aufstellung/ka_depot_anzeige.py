@@ -60,6 +60,7 @@ def anzeige_mit_depot_wahl(rd):
     #        = 2 edit isin in irow
     #        = 3 delete isin in irow
     #        = 4 kategorie
+    #        = 5 kurs
     #        = -1 Ende
     choice = 0 # Zusammenfassung
     runflag = True
@@ -100,6 +101,8 @@ def anzeige_mit_depot_wahl(rd):
             # end if
         elif choice == 1: # isin spezifisch
             
+            print(f"Depot: {auswahl} isin: {isin}")
+            
             (data_lliste, header_liste, type_liste) = depot_obj.get_depot_daten_sets_isin(isin)
             if depot_obj.status != hdef.OKAY:  # Abbruch
                 status = depot_obj.status
@@ -122,12 +125,17 @@ def anzeige_mit_depot_wahl(rd):
             elif sw == 2:  # edit
                 choice = 2
                 runflag = True
-            else:           # delete
+            elif sw == 3:  # delete
                 choice = 3
                 runflag = True
-            # end if
-
+            else:  # kurs
+                choice = 5
+                runflag = True
+        # end if
+        
         elif choice == 2: # edit irow and isin
+            
+            print(f"Depot: {auswahl} isin: {isin} irow: {irow}")
             
             # get data
             (data_set, header_liste,type_liste,buchungs_type_list, buchtype_index_in_header_liste) \
@@ -169,7 +177,7 @@ def anzeige_mit_depot_wahl(rd):
                 # endif
             # endif
 
-            choice = 0
+            choice = 1
             runflag = True
         elif choice == 3: # delete
             
@@ -204,9 +212,10 @@ def anzeige_mit_depot_wahl(rd):
                 # end if
             # end if
             
-            choice = 0
+            choice = 1
             runflag = True
-        else: # choice == 4
+            
+        elif choice == 4: # kategorie
             
             kategorie = depot_obj.get_kategorie(isin)
             titlename = depot_obj.get_titlename(isin)
@@ -218,6 +227,20 @@ def anzeige_mit_depot_wahl(rd):
                 depot_obj.set_kategorie(isin,kategorie_liste[0])
             
             choice = 0
+            runflag = True
+            
+        else:  # kurs choice = 5
+        
+            # set kurs
+            status = depot_obj.set_kurs_value(isin, irow)
+            
+            if status != hdef.OKAY:  # Abbruch
+                rd.log.write_err(depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
+                status = depot_obj.reset_status()
+                return status
+            # end if
+            
+            choice = 1
             runflag = True
         # end if
         
@@ -290,7 +313,7 @@ def anzeige_isin(rd, data_lliste, header_liste, title):
        = 3  delete
        = -1 Ende
     '''
-    abfrage_liste = ["ende", "zurück", "edit","delete"]
+    abfrage_liste = ["ende", "zurück", "edit","delete","kurs"]
     i_end = 0
     i_zurueck = 1
     # i_edit = 2
