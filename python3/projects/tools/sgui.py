@@ -1231,6 +1231,10 @@ class abfrage_tabelle_class:
         self.current_row = -1
         self.index_abfrage = -1
         self.combo_box = None
+        self.double_click_row_list = []
+        self.double_click_col_list = []
+        self.double_click_text_list = []
+        self.flag_changed_by_double_click = False
         self.flag_make_tab_gui = False
         self.data_change_irow_icol_liste = []
         self.data_change_flag = False
@@ -1582,7 +1586,6 @@ class abfrage_tabelle_class:
         scroll_tabbox_y.config(command=self.tabGui_TabBox.yview)
         scroll_tabbox_x.config(command=self.tabGui_TabBox.xview)
 
-
     # end def
     def createButtonGui(self):
         gr_buts = Tk.Frame(self.frame, relief=Tk.GROOVE, bd=2)
@@ -1695,17 +1698,26 @@ class abfrage_tabelle_class:
         # endfor
 
         # proof against hold
-        if len(self.data_set) != self.ndata_hold:
+        if self.flag_changed_by_double_click:   #  len(self.data_set) != self.ndata_hold:
 
             for i,index in enumerate(self.index_liste):
                 data_hold = self.data_set_hold[index]
                 data      = self.data_set[i]
                 for j,d in enumerate(data):
                     if( data_hold[j] != d):
-                        self.data_set_hold[index][j] = d
-                        self.data_change_irow_icol_liste.append((index,j))
-                        self.data_change_flag = True
-
+                        try:
+                            if (self.type_liste[j] == self.DATA_INTEGER):
+                                self.data_set_hold[index][j] = int(d)
+                            elif (self.type_liste[j] == self.DATA_FLOAT):
+                                self.data_set_hold[index][j] = float(d)
+                            else:
+                                self.data_set_hold[index][j] = str(d)
+                            # endif
+                            # self.data_set_hold[index][j] = d
+                            self.data_change_irow_icol_liste.append((index,j))
+                            self.data_change_flag = True
+                        except:
+                            pass
                     # end if
                 # end for
             # end for
@@ -1831,6 +1843,21 @@ class abfrage_tabelle_class:
 
         # place Entry Widget
         text = self.tabGui_TabBox.item(rowid, 'values')[int(column[1:]) - 1]
+        
+        # save text
+        (status,columnid) = htype.type_proof(column,'int')
+        if columnid:
+            columnid -=1
+        # end if
+        if status == hdef.OKAY:
+            
+            self.double_click_row_list.append(int(rowid))
+            self.double_click_col_list.append(columnid)
+            self.double_click_text_list.append(text)
+            self.flag_changed_by_double_click = True
+        # end if
+        
+        
         self.entryPopup = EntryPopup(self.root, self.tabGui_TabBox, rowid, int(column[1:]) - 1, text)
         self.entryPopup.place(x=x, y=y + pady, width=width, height=height, anchor='w')
 

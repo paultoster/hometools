@@ -847,4 +847,30 @@ class DepotDataSet:
 
         return self.status
     # end dfe
+    def update_data_llist(self,isin,changed_pos_list,update_date_lliste,header_liste, type_liste ):
+        '''
+        
+        :param isin:
+        :param update_date_lliste:
+        :param changed_pos_list:
+        :return: status = self.update_data_llist(isin,update_date_lliste, changed_pos_list)
+        '''
+        if isin not in self.isin_liste:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"update_data_llist: gewünschte isin = {isin} is nicht in Depot enthalten"
+            return self.status
+        # end if
+        
+        new_flag = False
+
+        for (irow, icol) in changed_pos_list:
+            header = header_liste[icol]
+            type   = type_liste[icol]
+            value = update_date_lliste[irow][icol]
+            new_flag = self.wp_data_obj_dict[isin].set_item_in_irow(value, header, type, irow)
+        # end for
+        
+        return (self.status,new_flag)
+    # end def
+    
 # end class

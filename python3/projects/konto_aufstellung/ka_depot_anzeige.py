@@ -61,6 +61,7 @@ def anzeige_mit_depot_wahl(rd):
     #        = 3 delete isin in irow
     #        = 4 kategorie
     #        = 5 kurs
+    #        = 6 update isin
     #        = -1 Ende
     choice = 0 # Zusammenfassung
     runflag = True
@@ -115,7 +116,7 @@ def anzeige_mit_depot_wahl(rd):
             
             # isin Anzeige
             #--------------------------------------
-            (sw, irow) = anzeige_isin(rd,data_lliste, header_liste,title)
+            (sw, irow,changed_pos_list,update_date_lliste) = anzeige_isin(rd,data_lliste, header_liste,title)
 
             if sw < 0:
                 runflag = False
@@ -128,8 +129,11 @@ def anzeige_mit_depot_wahl(rd):
             elif sw == 3:  # delete
                 choice = 3
                 runflag = True
-            else:  # kurs
+            elif sw == 4:  # kurs
                 choice = 5
+                runflag = True
+            else:
+                choice = 6
                 runflag = True
         # end if
         
@@ -229,7 +233,7 @@ def anzeige_mit_depot_wahl(rd):
             choice = 0
             runflag = True
             
-        else:  # kurs choice = 5
+        elif choice == 5:  # kurs choice = 5
         
             # set kurs
             status = depot_obj.set_kurs_value(isin, irow)
@@ -240,6 +244,17 @@ def anzeige_mit_depot_wahl(rd):
                 return status
             # end if
             
+            choice = 1
+            runflag = True
+        else: # update choice = 6
+            (status,new_data_set_flag) = depot_obj.update_data_llist(isin,changed_pos_list,update_date_lliste, header_liste, type_liste)
+
+            if status != hdef.OKAY:  # Abbruch
+                rd.log.write_err(depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
+                status = depot_obj.reset_status()
+                return status
+            # end if
+        
             choice = 1
             runflag = True
         # end if
@@ -313,32 +328,40 @@ def anzeige_isin(rd, data_lliste, header_liste, title):
        = 3  delete
        = -1 Ende
     '''
-    abfrage_liste = ["ende", "zurück", "edit","delete","kurs"]
+    abfrage_liste = ["ende", "zurück", "edit","delete","kurs","update(edit)"]
     i_end = 0
     i_zurueck = 1
-    # i_edit = 2
-    # i_delete = 3
+    i_edit = 2
+    i_delete = 3
+    # i_update = 4
     
     runflag = True
     while (runflag):
         
-        (sw, irow) = ka_gui.depot_isin(header_liste, data_lliste, abfrage_liste,title)
+        (sw, irow,changed_pos_list,date_set) = ka_gui.depot_isin(header_liste, data_lliste, abfrage_liste,title)
         
         if sw <= i_end:
             sw = -1
             runflag = False
         elif sw == i_zurueck:
             runflag = False
-        else: # if (sw == i_edit) or (sw == i_delete) :
+        elif (sw == i_edit) or (sw == i_delete) :
             if irow < 0:
                 rd.log.write_warn("Keine Zeile ausgewählt")
                 runflag = True
             else:
                 runflag = False
             # end if
+        else: # if sw == i_update
+            if len(changed_pos_list) == 0:
+                rd.log.write_warn("Keine Daten in Tabelle geändert")
+                runflag = True
+            else:
+                runflag = False
         # end if
+        
     # end while
-    return (sw, irow)
+    return (sw, irow,changed_pos_list,date_set)
 
 
 # end def

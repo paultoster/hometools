@@ -171,4 +171,4 @@ def depot_isin(header_liste, data_lliste, abfrage_liste,title):
     
     dict_out = sgui.abfrage_tabelle(dict_inp)
     
-    return (dict_out["index_abfrage"], dict_out["irow_select"])
+    return (dict_out["index_abfrage"], dict_out["irow_select"], dict_out["data_change_irow_icol_liste"],dict_out["data_set"])
