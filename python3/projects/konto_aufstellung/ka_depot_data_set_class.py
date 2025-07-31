@@ -145,6 +145,9 @@ class DepotParam:
     DEPOT_WP_STORE_PATH = "."
     DEPOT_WP_USE_JSON   = False
     
+    LINE_COLOR_NEW = "aliceblue"
+    LINE_COLOR_EDIT = "orange1"
+
 
 class DepotDataSet:
     def __init__(self,depot_name,isin_liste,wp_func_obj):
@@ -162,12 +165,14 @@ class DepotDataSet:
         
         self.isin_liste = sorted(isin_liste)
         self.wp_data_obj_dict  = {}
+        self.wp_color_dict     = {}   # sets color if isin is new or stores new data
         self.n_wp_data_obj     = 0
         for isin in self.isin_liste:
             
             self.wp_data_obj_dict[isin] = self.build_wp_data_obj(isin)
             if self.status == hdef.OKAY:
                 self.n_wp_data_obj += 1
+                self.wp_color_dict[isin] = self.par.LINE_COLOR_NEW
     
     # def set_data_show_dict_list(self,dat_set_index: int):
     #     self.DEPOT_DATA_TO_SHOW_DICT[dat_set_index] = self.DEPOT_DATA_ITEM_LIST[dat_set_index]
@@ -199,6 +204,7 @@ class DepotDataSet:
     def set_kategorie(self,isin,kategorie):
         if isin in self.isin_liste:
             self.wp_data_obj_dict[isin].set_kategorie(kategorie)
+            self.wp_color_dict[isin] = self.par.LINE_COLOR_EDIT
         else:
             raise Exception(f"set_kategorie: isin = {isin} nicht vorhanden")
         # end if
@@ -235,11 +241,14 @@ class DepotDataSet:
                 if wp_obj.status != hdef.OKAY:
                     raise Exception(f"set_stored_wp_data_set_dict: isin: {isin} Problem Erstellen Data Klasse {wp_obj.errtext}")
                 wp_obj.set_stored_wp_data_set_dict(wp_data_set_dict[self.par.WP_DATA_SET_DICT_LIST],
+                                                   "",
                                                    wp_data_set_dict[self.par.WP_DATA_SET_NAME_DICT],
                                                    wp_data_set_dict[self.par.WP_DATA_SET_TYPE_DICT])
                 if wp_obj.status != hdef.OKAY:
                     raise Exception(
                         f"set_stored_wp_data_set_dict: isin: {isin} Problem Füllen Data Klasse {wp_obj.errtext}")
+                
+                self.wp_color_dict[isin] = ""
                 
                 if self.par.WP_KATEGORIE in wp_data_set_dict.keys():
                     wp_obj.set_kategorie(wp_data_set_dict[self.par.WP_KATEGORIE])
@@ -290,13 +299,12 @@ class DepotDataSet:
         :return: ddict = self.get_wp_data_set_dict_to_store(isin)
         '''
         
-        if isin in self.isin_liste:
-            return self.wp_data_obj_dict[isin].get_wp_data_set_dict_to_store()
-        else:
+        if isin not in self.isin_liste:
             self.status = hdef.NOT_OKAY
             self.errtext = f"get_wp_data_set_dict_to_store: isin = {isin} not inwp_data_obj_dict"
             return {}
         # end def
+        return self.wp_data_obj_dict[isin].get_wp_data_set_dict_to_store()
     # end def
     def update_from_konto_data(self,konto_obj):
         '''
@@ -328,16 +336,17 @@ class DepotDataSet:
                 
                 if flag_read:
                     n_new_read += 1
-                    self.wp_data_obj_dict[isin].add_data_set_dict_to_table(new_data_dict,new_header_dict,new_type_dict)
+                    self.wp_data_obj_dict[isin].add_data_set_dict_to_table(new_data_dict,new_header_dict,new_type_dict,self.par.LINE_COLOR_NEW)
                     
                     if self.wp_data_obj_dict[isin].status != hdef.OKAY:
                         self.status = hdef.NOT_OKAY
                         self.errtext = self.wp_data_obj_dict[isin].errtext
                         return
                     # end if
+                    self.wp_color_dict[isin] = self.par.LINE_COLOR_EDIT
                 else: # proof for update
                     
-                    flag_update = self.wp_data_obj_dict[isin].update_item_if_different(id,new_data_dict,new_header_dict,new_type_dict)
+                    flag_update = self.wp_data_obj_dict[isin].update_item_if_different(id,new_data_dict,new_header_dict,new_type_dict,self.par.LINE_COLOR_EDIT)
                 
                     if self.wp_data_obj_dict[isin].status != hdef.OKAY:
                         self.status = hdef.NOT_OKAY
@@ -347,6 +356,7 @@ class DepotDataSet:
                     
                     if flag_update:
                         n_update += 1
+                        self.wp_color_dict[isin] = self.par.LINE_COLOR_EDIT
                     # end if
                 # end if
             # end if
@@ -438,7 +448,9 @@ class DepotDataSet:
             if self.status != hdef.OKAY:
                 return None
             # end if
-        
+            
+            self.wp_color_dict[isin] = self.par.LINE_COLOR_NEW
+            
             self.n_wp_data_obj += 1
         # end if
         return self.wp_data_obj_dict[isin]
@@ -532,6 +544,8 @@ class DepotDataSet:
                       "euroStrK"
                       "str"]
         data_lliste = []
+        row_color_dliste = []
+        
         for isin in self.isin_liste:
 
             # Precalc Anzahl
@@ -539,7 +553,7 @@ class DepotDataSet:
             if anzahl is None:
                 self.status = self.wp_data_obj_dict[isin].status
                 self.errtext = self.wp_data_obj_dict[isin].errtext
-                return ([],[],[])
+                return ([],[],[],[])
             # end if
 
             if (nur_was_im_depot and (anzahl > 0.01)) or \
@@ -576,10 +590,11 @@ class DepotDataSet:
                 dataliste.append(kategorie)
                 
                 data_lliste.append(dataliste)
+                row_color_dliste.append(self.wp_color_dict[isin])
             # end if
         # end for
         
-        return (data_lliste, header_liste,type_liste)
+        return (data_lliste, header_liste,type_liste,row_color_dliste)
 
         
     # end def
@@ -616,19 +631,22 @@ class DepotDataSet:
                       "euroStrK"]
         
         data_lliste = self.wp_data_obj_dict[isin].get_data_set_lliste(header_liste,type_liste)
+
         if self.wp_data_obj_dict[isin].status != hdef.OKAY:
             self.status = hdef.NOT_OKAY
             self.errtext = self.wp_data_obj_dict[isin].errtext
             return ([], [], [], "")
         # end if
-        
+
+        line_color_liste = self.wp_data_obj_dict[isin].get_line_color_set_liste()
+
         if self.par.DEPOT_DATA_INDEX_BUCHTYPE in self.par.DEPOT_DATA_NAME_DICT.keys():
             buchtype_index_in_header_liste = self.par.DEPOT_DATA_INDEX_LIST.index(self.par.DEPOT_DATA_INDEX_BUCHTYPE)
         else:
             buchtype_index_in_header_liste = -1
         # endif
 
-        return (data_lliste, header_liste,type_liste)
+        return (data_lliste, header_liste,type_liste,line_color_liste)
     # end def
 
 
@@ -719,7 +737,7 @@ class DepotDataSet:
             return False
         # end if
         
-        new_data_set_flag = self.wp_data_obj_dict[isin].set_edit_data_set_in_irow(new_data_list, header_liste, type_liste,irow)
+        new_data_set_flag = self.wp_data_obj_dict[isin].set_edit_data_set_in_irow(new_data_list, header_liste, type_liste,irow,self.par.LINE_COLOR_EDIT)
 
         if self.wp_data_obj_dict[isin].status != hdef.OKAY:
             self.status = hdef.NOT_OKAY
@@ -729,6 +747,9 @@ class DepotDataSet:
             self.infotext = f"set_data_set_isin_irow: {self.wp_data_obj_dict[isin].infotext}"
             self.wp_data_obj_dict[isin].infotext = ""
         # end if
+        
+        if new_data_set_flag:
+            self.wp_color_dict[isin] = self.par.LINE_COLOR_NEW
         
         return new_data_set_flag
     # end def
@@ -822,12 +843,12 @@ class DepotDataSet:
         flag = False
         if data_set[index_buchtype] == self.par.DEPOT_BUCHTYPE_NAME_WP_KAUF:
             if data_set[index_anzahl] > 0.01:
-                kurs = (data_set[index_wert]-data_set[index_kosten]-data_set[index_kosten])/data_set[index_anzahl]
+                kurs = (data_set[index_wert]-data_set[index_kosten]-data_set[index_steuer])/data_set[index_anzahl]
                 data_set[index_kurs] = int(kurs + 0.5)
                 flag = True
         elif data_set[index_buchtype] == self.par.DEPOT_BUCHTYPE_NAME_WP_VERKAUF:
             if data_set[index_anzahl] > 0.01:
-                kurs = (data_set[index_wert]+data_set[index_kosten]+data_set[index_kosten])/data_set[index_anzahl]
+                kurs = (data_set[index_wert]+data_set[index_kosten]+data_set[index_steuer])/data_set[index_anzahl]
                 data_set[index_kurs] = int(kurs+0.5)
                 flag = True
         elif data_set[index_buchtype] == self.par.DEPOT_BUCHTYPE_NAME_WP_KOSTEN:
@@ -837,13 +858,15 @@ class DepotDataSet:
         # end if
         
         if flag:
-            self.wp_data_obj_dict[isin].set_item_in_irow(data_set[index_kurs], self.par.DEPOT_DATA_NAME_KURS, "cent", irow)
+            self.wp_data_obj_dict[isin].set_item_in_irow(data_set[index_kurs], self.par.DEPOT_DATA_NAME_KURS, "cent", irow,self.par.LINE_COLOR_EDIT)
 
             if self.wp_data_obj_dict[isin].status != hdef.OKAY:
                 self.status = hdef.NOT_OKAY
                 self.errtext = self.wp_data_obj_dict[isin].errtext
                 return self.status
             # end if
+            
+            self.wp_color_dict[isin] = self.par.LINE_COLOR_EDIT
 
         return self.status
     # end dfe
@@ -867,7 +890,9 @@ class DepotDataSet:
             header = header_liste[icol]
             type   = type_liste[icol]
             value = update_date_lliste[irow][icol]
-            new_flag = self.wp_data_obj_dict[isin].set_item_in_irow(value, header, type, irow)
+            new_flag = self.wp_data_obj_dict[isin].set_item_in_irow(value, header, type, irow,self.par.LINE_COLOR_EDIT)
+            if new_flag:
+                self.wp_color_dict[isin] = self.par.LINE_COLOR_EDIT
         # end for
         
         return (self.status,new_flag)

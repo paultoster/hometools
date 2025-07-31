@@ -72,7 +72,7 @@ def anzeige_mit_depot_wahl(rd):
         if choice < 0:
             return status
         elif choice == 0:
-            (data_lliste, header_liste, type_liste) = depot_obj.get_depot_daten_sets_overview(nur_was_im_depot)
+            (data_lliste, header_liste, type_liste,row_color_dliste) = depot_obj.get_depot_daten_sets_overview(nur_was_im_depot)
             if depot_obj.status != hdef.OKAY:  # Abbruch
                 status = depot_obj.status
                 rd.log.write_err(depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
@@ -104,7 +104,7 @@ def anzeige_mit_depot_wahl(rd):
             
             print(f"Depot: {auswahl} isin: {isin}")
             
-            (data_lliste, header_liste, type_liste) = depot_obj.get_depot_daten_sets_isin(isin)
+            (data_lliste, header_liste, type_liste,row_color_dliste) = depot_obj.get_depot_daten_sets_isin(isin)
             if depot_obj.status != hdef.OKAY:  # Abbruch
                 status = depot_obj.status
                 rd.log.write_err(depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
@@ -294,7 +294,7 @@ def anzeige_overview(rd,data_lliste, header_liste, icol_isin,titlename):
             runflag = False
         elif sw == i_auswahl:
             if irow < 0:
-                rd.log.write_warn("Keine Zeile ausgewählt")
+                rd.log.write_warn("Keine Zeile ausgewählt",screen=rd.par.LOG_SCREEN_OUT)
                 runflag = True
             else:
                 isin = data_lliste[irow][icol_isin]
@@ -306,7 +306,7 @@ def anzeige_overview(rd,data_lliste, header_liste, icol_isin,titlename):
         else:
             
             if irow < 0:
-                rd.log.write_warn("Keine Zeile ausgewählt")
+                rd.log.write_warn("Keine Zeile ausgewählt",screen=rd.par.LOG_SCREEN_OUT)
                 runflag = True
             else:
                 isin = data_lliste[irow][icol_isin]
@@ -333,7 +333,8 @@ def anzeige_isin(rd, data_lliste, header_liste, title):
     i_zurueck = 1
     i_edit = 2
     i_delete = 3
-    # i_update = 4
+    i_kurs = 4
+    # i_update = 5
     
     runflag = True
     while (runflag):
@@ -345,16 +346,16 @@ def anzeige_isin(rd, data_lliste, header_liste, title):
             runflag = False
         elif sw == i_zurueck:
             runflag = False
-        elif (sw == i_edit) or (sw == i_delete) :
+        elif (sw == i_edit) or (sw == i_delete) or (sw == i_kurs):
             if irow < 0:
-                rd.log.write_warn("Keine Zeile ausgewählt")
+                rd.log.write_warn("Keine Zeile ausgewählt",screen=rd.par.LOG_SCREEN_OUT)
                 runflag = True
             else:
                 runflag = False
             # end if
         else: # if sw == i_update
             if len(changed_pos_list) == 0:
-                rd.log.write_warn("Keine Daten in Tabelle geändert")
+                rd.log.write_warn("Keine Daten in Tabelle geändert",screen=rd.par.LOG_SCREEN_OUT)
                 runflag = True
             else:
                 runflag = False

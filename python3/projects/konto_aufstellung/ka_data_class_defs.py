@@ -82,6 +82,7 @@ class DataSet:
     def __init__(self,name):
         self.name = name
         self.data_set_llist = []
+        self.line_color_liste = []
         self.ncol = 0
         self.n_data_sets = 0
         self.name_dict = {}
@@ -123,7 +124,7 @@ class DataSet:
         # end if
         return
     # end def
-    def add_data_set_dict(self,new_data_dict: dict,new_header_dict: dict,new_type_dict:dict):
+    def add_data_set_dict(self,new_data_dict: dict,new_header_dict: dict,new_type_dict:dict,line_color:str):
         '''
         
         :param new_data_dict:
@@ -159,6 +160,7 @@ class DataSet:
         # end for
 
         self.data_set_llist.append(data_set_list)
+        self.line_color_liste.append(line_color)
         self.n_data_sets += 1
 
         return self.status
@@ -417,6 +419,13 @@ class DataSet:
         # end for
         return output_data_lliste
     # end def
+    def get_line_color_set_liste(self):
+        '''
+        
+        :param header_liste:
+        :return: line_color_liste = self.get_line_color_set_liste()
+        '''
+        return self.line_color_liste
     def get_one_data_set_dict(self,irow, header_dict_or_list: list|dict, type_dict_or_list: list|dict):
         '''
         
@@ -499,12 +508,12 @@ class DataSet:
     
         return output_data_set
     # end def
-    def set_data_set_dict_list(self,data_set_dict_list,header_liste:list|dict=None,type_liste:list|dict=None):
+    def set_data_set_dict_list(self,data_set_dict_list,line_color,header_liste:list|dict=None,type_liste:list|dict=None):
         '''
         
         :param header_liste:
         :param type_liste:
-        :return: status = self.set_data_set_dict_list(header_liste=None,type_liste=None)
+        :return: status = self.set_data_set_dict_list(data_set_dict_list,line_color,header_liste=None,type_liste=None)
         '''
         if header_liste is None:
             name_dict = self.name_dict
@@ -522,7 +531,7 @@ class DataSet:
         for data_set_dict in data_set_dict_list:
         
             data_set_dict_out = self.proof_data_set_dict(data_set_dict, name_dict)
-            self.status = self.add_data_set_dict(data_set_dict_out, name_dict, type_dict)
+            self.status = self.add_data_set_dict(data_set_dict_out, name_dict, type_dict,line_color)
             
             if self.status != hdef.OKAY:
                 return self.status
@@ -557,14 +566,14 @@ class DataSet:
         # end for
         return data_set_dict_out
     # end def
-    def set_data_item(self, value: any, irow: int, icol: int | str, type: any = None):
+    def set_data_item(self, value: any,line_color, irow: int, icol: int | str, type: any = None):
         '''
         
         :param irow:
         :param icol:
         :param type:
-        :return: flag = self.set_data_item(value,irow, icol, type)
-                 flag = self.set_data_item(value,irow, icol)
+        :return: flag = self.set_data_item(value,line_color,irow, icol, type)
+                 flag = self.set_data_item(value,line_color,irow, icol)
         '''
         
         if isinstance(icol, str):  # header name
@@ -597,6 +606,7 @@ class DataSet:
                 return False
             # end if
             self.data_set_llist[irow][icol] = wert
+            self.line_color_liste[irow] = line_color
         else: # ohne type
             (okay, wert) = htype.type_proof(value, self.type_dict[icol])
             if okay != hdef.OKAY:
@@ -605,6 +615,7 @@ class DataSet:
                 return False
             # end if
             self.data_set_llist[irow][icol] = wert
+            self.line_color_liste[irow] = line_color
         # end if
         return True
     # end def
@@ -628,6 +639,7 @@ class DataSet:
         # end if
         
         del self.data_set_llist[irow]
+        del self.line_color_liste[irow]
         self.n_data_sets -= 1
 
         return self.status

@@ -145,7 +145,7 @@ class WpDataSet:
     # end def
     def set_kategorie(self,kategorie):
         self.kategorie = kategorie
-    def set_stored_wp_data_set_dict(self,wp_data_set_dict_list,header_dict=None,type_dict=None):
+    def set_stored_wp_data_set_dict(self,wp_data_set_dict_list,line_color,header_dict=None,type_dict=None):
         self.status = hdef.OK
         self.errtext = ""
         
@@ -155,7 +155,7 @@ class WpDataSet:
         #     (okay,wert) = htype.type_transform(abs(wert),'euro',type_dict[6])
         #     wp_data_set_dict_list[i]['wert'] = wert
         
-        self.data_set_obj.set_data_set_dict_list(wp_data_set_dict_list,header_dict,type_dict)
+        self.data_set_obj.set_data_set_dict_list(wp_data_set_dict_list,line_color,header_dict,type_dict)
         
         if self.data_set_obj.status != hdef.OKAY:
             self.status = self.data_set_obj.status
@@ -229,7 +229,7 @@ class WpDataSet:
             return False
         # end if
     # end def
-    def add_data_set_dict_to_table(self,new_data_dict,new_header_dict,new_type_dict):
+    def add_data_set_dict_to_table(self,new_data_dict,new_header_dict,new_type_dict,line_color):
         '''
         
         :param new_data_dict:
@@ -239,7 +239,7 @@ class WpDataSet:
         
         
         
-        self.data_set_obj.add_data_set_dict(new_data_dict,new_header_dict,new_type_dict)
+        self.data_set_obj.add_data_set_dict(new_data_dict,new_header_dict,new_type_dict,line_color)
         
         if self.data_set_obj.status != hdef.OKAY:
             self.status  = self.data_set_obj.status
@@ -247,13 +247,13 @@ class WpDataSet:
             self.data_set_obj.reset_status()
         # end if
     # end def
-    def update_item_if_different(self,id, update_data_dict, update_header_dict,update_type_dict):
+    def update_item_if_different(self,id, update_data_dict, update_header_dict,update_type_dict,line_color):
         '''
         
         :param new_data_dict:
         :param new_header_dict:
         :param new_type_dict:
-        :return: flag_update = self.update_item_if_different(id, new_data_dict, new_header_dict,new_type_dict)
+        :return: flag_update = self.update_item_if_different(id, new_data_dict, new_header_dict,new_type_dict,line_color)
         '''
         
         flag_update = False
@@ -284,7 +284,7 @@ class WpDataSet:
             for key in data_set_dict.keys():
                 
                 if data_set_dict[key] != update_data_dict[key]:
-                    flag_update =self.data_set_obj.set_data_item(update_data_dict[key], irow, key, update_type_dict[key])
+                    flag_update =self.data_set_obj.set_data_item(update_data_dict[key], line_color,irow, key, update_type_dict[key])
     
                     if self.data_set_obj.status != hdef.OKAY:
                         self.status = self.data_set_obj.status
@@ -314,7 +314,8 @@ class WpDataSet:
 
         return  data_lliste
     # end def
-    #
+    def get_line_color_set_liste(self):
+        return self.data_set_obj.get_line_color_set_liste()
     def get_one_data_set_liste(self,irow,header_liste, type_liste):
         '''
         
@@ -335,7 +336,7 @@ class WpDataSet:
         
         return data_set
     
-    def set_edit_data_set_in_irow(self,new_data_list, header_liste, type_liste,irow):
+    def set_edit_data_set_in_irow(self,new_data_list, header_liste, type_liste,irow,line_color):
         '''
         
         :param new_data_list:
@@ -349,13 +350,13 @@ class WpDataSet:
             header = header_liste[i]
             type   = type_liste[i]
             
-            flag = self.set_item_in_irow(value, header, type,irow)
+            flag = self.set_item_in_irow(value, header, type,irow,line_color)
             if not flag:
                 return False
         # end for
         return True
     # end def
-    def set_item_in_irow(self,value, header, type,irow):
+    def set_item_in_irow(self,value, header, type,irow,line_color):
         '''
         
         :param data:
@@ -385,7 +386,7 @@ class WpDataSet:
             if icol in self.par.DEPOT_DATA_IMMUTABLE_INDEX_LIST:
                 self.infotext = f"set_edit_data_set_in_irow: header: {header} / icol: {icol} darf nicht verändert werden"
             else:
-                flag = self.data_set_obj.set_data_item(wert, irow, icol, type)
+                flag = self.data_set_obj.set_data_item(wert,line_color, irow, icol, type)
                 if not flag:
                     self.status = hdef.NOT_OKAY
                     self.errtext = self.data_set_obj.errtext
