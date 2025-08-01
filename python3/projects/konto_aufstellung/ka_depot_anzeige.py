@@ -84,7 +84,7 @@ def anzeige_mit_depot_wahl(rd):
             # Overview Anzeigen
             #--------------------------------------
             titlename = f"Depot: {depot_obj.get_depot_name()}"
-            (sw, isin) = anzeige_overview(rd,data_lliste, header_liste,icol_isin,titlename)
+            (sw, isin) = anzeige_overview(rd,data_lliste, header_liste,icol_isin,titlename,row_color_dliste)
             
             if sw < 0:
                 runflag = False
@@ -116,7 +116,7 @@ def anzeige_mit_depot_wahl(rd):
             
             # isin Anzeige
             #--------------------------------------
-            (sw, irow,changed_pos_list,update_date_lliste) = anzeige_isin(rd,data_lliste, header_liste,title)
+            (sw, irow,changed_pos_list,update_date_lliste) = anzeige_isin(rd,data_lliste, header_liste,title,row_color_dliste)
 
             if sw < 0:
                 runflag = False
@@ -267,7 +267,7 @@ def anzeige_mit_depot_wahl(rd):
     
     return status
 # enddef
-def anzeige_overview(rd,data_lliste, header_liste, icol_isin,titlename):
+def anzeige_overview(rd,data_lliste, header_liste, icol_isin,titlename,row_color_dliste):
     '''
     
     :param data_lliste:
@@ -287,7 +287,7 @@ def anzeige_overview(rd,data_lliste, header_liste, icol_isin,titlename):
     
     while (runflag):
         
-        (sw,irow) =  ka_gui.depot_overview(header_liste, data_lliste, abfrage_liste,titlename)
+        (sw,irow) =  ka_gui.depot_overview(header_liste, data_lliste, abfrage_liste,titlename,row_color_dliste)
         
         if sw <= i_end:
             sw = -1
@@ -317,7 +317,7 @@ def anzeige_overview(rd,data_lliste, header_liste, icol_isin,titlename):
     # end while
     return (sw, isin)
 # end def
-def anzeige_isin(rd, data_lliste, header_liste, title):
+def anzeige_isin(rd, data_lliste, header_liste, title,row_color_dliste):
     '''
 
     :param data_lliste:
@@ -339,7 +339,7 @@ def anzeige_isin(rd, data_lliste, header_liste, title):
     runflag = True
     while (runflag):
         
-        (sw, irow,changed_pos_list,date_set) = ka_gui.depot_isin(header_liste, data_lliste, abfrage_liste,title)
+        (sw, irow,changed_pos_list,date_set) = ka_gui.depot_isin(header_liste, data_lliste, abfrage_liste,title,row_color_dliste)
         
         if sw <= i_end:
             sw = -1

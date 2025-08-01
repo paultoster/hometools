@@ -76,6 +76,7 @@ def konto_abfrage( header_liste, data_llist, abfrage_liste,color_list):
     dict_inp["data_set_lliste"] = data_llist
     dict_inp["row_color_dliste"] = color_list
     dict_inp["abfrage_liste"] = abfrage_liste
+    dict_inp["auswahl_filter_col_liste"] = ["isin"]
     
     dict_out = sgui.abfrage_tabelle(dict_inp)
     
@@ -132,7 +133,7 @@ def konto_depot_kategorie(kategorie, titlename):
     kategorie = sgui.abfrage_n_eingabezeilen(liste=["kategorie"], vorgabe_liste=[kategorie], title=titlename)
     return kategorie
 # end dfe
-def  depot_overview(header_liste, data_lliste, abfrage_liste,titlename):
+def  depot_overview(header_liste, data_lliste, abfrage_liste,titlename,row_color_dliste):
     '''
     
     :param header_liste:
@@ -148,12 +149,13 @@ def  depot_overview(header_liste, data_lliste, abfrage_liste,titlename):
     dict_inp["data_set_lliste"] = data_lliste
     dict_inp["abfrage_liste"] = abfrage_liste
     dict_inp["title"] = titlename
+    dict_inp["row_color_dliste"] = row_color_dliste
     
     dict_out = sgui.abfrage_tabelle(dict_inp)
 
     return (dict_out["index_abfrage"],dict_out["irow_select"])
 # end def
-def depot_isin(header_liste, data_lliste, abfrage_liste,title):
+def depot_isin(header_liste, data_lliste, abfrage_liste,title,row_color_dliste):
     '''
     
     :param header_liste:
@@ -168,6 +170,7 @@ def depot_isin(header_liste, data_lliste, abfrage_liste,title):
     dict_inp["data_set_lliste"] = data_lliste
     dict_inp["abfrage_liste"] = abfrage_liste
     dict_inp["title"] = title
+    dict_inp["row_color_dliste"] = row_color_dliste
     
     dict_out = sgui.abfrage_tabelle(dict_inp)
     

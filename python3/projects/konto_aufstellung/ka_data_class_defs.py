@@ -452,11 +452,11 @@ class DataSet:
         
         data_liste = self.data_set_llist[irow]
         output_data_set_dict = {}
-        for i, icol in enumerate(icol_liste):
-            (okay, value) = htype.type_transform(data_liste[icol], self.type_dict[icol], type_dict[i])
+        for icol in icol_liste:
+            (okay, value) = htype.type_transform(data_liste[icol], self.type_dict[icol], type_dict[icol])
             if okay != hdef.OKAY:
                 self.status = hdef.NOT_OKAY
-                self.errtext = f"get_one_data_set_dict:  Fehler transform data_item = <{data_liste[icol]}> von type: <{self.type_dict[icol]}> in type {type_liste[i]} wandeln !!!!!!"
+                self.errtext = f"get_one_data_set_dict:  Fehler transform data_item = <{data_liste[icol]}> von type: <{self.type_dict[icol]}> in type {type_dict[icol]} wandeln !!!!!!"
                 return {}
             # end if
             output_data_set_dict[icol] = value
@@ -644,4 +644,6 @@ class DataSet:
 
         return self.status
     # end def
+    def update_order_by_date(self,icol):
+        self.data_set_llist = hlist.sort_list_of_list(self.data_set_llist, icol,aufsteigend=1)
 # end class

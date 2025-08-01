@@ -320,6 +320,7 @@ class DepotDataSet:
         # new_data_dict_list = []
         n_new_read = 0
         n_update   = 0
+        isin_new_or_update_liste = []
         for i in range(n):
             buchtype_str = konto_obj.get_buchtype_str(i)
             
@@ -344,6 +345,8 @@ class DepotDataSet:
                         return
                     # end if
                     self.wp_color_dict[isin] = self.par.LINE_COLOR_EDIT
+                    if isin not in isin_new_or_update_liste:
+                        isin_new_or_update_liste.append(isin)
                 else: # proof for update
                     
                     flag_update = self.wp_data_obj_dict[isin].update_item_if_different(id,new_data_dict,new_header_dict,new_type_dict,self.par.LINE_COLOR_EDIT)
@@ -357,10 +360,15 @@ class DepotDataSet:
                     if flag_update:
                         n_update += 1
                         self.wp_color_dict[isin] = self.par.LINE_COLOR_EDIT
+                        if isin not in isin_new_or_update_liste:
+                            isin_new_or_update_liste.append(isin)
                     # end if
                 # end if
             # end if
         # end for
+        
+        for isin in isin_new_or_update_liste:
+            self.wp_data_obj_dict[isin].update_order_by_date()
         
         if n_new_read > 0:
             self.infotext = f"{self.errtext}\nVom Konto: <{konto_obj.set_konto_name()}> n_new: {n_new_read} neuen Daten eingelesen"
@@ -387,7 +395,6 @@ class DepotDataSet:
         new_data_dict = {}
         new_type_dict = {}
         new_header_dict = {}
-        wert_index = None
         for index in self.par.DEPOT_KONTO_DATA_INDEX_LIST:
             
             # buchtype
@@ -400,7 +407,7 @@ class DepotDataSet:
             new_header_dict[index] = self.par.DEPOT_DATA_NAME_DICT[index]
             
             if self.par.DEPOT_DATA_NAME_DICT[index] == self.par.DEPOT_DATA_NAME_WERT:
-                new_data_dict[wert_index] = abs(new_data_dict[wert_index])
+                    new_data_dict[index] = abs(new_data_dict[index])
             # end if
         # end ofr
         

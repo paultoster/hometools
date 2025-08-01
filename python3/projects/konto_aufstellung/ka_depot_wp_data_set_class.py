@@ -162,6 +162,15 @@ class WpDataSet:
             self.errtext = self.data_set_obj.errtext
             self.data_set_obj.reset_status()
         # end if
+        
+        self.data_set_obj.update_order_by_date(self.par.DEPOT_DATA_INDEX_BUCHDATUM)
+
+        if self.data_set_obj.status != hdef.OKAY:
+            self.status = self.data_set_obj.status
+            self.errtext = self.data_set_obj.errtext
+            self.data_set_obj.reset_status()
+        # end if
+
         return self.status
     # end def
     def get_depot_wp_name(self):
@@ -405,6 +414,21 @@ class WpDataSet:
         :return:
         '''
         self.status = self.data_set_obj.delete_row_in_data_set(irow)
+        return self.status
+    # end def
+    def update_order_by_date(self):
+        '''
+        
+        :return: status = self.update_order_by_date()
+        '''
+        self.data_set_obj.update_order_by_date(self.par.DEPOT_DATA_INDEX_BUCHDATUM)
+        
+        if self.data_set_obj.status != hdef.OKAY:
+            self.status = self.data_set_obj.status
+            self.errtext = self.data_set_obj.errtext
+            self.data_set_obj.reset_status()
+        # end if
+        
         return self.status
     # end def
 # end class
