@@ -75,6 +75,9 @@ class WpDataSet:
         '''
         return self.wp_info_dict["name"]
     # end def
+    def get_n_data(self):
+        return self.data_set_obj.n_data_sets
+    # end def
     def get_zahltdiv(self):
         '''
         
@@ -116,17 +119,66 @@ class WpDataSet:
         summe = 0.0
     
         for irow in range(self.data_set_obj.n_data_sets):
-            wert = self.data_set_obj.get_data_item(irow, self.par.DEPOT_DATA_NAME_WERT, "float")
+            wert = self.data_set_obj.get_data_item(irow, self.par.DEPOT_DATA_NAME_WERT, "euro")
             if self.data_set_obj.status != hdef.OKAY:
                 self.status = self.data_set_obj.status
                 self.errtext = self.data_set_obj.errtext
                 self.data_set_obj.reset_status()
                 return None
             # end if
-            summe += wert
+            buchtype = self.data_set_obj.get_data_item(irow, self.par.DEPOT_DATA_NAME_BUCHTYPE)
+            if self.data_set_obj.status != hdef.OKAY:
+                self.status = self.data_set_obj.status
+                self.errtext = self.data_set_obj.errtext
+                self.data_set_obj.reset_status()
+                return None
+            # end if
+            if buchtype == self.par.DEPOT_BUCHTYPE_INDEX_WP_KAUF:
+                summe -= wert
+            elif buchtype == self.par.DEPOT_BUCHTYPE_INDEX_WP_VERKAUF:
+                summe += wert
+            elif buchtype == self.par.DEPOT_BUCHTYPE_INDEX_WP_KOSTEN:
+                summe -= wert
+            elif buchtype == self.par.DEPOT_BUCHTYPE_INDEX_WP_EINNAHMEN:
+                summe += wert
+            else:
+                pass
+            # end if
         # end for
         
+        (okay, summe) = htype.type_proof(summe, "euro")
+        
         return summe
+    # end def
+    def get_einnahmen_wert(self):
+        summe = 0.0
+        
+        for irow in range(self.data_set_obj.n_data_sets):
+            wert = self.data_set_obj.get_data_item(irow, self.par.DEPOT_DATA_NAME_WERT, "euro")
+            if self.data_set_obj.status != hdef.OKAY:
+                self.status = self.data_set_obj.status
+                self.errtext = self.data_set_obj.errtext
+                self.data_set_obj.reset_status()
+                return None
+            # end if
+            buchtype = self.data_set_obj.get_data_item(irow, self.par.DEPOT_DATA_NAME_BUCHTYPE)
+            if self.data_set_obj.status != hdef.OKAY:
+                self.status = self.data_set_obj.status
+                self.errtext = self.data_set_obj.errtext
+                self.data_set_obj.reset_status()
+                return None
+            # end if
+            if buchtype == self.par.DEPOT_BUCHTYPE_INDEX_WP_EINNAHMEN:
+                summe += wert
+            else:
+                pass
+            # end if
+        # end for
+        
+        (okay, summe) = htype.type_proof(summe, "euro")
+        
+        return summe
+    
     # end def
     def get_kategorie(self):
         return self.kategorie
@@ -344,7 +396,26 @@ class WpDataSet:
         # end if
         
         return data_set
+    # end def
+    def get_one_data_item(self, irow, header, type):
+        '''
+        
+        :param irow:
+        :param header:
+        :param type:
+        :return: data_item = self.get_one_data_item(irow, header, type)
+        '''
     
+        data_item = self.data_set_obj.get_one_data_item(irow, header, type)
+    
+        if self.data_set_obj.status != hdef.OKAY:
+            self.status = self.data_set_obj.status
+            self.errtext = self.data_set_obj.errtext
+            self.data_set_obj.reset_status()
+        # end if
+    
+        return data_item
+    # end def
     def set_edit_data_set_in_irow(self,new_data_list, header_liste, type_liste,irow,line_color):
         '''
         

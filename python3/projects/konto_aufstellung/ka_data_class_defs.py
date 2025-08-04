@@ -124,6 +124,9 @@ class DataSet:
         # end if
         return
     # end def
+    def get_n_data(self):
+        return self.n_data_sets
+    # end def
     def add_data_set_dict(self,new_data_dict: dict,new_header_dict: dict,new_type_dict:dict,line_color:str):
         '''
         
@@ -507,6 +510,41 @@ class DataSet:
         
     
         return output_data_set
+    # end def
+    def get_one_data_item(self, irow, header, type):
+        '''
+
+        :param header_liste:
+        :param type_liste:
+        :return: data_item = self.get_one_data_item(irow,header,type)
+        '''
+        key = hlist.find_first_key_dict_value(self.name_dict, header)
+        if key is None:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"get_one_data_set_liste:  Fehler header = {header} ist nicht in name_dict = {self.name_dict} !!!!!!"
+            return None
+        else:
+            icol = key
+        # end if
+        
+        if irow >= self.n_data_sets:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"find_in_col:  Fehler irow = <{irow}> is größßer gleich n_data_sets: <{self.n_data_sets}> !!!!!!"
+            return None
+        # end if
+        
+        data_item = self.data_set_llist[irow][icol]
+        (okay, value) = htype.type_transform(data_item, self.type_dict[icol], type)
+        if okay != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"get_one_data_set_liste:  Fehler transform data_item = <{data_item}> von type: <{self.type_dict[icol]}> in type {type} wandeln !!!!!!"
+            return None
+        else:
+            data_item = value
+        # end if
+        
+        return data_item
+    
     # end def
     def set_data_set_dict_list(self,data_set_dict_list,line_color,header_liste:list|dict=None,type_liste:list|dict=None):
         '''

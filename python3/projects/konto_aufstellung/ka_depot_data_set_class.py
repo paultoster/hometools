@@ -141,12 +141,18 @@ class DepotParam:
     DEPOT_DATA_NAME_KATEGORIE = "kategorie"
     DEPOT_DATA_NAME_WP_NAME = "wp_name"
     DEPOT_DATA_NAME_ZAHLTDIV = "zahltdiv"
+    DEPOT_DATA_NAME_EINNAHME = "einnahme"
+    DEPOT_DATA_NAME_KURSWERT = "kurswert"
 
     DEPOT_WP_STORE_PATH = "."
     DEPOT_WP_USE_JSON   = False
     
-    LINE_COLOR_NEW = "aliceblue"
+    LINE_COLOR_NEW = "aquamarine1"  # "aliceblue"
     LINE_COLOR_EDIT = "orange1"
+    
+    DEPOT_SHOW_TYPE_INDEX_ALL = 0
+    DEPOT_SHOW_TYPE_INDEX_ACTIVE = 1
+    DEPOT_SHOW_TYPE_INDEX_INACTIVE = 2
 
 
 class DepotDataSet:
@@ -335,6 +341,9 @@ class DepotDataSet:
                     return
                 # end if
                 
+                anzahl = self.wp_data_obj_dict[isin].get_summen_anzahl()
+                
+                
                 if flag_read:
                     n_new_read += 1
                     self.wp_data_obj_dict[isin].add_data_set_dict_to_table(new_data_dict,new_header_dict,new_type_dict,self.par.LINE_COLOR_NEW)
@@ -347,6 +356,14 @@ class DepotDataSet:
                     self.wp_color_dict[isin] = self.par.LINE_COLOR_EDIT
                     if isin not in isin_new_or_update_liste:
                         isin_new_or_update_liste.append(isin)
+                    # end if
+                    
+                    # claculate anzahl as guess
+                    irow = self.wp_data_obj_dict[isin].get_n_data() - 1
+                    if (irow >= 0) and (anzahl is not None) and (anzahl > 0.0):
+                        self.wp_data_obj_dict[isin].set_item_in_irow(anzahl, self.par.DEDEPOT_DATA_NAME_ANZAHL,
+                                                                     'float',irow,self.par.LINE_COLOR_NEW)
+                        
                 else: # proof for update
                     
                     flag_update = self.wp_data_obj_dict[isin].update_item_if_different(id,new_data_dict,new_header_dict,new_type_dict,self.par.LINE_COLOR_EDIT)
@@ -529,7 +546,7 @@ class DepotDataSet:
         # end if
         return titlename
     # end def
-    def get_depot_daten_sets_overview(self,nur_was_im_depot):
+    def get_depot_daten_sets_overview(self,depot_show_type):
         '''
         hole von jedem WP die Zusammenfassungen
         :param nur_was_im_depot = False alle zeigen
@@ -542,16 +559,25 @@ class DepotDataSet:
                         self.par.DEPOT_DATA_NAME_WP_NAME,
                         self.par.DEPOT_DATA_NAME_ZAHLTDIV,
                         self.par.DEPOT_DATA_NAME_ANZAHL,
-                        self.par.DEPOT_DATA_NAME_WERT,
+                        self.par.DEPOT_DATA_NAME_WERT+" (kauf=neg)",
+                        self.par.DEPOT_DATA_NAME_EINNAHME,
+                        self.par.DEPOT_DATA_NAME_KURSWERT,
                         self.par.DEPOT_DATA_NAME_KATEGORIE]
         type_liste = ["isin",
                       "str",
                       "int",
                       "float",
-                      "euroStrK"
+                      "euroStrK",
+                      "euroStrK",
+                      "euroStrK",
                       "str"]
+        
+        end_zeile = htype.type_get_default(type_liste)
         data_lliste = []
         row_color_dliste = []
+        
+        summe_wert = 0.0
+        summe_einnahmen = 0.0
         
         for isin in self.isin_liste:
 
@@ -562,9 +588,16 @@ class DepotDataSet:
                 self.errtext = self.wp_data_obj_dict[isin].errtext
                 return ([],[],[],[])
             # end if
-
-            if (nur_was_im_depot and (anzahl > 0.01)) or \
-               (not nur_was_im_depot):
+            
+            flag = False
+            if depot_show_type == self.par.DEPOT_SHOW_TYPE_INDEX_ALL:
+                flag = True
+            elif (depot_show_type == self.par.DEPOT_SHOW_TYPE_INDEX_ACTIVE) and (anzahl > 0.01):
+                flag = True
+            elif (depot_show_type == self.par.DEPOT_SHOW_TYPE_INDEX_INACTIVE) and (anzahl <= 0.01):
+                flag = True
+            # end if
+            if flag:
 
                 dataliste = []
                 
@@ -583,16 +616,36 @@ class DepotDataSet:
                 # 4. Anzahl
                 dataliste.append(anzahl)
     
-                # 5. Sumwert
+                # 5. wert
                 sumwert = self.wp_data_obj_dict[isin].get_summen_wert()
                 if sumwert is None:
                     self.status = self.wp_data_obj_dict[isin].status
                     self.errtext = self.wp_data_obj_dict[isin].errtext
                     return ([],[],[])
                 # end if
+                summe_wert += sumwert
+                (okay,sumwert) = htype.type_transform(sumwert,'euro',type_liste[4])
                 dataliste.append(sumwert)
                 
-                # 6. Kategorie
+                # 6. einnahmen
+                einnahmen = self.wp_data_obj_dict[isin].get_einnahmen_wert()
+                if einnahmen is None:
+                    self.status = self.wp_data_obj_dict[isin].status
+                    self.errtext = self.wp_data_obj_dict[isin].errtext
+                    return ([],[],[])
+                # end if
+                summe_einnahmen += einnahmen
+                (okay,einnahmen) = htype.type_transform(einnahmen,'euro',type_liste[5])
+                dataliste.append(einnahmen)
+                
+                # 7. Kurswert
+                kurs = 0.0  # self.wp_func_obj.get_act_kurs()
+                kurswert = kurs * anzahl
+                (okay,kurswert) = htype.type_transform(kurswert,'euro',type_liste[6])
+                dataliste.append(kurswert)
+
+
+                # 8. Kategorie
                 kategorie = self.wp_data_obj_dict[isin].get_kategorie()
                 dataliste.append(kategorie)
                 
@@ -600,6 +653,16 @@ class DepotDataSet:
                 row_color_dliste.append(self.wp_color_dict[isin])
             # end if
         # end for
+        
+        # Summenzeile
+        (okay, summe_wert) = htype.type_transform(summe_wert, 'euro', type_liste[4])
+        (okay, summe_einnahmen) = htype.type_transform(summe_einnahmen, 'euro', type_liste[5])
+        
+        end_zeile[1] = "Summe:"
+        end_zeile[4] = summe_wert
+        end_zeile[5] = summe_einnahmen
+
+        data_lliste.append(end_zeile)
         
         return (data_lliste, header_liste,type_liste,row_color_dliste)
 
@@ -897,6 +960,26 @@ class DepotDataSet:
             header = header_liste[icol]
             type   = type_liste[icol]
             value = update_date_lliste[irow][icol]
+            
+            if header == self.par.DEPOT_DATA_NAME_KOSTEN:
+                
+                (value,kurs) = self.verify_value_kosten(isin,irow,value,type)
+                if self.status != hdef.OKAY:
+                    return (self.status,False)
+                if kurs is not None:
+                    self.wp_data_obj_dict[isin].set_item_in_irow(kurs, self.par.DEPOT_DATA_NAME_KURS, type, irow,
+                                                                 self.par.LINE_COLOR_EDIT)
+            elif header == self.par.DEPOT_DATA_NAME_STEUER:
+                
+                (value,kurs) = self.verify_value_steuer(isin,irow,value,type)
+                if self.status != hdef.OKAY:
+                    return (self.status, False)
+                if kurs is not None:
+                    self.wp_data_obj_dict[isin].set_item_in_irow(kurs, self.par.DEPOT_DATA_NAME_KURS, type, irow,
+                                                                 self.par.LINE_COLOR_EDIT)
+                # endif
+            # end if
+            
             new_flag = self.wp_data_obj_dict[isin].set_item_in_irow(value, header, type, irow,self.par.LINE_COLOR_EDIT)
             if new_flag:
                 self.wp_color_dict[isin] = self.par.LINE_COLOR_EDIT
@@ -904,5 +987,115 @@ class DepotDataSet:
         
         return (self.status,new_flag)
     # end def
-    
+    def verify_value_kosten(self,isin,irow,value,type):
+        return self.verify_value(isin,irow,'kosten',value,type)
+    # end def
+    def verify_value_steuer(self,isin,irow,value,type):
+        return self.verify_value(isin,irow,'steuer',value,type)
+    # end def
+    def verify_value(self,isin,irow,value_type,value,type):
+        '''
+        
+        :param isin:
+        :param irow:
+        :param value:
+        :param value_type = 'kosten','steuer'
+        :return: (kosten,kurs) = self.verify_value_kosten(isin,irow,kosten)
+        '''
+        if isin not in self.isin_liste:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"update_data_llist: gewünschte isin = {isin} is nicht in Depot enthalten"
+            return (None,None)
+        # end if
+        
+        # convert in cent
+        (okay, value) = htype.type_transform(value, type, 'cent')
+        if okay != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"verify_value:  Fehler transform data_item = <{value}> von type: <{type}> in type {'cent'} wandeln !!!!!!"
+            return (None,None)
+        # end if
+        
+        buchtype_index = self.wp_data_obj_dict[isin].get_one_data_item(irow, self.par.DEPOT_DATA_NAME_BUCHTYPE, 'int')
+        if self.wp_data_obj_dict[isin].status != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = self.wp_data_obj_dict[isin].errtext
+            return (None,None)
+        # end if
+        
+        wert   = self.wp_data_obj_dict[isin].get_one_data_item(irow, self.par.DEPOT_DATA_NAME_WERT, 'cent')
+        kosten = self.wp_data_obj_dict[isin].get_one_data_item(irow, self.par.DEPOT_DATA_NAME_KOSTEN, 'cent')
+        steuer = self.wp_data_obj_dict[isin].get_one_data_item(irow, self.par.DEPOT_DATA_NAME_STEUER, 'cent')
+        kurs   = self.wp_data_obj_dict[isin].get_one_data_item(irow, self.par.DEPOT_DATA_NAME_KURS, 'cent')
+        anzahl = self.wp_data_obj_dict[isin].get_one_data_item(irow, self.par.DEPOT_DATA_NAME_ANZAHL, 'float')
+        if self.wp_data_obj_dict[isin].status != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = self.wp_data_obj_dict[isin].errtext
+            return (None,None)
+        # end if
+        
+        kurswert = None
+        if value_type == 'kosten':
+            kosten = value
+            # bei Kauf Wenn kosten größer den 0.5*wert, dann sind ist kosten = kurswert und kosten werden berechnet
+            # Wert = Kurswert+kosten+steuer
+            if (wert != 0) and (buchtype_index == self.par.DEPOT_BUCHTYPE_INDEX_WP_KAUF) and (2*kosten > wert):
+                kurswert = kosten
+                kosten = wert - kurswert - steuer
+            # bei Verkauf Wenn kosten größer der wert, dann sind ist kosten = kurswert und kosten werden berechnet
+            # Wert = Kurswert-kosten-steuer
+            elif (wert != 0) and (buchtype_index == self.par.DEPOT_BUCHTYPE_INDEX_WP_VERKAUF) and (kosten > wert):
+                    kurswert = kosten
+                    kosten = kurswert - wert - steuer
+            elif (wert != 0) and (buchtype_index == self.par.DEPOT_BUCHTYPE_INDEX_WP_KOSTEN) and (2 * kosten > wert):
+                einnahme = kosten
+                kosten = wert - einnahme - steuer
+            elif (wert != 0) and (buchtype_index == self.par.DEPOT_BUCHTYPE_INDEX_WP_EINNAHMEN) and (kosten > wert):
+                
+                einnahme = kosten
+                kosten = einnahme - wert - steuer
+            # end if
+            value = kosten
+        elif value_type == 'steuer':
+            steuer = value
+            # bei Kauf Wenn kosten größer den 0.5*wert, dann sind ist kosten = kurswert und kosten werden berechnet
+            # Wert = Kurswert+kosten+steuer
+            if (wert != 0) and (buchtype_index == self.par.DEPOT_BUCHTYPE_INDEX_WP_KAUF) and (2*steuer > wert):
+                kurswert = steuer
+                steuer = wert - kurswert - kosten
+            # bei Verkauf Wenn kosten größer der wert, dann sind ist kosten = kurswert und kosten werden berechnet
+            # Wert = Kurswert-kosten-steuer
+            elif (wert != 0) and (buchtype_index == self.par.DEPOT_BUCHTYPE_INDEX_WP_VERKAUF) and (steuer > wert):
+                kurswert = steuer
+                steuer = kurswert - wert - kosten
+            elif (wert != 0) and (buchtype_index == self.par.DEPOT_BUCHTYPE_INDEX_WP_KOSTEN) and (2 * steuer > wert):
+                einnahme = steuer
+                steuer = wert - einnahme - kosten
+            elif (wert != 0) and (buchtype_index == self.par.DEPOT_BUCHTYPE_INDEX_WP_EINNAHMEN) and (steuer > wert):
+                
+                einnahme = steuer
+                steuer = einnahme - wert - kosten
+            # end if
+            
+            value = steuer
+        # end if
+        
+        # Bilde kurs
+        if (kurswert is not None) and (kurs == 0) and (anzahl > 0.01):
+            kurs = int( (kurswert / anzahl)+0.5)
+            (okay, kurs) = htype.type_transform(kurs, 'cent', type)
+        else:
+            kurs = None
+        # end if
+
+        # convert in type
+        (okay, value) = htype.type_transform(value, 'cent',type)
+        if okay != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"verify_value_kosten:  Fehler transform data_item = <{value}> von type: {'cent'} in type <{type}>  wandeln !!!!!!"
+            return (None,None)
+        # end if
+
+        
+        return (value,kurs)
 # end class

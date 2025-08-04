@@ -1000,8 +1000,29 @@ def change(text, muster_alt, muster_neu):
     #    text1=text1+liste[i]+muster_neu
     # text1=text1+liste[n0-1]
     return text
-
-
+# end def
+def change_at_index(text,i0,l0,text_new):
+    '''
+    
+    :param text: zu veränderten text
+    :param i0: index start change
+    :param l0: länge change
+    :param text_new: den einzufügenden text
+    :return: text_change
+    '''
+    
+    n = len(text)
+    
+    if i0 < n:
+        i1 = i0+l0
+        text_change = text[0:i0]+text_new
+        if i1 < n:
+            text_change += text[i1:n]
+        # end if
+    else:
+        text_change = text
+    # end if
+    return text_change
 def change_max(text, muster_alt, muster_neu):
     """
     ersetzt sooft es geht alle muster_alt mit muster_neu im Text
@@ -1474,4 +1495,5 @@ def text_to_write(text):
 # testen mit main
 ###########################################################################
 if __name__ == '__main__':
-    str_euro = convert_int_cent_to_string_euro(100)
+    # str_euro = convert_int_cent_to_string_euro(100)
+    print(change_at_index("123,456", 3, 2, '.'))

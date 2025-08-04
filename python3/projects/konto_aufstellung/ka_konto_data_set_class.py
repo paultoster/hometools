@@ -208,6 +208,16 @@ class KontoDataSet:
         # end for
         return index
     # end def
+    def get_titlename(self):
+        '''
+
+        :return:
+        '''
+        titlename = f"Konto: {self.konto_name} "
+        
+        return titlename
+    
+    # end def
     
     def set_starting_data_llist(self,konto_data_set_dict_list,konto_data_type_dict, idfunc,wpfunc, konto_start_datum, konto_start_wert, decimal_trenn="",
                                 tausend_trenn=""):

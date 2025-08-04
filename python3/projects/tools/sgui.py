@@ -1687,9 +1687,17 @@ class abfrage_tabelle_class:
             data = []
             for i, value in enumerate(self.tabGui_TabBox.item(line)['values']):
                 if (self.type_liste[i] == self.DATA_INTEGER):
-                    data.append(int(value))
+                    (okay, val) = htype.type_proof(value,'int')
+                    if okay == hdef.OKAY:
+                        data.append(val)
+                    else: # zeigt dann Fehler an
+                        data.append(int(value))
                 elif (self.type_liste[i] == self.DATA_FLOAT):
-                    data.append(float(value))
+                    (okay, val) = htype.type_proof(value,'float')
+                    if okay == hdef.OKAY:
+                        data.append(val)
+                    else: # zeigt dann Fehler an
+                        data.append(float(value))
                 else:
                     data.append(str(value))
                 # endif

@@ -379,6 +379,21 @@ def type_get_default(type):
     :param type: siehe unten
     :return: wert = type_get_default(type)
     '''
+    
+    if isinstance(type, list):
+        return type_get_default_list(type)
+    else:
+        return type_get_default_single(type)
+    # end if
+# end def
+def type_get_default_list(type_list):
+    liste = [None for j in range(len(type_list))]
+    for i,type in enumerate(type_list):
+        liste[i] = type_get_default(type)
+    # end for
+    return liste
+# end def
+def type_get_default_single(type):
     if type == "str":
         return ""
     elif type == "datStrP":
@@ -1081,6 +1096,9 @@ def type_proof_euro(wert_in,delim=",",thousandsign="."):
             # end try
         # end if
     # end if
+    if isinstance(val,float):
+        val = float(int((val*100.)+0.5))/100.
+    
     return (okay,val)
 # end def
 def type_proof_euroStrK(wert_in, delim=",", thousandsign="."):
@@ -1334,20 +1352,75 @@ def  type_transform_str(wert_in,type_out):
     '''
     (okay, wert) = type_proof(wert_in, "str")
     if( okay == hdef.OKAY):
-        if (type_out == "float") or (type_out == "euro"):
+        if (type_out == "float"):
+            index = hstr.such(wert_in,",","rs")
+            if index >= 0:
+                wert = hstr.change_at_index(wert_in, index, 1, '.')
+            else:
+                wert = wert_in
+            # end if
             try:
-                wert_out = float(wert_in)
+                wert_out = float(wert)
             except:
                 okay = hdef.NOT_OKAY
                 wert_out = None
             # end try
-        elif (type_out == "int") or (type_out == "cent"):
+        elif (type_out == "euro"):
+            index = hstr.such(wert_in,",","vs")
+            if index >= 0:
+                (okay, wert_out) = type_transform_euroStrK(wert_in,"float")
+                if okay == hdef.OKAY:
+                    wert = wert_out
+                else:
+                    wert = wert_in
+                # end if
+            else:
+                wert = wert_in
+            # end if
             try:
-                wert_out = int(wert_in)
+                wert_out = float(wert)
             except:
                 okay = hdef.NOT_OKAY
                 wert_out = None
             # end try
+
+        elif (type_out == "int"):
+            index = hstr.such(wert_in,",","vs")
+            if index >= 0:
+                (okay, wert_out) = type_transform_euroStrK(wert_in,"euro")
+                if okay == hdef.OKAY:
+                    wert = wert_out
+                else:
+                    wert = wert_in
+                # end if
+            else:
+                wert = wert_in
+            # end if
+            try:
+                wert_out = int(wert)
+            except:
+                okay = hdef.NOT_OKAY
+                wert_out = None
+            # end try
+        elif (type_out == "cent"):
+            index = hstr.such(wert_in,",","vs")
+            if index >= 0:
+                (okay, wert_out) = type_transform_euroStrK(wert_in,"cent")
+                if okay == hdef.OKAY:
+                    wert = wert_out
+                else:
+                    wert = wert_in
+                # end if
+            else:
+                wert = wert_in
+            # end if
+            try:
+                wert_out = int(wert)
+            except:
+                okay = hdef.NOT_OKAY
+                wert_out = None
+            # end try
+
         elif type_out == "euroStrK":
             (okay, wert_out) = type_proof(wert, "euro")
             if okay == hdef.OKAY:

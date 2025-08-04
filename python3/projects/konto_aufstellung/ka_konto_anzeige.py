@@ -313,7 +313,12 @@ def anzeige(rd,konto_dict,konto_obj):
                 # end if
             # end for
             
-            new_data_list = ka_gui.konto_data_set_eingabe(eingabeListe)
+            titlename = konto_obj.get_titlename()
+            
+            
+            new_data_list = ka_gui.konto_depot_data_set_eingabe(header_liste, buchtype_index_in_header_liste,
+                                                                buchungs_type_list,None,titlename)
+                        
             if len(new_data_list):
                 (new_data_set_flag, status, errtext) = konto_obj.set_one_new_data_set_extern_liste(new_data_list)
                 

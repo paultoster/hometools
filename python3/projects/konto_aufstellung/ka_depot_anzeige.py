@@ -65,14 +65,14 @@ def anzeige_mit_depot_wahl(rd):
     #        = -1 Ende
     choice = 0 # Zusammenfassung
     runflag = True
-    nur_was_im_depot = False # True: alle, False: nur aktive
+    depot_show_type = 0 # 0: alle, 1: nur aktive, 2: inaktive
     
     while runflag:
 
         if choice < 0:
             return status
         elif choice == 0:
-            (data_lliste, header_liste, type_liste,row_color_dliste) = depot_obj.get_depot_daten_sets_overview(nur_was_im_depot)
+            (data_lliste, header_liste, type_liste,row_color_dliste) = depot_obj.get_depot_daten_sets_overview(depot_show_type)
             if depot_obj.status != hdef.OKAY:  # Abbruch
                 status = depot_obj.status
                 rd.log.write_err(depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
@@ -83,7 +83,14 @@ def anzeige_mit_depot_wahl(rd):
     
             # Overview Anzeigen
             #--------------------------------------
-            titlename = f"Depot: {depot_obj.get_depot_name()}"
+            if depot_show_type == 0:
+                addtext = "alle WPs"
+            elif depot_show_type == 1:
+                addtext = "aktive WPs"
+            else:
+                addtext = "inaktive WPs"
+            # end if
+            titlename = f"Depot: {depot_obj.get_depot_name()} {addtext}"
             (sw, isin) = anzeige_overview(rd,data_lliste, header_liste,icol_isin,titlename,row_color_dliste)
             
             if sw < 0:
@@ -92,7 +99,9 @@ def anzeige_mit_depot_wahl(rd):
                 choice = 1      # auswahl isin
                 runflag = True
             elif sw == 2: # toggle
-                nur_was_im_depot = not nur_was_im_depot
+                depot_show_type += 1
+                if depot_show_type > 2:
+                    depot_show_type = 0
                 choice = 0      # auswahl overview
                 runflag = True
             else: # sw == 3
@@ -132,7 +141,7 @@ def anzeige_mit_depot_wahl(rd):
             elif sw == 4:  # kurs
                 choice = 5
                 runflag = True
-            else:
+            else:          # update
                 choice = 6
                 runflag = True
         # end if
@@ -285,6 +294,8 @@ def anzeige_overview(rd,data_lliste, header_liste, icol_isin,titlename,row_color
     runflag = True
     isin    = None
     
+    n = len(data_lliste)
+    
     while (runflag):
         
         (sw,irow) =  ka_gui.depot_overview(header_liste, data_lliste, abfrage_liste,titlename,row_color_dliste)
@@ -295,6 +306,9 @@ def anzeige_overview(rd,data_lliste, header_liste, icol_isin,titlename,row_color
         elif sw == i_auswahl:
             if irow < 0:
                 rd.log.write_warn("Keine Zeile ausgewählt",screen=rd.par.LOG_SCREEN_OUT)
+                runflag = True
+            elif irow == (n-1):
+                rd.log.write_warn("Summen-Zeile ausgewählt",screen=rd.par.LOG_SCREEN_OUT)
                 runflag = True
             else:
                 isin = data_lliste[irow][icol_isin]
@@ -307,6 +321,9 @@ def anzeige_overview(rd,data_lliste, header_liste, icol_isin,titlename,row_color
             
             if irow < 0:
                 rd.log.write_warn("Keine Zeile ausgewählt",screen=rd.par.LOG_SCREEN_OUT)
+                runflag = True
+            elif irow == (n - 1):
+                rd.log.write_warn("Summen-Zeile ausgewählt", screen=rd.par.LOG_SCREEN_OUT)
                 runflag = True
             else:
                 isin = data_lliste[irow][icol_isin]
