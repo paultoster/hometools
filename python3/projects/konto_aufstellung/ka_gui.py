@@ -76,7 +76,7 @@ def konto_abfrage( header_liste, data_llist, abfrage_liste,color_list):
     dict_inp["data_set_lliste"] = data_llist
     dict_inp["row_color_dliste"] = color_list
     dict_inp["abfrage_liste"] = abfrage_liste
-    dict_inp["auswahl_filter_col_liste"] = ["isin"]
+    dict_inp["auswahl_filter_col_liste"] = ["isin","buchtype"]
     
     dict_out = sgui.abfrage_tabelle(dict_inp)
     

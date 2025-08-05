@@ -361,7 +361,7 @@ class DepotDataSet:
                     # claculate anzahl as guess
                     irow = self.wp_data_obj_dict[isin].get_n_data() - 1
                     if (irow >= 0) and (anzahl is not None) and (anzahl > 0.0):
-                        self.wp_data_obj_dict[isin].set_item_in_irow(anzahl, self.par.DEDEPOT_DATA_NAME_ANZAHL,
+                        self.wp_data_obj_dict[isin].set_item_in_irow(anzahl, self.par.DEPOT_DATA_NAME_ANZAHL,
                                                                      'float',irow,self.par.LINE_COLOR_NEW)
                         
                 else: # proof for update

@@ -113,7 +113,7 @@ class WpDataSet:
             # end if
         # end for
         
-        return summe
+        return float(int(summe*1000. + 0.5))/1000.
     # end def
     def get_summen_wert(self):
         summe = 0.0
