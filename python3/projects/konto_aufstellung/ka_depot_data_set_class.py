@@ -963,21 +963,30 @@ class DepotDataSet:
             
             if header == self.par.DEPOT_DATA_NAME_KOSTEN:
                 
-                (value,kurs) = self.verify_value_kosten(isin,irow,value,type)
+                (value,kurs,_,steuer) = self.verify_value_kosten(isin,irow,value,type)
                 if self.status != hdef.OKAY:
                     return (self.status,False)
                 if kurs is not None:
                     self.wp_data_obj_dict[isin].set_item_in_irow(kurs, self.par.DEPOT_DATA_NAME_KURS, type, irow,
                                                                  self.par.LINE_COLOR_EDIT)
+                # end if
+                if steuer is not None:
+                    self.wp_data_obj_dict[isin].set_item_in_irow(steuer, self.par.DEPOT_DATA_NAME_STEUER, type, irow,
+                                                                 self.par.LINE_COLOR_EDIT)
+                # end if
             elif header == self.par.DEPOT_DATA_NAME_STEUER:
                 
-                (value,kurs) = self.verify_value_steuer(isin,irow,value,type)
+                (value,kurs,kosten,_) = self.verify_value_steuer(isin,irow,value,type)
                 if self.status != hdef.OKAY:
                     return (self.status, False)
                 if kurs is not None:
                     self.wp_data_obj_dict[isin].set_item_in_irow(kurs, self.par.DEPOT_DATA_NAME_KURS, type, irow,
                                                                  self.par.LINE_COLOR_EDIT)
                 # endif
+                if kosten is not None:
+                    self.wp_data_obj_dict[isin].set_item_in_irow(kosten, self.par.DEPOT_DATA_NAME_KOSTEN, type, irow,
+                                                                 self.par.LINE_COLOR_EDIT)
+                # end if
             # end if
             
             new_flag = self.wp_data_obj_dict[isin].set_item_in_irow(value, header, type, irow,self.par.LINE_COLOR_EDIT)
@@ -1005,7 +1014,7 @@ class DepotDataSet:
         if isin not in self.isin_liste:
             self.status = hdef.NOT_OKAY
             self.errtext = f"update_data_llist: gewünschte isin = {isin} is nicht in Depot enthalten"
-            return (None,None)
+            return (None,None,None,None)
         # end if
         
         # convert in cent
@@ -1013,14 +1022,14 @@ class DepotDataSet:
         if okay != hdef.OKAY:
             self.status = hdef.NOT_OKAY
             self.errtext = f"verify_value:  Fehler transform data_item = <{value}> von type: <{type}> in type {'cent'} wandeln !!!!!!"
-            return (None,None)
+            return (None,None,None,None)
         # end if
         
         buchtype_index = self.wp_data_obj_dict[isin].get_one_data_item(irow, self.par.DEPOT_DATA_NAME_BUCHTYPE, 'int')
         if self.wp_data_obj_dict[isin].status != hdef.OKAY:
             self.status = hdef.NOT_OKAY
             self.errtext = self.wp_data_obj_dict[isin].errtext
-            return (None,None)
+            return (None,None,None,None)
         # end if
         
         wert   = self.wp_data_obj_dict[isin].get_one_data_item(irow, self.par.DEPOT_DATA_NAME_WERT, 'cent')
@@ -1031,25 +1040,34 @@ class DepotDataSet:
         if self.wp_data_obj_dict[isin].status != hdef.OKAY:
             self.status = hdef.NOT_OKAY
             self.errtext = self.wp_data_obj_dict[isin].errtext
-            return (None,None)
+            return (None,None,None,None)
         # end if
         
         kurswert = None
+        steuer_calc   = None
+        kosten_calc   = None
         if value_type == 'kosten':
             kosten = value
             # bei Kauf Wenn kosten größer den 0.5*wert, dann sind ist kosten = kurswert und kosten werden berechnet
             # Wert = Kurswert+kosten+steuer
-            if (wert != 0) and (buchtype_index == self.par.DEPOT_BUCHTYPE_INDEX_WP_KAUF) and (2*kosten > wert):
-                kurswert = kosten
-                kosten = wert - kurswert - steuer
+            if (wert != 0) and (buchtype_index == self.par.DEPOT_BUCHTYPE_INDEX_WP_KAUF):
+                if (2*kosten > wert):
+                    kurswert = kosten
+                    kosten = wert - kurswert - steuer
+                else:
+                    kurswert = wert - kosten - steuer
+                # end if
             # bei Verkauf Wenn kosten größer der wert, dann sind ist kosten = kurswert und kosten werden berechnet
             # Wert = Kurswert-kosten-steuer
-            elif (wert != 0) and (buchtype_index == self.par.DEPOT_BUCHTYPE_INDEX_WP_VERKAUF) and (kosten > wert):
+            elif (wert != 0) and (buchtype_index == self.par.DEPOT_BUCHTYPE_INDEX_WP_VERKAUF):
+                if (kosten > wert):
                     kurswert = kosten
                     kosten = kurswert - wert - steuer
-            elif (wert != 0) and (buchtype_index == self.par.DEPOT_BUCHTYPE_INDEX_WP_KOSTEN) and (2 * kosten > wert):
-                einnahme = kosten
-                kosten = wert - einnahme - steuer
+                else:
+                    kurswert = wert + kosten + steuer
+                # end if
+            elif (wert != 0) and (buchtype_index == self.par.DEPOT_BUCHTYPE_INDEX_WP_KOSTEN):
+                steuer_calc = wert - kosten
             elif (wert != 0) and (buchtype_index == self.par.DEPOT_BUCHTYPE_INDEX_WP_EINNAHMEN) and (kosten > wert):
                 
                 einnahme = kosten
@@ -1060,17 +1078,24 @@ class DepotDataSet:
             steuer = value
             # bei Kauf Wenn kosten größer den 0.5*wert, dann sind ist kosten = kurswert und kosten werden berechnet
             # Wert = Kurswert+kosten+steuer
-            if (wert != 0) and (buchtype_index == self.par.DEPOT_BUCHTYPE_INDEX_WP_KAUF) and (2*steuer > wert):
-                kurswert = steuer
-                steuer = wert - kurswert - kosten
+            if (wert != 0) and (buchtype_index == self.par.DEPOT_BUCHTYPE_INDEX_WP_KAUF):
+                if (2*steuer > wert):
+                    kurswert = steuer
+                    steuer = wert - kurswert - kosten
+                else:
+                    kurswert = wert - steuer - kosten
+                # end if
             # bei Verkauf Wenn kosten größer der wert, dann sind ist kosten = kurswert und kosten werden berechnet
             # Wert = Kurswert-kosten-steuer
-            elif (wert != 0) and (buchtype_index == self.par.DEPOT_BUCHTYPE_INDEX_WP_VERKAUF) and (steuer > wert):
-                kurswert = steuer
-                steuer = kurswert - wert - kosten
-            elif (wert != 0) and (buchtype_index == self.par.DEPOT_BUCHTYPE_INDEX_WP_KOSTEN) and (2 * steuer > wert):
-                einnahme = steuer
-                steuer = wert - einnahme - kosten
+            elif (wert != 0) and (buchtype_index == self.par.DEPOT_BUCHTYPE_INDEX_WP_VERKAUF):
+                if (steuer > wert):
+                    kurswert = steuer
+                    steuer = kurswert - wert - kosten
+                else:
+                    kurswert = wert + steuer + kosten
+                # end if
+            elif (wert != 0) and (buchtype_index == self.par.DEPOT_BUCHTYPE_INDEX_WP_KOSTEN):
+                kosten_calc = wert - steuer
             elif (wert != 0) and (buchtype_index == self.par.DEPOT_BUCHTYPE_INDEX_WP_EINNAHMEN) and (steuer > wert):
                 
                 einnahme = steuer
@@ -1093,9 +1118,13 @@ class DepotDataSet:
         if okay != hdef.OKAY:
             self.status = hdef.NOT_OKAY
             self.errtext = f"verify_value_kosten:  Fehler transform data_item = <{value}> von type: {'cent'} in type <{type}>  wandeln !!!!!!"
-            return (None,None)
+            return (None,None,None,None)
         # end if
-
         
-        return (value,kurs)
+        if kosten_calc is not None:
+            (okay, kosten_calc) = htype.type_transform(kosten_calc, 'cent', type)
+        if steuer_calc is not None:
+            (okay, steuer_calc) = htype.type_transform(steuer_calc, 'cent', type)
+
+        return (value,kurs,kosten_calc,steuer_calc)
 # end class

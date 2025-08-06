@@ -96,12 +96,13 @@ def konto_auswerten():
 
     runflag = True
 
-    start_auswahl = ["Cancel (no save)","Ende","Iban","Konto","Depot"]
+    start_auswahl = ["Cancel (no save)","Ende","Save","Iban","Konto","Depot"]
     index_cancel_no_save  = 0
     index_ende    = 1
-    index_iban    = 2
-    index_konto   = 3
-    index_depot   = 4
+    index_save    = 2
+    index_iban    = 3
+    index_konto   = 4
+    index_depot   = 5
     save_flag = True
     abfrage_liste = ["okay","cancel","ende"]
     i_abfrage_okay = 0
@@ -127,8 +128,14 @@ def konto_auswerten():
                 runflag = False
                 save_flag = False
             # end if
-        elif index == index_ende :
-            runflag = False
+        elif index == index_ende:
+                runflag = False
+        elif index == index_save:
+            rd.log.write(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
+            (status, errtext) = ka_data_set.data_save(rd.data, rd.par, rd.ini.ddict)
+            if (status != hdef.OK):
+                rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
+            # end if
         elif index == index_konto:
             rd.log.write(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
             status = kb.bearbeiten(rd)

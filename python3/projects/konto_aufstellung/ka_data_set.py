@@ -210,62 +210,88 @@ def data_save(data,par,inidict):
 
     # first get depot wk data into data dict
     for key in data:
-        #--------------------------------------------------------------------
-        # konto data
-        #--------------------------------------------------------------------
-        if data[key].ddict[par.DDICT_TYPE_NAME] == par.KONTO_DATA_TYPE_NAME:
-            # get data from konto set class to save
-            if par.KONTO_DATA_SET_NAME in data[key].ddict.keys():
-                data[key].ddict[par.KONTO_DATA_SET_NAME] = data[key].obj.data_set_llist
+        if par.DDICT_TYPE_NAME in data[key].ddict.keys():
+            #--------------------------------------------------------------------
+            # konto data
+            #--------------------------------------------------------------------
             # end if
-            data[key].ddict[par.KONTO_DATA_SET_DICT_LIST_NAME] = data[key].obj.get_data_set_dict_list()
-            data[key].ddict[par.KONTO_DATA_TYPE_DICT_NAME] = data[key].obj.get_data_type_dict()
-            del data[key].obj
-        # --------------------------------------------------------------------
-        # depot data
-        # --------------------------------------------------------------------
-        elif data[key].ddict[par.DDICT_TYPE_NAME] == par.DEPOT_DATA_TYPE_NAME:
-            data[key].ddict[par.DEPOT_DATA_ISIN_LIST_NAME] = data[key].obj.get_to_store_isin_list()
-            data[key].ddict[par.DEPOT_DATA_DEPOT_WP_LIST_NAME] = data[key].obj.get_to_store_depot_wp_name_list()
-            
+            if data[key].ddict[par.DDICT_TYPE_NAME] == par.KONTO_DATA_TYPE_NAME:
+                # get data from konto set class to save
+                if par.KONTO_DATA_SET_NAME in data[key].ddict.keys():
+                    data[key].ddict[par.KONTO_DATA_SET_NAME] = data[key].obj.data_set_llist
+                # end if
+                data[key].ddict[par.KONTO_DATA_SET_DICT_LIST_NAME] = data[key].obj.get_data_set_dict_list()
+                data[key].ddict[par.KONTO_DATA_TYPE_DICT_NAME] = data[key].obj.get_data_type_dict()
+#                if close_flag:
+#                    del data[key].obj
             # --------------------------------------------------------------------
-            # einzelne wp daten  aus dem depot speichern
+            # depot data
             # --------------------------------------------------------------------
-            data_wp = {}
-            for i,wp_list_name in enumerate(data[key].ddict[par.DEPOT_DATA_DEPOT_WP_LIST_NAME]):
+            elif data[key].ddict[par.DDICT_TYPE_NAME] == par.DEPOT_DATA_TYPE_NAME:
                 
-                if wp_list_name not in data.keys():
-                    if wp_list_name in inidict[par.INI_DATA_PICKLE_JSONFILE_LIST]:
-                        use_json = inidict[par.INI_DATA_PICKLE_USE_JSON]
-                    else:
-                        use_json = 0
+                data[key].ddict[par.DEPOT_DATA_ISIN_LIST_NAME] = data[key].obj.get_to_store_isin_list()
+                data[key].ddict[par.DEPOT_DATA_DEPOT_WP_LIST_NAME] = data[key].obj.get_to_store_depot_wp_name_list()
+                
+                # --------------------------------------------------------------------
+                # einzelne neue wp daten  aus dem depot speichern
+                # --------------------------------------------------------------------
+                data_wp = {}
+                for i,wp_list_name in enumerate(data[key].ddict[par.DEPOT_DATA_DEPOT_WP_LIST_NAME]):
+                    
+                    if wp_list_name not in data.keys():
+                        
+                        if wp_list_name in inidict[par.INI_DATA_PICKLE_JSONFILE_LIST]:
+                            use_json = inidict[par.INI_DATA_PICKLE_USE_JSON]
+                        else:
+                            use_json = 0
+                        # end if
+                        data_wp[wp_list_name] = ka_data_pickle.ka_data_pickle(par.DEPOT_WP_PREFIX, wp_list_name, use_json)
+
+
+                        isin = data[key].ddict[par.DEPOT_DATA_ISIN_LIST_NAME][i]
+                        data_wp[wp_list_name].ddict = data[key].obj.get_wp_data_set_dict_to_store(isin)
+                        data_wp[wp_list_name].ddict[par.DDICT_TYPE_NAME] = par.DEPOT_WP_DATA_TYPE_NAME
+                        data_wp[wp_list_name].ddict[par.DEPOT_WP_DEPOT_NAME_KEY] = key
+                        
+                        if data[key].obj.status != hdef.OKAY:
+                            raise Exception(f"ddict aus wp_data_set für isin = {isin} gibt es nicht, errtext={data[key].obj.errtext}")
+                        # end if
+                        
+                        data_wp[wp_list_name].save()
+                        
+                        if (data_wp[wp_list_name].status != hdef.OKAY):
+                            status = hdef.NOT_OKAY
+                            errtext = data_wp[wp_list_name].errtext
+                            return (status, errtext)
+                        # endif
+#                    else:
+#                        data_wp[wp_list_name] = data[wp_list_name]
                     # end if
-                    data_wp[wp_list_name] = ka_data_pickle.ka_data_pickle(par.DEPOT_WP_PREFIX, wp_list_name, use_json)
-                else:
-                    data_wp[wp_list_name] = data[wp_list_name]
-                # end if
-                isin = data[key].ddict[par.DEPOT_DATA_ISIN_LIST_NAME][i]
-                data_wp[wp_list_name].ddict = data[key].obj.get_wp_data_set_dict_to_store(isin)
-                if data[key].obj.status != hdef.OKAY:
-                    raise Exception(f"ddict aus wp_data_set für isin = {isin} gibt es nicht, errtext={data[key].obj.errtext}")
-                # end if
-                
-                data_wp[wp_list_name].save()
-                
-                if (data_wp[wp_list_name].status != hdef.OKAY):
-                    status = hdef.NOT_OKAY
-                    errtext = data_wp[wp_list_name].errtext
-                    return (status, errtext)
-                # endif
-            # end for
-            
-            del data[key].obj
-        # --------------------------------------------------------------------
-        # program data
-        # --------------------------------------------------------------------
-        elif data[key].ddict[par.DDICT_TYPE_NAME] == par.PROG_DATA_TYPE_NAME:
-            data[key].ddict[par.KONTO_DATA_ID_MAX_NAME] = data[key].idfunc.get_act_id()
-            del data[key].idfunc
+                # end for
+#                if close_flag:
+#                    del data[key].obj
+            # --------------------------------------------------------------------
+            # depot kown wp data
+            # --------------------------------------------------------------------
+            elif data[key].ddict[par.DDICT_TYPE_NAME] == par.DEPOT_WP_DATA_TYPE_NAME:
+
+
+                isin      = data[key].ddict["isin"]
+                depot_key = data[key].ddict[par.DEPOT_WP_DEPOT_NAME_KEY]
+
+                data[key].ddict = data[depot_key].obj.get_wp_data_set_dict_to_store(isin)
+                data[key].ddict[par.DDICT_TYPE_NAME] = par.DEPOT_WP_DATA_TYPE_NAME
+                data[key].ddict[par.DEPOT_WP_DEPOT_NAME_KEY] = depot_key
+            # --------------------------------------------------------------------
+            # program data
+            # --------------------------------------------------------------------
+            elif data[key].ddict[par.DDICT_TYPE_NAME] == par.PROG_DATA_TYPE_NAME:
+                data[key].ddict[par.KONTO_DATA_ID_MAX_NAME] = data[key].idfunc.get_act_id()
+#                if close_flag:
+#                    del data[key].idfunc
+            # end if
+        else:
+            raise Exception(f"key = {key} not updated")
         # end if
     # end for
     

@@ -143,6 +143,7 @@ class Parameter:
     KONTO_DATA_TYPE_NAME: str = "konto"
     DEPOT_DATA_TYPE_NAME: str = "depot"
     DEPOT_WP_DATA_TYPE_NAME: str = "depot_wp"
+    DEPOT_WP_DEPOT_NAME_KEY: str = "depot_name_key"
     IBAN_DATA_TYPE_NAME:  str = "iban"
 
     # konto daten data set
