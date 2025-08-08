@@ -226,8 +226,9 @@ def anzeige(rd,konto_dict,konto_obj):
             index_isin = header_liste.index(konto_obj.KONTO_DATA_NAME_ISIN)
             isin       = data_set[index_isin]
             if (len(isin) == 0) and (okay == hdef.OKAY):
-                isin = isin_comment
-                (okay, isin) = htype.type_proof_isin(isin)
+                (okay, value) = htype.type_proof_isin(isin_comment)
+                if okay == hdef.OKAY:
+                    isin = value
             # end if
             
             vorgabeListe.append(isin)
@@ -236,7 +237,7 @@ def anzeige(rd,konto_dict,konto_obj):
             #-----------------------------------------------------------------------------------------------------------
             eingabeListe.append("möglich. wkn")
             
-            if isin_comment == hdef.OKAY:
+            if len(wkn):
                 vorgabeListe.append(wkn)
             else:
                 vorgabeListe.append("")
@@ -253,39 +254,24 @@ def anzeige(rd,konto_dict,konto_obj):
             
             # Abfrage
             #-----------------------------------------------------------------------------------------------------------
-            ergebnisListe = ka_gui.konto_data_set_eingabe(eingabeListe, vorgabeListe
+            ergebnisListe = ka_gui.konto_isin_wkn_set_eingabe(eingabeListe, vorgabeListe
                                                           ,title=f"{data_title} wpnname,isin und wkn ausfüllen (wpnname,isin evt. leer, kein EIntrag)")
-
             # Daten übernehmen
             #-----------------------------------------------------------------------------------------------------------
             flag = False
             if len(ergebnisListe):
+                wpname = ergebnisListe[0]
+                isin   = ergebnisListe[1]
+                wkn    =  ergebnisListe[2]
                 
-                status = hdef.OKAY
-                # wpname
-                if( len(ergebnisListe[0]) and len(ergebnisListe[1]) ):
-                    status = rd.wpfunc.set_wpname_isin(ergebnisListe[0],ergebnisListe[1])
+                if len(isin):
+                    status = rd.wpfunc.update_isin_w_wpname_wkn(isin,wpname,wkn)
                 # end if
                 
                 # isin
-                if( (status == hdef.OKAY) and len(ergebnisListe[1]) and (data_set[index_isin] != ergebnisListe[1])):
+                if( (status == hdef.OKAY) and len(isin) and (data_set[index_isin] != isin)):
                     flag = True
                     data_set[index_isin] = ergebnisListe[1]
-                # end if
-                
-                # wkn
-                if (status == hdef.OKAY) and len(ergebnisListe[2]):
-                    if len(data_set[index_isin]) and (data_set[index_isin] != 'isinnotfound'):
-                        status = rd.wpfunc.set_wkn_isin(ergebnisListe[2], data_set[index_isin])
-                        if status != hdef.OKAY:
-                            flag = False
-                        # end if
-                    else:
-                        (okay, isin) = rd.wpfunc.get_isin_from_wkn(ergebnisListe[2])
-                        if okay == hdef.OKAY:
-                            data_set[index_isin] = isin
-                        # end if
-                    # end if
                 # end if
                 
             # update dateset

@@ -243,7 +243,8 @@ def num_cent_in_euroStr(cents,delim=",",thousandsign="."):
 # end def
 def numeric_string_to_float(numeric_string,delim=",",thousandsign="."):
     parts = [part.strip().replace(thousandsign, '') for part in numeric_string.split(delim)]
-    return float('.'.join(parts))
+    strval = '.'.join(parts)
+    return float(strval)
 
 def string_euro_in_int_cent(numeric_string, delim=",",thousandsign="."):
     """
@@ -1097,7 +1098,7 @@ def type_proof_euro(wert_in,delim=",",thousandsign="."):
         # end if
     # end if
     if isinstance(val,float):
-        val = float(int((val*100.)+0.5))/100.
+        val = float(int(val*100.+math.copysign(0.5,val)))/100.
     
     return (okay,val)
 # end def
@@ -1680,6 +1681,7 @@ def print_python_is_32_or_64_bit():
 # testen mit main
 ###########################################################################
 if __name__ == '__main__':
+    (okay, wert) = type_transform("-380,14", "euroStrK", "cent")
     
     wert = numeric_string_to_float("154.372,55",delim=",",thousandsign=".")
     (okay,value) = type_proof_isin("DE0007030009")

@@ -82,7 +82,23 @@ def konto_abfrage( header_liste, data_llist, abfrage_liste,color_list):
     
     return (dict_out["data_set"], dict_out["index_abfrage"], dict_out["irow_select"], dict_out["data_change_irow_icol_liste"])
 
-# edn def
+# end def
+def konto_isin_wkn_set_eingabe(eingabe_liste,data_set=None,title=None):
+    ddict = {}
+    ddict["liste_abfrage"] = eingabe_liste
+    
+    if title is not None:
+        ddict["title"] = title
+    # end if
+    
+    if data_set is not None:
+        ddict["liste_vorgabe"] = data_set
+    # end if
+    
+    new_data_list = sgui.abfrage_n_eingabezeilen_dict(ddict)
+
+    return new_data_list
+
 def konto_depot_data_set_eingabe(header_liste,buchtype_index_in_header_liste,buchungs_type_list,data_set=None,title=None,immutable_liste=None):
     '''
     

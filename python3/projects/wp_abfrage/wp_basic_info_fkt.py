@@ -12,11 +12,75 @@ import time
 if os.path.isfile('wp_base.py'):
     import wp_storage as wp_storage
     import wp_playright as wp_pr
+    import wp_wkn as wp_wkn
 else:
     import wp_abfrage.wp_storage as wp_storage
     import wp_abfrage.wp_playright as wp_pr
+    import wp_abfrage.wp_wkn as wp_wkn
 # end if
+def check_store_path(ddict):
+    '''
 
+    :return:
+    '''
+    status  = hdef.OKAY
+    errtext = ""
+    if not os.path.isdir(ddict["store_path"]):
+        try:
+            os.mkdir(ddict["store_path"])
+        except:
+            t = ddict["store_path"]
+            errtext = f"Der store_path: {t} konnte nicht erstellt werden"
+            status = hdef.NOT_OKAY
+        # end try
+    # end if
+    return (status,errtext)
+
+def check_isin_input(isin_input):
+    '''
+    
+    :param isin_input:
+    :param ddict:
+    :return: (status,errtext,isin_input_is_list,isin_list) = check_isin_input(isin_input)
+    '''
+    
+    isin_input_is_list = False
+    isin_list = []
+    status = hdef.OKAY
+    errtext = ""
+    
+    if isinstance(isin_input, str):
+        isin_list = [isin_input]
+    elif isinstance(isin_input, list):
+        (okay, value) = htype.type_proof(isin_input, "listStr")
+        if okay != hdef.OKAY:
+            status = hdef.NOT_OKAY
+            errtext = f"isin = {isin_input} ist keine Liste mit strings"
+            return (status,errtext,isin_input_is_list, isin_list)
+        else:
+            isin_input_is_list = True
+            isin_list = value
+    else:
+        errtext = f"isin = {isin_input} ist kein string"
+        status = hdef.NOT_OKAY
+        return (status,errtext,isin_input_is_list, isin_list)
+    # end if
+    
+    for isin in isin_list:
+        (okay, value) = htype.type_proof(isin, 'isin')
+        if okay != hdef.OKAY:
+            
+            (okay, value) = htype.type_proof(isin, 'wkn')
+            if okay != hdef.OKAY:
+                status = hdef.NOT_OKAY
+                errtext = f"isin = {isin} ist kein passender Wert"
+                return (status,errtext,isin_input_is_list, isin_list)
+            # end if
+        # end if
+    # end for
+
+    return (status,errtext,isin_input_is_list, isin_list)
+# end def
 def wp_basic_info_with_isin_list(ddict):
     '''
     
@@ -56,6 +120,10 @@ def wp_basic_info_with_isin_list(ddict):
         if wp_storage.info_storage_eixst(isin, ddict):
             print(f"            ... lese File")
             (status, errtext, info_dict) = wp_storage.read_info_dict(isin, ddict)
+            
+            (flag,info_dict) = update_info_dict_with_new_defaults(info_dict)
+            if flag:
+                save_info_dict(isin,info_dict,ddict)
         # ---------------------------------------------
         # basic info data vo html suchen
         # ---------------------------------------------
@@ -79,7 +147,24 @@ def wp_basic_info_with_isin_list(ddict):
                 (status, errtext, info_dict) = wp_basic_info_ariva_Anleihe(isin,info_dict)
 
             if status == hdef.OKAY:
+                
+                
+                
                 (status, errtext) = wp_storage.save_info_dict(isin, info_dict, ddict)
+                # if status == hdef.OKAY:
+                #     if len(info_dict["name"]) > 0:
+                #         (status, errtext) = wp_wkn.wp_add_wpname_isin(info_dict["name"],isin, ddict)
+                #     else:
+                #         status = hdef.NOT_OKAY
+                #         errtext = f"wp_basic_info_with_isin_list: info_dict[name] from isin : {isin} is empty"
+                #     # end if
+                # if status == hdef.OKAY:
+                #     if len(info_dict["wkn"]) > 0:
+                #         (status, errtext) = wp_wkn.wp_add_wkn_isin(info_dict["wkn"],isin, ddict)
+                #     else:
+                #         status = hdef.NOT_OKAY
+                #         errtext = f"wp_basic_info_with_isin_list: info_dict[wkn] from isin : {isin} is empty"
+                #     # end if
                 print(f"info_dict: {info_dict}")
             else:
                 print(f"errtext: {errtext}")
@@ -116,6 +201,7 @@ def get_default_info_dict(isin):
     info_dict["volumen"] = ""
     info_dict["anzahl"] = ""
     info_dict["zahltdiv"] = 0
+    info_dict["url"] = ""
     info_dict["indexabbildung"] = ""
     info_dict["ertragsverwendung"] = ""
     info_dict["ter"] = ""
@@ -127,6 +213,40 @@ def get_default_info_dict(isin):
     info_dict["dividendenrendite"] = ""
     info_dict["gewinn"] = ""
     return info_dict
+# end def
+def update_info_dict_with_new_defaults(info_dict):
+    '''
+    
+    :param info_dict:
+    :return: (flag,info_dict) = update_info_dict_with_new_defaults(info_dict)
+    '''
+    flag = False
+    default_dict = get_default_info_dict(info_dict["isin"])
+    
+    for key in default_dict.keys():
+        if key not in info_dict.keys():
+            info_dict[key] = default_dict[key]
+            flag = True
+        # end if
+    # end for
+    
+    # sortieren
+    for key in default_dict.keys():
+        default_dict[key] = info_dict[key]
+    
+    return (flag,default_dict)
+# end def
+
+
+def save_info_dict(isin,info_dict,ddict):
+    '''
+    
+    :param info_dict:
+    :param ddict:
+    :return:
+    '''
+    (status, errtext) = wp_storage.save_info_dict(isin, info_dict, ddict)
+    return (status,errtext)
 # end def
 def wp_basic_info_extraetf_ETF(isin,info_dict):
     status = hdef.OKAY
@@ -148,6 +268,7 @@ def wp_basic_info_extraetf_ETF(isin,info_dict):
 
     soup = bs(page, 'html.parser')
     
+    info_dict["url"]  = url
     info_dict["type"] = "etf"
     
     # ----------------------------------------------------------------
@@ -208,6 +329,7 @@ def wp_basic_info_extraetf_ETF(isin,info_dict):
     #-----------------------------------------------------
     # Zahlt Dividendne
     #-----------------------------------------------------
+    ######
     info_dict["zahltdiv"] = 0
     if "ertragsverwendung" in info_dict.keys():
         if info_dict["ertragsverwendung"] == "Ausschüttend":
@@ -304,6 +426,7 @@ def wp_basic_info_extraetf_Aktie(isin,info_dict):
     
     soup = bs(page, 'html.parser')
     
+    info_dict["url"] = url
     info_dict["type"] = "aktie"
     
     # ----------------------------------------------------------------
@@ -418,6 +541,7 @@ def wp_basic_info_extraetf_Fond(isin,info_dict):
     
     soup = bs(page, 'html.parser')
     
+    info_dict["url"] = url
     info_dict["type"] = "fond"
     
     # ----------------------------------------------------------------
@@ -537,6 +661,7 @@ def wp_basic_info_ariva_Anleihe(isin,info_dict):
     
     soup = bs(newpage, 'html.parser')
     
+    info_dict["url"] = url
     info_dict["type"] = "anleihe"
     
     # -------------------------------------------------------------------------

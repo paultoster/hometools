@@ -5,6 +5,7 @@
 #
 import os
 import sys
+import pyperclip
 
 import sgui
 
@@ -112,6 +113,8 @@ def anzeige_mit_depot_wahl(rd):
         elif choice == 1: # isin spezifisch
             
             print(f"Depot: {auswahl} isin: {isin}")
+            pyperclip.copy(isin)
+            
             
             (data_lliste, header_liste, type_liste,row_color_dliste) = depot_obj.get_depot_daten_sets_isin(isin)
             if depot_obj.status != hdef.OKAY:  # Abbruch

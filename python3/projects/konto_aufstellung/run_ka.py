@@ -114,7 +114,9 @@ def konto_auswerten():
         save_flag = True
         (index,indexAbfrage) = ka_gui.listen_abfrage(rd,start_auswahl,"Startauswahl",abfrage_liste)
         
-        if indexAbfrage == i_abfrage_cancel:
+        if indexAbfrage < 0:
+            index = -1
+        elif indexAbfrage == i_abfrage_cancel:
             index = index_cancel_no_save
         elif indexAbfrage == i_abfrage_ende:
             index = index_ende

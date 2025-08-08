@@ -978,17 +978,9 @@ class KontoDataSet:
         
         # search for special
         if okay != hdef.OKAY:
-                index = hstr.such(comment, "XETRA-GOLD")
-                if index >= 0:
-                    isin = "DE000A0S9GB0"
-                    wkn  = "A0S9GB"
-                    okay = hdef.OKAY
-                else:
-                    isin = ""
-                    wkn = ""
-                    okay = hdef.NOT_OKAY
-                # end if
-            # end if
+            isin = ""
+            wkn = ""
+            okay = hdef.NOT_OKAY
         else:
             print(f"Start getting isin from wkn: {wkn} ")
             (okay, isin) = self.wpfunc.get_isin_from_wkn(wkn)
@@ -1000,7 +992,7 @@ class KontoDataSet:
             (okay,isin) = self.wpfunc.find_wpname_in_comment_get_isin(comment)
         # end if
         
-        return (okay,isin)
+        return (okay,wkn,isin)
     # end def
     
     def add_new_data_dict(self, new_data_dict_list):

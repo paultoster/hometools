@@ -7,6 +7,7 @@ def get_ariva_url_playwright(isin):
     errtext = ""
     
     icount = 0
+    url = ""
     while (icount < 2) and (status != hdef.OKAY):
         
         try:
@@ -36,7 +37,7 @@ def get_ariva_url_playwright(isin):
             # end with
         except:
             icount += 1
-            time.sleep(20)
+            time.sleep(5)
         # end try
         
         if len(url) > 10:

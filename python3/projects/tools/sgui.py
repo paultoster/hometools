@@ -1886,6 +1886,7 @@ def abfrage_dict(ddict,title=None):
     type_liste = []
     index_liste = []
     key_liste = []
+    changed_key_liste = []
     for key in ddict.keys():
         if isinstance(ddict[key],str):
             liste.append(f"{key}")
@@ -1946,7 +1947,7 @@ def abfrage_dict(ddict,title=None):
         # end if
     # end for
     if len(liste) > 0:
-        obj = abfrage_n_eingabezeilen_class(liste=liste, vorgabe_liste=vorgabe_liste, title=title)
+        obj = sclass_ane.abfrage_n_eingabezeilen_class(liste=liste, vorgabe_liste=vorgabe_liste, title=title)
         liste_ausgabe = obj.eingabeListe
         del obj
 
@@ -1956,32 +1957,58 @@ def abfrage_dict(ddict,title=None):
                 key = key_liste[i]
                 if index_liste[i] < 0:
                     if type_liste[i] == DATA_STRING:
-                        ddict[key] = value
+                        if ddict[key] != value:
+                            ddict[key] = value
+                            changed_key_liste.append(key)
+                        # end if
                     elif type_liste[i] == DATA_FLOAT:
                         try:
-                            ddict[key] = float(value)
+                            val = float(value)
+                            if ddict[key] != val:
+                                ddict[key] = val
+                                changed_key_liste.append(key)
+                            # end if
                         except:
                             print(f"ddict[ {key} = {value} could not be transfered into float")
                         # end try
                     elif type_liste[i] == DATA_INTEGER:
                         try:
-                            ddict[key] = int(value)
+                            val = int(value)
+                            if ddict[key] != val:
+                                ddict[key] = val
+                                changed_key_liste.append(key)
+                            # end if
                         except:
                             print(f"ddict[ {key} = {value} could not be transfered into int")
                         # end try
                 else:
                     index = index_liste[i]
                     if type_liste[i] == DATA_STRING:
-                        ddict[key][index] = value
+                        
+                        if ddict[key][index] != value:
+                            ddict[key][index] = value
+                            if key not in changed_key_liste.keys():
+                                changed_key_liste.append(key)
+                        # end if
                     elif type_liste[i] == DATA_FLOAT:
                         try:
-                            ddict[key][index] = float(value)
+                            val = float(value)
+                            if ddict[key][index] != val:
+                                ddict[key][index] = val
+                                if key not in changed_key_liste.keys():
+                                    changed_key_liste.append(key)
+                            # end if
                         except:
                             print(f"ddict[ {key} = {value} could not be transfered into float")
                         # end try
                     elif type_liste[i] == DATA_INTEGER:
                         try:
-                            ddict[key][index] = int(value)
+                            val = int(value)
+                            if ddict[key][index] != val:
+                                ddict[key][index] = val
+                                if key not in changed_key_liste.keys():
+                                    changed_key_liste.append(key)
+                            # end if
                         except:
                             print(f"ddict[ {key} = {value} could not be transfered into int")
                         # end try
@@ -1990,7 +2017,7 @@ def abfrage_dict(ddict,title=None):
             # end for
         # end if
     # end if
-    return ddict
+    return (ddict,changed_key_liste)
 # end def
 # ========================== abfrage_dict =======================================
 # ===============================================================================
@@ -3494,8 +3521,8 @@ if __name__ == '__main__':
     ddict_inp["row_color_dliste"] = ['', 'grey', '', 'red','', 'grey', '', 'blue']
     ddict_inp["abfrage_liste"] = ["okay", "cancel", "end", "edit"]
     ddict_inp["auswahl_filter_col_liste"] = ["Markt", "Markt2"]
-
-    ddict_inp = abfrage_dict(ddict_inp, title="modify dictionary")
+    
+    (ddict_inp,changed_key_liste) = abfrage_dict(ddict_inp, title="modify dictionary")
 
     ddict_out = abfrage_tabelle(ddict_inp)
 

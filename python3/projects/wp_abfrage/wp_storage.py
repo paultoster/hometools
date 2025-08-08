@@ -57,17 +57,51 @@ def read_info_dict(isin,ddict):
     
     return (status,errtext,info_dict)
 # end def
+def read_wpname_isin_dict(ddict):
+    '''
+    
+    :param ddict:
+    :return:
+    '''#
+    status = hdef.OKAY
+    errtext = ""
+    
+    file_name_pckl = build_file_name_pickle(ddict["wpname_isin_filename"], ddict)
+    file_name_json = build_file_name_json(ddict["wpname_isin_filename"], ddict)
+    
+    if (ddict["use_json"] == 2):  # read json
+        
+        if (os.path.isfile(file_name_json)):
+            (status, errtext, wpname_dict) = read_json(file_name_json)
+        else:
+            status = hdef.NOT_OKAY
+            errtext = f"File {file_name_json} does not exist!"
+            return (status, errtext, {})
+        # end if
+    
+    else:  # normal pickle load
+        
+        # Wenn die Datei vorhanden ist:
+        if (os.path.isfile(file_name_pckl)):
+            (status, errtext, wpname_dict) = read_pickle(file_name_pckl)
+        else:
+            wpname_dict = {}
+        # endif
+    
+    # end if
+    return (status, errtext,wpname_dict)
+# end def
 def save_info_dict(isin, info_dict, ddict):
     '''
     
     :param isin:
     :param info_dict:
     :param ddict:
-    :return: (status, errtext) = wp_storage.save_info_dict(isin, info_dict, self.ddict)
+    :return: (status, errtext) = wp_storage.save_info_dict(isin, info_dict, ddict)
     '''
     status = hdef.OKAY
     errtext = ""
-   
+    
     # save pckl
     file_name = build_file_name_pickle(ddict["basic_info_pre_file_name"] + str(isin), ddict)
     
@@ -79,8 +113,44 @@ def save_info_dict(isin, info_dict, ddict):
         (status, errtext) = save_json(info_dict, file_name)
     # end if
     
+    # update isin wpname liste
+    if status == hdef.OKAY:
+        (status, errtext) = update_isin_name_dict(isin,info_dict["name"],ddict)
+
     return (status,errtext)
 # end def
+def update_isin_name_dict(isin,wpname,ddict):
+    '''
+    
+    :param isin:
+    :param wpname:
+    :param ddict:
+    :return: (status, errtext) = update_isin_name_dict(isin,info_dict["name"],ddict)
+    '''
+    
+    (status, errtext,wpname_dict) = read_wpname_isin_dict(ddict)
+    
+    if( status != hdef.OKAY):
+        return (status, errtext)
+    # end if
+    
+    # set isin and name
+    if isin not in wpname_dict.keys():
+        print(f"add isin: {isin} und wpname: {wpname} zu wpname_dict[isin] = wpname")
+        
+    wpname_dict[isin] = wpname
+    
+    file_name_pckl = build_file_name_pickle(ddict["wpname_isin_filename"], ddict)
+    (status, errtext) = save_pickle(wpname_dict, file_name_pckl)
+    
+    if (ddict["use_json"] == 1):  # write json
+        file_name_json = build_file_name_json(ddict["wpname_isin_filename"], ddict)
+        (status, errtext) = save_json(wpname_dict, file_name_json)
+    # end if
+    
+    return (status, errtext)
+
+
 def build_file_name_pickle(body, ddict):
     '''
 
