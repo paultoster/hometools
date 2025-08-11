@@ -13,17 +13,19 @@ import sgui
 import ka_gui
 import ka_depot_read
 import ka_depot_anzeige
+import ka_depot_kategorie_anzeige
 import ka_depot_write
 
 def bearbeiten(rd):
     status = hdef.OKAY
     runflag = True
 
-    start_auswahl = ["Cancel","DepotDatenSet von KontoDaten einlesen","DepotDatenSet anzeigen/bearbeiten","DepotDatenSet in ods (excel) ausgeben"]
+    start_auswahl = ["Cancel","DepotDatenSet von KontoDaten einlesen","DepotDatenSet anzeigen/bearbeiten","KategorieDatenSet anzeigen/bearbeiten","DepotDatenSet in ods (excel) ausgeben"]
     index_cancel  = 0
     index_read_konto  = 1
     index_anzeige = 2
-    index_ods = 3
+    index_kategorie_anzeige = 3
+    index_ods = 4
     
     while (runflag):
 
@@ -41,6 +43,12 @@ def bearbeiten(rd):
         elif (index == index_anzeige):
             
             status = ka_depot_anzeige.anzeige_mit_depot_wahl(rd)
+            runflag = False
+
+        elif (index == index_kategorie_anzeige):
+        
+            status = ka_depot_kategorie_anzeige.anzeige_mit_kategorie_wahl(rd)
+            
             runflag = False
         
         elif (index == index_ods):

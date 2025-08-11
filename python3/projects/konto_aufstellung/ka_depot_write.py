@@ -7,6 +7,7 @@ import os
 import sys
 
 import openpyxl
+from pathlib import Path
 
 tools_path = os.getcwd() + "\\.."
 if (tools_path not in sys.path):
@@ -64,7 +65,7 @@ def ods_ausgabe_mit_depot_wahl(rd):
     # Übersichtsdaten von allen  WPs
     worksheet.title = depot_obj.depot_name
     
-    (data_lliste, header_liste, _) = depot_obj.get_depot_daten_sets_overview(False)
+    (data_lliste, header_liste, _ , _) = depot_obj.get_depot_daten_sets_overview(0)
     
     if depot_obj.status != hdef.OKAY:
         status = depot_obj.status
@@ -95,7 +96,7 @@ def ods_ausgabe_mit_depot_wahl(rd):
         worksheet = workbook.create_sheet(title=isin)
         workbook.active = workbook[isin]
         
-        (data_lliste, header_liste, _) = depot_obj.get_depot_daten_sets_isin(isin)
+        (data_lliste, header_liste, _ , _) = depot_obj.get_depot_daten_sets_isin(isin)
         
         if depot_obj.status != hdef.OKAY:
             status = depot_obj.status
@@ -120,5 +121,10 @@ def ods_ausgabe_mit_depot_wahl(rd):
     # end for
     
     workbook.save(file_name)
+    
+    
+    
+    rd.log.write(f"excel-File-Name: {os.getcwd()}\\{file_name}",screen=rd.par.LOG_SCREEN_OUT)
+    
     return status
 # enddef

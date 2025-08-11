@@ -20,6 +20,7 @@ import hfkt_date_time as hdate
 import hfkt_str as hstr
 
 import ka_gui
+import ka_depot_anzeige_isin
 
 
 def anzeige_mit_depot_wahl(rd):
@@ -58,15 +59,12 @@ def anzeige_mit_depot_wahl(rd):
     
     # choice = 0 Zusammenfassung
     #        = 1 Auswahl isin
-    #        = 2 edit isin in irow
-    #        = 3 delete isin in irow
-    #        = 4 kategorie
-    #        = 5 kurs
-    #        = 6 update isin
+    #        = 2 toggle
+    #        = 3 kategorie
     #        = -1 Ende
     choice = 0 # Zusammenfassung
     runflag = True
-    depot_show_type = 0 # 0: alle, 1: nur aktive, 2: inaktive
+    depot_show_type = 1 # 0: alle, 1: nur aktive, 2: inaktive
     
     while runflag:
 
@@ -106,7 +104,7 @@ def anzeige_mit_depot_wahl(rd):
                 choice = 0      # auswahl overview
                 runflag = True
             else: # sw == 3
-                choice = 4      # auswahl kategorie
+                choice = 3      # auswahl kategorie
                 runflag = True
 
             # end if
@@ -115,123 +113,16 @@ def anzeige_mit_depot_wahl(rd):
             print(f"Depot: {auswahl} isin: {isin}")
             pyperclip.copy(isin)
             
-            
-            (data_lliste, header_liste, type_liste,row_color_dliste) = depot_obj.get_depot_daten_sets_isin(isin)
-            if depot_obj.status != hdef.OKAY:  # Abbruch
-                status = depot_obj.status
-                rd.log.write_err(depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
-                depot_obj.reset_status()
-                return status
-            # end if
-            
-            title = depot_obj.get_titlename(isin)
-            
-            # isin Anzeige
-            #--------------------------------------
-            (sw, irow,changed_pos_list,update_date_lliste) = anzeige_isin(rd,data_lliste, header_liste,title,row_color_dliste)
+            (sw,status) = ka_depot_anzeige_isin.anzeige_depot_isin(rd,isin,depot_obj,depot_dict)
 
             if sw < 0:
                 runflag = False
-            elif sw == 1: # zurück
+            else: # if sw == 0: # zurück
                 choice = 0
                 runflag = True
-            elif sw == 2:  # edit
-                choice = 2
-                runflag = True
-            elif sw == 3:  # delete
-                choice = 3
-                runflag = True
-            elif sw == 4:  # kurs
-                choice = 5
-                runflag = True
-            else:          # update
-                choice = 6
-                runflag = True
-        # end if
-        
-        elif choice == 2: # edit irow and isin
-            
-            print(f"Depot: {auswahl} isin: {isin} irow: {irow}")
-            
-            # get data
-            (data_set, header_liste,type_liste,buchungs_type_list, buchtype_index_in_header_liste) \
-                = depot_obj.get_depot_daten_sets_isin_irow(isin, irow)
-            
-            if depot_obj.status != hdef.OKAY:  # Abbruch
-                status = depot_obj.status
-                rd.log.write_err(depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
-                depot_obj.reset_status()
-                return status
             # end if
             
-            immutable_liste = depot_obj.get_immutable_list_from_header_list(isin,header_liste)
-            
-            if depot_obj.status != hdef.OKAY:  # Abbruch
-                status = depot_obj.status
-                rd.log.write_err(depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
-                depot_obj.reset_status()
-                return status
-            # end if
-
-            titlename = depot_obj.get_titlename(isin)
-            
-            # edit data
-            new_data_list = ka_gui.konto_depot_data_set_eingabe(header_liste, buchtype_index_in_header_liste,
-                                                          buchungs_type_list, data_set,titlename,immutable_liste)
-            
-            if len(new_data_list):
-                new_data_set_flag = depot_obj.set_data_set_isin_irow(new_data_list, header_liste,type_liste,isin, irow)
-                
-                if depot_obj.status != hdef.OKAY:
-                    status = depot_obj.status
-                    rd.log.write_err("anzeige_mit_depot_wahl edit " + depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
-                    depot_obj.reset_status()
-                    return status
-                elif len(depot_obj.infotext) != 0:
-                    rd.log.write_info("anzeige_mit_depot_wahl edit " + depot_obj.infotext, screen=rd.par.LOG_SCREEN_OUT)
-                    depot_obj.reset_infotext()
-                # endif
-            # endif
-
-            choice = 1
-            runflag = True
-        elif choice == 3: # delete
-            
-            # get data
-            (data_set, header_liste,_,_,_) = depot_obj.get_depot_daten_sets_isin_irow(isin, irow)
-
-            ddict0 = {}
-            for i,name in enumerate(header_liste):
-                ddict0[name] = data_set[i]
-            # end for
-            titlename = depot_obj.get_titlename(isin)
-            flag = ka_gui.janein_abfrage(rd, f"Soll wirklich isin/name/zahltdiv = {titlename} mit datasetdict : {ddict0} gelöscht werden", "Nicht Löschen ja/nein")
-
-            if flag:
-                # konto_obj set anlegen
-                # ----------------------
-                konto_key = depot_dict[rd.par.INI_DEPOT_KONTO_NAME]
-                
-                if konto_key not in rd.data:
-                    status = hdef.NOT_OKAY
-                    errtext = f"Von Depot Auswahl: {auswahl} benutztes Konto: {konto_key} ist nicht im data-dict"
-                    rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
-                    return status
-                # end if
-                
-                status =depot_obj.delete_in_data_set(isin,irow,rd.data[konto_key].obj)
-                
-                if status != hdef.OKAY:  # Abbruch
-                    rd.log.write_err(depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
-                    status = depot_obj.reset_status()
-                    return status
-                # end if
-            # end if
-            
-            choice = 1
-            runflag = True
-            
-        elif choice == 4: # kategorie
+        elif choice == 3: # kategorie
             
             kategorie = depot_obj.get_kategorie(isin)
             titlename = depot_obj.get_titlename(isin)
@@ -245,33 +136,9 @@ def anzeige_mit_depot_wahl(rd):
             choice = 0
             runflag = True
             
-        elif choice == 5:  # kurs choice = 5
-        
-            # set kurs
-            status = depot_obj.set_kurs_value(isin, irow)
-            
-            if status != hdef.OKAY:  # Abbruch
-                rd.log.write_err(depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
-                status = depot_obj.reset_status()
-                return status
-            # end if
-            
-            choice = 1
-            runflag = True
-        else: # update choice = 6
-            (status,new_data_set_flag) = depot_obj.update_data_llist(isin,changed_pos_list,update_date_lliste, header_liste, type_liste)
-
-            if status != hdef.OKAY:  # Abbruch
-                rd.log.write_err(depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
-                status = depot_obj.reset_status()
-                return status
-            # end if
-        
-            choice = 1
-            runflag = True
         # end if
         
-    # end whileq
+    # end while
     
     # write back modified ddict
     rd.data[auswahl].ddict = depot_dict

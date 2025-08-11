@@ -85,6 +85,13 @@ class WpDataSet:
         '''
         return self.wp_info_dict["zahltdiv"]
     # end def
+    def get_kategorie(self):
+        '''
+        
+        :return: kategorie = self.get_kategorie
+        '''
+        return self.kategorie
+    # end def
     def get_summen_anzahl(self):
         '''
         

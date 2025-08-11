@@ -143,6 +143,7 @@ class DepotParam:
     DEPOT_DATA_NAME_ZAHLTDIV = "zahltdiv"
     DEPOT_DATA_NAME_EINNAHME = "einnahme"
     DEPOT_DATA_NAME_KURSWERT = "kurswert"
+    DEPOT_DATA_NAME_DEPOT    = "depot"
 
     DEPOT_WP_STORE_PATH = "."
     DEPOT_WP_USE_JSON   = False
@@ -153,6 +154,8 @@ class DepotParam:
     DEPOT_SHOW_TYPE_INDEX_ALL = 0
     DEPOT_SHOW_TYPE_INDEX_ACTIVE = 1
     DEPOT_SHOW_TYPE_INDEX_INACTIVE = 2
+    
+    DEPOT_KKATEGORIE_LEER = "leer"
 
 
 class DepotDataSet:
@@ -206,6 +209,22 @@ class DepotDataSet:
             raise Exception(f"get_kategorie: isin = {isin} nicht vorhanden")
         # end if
         return kategorie
+    # end def
+    def get_kategorie_liste(self):
+        '''
+
+        :return: kategorie_liste = self.get_kategorie_liste()
+        '''
+        kategorie_liste = []
+        for isin in self.isin_liste:
+            kategorie = self.wp_data_obj_dict[isin].get_kategorie()
+            kategorie_liste.append(kategorie)
+        # end for
+        
+        kategorie_liste = list(set(kategorie_liste))
+        
+        return kategorie_liste
+    
     # end def
     def set_kategorie(self,isin,kategorie):
         if isin in self.isin_liste:
@@ -551,7 +570,7 @@ class DepotDataSet:
         hole von jedem WP die Zusammenfassungen
         :param nur_was_im_depot = False alle zeigen
                                 = True nur die nch im Depot sinf (anzahl > 0)
-        :return: (data_lliste, header_liste,type_liste) = self.get_depot_daten_sets_overview(nur_was_im_depot)
+        :return: (data_lliste, header_liste,type_liste,row_color_dliste) = self.get_depot_daten_sets_overview(nur_was_im_depot)
         '''
         
         
@@ -621,7 +640,7 @@ class DepotDataSet:
                 if sumwert is None:
                     self.status = self.wp_data_obj_dict[isin].status
                     self.errtext = self.wp_data_obj_dict[isin].errtext
-                    return ([],[],[])
+                    return ([],[],[],[])
                 # end if
                 summe_wert += sumwert
                 (okay,sumwert) = htype.type_transform(sumwert,'euro',type_liste[4])
@@ -632,7 +651,7 @@ class DepotDataSet:
                 if einnahmen is None:
                     self.status = self.wp_data_obj_dict[isin].status
                     self.errtext = self.wp_data_obj_dict[isin].errtext
-                    return ([],[],[])
+                    return ([],[],[],[])
                 # end if
                 summe_einnahmen += einnahmen
                 (okay,einnahmen) = htype.type_transform(einnahmen,'euro',type_liste[5])
@@ -667,6 +686,111 @@ class DepotDataSet:
         return (data_lliste, header_liste,type_liste,row_color_dliste)
 
         
+    # end def
+    def get_depot_daten_sets_overview_kategorie(self,kategorie):
+        '''
+                hole von jedem WP die Zusammenfassungen wenn es die gewünschte Kategorie hat
+
+        :param kategorie:
+        :return: (data_lliste, header_liste,type_liste,row_color_dliste) = self.get_depot_daten_sets_overview_kategorie(kategorie)
+        '''
+        
+        header_liste = [self.par.DEPOT_DATA_NAME_ISIN,
+                        self.par.DEPOT_DATA_NAME_DEPOT,
+                        self.par.DEPOT_DATA_NAME_WP_NAME,
+                        self.par.DEPOT_DATA_NAME_ZAHLTDIV,
+                        self.par.DEPOT_DATA_NAME_ANZAHL,
+                        self.par.DEPOT_DATA_NAME_WERT + " (kauf=neg)",
+                        self.par.DEPOT_DATA_NAME_EINNAHME,
+                        self.par.DEPOT_DATA_NAME_KURSWERT]
+        type_liste = ["isin",
+                      "str",
+                      "str",
+                      "int",
+                      "float",
+                      "euroStrK",
+                      "euroStrK",
+                      "euroStrK"]
+        
+        data_lliste = []
+        row_color_dliste = []
+        
+        summe_wert = 0.0
+        summe_einnahmen = 0.0
+        
+        for isin in self.isin_liste:
+            
+            # get aktegorie
+            kat = self.wp_data_obj_dict[isin].get_kategorie()
+            
+            flag = False
+            if kat == kategorie:
+                flag = True
+
+            if flag:
+                
+                dataliste = []
+                
+                # 1. isin
+                # ---------
+                dataliste.append(isin)
+                
+                # 2. depot
+                #----------
+                dataliste.append(self.depot_name)
+                
+                # 3. Name
+                # --------
+                name = self.wp_data_obj_dict[isin].get_name()
+                dataliste.append(name)
+                
+                # 4. Zahlt Dividende
+                dataliste.append(self.wp_data_obj_dict[isin].get_zahltdiv())
+                
+                # 5. Anzahl
+                anzahl = self.wp_data_obj_dict[isin].get_summen_anzahl()
+                if anzahl is None:
+                    self.status = self.wp_data_obj_dict[isin].status
+                    self.errtext = self.wp_data_obj_dict[isin].errtext
+                    return ([], [], [], [])
+                # end if
+                dataliste.append(anzahl)
+                
+                # 6. wert
+                sumwert = self.wp_data_obj_dict[isin].get_summen_wert()
+                if sumwert is None:
+                    self.status = self.wp_data_obj_dict[isin].status
+                    self.errtext = self.wp_data_obj_dict[isin].errtext
+                    return ([], [], [])
+                # end if
+                summe_wert += sumwert
+                (okay, sumwert) = htype.type_transform(sumwert, 'euro', type_liste[5])
+                dataliste.append(sumwert)
+                
+                # 7. einnahmen
+                einnahmen = self.wp_data_obj_dict[isin].get_einnahmen_wert()
+                if einnahmen is None:
+                    self.status = self.wp_data_obj_dict[isin].status
+                    self.errtext = self.wp_data_obj_dict[isin].errtext
+                    return ([], [], [])
+                # end if
+                summe_einnahmen += einnahmen
+                (okay, einnahmen) = htype.type_transform(einnahmen, 'euro', type_liste[6])
+                dataliste.append(einnahmen)
+                
+                # 8. Kurswert
+                kurs = 0.0  # self.wp_func_obj.get_act_kurs()
+                kurswert = kurs * anzahl
+                (okay, kurswert) = htype.type_transform(kurswert, 'euro', type_liste[7])
+                dataliste.append(kurswert)
+                
+                data_lliste.append(dataliste)
+                row_color_dliste.append(self.wp_color_dict[isin])
+            # end if
+        # end for
+        
+        return (data_lliste, header_liste, type_liste, row_color_dliste)
+    
     # end def
     def get_depot_daten_sets_isin(self,isin):
         '''

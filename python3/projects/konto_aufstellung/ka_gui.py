@@ -191,3 +191,19 @@ def depot_isin(header_liste, data_lliste, abfrage_liste,title,row_color_dliste):
     dict_out = sgui.abfrage_tabelle(dict_inp)
     
     return (dict_out["index_abfrage"], dict_out["irow_select"], dict_out["data_change_irow_icol_liste"],dict_out["data_set"])
+def auswahl_depot_kategorie_liste(kategorie_liste):
+    '''
+    
+    :param kategorie_liste:
+    :return: (index,choice) = auswahl_depot_kategorie_liste(kategorie_liste)
+    '''
+    
+    
+    index = sgui.abfrage_liste_index(kategorie_liste, "Kategorie auswählen")
+    if index < 0:
+        choice =  ""
+    else:
+        choice = kategorie_liste[index]
+    # endif
+    return (index,choice)
+# enddef

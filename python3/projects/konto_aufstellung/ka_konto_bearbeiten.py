@@ -105,6 +105,8 @@ def ka_konto_bearbeiten_csv_ausgabe(rd):
         rd.log.write_info(f"CSV-Ausgabe von Konto: <{choice}> in Datei <{filename}>", screen=rd.par.LOG_SCREEN_OUT)
     # end if
     
+    os.startfile(filename)
+    
     return status
 # end def
     
