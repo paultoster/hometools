@@ -231,8 +231,9 @@ def anzeige_csv_ausgabe(rd,data_lliste, header_liste,kategorie):
     errtext = ""
     
     # Filename
-    filename = htime.get_name_by_dat_time(pre_text=f"depot_kategorie_{kategorie}_") + ".csv"
-    
+    # filename = htime.get_name_by_dat_time(pre_text=f"depot_kategorie_{kategorie}_") + ".csv"
+    filename = f"depot_kategorie_{kategorie}_" + ".csv"
+
     status = hio.write_csv_file_header_data(filename, header_liste, data_lliste, delim=rd.par.CSV_AUSGABE_TRENN_ZEICHEN)
     
     if status != hdef.OKAY:
