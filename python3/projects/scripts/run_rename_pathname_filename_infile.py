@@ -20,13 +20,13 @@ extension_list = ["m3u"]
 """
 
 
-start_dir_vorschlag="C:\\Users\\lino\\AppData\\Roaming\\foobar2000"
-old_name_list = ["D:\\ton"]
-new_name_list = ["K:\\media\\ton"]
-extension_list = ["fpl","cfg","flg"]
+start_dir_vorschlag="K:\\tools\\hometools\\python3\\projects\\depot_aufstellung"
+old_name_list = ["ka_"]
+new_name_list = ["depot_"]
+extension_list = ["py"]
 
 change_path_name    = 0
-change_file_name    = 0
+change_file_name    = 1
 change_file_content = 1
 
 n = min(len(old_name_list),len(new_name_list))
