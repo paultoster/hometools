@@ -64,10 +64,6 @@ index_liste = search_value_in_llist_return_indexlist(lliste,icol,value)
 newlist = sort_list_of_dict(lliste, keyname, aufsteigend=1)
 newlist = sort_list(liste,aufsteigend=1)
 
-keylist = find_keys_of_dict_value_as_list(ddict,value)
-
-value = find_first_key_dict_value(ddict,value) if not in value = None
-
 
 '''
 
@@ -432,17 +428,6 @@ def sort_list_of_dict(lliste, keyname, aufsteigend=1):
     # edn fi
     
     return new_llist
-
-def find_keys_of_dict_value_as_list(ddict,value):
-    keys = [key for key, val in ddict.items() if val == value]
-    return keys
-# end def
-def find_first_key_dict_value(ddict,value):
-    keys = find_keys_of_dict_value_as_list(ddict,value)
-    if len(keys):
-        return keys[0]
-    else:
-        return None
 # end def
 ###########################################################################
 # testen mit main

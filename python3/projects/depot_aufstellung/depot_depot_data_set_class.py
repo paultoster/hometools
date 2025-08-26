@@ -11,8 +11,8 @@ if (tools_path not in sys.path):
 # endif
 
 
-import hfkt_def as hdef
-import hfkt_type as htype
+import tools.hfkt_def as hdef
+import tools.hfkt_type as htype
 
 import depot_depot_wp_data_set_class as wpclass
 

@@ -13,27 +13,18 @@ import pprint
 import zlib
 import traceback
 
-# tools_path = os.getcwd() + "\\.."
-# if (tools_path not in sys.path):
-#   sys.path.append(tools_path)
-# # endif
+tools_path = os.getcwd() + "\\.."
+if (tools_path not in sys.path):
+    sys.path.append(tools_path)
+#  endif
 
 # Hilfsfunktionen
 import tools.hfkt_def as hdef
 
-import depot_iban_data_class
-
-KONTOPREFIX      = "konto"
-IBANPREFIX       = "info"
-
-
-
-
-class depot_data_pickle:
-
+class DataPickle:
     OKAY = hdef.OK
     NOT_OKAY = hdef.NOT_OK
-
+    
     def __init__(self, name_prefix: str, body_name: str, use_json: int):
         '''
         build data dict
@@ -46,11 +37,11 @@ class depot_data_pickle:
         self.logtext = ""
         self.name = ""
         self.ddict = {}
-
+        
         # 1: schreibe auch json-datei
         # 2: lessen von json Datei
-        if( len(name_prefix) > 0 ):
-            self.filename      = name_prefix + "_" + body_name + ".pkl"
+        if (len(name_prefix) > 0):
+            self.filename = name_prefix + "_" + body_name + ".pkl"
             self.filename_json = name_prefix + "_" + body_name + ".json"
         else:
             self.filename = body_name + ".pkl"
@@ -87,12 +78,12 @@ class depot_data_pickle:
                 return
             
             # end if
-            
-        else: # normal pickle load
+        
+        else:  # normal pickle load
             
             # Wenn die Datei vorhanden ist:
             if (os.path.isfile(self.filename)):
-        
+                
                 try:
                     with open(self.filename, "rb") as f:
                         uncompressed_data = zlib.decompress(f.read())
@@ -110,7 +101,7 @@ class depot_data_pickle:
                     self.errtext = f"An error occurred while reading the file {self.filename} with {traceback.format_exc(e)}"
                     return
                 # endtry
-
+                
                 try:
                     self.ddict = pickle.loads(uncompressed_data)
                 except pickle.UnpicklingError as e:
@@ -127,8 +118,31 @@ class depot_data_pickle:
             # endif
         
         # end if
-
+    
     # enddef
+    def get_ddict(self):
+        return self.ddict
+    # end def
+    def set_ddict(self,ddict):
+        self.ddict = ddict
+    # end def
+    def update_ddict(self,ddict):
+        
+        for key in ddict.keys():
+            if key in self.ddict.keys():
+                if ddict[key] != self.ddict[key]:
+                    self.ddict[key] = ddict[key]
+                # end if
+            else:
+                self.ddict[key] = ddict[key]
+            # end if
+        # end for
+    # end def
+        
+        
+        
+        self.ddict = ddict
+    # end def
     def save(self):
         
         try:
@@ -164,10 +178,10 @@ class depot_data_pickle:
             self.errtext = f"An error occurred while reading the file {self.filename} with {traceback.format_exc(e)}"
             return
         # endtry
-
+        
         if (self.use_json == 1):  # read json
             try:
-                json_obj = json.dumps(self.ddict,indent=2)
+                json_obj = json.dumps(self.ddict, indent=2)
                 
                 # print json to screen with human-friendly formatting
                 # pprint.pprint(json_obj, compact=True)
@@ -195,5 +209,28 @@ class depot_data_pickle:
                 return
     
     # end if
-
+    
     # enddef
+
+###########################################################################
+# testen mit main
+###########################################################################
+if __name__ == '__main__':
+    # chnage to directory of data-Files
+    WORKING_DIRECTORY = "K:/data/orga/Toped_save_250823"
+    os.chdir(WORKING_DIRECTORY)
+
+    obj = DataPickle("depot_wp_smartbroker_depot", "DE000A0S9GB0",1)
+    
+    if obj.status != hdef.OKAY:
+        print(f"Error: {obj.errtext}")
+        exit(1)
+    else:
+        ddict = obj.get_ddict()
+        print(ddict)
+        obj.save()
+    # end if
+    
+
+
+# end if

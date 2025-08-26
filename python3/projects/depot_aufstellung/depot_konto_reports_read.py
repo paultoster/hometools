@@ -7,7 +7,7 @@ import os
 import sys
 
 # import pymupdf
-import PyPDF2
+# import PyPDF2
 
 tools_path = os.getcwd() + "\\.."
 if (tools_path not in sys.path):
@@ -15,11 +15,11 @@ if (tools_path not in sys.path):
 # endif
 
 # Hilfsfunktionen
-import hfkt_def as hdef
+import tools.hfkt_def as hdef
 # import hfkt_list as hlist
 # import hfkt_type as htype
 
-import sgui
+import tools.sgui as sgui
 
 import depot_gui
 import depot_konto_anzeige

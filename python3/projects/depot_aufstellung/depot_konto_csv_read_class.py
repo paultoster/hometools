@@ -1,6 +1,5 @@
 import os, sys
 import copy
-import hfkt_str
 
 tools_path = os.getcwd() + "\\.."
 if (tools_path not in sys.path):
@@ -8,9 +7,10 @@ if (tools_path not in sys.path):
 # endif
 
 
-import hfkt_def as hdef
-import hfkt_io as hio
-import hfkt_list as hlist
+import tools.hfkt_def as hdef
+import tools.hfkt_io as hio
+import tools.hfkt_list as hlist
+import tools.hfkt_str as hstr
 
 class KontoCsvRead:
     def __init__(self):
@@ -170,7 +170,7 @@ class KontoCsvRead:
         # end if
         for namename in name_list:
             for index,item in enumerate(csv_liste):
-                tt = hfkt_str.elim_ae(item," ")
+                tt = hstr.elim_ae(item," ")
                 if( namename == tt):
                     return index
             # if namename in csv_liste:

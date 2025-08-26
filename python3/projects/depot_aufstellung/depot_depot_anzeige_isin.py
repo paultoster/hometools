@@ -9,7 +9,7 @@ if (tools_path not in sys.path):
 # endif
 
 # Hilfsfunktionen
-import hfkt_def as hdef
+import tools.hfkt_def as hdef
 
 import depot_gui
 

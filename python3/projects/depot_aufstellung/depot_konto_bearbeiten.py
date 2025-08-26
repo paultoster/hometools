@@ -7,9 +7,10 @@ if (tools_path not in sys.path):
 # endif
 
 
-import hfkt_def as hdef
-import hfkt_date_time as htime
-import hfkt_io as hio
+import tools.hfkt_def as hdef
+import tools.hfkt_date_time as htime
+import tools.hfkt_io as hio
+
 import depot_gui
 import depot_konto_reports_read
 import depot_konto_anzeige

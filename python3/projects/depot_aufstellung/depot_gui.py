@@ -1,7 +1,5 @@
 # Hilfsfunktionen
-import hfkt_def as hdef
-import hfkt_log as hlog
-import sgui
+import tools.sgui as sgui
 
 def janein_abfrage(rd,ausgabe_text,ausgabe_title):
 

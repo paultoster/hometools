@@ -1,7 +1,7 @@
 
-import hfkt_def as hdef
-import hfkt_type as htype
-import hfkt_list as hlist
+import tools.hfkt_def as hdef
+import tools.hfkt_type as htype
+import tools.hfkt_list as hlist
 
 import depot_data_class_defs as depot_class
 
@@ -326,7 +326,7 @@ class WpDataSet:
         
         flag_update = False
         
-        icol = hlist.find_first_key_dict_value(update_header_dict,self.par.DEPOT_DATA_NAME_KONTO_ID)
+        icol = hdict.find_first_key_dict_value(update_header_dict,self.par.DEPOT_DATA_NAME_KONTO_ID)
         
         if icol is not None:
             irow_list = self.data_set_obj.find_in_col(id, update_type_dict[icol], icol)

@@ -7,7 +7,7 @@ import os
 import sys
 import pyperclip
 
-import sgui
+
 
 tools_path = os.getcwd() + "\\.."
 if (tools_path not in sys.path):
@@ -15,9 +15,8 @@ if (tools_path not in sys.path):
 # endif
 
 # Hilfsfunktionen
-import hfkt_def as hdef
-import hfkt_date_time as htime
-import hfkt_io as hio
+import tools.hfkt_def as hdef
+import tools.hfkt_io as hio
 
 
 import depot_gui

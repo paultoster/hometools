@@ -12,10 +12,10 @@ if (tools_path not in sys.path):
 # endif
 
 # Hilfsfunktionen
-import hfkt_def as hdef
-import hfkt_type as htype
-import hfkt_str as hstr
-import sgui
+import tools.hfkt_def as hdef
+import tools.hfkt_type as htype
+import tools.hfkt_str as hstr
+import tools.sgui as sgui
 
 I_ID    = 0
 I_IBAN  = 1

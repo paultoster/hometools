@@ -14,36 +14,62 @@ if (tools_path not in sys.path):
     sys.path.append(tools_path)
 # endif
 
-WORKING_DIRECTORY = "K:/data/orga/Otnok"
-LOG_FILE_NAME = "ka.log"
-INI_FILE_NAME = "ka.ini"
+WORKING_DIRECTORY = "K:/data/orga/Toped"
+LOG_FILE_NAME = "depot_aufstellung.log"
+INI_FILE_NAME = "depot_aufstellung.ini"
 
 
 import depot_par
 import depot_ini_file
-import depot_data_set
+import depot_data_init
 import depot_konto_bearbeiten as kb
 import depot_iban_bearbeiten as ib
 import depot_depot_bearbeiten as db
 import depot_gui
+import depot_konto_data_set_class as dkonto
+import depot_data_class_defs as dclassdef
 
 
 # Hilfsfunktionen
-import hfkt_def as hdef
-import hfkt_log as hlog
+import tools.hfkt_def as hdef
+import tools.hfkt_log as hlog
+import tools.hfkt_pickle as hpickle
 
-import wp_abfrage.wp_base
+
+import wp_abfrage.wp_base as wp_base
+
+
+@dataclass
+class DepotData:
+    pickle_obj: hpickle.DataPickle = field(default_factory=hpickle.DataPickle)
+    data_dict: dict = field(default_factory=dict)
+    wp_data_dict: dict = field(default_factory=dict)
+    depot_obj: dkonto.KontoDataSet = field(default_factory=dkonto.KontoDataSet)
+
+class IbanData:
+    pickle_obj: hpickle.DataPickle = field(default_factory=hpickle.DataPickle)
+    data_dict: dict = field(default_factory=dict)
+    iban_obj: dkonto.KontoDataSet = field(default_factory=dkonto.KontoDataSet)
+    
+class AllgData:
+    pickle_obj: hpickle.DataPickle = field(default_factory=hpickle.DataPickle)
+    data_dict: dict = field(default_factory=dict)
+    idfunc: dclassdef.IDCount = field(default_factory=dclassdef.IDCount)
+    wpfunc: wp_base.WPData = field(default_factory=wp_base.WPData)
+
 
 @dataclass
 class RootData:
     par: depot_par.Parameter = field(default_factory=depot_par.Parameter)
     log: hlog.log = field(default_factory=hlog.log)
     ini: depot_ini_file.ini = field(default_factory=depot_ini_file.ini)
-    data: dict = field(default_factory=dict)
-    wpfunc: wp_abfrage.wp_base.WPData = field(default_factory=wp_abfrage.wp_base.WPData)
+    allg: AllgData = field(default_factory=AllgData)
+    iban: IbanData = field(default_factory=IbanData)
+    konto_dict: dict = field(default_factory=dict)
+    depot_dict: dict = field(default_factory=dict)
 
 
-def konto_auswerten():
+def depot_aufstellung():
 
     rd = RootData
 
@@ -63,21 +89,27 @@ def konto_auswerten():
     if (rd.ini.status != hdef.OK):
         rd.log.write_err(rd.ini.errtext, screen=rd.par.LOG_SCREEN_OUT)
         return
-    # else:
-    #     rd.par = rd.ini.get_par(rd.par)
-    # endif
-        
-    # wp funktion wert papier rd.ini.ddict["wp_abfrage"]["store_path"]
-    rd.wpfunc = wp_abfrage.wp_base.WPData(rd.ini.ddict[rd.par.INI_PROG_DATA_NAME][rd.par.INI_WP_DATA_STORE_PATH_NAME]
-                                         ,rd.ini.ddict[rd.par.INI_PROG_DATA_NAME][rd.par.INI_WP_DATA_USE_JSON_NAME])
-    if (rd.wpfunc.status != hdef.OK):
-        rd.log.write_err(rd.wpfunc.errtext, screen=rd.par.LOG_SCREEN_OUT)
-        return
-    # endif
+    # end if
+    
+    # set parameter from ini
+    rd.par.LOG_SCREEN_OUT = rd.ini.ddict[rd.par.INI_LOG_SCREEN_OUT_NAME]
+    
+    
+    # # wp funktion wert papier rd.ini.ddict["wp_abfrage"]["store_path"]
+    # rd.wpfunc = wp_base.WPData(rd.ini.ddict[rd.par.INI_WP_DATA_STORE_PATH_NAME]
+    #                          ,rd.ini.ddict[rd.par.INI_WP_DATA_USE_JSON_NAME])
+    # if (rd.wpfunc.status != hdef.OK):
+    #     rd.log.write_err(rd.wpfunc.errtext, screen=rd.par.LOG_SCREEN_OUT)
+    #     return
+    # # endif
 
     # data_base
     # -----------
-    (status, errtext, rd.data) = depot_data_set.data_get(rd.par,rd.ini.ddict,rd.wpfunc)
+    rd.allg = AllgData()
+    rd.iban = IbanData()
+    rd.konto_dict = {}
+    rd.depot_dict = {}
+    (status, errtext) = depot_data_init.data_set(rd)
 
     if (status != hdef.OK):
         rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
@@ -213,7 +245,7 @@ if __name__ == '__main__':
     # chnage to directory of data-Files
     os.chdir(WORKING_DIRECTORY)
     
-    konto_auswerten()
+    depot_aufstellung()
 
     print(f"Ende siehe logfile: {os.path.join(WORKING_DIRECTORY, LOG_FILE_NAME)}")
 

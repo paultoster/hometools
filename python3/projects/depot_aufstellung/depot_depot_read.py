@@ -15,14 +15,14 @@ if (tools_path not in sys.path):
 # endif
 
 # Hilfsfunktionen
-import hfkt_def as hdef
+import tools.hfkt_def as hdef
 # import hfkt_list as hlist
 # import hfkt_type as htype
 
-import sgui
+# import sgui
 
 import depot_gui
-import depot_konto_anzeige
+# import depot_konto_anzeige
 
 def depot_konto_einlesen(rd):
     """

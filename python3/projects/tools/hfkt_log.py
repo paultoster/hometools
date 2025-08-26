@@ -96,9 +96,9 @@ class log:
     # log-message in Buffer schreiben
     self.log_message.append(text)
     # log-message auf den Bildschirm schreiben
-    if( screen == self.PRINT_SCREEN):
+    if( screen & self.PRINT_SCREEN):
       print(text)
-    elif( screen == self.GUI_SCREEN):
+    if( screen & self.GUI_SCREEN):
       if( title == "error"):
         sgui.anzeige_text(text, title=title, textcolor='red')
       elif( title == "warn"):

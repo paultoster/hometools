@@ -7,39 +7,50 @@
 # data[par.IBAN_DATA_DICT_NAME]
 import copy
 import os, sys
-import pickle
-import json
-import pprint
-import zlib
-import traceback
+from dataclasses import dataclass, field
 
-# tools_path = os.getcwd() + "\\.."
-# if (tools_path not in sys.path):
-#   sys.path.append(tools_path)
+tools_path = os.getcwd() + "\\.."
+if (tools_path not in sys.path):
+    sys.path.append(tools_path)
 # # endif
 
 # Hilfsfunktionen
-import hfkt_def as hdef
-import hfkt_type as htype
+import tools.hfkt_def as hdef
+import tools.hfkt_type as htype
+import tools.hfkt_pickle as hpickle
+import tools.hfkt_tvar as htvar
 
-import depot_iban_data
+
+import wp_abfrage.wp_base as wp_base
+
+import depot_iban_data_class
 import depot_data_pickle
 import depot_konto_data_set_class
 import depot_konto_csv_read_class
 import depot_depot_data_set_class
 import depot_data_class_defs
+import depot_konto_data_set_class as dkonto
+
+@dataclass
+class KontoData:
+    # pickle_obj: hpickle.DataPickle = field(default_factory=hpickle.DataPickle)
+    pickle_obj = None
+    data_dict: dict = field(default_factory=dict)
+    data_dict_tvar: dict = field(default_factory=dict)
+    # konto_obj: dkonto.KontoDataSet = field(default_factory=dkonto.KontoDataSet)
+    konto_obj = None
+
 
 # --------------------------------------------------------------------------------------
 #
 # Get DATA Start
 #
 # --------------------------------------------------------------------------------------
-def data_get(par, inidict, wpfunc):
+def data_set(rd):
     '''
 
-    :param par:
-    :param ini:
-    :return:  (status, errtext, data) = data_get(par,ini)
+    :param rd: data-structure
+    :return:  (status, errtext) = data_get(rd)
     '''
     status = hdef.OKAY
     errtext = ""
@@ -48,72 +59,100 @@ def data_get(par, inidict, wpfunc):
     #================================================================================
     # read allgeime-pickle-file
     #================================================================================
-    for allg_name in inidict[par.INI_ALLG_DATA_DICT_NAMES_NAME]:
-        
-        
-        
-        if allg_name in inidict[par.INI_DATA_PICKLE_JSONFILE_LIST]:
-            use_json = inidict[par.INI_DATA_PICKLE_USE_JSON]
-        else:
-            use_json = 0
-        # end if
-        allg_data = depot_data_pickle.depot_data_pickle(par.ALLG_PREFIX_NAME, allg_name,use_json)
-        
-        
-        
-        if allg_name == par.PROG_DATA_TYPE_NAME:
-            allg_data = set_prog_data(par,allg_data)
-        else:
-            allg_data.status = hdef.NOT_OKAY
-            allg_data.errtext = f"data_get: allg_name = {allg_name} ist nicht in if-struktur für allgemeine Daten"
-        # end if
-        
-        if (allg_data.status != hdef.OK):
-            status = hdef.NOT_OKAY
-            errtext = allg_data.errtext
-            return (status, errtext, data)
-        # endif
-        
-        allg_data = proof_allg_data_from_ini(par, allg_data, inidict[allg_name])
+    if rd.par.ALLG_DATA_NAME in rd.ini.ddict[rd.par.INI_DATA_PICKLE_JSONFILE_LIST]:
+        use_json = rd.ini.ddict[rd.par.INI_DATA_PICKLE_USE_JSON]
+    else:
+        use_json = 0
+    # end if
+
+    # pickle object
+    rd.allg.pickle_obj = hpickle.DataPickle(rd.par.ALLG_PREFIX_NAME,rd.par.ALLG_DATA_NAME,use_json)
+    if (rd.allg.pickle_obj.status != hdef.OK):
+        status = hdef.NOT_OKAY
+        errtext = rd.allg.pickle_obj.errtext
+        return (status, errtext)
+    # endif
     
-        if (allg_data.status != hdef.OK):
-            status = hdef.NOT_OKAY
-            errtext = allg_data.errtext
-            return (status, errtext, data)
+    rd.allg.data_dict = rd.allg.pickle_obj.get_ddict()
     
-        data[allg_name] = allg_data
-    # end for
+    # class id anlegen
+    #-----------------
+    if rd.par.ID_MAX_NAME in rd.allg.data_dict:
+        idmax = rd.allg.data_dict[rd.par.ID_MAX_NAME]
+    else:
+        idmax = 0
+    # end if
+    
+    rd.allg.idfunc = depot_data_class_defs.IDCount()
+    rd.allg.idfunc.set_act_id(idmax)
+
+    # function wp-data anlgene
+    #-------------------------
+    # wp funktion wert papier rd.ini.ddict["wp_abfrage"]["store_path"]
+    rd.allg.wpfunc = wp_base.WPData(rd.ini.ddict[rd.par.INI_WP_DATA_STORE_PATH_NAME]
+                                   ,rd.ini.ddict[rd.par.INI_WP_DATA_USE_JSON_NAME])
+    
+    if (rd.allg.wpfunc.status != hdef.OK):
+        status = hdef.NOT_OKAY
+        errtext = rd.wpfunc.errtext
+        return (status, errtext)
+    # endif
     
     #================================================================================
     # read konto-pickle-file
     #================================================================================
-    for konto_name in inidict[par.INI_KONTO_DATA_DICT_NAMES_NAME]:
-        if konto_name in inidict[par.INI_DATA_PICKLE_JSONFILE_LIST]:
-            use_json = inidict[par.INI_DATA_PICKLE_USE_JSON]
+    for konto_name in rd.ini.ddict[rd.par.INI_KONTO_DATA_DICT_NAMES_NAME]:
+        
+        konto_obj = KontoData()
+        
+        if konto_name in rd.ini.ddict[rd.par.INI_DATA_PICKLE_JSONFILE_LIST]:
+            use_json = rd.ini.ddict[rd.par.INI_DATA_PICKLE_USE_JSON]
         else:
             use_json = 0
         # end if
         
         # get data set
-        konto_data = depot_data_pickle.depot_data_pickle(par.KONTO_PREFIX, konto_name, use_json)
-        if (konto_data.status != hdef.OK):
+        #-------------
+        konto_obj.pickle_obj = hpickle.DataPickle(rd.par.KONTO_PREFIX, konto_name, use_json)
+        if (konto_obj.pickle_obj.status != hdef.OK):
             status = hdef.NOT_OKAY
-            errtext = konto_data.errtext
-            return (status, errtext, data)
+            errtext = konto_obj.pickle_obj.errtext
+            return (status, errtext)
+        else:
+            konto_obj.data_dict = konto_obj.pickle_obj.get_ddict()
         # endif
         
-        konto_data = proof_konto_data_from_ini(par,konto_data, inidict[konto_name])
-        konto_data = proof_konto_data_intern(par, konto_data, konto_name)
-        konto_data = build_konto_data_set_obj(par, konto_data, konto_name,data[par.PROG_DATA_TYPE_NAME].idfunc,wpfunc)
-        konto_data = build_konto_data_csv_obj(par, konto_data, konto_name,inidict)
-        if (konto_data.status != hdef.OK):
-            status = hdef.NOT_OKAY
-            errtext = konto_data.errtext
-            return (status, errtext, data)
-        else:
-            data[konto_name] = copy.deepcopy(konto_data)
-            del konto_data
-        # endif
+        # type
+        konto_obj.data_dict[rd.par.DDICT_TYPE_NAME] = rd.par.KONTO_DATA_TYPE_NAME
+        
+        # Umbau filter
+        konto_obj.data_dict = umbau_kont_data_dict_filter(rd.par,depot_konto_data_set_class.KontoParam
+                                                          ,konto_obj.data_dict)
+        # Tvariable bilden
+        konto_obj.data_dict_tvar = build_konto_transform_data_dict(rd.par,konto_obj.data_dict)
+        
+        # konto Klasse bilden
+        konto_obj.konto_obj = depot_konto_data_set_class.KontoDataSet(konto_name,rd.allg.idfunc,rd.allg.wpfunc)
+        
+        # gespeicherte DatenSet übergeben  data_dict_tvar[]
+        konto_obj.konto_obj.set_stored_data_set_tvar(konto_obj.data_dict_tvar[rd.par.KONTO_DATA_SET_TABLE_NAME]
+                                                    ,rd.ini.dict_tvar[konto_name][rd.par.INI_START_DATUM_NAME]
+                                                    ,rd.ini.dict_tvar[konto_name][rd.par.INI_START_WERT_NAME])
+        
+        rd.konto_dict[konto_name] = copy.deepcopy(konto_obj)
+        
+        del konto_obj
+        
+        # konto_data = build_konto_data_set_obj(par, konto_data, konto_name,data[par.PROG_DATA_TYPE_NAME].idfunc,wpfunc)
+        # konto_data = build_konto_data_csv_obj(par, konto_data, konto_name,inidict)
+        # if (konto_data.status != hdef.OK):
+        #     status = hdef.NOT_OKAY
+        #     errtext = konto_data.errtext
+        #     return (status, errtext, data)
+        # else:
+        #     data[konto_name] = copy.deepcopy(konto_data)
+        #     del konto_data
+        # # endif
     # endfor
     
     #================================================================================
@@ -315,294 +354,355 @@ def data_save(data,par,inidict):
 # Set PROG DATA
 #
 # --------------------------------------------------------------------------------------
-def set_prog_data(par,allg_data):
-    '''
-    
-    :param allg_data:
-    :return: allg_data = set_prog_data(allg_data)
-    '''
-
-    allg_data.ddict[par.DDICT_TYPE_NAME] = par.PROG_DATA_TYPE_NAME
-
-    # class id anlegen
-    allg_data.idfunc = depot_data_class_defs.IDCount()
-
-    key = par.KONTO_DATA_ID_MAX_NAME
-    if key in allg_data.ddict:
-        allg_data.idfunc.set_act_id(allg_data.ddict[key])
-    else:
-        allg_data.idfunc.set_act_id(0)
-    # end if
-
-    return allg_data
-
+# def set_prog_data(par,allg_data):
+#     '''
+#
+#     :param allg_data:
+#     :return: allg_data = set_prog_data(allg_data)
+#     '''
+#
+#     allg_data.ddict[par.DDICT_TYPE_NAME] = par.PROG_DATA_TYPE_NAME
+#
+#     # class id anlegen
+#     allg_data.idfunc = depot_data_class_defs.IDCount()
+#
+#     key = par.KONTO_DATA_ID_MAX_NAME
+#     if key in allg_data.ddict:
+#         allg_data.idfunc.set_act_id(allg_data.ddict[key])
+#     else:
+#         allg_data.idfunc.set_act_id(0)
+#     # end if
+#
+#     return allg_data
+#
 # end def
 # --------------------------------------------------------------------------------------
 #
 # Set KONTO DATA
 #
 # --------------------------------------------------------------------------------------
-def proof_allg_data_from_ini(par, allg_data, ini_data_dict):
-    """
-    
-    :param allg_data:
-    :param ini_data:
-    :return:
-    """
-    
-    for key in ini_data_dict.keys():
-        
-        if (key in allg_data.ddict):
-            if (ini_data_dict[key] != allg_data.ddict[key]):
-                allg_data.ddict[key] = ini_data_dict[key]
-            # endif
-        else:
-            allg_data.ddict[key] = ini_data_dict[key]
-        # endif
-    # end for
-    
-    # proof if all ini-Data in allg_data and vice versa
-    # ---------------------------------------------------
-    ini_keys = list(ini_data_dict.keys())
-    
-    if par.INI_DATA_KEYS_NAME not in allg_data.ddict:
-        allg_data.ddict[par.INI_DATA_KEYS_NAME] = ini_keys
-    else:
-        data_ini_keys = allg_data.ddict[par.INI_DATA_KEYS_NAME]
-        flag = False
-        for key in data_ini_keys:
-            if (key not in ini_keys) and (key in allg_data.ddict.keys()):
-                del allg_data.ddict[key]
-                flag = True
-            # end if
-        # end for
-        if flag:
-            allg_data.ddict[par.INI_DATA_KEYS_NAME] = ini_keys
-        # end if
-    # end if
-    
-    allg_data.wp_store_path = allg_data.ddict[par.INI_WP_DATA_STORE_PATH_NAME]
-    allg_data.wp_use_json = allg_data.ddict[par.INI_WP_DATA_USE_JSON_NAME]
-
-    return allg_data
-
-
+# def proof_allg_data_from_ini(par, allg_data, ini_data_dict):
+#     """
+#
+#     :param allg_data:
+#     :param ini_data:
+#     :return:
+#     """
+#
+#     for key in ini_data_dict.keys():
+#
+#         if (key in allg_data.ddict):
+#             if (ini_data_dict[key] != allg_data.ddict[key]):
+#                 allg_data.ddict[key] = ini_data_dict[key]
+#             # endif
+#         else:
+#             allg_data.ddict[key] = ini_data_dict[key]
+#         # endif
+#     # end for
+#
+#     # proof if all ini-Data in allg_data and vice versa
+#     # ---------------------------------------------------
+#     ini_keys = list(ini_data_dict.keys())
+#
+#     if par.INI_DATA_KEYS_NAME not in allg_data.ddict:
+#         allg_data.ddict[par.INI_DATA_KEYS_NAME] = ini_keys
+#     else:
+#         data_ini_keys = allg_data.ddict[par.INI_DATA_KEYS_NAME]
+#         flag = False
+#         for key in data_ini_keys:
+#             if (key not in ini_keys) and (key in allg_data.ddict.keys()):
+#                 del allg_data.ddict[key]
+#                 flag = True
+#             # end if
+#         # end for
+#         if flag:
+#             allg_data.ddict[par.INI_DATA_KEYS_NAME] = ini_keys
+#         # end if
+#     # end if
+#
+#     allg_data.wp_store_path = allg_data.ddict[par.INI_WP_DATA_STORE_PATH_NAME]
+#     allg_data.wp_use_json = allg_data.ddict[par.INI_WP_DATA_USE_JSON_NAME]
+#
+#     return allg_data
+#
+#
 # end def
 # --------------------------------------------------------------------------------------
 #
 # Set KONTO DATA
 #
 # --------------------------------------------------------------------------------------
-def proof_konto_data_from_ini(par,konto_data, ini_data_dict):
-    """
-    proof ini_data in konto_data
-    :param konto_data:
-    :param ini_data:
-    :return:
-    """
+# def proof_konto_data_from_ini(par,konto_data, ini_data_dict):
+#     """
+#     proof ini_data in konto_data
+#     :param konto_data:
+#     :param ini_data:
+#     :return:
+#     """
+#
+#     for key in ini_data_dict.keys():
+#
+#         if (key in konto_data.ddict):
+#             if (ini_data_dict[key] != konto_data.ddict[key]):
+#                 konto_data.ddict[key] = ini_data_dict[key]
+#             # endif
+#         else:
+#             if key == par.INI_START_WERT_NAME:
+#                 if isinstance(ini_data_dict[key],str) or isinstance(ini_data_dict[key],float):
+#                     # Trennungs zeichen für decimal wert
+#                     if par.INI_KONTO_STR_EURO_TRENN_BRUCH in ini_data_dict.keys():
+#                         wert_delim = ini_data_dict[par.INI_KONTO_STR_EURO_TRENN_BRUCH]
+#                     else:
+#                         wert_delim = par.STR_EURO_TRENN_BRUCH_DEFAULT
+#                     # end if
+#
+#                     # Trennungszeichen für Tausend
+#                     if par.INI_KONTO_STR_EURO_TRENN_TAUSEND in ini_data_dict.keys():
+#                         wert_trennt = ini_data_dict[par.INI_KONTO_STR_EURO_TRENN_TAUSEND]
+#                     else:
+#                         wert_trennt = par.STR_EURO_TRENN_TAUSEN_DEFAULT
+#                     # end if
+#                     (okay, wert) = htype.type_convert_euro_to_cent(ini_data_dict[key],delim=wert_delim,thousandsign=wert_trennt)
+#                     if okay != hdef.OKAY:
+#                         raise Exception(f"depot_data_set: Den Startwert = {ini_data_dict[key]} kann nicht gewandelt werden ")
+#                     # end if
+#                 else:
+#                     wert = ini_data_dict[key]
+#                 # end if
+#                 konto_data.ddict[key] = wert
+#             else:
+#                 konto_data.ddict[key] = ini_data_dict[key]
+#             # end if
+#         # endif
+#     # end for
+#
+#     # proof if all ini-Data in konto_data and vice versa
+#     #---------------------------------------------------
+#     ini_keys = list(ini_data_dict.keys())
+#
+#     if par.INI_DATA_KEYS_NAME not in konto_data.ddict:
+#         konto_data.ddict[par.INI_DATA_KEYS_NAME] = ini_keys
+#     else:
+#         data_ini_keys = konto_data.ddict[par.INI_DATA_KEYS_NAME]
+#         flag = False
+#         for key in data_ini_keys:
+#             if (key not in ini_keys) and (key in konto_data.ddict.keys() ):
+#                 del konto_data.ddict[key]
+#                 flag = True
+#             # end if
+#         # end for
+#         if flag :
+#             konto_data.ddict[par.INI_DATA_KEYS_NAME] = ini_keys
+#         # end if
+#     # end if
+#
+#     return konto_data
+#
+#
+# # end def
+# def proof_konto_data_intern(par, konto_data, konto_name):
+#     '''
+#
+#     :param par
+#     :param konto_data:
+#     :param konto_name
+#     :return:konto_data =  proof_konto_data_intern(par,konto_data,konto_name)
+#     '''
+#     # type
+#     konto_data.ddict[par.DDICT_TYPE_NAME] = par.KONTO_DATA_TYPE_NAME
+#
+#     # konto name
+#     key = par.KONTO_NAME
+#     if key in konto_data.ddict:
+#         if konto_name != konto_data.ddict[key]:
+#             konto_data.ddict[key] = konto_name
+#         # end if
+#     else:
+#         konto_data.ddict[key] = konto_name
+#     # end if
+#
+#     return konto_data
+# # end def
+def umbau_kont_data_dict_filter(par,konto_par,data_dict):
     
-    for key in ini_data_dict.keys():
+    data_dict_out = {}
+    
+    data_dict_out[par.DDICT_TYPE_NAME] = data_dict[par.DDICT_TYPE_NAME]
+    
+    data_dict_out[par.KONTO_DATA_SET_DICT_LIST_NAME] = data_dict[par.KONTO_DATA_SET_DICT_LIST_NAME]
+
+    data_dict_out[par.KONTO_DATA_TYPE_DICT_NAME] = data_dict[par.KONTO_DATA_TYPE_DICT_NAME]
+
+    # change buchtype if still int
+    data_dict_out[par.KONTO_DATA_TYPE_DICT_NAME]["buchtype"] = konto_par.KONTO_BUCHTYPE_TEXT_LIST
         
-        if (key in konto_data.ddict):
-            if (ini_data_dict[key] != konto_data.ddict[key]):
-                konto_data.ddict[key] = ini_data_dict[key]
-            # endif
-        else:
-            if key == par.INI_START_WERT_NAME:
-                if isinstance(ini_data_dict[key],str) or isinstance(ini_data_dict[key],float):
-                    # Trennungs zeichen für decimal wert
-                    if par.INI_KONTO_STR_EURO_TRENN_BRUCH in ini_data_dict.keys():
-                        wert_delim = ini_data_dict[par.INI_KONTO_STR_EURO_TRENN_BRUCH]
-                    else:
-                        wert_delim = par.STR_EURO_TRENN_BRUCH_DEFAULT
-                    # end if
-                    
-                    # Trennungszeichen für Tausend
-                    if par.INI_KONTO_STR_EURO_TRENN_TAUSEND in ini_data_dict.keys():
-                        wert_trennt = ini_data_dict[par.INI_KONTO_STR_EURO_TRENN_TAUSEND]
-                    else:
-                        wert_trennt = par.STR_EURO_TRENN_TAUSEN_DEFAULT
-                    # end if
-                    (okay, wert) = htype.type_convert_euro_to_cent(ini_data_dict[key],delim=wert_delim,thousandsign=wert_trennt)
-                    if okay != hdef.OKAY:
-                        raise Exception(f"depot_data_set: Den Startwert = {ini_data_dict[key]} kann nicht gewandelt werden ")
-                    # end if
-                else:
-                    wert = ini_data_dict[key]
-                # end if
-                konto_data.ddict[key] = wert
-            else:
-                konto_data.ddict[key] = ini_data_dict[key]
-            # end if
-        # endif
+    for i in range(len(data_dict_out[par.KONTO_DATA_SET_DICT_LIST_NAME])):
+        
+        index = data_dict_out[par.KONTO_DATA_SET_DICT_LIST_NAME][i]["buchtype"]
+        
+        if isinstance(index,int):
+            data_dict_out[par.KONTO_DATA_SET_DICT_LIST_NAME][i]["buchtype"] = konto_par.KONTO_BUCHTYPE_TEXT_LIST[index]
+        # end if
     # end for
     
-    # proof if all ini-Data in konto_data and vice versa
-    #---------------------------------------------------
-    ini_keys = list(ini_data_dict.keys())
-    
-    if par.INI_DATA_KEYS_NAME not in konto_data.ddict:
-        konto_data.ddict[par.INI_DATA_KEYS_NAME] = ini_keys
-    else:
-        data_ini_keys = konto_data.ddict[par.INI_DATA_KEYS_NAME]
-        flag = False
-        for key in data_ini_keys:
-            if (key not in ini_keys) and (key in konto_data.ddict.keys() ):
-                del konto_data.ddict[key]
-                flag = True
-            # end if
-        # end for
-        if flag :
-            konto_data.ddict[par.INI_DATA_KEYS_NAME] = ini_keys
-        # end if
-    # end if
-    
-    return konto_data
-
-
+    return data_dict_out
 # end def
-def proof_konto_data_intern(par, konto_data, konto_name):
-    '''
-
-    :param par
-    :param konto_data:
-    :param konto_name
-    :return:konto_data =  proof_konto_data_intern(par,konto_data,konto_name)
-    '''
-    # type
-    konto_data.ddict[par.DDICT_TYPE_NAME] = par.KONTO_DATA_TYPE_NAME
-    
-    # konto name
-    key = par.KONTO_NAME
-    if key in konto_data.ddict:
-        if konto_name != konto_data.ddict[key]:
-            konto_data.ddict[key] = konto_name
-        # end if
-    else:
-        konto_data.ddict[key] = konto_name
-    # end if
-    
-    return konto_data
-# end def
-def build_konto_data_set_obj(par, konto_data, konto_name,idfunc,wpfunc):
+def build_konto_transform_data_dict(par,data_dict):
     '''
     
     :param par:
-    :param konto_data:
-    :param konto_name:
-    :return: konto_data =  build_konto_data_set_obj(par, konto_data, konto_name):
+    :param data_dict:
+    :return: data_dict_tvar = build_konto_transform_data_dict(par,data_dict)
     '''
-    
-    #----------------------------------------------------------------------------
-    # Set parameter for konto Data set
-    #----------------------------------------------------------------------------
-    
-    # class KontoDataSet anlegen
-    obj = depot_konto_data_set_class.KontoDataSet(konto_name)
-    
-    # # kont_data set anlegen
-    # #----------------------
-    # key = par.KONTO_DATA_SET_NAME
-    # if key in konto_data.ddict:
-    #     if len(konto_data.ddict[key]) > 0:
-    #         if len(konto_data.ddict[key][0]) != len(obj.KONTO_DATA_NAME_LIST):
-    #             konto_data.status = hdef.NOT_OKAY
-    #             konto_data.errtext = f"length of header-list {par.KONTO_DATA_NAME_LIST} not same with data-dict {konto_data.dict[key]} of konto: {konto_name}"
-    #             return konto_data
-    #         # end if
-    #     # end if
-    #     data_set_llist = konto_data.ddict[key]
-    # else:
-    #     data_set_llist = []
-    # # end if
 
-    # neue Datenbeschreibung
-    key = par.KONTO_DATA_SET_DICT_LIST_NAME
-    if key in konto_data.ddict:
-        konto_data_set_dict_list = konto_data.ddict[key]
+    data_dict_tvar = {}
+    
+    # DDICT_TYPE_NAME
+    data_dict_tvar[par.DDICT_TYPE_NAME] = htvar.build_val(par.DDICT_TYPE_NAME,data_dict[par.DDICT_TYPE_NAME],'str')
+    
+    # KONTO_DATA_SET_TABLE_NAME
+    if par.KONTO_DATA_TYPE_DICT_NAME in data_dict.keys():
+        names = list(data_dict[par.KONTO_DATA_TYPE_DICT_NAME].keys())
+        types = []
+        for name in names:
+            types.append(data_dict[par.KONTO_DATA_TYPE_DICT_NAME][name])
+        # end for
+        table = []
+        for dict_item in data_dict[par.KONTO_DATA_SET_DICT_LIST_NAME]:
+            
+            vals = []
+            for name in names:
+                vals.append(dict_item[name])
+            # end for
+            table.append(vals)
+        # end for
     else:
-        konto_data_set_dict_list = []
+        names = []
+        types = []
+        table = []
     # end if
+    data_dict_tvar[par.KONTO_DATA_SET_TABLE_NAME] = htvar.build_table(names,table,types)
     
-    key = par.KONTO_DATA_TYPE_DICT_NAME
-    if key in konto_data.ddict:
-        konto_data_type_dict = konto_data.ddict[key]
-    else:
-        konto_data_type_dict =   {}
-    # end if
-    if par.KONTO_DATA_SET_NAME in konto_data.ddict:
-        del konto_data.ddict[par.KONTO_DATA_SET_NAME]
-    # end if
-
-    
-    # konto_start_wert von ini übergeben:
-    #-----------------------------------
-    key = par.INI_START_WERT_NAME
-    if key in konto_data.ddict:
-        konto_start_wert = konto_data.ddict[key]
-        if isinstance(konto_start_wert,str ):
-            (okay, konto_start_wert) = htype.type_transform_euroStrK(konto_start_wert,'cent')
-            if okay != hdef.OKAY:
-                raise Exception(f"konto_start_wert = konto_data.ddict[{key}] of konto_name = {konto_name} lässt sich von float (euro) in cent nicht wandeln")
-            # end if
-        else:
-            (okay, konto_start_wert) = htype.type_proof_cent(konto_start_wert)
-            if okay != hdef.OKAY:
-                raise Exception(f"konto_start_wert = konto_data.ddict[{key}] of konto_name = {konto_name} ist nicht in cent")
-            # end if
-        # end if
-    else:
-        konto_start_wert = 0
-    # end if
-    
-    # konto_start_datum von ini übergeben:
-    #-------------------------------------
-    key = par.INI_START_DATUM_NAME
-    if key in konto_data.ddict:
-        konto_start_datum = konto_data.ddict[key]
-        (okay, konto_start_datum) = htype.type_proof_dat(konto_start_datum)
-        if okay != hdef.OKAY:
-            raise Exception(
-                f"konto_start_datum = konto_data.ddict[{key}] of konto_name = {konto_name} ist kein Datum")
-        # end if
-    else:
-        konto_start_datum = 0
-    # end if
-    
-    # Trennungs zeichen für decimal wert
-    #-----------------------------------
-    key = par.INI_KONTO_STR_EURO_TRENN_BRUCH
-    if key in konto_data.ddict:
-        wert_delim = konto_data.ddict[key]
-    else:
-        wert_delim = par.STR_EURO_TRENN_BRUCH_DEFAULT
-    # end if
-    
-    # Trennungszeichen für Tausend
-    #-----------------------------
-    key = par.INI_KONTO_STR_EURO_TRENN_TAUSEND
-    if key in konto_data.ddict:
-        wert_trennt = konto_data.ddict[key]
-    else:
-        wert_trennt = par.STR_EURO_TRENN_TAUSEN_DEFAULT
-    # end if
-
-    # KontoDataSet data_llist übergeben
-    obj.set_starting_data_llist(
-        konto_data_set_dict_list,
-        konto_data_type_dict,
-        idfunc,
-        wpfunc,
-        konto_start_datum,
-        konto_start_wert,
-        wert_delim,
-        wert_trennt)
-    
-    konto_data.obj = copy.deepcopy(obj)
-    
-    del obj
-    
-    return konto_data
+    return data_dict_tvar
+# def build_konto_data_set_obj(par, konto_data, konto_name,idfunc,wpfunc):
+#     '''
+#
+#     :param par:
+#     :param konto_data:
+#     :param konto_name:
+#     :return: konto_data =  build_konto_data_set_obj(par, konto_data, konto_name):
+#     '''
+#
+#     #----------------------------------------------------------------------------
+#     # Set parameter for konto Data set
+#     #----------------------------------------------------------------------------
+#
+#     # class KontoDataSet anlegen
+#     obj = depot_konto_data_set_class.KontoDataSet(konto_name)
+#
+#     # # kont_data set anlegen
+#     # #----------------------
+#     # key = par.KONTO_DATA_SET_NAME
+#     # if key in konto_data.ddict:
+#     #     if len(konto_data.ddict[key]) > 0:
+#     #         if len(konto_data.ddict[key][0]) != len(obj.KONTO_DATA_NAME_LIST):
+#     #             konto_data.status = hdef.NOT_OKAY
+#     #             konto_data.errtext = f"length of header-list {par.KONTO_DATA_NAME_LIST} not same with data-dict {konto_data.dict[key]} of konto: {konto_name}"
+#     #             return konto_data
+#     #         # end if
+#     #     # end if
+#     #     data_set_llist = konto_data.ddict[key]
+#     # else:
+#     #     data_set_llist = []
+#     # # end if
+#
+#     # neue Datenbeschreibung
+#     key = par.KONTO_DATA_SET_DICT_LIST_NAME
+#     if key in konto_data.ddict:
+#         konto_data_set_dict_list = konto_data.ddict[key]
+#     else:
+#         konto_data_set_dict_list = []
+#     # end if
+#
+#     key = par.KONTO_DATA_TYPE_DICT_NAME
+#     if key in konto_data.ddict:
+#         konto_data_type_dict = konto_data.ddict[key]
+#     else:
+#         konto_data_type_dict =   {}
+#     # end if
+#     if par.KONTO_DATA_SET_NAME in konto_data.ddict:
+#         del konto_data.ddict[par.KONTO_DATA_SET_NAME]
+#     # end if
+#
+#
+#     # konto_start_wert von ini übergeben:
+#     #-----------------------------------
+#     key = par.INI_START_WERT_NAME
+#     if key in konto_data.ddict:
+#         konto_start_wert = konto_data.ddict[key]
+#         if isinstance(konto_start_wert,str ):
+#             (okay, konto_start_wert) = htype.type_transform_euroStrK(konto_start_wert,'cent')
+#             if okay != hdef.OKAY:
+#                 raise Exception(f"konto_start_wert = konto_data.ddict[{key}] of konto_name = {konto_name} lässt sich von float (euro) in cent nicht wandeln")
+#             # end if
+#         else:
+#             (okay, konto_start_wert) = htype.type_proof_cent(konto_start_wert)
+#             if okay != hdef.OKAY:
+#                 raise Exception(f"konto_start_wert = konto_data.ddict[{key}] of konto_name = {konto_name} ist nicht in cent")
+#             # end if
+#         # end if
+#     else:
+#         konto_start_wert = 0
+#     # end if
+#
+#     # konto_start_datum von ini übergeben:
+#     #-------------------------------------
+#     key = par.INI_START_DATUM_NAME
+#     if key in konto_data.ddict:
+#         konto_start_datum = konto_data.ddict[key]
+#         (okay, konto_start_datum) = htype.type_proof_dat(konto_start_datum)
+#         if okay != hdef.OKAY:
+#             raise Exception(
+#                 f"konto_start_datum = konto_data.ddict[{key}] of konto_name = {konto_name} ist kein Datum")
+#         # end if
+#     else:
+#         konto_start_datum = 0
+#     # end if
+#
+#     # Trennungs zeichen für decimal wert
+#     #-----------------------------------
+#     key = par.INI_KONTO_STR_EURO_TRENN_BRUCH
+#     if key in konto_data.ddict:
+#         wert_delim = konto_data.ddict[key]
+#     else:
+#         wert_delim = par.STR_EURO_TRENN_BRUCH_DEFAULT
+#     # end if
+#
+#     # Trennungszeichen für Tausend
+#     #-----------------------------
+#     key = par.INI_KONTO_STR_EURO_TRENN_TAUSEND
+#     if key in konto_data.ddict:
+#         wert_trennt = konto_data.ddict[key]
+#     else:
+#         wert_trennt = par.STR_EURO_TRENN_TAUSEN_DEFAULT
+#     # end if
+#
+#     # KontoDataSet data_llist übergeben
+#     obj.set_starting_data_llist(
+#         konto_data_set_dict_list,
+#         konto_data_type_dict,
+#         idfunc,
+#         wpfunc,
+#         konto_start_datum,
+#         konto_start_wert,
+#         wert_delim,
+#         wert_trennt)
+#
+#     konto_data.obj = copy.deepcopy(obj)
+#
+#     del obj
+#
+#     return konto_data
 def build_konto_data_csv_obj(par, konto_data, konto_name,ini_data_dict):
     #----------------------------------------------------------------------------
     # Set parameter for konto csv read

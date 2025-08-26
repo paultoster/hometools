@@ -433,7 +433,8 @@ def type_get_default_single(type):
 # -------------------------------------------------------
 def type_proof(wert_in, type):
     '''
-    (okay,wert) = type_proof(wert_in, type) Prüft den Wert auf seine
+    (okay,wert) = type_proof(wert_in, type) Prüft den Wert auf seinen type und wandelt gegebenefalls
+    
     type: "str","float","int","dat","iban"
     "dat": Convert to epoch seconds
     "datStrP": Convert to date string mit Punkt "20.03.2024"
@@ -444,7 +445,7 @@ def type_proof(wert_in, type):
     "int": integer
     "float": floating point
     "list": any list
-    "list_str": a list with strings
+    "list_str","listStr": a list with strings
     "euro": float
     "euroStrK": string mit Komma Trennung ('.' 1000er)   10,34
     "cent": int
@@ -485,10 +486,9 @@ def type_proof(wert_in, type):
     else:
         return (hdef.NOT_OKAY, None)
     # endif
-
+    
 
 # enddef
-
 
 def type_proof_string(wert_in):
     if (isinstance(wert_in, str)):

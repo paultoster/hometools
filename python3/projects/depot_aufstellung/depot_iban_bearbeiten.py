@@ -8,11 +8,10 @@ if (tools_path not in sys.path):
     sys.path.append(tools_path)
 # endif
 
-import hfkt_def as hdef
-import hfkt_log as hlog
+import tools.hfkt_def as hdef
 
 import depot_gui
-import depot_iban_data
+import depot_iban_data_class
 
 def bearbeiten(rd):
     

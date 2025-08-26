@@ -7,9 +7,8 @@ if (tools_path not in sys.path):
 # endif
 
 
-import hfkt_def as hdef
-import hfkt_log as hlog
-import sgui
+import tools.hfkt_def as hdef
+
 import depot_gui
 import depot_depot_read
 import depot_depot_anzeige

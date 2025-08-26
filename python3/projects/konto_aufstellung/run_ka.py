@@ -15,8 +15,8 @@ if (tools_path not in sys.path):
 # endif
 
 WORKING_DIRECTORY = "K:/data/orga/Otnok"
-LOG_FILE_NAME = "ka.log"
-INI_FILE_NAME = "ka.ini"
+LOG_FILE_NAME = "konto_aufstellung.log"
+INI_FILE_NAME = "konto_aufstellung.ini"
 
 
 import ka_par
@@ -32,16 +32,12 @@ import ka_gui
 import hfkt_def as hdef
 import hfkt_log as hlog
 
-import wp_abfrage.wp_base
-
 @dataclass
 class RootData:
     par: ka_par.Parameter = field(default_factory=ka_par.Parameter)
     log: hlog.log = field(default_factory=hlog.log)
     ini: ka_ini_file.ini = field(default_factory=ka_ini_file.ini)
     data: dict = field(default_factory=dict)
-    wpfunc: wp_abfrage.wp_base.WPData = field(default_factory=wp_abfrage.wp_base.WPData)
-
 
 def konto_auswerten():
 
@@ -66,15 +62,7 @@ def konto_auswerten():
     # else:
     #     rd.par = rd.ini.get_par(rd.par)
     # endif
-        
-    # wp funktion wert papier rd.ini.ddict["wp_abfrage"]["store_path"]
-    rd.wpfunc = wp_abfrage.wp_base.WPData(rd.ini.ddict[rd.par.INI_PROG_DATA_NAME][rd.par.INI_WP_DATA_STORE_PATH_NAME]
-                                         ,rd.ini.ddict[rd.par.INI_PROG_DATA_NAME][rd.par.INI_WP_DATA_USE_JSON_NAME])
-    if (rd.wpfunc.status != hdef.OK):
-        rd.log.write_err(rd.wpfunc.errtext, screen=rd.par.LOG_SCREEN_OUT)
-        return
-    # endif
-
+    
     # data_base
     # -----------
     (status, errtext, rd.data) = ka_data_set.data_get(rd.par,rd.ini.ddict,rd.wpfunc)

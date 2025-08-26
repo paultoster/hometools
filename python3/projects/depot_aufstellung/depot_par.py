@@ -25,11 +25,7 @@ if (tools_path not in sys.path):
 #endif
 
 # Hilfsfunktionen
-import hfkt_def as hdef
-import hfkt_type as htype
-import hfkt_date_time as hdt
-
-import depot_konto_data_set_class
+import tools.hfkt_def as hdef
 
 
 @dataclass
@@ -48,11 +44,11 @@ class Parameter:
 
     
     
-    # ini-file attributes
-    INI_ALLG_DATA_DICT_NAMES_NAME: str = "allg_names"
+    # ini-file attributes base
+    
     INI_KONTO_DATA_DICT_NAMES_NAME: str = "konto_names"
     INI_DEPOT_DATA_DICT_NAMES_NAME: str = "depot_names"
-    INI_CSV_IMPORT_TYPE_NAMES_NAME: str = "csv_import_type_names"
+    INI_CSV_IMPORT_CONFIG_NAMES_NAME: str = "csv_import_config_names"
     INI_IBAN_LIST_FILE_NAME: str = "iban_list_file_name"
     
     INI_DATA_PICKLE_USE_JSON: str = "data_pickle_use_json"
@@ -60,22 +56,22 @@ class Parameter:
     INI_DATA_PICKLE_USE_JSON_NO: int = 0
     INI_DATA_PICKLE_USE_JSON_WRITE: int = 1
     INI_DATA_PICKLE_USE_JSON_READ: int = 2
+    INI_LOG_SCREEN_OUT_NAME: str = "log_screen_out"
+    INI_IBAN_LIST_FILE_NAME: str = "iban_list_file_name"
+    INI_WP_DATA_STORE_PATH_NAME: str = "wp_data_store_path"
+    INI_WP_DATA_USE_JSON_NAME: str = "wp_data_use_json"
 
     INI_BASE_PROOF_LISTE = [(INI_KONTO_DATA_DICT_NAMES_NAME,"list_str")
                            ,(INI_DEPOT_DATA_DICT_NAMES_NAME,"list_str")
-                           ,(INI_CSV_IMPORT_TYPE_NAMES_NAME,"list_str")
+                           ,(INI_CSV_IMPORT_CONFIG_NAMES_NAME,"list_str")
+                           ,(INI_DATA_PICKLE_USE_JSON,"int","int")
+                           ,(INI_DATA_PICKLE_JSONFILE_LIST, "list_str")
+                           ,(INI_LOG_SCREEN_OUT_NAME,"str")
                            ,(INI_IBAN_LIST_FILE_NAME,"str")
-                           ,(INI_DATA_PICKLE_USE_JSON,"int")
-                           ,(INI_DATA_PICKLE_JSONFILE_LIST, "list_str")]
+                           ,(INI_WP_DATA_STORE_PATH_NAME,"str")
+                           ,(INI_WP_DATA_USE_JSON_NAME,"str")
+                           ]
     
-    # Liste der zu checkenden Daten prog data
-    # ------------------------------
-    INI_PROG_DATA_NAME: str = "prog_data"
-    
-    INI_WP_DATA_STORE_PATH_NAME: str = "wp_data_store_path"
-    INI_WP_DATA_USE_JSON_NAME: str = "wp_data_use_json"
-    INI_PROG_DATA_PROOF_LISTE = [(INI_WP_DATA_STORE_PATH_NAME, "str")
-                                ,(INI_WP_DATA_USE_JSON_NAME, "int")]
 
     INI_IBAN_NAME: str = "iban"
     INI_BANK_NAME: str = "bank"
@@ -91,8 +87,8 @@ class Parameter:
     INI_KONTO_PROOF_LISTE = [(INI_IBAN_NAME, "iban")
                             , (INI_BANK_NAME, "str")
                             , (INI_WER_NAME, "str")
-                            , (INI_START_WERT_NAME, "euroStrK")
-                            , (INI_START_DATUM_NAME, "dat")
+                            , (INI_START_WERT_NAME, "euroStrK","cent")
+                            , (INI_START_DATUM_NAME, "datStrP","dat")
                             , (INI_IMPORT_DATA_TYPE_NAME, "str")]
     
     INI_DEPOT_KONTO_NAME: str = "konto"
@@ -147,8 +143,6 @@ class Parameter:
     IBAN_DATA_TYPE_NAME:  str = "iban"
 
     # konto daten data set
-    ALLG_PREFIX_NAME: str = "allg"
-    # konto daten data set
     KONTO_PREFIX: str = "konto"
     KONTO_NAME: str = "konto_name"
     # konto daten data set
@@ -156,22 +150,29 @@ class Parameter:
     DEPOT_NAME: str = "depot_name"
     DEPOT_WP_PREFIX: str = "depot_wp"
     
-
+    # allgemeine Daten
+    ID_MAX_NAME: str = "id_max"
+    
+    ALLG_PREFIX_NAME = "allg"
     IBAN_PREFIX = "iban"
+
+    ALLG_DATA_NAME = "prog_data"
+
     IBAN_DATA_DICT_NAME: str = "iban_data_dict"
     IBAN_DATA_LIST_NAME: str = "iban_data_list"
-    IBAN_DATA_ID_MAX_NAME: str    = "iban_data_id_max"
+    # IBAN_DATA_ID_MAX_NAME: str    = "iban_data_id_max"
     IBAN_ITEM_LIST: List[str] = ("id","iban", "bank", "wer", "comment")
 
     # konto names from ini
-    KONTO_NAMES: str = field(default_factory=str)
+    # KONTO_NAMES: str = field(default_factory=str)
     
-    KONTO_DATA_ID_MAX_NAME: str = "konto_id_max"
+    # KONTO_DATA_ID_MAX_NAME: str = "konto_id_max"
     
     # konto data
     KONTO_DATA_SET_NAME: str = "konto_data_set"
     KONTO_DATA_SET_DICT_LIST_NAME: str = "konto_data_set_dict_list"
     KONTO_DATA_TYPE_DICT_NAME: str = "konto_data_type_dict"
+    KONTO_DATA_SET_TABLE_NAME: str = "konto_data_set_table"
     KONTO_DATA_ID_NEW_LIST: str = "konto_id_new_list"
     
     INI_DATA_KEYS_NAME: str = "ini_data_keys"
