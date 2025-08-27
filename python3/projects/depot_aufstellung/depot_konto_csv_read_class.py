@@ -13,23 +13,15 @@ import tools.hfkt_list as hlist
 import tools.hfkt_str as hstr
 
 class KontoCsvRead:
-    def __init__(self):
+    def __init__(self,trennzeichen_tvar,buchtype_zuordnung_tvar,header_zuordnung_tvar,header_type_zuordnung_tvar):
         
         self.status = hdef.OK
         self.errtext = ""
-        self.CSV_TRENN_ZEICHEN = ";"
-        self.CSV_DATA_NAME_LIST  = []
-        self.CSV_DATA_IDENT_LIST = []
-        self.CSV_DATA_TYPE_LIST  = []
+        self.trennzeichen_tvar = trennzeichen_tvar
+        self.buchtype_zuordnung_tvar  = buchtype_zuordnung_tvar
+        self.header_zuordnung_tvar = header_zuordnung_tvar
+        self.header_type_zuordnung_tvar = header_type_zuordnung_tvar
         self.filename           = ""
-    # end def
-    def set_csv_trennzeichen(self, wert_trennzeichen):
-        self.CSV_TRENN_ZEICHEN = wert_trennzeichen
-    # end def
-    def set_csv_header_name(self,dat_set_index: int,csv_name: str,csv_type: str | list):
-        self.CSV_DATA_IDENT_LIST.append(dat_set_index)
-        self.CSV_DATA_NAME_LIST.append(csv_name)
-        self.CSV_DATA_TYPE_LIST.append(csv_type)
     # end def
     
     def read_data(self,filename: str):

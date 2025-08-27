@@ -431,6 +431,27 @@ def type_get_default_single(type):
 
 # end def
 # -------------------------------------------------------
+def type_name_proof(type):
+    '''
+    
+    okay = type_name_proof(type) Prüft den type auf seinen gültigkeit
+    
+    :param type:
+    :return:
+    '''
+    if type == "str" or type == "float" or type == "int":
+        return hdef.OKAY
+    if type == "dat" or type == "datStrP" or type == "datStrB":
+        return hdef.OKAY
+    if type == "iban" or type == "wkn" or type == "list":
+        return hdef.OKAY
+    if type == "list_str" or type == "listStr" or type == "euro":
+        return hdef.OKAY
+    if type == "euroStrK" or type == "cent" or type == "percentStr":
+        return hdef.OKAY
+    
+    return hdef.NOT_OKAY
+
 def type_proof(wert_in, type):
     '''
     (okay,wert) = type_proof(wert_in, type) Prüft den Wert auf seinen type und wandelt gegebenefalls

@@ -213,6 +213,7 @@ class KontoDataSet:
         self.new_read_id_list: list = []
         self.idfunc = idfunc
         self.wpfunc = wpfunc
+        self.csvfunc = None
 
     def set_stored_data_set_tvar(self, data_set: htvar.TTable, konto_start_datum: htvar.TVal, konto_start_wert: htvar.TVal):
         '''
@@ -277,18 +278,61 @@ class KontoDataSet:
         if( self.data_set_obj.add_data_set_tvar(data_tlist,self.par.LINE_COLOR_BASE) != hdef.OKAY):
             raise Exception(f"Fehler set_stored_data_set_tvar errtext={self.errtext} !!!")
         # end if
-
-
-    def get_buchtype_index(self,buchttype_name: str):
-        index = None
-        for key, val in self.par.KONTO_DATA_BUCHTYPE_DICT.items():
-            if val == buchttype_name:
-                index = key
-                break
+    # end def
+    def proof_csv_read_buchtype_zuordnung(self,buchtype_zuordnungs_liste: list):
+        '''
+        
+        :param buchtype_zuordnung:
+        :return: status = self.proof_csv_read_buchtype_zuordnung(buchtype_zuordnung: htvar.TList):
+        '''
+        
+        for header in buchtype_zuordnungs_liste:
+            if header not in self.par.KONTO_DATA_BUCHTYPE_DICT.values():
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"proof_csv_read_buchtype_zuordnung: csv_buchtype_zuordnung = {header} ist nicht im Konto vorhanden"
+                return self.status
             # end if
         # end for
-        return index
+        
+        return self.status
     # end def
+    def proof_csv_read_header_zuordnung(self, header_zuordnungs_liste: list):
+        '''
+
+        :param buchtype_zuordnung:
+        :return: status = self.proof_csv_read_buchtype_zuordnung(buchtype_zuordnung: htvar.TList):
+        '''
+        
+        for header in header_zuordnungs_liste:
+            if header not in self.par.KONTO_DATA_NAME_DICT.values():
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"proof_csv_read_header_zuordnung: csv_header_zuordnung = {header} ist nicht im Konto vorhanden"
+                return self.status
+            # end if
+        # end for
+        
+        return self.status
+    
+    # end def
+    def set_csvfunc(self,csvfunc):
+        '''
+        
+        :param csvfunc:
+        :return: self.set_csvfunc(csvfunc)
+        '''
+        self.csvfunc = csvfunc
+    # end def
+    
+    # def get_buchtype_index(self,buchttype_name: str):
+    #     index = None
+    #     for key, val in self.par.KONTO_DATA_BUCHTYPE_DICT.items():
+    #         if val == buchttype_name:
+    #             index = key
+    #             break
+    #         # end if
+    #     # end for
+    #     return index
+    # # end def
     def get_name_index(self, konto_data_name: str):
         index = None
         for key, val in self.par.KONTO_DATA_NAME_DICT.items():

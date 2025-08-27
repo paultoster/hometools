@@ -40,6 +40,10 @@ class KontoData:
     # konto_obj: dkonto.KontoDataSet = field(default_factory=dkonto.KontoDataSet)
     konto_obj = None
 
+class CsvData:
+    data_dict: dict = field(default_factory=dict)
+    data_dict_tvar: dict = field(default_factory=dict)
+    csv_obj = None
 
 # --------------------------------------------------------------------------------------
 #
@@ -125,7 +129,7 @@ def data_set(rd):
         # type
         konto_obj.data_dict[rd.par.DDICT_TYPE_NAME] = rd.par.KONTO_DATA_TYPE_NAME
         
-        # Umbau filter
+        # Umbau filter vorübergehend
         konto_obj.data_dict = umbau_kont_data_dict_filter(rd.par,depot_konto_data_set_class.KontoParam
                                                           ,konto_obj.data_dict)
         # Tvariable bilden
@@ -143,17 +147,68 @@ def data_set(rd):
         
         del konto_obj
         
-        # konto_data = build_konto_data_set_obj(par, konto_data, konto_name,data[par.PROG_DATA_TYPE_NAME].idfunc,wpfunc)
-        # konto_data = build_konto_data_csv_obj(par, konto_data, konto_name,inidict)
-        # if (konto_data.status != hdef.OK):
-        #     status = hdef.NOT_OKAY
-        #     errtext = konto_data.errtext
-        #     return (status, errtext, data)
-        # else:
-        #     data[konto_name] = copy.deepcopy(konto_data)
-        #     del konto_data
-        # # endif
     # endfor
+
+    #================================================================================
+    # read csv-Daten from ini und lege klasse an
+    #================================================================================
+    for csv_config_name in rd.ini.ddict[rd.par.INI_CSV_IMPORT_CONFIG_NAMES_NAME]:
+        
+        if csv_config_name not in rd.ini.ddict.keys():
+            raise Exception(f"data_set: {csv_config_name = } sind nicht im ini-File als section vorhanden")
+        # end if
+        
+        csv_data_obj = CsvData()
+        
+        # Bilde data_dict von ini-Daten
+        csv_data_obj.data_dict = get_csv_dict_values_from_ini(csv_config_name,rd.par,rd.ini.ddict[csv_config_name])
+        # Tvariable bilden
+        csv_data_obj.data_dict_tvar = build_csv_transform_data_dict(csv_config_name,rd.par,csv_data_obj.data_dict)
+        
+        # Klassen-Objekt erstellen
+        csv_data_obj.csv_obj = depot_konto_csv_read_class.KontoCsvRead(csv_data_obj.data_dict_tvar[rd.par.CSV_TRENNZEICHEN]
+                                                     ,csv_data_obj.data_dict_tvar[rd.par.CSV_BUCHTYPE_ZUORDNUNG_NAME]
+                                                     ,csv_data_obj.data_dict_tvar[rd.par.CSV_HEADER_ZUORDNUNG_NAME]
+                                                     ,csv_data_obj.data_dict_tvar[rd.par.CSV_HEADER_TYPE_ZUORDNUNG_NAME])
+        
+        rd.csv_dict[csv_config_name] = copy.deepcopy(csv_data_obj)
+        
+        del csv_data_obj
+    # end for
+    
+    #================================================================================
+    # proof csv-objekte mit konto
+    #================================================================================
+    for konto_name in rd.ini.ddict[rd.par.INI_KONTO_DATA_DICT_NAMES_NAME]:
+        
+        csv_config_name = rd.ini.ddict[konto_name][rd.par.INI_IMPORT_CONFIG_TYPE_NAME]
+        if len(csv_config_name):
+            
+            if csv_config_name not in rd.csv_dict.keys():
+                raise Exception(f"data_set: {csv_config_name = } sind nicht im ini-File als section vorhanden")
+            # end if
+            
+            # CSV_BUCHTYPE_ZUORDNUNG_NAME
+            names = rd.csv_dict[csv_config_name].data_dict_tvar[rd.par.CSV_BUCHTYPE_ZUORDNUNG_NAME].names
+            status = rd.konto_dict[konto_name].konto_obj.proof_csv_read_buchtype_zuordnung(names)
+            if status != hdef.OKAY:
+                errtext = rd.konto_dict[konto_name].konto_obj.errtext
+                raise Exception(f"data_set: proof csv-objekte mit konto von {konto_name = } und {csv_config_name = } passt nicht {errtext = }")
+            # end if
+
+            # CSV_HEADER_ZUORDNUNG_NAME
+            names = rd.csv_dict[csv_config_name].data_dict_tvar[rd.par.CSV_HEADER_ZUORDNUNG_NAME].names
+            status = rd.konto_dict[konto_name].konto_obj.proof_csv_read_header_zuordnung(names)
+            if status != hdef.OKAY:
+                errtext = rd.konto_dict[konto_name].konto_obj.errtext
+                raise Exception(
+                    f"data_set: proof csv-objekte mit konto von {konto_name = } und {csv_config_name = } passt nicht {errtext = }")
+            # end if
+            
+            # Referenz
+            rd.konto_dict[konto_name].konto_obj.set_csvfunc(rd.csv_dict[csv_config_name].csv_obj)
+        # end if
+    # end for
     
     #================================================================================
     #  depot-data pickle --------------------------------------------
@@ -349,180 +404,6 @@ def data_save(data,par,inidict):
 
 
 # enddef
-# --------------------------------------------------------------------------------------
-#
-# Set PROG DATA
-#
-# --------------------------------------------------------------------------------------
-# def set_prog_data(par,allg_data):
-#     '''
-#
-#     :param allg_data:
-#     :return: allg_data = set_prog_data(allg_data)
-#     '''
-#
-#     allg_data.ddict[par.DDICT_TYPE_NAME] = par.PROG_DATA_TYPE_NAME
-#
-#     # class id anlegen
-#     allg_data.idfunc = depot_data_class_defs.IDCount()
-#
-#     key = par.KONTO_DATA_ID_MAX_NAME
-#     if key in allg_data.ddict:
-#         allg_data.idfunc.set_act_id(allg_data.ddict[key])
-#     else:
-#         allg_data.idfunc.set_act_id(0)
-#     # end if
-#
-#     return allg_data
-#
-# end def
-# --------------------------------------------------------------------------------------
-#
-# Set KONTO DATA
-#
-# --------------------------------------------------------------------------------------
-# def proof_allg_data_from_ini(par, allg_data, ini_data_dict):
-#     """
-#
-#     :param allg_data:
-#     :param ini_data:
-#     :return:
-#     """
-#
-#     for key in ini_data_dict.keys():
-#
-#         if (key in allg_data.ddict):
-#             if (ini_data_dict[key] != allg_data.ddict[key]):
-#                 allg_data.ddict[key] = ini_data_dict[key]
-#             # endif
-#         else:
-#             allg_data.ddict[key] = ini_data_dict[key]
-#         # endif
-#     # end for
-#
-#     # proof if all ini-Data in allg_data and vice versa
-#     # ---------------------------------------------------
-#     ini_keys = list(ini_data_dict.keys())
-#
-#     if par.INI_DATA_KEYS_NAME not in allg_data.ddict:
-#         allg_data.ddict[par.INI_DATA_KEYS_NAME] = ini_keys
-#     else:
-#         data_ini_keys = allg_data.ddict[par.INI_DATA_KEYS_NAME]
-#         flag = False
-#         for key in data_ini_keys:
-#             if (key not in ini_keys) and (key in allg_data.ddict.keys()):
-#                 del allg_data.ddict[key]
-#                 flag = True
-#             # end if
-#         # end for
-#         if flag:
-#             allg_data.ddict[par.INI_DATA_KEYS_NAME] = ini_keys
-#         # end if
-#     # end if
-#
-#     allg_data.wp_store_path = allg_data.ddict[par.INI_WP_DATA_STORE_PATH_NAME]
-#     allg_data.wp_use_json = allg_data.ddict[par.INI_WP_DATA_USE_JSON_NAME]
-#
-#     return allg_data
-#
-#
-# end def
-# --------------------------------------------------------------------------------------
-#
-# Set KONTO DATA
-#
-# --------------------------------------------------------------------------------------
-# def proof_konto_data_from_ini(par,konto_data, ini_data_dict):
-#     """
-#     proof ini_data in konto_data
-#     :param konto_data:
-#     :param ini_data:
-#     :return:
-#     """
-#
-#     for key in ini_data_dict.keys():
-#
-#         if (key in konto_data.ddict):
-#             if (ini_data_dict[key] != konto_data.ddict[key]):
-#                 konto_data.ddict[key] = ini_data_dict[key]
-#             # endif
-#         else:
-#             if key == par.INI_START_WERT_NAME:
-#                 if isinstance(ini_data_dict[key],str) or isinstance(ini_data_dict[key],float):
-#                     # Trennungs zeichen für decimal wert
-#                     if par.INI_KONTO_STR_EURO_TRENN_BRUCH in ini_data_dict.keys():
-#                         wert_delim = ini_data_dict[par.INI_KONTO_STR_EURO_TRENN_BRUCH]
-#                     else:
-#                         wert_delim = par.STR_EURO_TRENN_BRUCH_DEFAULT
-#                     # end if
-#
-#                     # Trennungszeichen für Tausend
-#                     if par.INI_KONTO_STR_EURO_TRENN_TAUSEND in ini_data_dict.keys():
-#                         wert_trennt = ini_data_dict[par.INI_KONTO_STR_EURO_TRENN_TAUSEND]
-#                     else:
-#                         wert_trennt = par.STR_EURO_TRENN_TAUSEN_DEFAULT
-#                     # end if
-#                     (okay, wert) = htype.type_convert_euro_to_cent(ini_data_dict[key],delim=wert_delim,thousandsign=wert_trennt)
-#                     if okay != hdef.OKAY:
-#                         raise Exception(f"depot_data_set: Den Startwert = {ini_data_dict[key]} kann nicht gewandelt werden ")
-#                     # end if
-#                 else:
-#                     wert = ini_data_dict[key]
-#                 # end if
-#                 konto_data.ddict[key] = wert
-#             else:
-#                 konto_data.ddict[key] = ini_data_dict[key]
-#             # end if
-#         # endif
-#     # end for
-#
-#     # proof if all ini-Data in konto_data and vice versa
-#     #---------------------------------------------------
-#     ini_keys = list(ini_data_dict.keys())
-#
-#     if par.INI_DATA_KEYS_NAME not in konto_data.ddict:
-#         konto_data.ddict[par.INI_DATA_KEYS_NAME] = ini_keys
-#     else:
-#         data_ini_keys = konto_data.ddict[par.INI_DATA_KEYS_NAME]
-#         flag = False
-#         for key in data_ini_keys:
-#             if (key not in ini_keys) and (key in konto_data.ddict.keys() ):
-#                 del konto_data.ddict[key]
-#                 flag = True
-#             # end if
-#         # end for
-#         if flag :
-#             konto_data.ddict[par.INI_DATA_KEYS_NAME] = ini_keys
-#         # end if
-#     # end if
-#
-#     return konto_data
-#
-#
-# # end def
-# def proof_konto_data_intern(par, konto_data, konto_name):
-#     '''
-#
-#     :param par
-#     :param konto_data:
-#     :param konto_name
-#     :return:konto_data =  proof_konto_data_intern(par,konto_data,konto_name)
-#     '''
-#     # type
-#     konto_data.ddict[par.DDICT_TYPE_NAME] = par.KONTO_DATA_TYPE_NAME
-#
-#     # konto name
-#     key = par.KONTO_NAME
-#     if key in konto_data.ddict:
-#         if konto_name != konto_data.ddict[key]:
-#             konto_data.ddict[key] = konto_name
-#         # end if
-#     else:
-#         konto_data.ddict[key] = konto_name
-#     # end if
-#
-#     return konto_data
-# # end def
 def umbau_kont_data_dict_filter(par,konto_par,data_dict):
     
     data_dict_out = {}
@@ -584,228 +465,237 @@ def build_konto_transform_data_dict(par,data_dict):
     data_dict_tvar[par.KONTO_DATA_SET_TABLE_NAME] = htvar.build_table(names,table,types)
     
     return data_dict_tvar
-# def build_konto_data_set_obj(par, konto_data, konto_name,idfunc,wpfunc):
-#     '''
-#
-#     :param par:
-#     :param konto_data:
-#     :param konto_name:
-#     :return: konto_data =  build_konto_data_set_obj(par, konto_data, konto_name):
-#     '''
-#
-#     #----------------------------------------------------------------------------
-#     # Set parameter for konto Data set
-#     #----------------------------------------------------------------------------
-#
-#     # class KontoDataSet anlegen
-#     obj = depot_konto_data_set_class.KontoDataSet(konto_name)
-#
-#     # # kont_data set anlegen
-#     # #----------------------
-#     # key = par.KONTO_DATA_SET_NAME
-#     # if key in konto_data.ddict:
-#     #     if len(konto_data.ddict[key]) > 0:
-#     #         if len(konto_data.ddict[key][0]) != len(obj.KONTO_DATA_NAME_LIST):
-#     #             konto_data.status = hdef.NOT_OKAY
-#     #             konto_data.errtext = f"length of header-list {par.KONTO_DATA_NAME_LIST} not same with data-dict {konto_data.dict[key]} of konto: {konto_name}"
-#     #             return konto_data
-#     #         # end if
-#     #     # end if
-#     #     data_set_llist = konto_data.ddict[key]
-#     # else:
-#     #     data_set_llist = []
-#     # # end if
-#
-#     # neue Datenbeschreibung
-#     key = par.KONTO_DATA_SET_DICT_LIST_NAME
-#     if key in konto_data.ddict:
-#         konto_data_set_dict_list = konto_data.ddict[key]
-#     else:
-#         konto_data_set_dict_list = []
-#     # end if
-#
-#     key = par.KONTO_DATA_TYPE_DICT_NAME
-#     if key in konto_data.ddict:
-#         konto_data_type_dict = konto_data.ddict[key]
-#     else:
-#         konto_data_type_dict =   {}
-#     # end if
-#     if par.KONTO_DATA_SET_NAME in konto_data.ddict:
-#         del konto_data.ddict[par.KONTO_DATA_SET_NAME]
-#     # end if
-#
-#
-#     # konto_start_wert von ini übergeben:
-#     #-----------------------------------
-#     key = par.INI_START_WERT_NAME
-#     if key in konto_data.ddict:
-#         konto_start_wert = konto_data.ddict[key]
-#         if isinstance(konto_start_wert,str ):
-#             (okay, konto_start_wert) = htype.type_transform_euroStrK(konto_start_wert,'cent')
-#             if okay != hdef.OKAY:
-#                 raise Exception(f"konto_start_wert = konto_data.ddict[{key}] of konto_name = {konto_name} lässt sich von float (euro) in cent nicht wandeln")
-#             # end if
-#         else:
-#             (okay, konto_start_wert) = htype.type_proof_cent(konto_start_wert)
-#             if okay != hdef.OKAY:
-#                 raise Exception(f"konto_start_wert = konto_data.ddict[{key}] of konto_name = {konto_name} ist nicht in cent")
-#             # end if
-#         # end if
-#     else:
-#         konto_start_wert = 0
-#     # end if
-#
-#     # konto_start_datum von ini übergeben:
-#     #-------------------------------------
-#     key = par.INI_START_DATUM_NAME
-#     if key in konto_data.ddict:
-#         konto_start_datum = konto_data.ddict[key]
-#         (okay, konto_start_datum) = htype.type_proof_dat(konto_start_datum)
-#         if okay != hdef.OKAY:
-#             raise Exception(
-#                 f"konto_start_datum = konto_data.ddict[{key}] of konto_name = {konto_name} ist kein Datum")
-#         # end if
-#     else:
-#         konto_start_datum = 0
-#     # end if
-#
-#     # Trennungs zeichen für decimal wert
-#     #-----------------------------------
-#     key = par.INI_KONTO_STR_EURO_TRENN_BRUCH
-#     if key in konto_data.ddict:
-#         wert_delim = konto_data.ddict[key]
-#     else:
-#         wert_delim = par.STR_EURO_TRENN_BRUCH_DEFAULT
-#     # end if
-#
-#     # Trennungszeichen für Tausend
-#     #-----------------------------
-#     key = par.INI_KONTO_STR_EURO_TRENN_TAUSEND
-#     if key in konto_data.ddict:
-#         wert_trennt = konto_data.ddict[key]
-#     else:
-#         wert_trennt = par.STR_EURO_TRENN_TAUSEN_DEFAULT
-#     # end if
-#
-#     # KontoDataSet data_llist übergeben
-#     obj.set_starting_data_llist(
-#         konto_data_set_dict_list,
-#         konto_data_type_dict,
-#         idfunc,
-#         wpfunc,
-#         konto_start_datum,
-#         konto_start_wert,
-#         wert_delim,
-#         wert_trennt)
-#
-#     konto_data.obj = copy.deepcopy(obj)
-#
-#     del obj
-#
-#     return konto_data
-def build_konto_data_csv_obj(par, konto_data, konto_name,ini_data_dict):
-    #----------------------------------------------------------------------------
-    # Set parameter for konto csv read
-    #----------------------------------------------------------------------------
+# end def
+def get_csv_dict_values_from_ini(csv_config_name,par,ini_dict):
+    '''
     
-    # import data type
-    #----------------------------------------------------------------------------
-    key = par.INI_IMPORT_DATA_TYPE_NAME
-    if key in konto_data.ddict:
-        import_data_type = konto_data.ddict[key]
-    else:
-        raise Exception(f"build_konto_data_csv_obj: import_data_type = konto_data.ddict[{key}] of konto_name = {konto_name} ist nicht im ini-File")
-    # end if
+    :param par:
+    :param ini:
+    :return: data_dict = get_csv_dict_values_from_ini(par,ini)
+    '''
     
-    # No import type
-    if( len(import_data_type) == 0 ) or (import_data_type == "none"):
-        konto_data.csv = None
-        return konto_data
-    # end if
+    data_dict = {}
     
-    if import_data_type not in ini_data_dict[par.INI_CSV_IMPORT_TYPE_NAMES_NAME]:
-        raise Exception(
-            f"build_konto_data_csv_obj: import_data_type = {import_data_type} of konto_name = {konto_name} ist nicht in der Liste der csv_import_type_names = {par.INI_CSV_IMPORT_TYPE_NAMES_NAME} im ini-File")
-    # end if
-    
-    csv_import_dict = ini_data_dict[import_data_type]
+    # type
+    data_dict[par.DDICT_TYPE_NAME] = par.CSV_DATA_TYPE_NAME
+
+    # INI_CSV_PROOF_LISTE = [(INI_CSV_TRENNZEICHEN, "str")
+    #     , (INI_CSV_HEADER_NAMEN, "list")
+    #     , (INI_CSV_HEADER_ZUORDNUNG, "list_str")
+    #     , (INI_CSV_HEADER_DATA_TYPE, "list_str")
+    #     , (INI_CSV_BUCHTYPE_NAMEN, "list")
+    #     , (INI_CSV_BUCHTYPE_ZUORDNUNG, "list_str")]
 
     # Trennungszeichen in csv-Datei
     #--------------------------------
-    key = par.INI_CSV_TRENNZEICHEN
-    if key in csv_import_dict:
-        wert_trenn = csv_import_dict[key]
-    else:
-        raise Exception(f"key {par.INI_CSV_TRENNZEICHEN} not ini-File in sction [{import_data_type}]of konto: {konto_name}")
-    # end if
-
-    # Klassen-Objekt erstellen
-    csv = depot_konto_csv_read_class.KontoCsvRead()
-    csv.set_csv_trennzeichen(wert_trenn)
-
+    data_dict[par.CSV_TRENNZEICHEN] = ini_dict[par.INI_CSV_TRENNZEICHEN]
     
     # build buchungstype list from ini-File for csv-file
-    #---------------------------------------------------
-    n = min(len(csv_import_dict[par.INI_CSV_BUCHTYPE_NAMEN]),len(csv_import_dict[par.INI_CSV_BUCHTYPE_ZUORDNUNG]))
+    # ---------------------------------------------------
+    n = min(len(ini_dict[par.INI_CSV_BUCHTYPE_NAMEN]), len(ini_dict[par.INI_CSV_BUCHTYPE_ZUORDNUNG]))
     
-    csv_buchungs_typ_liste = ["" for i in konto_data.obj.KONTO_BUCHTYPE_INDEX_LIST]
-    
+    csv_buchungs_zuordnung_dict = {}
     for i in range(n):
-        buchtype_zuordnung = csv_import_dict[par.INI_CSV_BUCHTYPE_ZUORDNUNG][i]
-        buchtype_name      = csv_import_dict[par.INI_CSV_BUCHTYPE_NAMEN][i]
+        buchtype_zuordnung = ini_dict[par.INI_CSV_BUCHTYPE_ZUORDNUNG][i]
+        buchtype_name = ini_dict[par.INI_CSV_BUCHTYPE_NAMEN][i]
         
-        buchtype_index = konto_data.obj.get_buchtype_index(buchtype_zuordnung)
-        if buchtype_index is None:
-            raise Exception(
-                f"build_konto_data_csv_obj: buchtype_zuordnung = {buchtype_zuordnung} aus section [{import_data_type}]of konto: {konto_name} kann nicht in Klasse KontoDataSet (depot_konto_data_set_class) gefunden werden")
-        # end if
-        
-        # Suche den Index in der Index-Liste
-        
-        try:
-            index = konto_data.obj.KONTO_BUCHTYPE_INDEX_LIST.index(buchtype_index)
-        except ValueError:
-            raise Exception(
-                f"build_konto_data_csv_obj: buchtype_index = {buchtype_index} von  konto_data.obj.get_buchtype_index(buchtype_zuordnung) buchtype_zuordnung = {buchtype_zuordnung}of konto: {konto_name} kann nicht in Klasse KontoDataSet (depot_konto_data_set_class) gefunden werden")
-        # end try
-        csv_buchungs_typ_liste[index] = buchtype_name
+        csv_buchungs_zuordnung_dict[buchtype_zuordnung] = buchtype_name
     # end for
     
     # unbekannt hinzu fügen
-    index = konto_data.obj.KONTO_BUCHTYPE_INDEX_LIST.index(konto_data.obj.KONTO_BUCHTYPE_INDEX_UNBEKANNT)
-    if csv_buchungs_typ_liste[index] == "":
-        csv_buchungs_typ_liste[index] = "unbekannt"
-    # end if
+    if "unbekannt" not in csv_buchungs_zuordnung_dict.keys():
+        csv_buchungs_zuordnung_dict["unbekannt"] = ""
     
+    data_dict[par.CSV_BUCHTYPE_DICT] = csv_buchungs_zuordnung_dict
 
     # Bilde list für header name csv, index und buchungstype
-    #-------------------------------------------------------
-    n = min(len(csv_import_dict[par.INI_CSV_HEADER_NAMEN]), len(csv_import_dict[par.INI_CSV_HEADER_ZUORDNUNG]))
-    n = min(n,len(csv_import_dict[par.INI_CSV_HEADER_DATA_TYPE]))
+    # -------------------------------------------------------
+    n = min(len(ini_dict[par.INI_CSV_HEADER_NAMEN]), len(ini_dict[par.INI_CSV_HEADER_ZUORDNUNG]))
+    n = min(n, len(ini_dict[par.INI_CSV_HEADER_DATA_TYPE]))
     
+    csv_header_name_dict = {}
+    csv_header_type_dict = {}
     for i in range(n):
-        header_name = csv_import_dict[par.INI_CSV_HEADER_NAMEN][i]
-        header_zuordnung = csv_import_dict[par.INI_CSV_HEADER_ZUORDNUNG][i]
-        header_data_type = csv_import_dict[par.INI_CSV_HEADER_DATA_TYPE][i]
-        index = konto_data.obj.get_name_index(header_zuordnung)
-        if index is None:
-            raise Exception(
-                f"build_konto_data_csv_obj: header_zuordnung = {header_zuordnung} aus section [{import_data_type}]of konto: {konto_name} kann nicht in Klasse KontoDataSet (depot_konto_data_set_class) gefunden werden")
-        # end if
-        if index == konto_data.obj.KONTO_DATA_INDEX_BUCHTYPE:
-            csv.set_csv_header_name(index, header_name, csv_buchungs_typ_liste)
+        header_name = ini_dict[par.INI_CSV_HEADER_NAMEN][i]
+        header_zuordnung = ini_dict[par.INI_CSV_HEADER_ZUORDNUNG][i]
+        header_data_type = ini_dict[par.INI_CSV_HEADER_DATA_TYPE][i]
+        csv_header_name_dict[header_zuordnung] = header_name
+        csv_header_type_dict[header_zuordnung] = header_data_type
+    # end for
+    
+    data_dict[par.CSV_HEADER_NAME_DICT] = csv_header_name_dict
+    data_dict[par.CSV_HEADER_TYPE_DICT] = csv_header_type_dict
+
+    return data_dict
+# end def
+def build_csv_transform_data_dict(csv_config_name,par,data_dict):
+    '''
+    
+    :param par:
+    :param data_dict:
+    :return: data_dict_tvar = build_csv_transform_data_dict(par,data_dict)
+    '''
+    data_dict_tvar = {}
+    
+    # DDICT_TYPE_NAME
+    data_dict_tvar[par.DDICT_TYPE_NAME] = htvar.build_val(par.DDICT_TYPE_NAME, data_dict[par.DDICT_TYPE_NAME], 'str')
+    
+    # CSV_TRENNZEICHEN
+    data_dict_tvar[par.CSV_TRENNZEICHEN] = htvar.build_val(par.CSV_TRENNZEICHEN, data_dict[par.CSV_TRENNZEICHEN], 'str')
+    
+    # CSV_BUCHTYPE_ZUORDNUNG_NAME
+    names = list(data_dict[par.CSV_BUCHTYPE_DICT].keys())
+    vals  = list(data_dict[par.CSV_BUCHTYPE_DICT].values())
+    types = []
+    for val in vals:
+        if isinstance(val,str):
+            types.append("str")
         else:
-            csv.set_csv_header_name(index, header_name, header_data_type)
+            types.append("list_str")
+        # end if
+    # end for
+    data_dict_tvar[par.CSV_BUCHTYPE_ZUORDNUNG_NAME] = htvar.build_list(names, vals, types)
+    
+    # CSV_HEADER_ZUORDNUNG_NAME
+    names = list(data_dict[par.CSV_HEADER_NAME_DICT].keys())
+    vals  = list(data_dict[par.CSV_HEADER_NAME_DICT].values())
+    types = []
+    for val in vals:
+        if isinstance(val,str):
+            types.append("str")
+        else:
+            types.append("list_str")
         # end if
     # end for
     
-    konto_data.csv = copy.deepcopy(csv)
+    data_dict_tvar[par.CSV_HEADER_ZUORDNUNG_NAME] = htvar.build_list(names, vals, types)
     
-    del csv
-    
-    return konto_data
+    # CSV_HEADER_TYPE_ZUORDNUNG_NAME
+    names = list(data_dict[par.CSV_HEADER_TYPE_DICT].keys())
+    vals = list(data_dict[par.CSV_HEADER_TYPE_DICT].values())
+    types = []
+    for val in vals:
+        if isinstance(val,str):
+            types.append("str")
+        else:
+            types.append("list_str")
+        # end if
+    # end for
 
+    data_dict_tvar[par.CSV_HEADER_TYPE_ZUORDNUNG_NAME] = htvar.build_list(names, vals, types)
+    
+    for type_name in vals:
+        if htype.type_name_proof(type_name) != hdef.OKAY:
+            raise Exception(
+                f"data_set.build_csv_transform_data_dict: In section  {csv_config_name = } ist {type_name = } nicht korrekt")
+        # end if
+    # end for
+
+    return data_dict_tvar
 # end def
+# def build_konto_data_csv_obj(par, konto_data, konto_name,ini_data_dict):
+#     #----------------------------------------------------------------------------
+#     # Set parameter for konto csv read
+#     #----------------------------------------------------------------------------
+#
+#     # import data type
+#     #----------------------------------------------------------------------------
+#     key = par.INI_IMPORT_CONFIG_TYPE_NAME
+#     if key in konto_data.ddict:
+#         import_data_type = konto_data.ddict[key]
+#     else:
+#         raise Exception(f"build_konto_data_csv_obj: import_data_type = konto_data.ddict[{key}] of konto_name = {konto_name} ist nicht im ini-File")
+#     # end if
+#
+#     # No import type
+#     if( len(import_data_type) == 0 ) or (import_data_type == "none"):
+#         konto_data.csv = None
+#         return konto_data
+#     # end if
+#
+#     if import_data_type not in ini_data_dict[par.INI_CSV_IMPORT_TYPE_NAMES_NAME]:
+#         raise Exception(
+#             f"build_konto_data_csv_obj: import_data_type = {import_data_type} of konto_name = {konto_name} ist nicht in der Liste der csv_import_type_names = {par.INI_CSV_IMPORT_TYPE_NAMES_NAME} im ini-File")
+#     # end if
+#
+#     csv_import_dict = ini_data_dict[import_data_type]
+#
+#     # Trennungszeichen in csv-Datei
+#     #--------------------------------
+#     key = par.INI_CSV_TRENNZEICHEN
+#     if key in csv_import_dict:
+#         wert_trenn = csv_import_dict[key]
+#     else:
+#         raise Exception(f"key {par.INI_CSV_TRENNZEICHEN} not ini-File in sction [{import_data_type}]of konto: {konto_name}")
+#     # end if
+#
+#     # Klassen-Objekt erstellen
+#     csv = depot_konto_csv_read_class.KontoCsvRead()
+#     csv.set_csv_trennzeichen(wert_trenn)
+#
+#
+#     # build buchungstype list from ini-File for csv-file
+#     #---------------------------------------------------
+#     n = min(len(csv_import_dict[par.INI_CSV_BUCHTYPE_NAMEN]),len(csv_import_dict[par.INI_CSV_BUCHTYPE_ZUORDNUNG]))
+#
+#     csv_buchungs_typ_liste = ["" for i in konto_data.obj.KONTO_BUCHTYPE_INDEX_LIST]
+#
+#     for i in range(n):
+#         buchtype_zuordnung = csv_import_dict[par.INI_CSV_BUCHTYPE_ZUORDNUNG][i]
+#         buchtype_name      = csv_import_dict[par.INI_CSV_BUCHTYPE_NAMEN][i]
+#
+#         buchtype_index = konto_data.obj.get_buchtype_index(buchtype_zuordnung)
+#         if buchtype_index is None:
+#             raise Exception(
+#                 f"build_konto_data_csv_obj: buchtype_zuordnung = {buchtype_zuordnung} aus section [{import_data_type}]of konto: {konto_name} kann nicht in Klasse KontoDataSet (depot_konto_data_set_class) gefunden werden")
+#         # end if
+#
+#         # Suche den Index in der Index-Liste
+#
+#         try:
+#             index = konto_data.obj.KONTO_BUCHTYPE_INDEX_LIST.index(buchtype_index)
+#         except ValueError:
+#             raise Exception(
+#                 f"build_konto_data_csv_obj: buchtype_index = {buchtype_index} von  konto_data.obj.get_buchtype_index(buchtype_zuordnung) buchtype_zuordnung = {buchtype_zuordnung}of konto: {konto_name} kann nicht in Klasse KontoDataSet (depot_konto_data_set_class) gefunden werden")
+#         # end try
+#         csv_buchungs_typ_liste[index] = buchtype_name
+#     # end for
+#
+#     # unbekannt hinzu fügen
+#     index = konto_data.obj.KONTO_BUCHTYPE_INDEX_LIST.index(konto_data.obj.KONTO_BUCHTYPE_INDEX_UNBEKANNT)
+#     if csv_buchungs_typ_liste[index] == "":
+#         csv_buchungs_typ_liste[index] = "unbekannt"
+#     # end if
+#
+#
+#     # Bilde list für header name csv, index und buchungstype
+#     #-------------------------------------------------------
+#     n = min(len(csv_import_dict[par.INI_CSV_HEADER_NAMEN]), len(csv_import_dict[par.INI_CSV_HEADER_ZUORDNUNG]))
+#     n = min(n,len(csv_import_dict[par.INI_CSV_HEADER_DATA_TYPE]))
+#
+#     for i in range(n):
+#         header_name = csv_import_dict[par.INI_CSV_HEADER_NAMEN][i]
+#         header_zuordnung = csv_import_dict[par.INI_CSV_HEADER_ZUORDNUNG][i]
+#         header_data_type = csv_import_dict[par.INI_CSV_HEADER_DATA_TYPE][i]
+#         index = konto_data.obj.get_name_index(header_zuordnung)
+#         if index is None:
+#             raise Exception(
+#                 f"build_konto_data_csv_obj: header_zuordnung = {header_zuordnung} aus section [{import_data_type}]of konto: {konto_name} kann nicht in Klasse KontoDataSet (depot_konto_data_set_class) gefunden werden")
+#         # end if
+#         if index == konto_data.obj.KONTO_DATA_INDEX_BUCHTYPE:
+#             csv.set_csv_header_name(index, header_name, csv_buchungs_typ_liste)
+#         else:
+#             csv.set_csv_header_name(index, header_name, header_data_type)
+#         # end if
+#     # end for
+#
+#     konto_data.csv = copy.deepcopy(csv)
+#
+#     del csv
+#
+#     return konto_data
+#
+# # end def
 # --------------------------------------------------------------------------------------
 #
 # Set DEPOT DATA

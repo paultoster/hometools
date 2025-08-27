@@ -64,7 +64,7 @@ def report_einlesen(rd):
         rd.log.write_warn(f"Für Konto <{choice}> gibt es keinen import_data_type ", screen=rd.par.LOG_SCREEN_OUT)
         return status
     
-    elif( konto_dict[rd.par.INI_IMPORT_DATA_TYPE_NAME] in rd.ini.ddict[rd.par.INI_CSV_IMPORT_TYPE_NAMES_NAME] ):
+    elif( konto_dict[rd.par.INI_IMPORT_CONFIG_TYPE_NAME] in rd.ini.ddict[rd.par.INI_CSV_IMPORT_TYPE_NAMES_NAME] ):
         
         # csv-Datei auswählen
         filename = sgui.abfrage_file(file_types="*.csv",

@@ -145,7 +145,7 @@ def build_list(names: list, vals: list, types: list, types_store: list=None):
                 ttypes[i] = types_store[i]
             # end if
     # end if
-    return TList(name=nnames,vals=vvals,types=ttypes)
+    return TList(names=nnames,vals=vvals,types=ttypes)
 # end def
 def build_table(names: list, table: list, types:list, types_store:list=None):
     '''

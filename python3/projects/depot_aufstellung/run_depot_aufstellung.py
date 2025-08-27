@@ -108,6 +108,7 @@ def depot_aufstellung():
     rd.allg = AllgData()
     rd.iban = IbanData()
     rd.konto_dict = {}
+    rd.csv_dict = {}
     rd.depot_dict = {}
     (status, errtext) = depot_data_init.data_set(rd)
 
