@@ -168,7 +168,7 @@ def anzeige_depot_isin(rd,isin,depot_obj,depot_dict):
             runflag = True
         
         else: #  if choice_isin == choice_isin_update:
-            (status, new_data_set_flag) = depot_obj.update_data_llist(isin, changed_pos_list, update_date_lliste,
+            (status, new_data_set_flag) = depot_obj.update_data_ttable(isin, changed_pos_list, update_date_lliste,
                                                                       header_liste, type_liste)
             
             if status != hdef.OKAY:  # Abbruch

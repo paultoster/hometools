@@ -254,174 +254,174 @@ def anzeige_isin(rd, data_lliste, header_liste, title,row_color_dliste):
 
 
 # end def
-def anzeige(rd,konto_dict,konto_obj):
-    '''
-    
-    :param rd:
-    :param ddict:
-    :return: (status, konto_dict,konto_obj) =  anzeige(rd,konto_dict,konto_obj)
-    '''
-    
-    status = hdef.OKAY
-    abfrage_liste = ["vor","zurück","ende", "update edit", "edit","add", "delete"]
-    i_vor = 0
-    i_back = 1
-    i_end = 2
-    i_update = 3
-    i_edit = 4
-    i_add = 5
-    i_delete = 6
-    
-    runflag = True
-    istart  = 0
-    dir     = 0
-    while (runflag):
-        
-        (istart,header_liste, data_llist, new_data_list) = konto_obj.get_anzeige_data_llist(istart, dir, rd.par.KONTO_SHOW_NUMBER_OF_LINES)
-        
-        # color list with new_data_list
-        color_list = []
-        for flag in new_data_list:
-            if flag:
-                color_list.append(rd.par.COLOR_SHOW_NEW_DATA_SETS)
-            else:
-                color_list.append("")
-            # end if
-        # end for
-        if len(data_llist):
-            (new_data_llist, index_abfrage, irow, data_changed_pos_list) = \
-                depot_gui.konto_abfrage(header_liste, data_llist, abfrage_liste, color_list)
-        else:
-            rd.log.write_warn("Noch keine Daten für dieses Konto angelegt, es geht weiter zu Add ",screen=rd.par.LOG_SCREEN_OUT)
-            index_abfrage = i_end
-        # end if
-        
-        # Vorblättern
-        # ----------------------------
-        if (index_abfrage == i_vor):
-            
-            # Daten updaten
-            if len(data_changed_pos_list) > 0:
-                konto_obj.write_anzeige_back_data(new_data_llist, data_changed_pos_list, istart)
-                
-            # Vorwärts gehen
-            dir = +1
-            runflag = True
-        
-        # Zurückblättern
-        # ----------------------------
-        elif (index_abfrage == i_back):
-            
-            # Daten updaten
-            if len(data_changed_pos_list) > 0:
-                konto_obj.write_anzeige_back_data(new_data_llist, data_changed_pos_list,istart)
-            
-            # Rückwärts gehen
-            dir = -1
-            runflag = True
-        
-        # Beenden
-        # ----------------------------
-        elif (index_abfrage == i_end):
-            runflag = False
-        
-        # Updaten
-        # ----------------------------
-        elif (index_abfrage == i_update):
-            
-            # Daten updaten
-            if len(data_changed_pos_list) > 0:
-                konto_obj.write_anzeige_back_data(new_data_llist, data_changed_pos_list,istart)
-                if status != hdef.OKAY:
-                    rd.log.write_err("konto__anzeige edit " + errtext, screen=rd.par.LOG_SCREEN_OUT)
-                    return (status, konto_dict)
-                elif not new_data_set_flag:
-                    runflag = False
-                # endif
-
-            # lösche die Änderungs-Liste
-            konto_obj.delete_new_data_list()
-            runflag = False
-    
-        elif index_abfrage == i_edit:
-            if (irow >= 0):
-                (data_set, header_liste,buchungs_type_list, buchtype_index_in_header_liste) = konto_obj.get_edit_data(irow)
-            else:
-                rd.log.write_err("konto__anzeige edit: irow out of range ", screen=rd.par.LOG_SCREEN_OUT)
-                return (hdef.NOT_OK, konto_dict)
-            # endif
-
-            # Erstelle die Eingabe liste
-            eingabeListe = []
-            for i, header in enumerate(header_liste):
-                if i == buchtype_index_in_header_liste:
-                    eingabeListe.append([header, buchungs_type_list])  # Auswahl ist die buchungs_type_list
-                else:
-                    eingabeListe.append(header)
-                # end if
-            # end for
-            
-            new_data_list = depot_gui.konto_data_set_eingabe(eingabeListe,data_set)
-            
-            if len(new_data_list):
-                (new_data_set_flag, status, errtext) = konto_obj.set_data_set_extern_liste(new_data_list,irow)
-                
-                if status != hdef.OKAY:
-                    rd.log.write_err("konto__anzeige edit " + errtext, screen=rd.par.LOG_SCREEN_OUT)
-                    return (status, konto_dict)
-                elif not new_data_set_flag:
-                    runflag = False
-                # endif
-            # endif
-            dir = 0
-        
-        elif index_abfrage == i_add :
-            
-            (header_liste, buchungs_type_list,buchtype_index_in_header_liste) = konto_obj.get_data_to_add_lists()
-            
-            # Erstelle die Eingabe liste
-            eingabeListe = []
-            for i,header in enumerate(header_liste):
-                if i == buchtype_index_in_header_liste:
-                    eingabeListe.append([header,buchungs_type_list])  # Auswahl ist die buchungs_type_list
-                else:
-                    eingabeListe.append(header)
-                # end if
-            # end for
-            
-            new_data_list = depot_gui.konto_data_set_eingabe(eingabeListe)
-            if len(new_data_list):
-                (new_data_set_flag, status, errtext) = konto_obj.set_one_new_data_set_extern_liste(new_data_list)
-                
-                if status != hdef.OKAY:
-                    rd.log.write_err("konto__anzeige add "+errtext, screen=rd.par.LOG_SCREEN_OUT)
-                    return (status, konto_dict)
-                elif not new_data_set_flag:
-                    runflag = False
-                # endif
-            # endif
-            dir = 0
-            
-        elif( index_abfrage == i_delete ):
-            
-            if( irow >= 0 ):
-                flag = sgui.abfrage_janein(text=f"Soll irow = {irow} (von null gezält) gelöschen werden")
-                if( flag ):
-                    (status,errtext) = konto_obj.delete_data_list(irow)
-                    if( status != hdef.OKAY ):
-                        rd.log.write_err("konto__anzeige delete " + errtext, screen=rd.par.LOG_SCREEN_OUT)
-                        return (status, konto_dict)
-                    # end if
-                # end if
-            # end if
-            runflag = True
-            dir = 0
-        else:
-            runflag = False
-    # end while
-    
-    return (status, konto_dict,konto_obj)
-# end def
+# def anzeige(rd,konto_dict,konto_obj):
+#     '''
+#
+#     :param rd:
+#     :param ddict:
+#     :return: (status, konto_dict,konto_obj) =  anzeige(rd,konto_dict,konto_obj)
+#     '''
+#
+#     status = hdef.OKAY
+#     abfrage_liste = ["vor","zurück","ende", "update edit", "edit","add", "delete"]
+#     i_vor = 0
+#     i_back = 1
+#     i_end = 2
+#     i_update = 3
+#     i_edit = 4
+#     i_add = 5
+#     i_delete = 6
+#
+#     runflag = True
+#     istart  = 0
+#     dir     = 0
+#     while (runflag):
+#
+#         (istart,header_liste, data_llist, new_data_list) = konto_obj.get_anzeige_data_llist(istart, dir, rd.par.KONTO_SHOW_NUMBER_OF_LINES)
+#
+#         # color list with new_data_list
+#         color_list = []
+#         for flag in new_data_list:
+#             if flag:
+#                 color_list.append(rd.par.COLOR_SHOW_NEW_DATA_SETS)
+#             else:
+#                 color_list.append("")
+#             # end if
+#         # end for
+#         if len(data_llist):
+#             (new_data_llist, index_abfrage, irow, data_changed_pos_list) = \
+#                 depot_gui.konto_abfrage(header_liste, data_llist, abfrage_liste, color_list)
+#         else:
+#             rd.log.write_warn("Noch keine Daten für dieses Konto angelegt, es geht weiter zu Add ",screen=rd.par.LOG_SCREEN_OUT)
+#             index_abfrage = i_end
+#         # end if
+#
+#         # Vorblättern
+#         # ----------------------------
+#         if (index_abfrage == i_vor):
+#
+#             # Daten updaten
+#             if len(data_changed_pos_list) > 0:
+#                 konto_obj.write_anzeige_back_data(new_data_llist, data_changed_pos_list, istart)
+#
+#             # Vorwärts gehen
+#             dir = +1
+#             runflag = True
+#
+#         # Zurückblättern
+#         # ----------------------------
+#         elif (index_abfrage == i_back):
+#
+#             # Daten updaten
+#             if len(data_changed_pos_list) > 0:
+#                 konto_obj.write_anzeige_back_data(new_data_llist, data_changed_pos_list,istart)
+#
+#             # Rückwärts gehen
+#             dir = -1
+#             runflag = True
+#
+#         # Beenden
+#         # ----------------------------
+#         elif (index_abfrage == i_end):
+#             runflag = False
+#
+#         # Updaten
+#         # ----------------------------
+#         elif (index_abfrage == i_update):
+#
+#             # Daten updaten
+#             if len(data_changed_pos_list) > 0:
+#                 konto_obj.write_anzeige_back_data(new_data_llist, data_changed_pos_list,istart)
+#                 if status != hdef.OKAY:
+#                     rd.log.write_err("konto__anzeige edit " + errtext, screen=rd.par.LOG_SCREEN_OUT)
+#                     return (status, konto_dict)
+#                 elif not new_data_set_flag:
+#                     runflag = False
+#                 # endif
+#
+#             # lösche die Änderungs-Liste
+#             konto_obj.delete_new_data_list()
+#             runflag = False
+#
+#         elif index_abfrage == i_edit:
+#             if (irow >= 0):
+#                 (data_set, header_liste,buchungs_type_list, buchtype_index_in_header_liste) = konto_obj.get_edit_data(irow)
+#             else:
+#                 rd.log.write_err("konto__anzeige edit: irow out of range ", screen=rd.par.LOG_SCREEN_OUT)
+#                 return (hdef.NOT_OK, konto_dict)
+#             # endif
+#
+#             # Erstelle die Eingabe liste
+#             eingabeListe = []
+#             for i, header in enumerate(header_liste):
+#                 if i == buchtype_index_in_header_liste:
+#                     eingabeListe.append([header, buchungs_type_list])  # Auswahl ist die buchungs_type_list
+#                 else:
+#                     eingabeListe.append(header)
+#                 # end if
+#             # end for
+#
+#             new_data_list = depot_gui.konto_data_set_eingabe(eingabeListe,data_set)
+#
+#             if len(new_data_list):
+#                 (new_data_set_flag, status, errtext) = konto_obj.set_data_set_extern_liste(new_data_list,irow)
+#
+#                 if status != hdef.OKAY:
+#                     rd.log.write_err("konto__anzeige edit " + errtext, screen=rd.par.LOG_SCREEN_OUT)
+#                     return (status, konto_dict)
+#                 elif not new_data_set_flag:
+#                     runflag = False
+#                 # endif
+#             # endif
+#             dir = 0
+#
+#         elif index_abfrage == i_add :
+#
+#             (header_liste, buchungs_type_list,buchtype_index_in_header_liste) = konto_obj.get_data_to_add_lists()
+#
+#             # Erstelle die Eingabe liste
+#             eingabeListe = []
+#             for i,header in enumerate(header_liste):
+#                 if i == buchtype_index_in_header_liste:
+#                     eingabeListe.append([header,buchungs_type_list])  # Auswahl ist die buchungs_type_list
+#                 else:
+#                     eingabeListe.append(header)
+#                 # end if
+#             # end for
+#
+#             new_data_list = depot_gui.konto_data_set_eingabe(eingabeListe)
+#             if len(new_data_list):
+#                 (new_data_set_flag, status, errtext) = konto_obj.set_one_new_data_set_extern_liste(new_data_list)
+#
+#                 if status != hdef.OKAY:
+#                     rd.log.write_err("konto__anzeige add "+errtext, screen=rd.par.LOG_SCREEN_OUT)
+#                     return (status, konto_dict)
+#                 elif not new_data_set_flag:
+#                     runflag = False
+#                 # endif
+#             # endif
+#             dir = 0
+#
+#         elif( index_abfrage == i_delete ):
+#
+#             if( irow >= 0 ):
+#                 flag = sgui.abfrage_janein(text=f"Soll irow = {irow} (von null gezält) gelöschen werden")
+#                 if( flag ):
+#                     (status,errtext) = konto_obj.delete_data_list(irow)
+#                     if( status != hdef.OKAY ):
+#                         rd.log.write_err("konto__anzeige delete " + errtext, screen=rd.par.LOG_SCREEN_OUT)
+#                         return (status, konto_dict)
+#                     # end if
+#                 # end if
+#             # end if
+#             runflag = True
+#             dir = 0
+#         else:
+#             runflag = False
+#     # end while
+#
+#     return (status, konto_dict,konto_obj)
+# # end def
 def build_range_to_show_dataset(nlines,istart,nshow,dir):
     '''
     

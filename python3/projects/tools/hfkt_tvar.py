@@ -20,8 +20,28 @@ obj = hfkt_tvar.build_table(names,table,types,types_store)      build table (lli
 
 val   = get_val(tval,type)                                     get single value out of TVal with given type
 vals  =  get_list(tlist, types)                                get list values out of TList with given types
+val   =  get_val_from_list(tlist,name,type)                    get one value from tlist with given name and type
+val   =  get_val_from_list(tlist,name)                         get one value from tlist with given name
+val   =  get_val_from_list(tlist,index)                        get one value from tlist with given index
+index =  get_index_from_list(tlist,name)
+index =  get_index_from_table(ttable,name)
+flag  =  check_name_from_list(tlist,name)
+flag  =  check_name_from_table(ttable,name)
 table =  get_table(ttable, types)                              get table values out of TTable with given types
-
+val   =  get_val_from_table(ttable,irow,name,type)
+val   =  get_val_from_table(ttable,irow,name)
+val   =  get_val_from_table(ttable,irow,index,type)
+val   =  get_val_from_table(ttable,irow,index)
+type  =  get_type_from_table(ttable,name)
+type  =  get_type_from_table(ttable,indx)
+ttable = add_row_liste_to_table(ttable, name,add_row_liste,type)
+ttable = set_val_in_table(ttable,irow,name,type)
+ttable = erase_irows_in_table(ttable,irow_erase_list)
+ttable = erase_irows_in_table(ttable,irow)
+ttable = sort_col_in_table(ttable,name,aufsteigend=1)
+ttable = sort_col_in_table(ttable,name)
+ttable = sort_col_in_table(ttable,index,aufsteigend=1)
+ttable = sort_col_in_table(ttable,index)
 """
 import os, sys
 from dataclasses import dataclass, field
@@ -34,6 +54,7 @@ if (tools_path not in sys.path):
 # Hilfsfunktionen
 import tools.hfkt_def as hdef
 import tools.hfkt_type as htype
+import tools.hfkt_list as hlist
 
 
 
@@ -356,6 +377,112 @@ def get_list(tlist: TList, types: list):
     
     return  vals
 # end def
+def get_val_from_list(tlist,name,type=None):
+    '''
+    get one value from tlist with given name and type
+    :param tlist:
+    :param name:
+    :param type:
+    :return: val   =  get_val_from_list(tlist,name,type)
+             val   =  get_val_from_list(tlist,name)
+             val   =  get_val_from_list(tlist,index,type)
+             val   =  get_val_from_list(tlist,index)
+    '''
+
+
+    if isinstance(name,int):
+        if len(tlist.vals) == 0:
+            raise Exception(
+                f"Error get_val_from_list: tlist = {tlist} is leer")
+        # end if
+        index = name
+        if index >= len(tlist.names):
+            index  = len(tlist.names)-1
+        # end if
+    else:
+        index = get_index_from_list(tlist, name)
+    # end if
+    
+    if type is not None:
+    
+        (status, wert) = htype.type_transform(tlist.vals[index], tlist.types[index], type)
+    
+        if status != hdef.OKAY:
+            raise Exception(
+                f"Error get_val_from_list: type_transform for tlist.vals[{index}] = {tlist.vals[index]} not possible from tlist.types[{index}] = {tlist.types[index]} to type={type} for variable = {tlist.names[index]}")
+        # end if
+    else:
+        wert = tlist.vals[index]
+    # end if
+    return wert
+# end def
+def get_index_from_list(tlist, name):
+    '''
+    get index from tlist with given name
+    :param tlist:
+    :param name:
+    :param type:
+    :return: index   =  get_index_from_list(tlist,name)
+    '''
+    
+    index_list = hlist.search_value_in_list_return_indexlist(tlist.names, name)
+    if len(index_list) == 0:
+        raise Exception(
+            f"Error get_val_from_list: tlist.namess = {tlist.names} hat nicht den gesuchten namen:{name = }")
+    else:
+        index = index_list[0]
+    # end if
+    
+    return index
+
+
+# end def
+def get_index_from_table(ttable, name):
+    '''
+    get index from ttable with given name
+    :param tlist:
+    :param name:
+    :param type:
+    :return: index   =  get_index_from_table(ttable,name)
+    '''
+    
+    index_list = hlist.search_value_in_list_return_indexlist(ttable.names, name)
+    if len(index_list) == 0:
+        raise Exception(
+            f"Error get_val_from_list: tlist.namess = {ttable.names} hat nicht den gesuchten namen:{name = }")
+    else:
+        index = index_list[0]
+    # end if
+    
+    return index
+
+
+# end def
+def check_name_from_list(tlist,name):
+    '''
+    
+    :param tlist:
+    :param name:
+    :return: flag  =  check_name_from_list(tlist,name)
+    '''
+    index_list = hlist.search_value_in_list_return_indexlist(tlist.names, name)
+    if len(index_list) == 0:
+        return False
+    
+    return True
+# end def
+def check_name_from_table(ttable,name):
+    '''
+    
+    :param tlist:
+    :param name:
+    :return: flag  =  check_name_from_table(ttable,name)
+    '''
+    return check_name_from_list(ttable,name)
+# end def
+
+
+
 def get_table(ttable: TTable, types: list):
     '''
 
@@ -382,5 +509,220 @@ def get_table(ttable: TTable, types: list):
     # end for
     return table
 # end def
+def get_val_table(ttable,irow,index):
+    '''
+    
+    :param ttable:
+    :param irow:
+    :param index:
+    :return: val   =  get_val_table(ttable,irow,index)
+    '''
 
+
+def get_val_from_table(ttable, irow,name, type=None):
+    '''
+    get one value from tlist with given name and type
+    :param tlist:
+    :param name:
+    :param type:
+    :return: val   =  get_val_from_table(ttable,irow,name,type)
+             val   =  get_val_from_table(ttable,irow,name)
+             val   =  get_val_from_table(ttable,irow,index,type)
+             val   =  get_val_from_table(ttable,irow,index)
+    '''
+    
+    if len(ttable.vals) == 0:
+        raise Exception(
+            f"Error get_val_from_table: tlist = {ttable} is leer")
+    # end if
+
+    if irow >= ttable.ntable:
+        irow = ttable.ntable-1
+    # end if
+    
+    if isinstance(name, int):
+        index = name
+        if index >= ttable.n:
+            index = ttable.n - 1
+        # end if
+    else:
+        index = get_index_from_table(ttable, name)
+    # end if
+    
+    if type is not None:
+        
+        (status, wert) = htype.type_transform(ttable.vals[irow][index], ttable.types[index], type)
+        
+        if status != hdef.OKAY:
+            raise Exception(
+                f"Error get_val_from_list: type_transform for ttable.vals[{irow}][{index}] = {ttable.vals[irow][index]} not possible from ttable.types[{index}] = {ttable.types[index]} to type={type} for variable = {ttable.names[index]}")
+        # end if
+    else:
+        wert = ttable.vals[irow][index]
+    # end if
+    return wert
+# end def
+def get_type_from_table(ttable,name):
+    '''
+    
+    :param ttable:
+    :param name:
+    :return: type  =  get_type_from_table(ttable,name)
+             type  =  get_type_from_table(ttable,index)
+    '''
+    if len(ttable.vals) == 0:
+        raise Exception(
+            f"Error get_type_from_table: tlist = {ttable} is leer")
+    # end if
+    
+    
+    if isinstance(name, int):
+        index = name
+        if index >= ttable.n:
+            index = ttable.n - 1
+        # end if
+    else:
+        index = get_index_from_table(ttable, name)
+    # end if
+    return ttable.types[index]
+# end def
+def set_val_in_table(ttable,val,irow,name,type=None):
+    '''
+    
+    :param ttable:
+    :paran val
+    :param irow:
+    :param name:
+    :param type:
+    :return: ttable = set_val_in_table(ttable,val,irow,name,type)
+             ttable = set_val_in_table(ttable,val,irow,name)
+             ttable = set_val_in_table(ttable,val,irow,icol,type)
+             ttable = set_val_in_table(ttable,val,irow,icol)
+    '''
+    
+    if len(ttable.vals) == 0:
+        raise Exception(
+            f"Error set_val_in_table: tlist = {ttable} is leer")
+    # end if
+    
+    if irow >= ttable.ntable:
+        irow = ttable.ntable - 1
+    # end if
+    
+    if isinstance(name, int):
+        index = name
+        if index >= ttable.n:
+            index = ttable.n - 1
+        # end if
+    else:
+        index = get_index_from_table(ttable, name)
+    # end if
+    
+    if type is not None:
+        
+        (status, wert) = htype.type_transform(val,type,ttable.types[index])
+        
+        if status != hdef.OKAY:
+            raise Exception(
+                f"Error set_val_in_table: type_transform for val = {val} not possible from type={type} to ttable.types[{index}] = {ttable.types[index]} for variable = {ttable.names[index]}")
+        # end if
+        ttable.vals[irow][index] = wert
+    else:
+        (status, wert) = htype.type_proof(val,ttable.types[index])
+        if status != hdef.OKAY:
+            raise Exception(
+                f"Error set_val_in_table: type_proof for val = {val} not possible from ttable.types[{index}] = {ttable.types[index]} for variable = {ttable.names[index]}")
+        # end if
+        ttable.vals[irow][index] = wert
+    # end if
+    return ttable
+# end def
+def add_row_liste_to_table(ttable, name,add_row_liste,type):
+    '''
+    
+    :param ttable:
+    :param name:
+    :param liste:
+    :param type:
+    :return: ttable = add_row_liste_to_table(ttable, name,add_row_liste,type)
+
+    '''
+    n = len(add_row_liste)
+    for irow in ttable.ntable:
+        
+        liste = ttable.vals[irow]
+        
+        if irow < n:
+            liste.append(add_row_liste[irow])
+        else:
+            liste.append(None)
+        # end if
+        ttable.vals[irow] = liste
+    # end for
+    
+    ttable.names.append(name)
+    ttable.types.append(type)
+    ttable.n += 1
+    
+    return ttable
+# end def
+def erase_irows_in_table(ttable,irow_erase_list):
+    '''
+    
+    :param ttable:
+    :param irow_erase_list:
+    :return: ttable = erase_irows_in_table(ttable,irow_erase_list)
+             ttable = erase_irows_in_table(ttable,irow)
+    '''
+
+
+    if isinstance(irow_erase_list,int):
+        irow_erase_list = [irow_erase_list]
+    # end if
+    
+    irow_erase_list.sort(reverse=True)
+    
+    for irow in irow_erase_list:
+        if irow < ttable.ntable:
+            del ttable.vals[irow]
+            ttable.ntable -= 1
+        # end if
+    # end for
+    return ttable
+# end def
+def sort_col_in_table(ttable,name,aufsteigend=1):
+    '''
+    
+    :param ttable:
+    :param name:
+    :param aufsteigend:
+    :return:    ttable = sort_col_in_table(ttable,name,aufsteigend=1)
+                ttable = sort_col_in_table(ttable,name)
+                ttable = sort_col_in_table(ttable,index,aufsteigend=1)
+                ttable = sort_col_in_table(ttable,index)
+ 
+    '''
+    
+    if len(ttable.vals) == 0:
+        raise Exception(
+            f"Error sort_col_in_table: ttable = {ttable} is leer")
+    # end if
+    
+    if isinstance(name, int):
+        index = name
+        if index >= ttable.n:
+            index = ttable.n - 1
+        # end if
+    else:
+        index = get_index_from_table(ttable, name)
+    # end if
+    
+    ttable.vals = hlist.sort_list_of_list(ttable.vals, index, aufsteigend=aufsteigend)
+    
+    return ttable
+# end def
+
+
+
+    
 

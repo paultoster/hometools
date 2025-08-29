@@ -39,18 +39,7 @@ import tools.hfkt_pickle as hpickle
 import wp_abfrage.wp_base as wp_base
 
 
-@dataclass
-class DepotData:
-    pickle_obj: hpickle.DataPickle = field(default_factory=hpickle.DataPickle)
-    data_dict: dict = field(default_factory=dict)
-    wp_data_dict: dict = field(default_factory=dict)
-    depot_obj: dkonto.KontoDataSet = field(default_factory=dkonto.KontoDataSet)
 
-class IbanData:
-    pickle_obj: hpickle.DataPickle = field(default_factory=hpickle.DataPickle)
-    data_dict: dict = field(default_factory=dict)
-    iban_obj: dkonto.KontoDataSet = field(default_factory=dkonto.KontoDataSet)
-    
 class AllgData:
     pickle_obj: hpickle.DataPickle = field(default_factory=hpickle.DataPickle)
     data_dict: dict = field(default_factory=dict)
@@ -64,7 +53,7 @@ class RootData:
     log: hlog.log = field(default_factory=hlog.log)
     ini: depot_ini_file.ini = field(default_factory=depot_ini_file.ini)
     allg: AllgData = field(default_factory=AllgData)
-    iban: IbanData = field(default_factory=IbanData)
+    iban = None
     konto_dict: dict = field(default_factory=dict)
     depot_dict: dict = field(default_factory=dict)
 
@@ -106,7 +95,7 @@ def depot_aufstellung():
     # data_base
     # -----------
     rd.allg = AllgData()
-    rd.iban = IbanData()
+    rd.iban = None
     rd.konto_dict = {}
     rd.csv_dict = {}
     rd.depot_dict = {}
@@ -119,7 +108,7 @@ def depot_aufstellung():
 
     # id consistency check
     #---------------------
-    (status, errtext) = rd_consistency_check(rd.par,rd.ini.ddict,rd.data)
+    (status, errtext) = rd_consistency_check(rd)
     if (status != hdef.OK):
         rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
         return
@@ -211,33 +200,34 @@ def depot_aufstellung():
     return
     
 # enddef
-def rd_consistency_check(par,ini_dict,data):
+def rd_consistency_check(rd):
     '''
     
     :param data:
     :return: (status, errtext) = rd_consistency_check(rd.data)
     '''
     # proof id-consistency konto-pickle-file
-    data[par.PROG_DATA_TYPE_NAME].idfunc.reset_consistency_check()
-    for konto_name in ini_dict[par.INI_KONTO_DATA_DICT_NAMES_NAME]:
-        n = data[konto_name].obj.get_number_of_data()
+    rd.allg.idfunc.reset_consistency_check()
+    for konto_name in rd.ini.ddict[rd.par.INI_KONTO_DATA_DICT_NAMES_NAME]:
+        n = rd.konto_dict[konto_name].konto_obj.get_number_of_data()
         
         for i in range(n):
             # get id
-            id = data[konto_name].obj.get_data_item_at_irow(i
-                , data[konto_name].obj.KONTO_DATA_NAME_DICT[data[konto_name].obj.KONTO_DATA_INDEX_ID]
-                , data[konto_name].obj.KONTO_DATA_TYPE_DICT[data[konto_name].obj.KONTO_DATA_INDEX_ID])
+            i_id = rd.konto_dict[konto_name].konto_obj.KONTO_DATA_INDEX_ID
+            name = rd.konto_dict[konto_name].konto_obj.KONTO_DATA_NAME_DICT[i_id]
+            type = rd.konto_dict[konto_name].konto_obj.KONTO_DATA_TYPE_DICT[i_id]
+            id = rd.konto_dict[konto_name].konto_obj.get_data_item_at_irow(i,name,type)
             # proof
-            (okay, errtext) = data[par.PROG_DATA_TYPE_NAME].idfunc.proof_and_add_consistency_check_id(id, konto_name)
+            (okay, errtext) = rd.allg.idfunc.proof_and_add_consistency_check_id(id, konto_name)
             
             if okay != hdef.OKAY:
-                data[par.PROG_DATA_TYPE_NAME].idfunc.reset_consistency_check()
+                rd.allg.idfunc.reset_consistency_check()
                 return (okay,errtext)
             # end if
         # end ofr
     # end for
     # reset dict
-    data[par.PROG_DATA_TYPE_NAME].idfunc.reset_consistency_check()
+    rd.allg.idfunc.reset_consistency_check()
     return (hdef.OKAY, "")
 # end def
 

@@ -2,11 +2,37 @@
 import tools.hfkt_def as hdef
 import tools.hfkt_type as htype
 import tools.hfkt_list as hlist
-
-import depot_data_class_defs as depot_class
+import tools.hfkt_dict as hdict
+import tools.hfkt_tvar as htvar
+import tools.hfkt_data_set as hdset
 
 class WpDataSet:
-    
+    '''
+                                 self.reset_status()
+    name:str                   = self.get_name()   get name from info_dict
+    n:int                      = self.get_n_data()
+    i:int                      = self.get_zahltdiv()
+    isin:str                   = self.get_isin()
+    kategorie:str              = self.get_kategorie()
+    depot_wp_name:str          = self.get_depot_wp_name()
+    anzahl:float               = self.get_summen_anzahl()
+    summ:euro                  = self.get_summen_wert()
+    summ:euro                  = self.get_einnahmen_wert()
+    id:int                     = self.get_id_of_irow(irow)
+    immutable_liste:list       = self.get_wp_immutable_list_from_header_list(header_liste)
+    ttable: class              = self.get_wp_data_set_ttable_to_store()
+    data_item                  = self.get_one_data_item(irow, header, type)
+    tliste: TList              = self.get_one_data_set_tlist(irow,header_liste, type_liste)
+    line_color_liste:list[str] = self.get_line_color_set_liste()
+    flag: bool                 = self.exist_id_in_table(id)
+                                 self.set_kategorie(kategorie)
+    status:int                 = self.set_stored_wp_data_set_ttable(wp_data_set_ttable,line_color)
+    flag_update:bool           = self.update_item_if_different(id, tvals,line_color)
+    flag:bool                  = self.set_edit_data_set_in_irow(new_data_list, header_liste, type_liste,irow)
+    flag:bool                  = self.set_item_in_irow(data_item, header, type,irow,line_color)
+    status:int                 = self.delete_in_wp_data_set(irow)
+    status:int                 = self.update_order_by_date()
+    '''
     
     def __init__(self,isin,depot_wp_name,par,wp_func_obj):
         '''
@@ -36,7 +62,7 @@ class WpDataSet:
         self.status = hdef.OK
         self.errtext = ""
         self.infotext = ""
-        self.data_set_obj = depot_class.DataSet("data_set_"+isin)
+        self.data_set_obj = hdset.DataSet("data_set_"+isin)
         
         for index in self.par.DEPOT_DATA_NAME_DICT.keys():
             self.data_set_obj.set_definition(index, self.par.DEPOT_DATA_NAME_DICT[index]
@@ -64,6 +90,10 @@ class WpDataSet:
         return
     # end def
     def reset_status(self):
+        '''
+        
+        :return: self.reset_status()
+        '''
         self.status = hdef.OKAY
         self.errtext = ""
         self.data_set_obj.reset_status()
@@ -71,34 +101,38 @@ class WpDataSet:
     def get_name(self):
         '''
         
-        :return:
+        :return: name = self.get_name()
         '''
         return self.wp_info_dict["name"]
     # end def
     def get_n_data(self):
-        return self.data_set_obj.n_data_sets
+        '''
+        
+        :return: n =  self.get_n_data()
+        '''
+        return self.data_set_obj.get_n_data()
     # end def
     def get_zahltdiv(self):
         '''
         
-        :return:
+        :return: i:int = self.get_zahltdiv()
         '''
         return self.wp_info_dict["zahltdiv"]
     # end def
     def get_kategorie(self):
         '''
         
-        :return: kategorie = self.get_kategorie
+        :return: kategorie = self.get_kategorie()
         '''
         return self.kategorie
     # end def
     def get_summen_anzahl(self):
         '''
-        
-        :return: Summe der Anzahl von Aktien
+        Summe der Anzahl von Aktien
+        :return: anzahl:float = self.get_summen_anzahl()
         '''
         summe = 0.0
-        for irow in range(self.data_set_obj.n_data_sets):
+        for irow in range(self.data_set_obj.get_n_data()):
             anzahl = self.data_set_obj.get_data_item(irow,self.par.DEPOT_DATA_NAME_ANZAHL,"float")
             if self.data_set_obj.status != hdef.OKAY:
                 self.status = self.data_set_obj.status
@@ -123,9 +157,13 @@ class WpDataSet:
         return float(int(summe*1000. + 0.5))/1000.
     # end def
     def get_summen_wert(self):
+        '''
+        
+        :return: summ:euro = self.get_summen_wert()
+        '''
         summe = 0.0
     
-        for irow in range(self.data_set_obj.n_data_sets):
+        for irow in range(self.data_set_obj.get_n_data()):
             wert = self.data_set_obj.get_data_item(irow, self.par.DEPOT_DATA_NAME_WERT, "euro")
             if self.data_set_obj.status != hdef.OKAY:
                 self.status = self.data_set_obj.status
@@ -158,9 +196,13 @@ class WpDataSet:
         return summe
     # end def
     def get_einnahmen_wert(self):
+        '''
+        
+        :return: summ:euro = self.get_einnahmen_wert()
+        '''
         summe = 0.0
         
-        for irow in range(self.data_set_obj.n_data_sets):
+        for irow in range(self.data_set_obj.get_n_data()):
             wert = self.data_set_obj.get_data_item(irow, self.par.DEPOT_DATA_NAME_WERT, "euro")
             if self.data_set_obj.status != hdef.OKAY:
                 self.status = self.data_set_obj.status
@@ -187,14 +229,11 @@ class WpDataSet:
         return summe
     
     # end def
-    def get_kategorie(self):
-        return self.kategorie
-    # end def
     def get_id_of_irow(self,irow):
         '''
         
         :param irow:
-        :return:
+        :return:  id:int = self.get_id_of_irow(irow)
         '''
         id = self.data_set_obj.get_data_item(irow, self.par.DEPOT_DATA_NAME_KONTO_ID)
         self.status = self.data_set_obj.status
@@ -203,18 +242,32 @@ class WpDataSet:
         return id
     # end def
     def set_kategorie(self,kategorie):
+        '''
+        
+        :param kategorie:
+        :return: self.set_kategorie(kategorie)
+        '''
         self.kategorie = kategorie
-    def set_stored_wp_data_set_dict(self,wp_data_set_dict_list,line_color,header_dict=None,type_dict=None):
+    def set_stored_wp_data_set_ttable(self, wp_data_set_ttable: htvar.TTable, line_color: str):
+        '''
+        
+        :param wp_data_set_ttable:
+        :param line_color:
+        :return:  status:int = self.set_stored_wp_data_set_ttable(wp_data_set_ttable,line_color)
+        '''
         self.status = hdef.OK
         self.errtext = ""
         
-        # for i in range(len(wp_data_set_dict_list)):
-        #     (okay,wert) = htype.type_transform(wp_data_set_dict_list[i]['wert'],type_dict[6],'euro')
-        #     value = abs(wert)
-        #     (okay,wert) = htype.type_transform(abs(wert),'euro',type_dict[6])
-        #     wp_data_set_dict_list[i]['wert'] = wert
+        self.data_set_obj.add_data_set_tvar( wp_data_set_ttable, line_color)
         
-        self.data_set_obj.set_data_set_dict_list(wp_data_set_dict_list,line_color,header_dict,type_dict)
+        if self.data_set_obj.status != hdef.OKAY:
+            self.status = self.data_set_obj.status
+            self.errtext = self.data_set_obj.errtext
+            self.data_set_obj.reset_status()
+            return self.status
+        # end if
+        
+        self.data_set_obj.update_order_icol(self.par.DEPOT_DATA_INDEX_BUCHDATUM)
         
         if self.data_set_obj.status != hdef.OKAY:
             self.status = self.data_set_obj.status
@@ -222,17 +275,20 @@ class WpDataSet:
             self.data_set_obj.reset_status()
         # end if
         
-        self.data_set_obj.update_order_by_date(self.par.DEPOT_DATA_INDEX_BUCHDATUM)
-
-        if self.data_set_obj.status != hdef.OKAY:
-            self.status = self.data_set_obj.status
-            self.errtext = self.data_set_obj.errtext
-            self.data_set_obj.reset_status()
-        # end if
-
         return self.status
+    
     # end def
+    def get_isin(self):
+        '''
+        
+        :return: isin:str = self.get_isin()
+        '''
+        return self.isin
     def get_depot_wp_name(self):
+        '''
+        
+        :return: depot_wp_name = self.get_depot_wp_name()
+        '''
         return self.depot_wp_name
     # end def
     def get_wp_immutable_list_from_header_list(self,header_liste):
@@ -262,26 +318,12 @@ class WpDataSet:
         
         return immutable_liste
     # end def
-    def get_wp_data_set_dict_to_store(self):
+    def get_wp_data_set_ttable_to_store(self):
         '''
         
-        :return: wp_data_set_dict =  self.get_wp_data_set_dict_to_store()
+        :return: ttable =  self.get_wp_data_set_ttable_to_store()
         '''
-        wp_data_set_dict = {}
-        
-        wp_data_set_dict[self.par.ISIN] = self.isin
-        wp_data_set_dict[self.par.WP_NAME] = self.depot_wp_name
-        wp_data_set_dict[self.par.WP_KATEGORIE] = self.kategorie
-        (wp_data_set_dict[self.par.WP_DATA_SET_DICT_LIST],wp_data_set_dict[self.par.WP_DATA_SET_NAME_DICT],wp_data_set_dict[self.par.WP_DATA_SET_TYPE_DICT] ) \
-            = self.data_set_obj.get_data_set_dict_list()
-        
-        if self.data_set_obj.status != hdef.OKAY:
-            self.status = hdef.NOT_OKAY
-            self.errtext = self.data_set_obj.errtext
-            self.data_set_obj.reset_status()
-        # end if
-
-        return wp_data_set_dict
+        return self.data_set_obj.get_data_set_to_store_ttable()
     # end def
     def exist_id_in_table(self,new_id):
         
@@ -297,112 +339,119 @@ class WpDataSet:
             return False
         # end if
     # end def
-    def add_data_set_dict_to_table(self,new_data_dict,new_header_dict,new_type_dict,line_color):
+    def add_data_set_dict_to_table(self,new_data_tlist: htvar.TList,line_color):
         '''
-        
+
         :param new_data_dict:
         :param new_type_dict:
         :return:
         '''
-        
-        
-        
-        self.data_set_obj.add_data_set_dict(new_data_dict,new_header_dict,new_type_dict,line_color)
-        
+        self.data_set_obj.add_data_set_tvar(new_data_tlist,line_color)
+
         if self.data_set_obj.status != hdef.OKAY:
             self.status  = self.data_set_obj.status
             self.errtext = self.data_set_obj.errtext
             self.data_set_obj.reset_status()
         # end if
     # end def
-    def update_item_if_different(self,id, update_data_dict, update_header_dict,update_type_dict,line_color):
+    def update_item_if_different(self,id, tlist_update: htvar.TList,line_color):
         '''
         
         :param new_data_dict:
         :param new_header_dict:
         :param new_type_dict:
-        :return: flag_update = self.update_item_if_different(id, new_data_dict, new_header_dict,new_type_dict,line_color)
+        :return: flag_update = self.update_item_if_different(id, tvals,line_color)
         '''
         
         flag_update = False
         
-        icol = hdict.find_first_key_dict_value(update_header_dict,self.par.DEPOT_DATA_NAME_KONTO_ID)
+        # index_liste = hlist.search_value_in_list_return_indexlist(tlist_update.names,self.par.DEPOT_DATA_NAME_KONTO_ID)
         
-        if icol is not None:
-            irow_list = self.data_set_obj.find_in_col(id, update_type_dict[icol], icol)
-            
-            if len(irow_list) > 1:
-                self.status = hdef.NOT_OKAY
-                self.errtext = f"update_item_if_different: id = {id} ist mehrfach vorhanden irow_list = {irow_list}"
-                return flag_update
-            elif len(irow_list) == 0:
-                return flag_update
-            # end if
-            
-            irow = irow_list[0]
-            data_set_dict = self.data_set_obj.get_one_data_set_dict(irow,update_header_dict,update_type_dict)
-            
-            if self.data_set_obj.status != hdef.OKAY:
-                self.status = self.data_set_obj.status
-                self.errtext = self.data_set_obj.errtext
-                self.data_set_obj.reset_status()
-                return flag_update
-            # end if
-            
-            for key in data_set_dict.keys():
-                
-                if data_set_dict[key] != update_data_dict[key]:
-                    flag_update =self.data_set_obj.set_data_item(update_data_dict[key], line_color,irow, key, update_type_dict[key])
-    
-                    if self.data_set_obj.status != hdef.OKAY:
-                        self.status = self.data_set_obj.status
-                        self.errtext = self.data_set_obj.errtext
-                        self.data_set_obj.reset_status()
-                        return flag_update
-                    # end if
-                # end if
-            # end for
-        return flag_update
-    # end def
-    def get_data_set_lliste(self,header_liste,type_liste):
-        '''
+#        icol = hdict.find_first_key_dict_value(update_header_dict,self.par.DEPOT_DATA_NAME_KONTO_ID)
         
-        :param header_liste:
-        :param type_liste:
-        :return: data_lliste = self.get_data_setheader_liste,type_liste)
-        '''
-        
-        data_lliste = self.data_set_obj.get_data_set_lliste(header_liste, type_liste)
-
-        if self.data_set_obj.status != hdef.OKAY:
-            self.status  = self.data_set_obj.status
-            self.errtext = self.data_set_obj.errtext
-            self.data_set_obj.reset_status()
+        #if len(index_liste):
+            #icol = index_liste[0]
+        irow_list = self.data_set_obj.find_in_col(id
+                                                  ,self.par.DEPOT_DATA_TYPE_DICT[self.par.DEPOT_DATA_INDEX_KONTO_ID]
+                                                  ,self.par.DEPOT_DATA_INDEX_KONTO_ID)
+            
+        if len(irow_list) > 1:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"update_item_if_different: id = {id} ist mehrfach vorhanden irow_list = {irow_list}"
+            return flag_update
+        elif len(irow_list) == 0:
+            return flag_update
         # end if
-
-        return  data_lliste
-    # end def
-    def get_line_color_set_liste(self):
-        return self.data_set_obj.get_line_color_set_liste()
-    def get_one_data_set_liste(self,irow,header_liste, type_liste):
-        '''
-        
-        :param irow:
-        :param header_liste:
-        :param type_liste:
-        :return: data_set = self.get_one_data_set_liste(irow,header_liste, type_liste)
-        get_one_data_set_liste(self,irow, header_liste, type_liste)
-        '''
-    
-        data_set = self.data_set_obj.get_one_data_set_liste(irow, header_liste, type_liste)
+            
+        irow = irow_list[0]
+        data_set_tlist = self.data_set_obj.get_one_data_set_tlist(irow,tlist_update.names,tlist_update.types)
         
         if self.data_set_obj.status != hdef.OKAY:
             self.status = self.data_set_obj.status
             self.errtext = self.data_set_obj.errtext
             self.data_set_obj.reset_status()
+            return flag_update
         # end if
+            
+        for index,name in enumerate(data_set_tlist.names):
+            
+            if data_set_tlist.vals[index] != tlist_update.vals[index]:
+                
+                flag_update =self.data_set_obj.set_data_item(tlist_update[index], line_color,irow, name, tlist_update.types[index])
+
+                if self.data_set_obj.status != hdef.OKAY:
+                    self.status = self.data_set_obj.status
+                    self.errtext = self.data_set_obj.errtext
+                    self.data_set_obj.reset_status()
+                    return flag_update
+                # end if
+            # end if
+        # end for
+        return flag_update
+    # end def
+    # def get_data_set_lliste(self,header_liste,type_liste):
+    #     '''
+    #
+    #     :param header_liste:
+    #     :param type_liste:
+    #     :return: data_lliste = self.get_data_setheader_liste,type_liste)
+    #     '''
+    #
+    #     data_lliste = self.data_set_obj.get_data_set_lliste(header_liste, type_liste)
+    #
+    #     if self.data_set_obj.status != hdef.OKAY:
+    #         self.status  = self.data_set_obj.status
+    #         self.errtext = self.data_set_obj.errtext
+    #         self.data_set_obj.reset_status()
+    #     # end if
+    #
+    #     return  data_lliste
+    # # end def
+    def get_line_color_set_liste(self):
+        '''
         
-        return data_set
+        :return: line_color_liste = self.get_line_color_set_liste()
+        '''
+        return self.data_set_obj.get_line_color_set_liste()
+    def get_one_data_set_tlist(self,irow,header_liste, type_liste):
+        '''
+
+        :param irow:
+        :param header_liste:
+        :param type_liste:
+        :return: tliste = self.get_one_data_set_tlist(irow,header_liste, type_liste)
+        
+        '''
+
+        data_set_tlist = self.data_set_obj.get_one_data_set_tlist(irow, header_liste, type_liste)
+
+        if self.data_set_obj.status != hdef.OKAY:
+            self.status = self.data_set_obj.status
+            self.errtext = self.data_set_obj.errtext
+            self.data_set_obj.reset_status()
+        # end if
+
+        return data_set_tlist
     # end def
     def get_one_data_item(self, irow, header, type):
         '''
@@ -423,7 +472,7 @@ class WpDataSet:
     
         return data_item
     # end def
-    def set_edit_data_set_in_irow(self,new_data_list, header_liste, type_liste,irow,line_color):
+    def set_edit_data_set_in_irow(self,tliste:htvar.TList,irow,line_color):
         '''
         
         :param new_data_list:
@@ -433,9 +482,10 @@ class WpDataSet:
         :return: flag = self.set_edit_data_set_in_irow(new_data_list, header_liste, type_liste,irow)
         '''
         self.infotext = ""
-        for i,value in enumerate(new_data_list):
-            header = header_liste[i]
-            type   = type_liste[i]
+        
+        for i,value in enumerate(tliste.vals):
+            header = tliste.names[i]
+            type   = tliste.types[i]
             
             flag = self.set_item_in_irow(value, header, type,irow,line_color)
             if not flag:
@@ -450,7 +500,7 @@ class WpDataSet:
         :param header:
         :param type:
         :param irow:
-        :return: flag = self.set_item_in_irow(data, header, type,irow)
+        :return: flag = self.set_item_in_irow(data, header, type,irow,line_color)
         '''
         
         (okay, wert) = htype.type_proof(value, type)
@@ -489,7 +539,7 @@ class WpDataSet:
         '''
         
         :param irow:
-        :return:
+        :return: status = self.delete_in_wp_data_set(irow)
         '''
         self.status = self.data_set_obj.delete_row_in_data_set(irow)
         return self.status
@@ -499,7 +549,7 @@ class WpDataSet:
         
         :return: status = self.update_order_by_date()
         '''
-        self.data_set_obj.update_order_by_date(self.par.DEPOT_DATA_INDEX_BUCHDATUM)
+        self.data_set_obj.update_order_icol(self.par.DEPOT_DATA_INDEX_BUCHDATUM)
         
         if self.data_set_obj.status != hdef.OKAY:
             self.status = self.data_set_obj.status

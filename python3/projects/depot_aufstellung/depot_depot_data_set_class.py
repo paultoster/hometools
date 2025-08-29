@@ -13,6 +13,7 @@ if (tools_path not in sys.path):
 
 import tools.hfkt_def as hdef
 import tools.hfkt_type as htype
+import tools.hfkt_tvar as htvar
 
 import depot_depot_wp_data_set_class as wpclass
 
@@ -21,11 +22,6 @@ import depot_depot_wp_data_set_class as wpclass
 #-------------------
 class DepotParam:
     ISIN: str = "isin"
-    WP_NAME: str = "wp_name"
-    WP_KATEGORIE: str = "wp_kategorie"
-    WP_DATA_SET_DICT_LIST: str = "wp_data_set_dict_list"
-    WP_DATA_SET_NAME_DICT: str = "wp_data_set_name_dict"
-    WP_DATA_SET_TYPE_DICT: str = "wp_data_set_type_dict"
     # BUchungs Typ
     DEPOT_BUCHTYPE_INDEX_UNBEKANNT: int = 0
     DEPOT_BUCHTYPE_INDEX_WP_KAUF: int = 1
@@ -148,7 +144,8 @@ class DepotParam:
     DEPOT_WP_STORE_PATH = "."
     DEPOT_WP_USE_JSON   = False
     
-    LINE_COLOR_NEW = "aquamarine1"  # "aliceblue"
+    LINE_COLOR_BASE = ""
+    LINE_COLOR_NEW  = "aquamarine1"  # "aliceblue"
     LINE_COLOR_EDIT = "orange1"
     
     DEPOT_SHOW_TYPE_INDEX_ALL = 0
@@ -159,7 +156,38 @@ class DepotParam:
 
 
 class DepotDataSet:
-    def __init__(self,depot_name,isin_liste,wp_func_obj):
+    '''
+    obj                            = DepotDataSet(depot_name,isin_liste,wp_func_obj)
+                                     obj.reset_status()
+                                     obj.reset_infotext()
+                                     obj.delete_infotext()
+    kategorie:str                  = obj.get_kategorie(isin)
+    kategorie_liste:liste[str]     = obj.get_kategorie_liste()
+                                     obj.set_kategorie(isin,kategorie)
+    isin_liste:list[str]           = obj.get_isin_liste()
+    depot_name:str                 = obj.get_depot_name()
+                                     obj.self.set_stored_wp_data_set_ttable(isin,kategorie,wp_data_set_table)
+    data_set_ttable: TTable        = obj.get_wp_data_set_dict_to_store(isin)
+    isin_list: list[str]           = obj.get_to_store_isin_list()
+    depot_wp_name_list: list[str]  = obj.get_to_store_depot_wp_name_list()
+                                     obj.update_from_konto_data()
+    tlist: TList                   = obj.get_konto_data_at_i_tlist(i,buch_type)
+    (flag,isin_index,id)           = obj.proof_raw_dict_isin_id(new_data_tlist)
+    wp_data_obj_dict: dict         = obj.get_wp_data_obj(isin)
+    wp_obj: class                  = obj.build_wp_data_obj(isin)
+     titlename:str                 = obj.get_titlename(isin)
+     (ttable,row_color_dliste)     = obj.get_depot_daten_sets_overview(nur_was_im_depot)
+     (ttable,row_color_dliste)     = obj.get_depot_daten_sets_overview_kategorie(kategorie)
+     (ttable,titlename)            = obj.get_depot_daten_sets_isin(isin)
+     (tliste,buchungs_type_list, buchtype_index_in_header_liste)
+                                   = obj.get_depot_daten_sets_isin_irow(isin,irow)
+     immutable_liste               = obj.get_immutable_list_from_header_list(isin,header_liste)
+     new_data_set_flag             = obj.set_data_set_isin_irow(tliste, isin, irow)
+     flag                          = obj.delete_in_data_set(isin,irow)
+     status                        = obj.set_kurs_value(isin,irow)
+     status                        = obj.update_data_ttable(isin,changed_pos_list,ttable_update)
+    '''
+    def __init__(self,depot_name,isin_liste,wp_func_obj,konto_obj):
     
         self.depot_name = depot_name
         self.par = DepotParam()
@@ -171,6 +199,7 @@ class DepotDataSet:
         self.infotext = ""
 
         self.wp_func_obj = wp_func_obj
+        self.konto_obj = konto_obj
         
         self.isin_liste = sorted(isin_liste)
         self.wp_data_obj_dict  = {}
@@ -227,6 +256,12 @@ class DepotDataSet:
     
     # end def
     def set_kategorie(self,isin,kategorie):
+        '''
+        
+        :param isin:
+        :param kategorie:
+        :return: self.set_kategorie(isin,kategorie)
+        '''
         if isin in self.isin_liste:
             self.wp_data_obj_dict[isin].set_kategorie(kategorie)
             self.wp_color_dict[isin] = self.par.LINE_COLOR_EDIT
@@ -244,7 +279,7 @@ class DepotDataSet:
     def get_depot_name(self):
         return self.depot_name
     # end def
-    def set_stored_wp_data_set_dict(self,wp_data_set_dict):
+    def set_stored_wp_data_set_ttable(self,isin: str,kategorie: str,wp_data_set_table: htvar.TTable):
         '''
         
         Die gespeicherten Daten aus pickle werden an interne Datenbank übergeben
@@ -253,33 +288,28 @@ class DepotDataSet:
         :param isin:
         :param depot_wp_name:
         :param wp_data_set_dict:
-        :return: self.set_stored_wp_data_set_dict(self,isin,depot_wp_name,wp_data_set_dict)
+        :return: self.set_stored_wp_data_set_ttable(self,isin,kategorie,wp_data_set_table)
         '''
-        if self.par.ISIN in wp_data_set_dict:
-            isin =  wp_data_set_dict[self.par.ISIN]
-            # depot_wp_name = wp_data_set_dict[self.par.WP_NAME]
+        
+        if isin not in self.isin_liste:
+            raise Exception(f"isin: {isin} ist nicht in wp_data_obj_dict")
+        else:
             
-            if isin not in self.isin_liste:
-                raise Exception(f"isin: {isin} ist nicht in wp_data_obj_dict")
-            else:
-                wp_obj = self.get_wp_data_obj(isin)
-                if wp_obj.status != hdef.OKAY:
-                    raise Exception(f"set_stored_wp_data_set_dict: isin: {isin} Problem Erstellen Data Klasse {wp_obj.errtext}")
-                wp_obj.set_stored_wp_data_set_dict(wp_data_set_dict[self.par.WP_DATA_SET_DICT_LIST],
-                                                   "",
-                                                   wp_data_set_dict[self.par.WP_DATA_SET_NAME_DICT],
-                                                   wp_data_set_dict[self.par.WP_DATA_SET_TYPE_DICT])
-                if wp_obj.status != hdef.OKAY:
-                    raise Exception(
-                        f"set_stored_wp_data_set_dict: isin: {isin} Problem Füllen Data Klasse {wp_obj.errtext}")
-                
-                self.wp_color_dict[isin] = ""
-                
-                if self.par.WP_KATEGORIE in wp_data_set_dict.keys():
-                    wp_obj.set_kategorie(wp_data_set_dict[self.par.WP_KATEGORIE])
-                # end if
-            # end
-        # end if
+            # hand over data set
+            wp_obj = self.get_wp_data_obj(isin)
+            if wp_obj.status != hdef.OKAY:
+                raise Exception(f"set_stored_wp_data_set_ttable: isin: {isin} Problem Erstellen Data Klasse {wp_obj.errtext}")
+            wp_obj.set_stored_wp_data_set_table(wp_data_set_table,self.par.LINE_COLOR_BASE)
+            if wp_obj.status != hdef.OKAY:
+                raise Exception(
+                    f"set_stored_wp_data_set_ttable: isin: {isin = } Problem Füllen Data Klasse {wp_obj.errtext}")
+            
+            # set color
+            self.wp_color_dict[isin] = self.par.LINE_COLOR_BASE
+
+            # set kategorie
+            wp_obj.set_kategorie(kategorie)
+        # end
     # end def
     def get_wp_data_set_dict_to_store(self,isin):
         '''
@@ -288,26 +318,34 @@ class DepotDataSet:
         Ende
         
         :param isin:
-        :return: wp_data_set_dict = self.get_wp_data_set_dict_to_store(isin)
+        :return: data_set_ttable = self.get_wp_data_set_dict_to_store(isin)
         '''
         
         if isin not in self.isin_liste:
             self.status = hdef.NOT_OKAY
             self.errtext = f"get_wp_data_set_dict_to_store: isin: {isin} ist nicht dictonary self.wp_data_obj_dict"
-            wp_data_set_dict = {}
+            data_set_ttable = None
         else:
-            wp_data_set_dict =  self.wp_data_obj_dict[isin].get_wp_data_set_dict_to_store()
+            data_set_ttable =  self.wp_data_obj_dict[isin].get_wp_data_set_ttable_to_store()
             if self.wp_data_obj_dict[isin].status != hdef.OKAY:
                 self.status = hdef.NOT_OKAY
                 self.errtext = self.wp_data_obj_dict[isin].errtext
             # end if
         # end if
         
-        return wp_data_set_dict
+        return data_set_ttable
     def get_to_store_isin_list(self):
+        '''
+        
+        :return: isin_list = self.get_to_store_isin_list()
+        '''
         return list(self.isin_liste)
     # end def
     def get_to_store_depot_wp_name_list(self):
+        '''
+        
+        :return: depot_wp_name_list = self.get_to_store_depot_wp_name_list()
+        '''
         
         liste = []
         for isin in self.isin_liste:
@@ -317,45 +355,45 @@ class DepotDataSet:
         return liste
         
     # end def
-    def get_wp_data_set_dict_to_store(self,isin):
+    # def get_wp_data_set_dict_to_store(self,isin):
+    #     '''
+    #
+    #     :param isin:
+    #     :return: ddict = self.get_wp_data_set_dict_to_store(isin)
+    #     '''
+    #
+    #     if isin not in self.isin_liste:
+    #         self.status = hdef.NOT_OKAY
+    #         self.errtext = f"get_wp_data_set_dict_to_store: isin = {isin} not inwp_data_obj_dict"
+    #         return {}
+    #     # end def
+    #     return self.wp_data_obj_dict[isin].get_wp_data_set_dict_to_store()
+    # # end def
+    def update_from_konto_data(self):
         '''
         
-        :param isin:
-        :return: ddict = self.get_wp_data_set_dict_to_store(isin)
-        '''
-        
-        if isin not in self.isin_liste:
-            self.status = hdef.NOT_OKAY
-            self.errtext = f"get_wp_data_set_dict_to_store: isin = {isin} not inwp_data_obj_dict"
-            return {}
-        # end def
-        return self.wp_data_obj_dict[isin].get_wp_data_set_dict_to_store()
-    # end def
-    def update_from_konto_data(self,konto_obj):
-        '''
-        
-        :return:
+        :return: update_from_konto_data()
         '''
         self.status = hdef.OKAY
         self.errtext = ""
         self.infotext = ""
         
-        n = konto_obj.get_number_of_data()
+        n = self.konto_obj.get_number_of_data()
         flag_read = False
         # new_data_dict_list = []
         n_new_read = 0
         n_update   = 0
         isin_new_or_update_liste = []
         for i in range(n):
-            buchtype_str = konto_obj.get_buchtype_str(i)
+            buchtype_str = self.konto_obj.get_buchtype_str(i)
             
             if buchtype_str in self.par.DEPOT_DATA_BUCHTYPE_DICT.values():
                 
                 buch_type = self.par.DEPOT_BUCHTYPE_INDEX_LIST[self.par.DEPOT_BUCHTYPE_TEXT_LIST.index(buchtype_str)]
                 
-                (new_data_dict, new_header_dict, new_type_dict) = self.get_konto_data_at_i(i,buch_type,konto_obj)
+                new_data_tlist = self.get_konto_data_at_i_tlist(i,buch_type)
                 
-                (flag_read,isin,id) = self.proof_raw_dict_isin_id(new_data_dict) # proof id
+                (flag_read,isin,id) = self.proof_raw_dict_isin_id(new_data_tlist) # proof id
                 if self.status != hdef.OKAY:
                     return
                 # end if
@@ -365,7 +403,7 @@ class DepotDataSet:
                 
                 if flag_read:
                     n_new_read += 1
-                    self.wp_data_obj_dict[isin].add_data_set_dict_to_table(new_data_dict,new_header_dict,new_type_dict,self.par.LINE_COLOR_NEW)
+                    self.wp_data_obj_dict[isin].add_data_set_dict_to_table(new_data_tlist,self.par.LINE_COLOR_NEW)
                     
                     if self.wp_data_obj_dict[isin].status != hdef.OKAY:
                         self.status = hdef.NOT_OKAY
@@ -385,7 +423,7 @@ class DepotDataSet:
                         
                 else: # proof for update
                     
-                    flag_update = self.wp_data_obj_dict[isin].update_item_if_different(id,new_data_dict,new_header_dict,new_type_dict,self.par.LINE_COLOR_EDIT)
+                    flag_update = self.wp_data_obj_dict[isin].update_item_if_different(id,new_data_tlist,self.par.LINE_COLOR_EDIT)
                 
                     if self.wp_data_obj_dict[isin].status != hdef.OKAY:
                         self.status = hdef.NOT_OKAY
@@ -407,63 +445,64 @@ class DepotDataSet:
             self.wp_data_obj_dict[isin].update_order_by_date()
         
         if n_new_read > 0:
-            self.infotext = f"{self.errtext}\nVom Konto: <{konto_obj.set_konto_name()}> n_new: {n_new_read} neuen Daten eingelesen"
+            self.infotext = f"{self.errtext}\nVom Konto: <{self.konto_obj.set_konto_name()}> n_new: {n_new_read} neuen Daten eingelesen"
         # end if
         if n_update > 0:
-            self.infotext = f"{self.errtext}\nVom Konto: <{konto_obj.set_konto_name()}> n_update: {n_update}  Daten upgedatet"
+            self.infotext = f"{self.errtext}\nVom Konto: <{self.konto_obj.set_konto_name()}> n_update: {n_update}  Daten upgedatet"
         # end if
         if (n_new_read == 0) and (n_update == 0):
             if n == 0:
-                self.infotext = f"{self.errtext}\nIm Konto: <{konto_obj.set_konto_name()}> sind keine Daten vorhanden"
+                self.infotext = f"{self.errtext}\nIm Konto: <{self.konto_obj.set_konto_name()}> sind keine Daten vorhanden"
             else:
-                self.infotext = f"{self.errtext}\nVom Konto: <{konto_obj.set_konto_name()}> keine neuen Daten eingelesen"
+                self.infotext = f"{self.errtext}\nVom Konto: <{self.konto_obj.set_konto_name()}> keine neuen Daten eingelesen"
             # end if
         # end if
         return
     # end def
-    def get_konto_data_at_i(self,i,buch_type,konto_obj):
+    def get_konto_data_at_i_tlist(self,i,buch_type):
         '''
         
         :param i:
         :param buch_type:
-        :return:  (new_data_dict,new_header_dict,new_type_dict) = self.get_konto_data_at_i(i,buch_type,konto_obj)
+        :return:  tlist = self.get_konto_data_at_i_tlist(i,buch_type)
         '''
-        new_data_dict = {}
-        new_type_dict = {}
-        new_header_dict = {}
+        new_vals    = [None for i in self.par.DEPOT_KONTO_DATA_INDEX_LIST]
+        new_types   = [None for i in self.par.DEPOT_KONTO_DATA_INDEX_LIST]
+        new_headers = [None for i in self.par.DEPOT_KONTO_DATA_INDEX_LIST]
         for index in self.par.DEPOT_KONTO_DATA_INDEX_LIST:
             
             # buchtype
             if index == self.par.DEPOT_DATA_INDEX_BUCHTYPE:
-                new_data_dict[index] = buch_type
+                new_vals[index] = buch_type
             else: # sonst
-                new_data_dict[index] = konto_obj.get_data_item_at_irow(i,self.par.DEPOT_DATA_NAME_DICT[index],self.par.DEPOT_DATA_TYPE_DICT[index])
+                new_vals[index] = self.konto_obj.get_data_item_at_irow(i,self.par.DEPOT_DATA_NAME_DICT[index],self.par.DEPOT_DATA_TYPE_DICT[index])
             # end if
-            new_type_dict[index] = self.par.DEPOT_DATA_TYPE_DICT[index]
-            new_header_dict[index] = self.par.DEPOT_DATA_NAME_DICT[index]
+            new_types[index] = self.par.DEPOT_DATA_TYPE_DICT[index]
+            new_headers[index] = self.par.DEPOT_DATA_NAME_DICT[index]
             
             if self.par.DEPOT_DATA_NAME_DICT[index] == self.par.DEPOT_DATA_NAME_WERT:
-                    new_data_dict[index] = abs(new_data_dict[index])
+                    new_vals[index] = abs(new_vals[index])
             # end if
         # end ofr
-        
-        return (new_data_dict,new_header_dict,new_type_dict)
+        tlist = htvar.build_tlist(new_headers,new_vals,new_types)
+        return tlist
     # end def
-    def proof_raw_dict_isin_id(self,new_data_dict):
+    def proof_raw_dict_isin_id(self,new_data_tlist: htvar.TList):
         '''
         Prüft ob isin okay und ob isin es Stammdaten vorhanden und ob schon ein wp-objekt angelegt ist
         
         :param raw_data_dict:
-        :return: (flag,isin_index,id) = self.get_from_konto_data_raw_dict(raw_data_dict,new_type_dict)
+        :return: (flag,isin_index,id) = self.proof_raw_dict_isin_id(new_data_tlist)
         '''
+        
+        isin_proof = htvar.get_val_from_list(new_data_tlist,self.par.DEPOT_DATA_NAME_ISIN)
         
         # proof isin
         # -----------
-        (okay, isin) = htype.type_proof(new_data_dict[self.par.DEPOT_DATA_INDEX_ISIN]
-                                          ,self.par.DEPOT_DATA_TYPE_DICT[self.par.DEPOT_DATA_INDEX_ISIN])
+        (okay, isin) = htype.type_proof(isin_proof,self.par.DEPOT_DATA_TYPE_DICT[self.par.DEPOT_DATA_INDEX_ISIN])
         if okay != hdef.OKAY:
             self.status  = okay
-            self.errtext = f"proof_raw_dict_isin_id: isin: <{new_data_dict[self.par.DEPOT_DATA_INDEX_ISIN]}> has not correct type: <{self.DEPOT_DATA_TYPE_DICT[self.DEPOT_DATA_INDEX_ISIN]}> !!!"
+            self.errtext = f"proof_raw_dict_isin_id: isin: <{isin_proof}> has not correct type: <{self.DEPOT_DATA_TYPE_DICT[self.DEPOT_DATA_INDEX_ISIN]}> !!!"
             return (False,-1)
         # end if
         
@@ -473,7 +512,7 @@ class DepotDataSet:
             return (False,isin)
         # end if
         
-        id = new_data_dict[self.par.DEPOT_DATA_INDEX_KONTO_ID]
+        id = htvar.get_val_from_list(new_data_tlist,self.par.DEPOT_DATA_NAME_KONTO_ID)
         # proof id in data object
         if wp_obj.exist_id_in_table(id):
             flag = False
@@ -483,6 +522,11 @@ class DepotDataSet:
         return (flag,isin,id)
     # end def
     def get_wp_data_obj(self,isin):
+        '''
+        
+        :param isin:
+        :return: wp_data_obj_dict = self.get_wp_data_obj(isin)
+        '''
         
         if (isin not in self.isin_liste) or (self.wp_data_obj_dict[isin] is None):
             self.wp_data_obj_dict[isin] = self.build_wp_data_obj(isin)
@@ -502,7 +546,7 @@ class DepotDataSet:
         '''
         
         :param isin:
-        :return:
+        :return: wp_obj = self.build_wp_data_obj(isin)
         '''
         depot_wp_name = self.depot_name + "_" + isin
         wp_obj = wpclass.WpDataSet(isin, depot_wp_name, self.par, self.wp_func_obj)
@@ -513,50 +557,50 @@ class DepotDataSet:
         return wp_obj
     # end def
     
-    def get_data_set_dict_list(self):
-        '''
-        
-        :return:
-        '''
-        data_dict_list = []
-        for i in range(self.n_isin_list):
-            dict_liste = self.isin_data_obj_list[i].get_data_set_dict_list()
-            data_dict_list += dict_liste
-        # end for
-        return data_dict_list
-    # end def
-    def get_data_type_dict(self):
-        '''
-        
-        :return:
-        '''
-        if( self.n_isin_list):
-            data_type_dict = self.isin_data_obj_list[0].get_data_type_dict()
-        else:
-            data_type_dict = {}
-        # end if
-        
-        return data_type_dict
-    # end def
-    def filter_isin_data_set_dict_list(self,isin,depot_data_set_dict_list):
-        '''
-        
-        :param isin:
-        :param depot_data_set_dict_list:
-        :return: data_dict_list = self.filter_isin_data_set_dict_list(isin,depot_data_set_dict_list)
-        '''
-        data_dict_list = []
-        for ddict in depot_data_set_dict_list:
-            if isin == ddict[self.DEPOT_DATA_NAME_ISIN]:
-                data_dict_list.append(ddict)
-            # end if
-        # end for
-        return data_dict_list
-    # end def
+    # def get_data_set_dict_ttable(self):
+    #     '''
+    #
+    #     :return:
+    #     '''
+    #     data_dict_list = []
+    #     for isin in self.isin_liste:
+    #         dict_liste = self.wp_data_obj_dict[isin].get_data_set_dict_ttable()
+    #         data_dict_list += dict_liste
+    #     # end for
+    #     return data_dict_list
+    # # end def
+    # def get_data_type_dict(self):
+    #     '''
+    #
+    #     :return:
+    #     '''
+    #     if( self.n_isin_list):
+    #         data_type_dict = self.isin_data_obj_list[0].get_data_type_dict()
+    #     else:
+    #         data_type_dict = {}
+    #     # end if
+    #
+    #     return data_type_dict
+    # # end def
+    # def filter_isin_data_set_dict_list(self,isin,depot_data_set_dict_list):
+    #     '''
+    #
+    #     :param isin:
+    #     :param depot_data_set_dict_list:
+    #     :return: data_dict_list = self.filter_isin_data_set_dict_list(isin,depot_data_set_dict_list)
+    #     '''
+    #     data_dict_list = []
+    #     for ddict in depot_data_set_dict_list:
+    #         if isin == ddict[self.DEPOT_DATA_NAME_ISIN]:
+    #             data_dict_list.append(ddict)
+    #         # end if
+    #     # end for
+    #     return data_dict_list
+    # # end def
     def get_titlename(self,isin):
         '''
         
-        :return:
+        :return: titlename = self.get_titlename(isin)
         '''
         if isin in self.isin_liste:
             titlename = f"Depot: {self.depot_name},WP: {isin}/{self.wp_data_obj_dict[isin].wp_info_dict['name']}/zahltdiv:{self.wp_data_obj_dict[isin].wp_info_dict['zahltdiv']}"
@@ -570,7 +614,7 @@ class DepotDataSet:
         hole von jedem WP die Zusammenfassungen
         :param nur_was_im_depot = False alle zeigen
                                 = True nur die nch im Depot sinf (anzahl > 0)
-        :return: (data_lliste, header_liste,type_liste,row_color_dliste) = self.get_depot_daten_sets_overview(nur_was_im_depot)
+        :return: (ttable,row_color_dliste) = self.get_depot_daten_sets_overview(nur_was_im_depot)
         '''
         
         
@@ -683,7 +727,9 @@ class DepotDataSet:
 
         data_lliste.append(end_zeile)
         
-        return (data_lliste, header_liste,type_liste,row_color_dliste)
+        ttable = htvar.build_ttable(header_liste,data_lliste,type_liste)
+        
+        return (ttable,row_color_dliste)
 
         
     # end def
@@ -692,7 +738,7 @@ class DepotDataSet:
                 hole von jedem WP die Zusammenfassungen wenn es die gewünschte Kategorie hat
 
         :param kategorie:
-        :return: (data_lliste, header_liste,type_liste,row_color_dliste) = self.get_depot_daten_sets_overview_kategorie(kategorie)
+        :return: (ttable,row_color_dliste) = self.get_depot_daten_sets_overview_kategorie(kategorie)
         '''
         
         header_liste = [self.par.DEPOT_DATA_NAME_ISIN,
@@ -789,14 +835,15 @@ class DepotDataSet:
             # end if
         # end for
         
-        return (data_lliste, header_liste, type_liste, row_color_dliste)
-    
+        ttable = htvar.build_ttable(header_liste, data_lliste, type_liste)
+        
+        return (ttable, row_color_dliste)
     # end def
     def get_depot_daten_sets_isin(self,isin):
         '''
         
         :param isin: isin number
-        :return: (data_lliste, header_liste,type_liste,titlename) = self.get_depot_daten_sets_isin(isin)
+        :return: (ttable,titlename) = self.get_depot_daten_sets_isin(isin)
         
     DEPOT_DATA_NAME_WP_NAME = "wp_name"
     DEPOT_DATA_NAME_ZAHLTDIV = "zahltdiv"
@@ -839,8 +886,11 @@ class DepotDataSet:
         else:
             buchtype_index_in_header_liste = -1
         # endif
-
-        return (data_lliste, header_liste,type_liste,line_color_liste)
+        
+        ttable = htvar.build_ttable(header_liste, data_lliste, type_liste)
+        
+        return (ttable, line_color_liste)
+        
     # end def
 
 
@@ -849,8 +899,7 @@ class DepotDataSet:
     
         :param isin: isin number
         :param irow: row number
-        :return: (data_lliste, header_liste,type_liste,titlename,buchungs_type_list, buchtype_index_in_header_liste)
-                                                                             = self.get_depot_daten_sets_isin_irow(isin,irow)
+        :return: (tliste,buchungs_type_list, buchtype_index_in_header_liste) = self.get_depot_daten_sets_isin_irow(isin,irow)
     
         '''
         
@@ -876,21 +925,22 @@ class DepotDataSet:
                       "euroStrK",
                       "euroStrK"]
         
-        output_data_set = self.wp_data_obj_dict[isin].get_one_data_set_liste(irow,header_liste, type_liste)
+        data_set_tlist = self.wp_data_obj_dict[isin].get_one_data_set_tlist(irow,header_liste, type_liste)
+        
         if self.wp_data_obj_dict[isin].status != hdef.OKAY:
             self.status = hdef.NOT_OKAY
             self.errtext = self.wp_data_obj_dict[isin].errtext
-            return ([], [], [], [],0)
+            return (None, [],0)
         # end if
         
-        buchtype_index_in_header_liste = 1 # siehe header_liste
+        buchtype_index_in_header_liste = header_liste.index(self.par.DEPOT_DATA_NAME_BUCHTYPE) # siehe header_liste
         buchungs_type_list = self.par.DEPOT_BUCHTYPE_TEXT_LIST
-
-        return (output_data_set, header_liste, type_liste,buchungs_type_list,buchtype_index_in_header_liste)
+        
+        
+        return (data_set_tlist,buchungs_type_list,buchtype_index_in_header_liste)
     # end def
     def get_immutable_list_from_header_list(self,isin,header_liste):
         '''
-        
         :param isin
         :param header_liste:
         :return: immutable_liste = self.get_immutable_list_from_header_list(isin,header_liste)
@@ -914,13 +964,13 @@ class DepotDataSet:
         
         return immutable_liste
     # end def
-    def set_data_set_isin_irow(self,new_data_list, header_liste, type_liste,isin, irow):
+    def set_data_set_isin_irow(self,tliste:htvar.TList,isin, irow):
         '''
         
         :param new_data_list:
         :param isin:
         :param irow:
-        :return: new_data_set_flag = self.set_data_set_isin_irow(new_data_list,header_liste, type_liste, isin, irow)
+        :return: new_data_set_flag = self.set_data_set_isin_irow(tliste, isin, irow)
         '''
     
         new_data_set_flag = False
@@ -931,7 +981,7 @@ class DepotDataSet:
             return False
         # end if
         
-        new_data_set_flag = self.wp_data_obj_dict[isin].set_edit_data_set_in_irow(new_data_list, header_liste, type_liste,irow,self.par.LINE_COLOR_EDIT)
+        new_data_set_flag = self.wp_data_obj_dict[isin].set_edit_data_set_in_irow(tliste,irow,self.par.LINE_COLOR_EDIT)
 
         if self.wp_data_obj_dict[isin].status != hdef.OKAY:
             self.status = hdef.NOT_OKAY
@@ -947,13 +997,12 @@ class DepotDataSet:
         
         return new_data_set_flag
     # end def
-    def delete_in_data_set(self,isin,irow,konto_obj):
+    def delete_in_data_set(self,isin,irow):
         '''
         
         :param isin:
         :param irow:
-        :param konto_obj:
-        :return:
+        :return: flag = self.delete_in_data_set(isin,irow)
         '''
 
         if isin not in self.isin_liste:
@@ -972,10 +1021,10 @@ class DepotDataSet:
         # end if
 
         # finde konto row in konto_data_set
-        irow_konto = konto_obj.get_irow_by_id(id)
+        irow_konto = self.konto_obj.get_irow_by_id(id)
         if irow_konto < 0:
             self.status = hdef.NOT_OKAY
-            self.errtext = f"In Konto: {konto_obj.konto_name} konnte id = {id} nicht gefunden werden !!!!"
+            self.errtext = f"In Konto: {self.konto_obj.konto_name} konnte id = {id} nicht gefunden werden !!!!"
             return self.status
         # end if
 
@@ -987,7 +1036,7 @@ class DepotDataSet:
             return self.status
         # end if
         
-        (self.status, self.errtext) = konto_obj.delete_data_list(irow_konto)
+        (self.status, self.errtext) = self.konto_obj.delete_data_list(irow_konto)
         
         return self.status
     def set_kurs_value(self,isin,irow):
@@ -1019,40 +1068,40 @@ class DepotDataSet:
                       "cent",
                       "cent",
                       "cent"]
-        index_datum = 0
-        index_buchtype = 1
-        index_anzahl = 2
-        index_kurs = 3
-        index_wert = 4
-        index_kosten = 5
-        index_steuer = 6
         
         
-        data_set = self.wp_data_obj_dict[isin].get_one_data_set_liste(irow, header_liste, type_liste)
+        tliste = self.wp_data_obj_dict[isin].get_one_data_set_tlist(irow, header_liste, type_liste)
         if self.wp_data_obj_dict[isin].status != hdef.OKAY:
             self.status = hdef.NOT_OKAY
             self.errtext = self.wp_data_obj_dict[isin].errtext
             return self.status
         # end if
         flag = False
-        if data_set[index_buchtype] == self.par.DEPOT_BUCHTYPE_NAME_WP_KAUF:
-            if data_set[index_anzahl] > 0.01:
-                kurs = (data_set[index_wert]-data_set[index_kosten]-data_set[index_steuer])/data_set[index_anzahl]
-                data_set[index_kurs] = int(kurs + 0.5)
+        buchtype = htvar.get_val_from_list(tliste,self.par.DEPOT_DATA_NAME_BUCHTYPE)
+        anzahl   = htvar.get_val_from_list(tliste,self.par.DEPOT_DATA_NAME_ANZAHL)
+        wert     = htvar.get_val_from_list(tliste,self.par.DEPOT_DATA_NAME_WERT)
+        kosten   = htvar.get_val_from_list(tliste,self.par.DEPOT_DATA_NAME_KOSTEN)
+        steuer   = htvar.get_val_from_list(tliste,self.par.DEPOT_DATA_NAME_STEUER)
+        if buchtype == self.par.DEPOT_BUCHTYPE_NAME_WP_KAUF:
+            if anzahl > 0.01:
+                kurs = (wert-kosten-steuer)/anzahl
+                kurs = int(kurs + 0.5)
                 flag = True
-        elif data_set[index_buchtype] == self.par.DEPOT_BUCHTYPE_NAME_WP_VERKAUF:
-            if data_set[index_anzahl] > 0.01:
-                kurs = (data_set[index_wert]+data_set[index_kosten]+data_set[index_steuer])/data_set[index_anzahl]
-                data_set[index_kurs] = int(kurs+0.5)
+        elif buchtype == self.par.DEPOT_BUCHTYPE_NAME_WP_VERKAUF:
+            if anzahl > 0.01:
+                kurs = (wert+kosten+steuer)/anzahl
+                kurs = int(kurs+0.5)
                 flag = True
-        elif data_set[index_buchtype] == self.par.DEPOT_BUCHTYPE_NAME_WP_KOSTEN:
+        elif buchtype == self.par.DEPOT_BUCHTYPE_NAME_WP_KOSTEN:
             print("Kursabfrage fehlt!!")
-        elif data_set[index_buchtype] == self.par.DEPOT_BUCHTYPE_NAME_WP_EINNAHMEN:
+            kurs = 0
+        elif buchtype == self.par.DEPOT_BUCHTYPE_NAME_WP_EINNAHMEN:
             print("Kursabfrage fehlt!!")
+            kurs = 0
         # end if
         
         if flag:
-            self.wp_data_obj_dict[isin].set_item_in_irow(data_set[index_kurs], self.par.DEPOT_DATA_NAME_KURS, "cent", irow,self.par.LINE_COLOR_EDIT)
+            self.wp_data_obj_dict[isin].set_item_in_irow(kurs, self.par.DEPOT_DATA_NAME_KURS, "cent", irow,self.par.LINE_COLOR_EDIT)
 
             if self.wp_data_obj_dict[isin].status != hdef.OKAY:
                 self.status = hdef.NOT_OKAY
@@ -1064,13 +1113,13 @@ class DepotDataSet:
 
         return self.status
     # end dfe
-    def update_data_llist(self,isin,changed_pos_list,update_date_lliste,header_liste, type_liste ):
+    def update_data_ttable(self,isin,changed_pos_list,ttable_update ):
         '''
         
         :param isin:
         :param update_date_lliste:
         :param changed_pos_list:
-        :return: status = self.update_data_llist(isin,update_date_lliste, changed_pos_list)
+        :return: status = self.update_data_ttable(isin,changed_pos_list,ttable_update)
         '''
         if isin not in self.isin_liste:
             self.status = hdef.NOT_OKAY
@@ -1081,9 +1130,9 @@ class DepotDataSet:
         new_flag = False
 
         for (irow, icol) in changed_pos_list:
-            header = header_liste[icol]
-            type   = type_liste[icol]
-            value = update_date_lliste[irow][icol]
+            header = ttable_update.names[icol]
+            type   = ttable_update.types[icol]
+            value = ttable_update.vals[irow][icol]
             
             if header == self.par.DEPOT_DATA_NAME_KOSTEN:
                 

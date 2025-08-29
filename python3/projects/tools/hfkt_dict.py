@@ -2,7 +2,7 @@
 """
 keylist = find_keys_of_dict_value_as_list(ddict,value)
 
-value = find_first_key_dict_value(ddict,value) if not in value = None
+key = find_first_key_dict_value(ddict,value) if not in value = None
 
 (status,errtext,ddict) = proof_transform_ddict(ddict, proof_liste)
     

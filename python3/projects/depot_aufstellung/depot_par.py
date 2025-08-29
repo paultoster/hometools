@@ -161,8 +161,8 @@ class Parameter:
 
     IBAN_DATA_DICT_NAME: str = "iban_data_dict"
     IBAN_DATA_LIST_NAME: str = "iban_data_list"
-    # IBAN_DATA_ID_MAX_NAME: str    = "iban_data_id_max"
-    IBAN_ITEM_LIST: List[str] = ("id","iban", "bank", "wer", "comment")
+    
+    IBAN_DATA_TABLE_NAME: str = "iban_data_table"
 
     # konto names from ini
     # KONTO_NAMES: str = field(default_factory=str)
@@ -192,8 +192,15 @@ class Parameter:
     # DEPOT_DATA_SET_NAME: str = "depot_data_set"
     DEPOT_DATA_ISIN_LIST_NAME: str = "depot_data_isin_list"
     DEPOT_DATA_DEPOT_WP_LIST_NAME: str = "depot_wp_name_list"
-    # Parameter konto_data_set
     
+    # Parameter wp_data_set
+    ISIN: str = "isin"
+    WP_NAME: str = "wp_name"
+    WP_KATEGORIE: str = "wp_kategorie"
+    WP_DATA_SET_DICT_LIST: str = "wp_data_set_dict_list"
+    WP_DATA_SET_NAME_DICT: str = "wp_data_set_name_dict"
+    WP_DATA_SET_TYPE_DICT: str = "wp_data_set_type_dict"
+    WP_DATA_SET_TABLE_NAME: str = "wp_data_set_table"
 
 
   
