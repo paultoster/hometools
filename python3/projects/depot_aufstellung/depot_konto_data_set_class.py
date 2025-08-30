@@ -189,6 +189,9 @@ class KontoDataSet:
     titlename                     = obj.get_titlename()
     (new_flag, status, errtext)   = self.set_data_set_extern_liste(new_tlist,irow)
     (new_data_set_flag,status,errtext) =  self.set_new_data(new_data_table)
+                                          self.update_isin_find()
+    (tlist, change_flag)               = self.update_isin_data_set_tlist(tlist)
+    ttable                             = self.get_data_set_dict_ttable()
     
     '''
     
@@ -599,96 +602,129 @@ class KontoDataSet:
         return (new_data_set_flag, self.status, self.errtext)
     
     # enddef
-    #####
     def update_isin_find(self):
+        '''
         
-        index_id = self.par.KONTO_DATA_INDEX_LIST.index(self.par.KONTO_DATA_INDEX_ID)
+        :return: self.update_isin_find()
+        '''
         
-        for i,data_set in enumerate(self.data_set_llist):
-            (data_set,change_flag) = self.update_isin_data_set_list(data_set)
-            if change_flag:
-                self.data_set_llist[i] = data_set
-                self.new_read_id_list.append(data_set[index_id])
-            # end if
+        for irow in range(self.data_set_obj.get_n_data()):
             
-        # end ofr
+            ttlist = self.data_set_obj.get_one_data_set_tlist(irow)
+            
+            (ttlist, change_flag) = self.update_isin_data_set_tlist(ttlist)
+            
+            if change_flag:
+                status = self.data_set_obj.set_data_tlist(ttlist, self.par.LINE_COLOR_NEW, irow)
+                id     = self.data_set_obj.get_data_item(irow,self.par.KONTO_DATA_NAME_ID)
+                self.new_read_id_list.append(id)
+            # end if
+        # end
+    # end def
+    def update_isin_data_set_tlist(self, tlist):
+        '''
+
+        :param data_set:
+        :return: (tlist, change_flag) = self.update_isin_data_set_tlist(tlist)
+        '''
+        
+        change_flag = False
+        
+        buch_type = htvar.get_val_from_list(tlist, self.par.KONTO_DATA_NAME_BUCHTYPE)
+        isin_in = htvar.get_val_from_list(tlist, self.par.KONTO_DATA_NAME_ISIN)
+        comment = htvar.get_val_from_list(tlist, self.par.KONTO_DATA_NAME_COMMENT)
+        
+        if (buch_type == self.par.KONTO_BUCHTYPE_INDEX_WP_KAUF) or \
+            (buch_type == self.par.KONTO_BUCHTYPE_INDEX_WP_VERKAUF) or \
+            (buch_type == self.par.KONTO_BUCHTYPE_INDEX_WP_KOSTEN) or \
+            (buch_type == self.par.KONTO_BUCHTYPE_INDEX_WP_EINNAHMEN):
+            
+            if (len(isin_in) == 0) or (isin_in == "isinnotfound"):
+                isin_in = None
+            
+            isin = self.search_isin(isin_in, comment)
+        else:
+            isin = ""
+        # endif
+        
+        if isin != isin_in:
+            tlist = htvar.set_val_in_list(tlist, isin, self.par.KONTO_DATA_NAME_BUCHTYPE)
+            change_flag = True
+        # end if
+        
+        return (tlist, change_flag)
+    
+    # end def
     def get_data_set_dict_ttable(self):
         '''
-         konto_data_set_dict =
-        :return:
+        :return: ttable = get_data_set_dict_ttable()
         '''
         
-        konto_data_dict_list = []
-        for liste in self.data_set_llist:
-            ddict = {}
-            for index in self.par.KONTO_DATA_INDEX_LIST:
-                ddict[self.par.KONTO_DATA_NAME_DICT[index]] = liste[index]
-            # end for
-            konto_data_dict_list.append(ddict)
-        # end for
         
-        return konto_data_dict_list
+        ttable = self.data_set_obj.get_data_set_ttable()
+        return  ttable
     # end def
-    def set_dat_set_dict_list(self,konto_data_dict_list,konto_data_type_dict):
-        '''
-        
-        :param konto_data_dict_list:
-        :param konto_data_type_dict:
-        :return:
-        '''
-        # base_konto_data_set_list = [None for item in self.par.KONTO_DATA_INDEX_LIST]
-        
-        konto_data_llist = []
-        for data_dict in konto_data_dict_list:
-            konto_data_set_list = [None for item in self.par.KONTO_DATA_INDEX_LIST]
-            for name in data_dict.keys():
-                index = hdict.find_first_key_dict_value(self.par.KONTO_DATA_NAME_DICT, name)
-                if index is not None:
-                    (okay, wert) = htype.type_transform(data_dict[name],konto_data_type_dict[name],self.par.KONTO_DATA_TYPE_DICT[index])
-                    if okay == hdef.OK:
-                        konto_data_set_list[index]= wert
-                    else:
-                        raise Exception("Problem")
-                    # end if
-                # end if
-            # end for
-            konto_data_llist.append(konto_data_set_list)
-            del konto_data_set_list
-        # end for
-
-        return konto_data_llist
-    def get_data_type_dict(self):
-        '''
-        
-        :return:
-        '''
-        data_type_dict = {}
-        for key in self.par.KONTO_DATA_NAME_DICT.keys():
-            data_type_dict[self.par.KONTO_DATA_NAME_DICT[key]] = self.par.KONTO_DATA_TYPE_DICT[key]
-        # end for
-        
-        return  data_type_dict
-    # end def
-    def get_anzeige_data_llist(self, istart: int, dir: int, number_of_lines: int):
+    # def set_dat_set_dict_list(self,konto_data_dict_list,konto_data_type_dict):
+    #     '''
+    #
+    #     :param konto_data_dict_list:
+    #     :param konto_data_type_dict:
+    #     :return:
+    #     '''
+    #     # base_konto_data_set_list = [None for item in self.par.KONTO_DATA_INDEX_LIST]
+    #
+    #     konto_data_llist = []
+    #     for data_dict in konto_data_dict_list:
+    #         konto_data_set_list = [None for item in self.par.KONTO_DATA_INDEX_LIST]
+    #         for name in data_dict.keys():
+    #             index = hdict.find_first_key_dict_value(self.par.KONTO_DATA_NAME_DICT, name)
+    #             if index is not None:
+    #                 (okay, wert) = htype.type_transform(data_dict[name],konto_data_type_dict[name],self.par.KONTO_DATA_TYPE_DICT[index])
+    #                 if okay == hdef.OK:
+    #                     konto_data_set_list[index]= wert
+    #                 else:
+    #                     raise Exception("Problem")
+    #                 # end if
+    #             # end if
+    #         # end for
+    #         konto_data_llist.append(konto_data_set_list)
+    #         del konto_data_set_list
+    #     # end for
+    #
+    #     return konto_data_llist
+    # def get_data_type_dict(self):
+    #     '''
+    #
+    #     :return:
+    #     '''
+    #     data_type_dict = {}
+    #     for key in self.par.KONTO_DATA_NAME_DICT.keys():
+    #         data_type_dict[self.par.KONTO_DATA_NAME_DICT[key]] = self.par.KONTO_DATA_TYPE_DICT[key]
+    #     # end for
+    #
+    #     return  data_type_dict
+    # # end def
+    def get_anzeige_ttable(self):
         '''
         
         :param istart:           aktuelle start zeile
         :param dir:              dir=1 vorwärts blättern, dir=0 starten, dir=-1 rückwärts blättern
         :param number_of_lines:  Anzahl der zeilen, die gezeigt werden soll
-        :return: (istart,header_list,data_llist,new_data_list) = self.get_anzeige_data_llist(istart, dir, number_of_lines)
+        :return:                 (ttable,row_color_dliste) = self.get_anzeige_data_llist()
         '''
         
-        # build range
-        # =========================
-        (istart, iend) = self.build_range_to_show_dataset(istart, number_of_lines, dir)
+        ttable = self.data_set_obj.get_data_set_ttable()
         
-        # build to show data_llist
-        # =========================
-        (header_list, data_llist, new_data_list) = self.build_data_table_list_and_color_list(istart, iend)
+        ttable = htvar.transform_icol_table(ttable,self.par.KONTO_DATA_EXTERN_NAME_LIST)
         
-        return (istart, header_list, data_llist, new_data_list)
-    
+        ttable = htvar.transform_type_table(ttable, self.par.KONTO_DATA_EXTERN_TYPE_LIST)
+        
+        row_color_dliste = self.data_set_obj.get_line_color_set_liste()
+        
+        return (ttable,row_color_dliste)
+        
     # end def
+    #########
     def write_anzeige_back_data(self, new_data_llist, data_changed_pos_list, istart):
         '''
         
@@ -1070,43 +1106,6 @@ class KontoDataSet:
 
         
         return new_data_table
-    # end def
-    def update_isin_data_set_list(self,data_set):
-        '''
-        
-        :param data_set:
-        :return: (data_set, change_flag) = self.update_isin_data_set_list(data_set)
-        '''
-    
-        change_flag = False
-        
-        index_buch_type = self.par.KONTO_DATA_INDEX_LIST.index(self.par.KONTO_DATA_INDEX_BUCHTYPE)
-        index_isin = self.par.KONTO_DATA_INDEX_LIST.index(self.par.KONTO_DATA_INDEX_ISIN)
-        index_comment = self.par.KONTO_DATA_INDEX_LIST.index(self.par.KONTO_DATA_INDEX_COMMENT)
-
-        if (data_set[index_buch_type] == self.par.KONTO_BUCHTYPE_INDEX_WP_KAUF) or \
-            (data_set[index_buch_type] == self.par.KONTO_BUCHTYPE_INDEX_WP_VERKAUF) or \
-            (data_set[index_buch_type] == self.par.KONTO_BUCHTYPE_INDEX_WP_KOSTEN) or \
-            (data_set[index_buch_type] == self.par.KONTO_BUCHTYPE_INDEX_WP_EINNAHMEN):
-        
-            isin_in = data_set[index_isin]
-            
-            if (len(isin_in) == 0) or (isin_in == "isinnotfound"):
-                isin_in = None
-                
-            comment = data_set[index_comment]
-        
-            isin = self.search_isin(isin_in, comment)
-        else:
-            isin = ""
-        # endif
-        
-        if( isin != data_set[index_isin]):
-            data_set[index_isin] = isin
-            change_flag = True
-        # end if
-    
-        return (data_set, change_flag)
     # end def
     def search_isin(self,isin_in, comment):
         '''

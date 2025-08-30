@@ -35,13 +35,22 @@ val   =  get_val_from_table(ttable,irow,index)
 type  =  get_type_from_table(ttable,name)
 type  =  get_type_from_table(ttable,indx)
 ttable = add_row_liste_to_table(ttable, name,add_row_liste,type)
-ttable = set_val_in_table(ttable,irow,name,type)
+ttable = set_val_in_table(ttable,val,irow,name,type)
+ttable = set_val_in_table(ttable,val,irow,name)
+ttable = set_val_in_table(ttable,val,irow,icol,type)
+ttable = set_val_in_table(ttable,val,irow,icol)
+tlist  = set_val_in_list(tlist,val,name,type)
+tlist  = set_val_in_list(tlist,val,name)
+tlist  = set_val_in_list(tlist,val,icol,type)
+tlist  = set_val_in_list(tlist,val,icol)
 ttable = erase_irows_in_table(ttable,irow_erase_list)
 ttable = erase_irows_in_table(ttable,irow)
 ttable = sort_col_in_table(ttable,name,aufsteigend=1)
 ttable = sort_col_in_table(ttable,name)
 ttable = sort_col_in_table(ttable,index,aufsteigend=1)
 ttable = sort_col_in_table(ttable,index)
+ttable = transform_icol_table(ttable,new_name_list)
+ttable = transform_type_table(ttable,new_type_list)
 """
 import os, sys
 from dataclasses import dataclass, field
@@ -509,16 +518,6 @@ def get_table(ttable: TTable, types: list):
     # end for
     return table
 # end def
-def get_val_table(ttable,irow,index):
-    '''
-    
-    :param ttable:
-    :param irow:
-    :param index:
-    :return: val   =  get_val_table(ttable,irow,index)
-    '''
-
-
 def get_val_from_table(ttable, irow,name, type=None):
     '''
     get one value from tlist with given name and type
@@ -637,6 +636,55 @@ def set_val_in_table(ttable,val,irow,name,type=None):
     # end if
     return ttable
 # end def
+def set_val_in_list(tlist, val, name, type=None):
+    '''
+
+    :param ttable:
+    :paran val
+    :param irow:
+    :param name:
+    :param type:
+    :return:    tlist = set_val_in_list(tlist,val,name,type)
+                tlist = set_val_in_list(tlist,val,name)
+                tlist = set_val_in_list(tlist,val,icol,type)
+                tlist = set_val_in_list(tlist,val,icol)
+    '''
+    
+    if len(tlist.vals) == 0:
+        raise Exception(
+            f"Error set_val_in_table: tlist = {tlist} is leer")
+    # end if
+    
+    if isinstance(name, int):
+        index = name
+        if index >= tlist.n:
+            index = tlist.n - 1
+        # end if
+    else:
+        index = get_index_from_list(tlist, name)
+    # end if
+    
+    if type is not None:
+        
+        (status, wert) = htype.type_transform(val, type, tlist.types[index])
+        
+        if status != hdef.OKAY:
+            raise Exception(
+                f"Error set_val_in_table: type_transform for val = {val} not possible from type={type} to ttable.types[{index}] = {tlist.types[index]} for variable = {tlist.names[index]}")
+        # end if
+        tlist.vals[index] = wert
+    else:
+        (status, wert) = htype.type_proof(val, tlist.types[index])
+        if status != hdef.OKAY:
+            raise Exception(
+                f"Error set_val_in_table: type_proof for val = {val} not possible from ttable.types[{index}] = {tlist.types[index]} for variable = {tlist.names[index]}")
+        # end if
+        tlist.vals[index] = wert
+    # end if
+    return tlist
+
+
+# end def
 def add_row_liste_to_table(ttable, name,add_row_liste,type):
     '''
     
@@ -721,7 +769,61 @@ def sort_col_in_table(ttable,name,aufsteigend=1):
     
     return ttable
 # end def
+def transform_icol_table(ttable,new_name_list):
+    '''
+    
+    :param ttable:
+    :param new_name_list:
+    :return: ttable = transform_icol_table(ttable,new_name_list)
+    '''
+    
+    
+    types_new = []
+    index_list = []
+    for new_name in new_name_list:
+        index = get_index_from_table(ttable, new_name)
+        index_list.append(index)
+        types_new.append(ttable.types[index])
+    # end for
+    
+    table_new = []
+    for irow in range(ttable.ntable):
+        
+        vals = ttable.vals[irow]
+        vals_new = []
+        for i in index_list:
+            vals_new.append(vals[i])
+        # end for
+        table_new.append(vals_new)
+    # end for
+    
+    return build_table(new_name_list,table_new,types_new)
+# end def
+def transform_type_table(ttable,new_type_list):
+    '''
+    
+    :param ttable:
+    :param new_type_list:
+    :return: ttable = transform_type_table(ttable,new_type_list)
+    '''
+    if len(new_type_list) != ttable.n:
+        raise Exception(
+            f"Error transform_type_table: ttable.n: {ttable.n} != len(new_type_list): {len(new_type_list)}")
+    # end def
+    
+    for irow in range(ttable.ntable):
+        
+        vals = ttable.vals[irow]
+        for icol in ttable.n:
+            val_new = get_val_from_table(ttable,irow,icol,new_type_list[icol])
+            if vals[icol] != val_new:
+                ttable = set_val_in_table(ttable,val_new,irow,icol)
+            # end if
+        # end for
+    # end for
 
+    return ttable
+# end def
 
 
     

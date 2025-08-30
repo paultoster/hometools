@@ -18,15 +18,15 @@ import tools.hfkt_tvar as htvar
 
 class DataSet:
     '''
-        :return: self.set_definition(icol, name, type)  definiere für icol (Spalte) das dutum mit name und dem type
-                 status = self.add_data_set_tvar(data_set_tlist,[line_color=""])
-                 status = self.add_data_set_tvar(data_set_ttable,[line_color=""])
-                 value  = self.def get_data_item(irow, icol [,type])
-                 value = self.def get_data_item(irow, headername [,type])
-                 value = self.def get_data_item_special(calc_type, icol [,type]): calc_type = "sum"
-                 value = self.def get_data_item_special(calc_type, headername [,type]): calc_type = "sum"
-                 irow_list = self.find_in_col(value,type, icol)
-                 icol = self.find_header_index(header)
+        :return:                    self.set_definition(icol, name, type)  definiere für icol (Spalte) das dutum mit name und dem type
+                 status           = self.add_data_set_tvar(data_set_tlist,[line_color=""])
+                 status           = self.add_data_set_tvar(data_set_ttable,[line_color=""])
+                 value            = self.get_data_item(irow, icol [,type])
+                 value            = self.get_data_item(irow, headername [,type])
+                 value            = self.get_data_item_special(calc_type, icol [,type]): calc_type = "sum"
+                 value            = self.get_data_item_special(calc_type, headername [,type]): calc_type = "sum"
+                 irow_list        = self.find_in_col(value,type, icol)
+                 icol             = self.find_header_index(header)
                  ttable:class     = self.get_data_set_to_store_ttable()
                  ttable:class     = self.get_data_set_ttable([[header_liste],type_liste])
                  tlist:class      = self.get_one_data_set_tlist(irow, [header_liste, [type_liste]])
@@ -35,13 +35,14 @@ class DataSet:
                  type             = self.get_type_of_icol(icol)
                  type             = self.get_type_of_header(header)
                  data_type_dict   = self.get_data_type_dict()  data_type_dict[name] = type
-                 flag = self.set_data_item(value,line_color,irow, icol, type)
-                 flag = self.set_data_item(value,line_color,irow, name, type)
-                 flag = self.set_data_item(value,line_color,irow, icol)
-                 flag = self.set_data_item(value,line_color,irow, name)
-                 status = self.delete_row_in_data_set(irow)
-                 self.update_order_icol(icol)
-                 self.update_order_name(self, name)
+                 flag             = self.set_data_item(value,line_color,irow, icol, type)
+                 flag             = self.set_data_item(value,line_color,irow, name, type)
+                 flag             = self.set_data_item(value,line_color,irow, icol)
+                 flag             = self.set_data_item(value,line_color,irow, name)
+                 status           = self.set_data_tlist(tlist,line_color,irow)
+                 status           = self.delete_row_in_data_set(irow)
+                                    self.update_order_icol(icol)
+                                    self.update_order_name(self, name)
     '''
     def __init__(self ,name):
         self.name = name
@@ -812,6 +813,56 @@ class DataSet:
             self.line_color_liste[irow] = line_color
         # end if
         return True
+    # end def
+    def set_data_tlist(self,tlist, line_color, irow):
+        '''
+        
+        :param tlist:
+        :param line_color:
+        :param irow:
+        :return: status = self.update_data_tlist(tlist, line_color, irow)
+        '''
+        
+        if (not self.def_okay):
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"add_data_set_tlist: Definition der TTable nicht okay def_okay = False "
+            return self.status
+        # end if
+
+        if irow == self.n_data_sets:
+            return self.add_data_set_tvar(tlist, line_color)
+        elif irow > self.n_data_sets:
+        
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"update_data_tlist:  Fehler irow = {irow} >= self.n_data_sets = {self.n_data_sets} !!!"
+            return self.status
+        # end if
+    
+        
+        for j in range(tlist.n):
+        
+            name = tlist.names[j]
+            type = tlist.types[j]
+            value = tlist.vals[j]
+        
+            # suche in self.name_dict
+            key_name_dict = hdict.find_first_key_dict_value(self.name_dict, name)
+        
+            if key_name_dict is not None:
+                (okay, wert) = htype.type_transform(value, type, self.type_dict[key_name_dict])
+            
+                if okay == hdef.OK:
+                    self.data_set_llist[key_name_dict] = wert
+                else:
+                    self.status = hdef.NOT_OKAY
+                    self.errtext = f"add_data_set_tlist: Problem type_transform of <{value}> von type: <{type}> zu <{self.type_dict[key_name_dict]}> "
+                    return self.status
+                # end if
+            # end if
+        # end for
+        self.line_color_liste[irow] = line_color
+        
+        return self.status
     # end def
     def delete_row_in_data_set(self ,irow):
         '''
