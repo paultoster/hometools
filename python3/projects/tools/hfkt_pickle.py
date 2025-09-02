@@ -143,8 +143,11 @@ class DataPickle:
         
         self.ddict = ddict
     # end def
-    def save(self):
+    def save(self,ddict:dict = None):
         
+        if ddict is not None:
+            self.update_ddict(ddict)
+        # end if
         try:
             uncompressed_data = pickle.dumps(self.ddict)
         except (pickle.PickleError, pickle.PicklingError) as e:

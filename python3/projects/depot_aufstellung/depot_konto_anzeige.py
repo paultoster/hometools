@@ -6,7 +6,7 @@
 import os
 import sys
 
-
+import hfkt_tvar
 
 tools_path = os.getcwd() + "\\.."
 if (tools_path not in sys.path):
@@ -37,11 +37,13 @@ def anzeige_mit_konto_wahl(rd):
     runflag = True
     while (runflag):
         
-        (index, choice) = depot_gui.auswahl_konto(rd)
+        konto_liste =  list(rd.konto_dict[rd.par.INI_KONTO_DATA_DICT_NAMES_NAME].keys())
+        
+        (index, choice) = depot_gui.auswahl_konto(konto_liste)
         
         if index < 0:
             return status
-        elif choice in rd.ini.ddict[rd.par.INI_KONTO_DATA_DICT_NAMES_NAME]:
+        elif choice in rd.konto_dict[rd.par.INI_KONTO_DATA_DICT_NAMES_NAME]:
             
             rd.log.write(f"konto  \"{choice}\" ausgewählt")
             break
@@ -53,94 +55,75 @@ def anzeige_mit_konto_wahl(rd):
         # endif
     # endwhile
     
-    # Konto data in ini
-    konto_dict = rd.data[choice].ddict
-    konto_obj  = rd.data[choice].obj
-    
     # Anzeigen
-    (status, konto_dict,konto_obj) = anzeige(rd,konto_dict,konto_obj)
+    status = anzeige(rd,rd.konto_dict[choice].konto_obj)
     
     if status != hdef.OKAY:  # Abbruch
         return status
-    
-    # write back modified ddict
-    rd.data[choice].ddict = konto_dict
-    rd.data[choice].obj   = konto_obj
-    
+        
     return status
 # enddef
 
-def anzeige(rd,konto_dict,konto_obj):
+def anzeige(rd,konto_obj):
     '''
     
     :param rd:
     :param ddict:
-    :return: (status, konto_dict,konto_obj) =  anzeige(rd,konto_dict,konto_obj)
+    :return: (status, konto_obj) =  anzeige(rd,konto_obj)
     '''
     
     status = hdef.OKAY
-    abfrage_liste = ["vor","zurück","ende", "update(edit)","update(isin)", "edit","edit(isin)","add", "delete"]
-    i_vor = 0
-    i_back = 1
-    i_end = 2
-    i_update = 3
-    i_update_isin = 4
-    i_edit = 5
-    i_edit_isin = 6
-    i_add = 7
-    i_delete = 8
+    abfrage_liste = ["ende", "update(edit)","update(isin)", "edit","edit(isin)","add", "delete"]
+    i_end = 0
+    i_update = 1
+    i_update_isin = 2
+    i_edit = 3
+    i_edit_isin = 4
+    i_add = 5
+    i_delete = 6
     
+    data_changed_pos_list = []
+    ttable_anzeige = None
     runflag = True
-    istart  = 1000000
-    dir     = 0
     while (runflag):
         
-        (istart,header_liste, data_llist, new_data_list) = konto_obj.get_anzeige_data_llist(istart, dir, rd.par.KONTO_SHOW_NUMBER_OF_LINES)
+        (ttable,row_color_dlist) = konto_obj.get_anzeige_ttable()
         
-        # color list with new_data_list
-        color_list = []
-        for flag in new_data_list:
-            if flag:
-                color_list.append(rd.par.COLOR_SHOW_NEW_DATA_SETS)
-            else:
-                color_list.append("")
-            # end if
-        # end for
-        if len(data_llist):
-            (new_data_llist, index_abfrage, irow, data_changed_pos_list) = \
-                depot_gui.konto_abfrage(header_liste, data_llist, abfrage_liste, color_list)
+        if ttable.ntable > 0:
+            (ttable_anzeige, index_abfrage, irow, data_changed_pos_list) = \
+                depot_gui.konto_abfrage(ttable, abfrage_liste, row_color_dlist)
         else:
             rd.log.write_warn("Noch keine Daten für dieses Konto angelegt, es geht weiter zu Add ",screen=rd.par.LOG_SCREEN_OUT)
             index_abfrage = i_end
         # end if
         
-        # Vorblättern
-        # ----------------------------
-        if (index_abfrage == i_vor):
-            
-            # Daten updaten
-            if len(data_changed_pos_list) > 0:
-                konto_obj.write_anzeige_back_data(new_data_llist, data_changed_pos_list, istart)
-                
-            # Vorwärts gehen
-            dir = +1
-            runflag = True
-        
-        # Zurückblättern
-        # ----------------------------
-        elif (index_abfrage == i_back):
-            
-            # Daten updaten
-            if len(data_changed_pos_list) > 0:
-                konto_obj.write_anzeige_back_data(new_data_llist, data_changed_pos_list,istart)
-            
-            # Rückwärts gehen
-            dir = -1
-            runflag = True
-        
+        # # Vorblättern
+        # # ----------------------------
+        # if (index_abfrage == i_vor):
+        #
+        #     # Daten updaten
+        #     if len(data_changed_pos_list) > 0:
+        #         konto_obj.write_anzeige_back_data(new_data_llist, data_changed_pos_list, istart)
+        #
+        #     # Vorwärts gehen
+        #     dir = +1
+        #     runflag = True
+        #
+        # # Zurückblättern
+        # # ----------------------------
+        # elif (index_abfrage == i_back):
+        #
+        #     # Daten updaten
+        #     if len(data_changed_pos_list) > 0:
+        #         konto_obj.write_anzeige_back_data(new_data_llist, data_changed_pos_list,istart)
+        #
+        #     # Rückwärts gehen
+        #     dir = -1
+        #     runflag = True
+        #
         # Beenden
         # ----------------------------
-        elif (index_abfrage == i_end):
+        if (index_abfrage == i_end):
             runflag = False
         
         # Updaten
@@ -149,7 +132,7 @@ def anzeige(rd,konto_dict,konto_obj):
             
             # Daten updaten
             if len(data_changed_pos_list) > 0:
-                konto_obj.write_anzeige_back_data(new_data_llist, data_changed_pos_list,istart)
+                konto_obj.write_anzeige_back_data(ttable_anzeige, data_changed_pos_list)
                 if konto_obj.status != hdef.OKAY:
                     rd.log.write_err("konto_anzeige update " + konto_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
                     return (status, konto_dict,konto_obj)
@@ -159,9 +142,7 @@ def anzeige(rd,konto_dict,konto_obj):
                     # end if
                     runflag = False
                 # endif
-
-            # lösche die Änderungs-Liste
-            konto_obj.delete_new_data_list()
+            # end if
             runflag = True
         
         
@@ -177,33 +158,34 @@ def anzeige(rd,konto_dict,konto_obj):
             
             runflag = True
             
+        # edit
+        # ----------------------------
         elif index_abfrage == i_edit:
             
             if (irow >= 0):
-                (data_set, header_liste,buchungs_type_list, buchtype_index_in_header_liste) = konto_obj.get_edit_data(irow)
+                (tlist,buchungs_type_list, buchtype_index_in_header_liste) = konto_obj.get_edit_data(irow)
             else:
                 rd.log.write_err("konto__anzeige edit: irow out of range ", screen=rd.par.LOG_SCREEN_OUT)
                 return (hdef.NOT_OK, konto_dict,konto_obj)
             # endif
-
             
-            new_data_list = depot_gui.konto_depot_data_set_eingabe(header_liste,buchtype_index_in_header_liste,buchungs_type_list,data_set)
             
-            if len(new_data_list):
-                (new_data_set_flag, status, errtext) = konto_obj.set_data_set_extern_liste(new_data_list,irow)
+            (tlist_anzeige,change_flag) = depot_gui.konto_depot_data_set_eingabe(tlist,buchtype_index_in_header_liste,buchungs_type_list)
+            
+            if change_flag:
+                (new_data_set_flag, status, errtext) = konto_obj.set_data_set_extern_liste(tlist_anzeige,irow)
                 
                 if status != hdef.OKAY:
                     rd.log.write_err("konto__anzeige edit " + errtext, screen=rd.par.LOG_SCREEN_OUT)
                     return (status, konto_dict,konto_obj)
                 # endif
             # endif
-            dir = 0
             runflag = True
         elif index_abfrage == i_edit_isin:
             
             if (irow >= 0):
-                (data_set, header_liste, buchungs_type_list, buchtype_index_in_header_liste) = konto_obj.get_edit_data(
-                    irow)
+                (tlist, buchungs_type_list, buchtype_index_in_header_liste) \
+                    = konto_obj.get_edit_data(irow)
             else:
                 rd.log.write_err("konto__anzeige edit: irow out of range ", screen=rd.par.LOG_SCREEN_OUT)
                 return (hdef.NOT_OK, konto_dict, konto_obj)
@@ -216,16 +198,15 @@ def anzeige(rd,konto_dict,konto_obj):
             # wpname
             #-----------------------------------------------------------------------------------------------------------
             eingabeListe.append("möglich. wpname")
-            index = header_liste.index(konto_obj.KONTO_DATA_NAME_COMMENT)
-            vorgabeListe.append(data_set[index])
+            comment = hfkt_tvar.get_val_from_list(tlist,konto_obj.par.KONTO_DATA_NAME_COMMENT)
+            vorgabeListe.append(comment)
 
-            (okay, wkn, isin_comment) = konto_obj.search_wkn_from_comment(data_set[index])
+            (okay, wkn, isin_comment) = konto_obj.search_wkn_from_comment(comment)
 
             # isin
             #-----------------------------------------------------------------------------------------------------------
             eingabeListe.append("möglich. isin")
-            index_isin = header_liste.index(konto_obj.KONTO_DATA_NAME_ISIN)
-            isin       = data_set[index_isin]
+            isin = hfkt_tvar.get_val_from_list(tlist, konto_obj.par.KONTO_DATA_NAME_ISIN)
             if (len(isin) == 0) and (okay == hdef.OKAY):
                 (okay, value) = htype.type_proof_isin(isin_comment)
                 if okay == hdef.OKAY:
@@ -246,7 +227,7 @@ def anzeige(rd,konto_dict,konto_obj):
                 
             # Daten in den title
             data_title = ""
-            for d in data_set:
+            for d in tlist.vals:
                 (okay,dstr) = htype.type_proof_string(d)
                 if okay == hdef.OKAY:
                     data_title += "|"+dstr
@@ -272,27 +253,26 @@ def anzeige(rd,konto_dict,konto_obj):
                 # isin
                 if( (status == hdef.OKAY) and len(isin) and (data_set[index_isin] != isin)):
                     flag = True
-                    data_set[index_isin] = ergebnisListe[1]
+                    tlist = hfkt_tvar.set_val_in_list(tlist,ergebnisListe[1],konto_obj.par.KONTO_DATA_NAME_ISIN,"isin")
                 # end if
                 
             # update dateset
             if flag:
-                (new_data_set_flag, status, errtext) = konto_obj.set_data_set_extern_liste(data_set, irow)
+                (new_data_set_flag, status, errtext) = konto_obj.set_data_set_extern_liste(tlist, irow)
                 
                 if status != hdef.OKAY:
                     rd.log.write_err("konto__anzeige edit isin" + errtext, screen=rd.par.LOG_SCREEN_OUT)
                     return (status, konto_dict, konto_obj)
                 # endif
             # endif
-            dir = 0
             runflag = True
         elif index_abfrage == i_add :
             
-            (header_liste, buchungs_type_list,buchtype_index_in_header_liste) = konto_obj.get_data_to_add_lists()
+            (tlist, buchungs_type_list,buchtype_index_in_header_liste) = konto_obj.get_extern_default_tlist()
             
             # Erstelle die Eingabe liste
             eingabeListe = []
-            for i,header in enumerate(header_liste):
+            for i,header in enumerate(tlist.names):
                 if i == buchtype_index_in_header_liste:
                     eingabeListe.append([header,buchungs_type_list])  # Auswahl ist die buchungs_type_list
                 else:
@@ -303,11 +283,11 @@ def anzeige(rd,konto_dict,konto_obj):
             titlename = konto_obj.get_titlename()
             
             
-            new_data_list = depot_gui.konto_depot_data_set_eingabe(header_liste, buchtype_index_in_header_liste,
+            (tlist_anzeige,change_flag) = depot_gui.konto_depot_data_set_eingabe(tlist, buchtype_index_in_header_liste,
                                                                 buchungs_type_list,None,titlename)
                         
-            if len(new_data_list):
-                (new_data_set_flag, status, errtext) = konto_obj.set_one_new_data_set_extern_liste(new_data_list)
+            if change_flag:
+                (new_data_set_flag, status, errtext) = konto_obj.set_new_data(tlist_anzeige)
                 
                 if status != hdef.OKAY:
                     rd.log.write_err("konto__anzeige add "+errtext, screen=rd.par.LOG_SCREEN_OUT)
@@ -321,7 +301,7 @@ def anzeige(rd,konto_dict,konto_obj):
             if( irow >= 0 ):
                 flag = sgui.abfrage_janein(text=f"Soll irow = {irow} (von null gezält) gelöschen werden")
                 if( flag ):
-                    (status,errtext) = konto_obj.delete_data_list(irow)
+                    (status,errtext) = konto_obj.delete_data_set(irow)
                     if( status != hdef.OKAY ):
                         rd.log.write_err("konto__anzeige delete " + errtext, screen=rd.par.LOG_SCREEN_OUT)
                         return (status, konto_dict,konto_obj)

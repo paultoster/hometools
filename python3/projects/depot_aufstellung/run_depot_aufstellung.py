@@ -27,7 +27,7 @@ import depot_iban_bearbeiten as ib
 import depot_depot_bearbeiten as db
 import depot_gui
 import depot_konto_data_set_class as dkonto
-import depot_data_class_defs as dclassdef
+
 
 
 # Hilfsfunktionen
@@ -40,11 +40,6 @@ import wp_abfrage.wp_base as wp_base
 
 
 
-class AllgData:
-    pickle_obj: hpickle.DataPickle = field(default_factory=hpickle.DataPickle)
-    data_dict: dict = field(default_factory=dict)
-    idfunc: dclassdef.IDCount = field(default_factory=dclassdef.IDCount)
-    wpfunc: wp_base.WPData = field(default_factory=wp_base.WPData)
 
 
 @dataclass
@@ -52,10 +47,12 @@ class RootData:
     par: depot_par.Parameter = field(default_factory=depot_par.Parameter)
     log: hlog.log = field(default_factory=hlog.log)
     ini: depot_ini_file.ini = field(default_factory=depot_ini_file.ini)
-    allg: AllgData = field(default_factory=AllgData)
+    allg: None
     iban = None
     konto_dict: dict = field(default_factory=dict)
     depot_dict: dict = field(default_factory=dict)
+    
+    
 
 
 def depot_aufstellung():
@@ -94,7 +91,7 @@ def depot_aufstellung():
 
     # data_base
     # -----------
-    rd.allg = AllgData()
+    rd.allg = None
     rd.iban = None
     rd.konto_dict = {}
     rd.csv_dict = {}
@@ -208,7 +205,7 @@ def rd_consistency_check(rd):
     '''
     # proof id-consistency konto-pickle-file
     rd.allg.idfunc.reset_consistency_check()
-    for konto_name in rd.ini.ddict[rd.par.INI_KONTO_DATA_DICT_NAMES_NAME]:
+    for konto_name in rd.konto_dict[rd.par.INI_KONTO_DATA_DICT_NAMES_NAME]:
         n = rd.konto_dict[konto_name].konto_obj.get_number_of_data()
         
         for i in range(n):

@@ -11,8 +11,11 @@ obj = hfkt_tvar.build_val(name,val,type)                        build single var
 obj = hfkt_tvar.build_val(name,val,type,type_store)             build single variable as TVal with type to store
 obj = hfkt_tvar.build_list(names,vals,types)                    build list variable as TList
 obj = hfkt_tvar.build_list(names,vals,types,types_store)        build list variable as TList with type-list to store
+obj = hfkt_tvar.build_default_list(names,types)
 obj = hfkt_tvar.build_table(names,table,types)                  build table (llist) variable as TTable
 obj = hfkt_tvar.build_table(names,table,types,types_store)      build table (llist) variable as TTable with type-list to store
+obj = hfkt_tvar.build_table_from_list(tlist,types_store)
+obj = hfkt_tvar.build_table_from_list(tlist)
 
 (status,errtext) = proof_val(name,val,type)                     proof values to build TVal, TList, TTable
 (status,errtext) = proof_list(names,vals,types)
@@ -34,6 +37,14 @@ val   =  get_val_from_table(ttable,irow,index,type)
 val   =  get_val_from_table(ttable,irow,index)
 type  =  get_type_from_table(ttable,name)
 type  =  get_type_from_table(ttable,indx)
+names =  get_names(ttable)
+names =  get_names(tlist)
+vals  =  get_vals(ttable)
+vals  =  get_vals(tlist)
+types =  get_types(ttable)
+types =  get_types(tlist)
+(val_dict_list,type_dict) = get_dict_list_from_table(ttable)
+(val_dict,type_dict) = get_dict_list_from_list(ttable)
 ttable = add_row_liste_to_table(ttable, name,add_row_liste,type)
 ttable = set_val_in_table(ttable,val,irow,name,type)
 ttable = set_val_in_table(ttable,val,irow,name)
@@ -51,6 +62,8 @@ ttable = sort_col_in_table(ttable,index,aufsteigend=1)
 ttable = sort_col_in_table(ttable,index)
 ttable = transform_icol_table(ttable,new_name_list)
 ttable = transform_type_table(ttable,new_type_list)
+flag   = is_table(ttable)
+flag   = is_list(tlist)
 """
 import os, sys
 from dataclasses import dataclass, field
@@ -177,6 +190,24 @@ def build_list(names: list, vals: list, types: list, types_store: list=None):
     # end if
     return TList(names=nnames,vals=vvals,types=ttypes)
 # end def
+def build_default_list(names: list,types: list):
+    '''
+    
+    :param names:
+    :param types:
+    :return:
+    '''
+    n = min(len(names),len(types))
+    
+    nnames = names[0:n]
+    ttypes = types[0:n]
+    vvals = []
+    for i in range(n):
+        wert = htype.type_get_default(ttypes[i])
+        vvals.append(wert)
+    # end if
+    return build_list(nnames, vvals, ttypes)
+# end def
 def build_table(names: list, table: list, types:list, types_store:list=None):
     '''
     
@@ -278,6 +309,16 @@ def build_table(names: list, table: list, types:list, types_store:list=None):
     # end if
     return TTable(names=nnames, table=ttable, types=ttypes)
 # end def
+def build_table_from_list(tlist,types_store= None):
+    '''
+    
+    :param tlist:
+    :param types_store:
+    :return: obj = hfkt_tvar.build_table_from_list(tlist,types_store)
+             obj = hfkt_tvar.build_table_from_list(tlist)
+    '''
+    
+    return build_table(tlist.names, [tlist.vals], tlist.types, types_store)
 def proof_val(name:str,val:any,type: str):
     '''
     
@@ -585,6 +626,94 @@ def get_type_from_table(ttable,name):
     # end if
     return ttable.types[index]
 # end def
+def get_names(tvar):
+    '''
+
+    :param tvar:
+    :return: names =  get_names(ttable)
+             names =  get_names(tlist)
+    '''
+    if is_list(tvar):
+        return tvar.names
+    elif is_table(tvar):
+        return tvar.names
+    else:
+        raise Exception(f"Error get_names: tvar = {tvar} ist keine liste (TList) und keine table (TTable)")
+    # end if
+# end def
+def get_vals(tvar):
+    '''
+
+    :param tvar:
+    :return: vals =  get_vals(ttable)
+             vals =  get_vals(tlist)
+    '''
+    if is_list(tvar):
+        return tvar.vals
+    elif is_table(tvar):
+        return tvar.vals
+    else:
+        raise Exception(f"Error get_names: tvar = {tvar} ist keine liste (TList) und keine table (TTable)")
+    # end if
+# end def
+def get_types(tvar):
+    '''
+
+    :param tvar:
+    :return: types =  get_types(ttable)
+             types =  get_types(tlist)
+    '''
+    if is_list(tvar):
+        return tvar.types
+    elif is_table(tvar):
+        return tvar.types
+    else:
+        raise Exception(f"Error get_names: tvar = {tvar} ist keine liste (TList) und keine table (TTable)")
+    # end if
+# end def
+def get_dict_list_from_table(ttable):
+    '''
+    
+    :param ttable:
+    :return:  (val_dict_list,type_dict) = get_dict_list_from_table(ttable)
+    '''
+    val_dict_list = []
+    type_dict ={}
+    
+    for irow in range(ttable.ntable):
+        
+        if irow == 0:
+            for i in ttable.n:
+                type_dict[ttable.names[i]] = ttable.types[i]
+            # end for
+        # end if
+        
+        val_dict = {}
+        for i in ttable.n:
+            val_dict[ttable.names[i]] = ttable.vals[irow][i]
+        # end for
+        
+        val_dict_list.append(val_dict)
+    # end for
+    
+    return (val_dict_list,type_dict)
+# end def
+def get_dict_list_from_list(tlist):
+    '''
+
+    :param tlist:
+    :return: (val_dict,type_dict) = get_dict_list_from_list(tlist)
+    '''
+    type_dict = {}
+    val_dict = {}
+    
+    for i in tlist.n:
+        val_dict[tlist.names[i]] = tlist.vals[i]
+        type_dict[tlist.names[i]] = tlist.types[i]
+    # end for
+    
+    return (val_dict, type_dict)
+# ewnd def
 def set_val_in_table(ttable,val,irow,name,type=None):
     '''
     
@@ -824,6 +953,54 @@ def transform_type_table(ttable,new_type_list):
 
     return ttable
 # end def
+def is_table(ttable):
+    '''
+    
+    :param ttable:
+    :return: flag = is_table(ttable)
+    '''
+    flag = False
+    
+    if hasattr(ttable,'names') \
+        and hasattr(ttable,'vals') \
+        and hasattr(ttable,'types') \
+        and hasattr(ttable, 'n') \
+        and hasattr(ttable,'ntable'):
+        
+        if isinstance(ttable.names,list) \
+            and isinstance(ttable.vals,list) \
+            and isinstance(ttable.types,list) \
+            and isinstance(ttable.n,int) \
+            and isinstance(ttable.ntable,int):
+            
+            flag = True
+        # end if
+    # end if
+    return flag
+# end def
+def is_list(tlist):
+    '''
+
+    :param ttable:
+    :return: flag = is_list(tlist)
+    '''
+    flag = False
+    
+    if hasattr(tlist, 'names') \
+        and hasattr(tlist, 'vals') \
+        and hasattr(tlist, 'types') \
+        and hasattr(tlist, 'n'):
+        
+        if isinstance(tlist.names, list) \
+            and isinstance(tlist.vals, list) \
+            and isinstance(tlist.types, list) \
+            and isinstance(tlist.n, int):
+            flag = True
+        # end if
+    # end if
+    return flag
+# end def
+
 
 
     

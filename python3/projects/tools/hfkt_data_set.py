@@ -26,12 +26,13 @@ class DataSet:
                  value            = self.get_data_item_special(calc_type, icol [,type]): calc_type = "sum"
                  value            = self.get_data_item_special(calc_type, headername [,type]): calc_type = "sum"
                  irow_list        = self.find_in_col(value,type, icol)
+                 irow_list        = self.find_in_col(value,type, headername)
                  icol             = self.find_header_index(header)
                  ttable:class     = self.get_data_set_to_store_ttable()
                  ttable:class     = self.get_data_set_ttable([[header_liste],type_liste])
                  tlist:class      = self.get_one_data_set_tlist(irow, [header_liste, [type_liste]])
                  liste:list       = self.get_row_list_of_icol(icol, [type])
-                 liste:list       = self.get_row_list_of_header(header, [type])
+                 liste:list       = self.get_row_list_of_header(headername, [type])
                  type             = self.get_type_of_icol(icol)
                  type             = self.get_type_of_header(header)
                  data_type_dict   = self.get_data_type_dict()  data_type_dict[name] = type
@@ -41,6 +42,7 @@ class DataSet:
                  flag             = self.set_data_item(value,line_color,irow, name)
                  status           = self.set_data_tlist(tlist,line_color,irow)
                  status           = self.delete_row_in_data_set(irow)
+                 
                                     self.update_order_icol(icol)
                                     self.update_order_name(self, name)
     '''
@@ -319,9 +321,23 @@ class DataSet:
         :param type:
         :param icol:
         :return: irow_list = self.find_in_col(value,type, icol)
+                 irow_list = self.find_in_col(value,type, name)
         '''
         
         irow_list = []
+        
+        if isinstance(icol, str):  # header name
+            # search headername
+            key = self.find_header_index(icol)
+            if key is None:
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"find_in_col:  Fehler headername = {icol} kann nicht im header of data_set gefunden werden (header_dict: {self.name_dict.items()} !!!"
+                return []
+            else:
+                icol = key
+            # end if
+        # end if
+
         
         if( icol >= self.ncol):
             self.status = hdef.NOT_OKAY

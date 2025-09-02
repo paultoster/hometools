@@ -105,6 +105,16 @@ class WpDataSet:
         '''
         return self.wp_info_dict["name"]
     # end def
+    def get_depot_wp_name(self):
+        '''
+        
+        :return: depot_ap_name = self.get_depot_wp_name()
+        '''
+        return self.depot_wp_name
+    # end def
+    def get_isin(self):
+        return self.isin
+    # end def
     def get_n_data(self):
         '''
         
@@ -278,12 +288,6 @@ class WpDataSet:
         return self.status
     
     # end def
-    def get_isin(self):
-        '''
-        
-        :return: isin:str = self.get_isin()
-        '''
-        return self.isin
     def get_depot_wp_name(self):
         '''
         

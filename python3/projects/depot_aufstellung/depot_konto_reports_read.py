@@ -38,11 +38,14 @@ def report_einlesen(rd):
     runflag = True
     while (runflag):
         
-        (index,choice) = depot_gui.auswahl_konto(rd)
+        konto_liste = list(rd.konto_dict.keys())
+        
+        
+        (index,choice) = depot_gui.auswahl_konto(konto_liste)
         
         if index < 0:
             return status
-        elif choice in rd.ini.ddict[rd.par.INI_KONTO_DATA_DICT_NAMES_NAME]:
+        elif choice in konto_liste:
             
             rd.log.write(f"konto  \"{choice}\" ausgewählt")
             break
@@ -56,15 +59,15 @@ def report_einlesen(rd):
     
     # Konto data in ini
     konto_dict  = rd.data[choice].ddict
-    konto_obj   = rd.data[choice].obj
-    konto_csv   = rd.data[choice].csv
+    konto_obj   = rd.konto_dict[choice].kont_obj
+    csv_obj     = rd.konto_dict[choice].kont_obj.get_csvfunc()
     
     # csv lesen
-    if konto_csv is None:
-        rd.log.write_warn(f"Für Konto <{choice}> gibt es keinen import_data_type ", screen=rd.par.LOG_SCREEN_OUT)
+    if csv_obj is None:
+        rd.log.write_warn(f"Für Konto <{choice}> gibt es keinen import_data_config ", screen=rd.par.LOG_SCREEN_OUT)
         return status
     
-    elif( konto_dict[rd.par.INI_IMPORT_CONFIG_TYPE_NAME] in rd.ini.ddict[rd.par.INI_CSV_IMPORT_TYPE_NAMES_NAME] ):
+    else:  # if( konto_dict[rd.par.INI_IMPORT_CONFIG_TYPE_NAME] in rd.ini.ddict[rd.par.INI_CSV_IMPORT_TYPE_NAMES_NAME] ):
         
         # csv-Datei auswählen
         filename = sgui.abfrage_file(file_types="*.csv",
@@ -78,7 +81,7 @@ def report_einlesen(rd):
         # csv-
         # csv-Daten einlesen
         #--------------------
-        (status,errtext,ttable) = konto_csv.read_data(filename,)
+        (status,errtext,ttable) = csv_obj.read_data(filename,)
         
         if status != hdef.OKAY:
             rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
@@ -95,7 +98,7 @@ def report_einlesen(rd):
         # end if
         
         if flag_newdata :
-            (status,konto_dict,konto_obj) = depot_konto_anzeige.anzeige(rd,konto_dict,konto_obj)
+            (status,konto_obj) = depot_konto_anzeige.anzeige(rd,konto_obj)
         else:
             rd.log.write_info("Keine neuen Daten eingelesen !!!!", screen=rd.par.LOG_SCREEN_OUT)
         # end if

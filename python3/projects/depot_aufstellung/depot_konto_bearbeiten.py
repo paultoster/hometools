@@ -76,7 +76,7 @@ def depot_konto_bearbeiten_csv_ausgabe(rd):
         
         if index < 0:
             return status
-        elif choice in rd.ini.ddict[rd.par.INI_KONTO_DATA_DICT_NAMES_NAME]:
+        elif choice in rd.konto_dict[rd.par.INI_KONTO_DATA_DICT_NAMES_NAME]:
             
             rd.log.write(f"konto  \"{choice}\" ausgewählt")
             break

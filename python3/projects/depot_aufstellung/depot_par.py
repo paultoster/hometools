@@ -171,6 +171,7 @@ class Parameter:
     
     # konto data
     KONTO_DATA_SET_NAME: str = "konto_data_set"
+    KONTO_DATA_BANK_NAME: str = "bank"
     KONTO_DATA_SET_DICT_LIST_NAME: str = "konto_data_set_dict_list"
     KONTO_DATA_TYPE_DICT_NAME: str = "konto_data_type_dict"
     KONTO_DATA_SET_TABLE_NAME: str = "konto_data_set_table"
