@@ -610,19 +610,21 @@ def abfrage_tabelle(ddict_inp):
     obj = stabelle_class.abfrage_tabelle_class(ddict_inp)
 
     ddict_out = {}
-    
-    if obj.use_ttable:
-        ddict_out["ttable"] = htvar.build_table(obj.header_liste,obj.data_set,obj.ttable_type_liste)
-    else:
-        ddict_out["data_set"] = obj.data_set
-    # end if
-    ddict_out["index_abfrage"] = obj.index_abfrage
-    ddict_out["irow_select"] = obj.current_row
     ddict_out["status"] = obj.status
     ddict_out["errtext"] = obj.errtext
-    ddict_out["data_change_irow_icol_liste"] = obj.data_change_irow_icol_liste
-    ddict_out["data_change_flag"] = obj.data_change_flag
+    
+    if obj.status == hdef.OKAY:
 
+        if obj.use_ttable:
+            ddict_out["ttable"] = htvar.build_table(obj.header_liste,obj.data_set,obj.ttable_type_liste)
+        else:
+            ddict_out["data_set"] = obj.data_set
+        # end if
+        ddict_out["index_abfrage"] = obj.index_abfrage
+        ddict_out["irow_select"] = obj.current_row
+        ddict_out["data_change_irow_icol_liste"] = obj.data_change_irow_icol_liste
+        ddict_out["data_change_flag"] = obj.data_change_flag
+    # end if
     del obj
     return ddict_out
 # end def

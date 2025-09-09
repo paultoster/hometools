@@ -52,12 +52,12 @@ def auswahl_konto(konto_liste):
     # endif
     return (index,choice)
 # enddef
-def auswahl_depot(rd):
-    index = sgui.abfrage_liste_index(rd.ini.ddict[rd.par.INI_DEPOT_DATA_DICT_NAMES_NAME], "Depot auswählen")
+def auswahl_depot(abfrage_liste):
+    index = sgui.abfrage_liste_index(abfrage_liste, "Depot auswählen")
     if index < 0:
         choice =  ""
     else:
-        choice = rd.ini.ddict[rd.par.INI_DEPOT_DATA_DICT_NAMES_NAME][index]
+        choice = abfrage_liste[index]
     # endif
     return (index,choice)
 # enddef
@@ -81,8 +81,13 @@ def konto_abfrage( ttable, abfrage_liste,color_list):
     
     dict_out = sgui.abfrage_tabelle(dict_inp)
     
-    return (dict_out["ttable"], dict_out["index_abfrage"], dict_out["irow_select"], dict_out["data_change_irow_icol_liste"])
-
+    if dict_out["status"] != hdef.OKAY:
+        
+        return (dict_out["status"],dict_out["errtext"],[],-1,-1,[])
+    # end if
+    
+    return ( dict_out["status"],dict_out["errtext"],dict_out["ttable"]
+           , dict_out["index_abfrage"], dict_out["irow_select"], dict_out["data_change_irow_icol_liste"])
 # end def
 def konto_isin_wkn_set_eingabe(eingabe_liste,data_set=None,title=None):
     ddict = {}
@@ -176,7 +181,7 @@ def konto_depot_kategorie(kategorie, titlename):
     kategorie = sgui.abfrage_n_eingabezeilen(liste=["kategorie"], vorgabe_liste=[kategorie], title=titlename)
     return kategorie
 # end dfe
-def  depot_overview(header_liste, data_lliste, abfrage_liste,titlename,row_color_dliste):
+def  depot_overview(ttable, abfrage_liste,titlename,row_color_dliste):
     '''
     
     :param header_liste:
@@ -188,15 +193,18 @@ def  depot_overview(header_liste, data_lliste, abfrage_liste,titlename,row_color
 
 
     dict_inp = {}
-    dict_inp["header_liste"] = header_liste
-    dict_inp["data_set_lliste"] = data_lliste
+    dict_inp["ttable"] = ttable
     dict_inp["abfrage_liste"] = abfrage_liste
     dict_inp["title"] = titlename
     dict_inp["row_color_dliste"] = row_color_dliste
     
     dict_out = sgui.abfrage_tabelle(dict_inp)
-
-    return (dict_out["index_abfrage"],dict_out["irow_select"])
+    
+    if dict_out["status"] != hdef.OKAY:
+        return (dict_out["status"], dict_out["errtext"], -1, -1)
+    # end if
+    
+    return (dict_out["status"], dict_out["errtext"], dict_out["index_abfrage"], dict_out["irow_select"])
 # end def
 def depot_isin(header_liste, data_lliste, abfrage_liste,title,row_color_dliste):
     '''

@@ -102,7 +102,7 @@ class abfrage_tabelle_class:
         
         # Benutzung tvar: ttable
         key = "ttable"
-        if key not in ddict_inp.keys():
+        if key in ddict_inp.keys():
             ttable = ddict_inp[key]
             if not htvar.is_table(ttable):
                 self.status = hdef.NOT_OKAY
@@ -112,9 +112,9 @@ class abfrage_tabelle_class:
             self.use_ttable   = True
             self.header_liste = htvar.get_names(ttable)
             self.nheader      = ttable.n
-            self.data_set     = htvar.get_vals(ttable)
+            self.data_set     = htvar.get_table(ttable)
             self.ndata        = ttable.ntable
-            self.ttable_type_liste   = ttable.get_types(ttable)
+            self.ttable_type_liste   = htvar.get_types(ttable)
         # ursprüngliche Zuordnung
         else:
             self.use_ttable = False
@@ -646,7 +646,7 @@ class abfrage_tabelle_class:
         icount = 0
         self.index_abfrage = -1
         for name in self.abfrage_liste:
-            i f( name == button_name ):
+            if name == button_name:
                 self.index_abfrage = icount
                 break
             icount += 1
@@ -749,7 +749,7 @@ class abfrage_tabelle_class:
         # save text
         (status ,columnid) = htype.type_proof(column ,'int')
         if columnid:
-            columnid - =1
+            columnid -= 1
         # end if
         if status == hdef.OKAY:
             

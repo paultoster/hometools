@@ -503,7 +503,7 @@ class DataSet:
         :param type:
         :return: row_list = self.get_row_list_of_icol(icol,[type])
         '''
-        if self.ncol == 0
+        if self.ncol == 0:
             self.status = hdef.NOT_OKAY
             self.errtext = f"get_row_list_of_icol:  Fehler ncol == 0 wandeln !!!!!!"
             return []
@@ -549,7 +549,7 @@ class DataSet:
         :return: type = self.get_type_of_icol(icol)
         '''
         
-        if self.ncol == 0
+        if self.ncol == 0:
             self.status = hdef.NOT_OKAY
             self.errtext = f"get_type_of_icol:  Fehler ncol == 0 wandeln !!!!!!"
             return []

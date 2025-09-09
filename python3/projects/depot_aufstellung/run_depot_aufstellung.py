@@ -47,7 +47,7 @@ class RootData:
     par: depot_par.Parameter = field(default_factory=depot_par.Parameter)
     log: hlog.log = field(default_factory=hlog.log)
     ini: depot_ini_file.ini = field(default_factory=depot_ini_file.ini)
-    allg: None
+    allg = None
     iban = None
     konto_dict: dict = field(default_factory=dict)
     depot_dict: dict = field(default_factory=dict)
@@ -131,7 +131,7 @@ def depot_aufstellung():
     while (runflag):
         
         save_flag = True
-        (index,indexAbfrage) = depot_gui.listen_abfrage(rd,start_auswahl,"Startauswahl",abfrage_liste)
+        (index,indexAbfrage) = depot_gui.listen_abfrage(start_auswahl,"Startauswahl",abfrage_liste)
         
         if indexAbfrage < 0:
             index = -1
@@ -182,7 +182,7 @@ def depot_aufstellung():
     # endwhile
     
     if save_flag:
-        (status, errtext) = depot_data_set.data_save(rd.data,rd.par,rd.ini.ddict)
+        (status, errtext) = depot_data_init.data_save(rd)
 
         if (status != hdef.OK):
             rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
@@ -205,14 +205,14 @@ def rd_consistency_check(rd):
     '''
     # proof id-consistency konto-pickle-file
     rd.allg.idfunc.reset_consistency_check()
-    for konto_name in rd.konto_dict[rd.par.INI_KONTO_DATA_DICT_NAMES_NAME]:
+    for konto_name in rd.ini.ddict[rd.par.INI_KONTO_DATA_LIST_NAMES_NAME]:
         n = rd.konto_dict[konto_name].konto_obj.get_number_of_data()
         
         for i in range(n):
             # get id
-            i_id = rd.konto_dict[konto_name].konto_obj.KONTO_DATA_INDEX_ID
-            name = rd.konto_dict[konto_name].konto_obj.KONTO_DATA_NAME_DICT[i_id]
-            type = rd.konto_dict[konto_name].konto_obj.KONTO_DATA_TYPE_DICT[i_id]
+            i_id = rd.konto_dict[konto_name].konto_obj.par.KONTO_DATA_INDEX_ID
+            name = rd.konto_dict[konto_name].konto_obj.par.KONTO_DATA_NAME_DICT[i_id]
+            type = rd.konto_dict[konto_name].konto_obj.par.KONTO_DATA_TYPE_DICT[i_id]
             id = rd.konto_dict[konto_name].konto_obj.get_data_item_at_irow(i,name,type)
             # proof
             (okay, errtext) = rd.allg.idfunc.proof_and_add_consistency_check_id(id, konto_name)

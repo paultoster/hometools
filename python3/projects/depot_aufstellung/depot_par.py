@@ -46,8 +46,8 @@ class Parameter:
     
     # ini-file attributes base
     
-    INI_KONTO_DATA_DICT_NAMES_NAME: str = "konto_names"
-    INI_DEPOT_DATA_DICT_NAMES_NAME: str = "depot_names"
+    INI_KONTO_DATA_LIST_NAMES_NAME: str = "konto_names"
+    INI_DEPOT_DATA_LIST_NAMES_NAME: str = "depot_names"
     INI_CSV_IMPORT_CONFIG_NAMES_NAME: str = "csv_import_config_names"
     INI_IBAN_LIST_FILE_NAME: str = "iban_list_file_name"
     
@@ -61,8 +61,8 @@ class Parameter:
     INI_WP_DATA_STORE_PATH_NAME: str = "wp_data_store_path"
     INI_WP_DATA_USE_JSON_NAME: str = "wp_data_use_json"
 
-    INI_BASE_PROOF_LISTE = [(INI_KONTO_DATA_DICT_NAMES_NAME,"list_str")
-                           ,(INI_DEPOT_DATA_DICT_NAMES_NAME,"list_str")
+    INI_BASE_PROOF_LISTE = [(INI_KONTO_DATA_LIST_NAMES_NAME,"list_str")
+                           ,(INI_DEPOT_DATA_LIST_NAMES_NAME,"list_str")
                            ,(INI_CSV_IMPORT_CONFIG_NAMES_NAME,"list_str")
                            ,(INI_DATA_PICKLE_USE_JSON,"int","int")
                            ,(INI_DATA_PICKLE_JSONFILE_LIST, "list_str")

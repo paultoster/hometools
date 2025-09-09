@@ -63,6 +63,7 @@ index_liste = search_value_in_llist_return_indexlist(lliste,icol,value)
 
 newlist = sort_list_of_dict(lliste, keyname, aufsteigend=1)
 newlist = sort_list(liste,aufsteigend=1)
+(newlist1,newlist2) = sort_two_list(liste1,liste2,aufsteigend=1)
 
 
 '''
@@ -409,6 +410,21 @@ def sort_list(liste,aufsteigend=1):
     
     return new_llist
 
+def sort_two_list(liste1,liste2,aufsteigend=1):
+    '''
+    
+    :param liste1:
+    :param liste2:
+    :param aufsteigend:
+    :return: (newliste1,newliste2) = sort_two_list(liste1,liste2,aufsteigend=1)
+    '''
+    if aufsteigend:
+        newliste1,newliste2 = (list(t) for t in zip(*sorted(zip(liste1, liste2))))
+    else:
+        newliste1, newliste2 = (list(t) for t in zip(*sorted(zip(liste1, liste2),reverse=True)))
+    # end if
+    
+    return (newliste1,newliste2)
 
 def sort_list_of_dict(lliste, keyname, aufsteigend=1):
     '''

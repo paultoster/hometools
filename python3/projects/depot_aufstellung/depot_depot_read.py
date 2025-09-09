@@ -42,7 +42,7 @@ def depot_konto_einlesen(rd):
         
         if index < 0:
             return status
-        elif choice in rd.ini.ddict[rd.par.INI_DEPOT_DATA_DICT_NAMES_NAME]:
+        elif choice in rd.ini.ddict[rd.par.INI_DEPOT_DATA_LIST_NAMES_NAME]:
             
             rd.log.write(f"depot  \"{choice}\" ausgewählt")
             break

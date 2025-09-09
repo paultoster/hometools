@@ -14,6 +14,7 @@ if (tools_path not in sys.path):
 import tools.hfkt_def as hdef
 import tools.hfkt_type as htype
 import tools.hfkt_tvar as htvar
+import tools.hfkt_list as hlist
 
 import depot_depot_wp_data_set_class as wpclass
 
@@ -187,7 +188,7 @@ class DepotDataSet:
      status                        = obj.set_kurs_value(isin,irow)
      status                        = obj.update_data_ttable(isin,changed_pos_list,ttable_update)
     '''
-    def __init__(self,depot_name,isin_liste,wp_func_obj,konto_obj):
+    def __init__(self,depot_name,isin_liste,wp_name_liste,wp_func_obj,konto_obj):
     
         self.depot_name = depot_name
         self.par = DepotParam()
@@ -201,7 +202,8 @@ class DepotDataSet:
         self.wp_func_obj = wp_func_obj
         self.konto_obj = konto_obj
         
-        self.isin_liste = sorted(isin_liste)
+        (self.isin_liste,self.wp_name_liste) = hlist.sort_two_list(isin_liste,wp_name_liste)
+        # self.isin_liste = sorted(isin_liste)
         self.wp_data_obj_dict  = {}
         self.wp_color_dict     = {}   # sets color if isin is new or stores new data
         self.n_wp_data_obj     = 0
@@ -275,7 +277,19 @@ class DepotDataSet:
         
         :return: isin_liste = self.get_isin_liste()
         '''
-        return self.isin_liste
+        return list(self.isin_liste)
+    # end def
+    def get_wp_name_liste(self):
+        '''
+        
+        :return: wp_name_liste = self.get_wp_name_liste[]
+        '''
+        liste = []
+        for isin in self.isin_liste:
+            liste.append(self.wp_data_obj_dict[isin].get_depot_wp_name())
+        
+        return liste
+    # end def
     def get_depot_name(self):
         return self.depot_name
     # end def
@@ -299,7 +313,7 @@ class DepotDataSet:
             wp_obj = self.get_wp_data_obj(isin)
             if wp_obj.status != hdef.OKAY:
                 raise Exception(f"set_stored_wp_data_set_ttable: isin: {isin} Problem Erstellen Data Klasse {wp_obj.errtext}")
-            wp_obj.set_stored_wp_data_set_table(wp_data_set_table,self.par.LINE_COLOR_BASE)
+            wp_obj.set_stored_wp_data_set_ttable(wp_data_set_table,self.par.LINE_COLOR_BASE)
             if wp_obj.status != hdef.OKAY:
                 raise Exception(
                     f"set_stored_wp_data_set_ttable: isin: {isin = } Problem Füllen Data Klasse {wp_obj.errtext}")
@@ -311,50 +325,50 @@ class DepotDataSet:
             wp_obj.set_kategorie(kategorie)
         # end
     # end def
-    def get_wp_data_set_dict_to_store(self,isin):
-        '''
-
-        Die interne Daten für Datenspeicherung mit pickle vorbereiten
-        Ende
-        
-        :param isin:
-        :return: data_set_ttable = self.get_wp_data_set_dict_to_store(isin)
-        '''
-        
-        if isin not in self.isin_liste:
-            self.status = hdef.NOT_OKAY
-            self.errtext = f"get_wp_data_set_dict_to_store: isin: {isin} ist nicht dictonary self.wp_data_obj_dict"
-            data_set_ttable = None
-        else:
-            data_set_ttable =  self.wp_data_obj_dict[isin].get_wp_data_set_ttable_to_store()
-            if self.wp_data_obj_dict[isin].status != hdef.OKAY:
-                self.status = hdef.NOT_OKAY
-                self.errtext = self.wp_data_obj_dict[isin].errtext
-            # end if
-        # end if
-        
-        return data_set_ttable
-    def get_to_store_isin_list(self):
-        '''
-        
-        :return: isin_list = self.get_to_store_isin_list()
-        '''
-        return list(self.isin_liste)
-    # end def
-    def get_to_store_depot_wp_name_list(self):
-        '''
-        
-        :return: depot_wp_name_list = self.get_to_store_depot_wp_name_list()
-        '''
-        
-        liste = []
-        for isin in self.isin_liste:
-            
-            liste.append(self.wp_data_obj_dict[isin].get_depot_wp_name())
-        
-        return liste
-        
-    # end def
+    # def get_wp_data_set_dict_to_store(self,isin):
+    #     '''
+    #
+    #     Die interne Daten für Datenspeicherung mit pickle vorbereiten
+    #     Ende
+    #
+    #     :param isin:
+    #     :return: data_set_ttable = self.get_wp_data_set_dict_to_store(isin)
+    #     '''
+    #
+    #     if isin not in self.isin_liste:
+    #         self.status = hdef.NOT_OKAY
+    #         self.errtext = f"get_wp_data_set_dict_to_store: isin: {isin} ist nicht dictonary self.wp_data_obj_dict"
+    #         data_set_ttable = None
+    #     else:
+    #         data_set_ttable =  self.wp_data_obj_dict[isin].get_wp_data_set_ttable_to_store()
+    #         if self.wp_data_obj_dict[isin].status != hdef.OKAY:
+    #             self.status = hdef.NOT_OKAY
+    #             self.errtext = self.wp_data_obj_dict[isin].errtext
+    #         # end if
+    #     # end if
+    #
+    #     return data_set_ttable
+    # def get_to_store_isin_list(self):
+    #     '''
+    #
+    #     :return: isin_list = self.get_to_store_isin_list()
+    #     '''
+    #     return list(self.isin_liste)
+    # # end def
+    # def get_to_store_depot_wp_name_list(self):
+    #     '''
+    #
+    #     :return: depot_wp_name_list = self.get_to_store_depot_wp_name_list()
+    #     '''
+    #
+    #     liste = []
+    #     for isin in self.isin_liste:
+    #
+    #         liste.append(self.wp_data_obj_dict[isin].get_depot_wp_name())
+    #
+    #     return liste
+    #
+    # # end def
     # def get_wp_data_set_dict_to_store(self,isin):
     #     '''
     #
@@ -626,7 +640,7 @@ class DepotDataSet:
                         self.par.DEPOT_DATA_NAME_EINNAHME,
                         self.par.DEPOT_DATA_NAME_KURSWERT,
                         self.par.DEPOT_DATA_NAME_KATEGORIE]
-        type_liste = ["isin",
+        type_liste = ["str",
                       "str",
                       "int",
                       "float",
@@ -727,7 +741,7 @@ class DepotDataSet:
 
         data_lliste.append(end_zeile)
         
-        ttable = htvar.build_ttable(header_liste,data_lliste,type_liste)
+        ttable = htvar.build_table(header_liste,data_lliste,type_liste)
         
         return (ttable,row_color_dliste)
 

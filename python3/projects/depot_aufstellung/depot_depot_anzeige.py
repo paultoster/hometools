@@ -18,7 +18,7 @@ if (tools_path not in sys.path):
 import tools.hfkt_def as hdef
 import tools.hfkt_date_time as hdate
 import tools.hfkt_str as hstr
-import tools.sgui as sgui
+import tools.hfkt_tvar as htvar
 
 import depot_gui
 import depot_depot_anzeige_isin
@@ -38,11 +38,11 @@ def anzeige_mit_depot_wahl(rd):
     runflag = True
     while (runflag):
         
-        (index, auswahl) = depot_gui.auswahl_depot(rd)
+        (index, auswahl) = depot_gui.auswahl_depot(rd.ini.ddict[rd.par.INI_DEPOT_DATA_LIST_NAMES_NAME])
         
         if index < 0:
             return status
-        elif auswahl in rd.ini.ddict[rd.par.INI_DEPOT_DATA_DICT_NAMES_NAME]:
+        elif auswahl in rd.ini.ddict[rd.par.INI_DEPOT_DATA_LIST_NAMES_NAME]:
             
             rd.log.write(f"depot  \"{auswahl}\" ausgewählt")
             break
@@ -55,8 +55,8 @@ def anzeige_mit_depot_wahl(rd):
     # endwhile
     
     # Konto data in ini
-    depot_dict = rd.data[auswahl].ddict
-    depot_obj  = rd.data[auswahl].obj
+    depot_dict = rd.depot_dict[auswahl].data_dict
+    depot_obj  = rd.depot_dict[auswahl].depot_obj
     
     # choice = 0 Zusammenfassung
     #        = 1 Auswahl isin
@@ -72,14 +72,14 @@ def anzeige_mit_depot_wahl(rd):
         if choice < 0:
             return status
         elif choice == 0:
-            (data_lliste, header_liste, type_liste,row_color_dliste) = depot_obj.get_depot_daten_sets_overview(depot_show_type)
+            (ttable,row_color_dliste) = depot_obj.get_depot_daten_sets_overview(depot_show_type)
             if depot_obj.status != hdef.OKAY:  # Abbruch
                 status = depot_obj.status
                 rd.log.write_err(depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
                 depot_obj.reset_status()
                 return status
     
-            icol_isin = header_liste.index(depot_obj.par.DEPOT_DATA_NAME_ISIN)
+            icol_isin = htvar.get_index_from_table(ttable,depot_obj.par.DEPOT_DATA_NAME_ISIN)
     
             # Overview Anzeigen
             #--------------------------------------
@@ -91,7 +91,7 @@ def anzeige_mit_depot_wahl(rd):
                 addtext = "inaktive WPs"
             # end if
             titlename = f"Depot: {depot_obj.get_depot_name()} {addtext}"
-            (sw, isin) = anzeige_overview(rd,data_lliste, header_liste,icol_isin,titlename,row_color_dliste)
+            (sw, isin) = anzeige_overview(rd,ttable,icol_isin,titlename,row_color_dliste)
             
             if sw < 0:
                 runflag = False
@@ -141,17 +141,12 @@ def anzeige_mit_depot_wahl(rd):
         
     # end while
     
-    # write back modified ddict
-    rd.data[auswahl].ddict = depot_dict
-    rd.data[auswahl].obj   = depot_obj
-    
     return status
 # enddef
-def anzeige_overview(rd,data_lliste, header_liste, icol_isin,titlename,row_color_dliste):
+def anzeige_overview(rd,ttable, icol_isin,titlename,row_color_dliste):
     '''
     
-    :param data_lliste:
-    :param header_liste:
+    :param ttable:
     :return: (sw, isin) = anzeige_overview(data_lliste, header_liste)
     sw = 1  Auswahl isin
        = 2  toggle die Zusammenfassung
@@ -165,12 +160,17 @@ def anzeige_overview(rd,data_lliste, header_liste, icol_isin,titlename,row_color
     runflag = True
     isin    = None
     
-    n = len(data_lliste)
+    n = ttable.ntable
     
     while (runflag):
         
-        (sw,irow) =  depot_gui.depot_overview(header_liste, data_lliste, abfrage_liste,titlename,row_color_dliste)
+        (status,errtext,sw,irow) =  depot_gui.depot_overview(ttable, abfrage_liste,titlename,row_color_dliste)
         
+        if status != hdef.OKAY:
+            rd.log.write_err(errtext,screen=rd.par.LOG_SCREEN_OUT)
+            sw = i_end
+        # end if
+
         if sw <= i_end:
             sw = -1
             runflag = False

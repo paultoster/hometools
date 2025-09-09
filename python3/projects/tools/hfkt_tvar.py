@@ -249,7 +249,7 @@ def build_table(names: list, table: list, types:list, types_store:list=None):
             (okay, wert) = htype.type_proof(table[0][i], types[i])
             if okay != hdef.OKAY:
                 raise Exception(
-                    f"Error build_list: type_proof for table[0][{i}]={table[0][i]} not possible types[{i}] = {types[i]}")
+                    f"Error build_table: type_proof for table[0][{i}]= \"{table[0][i]}\" not possible types[{i}] = {types[i]}")
             else:
                 vvals[i] = wert
                 ttypes[i] = types[i]
@@ -266,7 +266,7 @@ def build_table(names: list, table: list, types:list, types_store:list=None):
                 (okay, wert) = htype.type_proof(table[index][i], types[i])
                 if okay != hdef.OKAY:
                     raise Exception(
-                        f"Error build_list: type_proof for table[{index}][{i}]={table[index][i]} not possible types[{i}] = {types[i]}")
+                        f"Error build_table: type_proof for table[{index}][{i}]={table[index][i]} not possible types[{i}] = {types[i]}")
                 else:
                     vvals[i] = wert
                 # end if
@@ -284,7 +284,7 @@ def build_table(names: list, table: list, types:list, types_store:list=None):
             (okay, wert) = htype.type_transform(table[0][i], types[i], types_store[i])
             if okay != hdef.OKAY:
                 raise Exception(
-                    f"Error build_val: type_transform for table[0][{i}]={table[0][i]} not possible from types[{i}] = {types[i]} tp types_store[{i}]={types_store[i]}")
+                    f"Error build_table: type_transform for table[0][{i}]={table[0][i]} not possible from types[{i}] = {types[i]} tp types_store[{i}]={types_store[i]}")
             else:
                 vvals[i] = wert
                 ttypes[i] = types_store[i]
@@ -571,7 +571,7 @@ def get_val_from_table(ttable, irow,name, type=None):
              val   =  get_val_from_table(ttable,irow,index)
     '''
     
-    if len(ttable.vals) == 0:
+    if len(ttable.table) == 0:
         raise Exception(
             f"Error get_val_from_table: tlist = {ttable} is leer")
     # end if
@@ -591,14 +591,14 @@ def get_val_from_table(ttable, irow,name, type=None):
     
     if type is not None:
         
-        (status, wert) = htype.type_transform(ttable.vals[irow][index], ttable.types[index], type)
+        (status, wert) = htype.type_transform(ttable.table[irow][index], ttable.types[index], type)
         
         if status != hdef.OKAY:
             raise Exception(
-                f"Error get_val_from_list: type_transform for ttable.vals[{irow}][{index}] = {ttable.vals[irow][index]} not possible from ttable.types[{index}] = {ttable.types[index]} to type={type} for variable = {ttable.names[index]}")
+                f"Error get_val_from_list: type_transform for ttable.table[{irow}][{index}] = {ttable.table[irow][index]} not possible from ttable.types[{index}] = {ttable.types[index]} to type={type} for variable = {ttable.names[index]}")
         # end if
     else:
-        wert = ttable.vals[irow][index]
+        wert = ttable.table[irow][index]
     # end if
     return wert
 # end def
@@ -610,7 +610,7 @@ def get_type_from_table(ttable,name):
     :return: type  =  get_type_from_table(ttable,name)
              type  =  get_type_from_table(ttable,index)
     '''
-    if len(ttable.vals) == 0:
+    if len(ttable.table) == 0:
         raise Exception(
             f"Error get_type_from_table: tlist = {ttable} is leer")
     # end if
@@ -651,7 +651,22 @@ def get_vals(tvar):
     if is_list(tvar):
         return tvar.vals
     elif is_table(tvar):
+        return tvar.table
+    else:
+        raise Exception(f"Error get_names: tvar = {tvar} ist keine liste (TList) und keine table (TTable)")
+    # end if
+# end def
+def get_table(tvar):
+    '''
+
+    :param tvar:
+    :return: vals =  get_table(ttable)
+    
+    '''
+    if is_list(tvar):
         return tvar.vals
+    elif is_table(tvar):
+        return tvar.table
     else:
         raise Exception(f"Error get_names: tvar = {tvar} ist keine liste (TList) und keine table (TTable)")
     # end if
@@ -683,14 +698,14 @@ def get_dict_list_from_table(ttable):
     for irow in range(ttable.ntable):
         
         if irow == 0:
-            for i in ttable.n:
+            for i in range(ttable.n):
                 type_dict[ttable.names[i]] = ttable.types[i]
             # end for
         # end if
         
         val_dict = {}
-        for i in ttable.n:
-            val_dict[ttable.names[i]] = ttable.vals[irow][i]
+        for i in range(ttable.n):
+            val_dict[ttable.names[i]] = ttable.table[irow][i]
         # end for
         
         val_dict_list.append(val_dict)
@@ -728,7 +743,7 @@ def set_val_in_table(ttable,val,irow,name,type=None):
              ttable = set_val_in_table(ttable,val,irow,icol)
     '''
     
-    if len(ttable.vals) == 0:
+    if len(ttable.table) == 0:
         raise Exception(
             f"Error set_val_in_table: tlist = {ttable} is leer")
     # end if
@@ -754,14 +769,14 @@ def set_val_in_table(ttable,val,irow,name,type=None):
             raise Exception(
                 f"Error set_val_in_table: type_transform for val = {val} not possible from type={type} to ttable.types[{index}] = {ttable.types[index]} for variable = {ttable.names[index]}")
         # end if
-        ttable.vals[irow][index] = wert
+        ttable.table[irow][index] = wert
     else:
         (status, wert) = htype.type_proof(val,ttable.types[index])
         if status != hdef.OKAY:
             raise Exception(
                 f"Error set_val_in_table: type_proof for val = {val} not possible from ttable.types[{index}] = {ttable.types[index]} for variable = {ttable.names[index]}")
         # end if
-        ttable.vals[irow][index] = wert
+        ttable.table[irow][index] = wert
     # end if
     return ttable
 # end def
@@ -827,14 +842,14 @@ def add_row_liste_to_table(ttable, name,add_row_liste,type):
     n = len(add_row_liste)
     for irow in ttable.ntable:
         
-        liste = ttable.vals[irow]
+        liste = ttable.table[irow]
         
         if irow < n:
             liste.append(add_row_liste[irow])
         else:
             liste.append(None)
         # end if
-        ttable.vals[irow] = liste
+        ttable.table[irow] = liste
     # end for
     
     ttable.names.append(name)
@@ -861,7 +876,7 @@ def erase_irows_in_table(ttable,irow_erase_list):
     
     for irow in irow_erase_list:
         if irow < ttable.ntable:
-            del ttable.vals[irow]
+            del ttable.table[irow]
             ttable.ntable -= 1
         # end if
     # end for
@@ -880,7 +895,7 @@ def sort_col_in_table(ttable,name,aufsteigend=1):
  
     '''
     
-    if len(ttable.vals) == 0:
+    if len(ttable.table) == 0:
         raise Exception(
             f"Error sort_col_in_table: ttable = {ttable} is leer")
     # end if
@@ -894,7 +909,7 @@ def sort_col_in_table(ttable,name,aufsteigend=1):
         index = get_index_from_table(ttable, name)
     # end if
     
-    ttable.vals = hlist.sort_list_of_list(ttable.vals, index, aufsteigend=aufsteigend)
+    ttable.table = hlist.sort_list_of_list(ttable.table, index, aufsteigend=aufsteigend)
     
     return ttable
 # end def
@@ -918,7 +933,7 @@ def transform_icol_table(ttable,new_name_list):
     table_new = []
     for irow in range(ttable.ntable):
         
-        vals = ttable.vals[irow]
+        vals = ttable.table[irow]
         vals_new = []
         for i in index_list:
             vals_new.append(vals[i])
@@ -942,8 +957,8 @@ def transform_type_table(ttable,new_type_list):
     
     for irow in range(ttable.ntable):
         
-        vals = ttable.vals[irow]
-        for icol in ttable.n:
+        vals = ttable.table[irow]
+        for icol in range(ttable.n):
             val_new = get_val_from_table(ttable,irow,icol,new_type_list[icol])
             if vals[icol] != val_new:
                 ttable = set_val_in_table(ttable,val_new,irow,icol)
@@ -962,13 +977,13 @@ def is_table(ttable):
     flag = False
     
     if hasattr(ttable,'names') \
-        and hasattr(ttable,'vals') \
+        and hasattr(ttable,'table') \
         and hasattr(ttable,'types') \
         and hasattr(ttable, 'n') \
         and hasattr(ttable,'ntable'):
         
         if isinstance(ttable.names,list) \
-            and isinstance(ttable.vals,list) \
+            and isinstance(ttable.table,list) \
             and isinstance(ttable.types,list) \
             and isinstance(ttable.n,int) \
             and isinstance(ttable.ntable,int):

@@ -57,10 +57,10 @@ import depot_data_class_defs as dclassdef
 
 @dataclass
 class AllgData:
-    pickle_obj: hpickle.DataPickle = field(default_factory=hpickle.DataPickle)
+    pickle_obj = None
     data_dict: dict = field(default_factory=dict)
-    idfunc: dclassdef.IDCount = field(default_factory=dclassdef.IDCount)
-    wpfunc: wp_base.WPData = field(default_factory=wp_base.WPData)
+    idfunc = None   # : dclassdef.IDCount = field(default_factory=dclassdef.IDCount)
+    wpfunc = None   # : wp_base.WPData = field(default_factory=wp_base.WPData)
 
 @dataclass
 class KontoData:
@@ -161,7 +161,7 @@ def data_set(rd):
     #================================================================================
     # read konto-pickle-file
     #================================================================================
-    for konto_name in rd.konto_dict[rd.par.INI_KONTO_DATA_DICT_NAMES_NAME]:
+    for konto_name in rd.ini.ddict[rd.par.INI_KONTO_DATA_LIST_NAMES_NAME]:
         
         konto_data_obj = KontoData()
         
@@ -236,7 +236,7 @@ def data_set(rd):
     #================================================================================
     # proof csv-objekte mit konto
     #================================================================================
-    for konto_name in rd.konto_dict[rd.par.INI_KONTO_DATA_DICT_NAMES_NAME]:
+    for konto_name in rd.ini.ddict[rd.par.INI_KONTO_DATA_LIST_NAMES_NAME]:
         
         csv_config_name = rd.ini.ddict[konto_name][rd.par.INI_IMPORT_CONFIG_TYPE_NAME]
         if len(csv_config_name):
@@ -270,7 +270,7 @@ def data_set(rd):
     #================================================================================
     #  depot-data pickle --------------------------------------------
     #================================================================================
-    for depot_name in rd.ini.ddict[rd.par.INI_DEPOT_DATA_DICT_NAMES_NAME]:
+    for depot_name in rd.ini.ddict[rd.par.INI_DEPOT_DATA_LIST_NAMES_NAME]:
         
         depot_data_obj = DepotData()
         
@@ -305,6 +305,7 @@ def data_set(rd):
         # depot obj Klasse
         depot_data_obj.depot_obj = depot_depot_data_set_class.DepotDataSet(depot_name
                                                                          ,depot_data_obj.data_dict[rd.par.DEPOT_DATA_ISIN_LIST_NAME]
+                                                                         ,depot_data_obj.data_dict[rd.par.DEPOT_DATA_DEPOT_WP_LIST_NAME]
                                                                          ,rd.allg.wpfunc
                                                                          ,rd.konto_dict[konto_name].konto_obj)
         
@@ -315,12 +316,12 @@ def data_set(rd):
         # end if
         
         # load each depot_wp_data_set
-        
-        for i,isin in enumerate(depot_data_obj.data_dict_tvar[rd.par.DEPOT_DATA_ISIN_LIST_NAME].val):
+        wp_name_liste = depot_data_obj.depot_obj.get_wp_name_liste()
+        for i,isin in enumerate(depot_data_obj.depot_obj.get_isin_liste()):
             
             wp_data_obj = WpData()
             
-            wp_list_name = depot_data_obj.data_dict_tvar[rd.par.DEPOT_DATA_DEPOT_WP_LIST_NAME].val[i]
+            wp_list_name = wp_name_liste[i]
             
             # get data set
             if wp_list_name in rd.ini.ddict[rd.par.INI_DATA_PICKLE_JSONFILE_LIST]:
@@ -348,6 +349,8 @@ def data_set(rd):
             depot_data_obj.depot_obj.set_stored_wp_data_set_ttable(wp_data_obj.data_dict[rd.par.ISIN]
                                                                ,wp_data_obj.data_dict[rd.par.WP_KATEGORIE]
                                                                ,wp_data_obj.data_dict_tvar[rd.par.WP_DATA_SET_TABLE_NAME])
+            
+            wp_data_obj.wp_obj = depot_data_obj.depot_obj.get_wp_data_obj(wp_data_obj.data_dict[rd.par.ISIN])
             
             depot_data_obj.wp_obj_dict[wp_list_name] = copy.deepcopy(wp_data_obj)
             del wp_data_obj
@@ -419,7 +422,7 @@ def data_save(rd):
     #     rd.allg.data_dict
     #     rd.allg.idfunc
     #     rd.allg.wpfunc
-    rd.allg.data_dict[rd.par.ID_MAX_NAME] = rd.allg.idfunc.set_act_id()
+    rd.allg.data_dict[rd.par.ID_MAX_NAME] = rd.allg.idfunc.get_act_id()
     rd.allg.pickle_obj.set_ddict(rd.allg.data_dict)
     
     
@@ -438,8 +441,8 @@ def data_save(rd):
     #     rd.konto_dict[konto_name].konto_obj
     
     for konto_name in rd.konto_dict.keys():
-    
-        ttable = rd.konto_dict[konto_name].konto_obj.get_to_store_data_set_tvar()
+        
+        (ttable,_) = rd.konto_dict[konto_name].konto_obj.get_to_store_data_set_tvar()
         
         (val_dict_list,type_dict) = htvar.get_dict_list_from_table(ttable)
         rd.konto_dict[konto_name].data_dict[rd.par.KONTO_DATA_SET_DICT_LIST_NAME] = val_dict_list
@@ -464,15 +467,15 @@ def data_save(rd):
     #     rd.depot_dict[depot_name].wp_obj_dict
     for depot_name in rd.depot_dict.keys():
         rd.depot_dict[depot_name].data_dict[rd.par.DEPOT_DATA_ISIN_LIST_NAME] \
-            = rd.depot_dict[depot_name].depot_obj.get_to_store_isin_list()
+            = rd.depot_dict[depot_name].depot_obj.get_isin_liste()
         
         rd.depot_dict[depot_name].data_dict[rd.par.DEPOT_DATA_DEPOT_WP_LIST_NAME] \
-            = rd.depot_dict[depot_name].depot_obj.get_to_store_depot_wp_name_list()
+            = rd.depot_dict[depot_name].depot_obj.get_wp_name_liste()
         
         rd.depot_dict[depot_name].pickle_obj.save(rd.depot_dict[depot_name].data_dict)
-        if (rd.konto_dict[depot_name].pickle_obj.status != hdef.OKAY):
+        if (rd.depot_dict[depot_name].pickle_obj.status != hdef.OKAY):
             status = hdef.NOT_OKAY
-            errtext = f"{errtext}/ allg: {rd.konto_dict[konto_name].pickle_obj.errtext}"
+            errtext = f"{errtext}/ allg: {rd.depot_dict[depot_name].pickle_obj.errtext}"
         # endif
 
         # --------------------------------------------------------------------
@@ -525,9 +528,9 @@ def data_save(rd):
             rd.depot_dict[depot_name].wp_obj_dict[wp_list_name].data_dict[rd.par.WP_DATA_SET_TYPE_DICT] = type_dict
 
             rd.depot_dict[depot_name].wp_obj_dict[wp_list_name].pickle_obj.save(rd.depot_dict[depot_name].wp_obj_dict[wp_list_name].data_dict)
-            if (rd.konto_dict[depot_name].wp_obj_dict[wp_list_name].pickle_obj.status != hdef.OKAY):
+            if (rd.depot_dict[depot_name].wp_obj_dict[wp_list_name].pickle_obj.status != hdef.OKAY):
                 status = hdef.NOT_OKAY
-                errtext = f"{errtext}/ allg: {rd.konto_dict[konto_name].wp_obj_dict[wp_list_name].pickle_obj.errtext}"
+                errtext = f"{errtext}/ allg: {rd.depot_dict[depot_name].wp_obj_dict[wp_list_name].pickle_obj.errtext}"
             # endif
         # end for wp
     # end for depot
@@ -1247,7 +1250,7 @@ def proof_depot_data_intern(par, depot_data, depot_name):
 #     # end if
 #
 #     # Suche nach ibans in konto-Daten
-#     for konto_name in inidict[par.INI_KONTO_DATA_DICT_NAMES_NAME]:
+#     for konto_name in inidict[par.INI_KONTO_DATA_LIST_NAMES_NAME]:
 #
 #         dkonto = data[konto_name]
 #

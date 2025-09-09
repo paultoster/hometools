@@ -39,7 +39,7 @@ def ods_ausgabe_mit_depot_wahl(rd):
         
         if index < 0:
             return status
-        elif auswahl in rd.ini.ddict[rd.par.INI_DEPOT_DATA_DICT_NAMES_NAME]:
+        elif auswahl in rd.ini.ddict[rd.par.INI_DEPOT_DATA_LIST_NAMES_NAME]:
             
             rd.log.write(f"depot  \"{auswahl}\" ausgewählt")
             break

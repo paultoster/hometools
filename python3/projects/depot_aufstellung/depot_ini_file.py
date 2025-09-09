@@ -109,7 +109,7 @@ class ini:
         :return: status = self.check_kontodata(par)
         """
         
-        for kontoname in self.ddict[par.INI_KONTO_DATA_DICT_NAMES_NAME]:
+        for kontoname in self.ddict[par.INI_KONTO_DATA_LIST_NAMES_NAME]:
             
             if kontoname not in self.ddict:
                 self.status = hdef.NOT_OKAY
@@ -145,7 +145,7 @@ class ini:
         check kontonames sections from ini-file
         :return: status
         """
-        for depotname in self.ddict[par.INI_DEPOT_DATA_DICT_NAMES_NAME]:
+        for depotname in self.ddict[par.INI_DEPOT_DATA_LIST_NAMES_NAME]:
             
             if depotname not in self.ddict:
                 self.status = hdef.NOT_OKAY

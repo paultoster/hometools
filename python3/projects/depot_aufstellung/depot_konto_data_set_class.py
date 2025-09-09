@@ -251,7 +251,7 @@ class KontoDataSet:
         self.wpfunc = wpfunc
         self.csvfunc = None
 
-    def set_stored_data_set_tvar(self, data_set: htvar.TTable, konto_start_datum: htvar.TVal, konto_start_wert: htvar.TVal):
+    def set_stored_data_set_tvar(self, ttable: htvar.TTable, tkonto_start_datum: htvar.TVal, tkonto_start_wert: htvar.TVal):
         '''
         
         :param data_set:
@@ -260,24 +260,26 @@ class KontoDataSet:
         :return: self.set_stored_data_set_tvar(data_set,konto_start_datum,konto_start_wert)
         '''
         
-        if( self.data_set_obj.add_data_set_tvar(data_set,self.par.LINE_COLOR_BASE) != hdef.OKAY):
+        if( self.data_set_obj.add_data_set_tvar(ttable,self.par.LINE_COLOR_BASE) != hdef.OKAY):
             raise Exception(f"Fehler set_stored_data_set_tvar errtext={self.errtext} !!!")
         # end if
         
-        self.konto_start_datum = htvar.get_val(konto_start_datum,"dat")
-        self.konto_start_wert  = htvar.get_val(konto_start_wert,"cent")
+        self.konto_start_datum = htvar.get_val(tkonto_start_datum,"dat")
+        self.konto_start_wert  = htvar.get_val(tkonto_start_wert,"cent")
         
         if self.data_set_obj.get_n_data() > 0:
             
             value = self.data_set_obj.get_data_item(0, self.par.KONTO_DATA_INDEX_BUCHDATUM, "dat")
-            if value != self.konto_start_datum:
-                self.data_set_obj.set_data_item(value,self.par.KONTO_DATA_INDEX_BUCHDATUM, "dat")
-                self.data_set_obj.set_data_item(value,self.par.KONTO_DATA_INDEX_WERTDATUM, "dat")
+            if value != self.konto_start_datum: # value,line_color,irow, icol, type
+                self.data_set_obj.set_data_item(value,self.par.LINE_COLOR_NEW,0,self.par.KONTO_DATA_INDEX_BUCHDATUM, "dat")
+                self.data_set_obj.set_data_item(value,self.par.LINE_COLOR_NEW,0,self.par.KONTO_DATA_INDEX_WERTDATUM, "dat")
+                self.data_set_obj.update_order_name(self.par.KONTO_DATA_NAME_BUCHDATUM)
             # end if
 
             value = self.data_set_obj.get_data_item(0, self.par.KONTO_DATA_INDEX_SUMWERT, "cent")
             if value != self.konto_start_wert:
-                self.update_sumwert_in_lliste(0)
+                # self.update_sumwert_in_lliste(0)
+                self.recalc_sum_data_set()
             # end if
             
         else:
@@ -329,9 +331,9 @@ class KontoDataSet:
         
         ttable = self.data_set_obj.get_data_set_ttable()
         
-        ttable = htvar.transform_icol_table(ttable, self.par.KONTO_DATA_EXTERN_NAME_LIST)
+        ttable = htvar.transform_icol_table(ttable, self.par.KONTO_DATA_NAME_LIST)
         
-        ttable = htvar.transform_type_table(ttable, self.par.KONTO_DATA_EXTERN_TYPE_LIST)
+        ttable = htvar.transform_type_table(ttable, self.par.KONTO_DATA_STORE_TYPE_LIST)
         
         row_color_dliste = self.data_set_obj.get_line_color_set_liste()
         

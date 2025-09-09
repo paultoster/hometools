@@ -27,7 +27,7 @@ def bearbeiten(rd):
     
     while (runflag):
 
-        (index,_) = depot_gui.listen_abfrage(rd,start_auswahl,"Auswahl Konto")
+        (index,_) = depot_gui.listen_abfrage(start_auswahl,"Auswahl Konto")
         
         rd.log.write(f"Konto Abfrage  \"{start_auswahl[index]}\" ausgewählt")
         
@@ -76,7 +76,7 @@ def depot_konto_bearbeiten_csv_ausgabe(rd):
         
         if index < 0:
             return status
-        elif choice in rd.konto_dict[rd.par.INI_KONTO_DATA_DICT_NAMES_NAME]:
+        elif choice in rd.ini.ddict[rd.par.INI_KONTO_DATA_LIST_NAMES_NAME]:
             
             rd.log.write(f"konto  \"{choice}\" ausgewählt")
             break

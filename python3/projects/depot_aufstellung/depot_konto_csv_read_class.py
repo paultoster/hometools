@@ -33,7 +33,7 @@ class KontoCsvRead:
         
         self.status = hdef.OK
         self.errtext = ""
-        self.trennzeichen_tval = trennzeichen_tval
+        self.trennzeichen = htvar.get_val(trennzeichen_tval,"str")
         self.buchtype_zuordnung_tlist  = buchtype_zuordnung_tlist
         self.header_zuordnung_tlist = header_zuordnung_tlist
         self.header_type_zuordnung_tlist = header_type_zuordnung_tlist
@@ -51,7 +51,7 @@ class KontoCsvRead:
         
         # read csv-File
         # ==============
-        csv_lliste = hio.read_csv_file(file_name=filename, delim=self.trennzeichen_tval.val)
+        csv_lliste = hio.read_csv_file(file_name=filename, delim=self.trennzeichen)
         
         if (len(csv_lliste) == 0):
             self.errtext = f"Fehler in read_ing_csv read_csv_file()  filename = {self.filename}"
@@ -191,36 +191,36 @@ class KontoCsvRead:
             # end if
         return (False,"","","")
     # end if
-    def search_header_line_find_name_in_list(csv_liste: list):
-        '''
-        name is a string or a list of strings
-        index is position in csv_liste
-        if found index is an integer
-        if not found index is None
-        
-        :param name:
-        :param csv_liste:
-        :return: (index,name_csv,name) = self.search_header_line_find_name_in_list(csv_liste)
-        '''
-        if isinstance(name,str):
-            name_list = [name]
-        elif isinstance(name,list):
-            name_list = name
-        else:
-            raise Exception(f"search_header_line_find_name_in_list: name is not str nor list name = {name}")
-        # end if
-        
-        for namename in name_list:
-            for index,item in enumerate(csv_liste):
-                tt = hstr.elim_ae(item," ")
-                if( namename == tt):
-                    return (index,namename
-            # if namename in csv_liste:
-            #     return csv_liste.index(namename)
-            # end if
-        # end for
-        return None
-    # end def
+    # def search_header_line_find_name_in_list(csv_liste: list):
+    #     '''
+    #     name is a string or a list of strings
+    #     index is position in csv_liste
+    #     if found index is an integer
+    #     if not found index is None
+    #
+    #     :param name:
+    #     :param csv_liste:
+    #     :return: (index,name_csv,name) = self.search_header_line_find_name_in_list(csv_liste)
+    #     '''
+    #     if isinstance(name,str):
+    #         name_list = [name]
+    #     elif isinstance(name,list):
+    #         name_list = name
+    #     else:
+    #         raise Exception(f"search_header_line_find_name_in_list: name is not str nor list name = {name}")
+    #     # end if
+    #
+    #     for namename in name_list:
+    #         for index,item in enumerate(csv_liste):
+    #             tt = hstr.elim_ae(item," ")
+    #             if( namename == tt):
+    #                 return (index,namename
+    #         # if namename in csv_liste:
+    #         #     return csv_liste.index(namename)
+    #         # end if
+    #     # end for
+    #     return None
+    # # end def
     # def search_header_line_get_missing_item(self,header_found_liste):
     #     '''
     #     searches for missing item in CSV_DATA_NAME_LIST

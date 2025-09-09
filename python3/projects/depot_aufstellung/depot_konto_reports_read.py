@@ -111,10 +111,6 @@ def report_einlesen(rd):
         rd.data[choice].ddict = konto_dict
         rd.data[choice].obj   = konto_obj
 
-    else:
-        errtext = f"Der Umsatz data type von [{choice}].{rd.ini.UMSATZ_DATA_TYPE_NAME} = {konto_dict[rd.ini.UMSATZ_DATA_TYPE_NAME]} stimmt nicht"
-        rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
-        status  = hdef.NOT_OKAY
     #endif
         
     return status

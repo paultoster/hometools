@@ -28,7 +28,7 @@ def bearbeiten(rd):
     
     while (runflag):
 
-        (index,_) = depot_gui.listen_abfrage(rd,start_auswahl,"Auswahl Depot")
+        (index,_) = depot_gui.listen_abfrage(start_auswahl,"Auswahl Depot")
         
         rd.log.write(f"Depot Abfrage  \"{start_auswahl[index]}\" ausgewählt")
         

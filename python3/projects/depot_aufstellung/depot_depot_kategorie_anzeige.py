@@ -126,7 +126,7 @@ def get_kategorie_liste(rd):
     
     kategorie_liste = []
     
-    for depot_name in rd.ini.ddict[rd.par.INI_DEPOT_DATA_DICT_NAMES_NAME]:
+    for depot_name in rd.ini.ddict[rd.par.INI_DEPOT_DATA_LIST_NAMES_NAME]:
         kategorie_liste += rd.data[depot_name].obj.get_kategorie_liste()
     # end for
     
@@ -147,7 +147,7 @@ def get_depot_daten_sets_einer_kategorie(rd,kategorie):
     errtext = ""
     data_lliste = []
     row_color_dliste = []
-    for depot_name in rd.ini.ddict[rd.par.INI_DEPOT_DATA_DICT_NAMES_NAME]:
+    for depot_name in rd.ini.ddict[rd.par.INI_DEPOT_DATA_LIST_NAMES_NAME]:
         
         (data_lliste0, header_liste, type_liste, row_color_dliste0) \
             = rd.data[depot_name].obj.get_depot_daten_sets_overview_kategorie(kategorie)

@@ -37,13 +37,13 @@ def anzeige_mit_konto_wahl(rd):
     runflag = True
     while (runflag):
         
-        konto_liste =  list(rd.konto_dict[rd.par.INI_KONTO_DATA_DICT_NAMES_NAME].keys())
+        konto_liste =  list(rd.ini.ddict[rd.par.INI_KONTO_DATA_LIST_NAMES_NAME])
         
         (index, choice) = depot_gui.auswahl_konto(konto_liste)
         
         if index < 0:
             return status
-        elif choice in rd.konto_dict[rd.par.INI_KONTO_DATA_DICT_NAMES_NAME]:
+        elif choice in rd.ini.ddict[rd.par.INI_KONTO_DATA_LIST_NAMES_NAME]:
             
             rd.log.write(f"konto  \"{choice}\" ausgewählt")
             break
@@ -82,6 +82,7 @@ def anzeige(rd,konto_obj):
     i_add = 5
     i_delete = 6
     
+    konto_dict = {}
     data_changed_pos_list = []
     ttable_anzeige = None
     runflag = True
@@ -90,8 +91,12 @@ def anzeige(rd,konto_obj):
         (ttable,row_color_dlist) = konto_obj.get_anzeige_ttable()
         
         if ttable.ntable > 0:
-            (ttable_anzeige, index_abfrage, irow, data_changed_pos_list) = \
+            (status,errtext,ttable_anzeige, index_abfrage, irow, data_changed_pos_list) = \
                 depot_gui.konto_abfrage(ttable, abfrage_liste, row_color_dlist)
+            if status != hdef.OKAY:
+                rd.log.write_err(errtext,screen=rd.par.LOG_SCREEN_OUT)
+                index_abfrage = i_end
+            # end if
         else:
             rd.log.write_warn("Noch keine Daten für dieses Konto angelegt, es geht weiter zu Add ",screen=rd.par.LOG_SCREEN_OUT)
             index_abfrage = i_end
