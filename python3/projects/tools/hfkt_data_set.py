@@ -111,7 +111,7 @@ class DataSet:
             return self.add_data_set_tlist(new_data_set, line_color)
         # end if
     # end def
-    def add_data_set_ttable(self ,new_data_set: htvar.TTable ,line_color :str = ""):
+    def add_data_set_ttable(self ,new_ttable: htvar.TTable ,line_color :str = ""):
         
         if (not self.def_okay):
             self.status = hdef.NOT_OKAY
@@ -119,15 +119,15 @@ class DataSet:
             return self.status
         # end if
         
-        for i in range(new_data_set.ntable):
+        for i in range(new_ttable.ntable):
             
             data_set_list = [htype.type_get_default(self.type_dict[icol]) for icol in range(self.ncol)]
 
-            for j in range(new_data_set.n):
+            for j in range(new_ttable.n):
             
-                name = new_data_set.names[j]
-                type = new_data_set.types[j]
-                value = new_data_set.table[i][j]
+                name = new_ttable.names[j]
+                type = new_ttable.types[j]
+                value = new_ttable.table[i][j]
                 
                 # suche in self.name_dict
                 key_name_dict = hdict.find_first_key_dict_value(self.name_dict, name)
@@ -152,7 +152,7 @@ class DataSet:
         
         return self.status
     # end def
-    def add_data_set_tlist(self, new_data_set: htvar.TList, line_color: str = ""):
+    def add_data_set_tlist(self, new_tlist: htvar.TList, line_color: str = ""):
         
         if (not self.def_okay):
             self.status = hdef.NOT_OKAY
@@ -163,11 +163,11 @@ class DataSet:
         
         data_set_list = [htype.type_get_default(self.type_dict[icol]) for icol in range(self.ncol)]
         
-        for j in range(new_data_set.n):
+        for j in range(new_tlist.n):
             
-            name = new_data_set.names[j]
-            type = new_data_set.types[j]
-            value = new_data_set.vals[j]
+            name = new_tlist.names[j]
+            type = new_tlist.types[j]
+            value = new_tlist.vals[j]
             
             # suche in self.name_dict
             key_name_dict = hdict.find_first_key_dict_value(self.name_dict, name)
@@ -480,7 +480,7 @@ class DataSet:
             # end for
         # end if
         
-        tlist = htvar.build_tlist(names, vals, types)
+        tlist = htvar.build_list(names, vals, types)
         
         return (tlist)
     def get_row_list_of_header(self,header,type=None):

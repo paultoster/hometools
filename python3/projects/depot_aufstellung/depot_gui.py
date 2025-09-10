@@ -127,7 +127,7 @@ def konto_depot_data_set_eingabe(tlist,buchtype_index_in_header_liste,buchungs_t
     if title is None:
         title = "Eine Kontobewegung eingeben"
     # end if
-    if immutable_liste is None:
+    if not isinstance(immutable_liste,list):
         immutable_liste = []
         for i in range(len(eingabe_liste)):
             immutable_liste.append(False)
@@ -146,6 +146,11 @@ def konto_depot_data_set_eingabe(tlist,buchtype_index_in_header_liste,buchungs_t
     
     while run_flag:
         new_data_list = sgui.abfrage_n_eingabezeilen_dict(ddict)
+        
+        if len(new_data_list) == 0:
+            return ([],False)
+        # end if
+        
         run_flag = False
         vals = []
         for i in range(tlist.n):

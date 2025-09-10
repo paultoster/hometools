@@ -73,7 +73,7 @@ def anzeige(rd,konto_obj):
     '''
     
     status = hdef.OKAY
-    abfrage_liste = ["ende", "update(edit)","update(isin)", "edit","edit(isin)","add", "delete"]
+    abfrage_liste = ["ende", "update(edit)","scan(isin)", "edit_row","edit_row(isin)","add", "delete_row"]
     i_end = 0
     i_update = 1
     i_update_isin = 2
@@ -169,107 +169,112 @@ def anzeige(rd,konto_obj):
             
             if (irow >= 0):
                 (tlist,buchungs_type_list, buchtype_index_in_header_liste) = konto_obj.get_edit_data(irow)
-            else:
-                rd.log.write_err("konto__anzeige edit: irow out of range ", screen=rd.par.LOG_SCREEN_OUT)
-                return (hdef.NOT_OK, konto_dict,konto_obj)
-            # endif
-            
-            
-            (tlist_anzeige,change_flag) = depot_gui.konto_depot_data_set_eingabe(tlist,buchtype_index_in_header_liste,buchungs_type_list)
-            
-            if change_flag:
-                (new_data_set_flag, status, errtext) = konto_obj.set_data_set_extern_liste(tlist_anzeige,irow)
+
+                (tlist_anzeige, change_flag) = depot_gui.konto_depot_data_set_eingabe(tlist,
+                                                                                      buchtype_index_in_header_liste,
+                                                                                      buchungs_type_list)
                 
-                if status != hdef.OKAY:
-                    rd.log.write_err("konto__anzeige edit " + errtext, screen=rd.par.LOG_SCREEN_OUT)
-                    return (status, konto_dict,konto_obj)
+                if change_flag:
+                    (new_data_set_flag, status, errtext) = konto_obj.set_data_set_extern_liste(tlist_anzeige, irow)
+                    
+                    if status != hdef.OKAY:
+                        rd.log.write_err("konto__anzeige edit " + errtext, screen=rd.par.LOG_SCREEN_OUT)
+                        return (status, konto_dict, konto_obj)
+                    # endif
                 # endif
+            else:
+                rd.log.write_err("konto__anzeige edit: irow out of range or not set", screen=rd.par.LOG_SCREEN_OUT)
             # endif
+            
             runflag = True
+            
         elif index_abfrage == i_edit_isin:
             
             if (irow >= 0):
+                
                 (tlist, buchungs_type_list, buchtype_index_in_header_liste) \
-                    = konto_obj.get_edit_data(irow)
-            else:
-                rd.log.write_err("konto__anzeige edit: irow out of range ", screen=rd.par.LOG_SCREEN_OUT)
-                return (hdef.NOT_OK, konto_dict, konto_obj)
-            # endif
-            
-            # Erstelle die Eingabe liste
-            eingabeListe = []
-            vorgabeListe = []
-            
-            # wpname
-            #-----------------------------------------------------------------------------------------------------------
-            eingabeListe.append("möglich. wpname")
-            comment = hfkt_tvar.get_val_from_list(tlist,konto_obj.par.KONTO_DATA_NAME_COMMENT)
-            vorgabeListe.append(comment)
-
-            (okay, wkn, isin_comment) = konto_obj.search_wkn_from_comment(comment)
-
-            # isin
-            #-----------------------------------------------------------------------------------------------------------
-            eingabeListe.append("möglich. isin")
-            isin = hfkt_tvar.get_val_from_list(tlist, konto_obj.par.KONTO_DATA_NAME_ISIN)
-            if (len(isin) == 0) and (okay == hdef.OKAY):
-                (okay, value) = htype.type_proof_isin(isin_comment)
-                if okay == hdef.OKAY:
-                    isin = value
-            # end if
-            
-            vorgabeListe.append(isin)
-            
-            # wkn
-            #-----------------------------------------------------------------------------------------------------------
-            eingabeListe.append("möglich. wkn")
-            
-            if len(wkn):
-                vorgabeListe.append(wkn)
-            else:
-                vorgabeListe.append("")
+                                                     = konto_obj.get_edit_data(irow)
+                # Erstelle die Eingabe liste
+                eingabeListe = []
+                vorgabeListe = []
                 
+                # wpname
+                # -----------------------------------------------------------------------------------------------------------
+                eingabeListe.append("möglich. wpname")
+                comment = hfkt_tvar.get_val_from_list(tlist, konto_obj.par.KONTO_DATA_NAME_COMMENT)
+                vorgabeListe.append(comment)
                 
-            # Daten in den title
-            data_title = ""
-            for d in tlist.vals:
-                (okay,dstr) = htype.type_proof_string(d)
-                if okay == hdef.OKAY:
-                    data_title += "|"+dstr
-                # end fi
-            # end for
-            
-            # Abfrage
-            #-----------------------------------------------------------------------------------------------------------
-            ergebnisListe = depot_gui.konto_isin_wkn_set_eingabe(eingabeListe, vorgabeListe
-                                                          ,title=f"{data_title} wpnname,isin und wkn ausfüllen (wpnname,isin evt. leer, kein EIntrag)")
-            # Daten übernehmen
-            #-----------------------------------------------------------------------------------------------------------
-            flag = False
-            if len(ergebnisListe):
-                wpname = ergebnisListe[0]
-                isin   = ergebnisListe[1]
-                wkn    =  ergebnisListe[2]
-                
-                if len(isin):
-                    status = rd.wpfunc.update_isin_w_wpname_wkn(isin,wpname,wkn)
-                # end if
+                (okay, wkn, isin_comment) = konto_obj.search_wkn_from_comment(comment)
                 
                 # isin
-                if( (status == hdef.OKAY) and len(isin) and (data_set[index_isin] != isin)):
-                    flag = True
-                    tlist = hfkt_tvar.set_val_in_list(tlist,ergebnisListe[1],konto_obj.par.KONTO_DATA_NAME_ISIN,"isin")
+                # -----------------------------------------------------------------------------------------------------------
+                eingabeListe.append("möglich. isin")
+                isin = hfkt_tvar.get_val_from_list(tlist, konto_obj.par.KONTO_DATA_NAME_ISIN)
+                if (len(isin) == 0) and (okay == hdef.OKAY):
+                    (okay, value) = htype.type_proof_isin(isin_comment)
+                    if okay == hdef.OKAY:
+                        isin = value
                 # end if
                 
-            # update dateset
-            if flag:
-                (new_data_set_flag, status, errtext) = konto_obj.set_data_set_extern_liste(tlist, irow)
+                vorgabeListe.append(isin)
                 
-                if status != hdef.OKAY:
-                    rd.log.write_err("konto__anzeige edit isin" + errtext, screen=rd.par.LOG_SCREEN_OUT)
-                    return (status, konto_dict, konto_obj)
+                # wkn
+                # -----------------------------------------------------------------------------------------------------------
+                eingabeListe.append("möglich. wkn")
+                
+                if len(wkn):
+                    vorgabeListe.append(wkn)
+                else:
+                    vorgabeListe.append("")
+                
+                # Daten in den title
+                data_title = ""
+                for d in tlist.vals:
+                    (okay, dstr) = htype.type_proof_string(d)
+                    if okay == hdef.OKAY:
+                        data_title += "|" + dstr
+                    # end fi
+                # end for
+                
+                # Abfrage
+                # -----------------------------------------------------------------------------------------------------------
+                ergebnisListe = depot_gui.konto_isin_wkn_set_eingabe(eingabeListe, vorgabeListe
+                                                                     ,
+                                                                     title=f"{data_title} wpnname,isin und wkn ausfüllen (wpnname,isin evt. leer, kein EIntrag)")
+                # Daten übernehmen
+                # -----------------------------------------------------------------------------------------------------------
+                flag = False
+                if len(ergebnisListe):
+                    wpname = ergebnisListe[0]
+                    isin = ergebnisListe[1]
+                    wkn = ergebnisListe[2]
+                    
+                    if len(isin):
+                        status = konto_obj.update_isin_w_wpname_wkn(isin, wpname, wkn)
+                    # end if
+                    
+                    # isin
+                    isin_old = hfkt_tvar.get_val_from_list(tlist, konto_obj.par.KONTO_DATA_NAME_ISIN)
+                    if ((status == hdef.OKAY) and len(isin) and (isin_old != isin)):
+                        flag = True
+                        tlist = hfkt_tvar.set_val_in_list(tlist, ergebnisListe[1], konto_obj.par.KONTO_DATA_NAME_ISIN,
+                                                          "isin")
+                    # end if
+                # end if
+                
+                # update dateset
+                if flag:
+                    (new_data_set_flag, status, errtext) = konto_obj.set_data_set_extern_liste(tlist, irow)
+                    
+                    if status != hdef.OKAY:
+                        rd.log.write_err("konto__anzeige edit isin" + errtext, screen=rd.par.LOG_SCREEN_OUT)
+                        return (status, konto_dict, konto_obj)
+                    # endif
                 # endif
+            else:
+                rd.log.write_err("konto__anzeige edit: irow out of range or not set", screen=rd.par.LOG_SCREEN_OUT)
             # endif
+            
             runflag = True
         elif index_abfrage == i_add :
             
@@ -289,7 +294,7 @@ def anzeige(rd,konto_obj):
             
             
             (tlist_anzeige,change_flag) = depot_gui.konto_depot_data_set_eingabe(tlist, buchtype_index_in_header_liste,
-                                                                buchungs_type_list,None,titlename)
+                                                                buchungs_type_list, titlename,None)
                         
             if change_flag:
                 (new_data_set_flag, status, errtext) = konto_obj.set_new_data(tlist_anzeige)

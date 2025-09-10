@@ -388,11 +388,16 @@ def type_get_default(type):
     # end if
 # end def
 def type_get_default_list(type_list):
-    liste = [None for j in range(len(type_list))]
-    for i,type in enumerate(type_list):
-        liste[i] = type_get_default(type)
-    # end for
-    return liste
+    if len(type_list) > 0:
+        return type_list[0]
+    else:
+        return None
+    # end if
+    # liste = [None for j in range(len(type_list))]
+    # for i,type in enumerate(type_list):
+    #     liste[i] = type_get_default(type)
+    # # end for
+    # return liste
 # end def
 def type_get_default_single(type):
     if type == "str":
@@ -1312,6 +1317,12 @@ def type_transform(wert_in: any, type_in: str | list, type_out: str | list):
         (okay, wert_out) = type_transform_cent(wert_in, type_out)
     elif type_in == "percentStr":
         (okay, wert_out) = type_transform_percentStr(wert_in, type_out)
+    elif type_in == "iban":
+        (okay, wert_out) = type_transform_iban(wert_in, type_out)
+    elif type_in == "isin":
+        (okay, wert_out) = type_transform_isin(wert_in, type_out)
+    elif type_in == "wkn":
+        (okay, wert_out) = type_transform_wkn(wert_in, type_out)
     elif isinstance(type_in, list):
         # if wert_in == "Kirchensteuer":
         #    print("halt")
@@ -1638,6 +1649,74 @@ def type_transform_percentStr(wert_in, type_out):
         wert_out = None
     # end if
     return (okay,wert_out)
+# end def
+def type_transform_iban(wert_in, type_out):
+    '''
+    
+    :param wert_in:
+    :param type_out:
+    :return: (okay, wert_out) = type_transform_iban(wert_in, type_out)
+    '''
+    if type_out == "str":
+        (okay, wert) = type_proof(wert_in, "str")
+        if okay == hdef.OKAY:
+            wert_out = str(wert)
+        else:
+            wert_out = None
+        # end if
+    elif type_out == "iban":
+        (okay, wert_out) = type_proof(wert_in, "iban")
+    else:
+        okay = hdef.NOT_OKAY
+        wert_out = None
+    # end if
+
+    return (okay,wert_out)
+# end def
+def type_transform_isin(wert_in, type_out):
+    '''
+
+    :param wert_in:
+    :param type_out:
+    :return: (okay, wert_out) = type_transform_isin(wert_in, type_out)
+    '''
+    if type_out == "str":
+        (okay, wert) = type_proof(wert_in, "str")
+        if okay == hdef.OKAY:
+            wert_out = str(wert)
+        else:
+            wert_out = None
+        # end if
+    elif type_out == "isin":
+        (okay, wert_out) = type_proof(wert_in, "isin")
+    else:
+        okay = hdef.NOT_OKAY
+        wert_out = None
+    # end if
+    return (okay, wert_out)
+# end def
+def type_transform_wkn(wert_in, type_out):
+    '''
+
+    :param wert_in:
+    :param type_out:
+    :return: (okay, wert_out) = type_transform_isin(wert_in, type_out)
+    '''
+    if type_out == "str":
+        (okay, wert) = type_proof(wert_in, "str")
+        if okay == hdef.OKAY:
+            wert_out = str(wert)
+        else:
+            wert_out = None
+        # end if
+    elif type_out == "wkn":
+        (okay, wert_out) = type_proof(wert_in, "wkn")
+    else:
+        okay = hdef.NOT_OKAY
+        wert_out = None
+    # end if
+
+    return (okay, wert_out)
 # end def
 def type_transform_list(wert_in,liste,type_out):
     '''

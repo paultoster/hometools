@@ -204,6 +204,7 @@ class KontoDataSet:
     (tlist, buchungs_type_list, buchtype_index_in_header_liste) = self.get_edit_data(irow)
     (tlist, buchungs_type_list, buchtype_index_in_header_liste) =  self.get_extern_default_tlist()
      (status,errtext)                  = delete_data_set(irow)
+     status                            = obj.update_isin_w_wpname_wkn(isin, wpname, wkn)
      
      # intern
      
@@ -691,6 +692,16 @@ class KontoDataSet:
         change_flag = False
         
         buch_type = htvar.get_val_from_list(tlist, self.par.KONTO_DATA_NAME_BUCHTYPE)
+        
+        if isinstance(buch_type,str):
+            (okay,wert) = htype.type_transform(buch_type, self.par.KONTO_BUCHTYPE_TEXT_LIST, self.par.KONTO_BUCHTYPE_INDEX_LIST)
+            if okay == hdef.OKAY:
+                buch_type = wert
+            else:
+                raise Exception(f"update_isin_data_set_tlist: Problem buch_type")
+            # end if
+        # end if
+        
         isin_in = htvar.get_val_from_list(tlist, self.par.KONTO_DATA_NAME_ISIN)
         comment = htvar.get_val_from_list(tlist, self.par.KONTO_DATA_NAME_COMMENT)
         
@@ -707,8 +718,8 @@ class KontoDataSet:
             isin = ""
         # endif
         
-        if isin != isin_in:
-            tlist = htvar.set_val_in_list(tlist, isin, self.par.KONTO_DATA_NAME_BUCHTYPE)
+        if (len(isin) > 0) and (isin != isin_in):
+            tlist = htvar.set_val_in_list(tlist, isin, self.par.KONTO_DATA_NAME_ISIN)
             change_flag = True
         # end if
         
@@ -800,7 +811,7 @@ class KontoDataSet:
         changed = False
         for (irow, icol) in data_changed_pos_list:
             
-            value = ttable_anzeige.vals[irow][icol]
+            value = ttable_anzeige.table[irow][icol]
             name  = ttable_anzeige.names[icol]
             type  = ttable_anzeige.types[icol]
             
@@ -943,7 +954,7 @@ class KontoDataSet:
             self.errtext = f"KontoDataSet.delete_data_set: irow = {irow} >= len(data_set_llist) = {self.data_set_obj.get_n_data()}"
         else:
             self.data_set_obj.delete_row_in_data_set(irow)
-            if self.data_set_obj != hdef.OKAY:
+            if self.data_set_obj.status != hdef.OKAY:
                 self.status = self.data_set_obj.status
                 self.errtext = self.data_set_obj.errtext
             # end if
@@ -951,6 +962,22 @@ class KontoDataSet:
         
         return (self.status, self.errtext)
     
+    # end def
+    def update_isin_w_wpname_wkn(self,isin, wpname, wkn):
+        '''
+        
+        :param isin:
+        :param wpname:
+        :param wkn:
+        :return: status = obj.update_isin_w_wpname_wkn(isin, wpname, wkn)
+        '''
+    
+        status = self.wpfunc.update_isin_w_wpname_wkn(isin, wpname, wkn)
+        
+        self.status = status
+        self.errtext = self.wpfunc.errtext
+        
+        return status
     # end def
     #-------------------------------------------------------------------------------------------------------------------
     # intern functions
@@ -990,7 +1017,7 @@ class KontoDataSet:
         index_chash = htvar.get_index_from_table(new_data_table, self.par.KONTO_DATA_NAME_CHASH)
         type_chash = htvar.get_type_from_table(new_data_table, self.par.KONTO_DATA_NAME_CHASH)
         
-        icol_chash = self.find_header_index(self.par.KONTO_DATA_NAME_CHASH)
+        icol_chash = self.par.KONTO_DATA_INDEX_CHASH
         
         
         irow_erase_list = []
@@ -1085,6 +1112,15 @@ class KontoDataSet:
                     # end if
                     
                     if change_flag:
+                        
+                        (okay, wert) = htype.type_transform(buchtype, self.par.KONTO_BUCHTYPE_INDEX_LIST,
+                                                            self.par.KONTO_BUCHTYPE_TEXT_LIST)
+                        if okay == hdef.OKAY:
+                            buchtype = wert
+                        else:
+                            raise Exception(f"proof_wert_of_table: Problem buchtype")
+                        # end if
+                        
                         new_data_table = htvar.set_val_in_table(new_data_table, buchtype, irow, self.par.KONTO_DATA_NAME_BUCHTYPE)
                     # end if
                 # end if
@@ -1111,11 +1147,20 @@ class KontoDataSet:
             
             buchtype = htvar.get_val_from_table(new_data_table, irow, self.par.KONTO_DATA_NAME_BUCHTYPE)
             
+            if isinstance(buchtype, str):
+                (okay, wert) = htype.type_transform(buchtype, self.par.KONTO_BUCHTYPE_TEXT_LIST,
+                                                    self.par.KONTO_BUCHTYPE_INDEX_LIST)
+                if okay == hdef.OKAY:
+                    buchtype = wert
+                else:
+                    raise Exception(f"build_internal_values_new_data_table: Problem buch_type")
+                # end if
+            # end if
             
-            if (buchtype == self.par.KONTO_BUCHTYPE_NAME_WP_KAUF) or \
-                (buchtype == self.par.KONTO_BUCHTYPE_NAME_WP_VERKAUF) or \
-                (buchtype == self.par.KONTO_BUCHTYPE_NAME_WP_KOSTEN) or \
-                (buchtype == self.par.KONTO_BUCHTYPE_NAME_WP_EINNAHMEN):
+            if (buchtype == self.par.KONTO_BUCHTYPE_INDEX_WP_KAUF) or \
+                (buchtype == self.par.KONTO_BUCHTYPE_INDEX_WP_VERKAUF) or \
+                (buchtype == self.par.KONTO_BUCHTYPE_INDEX_WP_KOSTEN) or \
+                (buchtype == self.par.KONTO_BUCHTYPE_INDEX_WP_EINNAHMEN):
                 
                 if htvar.check_name_from_table(new_data_table,self.par.KONTO_DATA_NAME_ISIN):
                     isin_in = htvar.get_val_from_table(new_data_table, irow, self.par.KONTO_DATA_NAME_ISIN)

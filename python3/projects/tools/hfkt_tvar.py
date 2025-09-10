@@ -60,6 +60,8 @@ ttable = sort_col_in_table(ttable,name,aufsteigend=1)
 ttable = sort_col_in_table(ttable,name)
 ttable = sort_col_in_table(ttable,index,aufsteigend=1)
 ttable = sort_col_in_table(ttable,index)
+tlist  = transform_icol_list(tlist,new_name_list)
+tlist  = transform_type_list(tlist,new_type_list)
 ttable = transform_icol_table(ttable,new_name_list)
 ttable = transform_type_table(ttable,new_type_list)
 flag   = is_table(ttable)
@@ -840,21 +842,34 @@ def add_row_liste_to_table(ttable, name,add_row_liste,type):
 
     '''
     n = len(add_row_liste)
-    for irow in ttable.ntable:
-        
-        liste = ttable.table[irow]
-        
-        if irow < n:
-            liste.append(add_row_liste[irow])
-        else:
-            liste.append(None)
-        # end if
-        ttable.table[irow] = liste
-    # end for
     
-    ttable.names.append(name)
-    ttable.types.append(type)
-    ttable.n += 1
+    if check_name_from_table(ttable,name):   # Werte ersetzen
+        
+        index =  get_index_from_table(ttable,name)
+        
+        for irow in range(ttable.ntable):
+            if irow < n:
+                ttable = set_val_in_table(ttable,add_row_liste[irow],irow,index,type)
+            # end if
+        # end if
+    else:   # wert anhängen
+    
+        for irow in range(ttable.ntable):
+            
+            liste = ttable.table[irow]
+            
+            if irow < n:
+                liste.append(add_row_liste[irow])
+            else:
+                liste.append(None)
+            # end if
+            ttable.table[irow] = liste
+        # end for
+    
+        ttable.names.append(name)
+        ttable.types.append(type)
+        ttable.n += 1
+    # end if
     
     return ttable
 # end def
@@ -913,6 +928,52 @@ def sort_col_in_table(ttable,name,aufsteigend=1):
     
     return ttable
 # end def
+def transform_icol_list(tlist,new_name_list):
+    '''
+    
+    :param tlist:
+    :param new_name_list:
+    :return: tlist  = transform_icol_list(tlist,new_name_list)
+    '''
+    types_new = []
+    index_list = []
+    for new_name in new_name_list:
+        index = get_index_from_list(tlist, new_name)
+        index_list.append(index)
+        types_new.append(tlist.types[index])
+    # end for
+    
+    vals = tlist.vals
+    vals_new = []
+    for i in index_list:
+        vals_new.append(vals[i])
+    # end for
+    
+    return build_list(new_name_list, vals_new, types_new)
+# end def
+def transform_type_list(tlist,new_type_list):
+    '''
+    
+    :param tlist:
+    :param new_type_list:
+    :return: tlist  = transform_type_list(tlist,new_type_list)
+    '''
+    if len(new_type_list) != tlist.n:
+        raise Exception(
+            f"Error transform_type_list: tlist.n: {tlist.n} != len(new_type_list): {len(new_type_list)}")
+    # end def
+    
+    vals = tlist.vals
+    for icol in range(tlist.n):
+        val_new = get_val_from_list(tlist, icol, new_type_list[icol])
+        if vals[icol] != val_new:
+            tlist = set_val_in_list(tlist, val_new, icol)
+        # end if
+    # end for
+    return tlist
+# end def
+
+
 def transform_icol_table(ttable,new_name_list):
     '''
     
