@@ -34,6 +34,7 @@ import depot_konto_data_set_class as dkonto
 import tools.hfkt_def as hdef
 import tools.hfkt_log as hlog
 import tools.hfkt_pickle as hpickle
+import tools.sgui_protocol_class as sgui_prot
 
 
 import wp_abfrage.wp_base as wp_base
@@ -44,6 +45,7 @@ import wp_abfrage.wp_base as wp_base
 
 @dataclass
 class RootData:
+    gui = None
     par: depot_par.Parameter = field(default_factory=depot_par.Parameter)
     log: hlog.log = field(default_factory=hlog.log)
     ini: depot_ini_file.ini = field(default_factory=depot_ini_file.ini)
@@ -59,7 +61,9 @@ def depot_aufstellung():
 
     rd = RootData
 
-    # Lof-File start
+    rd.gui = sgui_prot.SguiProtocol()
+
+    # Log-File start
     rd.log = hlog.log(LOG_FILE_NAME)
     #-------------------------------
     if (rd.log.state != hdef.OK):
@@ -76,6 +80,9 @@ def depot_aufstellung():
         rd.log.write_err(rd.ini.errtext, screen=rd.par.LOG_SCREEN_OUT)
         return
     # end if
+    
+    # set protocol
+    rd.gui.set_protcol_type_file(rd.ini.ddict[rd.par.INI_PROTOCOL_TYPE_NAME],rd.ini.ddict[rd.par.INI_PROTOCOL_FILE_NAME])
     
     # set parameter from ini
     rd.par.LOG_SCREEN_OUT = rd.ini.ddict[rd.par.INI_LOG_SCREEN_OUT_NAME]
@@ -131,7 +138,7 @@ def depot_aufstellung():
     while (runflag):
         
         save_flag = True
-        (index,indexAbfrage) = depot_gui.listen_abfrage(start_auswahl,"Startauswahl",abfrage_liste)
+        (index,indexAbfrage) = depot_gui.listen_abfrage(rd.gui,start_auswahl,"Startauswahl",abfrage_liste)
         
         if indexAbfrage < 0:
             index = -1
@@ -153,10 +160,13 @@ def depot_aufstellung():
                 runflag = False
         elif index == index_save:
             rd.log.write(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
-            (status, errtext) = depot_data_set.data_save(rd.data, rd.par, rd.ini.ddict)
+
+            (status, errtext) = depot_data_init.data_save(rd)
             if (status != hdef.OK):
                 rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
             # end if
+            
+            
         elif index == index_konto:
             rd.log.write(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
             status = kb.bearbeiten(rd)
@@ -193,7 +203,10 @@ def depot_aufstellung():
 
     # close log-file
     rd.log.close()
-
+    
+    # close protokoll
+    rd.gui.save()
+    
     return
     
 # enddef

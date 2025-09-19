@@ -58,9 +58,9 @@ def report_einlesen(rd):
     # endwhile
     
     # Konto data in ini
-    konto_dict  = rd.data[choice].ddict
-    konto_obj   = rd.konto_dict[choice].kont_obj
-    csv_obj     = rd.konto_dict[choice].kont_obj.get_csvfunc()
+    konto_dict  = rd.konto_dict[choice].data_dict
+    konto_obj   = rd.konto_dict[choice].konto_obj
+    csv_obj     = rd.csv_dict[rd.ini.ddict[choice][rd.par.INI_IMPORT_CONFIG_TYPE_NAME]].csv_obj
     
     # csv lesen
     if csv_obj is None:
@@ -81,7 +81,7 @@ def report_einlesen(rd):
         # csv-
         # csv-Daten einlesen
         #--------------------
-        (status,errtext,ttable) = csv_obj.read_data(filename,)
+        (status,errtext,ttable) = csv_obj.read_data(filename,[ "Notiz","ISIN"])
         
         if status != hdef.OKAY:
             rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)

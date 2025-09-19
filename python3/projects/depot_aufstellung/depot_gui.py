@@ -11,13 +11,13 @@ def janein_abfrage(rd,ausgabe_text,ausgabe_title):
     return flag
 
 # end def
-def listen_abfrage(auswahl_liste,auswahl_title,abfrage_liste=None):
+def listen_abfrage(gui,auswahl_liste,auswahl_title,abfrage_liste=None):
     
     if abfrage_liste == None:
-        index = sgui.abfrage_liste_index(auswahl_liste, auswahl_title)
+        index = gui.abfrage_liste_index(auswahl_liste, auswahl_title)
         indexAbfrage = 0
     else:
-        [index,indexAbfrage] = sgui.abfrage_liste_index_abfrage_index(auswahl_liste,abfrage_liste,auswahl_title)
+        [index,indexAbfrage] = gui.abfrage_liste_index_abfrage_index(auswahl_liste,abfrage_liste,auswahl_title)
     # end if
     return (index,indexAbfrage)
 # enddef

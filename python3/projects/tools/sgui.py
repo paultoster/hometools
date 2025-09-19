@@ -1,15 +1,3 @@
-########file test.py##########################################
-# !/usr/bin/env python  obj = abfrage_liste_class(liste,title=title)
-#
-# ------------------------------------------------------------------------------------------------------
-# full_file_name = eingabe_file( file_types="*", comment="Waehle oder benenne neue Datei", start_dir=None)
-#
-# File auswaehlen
-# Um ein neues File zu generieren mit folgenden Parameter
-# file_types = "*.c *.h"      Filetypen (auch feste namen möglich "abc.py")
-# start_dir  = "d:\\abc"	Anfangspfad
-# comment    = "Suche Datei"  Windows Leisten text
-#
 #
 # ------------------------------------------------------------------------------------------------------
 # index = sgui.abfrage_liste_index(liste)
@@ -19,7 +7,7 @@
 # index = sgui.abfrage_liste_index(listeAnzeige)
 #
 #  index = -1       Cancel
-#  index = 0 ... 2  Index Liste
+#  index = 0 ... 2  Index der Liste
 #
 # ------------------------------------------------------------------------------------------------------
 # indexListe = sgui.abfrage_liste_indexListe(liste)
@@ -28,8 +16,8 @@
 # listeAnzeige = ["Materialname","Materialmesseinheit","Materialabrechnungseinheit"]
 # indexListe = sgui.abfrage_liste_indexListe(listeAnzeige)
 #
-#  indexListe = [-1]       Cancel
-#  indexListe = [0,2]      Index Liste zwei Elemente
+#  indexListe = []            Cancel
+#  indexListe = [0, ..., 2]  Index Liste
 #
 # ------------------------------------------------------------------------------------------------------
 # (index,indexAbfrage) = sgui.abfrage_liste_index_abfrage_index(liste,listeAbfrage):
@@ -37,12 +25,51 @@
 #
 # z.B. liste = ["alpha","beta","gamma"] , listeAbfrage = ["Ok","Cancel","Aendern"]
 #
-# idex       = -1
-# indexListe 0 [-1]  keinen Wert
+# index       = -1
+# indexListe = [-1]  keinen Wert
 #
 #
 # ------------------------------------------------------------------------------------------------------
-# list =  abfrage_n_eingabezeilen(liste,vorgabe_liste=None,title=None)
+# ddict_out = sgui.abfrage_tabelle(ddict_inp):  default   listeAbfrage = ["okay"]
+#
+# gibt den geänderten data_set zurück
+# Input:
+#
+# must be set
+# ddict_inp["ttable"] = ttable
+# or
+# ddict_inp["header_liste"] = header_liste
+# ddict_inp["data_set_lliste"] = data_set = [a0,a1,a2,..., an],[b0,b1,b2,...,bn], ...  [z0,z1,z2,...,zn]]
+#
+# optional
+# ddict_inp["title"] = 'Tabelle'
+# ddict_inp["row_color_dliste"] = ['','black','','red',...]
+# ddict_inp["abfrage_liste"] = ["okay","cancel","end","edit",...]
+# ddict_inp["auswahl_filter_col_liste"] = ["headername1","headername3"] oder [0,2]
+# ddict_inp["GUI_GEOMETRY_WIDTH"] = 1000
+# ddict_inp["GUI_GEOMETRY_HEIGHT"] = 600
+# ddict_inp["GUI_ICON_FILE"] = file.icon
+# ddict_inp["GUI_TITLE"] = text
+#
+# Ouput:
+#
+# return ddict_out
+# mit
+# ddict_out["data_set"]                     return modified data set
+# dindex of ddict_inp["abfrage_liste"] if clicked otherwise -1
+# ddict_out["irow_select"]                  selcted row if click otherwise -1
+# ddict_out["status"]                       status
+# ddict_out["errtext"]                      errtext
+# ddict_out["data_change_irow_icol_liste"]  list of (irow,icol) from data whih were changed
+# ddict_out["data_change_flag"]             are dates changed
+#
+# ------------------------------------------------------------------------------------------------------
+#
+# (ddict,changed_key_liste) = sgui.abfrage_dict(ddict,title=None)
+#  Ein dictionary ändern
+#
+# ------------------------------------------------------------------------------------------------------
+#   liste =  abfrage_n_eingabezeilen(liste,vorgabe_liste=None,title=None)
 #
 #   Gui Abfrage verschiedener Eingaben vorgabe_liste als default-Wert
 #   z.B.
@@ -55,41 +82,25 @@
 #   listeWerte   = ["Kaffee","kg","Tassen"]
 #   title        = "MAterialauswahl"
 #   listeErgebnis = sgui.abfrage_n_eingabezeilen(liste=listeAnzeige, vorgabe_liste=listeWerte,title=title)
-# oder
-# mit
-# Vorgabe
-# listeAnzeige = ["Materialname", "Materialmesseinheit", "Materialabrechnungseinheit"]
-# listeDefault = ["Kaffee", "kg", "Tassen"]
-# listeErgebnis = sgui.abfrage_n_eingabezeilen(liste=listeAnzeige, vorgabe_liste=listeDefault, title="Materialbestimmung")
-# oder
-# mit
-# eintelnen
-# Comboboxen
-# listeAnzeige = [["Materialname", ["Kaffee", "Tee", "Eis"]], "Materialmesseinheit", "Materialabrechnungseinheit"]
-# listeDefault = ["Tee", "kg", "Tassen"]
-# listeErgebnis = sgui.abfrage_n_eingabezeilen(liste=listeAnzeige, vorgabe_liste=listeDefault, title="Materialbestimmung")
 #
-# if listeErgebnis is empty cancel was clicked
+#   oder mit einzelnen Comboboxen
 #
-#   bei cancel Rückgabe leer List
-# ------------------------------------------------------------------------------------------------------
-# (data_set,indexAbfrage) = sgui.abfrage_tabelle(header_liste,data_set):  default   listeAbfrage = ["okay"]
-# (data_set,indexAbfrage) = sgui.abfrage_tabelle(header_liste,data_set,data_index_liste):    listeAbfrage = ["okay"]
-# (data_set,indexAbfrage) = sgui.abfrage_tabelle(header_liste,data_set,data_index_liste,listeAbfrage):
+#   listeAnzeige = [["Materialname", ["Kaffee", "Tee", "Eis"]], "Materialmesseinheit", "Materialabrechnungseinheit"]
+#   listeDefault = ["Tee", "kg", "Tassen"]
+#   listeErgebnis = sgui.abfrage_n_eingabezeilen(liste=listeAnzeige, vorgabe_liste=listeDefault, title="Materialbestimmung")
 #
-# (data_set, indexAbfrage, irow,data_changed_pos_list) = sgui.abfrage_tabelle_get_row(header_liste, data_set):    listeAbfrage = ["okay"]
-# (data_set, indexAbfrage, irow,data_changed_pos_list) = sgui.abfrage_tabelle_get_row(header_liste, data_set,
-#                                                               data_index_liste):    listeAbfrage = ["okay"]
-# (data_set, indexAbfrage, irow,data_changed_pos_list) = sgui.abfrage_tabelle_get_row(header_liste, data_set, data_index_liste, listeAbfrage):
+#   bei cancel Rückgabe leer Liste listeErgebnis
 #
-# z.B. header_liste     = ["alpha","beta","gamma"]                       Die Name der Bestandteile eines dat-items
-#      data_set         = [[0.1,0.1,0.2],[0.2,0.5,0.2], .... ]           Date-set liste mit Zeilen-Liste, Zeilenliste entspricht dr Headerliste
-#      data_index_liste = [1,2, ... ]                                    (default:None) indiizes zu den jeweiligen Daten packet
-#      listeAbfrage     = ["Ok","Cancel","Aendern"]                      (default: None) Abfrage möglichkeiten indexAbfrage zeigt dann den Wert
+#   listeErgebnis =  abfrage_n_eingabezeilen_dict(ddict)
 #
-# gibt den geänderten data_set zurück
-# data_index_liste
+#   ddict = {}
+#   ddict["liste_abfrage"] = listeAnzeige
+#   optional
+#   ddict["liste_vorgabe"] = listeDefault
+#   ddict["title"] = "Materialbestimmung"
+#   ddict["liste_immutable"] = [0, 0, 1]   Wenn eins dann wird die Vorgabe gezeigt aber nicht änderbar
 #
+#   if listeErgebnis is empty cancel was clicked
 #
 # ------------------------------------------------------------------------------------------------------
 # flag = sgui.abfrage_janein(text="Soll abgebrochen werden")
@@ -99,8 +110,18 @@
 #
 # ------------------------------------------------------------------------------------------------------
 #  sgui.anzeige_text(texteingabe,title=None,textcolor='black')
-#  Zeigt Text an mit Okay Button
+#  Zeigt Text an mit Okay Button ohne return
 #  Farben 'black','red','blue','green'...
+#
+# ------------------------------------------------------------------------------------------------------
+# full_file_name = eingabe_file( file_types="*", comment="Waehle oder benenne neue Datei", start_dir=None)
+#
+# File auswaehlen
+# Um ein neues File zu generieren mit folgenden Parameter
+# file_types = "*.c *.h"      Filetypen (auch feste namen möglich "abc.py")
+# start_dir  = "d:\\abc"	Anfangspfad
+# comment    = "Suche Datei"  Windows Leisten text
+#
 #
 # ------------------------------------------------------------------------------------------------------
 # dir = abfrage_dir(comment=None,start_dir=None)
@@ -160,6 +181,9 @@ if (t_path == os.getcwd()):
     
     import sgui_class_abfrage_n_eingabezeilen as sclass_ane
     import sgui_abfrage_tabelle_class as stabelle_class
+    import sgui_abfrage_janein_class as sjanein_class
+    import sgui_abfrage_liste_class as sliste_class
+    import sgui_anzeige_text_class as stext_class
 else:
     p_list = os.path.normpath(t_path).split(os.sep)
     if (len(p_list) > 1): p_list = p_list[: -1]
@@ -175,6 +199,9 @@ else:
     from tools import hfkt_tvar as htvar
     from tools import sgui_class_abfrage_n_eingabezeilen as sclass_ane
     from tools import sgui_abfrage_tabelle_class as stabelle_class
+    from tools import sgui_abfrage_janein_class as sjanein_class
+    from tools import sgui_abfrage_liste_class as sliste_class
+    from tools import sgui_anzeige_text_class as stext_class
 
 # endif--------------------------------------------------------------------------
 
@@ -191,21 +218,21 @@ GUI_ICON_FILE_BASE = "SGUI.ico"
 # ========================== abfrage_liste ======================================
 # ===============================================================================
 def abfrage_liste_index(liste, title=None):
-    obj = abfrage_liste_class(liste, title=title)
+    obj = sliste_class.abfrage_liste_class(liste, title=title)
     index = obj.index
     del obj
     return index
 
 
 def abfrage_liste_indexListe(liste, title=None):
-    obj = abfrage_liste_class(liste, title=title)
+    obj = sliste_class.abfrage_liste_class(liste, title=title)
     indexListe = obj.indexListe
     del obj
     return indexListe
 
 
 def abfrage_liste_index_abfrage_index(liste, listeAbfrage, title=None):
-    obj = abfrage_liste_class(liste, listeAbfrage, title)
+    obj = sliste_class.abfrage_liste_class(liste, listeAbfrage, title)
     index = obj.index
     indexAbfrage = obj.indexAbfrage
     del obj
@@ -213,360 +240,15 @@ def abfrage_liste_index_abfrage_index(liste, listeAbfrage, title=None):
 
 
 def abfrage_liste_indexListe_abfrage_index(liste, listeAbfrage, title=None):
-    obj = abfrage_liste_class(liste, listeAbfrage, title)
+    obj = sliste_class.abfrage_liste_class(liste, listeAbfrage, title)
     indexListe = obj.indexListe
     indexAbfrage = obj.indexAbfrage
     del obj
     return (indexListe, indexAbfrage)
 
-
-class abfrage_liste_class:
-    """
-      Gui Abfrgae einer Liste, es können Buttons erstellt werden
-      der Abfrage von listeAbfrage (default ['okay','cancel'])
-      z.B.
-      liste = ["abc","def","ghi",jkl"]
-      listeAbfrage = ["cancel","gut"]
-      obj   = sgui.abfrage_liste(liste,listeAbfrage)
-  
-      Rückgabe:
-      obj.index        erster Index
-      obj.indexListe   Liste mit index zu vorgegebenen Liste
-      obj.indexAbfrage index der Abfrage Liste
-  
-    """
-    GUI_GEOMETRY_WIDTH = GUI_GEOMETRY_WIDTH_BASE
-    GUI_GEOMETRY_HEIGHT = GUI_GEOMETRY_HEIGHT_BASE
-    GUI_GEOMETRY_POSX = 0
-    GUI_GEOMETRY_POSY = 0
-    GUI_ICON_FILE = GUI_ICON_FILE_BASE
-    GUI_TITLE = "Liste"
-    
-    GUI_LISTE_ID = 0
-    
-    status = hdef.OKAY
-    str_liste = []
-    index_liste = []
-    str_auswahl_liste = []
-    index_auswahl_liste = []
-    indexListe = []
-    
-    index = -1
-    indexAbfrage = -1
-    act_frame_id = 0
-    Gui_rahmen = [None]
-    
-    # -------------------------------------------------------------------------------
-    # -------------------------------------------------------------------------------
-    def __init__(self, liste, listeAbfrage=None, title=None):
-        """
-        """
-        self.status = hdef.OKAY
-        self.str_liste = []
-        self.index_liste = []
-        self.str_auswahl_liste = []
-        self.index_auswahl_liste = []
-        self.indexListe = []
-        self.abfrage_liste = [u'okay', u'cancel']
-        self.index = -1
-        self.act_frame_id = 0
-        self.title = u"Liste"
-        
-        # liste in string-liste wandeln
-        index = 0
-        for item in liste:
-            if (isinstance(item, str)):
-                self.str_liste.append(item)
-            elif (isinstance(item, float)):
-                self.str_liste.append("%f" % item)
-            elif (isinstance(item, int)):
-                self.str_liste.append("%i" % item)
-            # endif
-            self.index_liste.append(index)
-            index += 1
-        # endfor
-        
-        # Liste der Abfrage buttons
-        if (listeAbfrage):
-            self.abfrage_liste = []
-            for item in listeAbfrage:
-                if (isinstance(item, str)):
-                    self.abfrage_liste.append(item)
-                elif (isinstance(item, float)):
-                    self.abfrage_liste.append("%f" % item)
-                elif (isinstance(item, int)):
-                    self.abfrage_liste.append("%i" % item)
-                # endif
-        # endif
-        
-        # Titel:
-        if (title and isinstance(title, str)):
-            self.title = title
-        # endif
-        
-        # Auswahlliste wird auf gesamte Liste gesetzt
-        self.str_auswahl_liste = self.str_liste
-        self.index_auswahl_liste = self.index_liste
-        
-        # TK-Grafik anlegen
-        # ------------------
-        self.root = Tk.Tk()
-        self.root.protocol("WM_DELETE_WINDOW", self.exitMenu)
-        # geo = str(self.GUI_GEOMETRY_WIDTH)+"x"+str(self.GUI_GEOMETRY_HEIGHT)
-        # self.root.geometry(geo)
-        self.root.wm_geometry("%dx%d+%d+%d" % (
-        self.GUI_GEOMETRY_WIDTH, self.GUI_GEOMETRY_HEIGHT, self.GUI_GEOMETRY_POSX, self.GUI_GEOMETRY_POSY))
-        
-        if (os.path.isfile(self.GUI_ICON_FILE)):
-            self.root.wm_iconbitmap(self.GUI_ICON_FILE)
-        self.root.title(self.GUI_TITLE)
-        
-        # Gui anlegen
-        # --------------
-        self.createListGui()
-        
-        # Menue anlegen
-        # --------------
-        # self.createMenu()
-        self.makeListGui()
-        self.flag_mainloop = True
-        
-        self.root.mainloop()
-    
-    def __del__(self):
-        if (self.flag_mainloop):
-            self.root.destroy()
-            self.flag_mainloop = False
-    
-    def exitMenu(self):
-        ''' Beenden der Gui
-        '''
-        # Vor Beenden Speichern abfragen
-        # ans = tkinter.messagebox.askyesno(parent=self.root,title='Sichern', message='Soll Datenbasis gesichert werden')
-        # if( ans ): self.base.save_db_file()
-        
-        if (self.flag_mainloop):
-            self.root.destroy()
-            self.flag_mainloop = False
-    
-    # -------------------------------------------------------------------------------
-    # -------------------------------------------------------------------------------
-    def createListGui(self):
-        ''' Gui für Liste
-        '''
-        self.Gui_rahmen[self.GUI_LISTE_ID] = Tk.LabelFrame(self.root, bd=2, text=self.title,
-                                                           font=('Verdana', 10, 'bold'))
-        
-        gr_entry = Tk.Frame(self.Gui_rahmen[self.GUI_LISTE_ID], relief=Tk.GROOVE, bd=2)
-        gr_entry.pack(pady=5)
-        
-        # label links oben mit text Filte
-        label_a = Tk.Label(gr_entry, text='Filter:', font=('Verdana', 10, 'bold'))
-        label_a.pack(side=Tk.LEFT, pady=1, padx=1)
-        
-        # entry StringVar fuer die Eingabe
-        self.StringVarFiltText = Tk.StringVar()
-        self.StringVarFiltText.set("")
-        self.StringVarFiltText.trace("w", self.runDoFilter)
-        
-        # entry Aufruf
-        entry_a = Tk.Entry(gr_entry, width=(100), textvariable=self.StringVarFiltText)
-        entry_a.pack(side=Tk.LEFT, pady=1, padx=1)
-        
-        ##    button_a = Tk.Button(gr_entry,text='do', command=self.runDoFilter)
-        ##    button_a.pack(side=Tk.RIGHT,pady=1,padx=1)
-        
-        gr_listbox = Tk.Frame(self.Gui_rahmen[self.GUI_LISTE_ID])
-        gr_listbox.pack(expand=1, fill=Tk.BOTH)
-        
-        # Scrollbar
-        scroll_listbox = Tk.Scrollbar(gr_listbox)
-        scroll_listbox.pack(side=Tk.RIGHT, fill=Tk.Y)
-        
-        # Listbox
-        self.listGui_ListBox = Tk.Listbox(gr_listbox, selectmode=Tk.EXTENDED, yscrollcommand=scroll_listbox.set,
-                                          font=('Verdana', 15, 'bold'))
-        self.listGui_ListBox.bind("<Double-1>", self.SelectOnDoubleClick)
-        self.listGui_ListBox.pack(fill=Tk.BOTH, expand=1)
-        
-        scroll_listbox.config(command=self.listGui_ListBox.yview)
-        
-        gr_buts = Tk.Frame(self.Gui_rahmen[self.GUI_LISTE_ID], relief=Tk.GROOVE, bd=2)
-        gr_buts.pack(fill=Tk.X, pady=5)
-        
-        self.Button = []
-        for name in self.abfrage_liste:
-            b_back = Tk.Button(gr_buts, text=name,
-                               command=lambda m=name: self.selectListGui(m))  # lambda m=method: self.populateMethod(m))
-            b_back.pack(side=Tk.LEFT, pady=4, padx=2)
-            self.Button.append(b_back)
-    
-    # -------------------------------------------------------------------------------
-    # -------------------------------------------------------------------------------
-    def runDoFilter(self, *dummy):
-        
-        tt = self.StringVarFiltText.get()
-        
-        self.str_auswahl_liste = []
-        self.index_auswahl_liste = []
-        
-        for i in range(0, len(self.str_liste), 1):
-            
-            ii = self.str_liste[i].find(tt)
-            if (ii > -1):
-                self.str_auswahl_liste.append(self.str_liste[i])
-                self.index_auswahl_liste.append(self.index_liste[i])
-            # endif
-        # endfor
-        
-        self.makeListGui()
-    
-    # -------------------------------------------------------------------------------
-    # -------------------------------------------------------------------------------
-    def makeListGui(self):
-        ''' list-Gui f�llen
-        '''
-        
-        # delete listbox
-        n = self.listGui_ListBox.size()
-        if (n > 0): self.listGui_ListBox.delete(0, n)
-        
-        self.listGui_ListBox.pack(expand=1, fill=Tk.BOTH)
-        
-        # Gruppenname aktualisieren
-        # self.selectListGui()
-        # fill listbox
-        
-        if (len(self.str_auswahl_liste) > 0):
-            for item in self.str_auswahl_liste:
-                self.listGui_ListBox.insert(Tk.END, item)
-        else:
-            text = 'keine Liste vorhanden'
-            self.listGui_ListBox.insert(Tk.END, text)
-        
-        self.setActFrameID(self.GUI_LISTE_ID)
-    
-    # -------------------------------------------------------------------------------
-    # -------------------------------------------------------------------------------
-    def selectListGui(self, button_name):
-        ''' eine Gruppe ausw�hlen �ber selection, wenn nicht dann weiter
-            aktuellen Namen verwenden
-            Ergebnis wird in self.actual_group_name gespeichert
-            R�ckgabewert:
-            Wenn self.actual_group_name belegt ist, dann True
-            ansonasten False
-        '''
-        # Nimmt den aktuellen Cursorstellung
-        self.indexListe = []
-        
-        select = self.listGui_ListBox.curselection()
-        
-        if (len(select) > 0):
-            for i in range(0, len(select), 1):
-                ii = select[i]
-                if (ii < len(self.index_auswahl_liste)):
-                    self.indexListe.append(self.index_auswahl_liste[ii])
-                # endif
-            # endfor
-            if (len(self.indexListe) > 0):
-                self.index = self.indexListe[0]
-        # endif
-        flag = False
-        icount = 0
-        for name in self.abfrage_liste:
-            if (name == button_name):
-                flag = True
-                self.indexAbfrage = icount
-                break
-            icount += 1
-            # endif
-        # endfor
-        
-        self.exitMenu()
-    
-    def SelectOnDoubleClick(self, event):
-        ''' eine Gruppe ausw�hlen �ber selection, wenn nicht dann weiter
-            aktuellen Namen verwenden
-            Ergebnis wird in self.actual_group_name gespeichert
-            R�ckgabewert:
-            Wenn self.actual_group_name belegt ist, dann True
-            ansonasten False
-        '''
-        # Nimmt den aktuellen Cursorstellung
-        self.indexListe = []
-        
-        select = self.listGui_ListBox.curselection()
-        
-        if (len(select) > 0):
-            flag_select = True
-            for i in range(0, len(select), 1):
-                ii = select[i]
-                if (ii < len(self.index_auswahl_liste)):
-                    self.indexListe.append(self.index_auswahl_liste[ii])
-                # endif
-            # endfor
-            if (len(self.indexListe) > 0):
-                self.index = self.indexListe[0]
-        else:
-            flag_select = False
-        # endif
-        
-        # default setzen erster
-        self.indexAbfrage = 0
-        
-        if (flag_select): self.exitMenu()
-    
-    # -------------------------------------------------------------------------------
-    # -------------------------------------------------------------------------------
-    def setActFrameID(self, id):
-        ''' Setzt Gui mit ID
-        '''
-        if (self.act_frame_id == self.GUI_LISTE_ID):
-            self.Gui_rahmen[self.GUI_LISTE_ID].pack_forget()
-        
-        self.act_frame_id = id
-        if (self.act_frame_id == self.GUI_LISTE_ID):
-            self.Gui_rahmen[self.GUI_LISTE_ID].pack(expand=1, fill=Tk.BOTH)
-
-
-# ========================== abfrage_liste ======================================
 # ===============================================================================
-
+# ========================== abfrage_tabelle =====================================
 #
-#
-# ===============================================================================
-# ========================== abfrage_tabelle2 =====================================
-#
-# gibt den geänderten data_set zurück
-# Input:
-#
-# must be set
-# ddict_inp["ttable"] = ttable
-# or
-# ddict_inp["header_liste"] = header_liste
-# ddict_inp["data_set_lliste"] = data_set = [a0,a1,a2,..., an],[b0,b1,b2,...,bn], ...  [z0,z1,z2,...,zn]]
-#
-# optional
-# ddict_inp["title"] = 'Tabelle'
-# ddict_inp["row_color_dliste"] = ['','black','','red',...]
-# ddict_inp["abfrage_liste"] = ["okay","cancel","end","edit",...]
-# ddict_inp["auswahl_filter_col_liste"] = ["headername1","headername3"] oder [0,2]
-# ddict_inp["GUI_GEOMETRY_WIDTH"] = 1000
-# ddict_inp["GUI_GEOMETRY_HEIGHT"] = 600
-# ddict_inp["GUI_ICON_FILE"] = file.icon
-# ddict_inp["GUI_TITLE"] = text
-#
-# Ouput:
-#
-# return ddict_out
-# mit
-# ddict_out["data_set"]                     return modified data set
-# dindex of ddict_inp["abfrage_liste"] if clicked otherwise -1
-# ddict_out["irow_select"]                  selcted row if click otherwise -1
-# ddict_out["status"]                       status
-# ddict_out["errtext"]                      errtext
-# ddict_out["data_change_irow_icol_liste"]  list of (irow,icol) from data whih were changed
-# ddict_out["data_change_flag"]             are dates changed
 
 
 def abfrage_tabelle(ddict_inp):
@@ -593,7 +275,7 @@ def abfrage_tabelle(ddict_inp):
     del obj
     return ddict_out
 # end def
-# ========================== abfrage_tabelle2 ======================================
+# ========================== abfrage_tabelle ======================================
 # ===============================================================================
 
 # ===============================================================================
@@ -775,11 +457,16 @@ def abfrage_n_eingabezeilen_dict(ddict):
     """
       Gui Abfrage verschiedener Eingaben
       z.B.
+      
       listeAnzeige = ["Materialname","Materialmesseinheit","Materialabrechnungseinheit"]
+      
       oder mit eintelnen Comboboxen
+      
       listeAnzeige = [["Materialname",["Kaffee","Tee","Eis"]],"Materialmesseinheit","Materialabrechnungseinheit"]
       listeErgebnis = sgui.abfrage_n_eingabezeilen(listeAnzeige)
+      
       oder mit Vorgabe
+      
       listeAnzeige = ["Materialname","Materialmesseinheit","Materialabrechnungseinheit"]
       listeDefault = ["Kaffee","kg","Tassen"]
       
@@ -836,7 +523,7 @@ def abfrage_janein(text=None, title=None):
       return True  (Ja)
              False (Nein)
     """
-    obj = abfrage_janein_class(text=text, title=title)
+    obj = sjanein_class.abfrage_janein_class(text=text, title=title)
     flagJa = obj.flagJa
     del obj
     
@@ -845,138 +532,6 @@ def abfrage_janein(text=None, title=None):
     else:
         return False
 
-
-class abfrage_janein_class:
-    """
-      Gui Abfrage Ja-Nein Frage
-      z.B.
-  
-    """
-    GUI_GEOMETRY_WIDTH = GUI_GEOMETRY_WIDTH_BASE
-    GUI_GEOMETRY_HEIGHT = GUI_GEOMETRY_HEIGHT_BASE
-    GUI_GEOMETRY_POSX = 0
-    GUI_GEOMETRY_POSY = 0
-    GUI_ICON_FILE = GUI_ICON_FILE_BASE
-    GUI_TITLE = "J/N"
-    
-    GUI_LISTE_ID = 0
-    
-    status = hdef.OKAY
-    act_frame_id = 0
-    Gui_rahmen = [None]
-    flagJa = False
-    
-    # -------------------------------------------------------------------------------
-    # -------------------------------------------------------------------------------
-    def __init__(self, text=None, title=None):
-        """
-        """
-        self.status = hdef.OKAY
-        self.act_frame_id = 0
-        self.title = u"Eingabe"
-        self.text = u"Ist das Okay?"
-        
-        # Text:
-        if (text and isinstance(text, str)):
-            self.text = text
-        # endif
-        
-        # Titel:
-        if (title and isinstance(title, str)):
-            self.title = title
-        # endif
-        
-        # TK-Grafik anlegen
-        # ------------------
-        self.root = Tk.Tk()
-        self.root.protocol("WM_DELETE_WINDOW", self.exitMenu)
-        geo = str(self.GUI_GEOMETRY_WIDTH) + "x" + str(self.GUI_GEOMETRY_HEIGHT)
-        self.root.geometry(geo)
-        if (os.path.isfile(self.GUI_ICON_FILE)):
-            self.root.wm_iconbitmap(self.GUI_ICON_FILE)
-        self.root.title(self.GUI_TITLE)
-        
-        # Gui anlegen
-        # --------------
-        self.createJaNeinGui()
-        
-        # Menue anlegen
-        # --------------
-        # self.createMenu()
-        self.makeJaNeinGui()
-        self.flag_mainloop = True
-        
-        self.root.mainloop()
-    
-    def __del__(self):
-        if (self.flag_mainloop):
-            self.root.destroy()
-            self.flag_mainloop = False
-    
-    def exitMenu(self):
-        ''' Beenden der Gui
-        '''
-        # Vor Beenden Speichern abfragen
-        # ans = tkinter.messagebox.askyesno(parent=self.root,title='Sichern', message='Soll Datenbasis gesichert werden')
-        # if( ans ): self.base.save_db_file()
-        
-        if (self.flag_mainloop):
-            self.root.destroy()
-            self.flag_mainloop = False
-    
-    # -------------------------------------------------------------------------------
-    # -------------------------------------------------------------------------------
-    def createJaNeinGui(self):
-        ''' Gui f�r Eingabe
-        '''
-        self.Gui_rahmen[self.GUI_LISTE_ID] = Tk.LabelFrame(self.root, bd=2, text=self.title,
-                                                           font=('Verdana', 10, 'bold'))
-        
-        gr_entry = Tk.Frame(self.Gui_rahmen[self.GUI_LISTE_ID], relief=Tk.GROOVE, bd=2)
-        gr_entry.pack(pady=5)
-        
-        self.gr_text_a = Tk.Text(gr_entry, width=120, height=16, font=('Verdana', 15, 'bold'))
-        self.gr_text_a.pack(side=Tk.LEFT, pady=1, padx=1)
-        
-        gr_buts = Tk.Frame(self.Gui_rahmen[self.GUI_LISTE_ID], relief=Tk.GROOVE, bd=2)
-        gr_buts.pack(fill=Tk.X, pady=5)
-        
-        b_back = Tk.Button(gr_buts, text='Ja(Yes)', command=self.getEntry)
-        b_back.pack(side=Tk.LEFT, pady=4, padx=2)
-        
-        b_edit = Tk.Button(gr_buts, text='Nein(No)', command=self.exitMenu)
-        b_edit.pack(side=Tk.LEFT, pady=4, padx=2)
-    
-    # -------------------------------------------------------------------------------
-    # -------------------------------------------------------------------------------
-    def makeJaNeinGui(self):
-        ''' Eingabe-Gui f�llen
-        '''
-        
-        self.gr_text_a.insert(Tk.END, self.text)
-        self.setActFrameID(self.GUI_LISTE_ID)
-    
-    # -------------------------------------------------------------------------------
-    # -------------------------------------------------------------------------------
-    def getEntry(self):
-        '''
-        '''
-        # Ist Ja
-        self.flagJa = True
-        
-        self.exitMenu()
-    
-    # -------------------------------------------------------------------------------
-    # -------------------------------------------------------------------------------
-    def setActFrameID(self, id):
-        ''' Setzt Gui mit ID
-        '''
-        if (self.act_frame_id == self.GUI_LISTE_ID):
-            self.Gui_rahmen[self.GUI_LISTE_ID].pack_forget()
-        
-        self.act_frame_id = id
-        if (self.act_frame_id == self.GUI_LISTE_ID):
-            self.Gui_rahmen[self.GUI_LISTE_ID].pack(expand=1, fill=Tk.BOTH)
 
 
 # ========================== anzeige_text ========================================
@@ -989,190 +544,11 @@ def anzeige_text(texteingabe, title=None, textcolor='black'):
     elif (isinstance(texteingabe, list)):
         text_liste = texteingabe
     
-    obj = anzeige_text_class(text_liste, title, textcolor)
+    obj = stext_class.anzeige_text_class(text_liste, title, textcolor)
     
     del obj
 
 
-# =============================================================================
-# =============================================================================
-# =============================================================================
-class anzeige_text_class:
-    """
-      Gui Anzeige eines Textes mit einem Button für okay
-      z.B.
-      obj   = sgui.anzeige_text(text_liste,title)
-  
-      Rückgabe: keine
-  
-    """
-    GUI_GEOMETRY_WIDTH = GUI_GEOMETRY_WIDTH_BASE
-    GUI_GEOMETRY_HEIGHT = GUI_GEOMETRY_HEIGHT_BASE
-    GUI_GEOMETRY_POSX = 0
-    GUI_GEOMETRY_POSY = 0
-    GUI_ICON_FILE = GUI_ICON_FILE_BASE
-    GUI_TITLE = "Anzeige"
-    
-    GUI_LISTE_ID = 0
-    
-    status = hdef.OKAY
-    str_liste = []
-    index_liste = []
-    str_auswahl_liste = []
-    index_auswahl_liste = []
-    indexListe = []
-    index = -1
-    indexAbfrage = -1
-    act_frame_id = 0
-    Gui_rahmen = [None]
-    
-    # -------------------------------------------------------------------------------
-    # -------------------------------------------------------------------------------
-    def __init__(self, text_liste, title=None, textcolor='black'):
-        """
-        """
-        self.status = hdef.OKAY
-        self.str_liste = []
-        self.index_liste = []
-        self.str_auswahl_liste = []
-        self.index_auswahl_liste = []
-        self.indexListe = []
-        self.abfrage_liste = [u'okay']
-        self.index = -1
-        self.act_frame_id = 0
-        self.title = u"Anzeigee"
-        self.textcolor = textcolor
-        # liste in string-liste wandeln
-        index = 0
-        for item in text_liste:
-            if (isinstance(item, str)):
-                self.str_liste.append(item)
-            elif (isinstance(item, float)):
-                self.str_liste.append("%f" % item)
-            elif (isinstance(item, int)):
-                self.str_liste.append("%i" % item)
-            # endif
-            self.index_liste.append(index)
-            index += 1
-        # endfor
-        
-        # Titel:
-        if (title and isinstance(title, str)):
-            self.title = title
-        # endif
-        
-        # TK-Grafik anlegen
-        # ------------------
-        self.root = Tk.Tk()
-        self.root.protocol("WM_DELETE_WINDOW", self.exitMenu)
-        # geo = str(self.GUI_GEOMETRY_WIDTH)+"x"+str(self.GUI_GEOMETRY_HEIGHT)
-        # self.root.geometry(geo)
-        self.root.wm_geometry("%dx%d+%d+%d" % (
-        self.GUI_GEOMETRY_WIDTH, self.GUI_GEOMETRY_HEIGHT, self.GUI_GEOMETRY_POSX, self.GUI_GEOMETRY_POSY))
-        
-        if (os.path.isfile(self.GUI_ICON_FILE)):
-            self.root.wm_iconbitmap(self.GUI_ICON_FILE)
-        self.root.title(self.GUI_TITLE)
-        
-        # Gui anlegen
-        # --------------
-        self.createAnzeigeGui()
-        
-        # Menue anlegen
-        # --------------
-        # self.createMenu()
-        self.makeAnzeigeGui()
-        self.flag_mainloop = True
-        
-        self.root.mainloop()
-    
-    def __del__(self):
-        if (self.flag_mainloop):
-            self.root.destroy()
-            self.flag_mainloop = False
-    
-    def exitMenu(self):
-        ''' Beenden der Gui
-        '''
-        # Vor Beenden Speichern abfragen
-        # ans = tkinter.messagebox.askyesno(parent=self.root,title='Sichern', message='Soll Datenbasis gesichert werden')
-        # if( ans ): self.base.save_db_file()
-        
-        if (self.flag_mainloop):
-            self.root.destroy()
-            self.flag_mainloop = False
-    
-    # -------------------------------------------------------------------------------
-    # -------------------------------------------------------------------------------
-    def createAnzeigeGui(self):
-        ''' Gui für Anzeige
-        '''
-        # äusserer Rahmen
-        self.Gui_rahmen[self.GUI_LISTE_ID] = Tk.LabelFrame(self.root, bd=2, text=self.title,
-                                                           font=('Verdana', 10, 'bold'))
-        self.Gui_rahmen[self.GUI_LISTE_ID].pack(expand=1, fill=Tk.BOTH)
-        
-        # Rahmen Textanzeige
-        gr_anzeige = Tk.Frame(self.Gui_rahmen[self.GUI_LISTE_ID])
-        gr_anzeige.pack(expand=1, fill=Tk.BOTH)
-        
-        # Scrollbar
-        scroll_text = Tk.Scrollbar(gr_anzeige)
-        scroll_text.pack(side=Tk.RIGHT, fill=Tk.Y)
-        
-        # Textfeld
-        self.listGui_Anzeige = Tk.Text(gr_anzeige, padx=4, pady=4, font=('Verdana', 12, 'bold'),
-                                       yscrollcommand=scroll_text.set, fg=self.textcolor)
-        self.listGui_Anzeige.pack(side=Tk.TOP, expand=1, fill=Tk.BOTH)
-        
-        scroll_text.config(command=self.listGui_Anzeige.yview)
-        
-        # ! scroll_box.config(command=self.listGui_AnzeigeBox.yview)
-        gr_buts = Tk.Frame(self.Gui_rahmen[self.GUI_LISTE_ID], relief=Tk.GROOVE, bd=2)
-        gr_buts.pack(fill=Tk.X, pady=5)
-        
-        self.Button = []
-        for name in self.abfrage_liste:
-            b_back = Tk.Button(gr_buts, text=name, command=self.exitMenu)  # lambda m=method: self.populateMethod(m))
-            b_back.pack(side=Tk.LEFT, pady=4, padx=2)  # side=Tk.LEFT,pady=4,padx=2
-            self.Button.append(b_back)
-    
-    # -------------------------------------------------------------------------------
-    # -------------------------------------------------------------------------------
-    def makeAnzeigeGui(self):
-        ''' Anzeige-Gui füllen
-        '''
-        
-        # delete listbox
-        (n, m) = self.listGui_Anzeige.size()
-        if (n > 0 and m > 0): self.listGui_Anzeige.delete(n, m)
-        
-        if (len(self.str_liste) > 0):
-            for item in self.str_liste:
-                self.listGui_Anzeige.insert(Tk.END, item)
-                self.listGui_Anzeige.insert(Tk.END, "\n")
-        else:
-            text = 'keine Ausgabe vorhanden'
-            self.listGui_Anzeige.insert(Tk.END, text)
-        
-        self.setActFrameID(self.GUI_LISTE_ID)
-    
-    # -------------------------------------------------------------------------------
-    # -------------------------------------------------------------------------------
-    def setActFrameID(self, id):
-        ''' Setzt Gui mit ID
-        '''
-        if (self.act_frame_id == self.GUI_LISTE_ID):
-            self.Gui_rahmen[self.GUI_LISTE_ID].pack_forget()
-        
-        self.act_frame_id = id
-        if (self.act_frame_id == self.GUI_LISTE_ID):
-            self.Gui_rahmen[self.GUI_LISTE_ID].pack(expand=1, fill=Tk.BOTH)
-        # endif
-    # enddef
-
-
-# endclass
 
 
 # ========================== abfrage_dir ========================================
@@ -1210,136 +586,6 @@ def abfrage_dir(comment=None, start_dir=None):
             text = text + line + '\n'
             d = tkinter.messagebox.showerror('tkinter.ttk Demo Error', text)
     return dirname
-
-
-class DirList:
-    def __init__(self, w, master_dir=None, comment=None, no_new_dir_flag=False):
-        self.root = w
-        self.exit = -1
-        self.quit_flag = False
-        if master_dir:
-            dir_start = master_dir
-        else:
-            dir_start = "C:\\"
-        
-        ## print dir_start
-        if not os.path.exists(dir_start):
-            dir_start = "C:\\"
-        
-        z = w.winfo_toplevel()
-        if (comment):
-            z.wm_title(comment)
-        else:
-            z.wm_title("choose dir")
-        
-        # Create the tixDirList and the tixLabelEntry widgets on the on the top
-        # of the dialog box
-        
-        # bg = root.tk.eval('tix option get bg')
-        # adding bg=bg crashes Windows pythonw tk8.3.3 Python 2.1.0
-        
-        top = tkinter.ttk.Frame(w, relief=RAISED, bd=1)
-        
-        # Create the DirList widget. By default it will show the current
-        # directory
-        #
-        #
-        top.dir = tkinter.ttk.DirList(top)
-        top.dir.chdir(dir_start)
-        top.dir.hlist['width'] = 40
-        
-        # When the user presses the ".." button, the selected directory
-        # is "transferred" into the entry widget
-        #
-        top.btn = tkinter.ttk.Button(top, text="  >>  ", pady=0)
-        
-        # We use a LabelEntry to hold the installation directory. The user
-        # can choose from the DirList widget, or he can type in the directory
-        # manually
-        #
-        if (not no_new_dir_flag):
-            label_text = "chosen Directory (and add name for new dir):"
-        else:
-            label_text = "chosen Directory:"
-        top.ent = tkinter.ttk.LabelEntry(top, label=label_text,
-                                         labelside='top',
-                                         options='''
-                                  entry.width 50
-                                  label.anchor w
-                                  ''')
-        self.entry = top.ent.subwidget_list["entry"]
-        
-        font = self.root.tk.eval('tix option get fixed_font')
-        # font = self.root.master.tix_option_get('fixed_font')
-        top.ent.entry['font'] = font
-        
-        self.dlist_dir = copy.copy("")
-        
-        # This should work setting the entry's textvariable
-        top.ent.entry['textvariable'] = self.dlist_dir
-        top.btn['command'] = lambda dir=top.dir, ent=top.ent, self=self: \
-            self.copy_name(dir, ent)
-        
-        # top.ent.entry.insert(0,'tix'+`self`)
-        top.ent.entry.bind('<Return>', lambda dir=top.dir, ent=top.ent, self=self: self.okcmd(dir, ent))
-        
-        top.pack(expand='yes', fill='both', side=TOP)
-        top.dir.pack(expand=1, fill=BOTH, padx=4, pady=4, side=LEFT)
-        top.btn.pack(anchor='s', padx=4, pady=4, side=LEFT)
-        top.ent.pack(expand=1, fill=X, anchor='s', padx=4, pady=4, side=LEFT)
-        
-        # Use a ButtonBox to hold the buttons.
-        #
-        box = tkinter.ttk.ButtonBox(w, orientation='horizontal')
-        ##        box.add ('ok', text='Ok', underline=0, width=6,
-        ##                     command = lambda self=self: self.okcmd () )
-        box.add('ok', text='Ok', underline=0, width=6,
-                command=lambda dir=top.dir, ent=top.ent, self=self: self.okcmd(dir, ent))
-        box.add('cancel', text='Cancel', underline=0, width=6,
-                command=lambda self=self: self.quitcmd())
-        
-        box.pack(anchor='s', fill='x', side=BOTTOM)
-        z.wm_protocol("WM_DELETE_WINDOW", lambda self=self: self.quitcmd())
-    
-    def copy_name(self, dir, ent):
-        # This should work as it is the entry's textvariable
-        self.dlist_dir = dir.cget('value')
-        # but it isn't so I'll do it manually
-        ent.entry.delete(0, 'end')
-        ent.entry.insert(0, self.dlist_dir)
-    
-    ##    def okcmd (self):
-    ##        # tixDemo:Status "You have selected the directory" + $self.dlist_dir
-    ##
-    ##        self.quitcmd()
-    def okcmd(self, dir, ent):
-        # tixDemo:Status "You have selected the directory" + $self.dlist_dir
-        
-        value = self.entry.get()
-        if len(value) > 0:
-            self.dlist_dir = value
-        else:
-            self.dlist_dir = dir.cget('value')
-        
-        # but it isn't so I'll do it manually
-        ent.entry.delete(0, 'end')
-        ent.entry.insert(0, self.dlist_dir)
-        
-        self.exit = 0
-    
-    def quitcmd(self):
-        # self.root.destroy()
-        #        print "quit"
-        self.exit = 0
-        self.quit_flag = True
-    
-    def mainloop(self):
-        while self.exit < 0:
-            self.root.tk.dooneevent(TCL_ALL_EVENTS)
-        # self.root.tk.dooneevent(TCL_DONT_WAIT)
-    
-    def destroy(self):
-        self.root.destroy()
 
 
 # ========================== eingabe_file ========================================

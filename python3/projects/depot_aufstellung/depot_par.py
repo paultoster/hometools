@@ -60,6 +60,11 @@ class Parameter:
     INI_IBAN_LIST_FILE_NAME: str = "iban_list_file_name"
     INI_WP_DATA_STORE_PATH_NAME: str = "wp_data_store_path"
     INI_WP_DATA_USE_JSON_NAME: str = "wp_data_use_json"
+    INI_PROTOCOL_TYPE_NAME: str = "protocol_type"
+    INI_PROTOCOL_TYPE_NO: int = 0
+    INI_PROTOCOL_TYPE_SAVE: int = 1
+    INI_PROTOCOL_TYPE_READ: int = 2
+    INI_PROTOCOL_FILE_NAME: str = "protocol_file"
 
     INI_BASE_PROOF_LISTE = [(INI_KONTO_DATA_LIST_NAMES_NAME,"list_str")
                            ,(INI_DEPOT_DATA_LIST_NAMES_NAME,"list_str")
@@ -70,6 +75,8 @@ class Parameter:
                            ,(INI_IBAN_LIST_FILE_NAME,"str")
                            ,(INI_WP_DATA_STORE_PATH_NAME,"str")
                            ,(INI_WP_DATA_USE_JSON_NAME,"str")
+                           ,(INI_PROTOCOL_TYPE_NAME,"str")
+                           ,(INI_PROTOCOL_FILE_NAME,"str")
                            ]
     
 
@@ -182,8 +189,9 @@ class Parameter:
     
     CSV_TRENNZEICHEN: str = "trenn_zeichen"
     CSV_BUCHTYPE_DICT: str = "buchtype_dict"
-    CSV_HEADER_NAME_DICT: str = "header_name_dict"
-    CSV_HEADER_TYPE_DICT: str = "header_type_dict"
+    CSV_HEADER_NAME_LISTE: str = "header_name_liste"
+    CSV_HEADER_TYPE_LISTE: str = "header_type_liste"
+    CSV_HEADER_ZUORDNUNG_LISTE: str = "header_zuordnung_liste"
     
     CSV_BUCHTYPE_ZUORDNUNG_NAME: str = "buchtype_zuordnung"
     CSV_HEADER_ZUORDNUNG_NAME: str = "header_zuordnung"

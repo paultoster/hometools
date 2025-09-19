@@ -756,18 +756,21 @@ def get_csv_dict_values_from_ini(csv_config_name,par,ini_dict):
     n = min(len(ini_dict[par.INI_CSV_HEADER_NAMEN]), len(ini_dict[par.INI_CSV_HEADER_ZUORDNUNG]))
     n = min(n, len(ini_dict[par.INI_CSV_HEADER_DATA_TYPE]))
     
-    csv_header_name_dict = {}
-    csv_header_type_dict = {}
+    csv_header_name_liste = []
+    csv_header_zuordnung_liste = []
+    csv_header_type_liste = []
     for i in range(n):
         header_name = ini_dict[par.INI_CSV_HEADER_NAMEN][i]
         header_zuordnung = ini_dict[par.INI_CSV_HEADER_ZUORDNUNG][i]
         header_data_type = ini_dict[par.INI_CSV_HEADER_DATA_TYPE][i]
-        csv_header_name_dict[header_zuordnung] = header_name
-        csv_header_type_dict[header_zuordnung] = header_data_type
+        csv_header_name_liste.append(header_name)
+        csv_header_type_liste.append(header_data_type)
+        csv_header_zuordnung_liste.append(header_zuordnung)
     # end for
     
-    data_dict[par.CSV_HEADER_NAME_DICT] = csv_header_name_dict
-    data_dict[par.CSV_HEADER_TYPE_DICT] = csv_header_type_dict
+    data_dict[par.CSV_HEADER_NAME_LISTE] = csv_header_name_liste
+    data_dict[par.CSV_HEADER_TYPE_LISTE] = csv_header_type_liste
+    data_dict[par.CSV_HEADER_ZUORDNUNG_LISTE] = csv_header_zuordnung_liste
 
     return data_dict
 # end def
@@ -800,8 +803,8 @@ def build_csv_transform_data_dict(csv_config_name,par,data_dict):
     data_dict_tvar[par.CSV_BUCHTYPE_ZUORDNUNG_NAME] = htvar.build_list(names, vals, types)
     
     # CSV_HEADER_ZUORDNUNG_NAME
-    names = list(data_dict[par.CSV_HEADER_NAME_DICT].keys())
-    vals  = list(data_dict[par.CSV_HEADER_NAME_DICT].values())
+    names = data_dict[par.CSV_HEADER_ZUORDNUNG_LISTE]
+    vals  = data_dict[par.CSV_HEADER_NAME_LISTE]
     types = []
     for val in vals:
         if isinstance(val,str):
@@ -814,8 +817,8 @@ def build_csv_transform_data_dict(csv_config_name,par,data_dict):
     data_dict_tvar[par.CSV_HEADER_ZUORDNUNG_NAME] = htvar.build_list(names, vals, types)
     
     # CSV_HEADER_TYPE_ZUORDNUNG_NAME
-    names = list(data_dict[par.CSV_HEADER_TYPE_DICT].keys())
-    vals = list(data_dict[par.CSV_HEADER_TYPE_DICT].values())
+    names = data_dict[par.CSV_HEADER_ZUORDNUNG_LISTE]
+    vals = data_dict[par.CSV_HEADER_TYPE_LISTE]
     types = []
     for val in vals:
         if isinstance(val,str):

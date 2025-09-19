@@ -40,7 +40,7 @@ class KontoCsvRead:
         self.filename           = ""
     # end def
     
-    def read_data(self,filename: str, names_possible_merge_list: list[str]):
+    def read_data(self,filename: str):
         '''
         
         :param filename: Filename mit csv-Daten
@@ -75,9 +75,9 @@ class KontoCsvRead:
         # end if
         
         # merge incase of double e.g. comments
-        (name_list,merged_data_matrix, type_list) = self.proof_merge_double_items(new_data_matrix,name_list,type_list,names_possible_merge_list)
+        (name_list,merged_data_matrix, type_list) = self.proof_merge_double_items(new_data_matrix,name_list,type_list)
         
-        ttable = htvar.build_ttable(name_list,merged_data_matrix,type_list)
+        ttable = htvar.build_table(name_list,merged_data_matrix,type_list)
         
         return (self.status,self.errtext,ttable)
     # end def
@@ -165,7 +165,7 @@ class KontoCsvRead:
             flag_found = True
         # end if
         
-        return (flag_found,csv_icol_list, name_csv_list, name_list)
+        return (flag_found,csv_icol_list, name_csv_list, name_list,type_list)
     # end def
     def search_header_name(self,item):
         '''
@@ -179,12 +179,12 @@ class KontoCsvRead:
             if (self.header_zuordnung_tlist.types[i] == "list_str") or (self.header_zuordnung_tlist.types[i] == "listStr"):
                 for csv_name in self.header_zuordnung_tlist.vals[i]:
                     if csv_name == item:
-                        return (True,self.header_zuordnung_tlist.names[i],csv_name,self.type_zuordnung_tlist.vals[i])
+                        return (True,self.header_zuordnung_tlist.names[i],csv_name,self.header_type_zuordnung_tlist.vals[i])
                     # end if
                 # end ofr
             elif self.header_zuordnung_tlist.types[i] == "str":
                 if self.header_zuordnung_tlist.vals[i] == item:
-                    return (True, self.header_zuordnung_tlist.names[i], self.header_zuordnung_tlist.vals[i],self.type_zuordnung_tlist.vals[i])
+                    return (True, self.header_zuordnung_tlist.names[i],self.header_zuordnung_tlist.vals[i],self.header_type_zuordnung_tlist.vals[i])
                 # end if
             else:
                 raise Exception(f"search_header_name: self.header_zuordnung_tlist.types[{i}] = {self.header_zuordnung_tlist.types[i]} is not str nor list type = {self.header_zuordnung_tlist.types[i]}")
@@ -275,49 +275,54 @@ class KontoCsvRead:
         
         return new_data_matrix
     # end def
-    def proof_merge_double_items(self,new_data_matrix,name_list,type_list,names_possible_merge_list):
+    def proof_merge_double_items(self,new_data_matrix,name_list,type_list):
         '''
         
         :param new_data_matrix:
-        :return: (name_list,merged_data_matrix, type_set_list) = self.proof_merge_double_items(new_data_matrix,name_list,type_list,names_possible_merge_list)
+        :return: (name_list,merged_data_matrix, type_set_list) = self.proof_merge_double_items(new_data_matrix,name_list,type_list)
         '''
         
-        # build set of name_list
-        merge_index_list    = []
-        name_set_list = list(set(name_list))
-        type_set_list = []
-        for name in name_set_list:
-            index_liste = hlist.search_value_in_list_return_indexlist(name_list,name)
-            if len(index_liste) > 1 and (name in names_possible_merge_list):
-                liste = []
-                for i in index_liste:
-                    liste.append(i)
-                # end for
-                merge_index_list.append(liste)
-            else:
-                merge_index_list.append(index_liste[0])
-            # end if
-            type_set_list.append(type_list[index_liste[0]])
-        # end for
-        
-        merged_data_matrix = []
-        for new_data_list in new_data_matrix:
-            merged_data_list = []
-            for i in merge_index_list:
-                
-                if isinstance(i,list):
-                    value = new_data_list[i[0]]
-                    for j in range(1,len(i)):
-                        value += new_data_list[i[j]]
-                    # end for
-                    merged_data_list.append(value)
+        name_set = set(name_list)
+        if len(name_set) == len(name_list):
+            return (new_data_matrix,name_list,type_list)
+        else:
+            
+            merged_name_list = []
+            merged_type_list = []
+            index_list = []
+            for i,name in enumerate(name_list):
+                if name in merged_name_list:
+                    index = merged_name_list.index(name)
                 else:
-                    merged_data_list.append(new_data_list[i])
+                    index = len(merged_name_list)
+                    merged_name_list.append(name)
+                    merged_type_list.append(type_list[i])
                 # end if
+                
+                index_list.append(index)
             # end for
-            merged_data_matrix.append(merged_data_list)
-        # end for
+            
+            merged_data_matrix = []
+            for data_set in new_data_matrix:
         
-        return(name_set_list,merged_data_matrix,type_set_list)
+                merged_data_set = [None for i in range(len(name_set))]
+                
+                for i,name in enumerate(name_list):
+                    
+                    index = index_list[i]
+                    type  = type_list[i]
+                    
+                    if merged_data_set[index] == None:
+                        merged_data_set[index] = data_set[i]
+                    else:
+                        if type == "str":
+                            merged_data_set[index] = merged_data_set[index] + " " + data_set[i]
+                        # end if
+                    # end if
+                # end for
+                merged_data_matrix.append(merged_data_set)
+            # end for
+        # end if
+        return (merged_data_matrix,merged_name_list,merged_type_list)
     # end def
     

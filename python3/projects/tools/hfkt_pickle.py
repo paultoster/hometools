@@ -211,9 +211,97 @@ class DataPickle:
                 self.errtext = f"An error occurred while reading the file {self.filename_json} with {traceback.format_exc(e)}"
                 return
     
-    # end if
+        # end if
     
     # enddef
+
+
+class DataJson:
+    OKAY = hdef.OK
+    NOT_OKAY = hdef.NOT_OK
+    
+    def __init__(self, filename_json: str):
+        '''
+        read and write data in json format
+        '''
+        self.status = hdef.OKAY
+        self.errtext = ""
+        self.logtext = ""
+        self.name = ""
+        self.data = None
+        self.filename_json = filename_json
+    
+    def read(self):
+        
+        if (os.path.isfile(self.filename_json)):
+            
+            try:
+                with open(self.filename_json, "r") as f:
+                    self.data = json.load(f)
+                    f.close()
+            except PermissionError:
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"File {self.filename_json} does not exist!"
+                return
+            except IOError:
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"An error occurred while reading the file {self.filename_json}"
+                return
+            except Exception as e:
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"An error occurred while reading the file {self.filename_json} with {traceback.format_exc(e)}"
+                return
+            # endtry
+        else:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"File {self.filename_json} does not exist!"
+            return
+        
+        # end if
+    # enddef
+    def get_data(self):
+        return self.data
+    
+    # end def
+    def set_data(self, data):
+        self.data = data
+    
+    # end def
+    def save(self, data: any = None):
+        
+        if data is not None:
+            self.set_data(data)
+        # end if
+        try:
+            json_obj = json.dumps(self.data, indent=2)
+            
+            # print json to screen with human-friendly formatting
+            # pprint.pprint(json_obj, compact=True)
+            
+            # write json to file with human-friendly formatting
+            # pretty_json_str = pprint.pformat(json_obj, compact=False)
+            
+            with open(self.filename_json, 'w') as f:
+                f.write(json_obj)
+            
+            # with open(self.filename_json, 'w') as outfile:
+            #     json.dump(self.ddict, outfile, indent=2)
+        
+        except PermissionError:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"File {self.filename_json} does not exist!"
+            return
+        except IOError:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"An error occurred while reading the file {self.filename_json}"
+            return
+        except Exception as e:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"An error occurred while reading the file {self.filename_json} with {traceback.format_exc(e)}"
+            return
+            
+    # enddef
+
 
 ###########################################################################
 # testen mit main
