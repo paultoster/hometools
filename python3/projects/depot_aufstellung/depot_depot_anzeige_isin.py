@@ -95,7 +95,7 @@ def anzeige_depot_isin(rd,isin,depot_obj,depot_dict):
             titlename = depot_obj.get_titlename(isin)
             
             # edit data
-            new_data_list = depot_gui.konto_depot_data_set_eingabe(header_liste, buchtype_index_in_header_liste,
+            new_data_list = depot_gui.konto_depot_data_set_eingabe(rd.gui,header_liste, buchtype_index_in_header_liste,
                                                                 buchungs_type_list, data_set, titlename,
                                                                 immutable_liste)
             
@@ -126,7 +126,7 @@ def anzeige_depot_isin(rd,isin,depot_obj,depot_dict):
                 ddict0[name] = data_set[i]
             # end for
             titlename = depot_obj.get_titlename(isin)
-            flag = depot_gui.janein_abfrage(rd,
+            flag = depot_gui.janein_abfrage(rd.gui,
                                          f"Soll wirklich isin/name/zahltdiv = {titlename} mit datasetdict : {ddict0} gelöscht werden",
                                          "Nicht Löschen ja/nein")
             
@@ -206,7 +206,7 @@ def anzeige_isin(rd, data_lliste, header_liste, title, row_color_dliste):
     runflag = True
     while (runflag):
         
-        (sw, irow, changed_pos_list, date_set) = depot_gui.depot_isin(header_liste, data_lliste, abfrage_liste, title,
+        (sw, irow, changed_pos_list, date_set) = depot_gui.depot_isin(rd.gui,header_liste, data_lliste, abfrage_liste, title,
                                                                    row_color_dliste)
         
         if sw <= i_end:

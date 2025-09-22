@@ -35,7 +35,7 @@ def ods_ausgabe_mit_depot_wahl(rd):
     runflag = True
     while (runflag):
         
-        (index, auswahl) = depot_gui.auswahl_depot(rd)
+        (index, auswahl) = depot_gui.auswahl_depot(rd.gui,rd.ini.ddict[rd.par.INI_DEPOT_DATA_LIST_NAMES_NAME])
         
         if index < 0:
             return status

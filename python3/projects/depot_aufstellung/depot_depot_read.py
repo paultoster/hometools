@@ -19,8 +19,6 @@ import tools.hfkt_def as hdef
 # import hfkt_list as hlist
 # import hfkt_type as htype
 
-# import sgui
-
 import depot_gui
 # import depot_konto_anzeige
 
@@ -38,7 +36,7 @@ def depot_konto_einlesen(rd):
     runflag = True
     while (runflag):
         
-        (index,choice) = depot_gui.auswahl_depot(rd)
+        (index,choice) = depot_gui.auswahl_depot(rd.gui,rd.ini.ddict[rd.par.INI_DEPOT_DATA_LIST_NAMES_NAME])
         
         if index < 0:
             return status

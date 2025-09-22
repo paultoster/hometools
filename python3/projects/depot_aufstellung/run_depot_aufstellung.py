@@ -64,7 +64,7 @@ def depot_aufstellung():
     rd.gui = sgui_prot.SguiProtocol()
 
     # Log-File start
-    rd.log = hlog.log(LOG_FILE_NAME)
+    rd.log = hlog.log(LOG_FILE_NAME,rd.gui)
     #-------------------------------
     if (rd.log.state != hdef.OK):
         print("Logfile not working !!!!")
@@ -75,6 +75,7 @@ def depot_aufstellung():
     # --------------
     rd.par = depot_par.get(rd.log)
     rd.ini = depot_ini_file.ini(rd.par,INI_FILE_NAME)
+    print_some_ini_ddict_parameter(rd.par,rd.ini.ddict)
 
     if (rd.ini.status != hdef.OK):
         rd.log.write_err(rd.ini.errtext, screen=rd.par.LOG_SCREEN_OUT)
@@ -82,7 +83,9 @@ def depot_aufstellung():
     # end if
     
     # set protocol
-    rd.gui.set_protcol_type_file(rd.ini.ddict[rd.par.INI_PROTOCOL_TYPE_NAME],rd.ini.ddict[rd.par.INI_PROTOCOL_FILE_NAME])
+    rd.gui.set_protcol_type_file(rd.ini.ddict[rd.par.INI_PROTOCOL_TYPE_NAME] \
+                                ,rd.ini.ddict[rd.par.INI_PROTOCOL_FILE_NAME] \
+                                ,True)
     
     # set parameter from ini
     rd.par.LOG_SCREEN_OUT = rd.ini.ddict[rd.par.INI_LOG_SCREEN_OUT_NAME]
@@ -151,7 +154,7 @@ def depot_aufstellung():
             runflag = True
         elif index == index_cancel_no_save:
             
-            flag = depot_gui.janein_abfrage(rd, "Soll wirklich nicht gespeichert werden?", "Nicht Speichern ja/nein")
+            flag = depot_gui.janein_abfrage(rd.gui, "Soll wirklich nicht gespeichert werden?", "Nicht Speichern ja/nein")
             if flag:
                 runflag = False
                 save_flag = False
@@ -240,7 +243,26 @@ def rd_consistency_check(rd):
     rd.allg.idfunc.reset_consistency_check()
     return (hdef.OKAY, "")
 # end def
-
+def print_some_ini_ddict_parameter(par,ddict):
+    
+    liste = [par.INI_DATA_PICKLE_USE_JSON,
+             par.INI_DATA_PICKLE_JSONFILE_LIST,
+             par.INI_LOG_SCREEN_OUT_NAME,
+             par.INI_IBAN_LIST_FILE_NAME,
+             par.INI_WP_DATA_STORE_PATH_NAME,
+             par.INI_WP_DATA_USE_JSON_NAME,
+             par.INI_PROTOCOL_TYPE_NAME,
+             par.INI_PROTOCOL_FILE_NAME]
+    max_width = max([len(word) for word in liste])
+    
+    for name in liste:
+        if name in ddict.keys():
+            name1 = f"ini.ddict[\"{name}\"]"
+            name2 = f"{ddict[name]}"
+            print(f"{name1:<{max_width}} = {name2:<100}")
+        # end if
+    # end for
+    
 if __name__ == '__main__':
 
     # chnage to directory of data-Files

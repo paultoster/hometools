@@ -41,7 +41,7 @@ def report_einlesen(rd):
         konto_liste = list(rd.konto_dict.keys())
         
         
-        (index,choice) = depot_gui.auswahl_konto(konto_liste)
+        (index,choice) = depot_gui.auswahl_konto(rd.gui,konto_liste)
         
         if index < 0:
             return status
@@ -70,7 +70,7 @@ def report_einlesen(rd):
     else:  # if( konto_dict[rd.par.INI_IMPORT_CONFIG_TYPE_NAME] in rd.ini.ddict[rd.par.INI_CSV_IMPORT_TYPE_NAMES_NAME] ):
         
         # csv-Datei auswählen
-        filename = sgui.abfrage_file(file_types="*.csv",
+        filename = rd.gui.abfrage_file(file_types="*.csv",
                                      comment=f"Wähle ein report von ING-DiBa für den Kontoumsatz von Konto: {choice}",
                                      start_dir=os.getcwd())
         
@@ -81,7 +81,7 @@ def report_einlesen(rd):
         # csv-
         # csv-Daten einlesen
         #--------------------
-        (status,errtext,ttable) = csv_obj.read_data(filename,[ "Notiz","ISIN"])
+        (status,errtext,ttable) = csv_obj.read_data(filename)
         
         if status != hdef.OKAY:
             rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)

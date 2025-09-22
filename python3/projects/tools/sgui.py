@@ -109,7 +109,7 @@
 #  flag      True/False
 #
 # ------------------------------------------------------------------------------------------------------
-#  sgui.anzeige_text(texteingabe,title=None,textcolor='black')
+#  sgui.anzeige_text(texteingabe,title=None,textcolor='black') keine Rückgabe
 #  Zeigt Text an mit Okay Button ohne return
 #  Farben 'black','red','blue','green'...
 #
@@ -252,7 +252,41 @@ def abfrage_liste_indexListe_abfrage_index(liste, listeAbfrage, title=None):
 
 
 def abfrage_tabelle(ddict_inp):
-    
+    '''
+    # gibt den geänderten data_set zurück
+# Input:
+#
+# must be set
+# ddict_inp["ttable"] = ttable
+# or
+# ddict_inp["header_liste"] = header_liste
+# ddict_inp["data_set_lliste"] = data_set = [a0,a1,a2,..., an],[b0,b1,b2,...,bn], ...  [z0,z1,z2,...,zn]]
+#
+# optional
+# ddict_inp["title"] = 'Tabelle'
+# ddict_inp["row_color_dliste"] = ['','black','','red',...]
+# ddict_inp["abfrage_liste"] = ["okay","cancel","end","edit",...]
+# ddict_inp["auswahl_filter_col_liste"] = ["headername1","headername3"] oder [0,2]
+# ddict_inp["GUI_GEOMETRY_WIDTH"] = 1000
+# ddict_inp["GUI_GEOMETRY_HEIGHT"] = 600
+# ddict_inp["GUI_ICON_FILE"] = file.icon
+# ddict_inp["GUI_TITLE"] = text
+#
+# Ouput:
+#
+# return ddict_out
+# mit
+# ddict_out["data_set"]                     return modified data set
+# dindex of ddict_inp["abfrage_liste"] if clicked otherwise -1
+# ddict_out["irow_select"]                  selcted row if click otherwise -1
+# ddict_out["status"]                       status
+# ddict_out["errtext"]                      errtext
+# ddict_out["data_change_irow_icol_liste"]  list of (irow,icol) from data whih were changed
+# ddict_out["data_change_flag"]             are dates changed
+
+    :param ddict_inp:
+    :return:
+    '''
     
     obj = stabelle_class.abfrage_tabelle_class(ddict_inp)
 

@@ -72,7 +72,7 @@ def depot_konto_bearbeiten_csv_ausgabe(rd):
     runflag = True
     while (runflag):
         
-        (index, choice) = depot_gui.auswahl_konto(rd)
+        (index, choice) = depot_gui.auswahl_konto(rd.gui,rd.ini.ddict[rd.par.INI_KONTO_DATA_LIST_NAMES_NAME])
         
         if index < 0:
             return status

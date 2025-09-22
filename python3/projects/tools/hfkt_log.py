@@ -42,7 +42,7 @@ class log:
   NO_SCREEN        = 0
   PRINT_SCREEN     = 1
   GUI_SCREEN       = 2
-  def __init__(self,log_file=None):
+  def __init__(self,log_file=None,gui_func=None):
     """ Log-Datei oeffnen
     """
 
@@ -53,7 +53,9 @@ class log:
     else:
       self.log_file         = log_file
 
-
+    # gui-function from sgui_protocol_class.py
+    self.gui_func = gui_func
+    
     (path,body,ext) = h.file_split(self.log_file)
 
     if(len(path) == 0 ):
@@ -104,10 +106,18 @@ class log:
       elif( title == "warn"):
         sgui.anzeige_text(text, title=title, textcolor='blue')
       elif( title == "info"):
-        sgui.anzeige_text(text, title=title, textcolor='green')
+        if self.gui_func == None:
+            sgui.anzeige_text(text, title=title, textcolor='green')
+        else:
+            self.gui_func.anzeige_text(text, title=title, textcolor='green')
+        # end if
       else:
-        sgui.anzeige_text(text, title=title, textcolor='black')
-      #endif
+        if self.gui_func == None:
+            sgui.anzeige_text(text, title=title, textcolor='black')
+        else:
+            self.gui_func.anzeige_text(text, title=title, textcolor='black')
+        # end if
+    #endif
     #endif
   #enddef
   #-----------------------------------------------------------------------------

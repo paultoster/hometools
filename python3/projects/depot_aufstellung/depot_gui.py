@@ -5,9 +5,9 @@ import tools.hfkt_tvar as htvar
 import tools.hfkt_type as htype
 import tools.hfkt_def as hdef
 
-def janein_abfrage(rd,ausgabe_text,ausgabe_title):
+def janein_abfrage(gui,ausgabe_text,ausgabe_title):
 
-    flag = sgui.abfrage_janein(text=ausgabe_text,title=ausgabe_title)
+    flag = gui.abfrage_janein(text=ausgabe_text,title=ausgabe_title)
     return flag
 
 # end def
@@ -22,10 +22,10 @@ def listen_abfrage(gui,auswahl_liste,auswahl_title,abfrage_liste=None):
     return (index,indexAbfrage)
 # enddef
 
-def iban_abfrage(rd,header_liste,data_llist,abfrage_liste):
+def iban_abfrage(gui,header_liste,data_llist,abfrage_liste):
     '''
     
-    :param rd:
+    :param gui:
     :param header_liste:
     :param data_llist:
     :param abfrage_liste:
@@ -37,14 +37,14 @@ def iban_abfrage(rd,header_liste,data_llist,abfrage_liste):
     dict_inp["data_set_lliste"] = data_llist
     dict_inp["abfrage_liste"] = abfrage_liste
     
-    dict_out = sgui.abfrage_tabelle(dict_inp)
+    dict_out = gui.abfrage_tabelle(dict_inp)
     
     
     return (dict_out["data_set"],dict_out["index_abfrage"] ,dict_out["irow_select"] )
 # end def
 
-def auswahl_konto(konto_liste):
-    index = sgui.abfrage_liste_index(konto_liste, "Konto auswählen")
+def auswahl_konto(gui,konto_liste):
+    index = gui.abfrage_liste_index(konto_liste, "Konto auswählen")
     if index < 0:
         choice =  ""
     else:
@@ -52,8 +52,8 @@ def auswahl_konto(konto_liste):
     # endif
     return (index,choice)
 # enddef
-def auswahl_depot(abfrage_liste):
-    index = sgui.abfrage_liste_index(abfrage_liste, "Depot auswählen")
+def auswahl_depot(gui,abfrage_liste):
+    index = gui.abfrage_liste_index(abfrage_liste, "Depot auswählen")
     if index < 0:
         choice =  ""
     else:
@@ -62,7 +62,7 @@ def auswahl_depot(abfrage_liste):
     return (index,choice)
 # enddef
 
-def konto_abfrage( ttable, abfrage_liste,color_list):
+def konto_abfrage(gui, ttable, abfrage_liste,color_list):
     '''
     
     
@@ -70,7 +70,7 @@ def konto_abfrage( ttable, abfrage_liste,color_list):
     :param data_llist:
     :param abfrage_liste:
     :param color_list
-    :return: (d_new,index_abfrage,irow,data_changed_pos_list) = konto_abfrage(rd, header_liste, data_llist, abfrage_liste, color_list)
+    :return: (d_new,index_abfrage,irow,data_changed_pos_list) = konto_abfrage(gui, header_liste, data_llist, abfrage_liste, color_list)
     '''
 
     dict_inp = {}
@@ -79,7 +79,7 @@ def konto_abfrage( ttable, abfrage_liste,color_list):
     dict_inp["abfrage_liste"] = abfrage_liste
     dict_inp["auswahl_filter_col_liste"] = ["isin","buchtype"]
     
-    dict_out = sgui.abfrage_tabelle(dict_inp)
+    dict_out = gui.abfrage_tabelle(dict_inp)
     
     if dict_out["status"] != hdef.OKAY:
         
@@ -89,7 +89,7 @@ def konto_abfrage( ttable, abfrage_liste,color_list):
     return ( dict_out["status"],dict_out["errtext"],dict_out["ttable"]
            , dict_out["index_abfrage"], dict_out["irow_select"], dict_out["data_change_irow_icol_liste"])
 # end def
-def konto_isin_wkn_set_eingabe(eingabe_liste,data_set=None,title=None):
+def konto_isin_wkn_set_eingabe(gui,eingabe_liste,data_set=None,title=None):
     ddict = {}
     ddict["liste_abfrage"] = eingabe_liste
     
@@ -101,11 +101,11 @@ def konto_isin_wkn_set_eingabe(eingabe_liste,data_set=None,title=None):
         ddict["liste_vorgabe"] = data_set
     # end if
     
-    new_data_list = sgui.abfrage_n_eingabezeilen_dict(ddict)
+    new_data_list = gui.abfrage_n_eingabezeilen_dict(ddict)
 
     return new_data_list
 
-def konto_depot_data_set_eingabe(tlist,buchtype_index_in_header_liste,buchungs_type_list,title=None,immutable_liste=None):
+def konto_depot_data_set_eingabe(gui,tlist,buchtype_index_in_header_liste,buchungs_type_list,title=None,immutable_liste=None):
     '''
     
     
@@ -145,7 +145,7 @@ def konto_depot_data_set_eingabe(tlist,buchtype_index_in_header_liste,buchungs_t
     change_flag = False
     
     while run_flag:
-        new_data_list = sgui.abfrage_n_eingabezeilen_dict(ddict)
+        new_data_list = gui.abfrage_n_eingabezeilen_dict(ddict)
         
         if len(new_data_list) == 0:
             return ([],False)
@@ -168,7 +168,7 @@ def konto_depot_data_set_eingabe(tlist,buchtype_index_in_header_liste,buchungs_t
         # end for
         
         if run_flag:
-            sgui.anzeige_text(errtext, title="Fehler bei Eingabe", textcolor='red')
+            gui.anzeige_text(errtext, title="Fehler bei Eingabe", textcolor='red')
         # end if
     # end while
     
@@ -176,17 +176,17 @@ def konto_depot_data_set_eingabe(tlist,buchtype_index_in_header_liste,buchungs_t
 
     return (tlist_new,change_flag)
 # end def
-def konto_depot_kategorie(kategorie, titlename):
+def konto_depot_kategorie(gui,kategorie, titlename):
     '''
     
     :param kategorie:
     :param titlename:
-    :return: kategorie = depot_gui.konto_depot_kategorie(kategorie, titlename)
+    :return: kategorie = depot_gui.konto_depot_kategorie(gui,kategorie, titlename)
     '''
-    kategorie = sgui.abfrage_n_eingabezeilen(liste=["kategorie"], vorgabe_liste=[kategorie], title=titlename)
+    kategorie = gui.abfrage_n_eingabezeilen(liste=["kategorie"], vorgabe_liste=[kategorie], title=titlename)
     return kategorie
 # end dfe
-def  depot_overview(ttable, abfrage_liste,titlename,row_color_dliste):
+def  depot_overview(gui,ttable, abfrage_liste,titlename,row_color_dliste):
     '''
     
     :param header_liste:
@@ -203,7 +203,7 @@ def  depot_overview(ttable, abfrage_liste,titlename,row_color_dliste):
     dict_inp["title"] = titlename
     dict_inp["row_color_dliste"] = row_color_dliste
     
-    dict_out = sgui.abfrage_tabelle(dict_inp)
+    dict_out = gui.abfrage_tabelle(dict_inp)
     
     if dict_out["status"] != hdef.OKAY:
         return (dict_out["status"], dict_out["errtext"], -1, -1)
@@ -211,14 +211,14 @@ def  depot_overview(ttable, abfrage_liste,titlename,row_color_dliste):
     
     return (dict_out["status"], dict_out["errtext"], dict_out["index_abfrage"], dict_out["irow_select"])
 # end def
-def depot_isin(header_liste, data_lliste, abfrage_liste,title,row_color_dliste):
+def depot_isin(gui,header_liste, data_lliste, abfrage_liste,title,row_color_dliste):
     '''
     
     :param header_liste:
     :param data_lliste:
     :param abfrage_liste:
     :param title:
-    :return: (choice, irow) = depot_gui.depot_isin(header_liste, data_lliste, abfrage_liste,title)
+    :return: (choice, irow) = depot_gui.depot_isin(gui,header_liste, data_lliste, abfrage_liste,title)
     '''
     
     dict_inp = {}
@@ -228,18 +228,18 @@ def depot_isin(header_liste, data_lliste, abfrage_liste,title,row_color_dliste):
     dict_inp["title"] = title
     dict_inp["row_color_dliste"] = row_color_dliste
     
-    dict_out = sgui.abfrage_tabelle(dict_inp)
+    dict_out = gui.abfrage_tabelle(dict_inp)
     
     return (dict_out["index_abfrage"], dict_out["irow_select"], dict_out["data_change_irow_icol_liste"],dict_out["data_set"])
-def auswahl_depot_kategorie_liste(kategorie_liste):
+def auswahl_depot_kategorie_liste(gui,kategorie_liste):
     '''
     
     :param kategorie_liste:
-    :return: (index,choice) = auswahl_depot_kategorie_liste(kategorie_liste)
+    :return: (index,choice) = auswahl_depot_kategorie_liste(gui,kategorie_liste)
     '''
     
     
-    index = sgui.abfrage_liste_index(kategorie_liste, "Kategorie auswählen")
+    index = gui.abfrage_liste_index(kategorie_liste, "Kategorie auswählen")
     if index < 0:
         choice =  ""
     else:

@@ -43,7 +43,7 @@ def anzeige_mit_kategorie_wahl(rd):
             # end if
         # end for
         
-        (index, kategorie) = depot_gui.auswahl_depot_kategorie_liste(kategorie_liste)
+        (index, kategorie) = depot_gui.auswahl_depot_kategorie_liste(rd.gui,kategorie_liste)
         
         
         if index < 0:
@@ -188,7 +188,7 @@ def anzeige_overview(rd, data_lliste, header_liste, icol_isin,icol_depot, titlen
     
     while (runflag):
         
-        (sw, irow) = depot_gui.depot_overview(header_liste, data_lliste, abfrage_liste, titlename, row_color_dliste)
+        (sw, irow) = depot_gui.depot_overview(rd.gui,header_liste, data_lliste, abfrage_liste, titlename, row_color_dliste)
         
         if sw <= i_end:
             sw = -1

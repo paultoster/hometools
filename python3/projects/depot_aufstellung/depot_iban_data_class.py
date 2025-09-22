@@ -141,7 +141,7 @@ class IbanDataSet:
     
     # enddef
     
-    def show(self):
+    def show(self,gui):
         '''
         show data in gui and possibly correct in gui
         :return: (status,errtext)
@@ -149,7 +149,7 @@ class IbanDataSet:
         status = hdef.OKAY
         errtext = ""
         
-        (d_new, indexAbfrage) = sgui.abfrage_tabelle(header_liste=self.item_list
+        (d_new, indexAbfrage) = gui.abfrage_tabelle(header_liste=self.item_list
                                                      , data_set=self.data_list
                                                      , listeAbfrage=["okay", "change", "add"])
         
@@ -190,7 +190,7 @@ class IbanDataSet:
         else:  # add
             
             title = 'Neue IBAN-Nummer eingeben'
-            listeErgebnis = sgui.abfrage_n_eingabezeilen(liste=self.item_list, title=title)
+            listeErgebnis = gui.abfrage_n_eingabezeilen(liste=self.item_list, title=title)
             
             if (len(listeErgebnis) == 0):
                 status = hdef.NOT_OKAY
@@ -310,7 +310,7 @@ def iban_mod(data_list,d_new):
     
     return (status, errtext,data_list)
 # end def
-def iban_add_data_set(header_list,data_list,id_max):
+def iban_add_data_set(gui,header_list,data_list,id_max):
     """
         Use header_list[1,:] because id is automatically added
     """
@@ -318,7 +318,7 @@ def iban_add_data_set(header_list,data_list,id_max):
     errtext = ""
 
     title = 'Neue IBAN-Nummer eingeben'
-    listeErgebnis = sgui.abfrage_n_eingabezeilen(liste=header_list[1:], title=title)
+    listeErgebnis = gui.abfrage_n_eingabezeilen(liste=header_list[1:], title=title)
     
     if (len(listeErgebnis) == 0):
         status = hdef.NOT_OKAY

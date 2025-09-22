@@ -39,7 +39,7 @@ def anzeige_mit_konto_wahl(rd):
         
         konto_liste =  list(rd.ini.ddict[rd.par.INI_KONTO_DATA_LIST_NAMES_NAME])
         
-        (index, choice) = depot_gui.auswahl_konto(konto_liste)
+        (index, choice) = depot_gui.auswahl_konto(rd.gui,konto_liste)
         
         if index < 0:
             return status
@@ -92,7 +92,7 @@ def anzeige(rd,konto_obj):
         
         if ttable.ntable > 0:
             (status,errtext,ttable_anzeige, index_abfrage, irow, data_changed_pos_list) = \
-                depot_gui.konto_abfrage(ttable, abfrage_liste, row_color_dlist)
+                depot_gui.konto_abfrage(rd.gui,ttable, abfrage_liste, row_color_dlist)
             if status != hdef.OKAY:
                 rd.log.write_err(errtext,screen=rd.par.LOG_SCREEN_OUT)
                 index_abfrage = i_end
@@ -170,7 +170,7 @@ def anzeige(rd,konto_obj):
             if (irow >= 0):
                 (tlist,buchungs_type_list, buchtype_index_in_header_liste) = konto_obj.get_edit_data(irow)
 
-                (tlist_anzeige, change_flag) = depot_gui.konto_depot_data_set_eingabe(tlist,
+                (tlist_anzeige, change_flag) = depot_gui.konto_depot_data_set_eingabe(rd.gui,tlist,
                                                                                       buchtype_index_in_header_liste,
                                                                                       buchungs_type_list)
                 
@@ -238,7 +238,7 @@ def anzeige(rd,konto_obj):
                 
                 # Abfrage
                 # -----------------------------------------------------------------------------------------------------------
-                ergebnisListe = depot_gui.konto_isin_wkn_set_eingabe(eingabeListe, vorgabeListe
+                ergebnisListe = depot_gui.konto_isin_wkn_set_eingabe(rd.gui,eingabeListe, vorgabeListe
                                                                      ,
                                                                      title=f"{data_title} wpnname,isin und wkn ausfüllen (wpnname,isin evt. leer, kein EIntrag)")
                 # Daten übernehmen
@@ -293,7 +293,7 @@ def anzeige(rd,konto_obj):
             titlename = konto_obj.get_titlename()
             
             
-            (tlist_anzeige,change_flag) = depot_gui.konto_depot_data_set_eingabe(tlist, buchtype_index_in_header_liste,
+            (tlist_anzeige,change_flag) = depot_gui.konto_depot_data_set_eingabe(rd.gui,tlist, buchtype_index_in_header_liste,
                                                                 buchungs_type_list, titlename,None)
                         
             if change_flag:
@@ -309,7 +309,7 @@ def anzeige(rd,konto_obj):
         elif( index_abfrage == i_delete ):
             
             if( irow >= 0 ):
-                flag = sgui.abfrage_janein(text=f"Soll irow = {irow} (von null gezält) gelöschen werden")
+                flag = rd.gui.abfrage_janein(text=f"Soll irow = {irow} (von null gezält) gelöschen werden")
                 if( flag ):
                     (status,errtext) = konto_obj.delete_data_set(irow)
                     if( status != hdef.OKAY ):

@@ -38,7 +38,7 @@ def anzeige_mit_depot_wahl(rd):
     runflag = True
     while (runflag):
         
-        (index, auswahl) = depot_gui.auswahl_depot(rd.ini.ddict[rd.par.INI_DEPOT_DATA_LIST_NAMES_NAME])
+        (index, auswahl) = depot_gui.auswahl_depot(rd.gui,rd.ini.ddict[rd.par.INI_DEPOT_DATA_LIST_NAMES_NAME])
         
         if index < 0:
             return status
@@ -129,7 +129,7 @@ def anzeige_mit_depot_wahl(rd):
             titlename = depot_obj.get_titlename(isin)
  
             # edit kateorie
-            kategorie_liste = depot_gui.konto_depot_kategorie(kategorie, titlename)
+            kategorie_liste = depot_gui.konto_depot_kategorie(rd.gui,kategorie, titlename)
             
             if len(kategorie_liste):
                 depot_obj.set_kategorie(isin,kategorie_liste[0])
@@ -164,7 +164,7 @@ def anzeige_overview(rd,ttable, icol_isin,titlename,row_color_dliste):
     
     while (runflag):
         
-        (status,errtext,sw,irow) =  depot_gui.depot_overview(ttable, abfrage_liste,titlename,row_color_dliste)
+        (status,errtext,sw,irow) =  depot_gui.depot_overview(rd.gui,ttable, abfrage_liste,titlename,row_color_dliste)
         
         if status != hdef.OKAY:
             rd.log.write_err(errtext,screen=rd.par.LOG_SCREEN_OUT)
@@ -227,7 +227,7 @@ def anzeige_isin(rd, data_lliste, header_liste, title,row_color_dliste):
     runflag = True
     while (runflag):
         
-        (sw, irow,changed_pos_list,date_set) = depot_gui.depot_isin(header_liste, data_lliste, abfrage_liste,title,row_color_dliste)
+        (sw, irow,changed_pos_list,date_set) = depot_gui.depot_isin(rd.gui,header_liste, data_lliste, abfrage_liste,title,row_color_dliste)
         
         if sw <= i_end:
             sw = -1
@@ -405,7 +405,7 @@ def anzeige_isin(rd, data_lliste, header_liste, title,row_color_dliste):
 #         elif( index_abfrage == i_delete ):
 #
 #             if( irow >= 0 ):
-#                 flag = sgui.abfrage_janein(text=f"Soll irow = {irow} (von null gezält) gelöschen werden")
+#                 flag = rd.gui.abfrage_janein(text=f"Soll irow = {irow} (von null gezält) gelöschen werden")
 #                 if( flag ):
 #                     (status,errtext) = konto_obj.delete_data_list(irow)
 #                     if( status != hdef.OKAY ):
