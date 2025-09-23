@@ -82,7 +82,6 @@ def anzeige(rd,konto_obj):
     i_add = 5
     i_delete = 6
     
-    konto_dict = {}
     data_changed_pos_list = []
     ttable_anzeige = None
     runflag = True
@@ -140,7 +139,7 @@ def anzeige(rd,konto_obj):
                 konto_obj.write_anzeige_back_data(ttable_anzeige, data_changed_pos_list)
                 if konto_obj.status != hdef.OKAY:
                     rd.log.write_err("konto_anzeige update " + konto_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
-                    return (status, konto_dict,konto_obj)
+                    return (status, konto_obj)
                 else:
                     if len(konto_obj.infotext):
                         rd.log.write_info("konto_anzeige update " + konto_obj.infotext, screen=rd.par.LOG_SCREEN_OUT)
@@ -159,7 +158,7 @@ def anzeige(rd,konto_obj):
             
             if konto_obj.status != hdef.OKAY:
                 rd.log.write_err("konto_anzeige update isin " + konto_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
-                return (status, konto_dict, konto_obj)
+                return (status, konto_obj)
             
             runflag = True
             
@@ -179,7 +178,7 @@ def anzeige(rd,konto_obj):
                     
                     if status != hdef.OKAY:
                         rd.log.write_err("konto__anzeige edit " + errtext, screen=rd.par.LOG_SCREEN_OUT)
-                        return (status, konto_dict, konto_obj)
+                        return (status, konto_obj)
                     # endif
                 # endif
             else:
@@ -268,7 +267,7 @@ def anzeige(rd,konto_obj):
                     
                     if status != hdef.OKAY:
                         rd.log.write_err("konto__anzeige edit isin" + errtext, screen=rd.par.LOG_SCREEN_OUT)
-                        return (status, konto_dict, konto_obj)
+                        return (status, konto_obj)
                     # endif
                 # endif
             else:
@@ -301,7 +300,7 @@ def anzeige(rd,konto_obj):
                 
                 if status != hdef.OKAY:
                     rd.log.write_err("konto__anzeige add "+errtext, screen=rd.par.LOG_SCREEN_OUT)
-                    return (status, konto_dict,konto_obj)
+                    return (status, konto_obj)
                 # endif
             # endif
             dir = 0
@@ -314,7 +313,7 @@ def anzeige(rd,konto_obj):
                     (status,errtext) = konto_obj.delete_data_set(irow)
                     if( status != hdef.OKAY ):
                         rd.log.write_err("konto__anzeige delete " + errtext, screen=rd.par.LOG_SCREEN_OUT)
-                        return (status, konto_dict,konto_obj)
+                        return (status, konto_obj)
                     # end if
                 # end if
             # end if
@@ -324,7 +323,7 @@ def anzeige(rd,konto_obj):
             runflag = True
     # end while
     
-    return (status, konto_dict,konto_obj)
+    return (status, konto_obj)
 # end def
 def build_range_to_show_dataset(nlines,istart,nshow,dir):
     '''

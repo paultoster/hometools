@@ -13,6 +13,7 @@ if (tools_path not in sys.path):
 import tools.hfkt_def as hdef
 import tools.hfkt_type as htype
 import tools.hfkt_list as hlist
+import tools.hfkt_dict as hdict
 import tools.hfkt_tvar as htvar
 import tools.hfkt_data_set as hdset
 
@@ -210,7 +211,7 @@ class KontoDataSet:
      
      (modified_new_data_table)         = self.add_chash_to_table(new_data_table)
      new_data_table                    = self.filter_by_chash_to_table(new_data_table)
-     new_data_table                    = self.proof_wert_of_table(new_data_table)
+     new_data_table                    = self.proof_wert_in_table_mit_buchtype(new_data_table)
      new_data_table                    = self.build_internal_values_new_data_table(new_data_table)
      isin                              = self.search_isin(isin_in, comment)
      (okay, wkn,isin)                  = self.search_wkn_from_comment(comment)
@@ -260,6 +261,8 @@ class KontoDataSet:
         :param konto_start_wert:
         :return: self.set_stored_data_set_tvar(data_set,konto_start_datum,konto_start_wert)
         '''
+        
+        ttable = self.recalc_chash_wo_comment(ttable)
         
         if( self.data_set_obj.add_data_set_tvar(ttable,self.par.LINE_COLOR_BASE) != hdef.OKAY):
             raise Exception(f"Fehler set_stored_data_set_tvar errtext={self.errtext} !!!")
@@ -607,10 +610,11 @@ class KontoDataSet:
         :param new_data_matrix:  eingelesene Daten (z.B. csv-Datei)
         :param konto_dict:  das Konto ictionary mit allen ini-Infos
         :param new_data_idenx_list:    Name der eingelsenen Datei für errtext
-        :return: (new_data_set_flag,status,errtext) =  self.set_new_data(new_data_table)
+        :return: (new_data_set_flag,status,errtext,infotext) =  self.set_new_data(new_data_table)
         '''
         self.status = hdef.OKAY
         new_data_set_flag = False
+        self.infotext = ""
         
         if isinstance(new_data_table,htvar.TList):
             new_data_table = htvar.build_table_from_list(new_data_table)
@@ -628,7 +632,10 @@ class KontoDataSet:
         
         if new_data_table.ntable > 0:
 
-            new_data_table = self.proof_wert_of_table(new_data_table)
+            # sort buchtypes in correct order
+            new_data_table = self.proof_and_set_correct_order_buchttypes(new_data_table)
+
+            new_data_table = self.proof_wert_in_table_mit_buchtype(new_data_table)
             if self.status != hdef.OKAY:
                 return (False, self.status, self.errtext)
             # endif
@@ -642,7 +649,10 @@ class KontoDataSet:
             if self.status != hdef.OKAY:
                 return (False, self.status, self.errtext)
             # endif
-        
+            
+            # find suspicious
+            self.infotext = self.find_suspiciuos_doubles_for_info(new_data_table)
+            
             status = self.data_set_obj.add_data_set_tvar(new_data_table,line_color = self.par.LINE_COLOR_NEW)
 
             if status != hdef.OKAY:
@@ -659,8 +669,12 @@ class KontoDataSet:
             self.recalc_sum_data_set()
             
             new_data_set_flag = True
+        else:
+            
+            new_data_set_flag = False
+            self.infotext = "Keine neuen Daten eingelesen !!!!"
 
-        return (new_data_set_flag, self.status, self.errtext)
+        return (new_data_set_flag, self.status, self.errtext,self.infotext)
     
     # enddef
     def update_isin_find(self):
@@ -982,6 +996,82 @@ class KontoDataSet:
     #-------------------------------------------------------------------------------------------------------------------
     # intern functions
     #-------------------------------------------------------------------------------------------------------------------
+    def find_suspiciuos_doubles_for_info(self, new_data_table):
+        '''
+
+        :param new_data_table:
+        :return: infotext = self.find_suspiciuos_doubles_for_info(new_data_table)
+        '''
+        itext = ""
+        index_buchdatum = htvar.get_index_from_table(new_data_table, self.par.KONTO_DATA_NAME_BUCHDATUM)
+        index_wert      = htvar.get_index_from_table(new_data_table, self.par.KONTO_DATA_NAME_WERT)
+        index_comment   = htvar.get_index_from_table(new_data_table, self.par.KONTO_DATA_NAME_COMMENT)
+
+        type_buchdatum = self.par.KONTO_DATA_TYPE_DICT[self.par.KONTO_DATA_INDEX_BUCHDATUM]
+        type_wert = self.par.KONTO_DATA_TYPE_DICT[self.par.KONTO_DATA_INDEX_WERT]
+
+        for irow in range(new_data_table.ntable):
+            buchdatum = htvar.get_val_from_table(new_data_table, irow, index_buchdatum,type_buchdatum)
+            wert = htvar.get_val_from_table(new_data_table, irow, index_wert,type_wert)
+            
+            irow_list = self.data_set_obj.find_in_col(wert, type_wert, self.par.KONTO_DATA_INDEX_WERT)
+            
+            for irow in irow_list:
+                buchdatum_proof \
+                    = self.data_set_obj.get_data_item(irow,self.par.KONTO_DATA_INDEX_BUCHDATUM,type_buchdatum)
+                
+                if buchdatum == buchdatum_proof:
+                    bdat = htvar.get_val_from_table(new_data_table, irow, index_buchdatum,'datStrP')
+                    w    = htvar.get_val_from_table(new_data_table, irow, index_wert,'euroStrK')
+                    c = htvar.get_val_from_table(new_data_table, irow, index_comment,'str')
+                    itext += f"Vorsicht in neuer Buchung ist buchdatum: {bdat} und wert = {w} und comment = {c} gleich \n"
+                # end if
+            # end for
+
+        return itext
+    
+    # end def
+    def proof_and_set_correct_order_buchttypes(self,new_data_table):
+        '''
+        
+        :param new_data_table:
+        :return: new_data_table = self.proof_and_set_correct_order_buchttypes(new_data_table)
+        '''
+        
+        index =  htvar.get_index_from_table(new_data_table,self.par.KONTO_DATA_NAME_BUCHTYPE)
+        
+        buchtype_liste  = new_data_table.types[index]
+        
+        for buchtype in buchtype_liste:
+            
+            if buchtype not in self.par.KONTO_BUCHTYPE_TEXT_LIST:
+                raise Exception(f"proof_and_set_correct_order_buchttypes: buchtype: {buchtype} (aus ini) ist nicht in KONTO_BUCHTYPE_TEXT_LIST: {self.par.KONTO_BUCHTYPE_TEXT_LIST} !!!")
+            # end if
+        # end for
+        new_data_table.types[index] = self.par.KONTO_BUCHTYPE_TEXT_LIST
+        
+        return new_data_table
+    # end def
+    def recalc_chash_wo_comment(self,ttable):
+        '''
+        
+        :param ttable:
+        :return: ttable = self.recalc_chash_wo_comment(ttable)
+        '''
+
+        index_buchdatum = htvar.get_index_from_table(ttable, self.par.KONTO_DATA_NAME_BUCHDATUM)
+        index_wert      = htvar.get_index_from_table(ttable, self.par.KONTO_DATA_NAME_WERT)
+        index_chash     = htvar.get_index_from_table(ttable, self.par.KONTO_DATA_NAME_CHASH)
+        for irow in range(ttable.ntable):
+            buchdatum = htvar.get_val_from_table(ttable, irow, index_buchdatum)
+            wert = htvar.get_val_from_table(ttable, irow, index_wert)
+            value = str(buchdatum) + str(wert)
+            chash_new = htype.type_convert_to_hashkey(value)
+            ttable = htvar.set_val_in_table(ttable,chash_new,irow,index_chash,'int')
+        # end for
+        
+        return ttable
+    # end def
     def add_chash_to_table(self, new_data_table):
         '''
         
@@ -989,17 +1079,17 @@ class KontoDataSet:
         :return: (modified_new_data_table) = self.add_chash_to_table(new_data_table)
         '''
         
-        index_comment = htvar.get_index_from_table(new_data_table, self.par.KONTO_DATA_NAME_COMMENT)
+        # index_comment = htvar.get_index_from_table(new_data_table, self.par.KONTO_DATA_NAME_COMMENT)
         index_buchdatum = htvar.get_index_from_table(new_data_table, self.par.KONTO_DATA_NAME_BUCHDATUM)
         index_wert = htvar.get_index_from_table(new_data_table, self.par.KONTO_DATA_NAME_WERT)
         
         chash_liste = []
         for irow in range(new_data_table.ntable):
             
-            comment = htvar.get_val_from_table(new_data_table,irow,index_comment)
+            # comment = htvar.get_val_from_table(new_data_table,irow,index_comment)
             buchdatum = htvar.get_val_from_table(new_data_table,irow,index_buchdatum)
             wert = htvar.get_val_from_table(new_data_table,irow,index_wert)
-            value = str(comment) + str(buchdatum) + str(wert)
+            value = str(buchdatum) + str(wert)
             chash_new = htype.type_convert_to_hashkey(value)
             chash_liste.append(chash_new)
         # end for
@@ -1075,11 +1165,11 @@ class KontoDataSet:
     #     return new_data_dict_list
     
     # end def
-    def proof_wert_of_table(self,new_data_table):
+    def proof_wert_in_table_mit_buchtype(self,new_data_table):
         '''
         
         :param new_data_table:
-        :return: new_data_table = self.proof_wert_of_table(new_data_table)
+        :return: new_data_table = self.proof_wert_in_table_mit_buchtype(new_data_table)
  
         '''
         
@@ -1118,7 +1208,7 @@ class KontoDataSet:
                         if okay == hdef.OKAY:
                             buchtype = wert
                         else:
-                            raise Exception(f"proof_wert_of_table: Problem buchtype")
+                            raise Exception(f"proof_wert_in_table_mit_buchtype: Problem buchtype")
                         # end if
                         
                         new_data_table = htvar.set_val_in_table(new_data_table, buchtype, irow, self.par.KONTO_DATA_NAME_BUCHTYPE)

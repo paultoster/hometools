@@ -66,6 +66,8 @@ ttable = transform_icol_table(ttable,new_name_list)
 ttable = transform_type_table(ttable,new_type_list)
 flag   = is_table(ttable)
 flag   = is_list(tlist)
+index  = find_value_in_list_list(tlist,val)                    index = None if not found
+index  = find_value_in_list_list(tlist,val,type)
 """
 import os, sys
 from dataclasses import dataclass, field
@@ -1076,7 +1078,58 @@ def is_list(tlist):
     # end if
     return flag
 # end def
-
+def find_value_in_list_list(tlist,valfind,type=None):
+    '''
+    
+    :param tlist:
+    :param val:
+    :param type:
+    :return: index  = find_value_in_list(tlist,val)
+             index  = find_value_in_list(tlist,val,type)
+    '''
+    
+    for index,val in enumerate(tlist.vals):
+        
+        if isinstance(val,list):
+            val_list = val
+            
+            for val in val_list:
+                
+                if type:
+                    (status, wert) = htype.type_transform(val, tlist.types[index], type)
+                
+                    if status != hdef.OKAY:
+                        raise Exception(
+                            f"Error find_value_in_list_list: type_transform for tlist.vals[{index}] = {val} not possible from ttable.types[{index}] = {tlist.types[index]} to type={type} for variable = {tlist.names[index]}")
+                    else:
+                        val = wert
+                    # end if
+                # end if
+                
+                if valfind == val:
+                    return index
+                # end if
+            # end for
+        else:
+            
+            if type:
+                (status, wert) = htype.type_transform(val, tlist.types[index], type)
+                
+                if status != hdef.OKAY:
+                    raise Exception(
+                        f"Error find_value_in_list_list: type_transform for tlist.vals[{index}] = {val} not possible from ttable.types[{index}] = {tlist.types[index]} to type={type} for variable = {tlist.names[index]}")
+                else:
+                    val = wert
+                # end if
+            # end if
+            if valfind == val:
+                return index
+            # end if
+        # end if
+        
+    # end for
+    return None
+# end def
 
 
     

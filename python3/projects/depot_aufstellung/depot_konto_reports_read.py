@@ -90,17 +90,17 @@ def report_einlesen(rd):
         
         # eingelsene Daten in konto einsortieren
         #---------------------------------------
-        (flag_newdata,status,errtext) = konto_obj.set_new_data(ttable)
+        (flag_newdata,status,errtext,infotext) = konto_obj.set_new_data(ttable)
         
         if status != hdef.OKAY:
             rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
             return status
         # end if
-        
+        if len(infotext):
+            rd.log.write_info(infotext, screen=rd.par.LOG_SCREEN_OUT)
+        # end if
         if flag_newdata :
             (status,konto_obj) = depot_konto_anzeige.anzeige(rd,konto_obj)
-        else:
-            rd.log.write_info("Keine neuen Daten eingelesen !!!!", screen=rd.par.LOG_SCREEN_OUT)
         # end if
 
         if status != hdef.OKAY:  # Abbruch
@@ -108,8 +108,8 @@ def report_einlesen(rd):
         # end if
         
         # write back modified konto_dict
-        rd.data[choice].ddict = konto_dict
-        rd.data[choice].obj   = konto_obj
+        rd.konto_dict[choice].data_dict   = konto_dict
+        rd.konto_dict[choice].konto_obj   = konto_obj
 
     #endif
         

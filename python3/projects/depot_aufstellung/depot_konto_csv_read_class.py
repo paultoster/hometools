@@ -56,7 +56,7 @@ class KontoCsvRead:
         if (len(csv_lliste) == 0):
             self.errtext = f"Fehler in read_ing_csv read_csv_file()  filename = {self.filename}"
             self.status = hdef.NOT_OKAY
-            return (self.status,self.errtext,[],[],[])
+            return (self.status,self.errtext,None)
         # end if
         
         csv_lliste = self.fix_length_for_missing_items(csv_lliste)
@@ -65,18 +65,25 @@ class KontoCsvRead:
         # ==============================
         (index_start, csv_icol_list,name_csv_list,name_list,type_list) = self.search_header_line(csv_lliste)
         if self.status != hdef.OKAY:
-            return (self.status,self.errtext,[],[],[])
+            return (self.status,self.errtext,None)
         # endif
         
         # Lese Daten aus  csv-liste aus
         new_data_matrix = self.get_data_from_csv_lliste(csv_lliste, index_start, csv_icol_list)
         if self.status != hdef.OKAY:
-            return (self.status,self.errtext,[],[],[])
+            return (self.status,self.errtext,None)
         # end if
         
-        # merge incase of double e.g. comments
-        (name_list,merged_data_matrix, type_list) = self.proof_merge_double_items(new_data_matrix,name_list,type_list)
         
+        # merge incase of double e.g. comments
+        (merged_data_matrix,name_list, type_list) = self.proof_merge_double_items(new_data_matrix,name_list,type_list)
+
+        # make type conversion
+        (merged_data_matrix,name_list, type_list) = self.make_type_conversion(merged_data_matrix,name_list,type_list)
+        if self.status != hdef.OKAY:
+            return (self.status,self.errtext,None)
+        # end if
+
         ttable = htvar.build_table(name_list,merged_data_matrix,type_list)
         
         return (self.status,self.errtext,ttable)
@@ -101,6 +108,14 @@ class KontoCsvRead:
             for j in range(len(csv_liste),n):
                 csv_liste.append("")
                 flag = True
+            # end for
+            # cutoff empty space
+            for j in range(n):
+                t = hstr.elim_ae_liste(csv_liste[j], [" ","\t"])
+                if t != csv_liste[j]:
+                    flag = True
+                    csv_liste[j] = t
+                # end if
             # end for
             if flag:
                 csv_lliste[i] = csv_liste
@@ -325,4 +340,39 @@ class KontoCsvRead:
         # end if
         return (merged_data_matrix,merged_name_list,merged_type_list)
     # end def
+    def make_type_conversion(self,new_data_matrix,name_list,type_list):
+        '''
+        
+        :param new_data_matrix:
+        :param name_list:
+        :return: (new_data_matrix,name_list,type_list) = self.make_type_conversion(new_data_matrix, name_list)
+        '''
     
+        if "buchtype" in name_list:
+            icol = name_list.index("buchtype")
+        else:
+            raise Exception(f" Name des buchtypes = \"{"buchtype"}\" nicht in name_list = {name_list}")
+        # end if
+    
+        for irow,data_set in enumerate(new_data_matrix):
+            
+            val = data_set[icol]
+            
+            index = htvar.find_value_in_list_list(self.buchtype_zuordnung_tlist,val)
+            
+            if index == None:
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"make_type_conversion: der buchtype: {val} in irow: {irow} kann nicht in buchtype_zuordnung_tlist: {self.buchtype_zuordnung_tlist} gefunden werden !!"
+                return None
+            # end if
+            
+            data_set[icol] = self.buchtype_zuordnung_tlist.names[index]
+            
+            new_data_matrix[irow] = data_set
+        # end for
+        
+        type_list[icol] = self.buchtype_zuordnung_tlist.names
+        
+        return (new_data_matrix,name_list,type_list)
+        
+        

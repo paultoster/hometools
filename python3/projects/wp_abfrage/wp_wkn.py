@@ -22,9 +22,12 @@ def wp_search_wkn(wkn,ddict):
     '''
     status = hdef.OKAY
     errtext = ""
-    wkn_isin_dict = wp_storage.read_dict_file(ddict["wkn_isin_filename"],ddict)
+    wp_isin_dict = wp_storage.read_dict_file(ddict["'wpname_isin_filename'"],ddict)
     
-    if wkn in wkn_isin_dict.keys():
+    if isin in wp_isin_dict.keys():
+        
+        wp_storage.read_dict_file
+        
         if ddict["use_json"] == 1: # write json
             wp_storage.save_dict_file_json(wkn_isin_dict,ddict["wkn_isin_filename"],ddict)
         elif ddict["use_json"] == 2: # read json
