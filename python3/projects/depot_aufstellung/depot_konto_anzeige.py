@@ -296,12 +296,15 @@ def anzeige(rd,konto_obj):
                                                                 buchungs_type_list, titlename,None)
                         
             if change_flag:
-                (new_data_set_flag, status, errtext) = konto_obj.set_new_data(tlist_anzeige)
+                (new_data_set_flag, status, errtext,infotext) = konto_obj.set_new_data(tlist_anzeige)
                 
                 if status != hdef.OKAY:
                     rd.log.write_err("konto__anzeige add "+errtext, screen=rd.par.LOG_SCREEN_OUT)
                     return (status, konto_obj)
                 # endif
+                if len(infotext):
+                    rd.log.write_info(infotext, screen=rd.par.LOG_SCREEN_OUT)
+                # end if
             # endif
             dir = 0
             runflag = True

@@ -665,6 +665,9 @@ def type_proof_datStrP(wert_in):
         
         flag = hdate.is_datum_str(wert_in, delim=".")
         
+        if not flag:
+            flag = hdate.is_datum_reverse_str(wert_in, delim=".")
+            
         if flag:
             return (hdef.OKAY, wert_in)
     
@@ -689,6 +692,9 @@ def type_proof_datStrB(wert_in):
     if (isinstance(wert_in, str)):
         
         flag = hdate.is_datum_str(wert_in, delim="-")
+
+        if not flag:
+            flag = hdate.is_datum_reverse_str(wert_in, delim="-")
         
         if flag:
             return (hdef.OKAY, wert_in)

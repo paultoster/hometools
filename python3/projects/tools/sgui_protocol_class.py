@@ -1,6 +1,8 @@
 import os
 import sys
 
+import hfkt_tvar
+
 # -------------------------------------------------------------------------------
 t_path, _ = os.path.split(__file__)
 if (t_path == os.getcwd()):
@@ -343,7 +345,17 @@ class SguiProtocol:
             (s5, ddict_out["data_change_irow_icol_liste"]) = self.get_act_protocol_data("data_change_irow_icol_liste")
             (s6, ddict_out["data_change_flag"]) = self.get_act_protocol_data("data_change_flag")
             
-            (s7, ddict_out["ttable"]) = self.get_act_protocol_data("ttable")
+            (sa, ttable_names) = self.get_act_protocol_data("ttable_names")
+            (sb, ttable_table) = self.get_act_protocol_data("ttable_table")
+            (sc, ttable_types) = self.get_act_protocol_data("ttable_types")
+            
+            if sa and sb and sc:
+                ddict_out["ttable"] = hfkt_tvar.build_table(ttable_names,ttable_table,ttable_types)
+                s7 = True
+            else:
+                s7 = False
+            # end if
+            
             (s8, ddict_out["data_set"]) = self.get_act_protocol_data("data_set")
             
             if s1 and s2 and s3 and s4 and s5 and s6 and (s7 or s8):
@@ -363,7 +375,9 @@ class SguiProtocol:
                 self.set_act_protocol_data("errtext", ddict_out["errtext"])
                 
                 if "ttable" in ddict_out.keys():
-                    self.set_act_protocol_data("ttable", ddict_out["ttable"])
+                    self.set_act_protocol_data("ttable_names", ddict_out["ttable"].names)
+                    self.set_act_protocol_data("ttable_table", ddict_out["ttable"].table)
+                    self.set_act_protocol_data("ttable_types", ddict_out["ttable"].types)
                 # end if
                 if "data_set" in ddict_out.keys():
                     self.set_act_protocol_data("data_set", ddict_out["data_set"])

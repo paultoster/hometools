@@ -196,7 +196,8 @@ class KontoDataSet:
     csvfunc                       = obj.get_csvfunc()
     titlename                     = obj.get_titlename()
     (new_flag, status, errtext)   = self.set_data_set_extern_liste(new_tlist,irow)
-    (new_data_set_flag,status,errtext) =  self.set_new_data(new_data_table)
+    (new_data_set_flag,status,errtext,infotext) =  self.set_new_data(new_data_table)
+    (new_data_set_flag,status,errtext,infotext) =  self.set_new_data(new_data_table,flag_proof_wert)
                                           self.update_isin_find()
     (tlist, change_flag)               = self.update_isin_data_set_tlist(tlist)
     ttable                             = self.get_data_set_dict_ttable()
@@ -524,7 +525,7 @@ class KontoDataSet:
     #
     #         # ---------------------------------------------------------
     #         # add data set as first data
-    #         ((new_data_set_flag,status,errtext) ) = self.set_new_data(new_data_matrix , new_data_index_list, new_data_type_list)
+    #         ((new_data_set_flag,status,errtext,infotext) ) = self.set_new_data(new_data_matrix , new_data_index_list, new_data_type_list)
     #         if status != hdef.OKAY:
     #             raise Exception(f"Problem start Zeile erzeugen set_new_data() errtext = {errtext} !!!")
     #         # end
@@ -604,7 +605,7 @@ class KontoDataSet:
         return (new_data_set_flag,self.status,self.errtext)
     # end def
     
-    def set_new_data(self, new_data_table: htvar.TTable | htvar.TList):
+    def set_new_data(self, new_data_table: htvar.TTable | htvar.TList,flag_proof_wert = False):
         '''
         
         :param new_data_matrix:  eingelesene Daten (z.B. csv-Datei)
@@ -635,7 +636,12 @@ class KontoDataSet:
             # sort buchtypes in correct order
             new_data_table = self.proof_and_set_correct_order_buchttypes(new_data_table)
 
-            new_data_table = self.proof_wert_in_table_mit_buchtype(new_data_table)
+            if flag_proof_wert:
+                new_data_table = self.proof_wert_in_table_mit_buchtype(new_data_table)
+            else:
+                new_data_table = self.proof_buchtype_in_table_mit_wert(new_data_table)
+            # end if
+            
             if self.status != hdef.OKAY:
                 return (False, self.status, self.errtext)
             # endif
@@ -1165,11 +1171,11 @@ class KontoDataSet:
     #     return new_data_dict_list
     
     # end def
-    def proof_wert_in_table_mit_buchtype(self,new_data_table):
+    def proof_buchtype_in_table_mit_wert(self,new_data_table):
         '''
         
         :param new_data_table:
-        :return: new_data_table = self.proof_wert_in_table_mit_buchtype(new_data_table)
+        :return: new_data_table = self.proof_buchtype_in_table_mit_wert(new_data_table)
  
         '''
         
@@ -1208,7 +1214,7 @@ class KontoDataSet:
                         if okay == hdef.OKAY:
                             buchtype = wert
                         else:
-                            raise Exception(f"proof_wert_in_table_mit_buchtype: Problem buchtype")
+                            raise Exception(f"proof_buchtype_in_table_mit_wert: Problem buchtype")
                         # end if
                         
                         new_data_table = htvar.set_val_in_table(new_data_table, buchtype, irow, self.par.KONTO_DATA_NAME_BUCHTYPE)
@@ -1217,6 +1223,63 @@ class KontoDataSet:
             # end if
         # end for
         return new_data_table
+    # end def
+    def proof_wert_in_table_mit_buchtype(self, new_data_table):
+        '''
+
+        :param new_data_table:
+        :return: new_data_table = self.proof_wert_in_table_mit_buchtype(new_data_table)
+
+        '''
+        
+        for irow in range(new_data_table.ntable):
+            
+            if htvar.check_name_from_table(new_data_table, self.par.KONTO_DATA_NAME_BUCHTYPE) \
+                and htvar.check_name_from_table(new_data_table, self.par.KONTO_DATA_NAME_WERT):
+                
+                buchtype = htvar.get_val_from_table(new_data_table, irow, self.par.KONTO_DATA_NAME_BUCHTYPE)
+                
+                if buchtype in self.par.KONTO_BUCHTYPE_TEXT_LIST:
+                    buchtype_index = self.par.KONTO_BUCHTYPE_TEXT_LIST.index(buchtype)
+                else:
+                    buchtype_index = -1
+                # end if
+                if buchtype_index in self.par.KONTO_DATA_BUCHTYPE_PROOF_DICT.keys():
+                    change_flag = False
+                    wert = htvar.get_val_from_table(new_data_table, irow, self.par.KONTO_DATA_NAME_WERT, 'cent')
+                    wert_type = self.par.KONTO_DATA_BUCHTYPE_PROOF_DICT[buchtype_index][0]
+                    if wert_type > 0:  # soll positiv sein
+                        if wert < 0:
+                            wert *= -1
+                            change_flag = True
+                        # end if
+                    else:  # soll negative sein
+                        if wert > 0:
+                            wert *= -1
+                            change_flag = True
+                        # end if
+                    # end if
+                    
+                    if change_flag:
+                        
+                        (okay, value) = htype.type_transform(wert, 'cent',self.par.KONTO_DATA_TYPE_DICT[self.par.KONTO_DATA_INDEX_WERT])
+                        if okay == hdef.OKAY:
+                            wert = value
+                        else:
+                            raise Exception(f"proof_wert_in_table_mit_buchtype: Problem wert")
+                        # end if
+                        
+                        new_data_table = htvar.set_val_in_table(new_data_table
+                                                                , wert
+                                                                , irow
+                                                                , self.par.KONTO_DATA_NAME_WERT
+                                                                , self.par.KONTO_DATA_TYPE_DICT[self.par.KONTO_DATA_INDEX_WERT])
+                    # end if
+                # end if
+            # end if
+        # end for
+        return new_data_table
+    
     # end def
     def build_internal_values_new_data_table(self, new_data_table):
         '''
@@ -1309,7 +1372,7 @@ class KontoDataSet:
     
         # if not search wkn from comment
         if (okay != hdef.OKAY) and (len(comment) > 0):
-            (okay, isin) = self.search_wkn_from_comment(comment)
+            (okay, wkn,isin) = self.search_wkn_from_comment(comment)
         # end if
     
         if (okay != hdef.OKAY):

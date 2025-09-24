@@ -589,7 +589,27 @@ def is_datum_str(str_dat, delim="."):
 
 # enddef
 
+def is_datum_reverse_str(str_dat, delim="."):
+    """
+    Prüft, ob str_dat ein Datum wie 2005.04.01 ist
+    """
 
+    liste = str_dat.split(delim)
+    if len(liste) < 3:  # dreiteilig
+        flag = False
+    elif int(liste[2]) > 31 or int(liste[2]) < 1:  # tag 1-31
+        flag = False
+    elif int(liste[1]) > 12 or int(liste[1]) < 1:  # monat 1-12
+        flag = False
+    elif 99 < int(liste[0]) < 1970:  # jahr 0-99 oder 1970-20xx
+        flag = False
+    else:
+        flag = True
+
+    return flag
+
+
+# enddef
 ########################################################################################################################
 def get_name_by_dat_time(pre_text="", post_text="", form_type=0):
     """

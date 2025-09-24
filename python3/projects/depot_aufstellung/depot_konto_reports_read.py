@@ -81,7 +81,7 @@ def report_einlesen(rd):
         # csv-
         # csv-Daten einlesen
         #--------------------
-        (status,errtext,ttable) = csv_obj.read_data(filename)
+        (status,errtext,ttable,flag_proof_wert) = csv_obj.read_data(filename)
         
         if status != hdef.OKAY:
             rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
@@ -90,7 +90,7 @@ def report_einlesen(rd):
         
         # eingelsene Daten in konto einsortieren
         #---------------------------------------
-        (flag_newdata,status,errtext,infotext) = konto_obj.set_new_data(ttable)
+        (flag_newdata,status,errtext,infotext) = konto_obj.set_new_data(ttable,flag_proof_wert)
         
         if status != hdef.OKAY:
             rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)

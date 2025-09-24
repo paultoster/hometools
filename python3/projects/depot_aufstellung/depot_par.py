@@ -107,6 +107,7 @@ class Parameter:
                             , (INI_DEPOT_KONTO_NAME,"str")]
     
     INI_CSV_TRENNZEICHEN: str = "trenn_zeichen"
+    INI_CSV_WERT_PRUEFUNG: str = "wert_pruefung"
     INI_CSV_HEADER_NAMEN: str = "header_namen"
     INI_CSV_HEADER_ZUORDNUNG: str = "header_zuordnung"
     INI_CSV_HEADER_DATA_TYPE: str = "header_data_type"
@@ -115,6 +116,7 @@ class Parameter:
     INI_CSV_BUCHTYPE_ZUORDNUNG: str = "buchtype_zuordnung"
     
     INI_CSV_PROOF_LISTE = [(INI_CSV_TRENNZEICHEN, "str")
+        , (INI_CSV_WERT_PRUEFUNG, "str")
         , (INI_CSV_HEADER_NAMEN, "list")
         , (INI_CSV_HEADER_ZUORDNUNG, "list_str")
         , (INI_CSV_HEADER_DATA_TYPE, "list_str")
@@ -188,6 +190,7 @@ class Parameter:
     
     
     CSV_TRENNZEICHEN: str = "trenn_zeichen"
+    CSV_WERT_PRUEFUNG: str = "wert_pruefung"
     CSV_BUCHTYPE_DICT: str = "buchtype_dict"
     CSV_HEADER_NAME_LISTE: str = "header_name_liste"
     CSV_HEADER_TYPE_LISTE: str = "header_type_liste"

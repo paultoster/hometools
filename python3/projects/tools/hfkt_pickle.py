@@ -249,7 +249,8 @@ class DataJson:
                 return
             except Exception as e:
                 self.status = hdef.NOT_OKAY
-                self.errtext = f"An error occurred while reading the file {self.filename_json} with {traceback.format_exc(e)}"
+                
+                self.errtext = f"An error occurred while reading the file {self.filename_json} with {e}"
                 return
             # endtry
         else:
@@ -297,7 +298,7 @@ class DataJson:
             return
         except Exception as e:
             self.status = hdef.NOT_OKAY
-            self.errtext = f"An error occurred while reading the file {self.filename_json} with {traceback.format_exc(e)}"
+            self.errtext = f"An error occurred while reading the file {self.filename_json} with {e}"
             return
             
     # enddef

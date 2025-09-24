@@ -22,37 +22,21 @@ def wp_search_wkn(wkn,ddict):
     '''
     status = hdef.OKAY
     errtext = ""
-    wp_isin_dict = wp_storage.read_dict_file(ddict["'wpname_isin_filename'"],ddict)
+    wp_isin_dict = wp_storage.read_dict_file(ddict["wpname_isin_filename"],ddict)
     
-    if isin in wp_isin_dict.keys():
+    for isin in wp_isin_dict.keys():
+    
+        (status,errtext,info_dict) = wp_storage.read_info_dict(isin, ddict)
         
-        wp_storage.read_dict_file
+        if status != hdef.OKAY:
+            return (status,errtext,None)
         
-        if ddict["use_json"] == 1: # write json
-            wp_storage.save_dict_file_json(wkn_isin_dict,ddict["wkn_isin_filename"],ddict)
-        elif ddict["use_json"] == 2: # read json
-            wp_storage.save_dict_file_pickle(wkn_isin_dict,ddict["wkn_isin_filename"],ddict)
+        if info_dict["wkn"] == wkn:
+            return (status, errtext, isin)
         # end if
-        isin = wkn_isin_dict[wkn]
-        if isin == WKN_NOT_FOUND:
-            isin = ""
-            status = hdef.NOT_OKAY
-            errtext = f"wkn: {wkn} wurde früher schon nicht gefunden"
-        # endif
-        return (status,errtext,wkn_isin_dict[wkn])
-    else:
-        (status,errtext,isin) = wp_search_wkn_html(wkn,ddict)
-        
-        if status == hdef.OKAY:
-            wkn_isin_dict[wkn] = isin
-        else:
-            wkn_isin_dict[wkn] = WKN_NOT_FOUND
-        # end if
-        wp_storage.save_dict_file_pickle(wkn_isin_dict,ddict["wkn_isin_filename"], ddict)
-        if ddict["use_json"] == 1:  # write json
-            wp_storage.save_dict_file_json(wkn_isin_dict,ddict["wkn_isin_filename"], ddict)
-        # end if
-    # end if
+    # end for
+
+    (status,errtext,isin) = wp_search_wkn_html(wkn,ddict)
     
     return (status,errtext,isin)
 # end def

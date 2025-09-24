@@ -16,7 +16,9 @@ import tools.hfkt_tvar as htvar
 class KontoCsvRead:
     '''
     obj                        = KontoCsvRead(trennzeichen_tval,buchtype_zuordnung_tlist,header_zuordnung_tlist,header_type_zuordnung_tlist)
-    (okay,errtext,ttable)      = obj.read_data(filename,names_possible_merge_list)
+    (okay,errtext,ttable,flag_proof_wert) = obj.read_data(filename,names_possible_merge_list)
+                                                 flag_proof_wert = True  Überprüfen den Wert zu buchttype
+                                                                 = False Überprüfe buchttype zu wert
     
     Interne Funktionen
     csv_lliste                  = self.fix_length_for_missing_items(csv_lliste)
@@ -29,11 +31,17 @@ class KontoCsvRead:
     (name_list,merged_data_matrix, type_set_list)
                                 = self.proof_merge_double_items(new_data_matrix,name_list,type_list,names_possible_merge_list)
     '''
-    def __init__(self,trennzeichen_tval,buchtype_zuordnung_tlist,header_zuordnung_tlist,header_type_zuordnung_tlist):
+    def __init__(self,trennzeichen_tval,wert_pruefung_tval,buchtype_zuordnung_tlist,header_zuordnung_tlist,header_type_zuordnung_tlist):
         
         self.status = hdef.OK
         self.errtext = ""
         self.trennzeichen = htvar.get_val(trennzeichen_tval,"str")
+        self.wert_pruefung = htvar.get_val(wert_pruefung_tval,"str")
+        if self.wert_pruefung == "wert":
+            self.flag_proof_wert = False
+        else:
+            self.flag_proof_wert = True
+        # end if
         self.buchtype_zuordnung_tlist  = buchtype_zuordnung_tlist
         self.header_zuordnung_tlist = header_zuordnung_tlist
         self.header_type_zuordnung_tlist = header_type_zuordnung_tlist
@@ -56,7 +64,7 @@ class KontoCsvRead:
         if (len(csv_lliste) == 0):
             self.errtext = f"Fehler in read_ing_csv read_csv_file()  filename = {self.filename}"
             self.status = hdef.NOT_OKAY
-            return (self.status,self.errtext,None)
+            return (self.status,self.errtext,None,None)
         # end if
         
         csv_lliste = self.fix_length_for_missing_items(csv_lliste)
@@ -65,13 +73,13 @@ class KontoCsvRead:
         # ==============================
         (index_start, csv_icol_list,name_csv_list,name_list,type_list) = self.search_header_line(csv_lliste)
         if self.status != hdef.OKAY:
-            return (self.status,self.errtext,None)
+            return (self.status,self.errtext,None,None)
         # endif
         
         # Lese Daten aus  csv-liste aus
         new_data_matrix = self.get_data_from_csv_lliste(csv_lliste, index_start, csv_icol_list)
         if self.status != hdef.OKAY:
-            return (self.status,self.errtext,None)
+            return (self.status,self.errtext,None,None)
         # end if
         
         
@@ -81,12 +89,12 @@ class KontoCsvRead:
         # make type conversion
         (merged_data_matrix,name_list, type_list) = self.make_type_conversion(merged_data_matrix,name_list,type_list)
         if self.status != hdef.OKAY:
-            return (self.status,self.errtext,None)
+            return (self.status,self.errtext,None,None)
         # end if
 
         ttable = htvar.build_table(name_list,merged_data_matrix,type_list)
         
-        return (self.status,self.errtext,ttable)
+        return (self.status,self.errtext,ttable,self.flag_proof_wert)
     # end def
     
     # ----------------------------------------------------------------------------------------

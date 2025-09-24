@@ -5,9 +5,10 @@ if (tools_path not in sys.path):
   sys.path.append(tools_path)
 # endif
 
-import wp_abfrage.wp_basic_info_fkt as wp_basic
+import wp_abfrage.wp_fkt as wp_fkt
 import wp_abfrage.wp_wkn as wp_wkn
 import wp_abfrage.wp_storage as wp_storage
+import wp_abfrage.wp_isin as wp_isin
 
 import tools.hfkt_def as hdef
 import tools.hfkt_type as htyp
@@ -41,12 +42,12 @@ class WPData:
         self.status = hdef.OKAY
         self.errtext = ""
         
-        (self.status,self.errtext) = wp_basic.check_store_path(self.ddict)
+        (self.status,self.errtext) = wp_fkt.check_store_path(self.ddict)
     # end def
-    def get_basic_info_wpname_isin_dict(self):
+    def get_stored_basic_info_wpname_isin_dict(self):
         '''
         
-        :return: (status, errtext, isin_liste) = self.get_basic_info_wpname_isin_dict()
+        :return: (status, errtext, isin_liste) = self.get_stored_basic_info_wpname_isin_dict()
         '''
         
         (self.status,self.errtext,wpname_isin_dict) = wp_storage.read_wpname_isin_dict(self.ddict)
@@ -67,17 +68,39 @@ class WPData:
         # -----------------------------------------------------------
         # check ISIN input build self.ddict["isin_list"]
         # -----------------------------------------------------------
-        (self.status, self.errtext, self.ddict["isin_input_is_list"],self.ddict["isin_list"]) = wp_basic.check_isin_input(isin_input)
+        (self.status, self.errtext, self.ddict["isin_input_is_list"],self.ddict["isin_list"]) \
+            = wp_fkt.check_isin_input(isin_input)
         
         if self.status != hdef.OKAY:
             return (self.status, self.errtext, None)
         # end if
         
-        (self.status, self.errtext, self.ddict) = wp_basic.wp_basic_info_with_isin_list(self.ddict)
+        self.ddict["output_list"] = [None] * len(self.ddict["isin_list"])
         
-        if self.status != hdef.OKAY:
-            return (self.status, self.errtext, None)
-        # end if
+        # ---------------------------------------------------------------------
+        # iteriere über isin_list
+        # ---------------------------------------------------------------------
+        for i, isin in enumerate(self.ddict["isin_list"]):
+            
+            print(f"Build basic_info from isin: {isin}:")
+            start_time = time.time()
+            
+            (status, errtext, info_dict) = wp_isin.get_basic_info(isin, self.ddict)
+            
+            # ---------------------------------------------
+            # Einzel dict info_dict in Liste einsortieren
+            # ---------------------------------------------
+            if status == hdef.OKAY:
+                self.ddict["output_list"][i] = info_dict
+            else:
+                status = status
+                errtext = errtext
+                return (status, errtext, None)
+            # end if
+            
+            end_time = time.time()
+            print('Execution time: ', end_time - start_time, ' s')
+        # end for
         
         if self.ddict["isin_input_is_list"]:
             output = self.ddict["output_list"]
@@ -106,7 +129,7 @@ class WPData:
         # check ISIN input build self.ddict["isin_list"]
         # -----------------------------------------------------------
         (self.status, self.errtext, self.ddict["isin_input_is_list"],
-         self.ddict["isin_list"]) = wp_basic.check_isin_input(isin_input)
+         self.ddict["isin_list"]) = wp_fkt.check_isin_input(isin_input)
         
         if self.status != hdef.OKAY:
             return (self.status, self.errtext, None)
@@ -130,7 +153,7 @@ class WPData:
         
         for i,isin in enumerate(self.ddict["isin_list"]):
             
-            (status,errtext) =  wp_basic.save_info_dict(isin, out_list[i], self.ddict)
+            (status,errtext) =  wp_storage.save_info_dict(isin, out_list[i], self.ddict)
             
             if self.status != hdef.OKAY:
                 return (self.status, self.errtext)
@@ -153,20 +176,20 @@ class WPData:
         # end if
         return (self.status,isin)
     # end def
-    def get_isin_from_wpname(self, wpname):
-        '''
-
-        :param wpname:
-        :return:
-        '''
-        (self.status, self.errtext, isin) = wp_wkn.wp_search_wpname(wpname, self.ddict)
-        
-        if self.status != hdef.OKAY:
-            print(f"get_isin_from_wpname not working errtext: {self.errtext}")
-            isin = ""
-        # end if
-        return (self.status, isin)
-    
+    # def get_isin_from_wpname(self, wpname):
+    #     '''
+    #
+    #     :param wpname:
+    #     :return:
+    #     '''
+    #     (self.status, self.errtext, isin) = wp_wkn.wp_search_wpname(wpname, self.ddict)
+    #
+    #     if self.status != hdef.OKAY:
+    #         print(f"get_isin_from_wpname not working errtext: {self.errtext}")
+    #         isin = ""
+    #     # end if
+    #     return (self.status, isin)
+    #
     def find_wpname_in_comment_get_isin(self,comment):
         '''
         
@@ -218,7 +241,7 @@ class WPData:
             info_dict["wkn"] = wkn
             
         if flag:
-            (self.status, self.errtext) = wp_basic.save_info_dict(isin,info_dict,self.ddict)
+            (self.status, self.errtext) = wp_storage.save_info_dict(isin,info_dict,self.ddict)
         
         return self.status
     

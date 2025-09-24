@@ -54,9 +54,9 @@ def run_wp_abfrage():
             runflag = False
         elif index == index_basic_info:
             print(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
-            (status, errtext, wpname_isin_dict) = wp_obj.get_basic_info_wpname_isin_dict()
+            (status, errtext, wpname_isin_dict) = wp_obj.get_stored_basic_info_wpname_isin_dict()
             if status != hdef.OKAY:
-                print(f"Error wp_obj.get_basic_info_wpname_isin_dict() errtext = {errtext}")
+                print(f"Error wp_obj.get_stored_basic_info_wpname_isin_dict() errtext = {errtext}")
                 exit(1)
             # end if
             (status,errtext) = wp_abfrage_edit_basic_info(wpname_isin_dict)

@@ -224,6 +224,7 @@ def data_set(rd):
         
         # Klassen-Objekt erstellen
         csv_data_obj.csv_obj = depot_konto_csv_read_class.KontoCsvRead(csv_data_obj.data_dict_tvar[rd.par.CSV_TRENNZEICHEN]
+                                                     ,csv_data_obj.data_dict_tvar[rd.par.CSV_WERT_PRUEFUNG]
                                                      ,csv_data_obj.data_dict_tvar[rd.par.CSV_BUCHTYPE_ZUORDNUNG_NAME]
                                                      ,csv_data_obj.data_dict_tvar[rd.par.CSV_HEADER_ZUORDNUNG_NAME]
                                                      ,csv_data_obj.data_dict_tvar[rd.par.CSV_HEADER_TYPE_ZUORDNUNG_NAME])
@@ -732,7 +733,11 @@ def get_csv_dict_values_from_ini(csv_config_name,par,ini_dict):
     # Trennungszeichen in csv-Datei
     #--------------------------------
     data_dict[par.CSV_TRENNZEICHEN] = ini_dict[par.INI_CSV_TRENNZEICHEN]
-    
+
+    # wert prüfung in csv-Datei
+    #--------------------------------
+    data_dict[par.CSV_WERT_PRUEFUNG] = ini_dict[par.INI_CSV_WERT_PRUEFUNG]
+
     # build buchungstype list from ini-File for csv-file
     # ---------------------------------------------------
     n = min(len(ini_dict[par.INI_CSV_BUCHTYPE_NAMEN]), len(ini_dict[par.INI_CSV_BUCHTYPE_ZUORDNUNG]))
@@ -788,7 +793,10 @@ def build_csv_transform_data_dict(csv_config_name,par,data_dict):
     
     # CSV_TRENNZEICHEN
     data_dict_tvar[par.CSV_TRENNZEICHEN] = htvar.build_val(par.CSV_TRENNZEICHEN, data_dict[par.CSV_TRENNZEICHEN], 'str')
-    
+
+    # CSV_WERT_PRUEFUNG
+    data_dict_tvar[par.CSV_WERT_PRUEFUNG] = htvar.build_val(par.CSV_WERT_PRUEFUNG, data_dict[par.CSV_WERT_PRUEFUNG], 'str')
+
     # CSV_BUCHTYPE_ZUORDNUNG_NAME
     names = list(data_dict[par.CSV_BUCHTYPE_DICT].keys())
     vals  = list(data_dict[par.CSV_BUCHTYPE_DICT].values())
