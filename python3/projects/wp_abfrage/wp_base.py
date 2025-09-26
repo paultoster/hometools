@@ -11,15 +11,20 @@ import wp_abfrage.wp_storage as wp_storage
 import wp_abfrage.wp_isin as wp_isin
 
 import tools.hfkt_def as hdef
-import tools.hfkt_type as htyp
+# import tools.hfkt_type as htyp
+
 
 class WPData:
     '''
     Basis Funktion:
-    (status, errtext, output_dict)       = self.get_basic_info(isin)
-    (status, errtext, output_dict_liste) = self.get_basic_info(isin_liste)
     
-    (status,errtext, isin_liste) = self.get_basic_info_isin_liste()
+    obj                                  = WPData(store_path,use_json)
+    (status, errtext, output_dict)       = obj.get_basic_info(isin)
+    (status, errtext, output_dict_liste) = obj.get_basic_info(isin_liste)
+    (status, errtext, wpname_isin_dict)  = obj.get_stored_basic_info_wpname_isin_dict()
+    (status,errtext, isin_liste)         = obj.get_basic_info_isin_liste()
+    (status, errtext)                    = obj.save_basic_info(isin_liste, output_dict_liste)
+    (status, errtext)                    = obj.save_basic_info(isin, output_dict)
     
     Hilfsfunktionen:
     self.check_store_path()
@@ -44,10 +49,25 @@ class WPData:
         
         (self.status,self.errtext) = wp_fkt.check_store_path(self.ddict)
     # end def
+    def get_basic_info_isin_liste(self):
+        '''
+        
+        :return: (status,errtext, isin_liste)         = obj.get_basic_info_isin_liste()
+        '''
+        
+        (self.status,self.errtext,wpname_isin_dict) = wp_storage.read_wpname_isin_dict(self.ddict)
+        
+        if self.status == hdef.OKAY:
+            isin_liste = list(wpname_isin_dict.keys())
+        else:
+            isin_liste =[]
+        # end if
+        
+        return (self.status, self.errtext, isin_liste)
     def get_stored_basic_info_wpname_isin_dict(self):
         '''
         
-        :return: (status, errtext, isin_liste) = self.get_stored_basic_info_wpname_isin_dict()
+        :return: (status, errtext, wpname_isin_dict) = self.get_stored_basic_info_wpname_isin_dict()
         '''
         
         (self.status,self.errtext,wpname_isin_dict) = wp_storage.read_wpname_isin_dict(self.ddict)
@@ -114,6 +134,10 @@ class WPData:
         
         return (self.status, self.errtext, output)
     # end def
+    
+    
+    
+    
     def save_basic_info(self, isin_input,output):
         '''
 

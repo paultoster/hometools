@@ -35,7 +35,7 @@ def anzeige_depot_isin(rd,isin,depot_obj,depot_dict):
     while runflag :
         if choice_isin == choice_isin_overview:
             
-            (data_lliste, header_liste, type_liste, row_color_dliste) = depot_obj.get_depot_daten_sets_isin(isin)
+            (ttable, row_color_dliste) = depot_obj.get_depot_daten_sets_isin(isin)
             if depot_obj.status != hdef.OKAY:  # Abbruch
                 status = depot_obj.status
                 rd.log.write_err(depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
@@ -47,7 +47,7 @@ def anzeige_depot_isin(rd,isin,depot_obj,depot_dict):
             
             # isin Anzeige
             # --------------------------------------
-            (sw, irow, changed_pos_list, update_date_lliste) = anzeige_isin(rd, data_lliste, header_liste, title, row_color_dliste)
+            (sw, irow, changed_pos_list, ttable_update) = anzeige_isin(rd, ttable, title, row_color_dliste)
             
             if sw <= 0: # ende
                 runflag = False
@@ -70,10 +70,10 @@ def anzeige_depot_isin(rd,isin,depot_obj,depot_dict):
             # end if
         elif choice_isin == choice_isin_edit:
             
-            print(f"Depot: {depot_obj.get_depote_name()} isin: {isin} irow: {irow}")
+            print(f"Depot: {depot_obj.get_depot_name()} isin: {isin} irow: {irow}")
             
             # get data
-            (data_set, header_liste, type_liste, buchungs_type_list, buchtype_index_in_header_liste) \
+            (tliste, buchungs_type_list, buchtype_index_in_header_liste) \
                 = depot_obj.get_depot_daten_sets_isin_irow(isin, irow)
             
             if depot_obj.status != hdef.OKAY:  # Abbruch
@@ -83,7 +83,7 @@ def anzeige_depot_isin(rd,isin,depot_obj,depot_dict):
                 return status
             # end if
             
-            immutable_liste = depot_obj.get_immutable_list_from_header_list(isin, header_liste)
+            immutable_liste = depot_obj.get_immutable_list_from_header_list(isin, tliste.names)
             
             if depot_obj.status != hdef.OKAY:  # Abbruch
                 status = depot_obj.status
@@ -95,13 +95,12 @@ def anzeige_depot_isin(rd,isin,depot_obj,depot_dict):
             titlename = depot_obj.get_titlename(isin)
             
             # edit data
-            new_data_list = depot_gui.konto_depot_data_set_eingabe(rd.gui,header_liste, buchtype_index_in_header_liste,
-                                                                buchungs_type_list, data_set, titlename,
+            (tlist_new,change_flag) = depot_gui.konto_depot_data_set_eingabe(rd.gui,tliste, buchtype_index_in_header_liste,
+                                                                buchungs_type_list,  titlename,
                                                                 immutable_liste)
             
-            if len(new_data_list):
-                new_data_set_flag = depot_obj.set_data_set_isin_irow(new_data_list, header_liste, type_liste, isin,
-                                                                     irow)
+            if change_flag:
+                new_data_set_flag = depot_obj.set_data_set_isin_irow(tlist_new, isin, irow)
                 
                 if depot_obj.status != hdef.OKAY:
                     status = depot_obj.status
@@ -119,11 +118,10 @@ def anzeige_depot_isin(rd,isin,depot_obj,depot_dict):
         
         elif choice_isin == choice_isin_delete:
             # get data
-            (data_set, header_liste, _, _, _) = depot_obj.get_depot_daten_sets_isin_irow(isin, irow)
-            
+            (tliste, _, _) = depot_obj.get_depot_daten_sets_isin_irow(isin, irow)
             ddict0 = {}
-            for i, name in enumerate(header_liste):
-                ddict0[name] = data_set[i]
+            for i, name in enumerate(tliste.names):
+                ddict0[name] = tliste.vals[i]
             # end for
             titlename = depot_obj.get_titlename(isin)
             flag = depot_gui.janein_abfrage(rd.gui,
@@ -133,16 +131,16 @@ def anzeige_depot_isin(rd,isin,depot_obj,depot_dict):
             if flag:
                 # konto_obj set anlegen
                 # ----------------------
-                konto_key = depot_dict[rd.par.INI_DEPOT_KONTO_NAME]
+                # konto_name = depot_dict[rd.par.INI_DEPOT_KONTO_NAME]
+                #
+                # if konto_name not in rd.konto_dict:
+                #     status = hdef.NOT_OKAY
+                #     errtext = f"Von Depot Auswahl: {depot_obj.get_depote_name()} benutztes Konto: {konto_name} ist nicht im data-dict"
+                #     rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
+                #     return status
+                # # end if
                 
-                if konto_key not in rd.data:
-                    status = hdef.NOT_OKAY
-                    errtext = f"Von Depot Auswahl: {depot_obj.get_depote_name()} benutztes Konto: {konto_key} ist nicht im data-dict"
-                    rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
-                    return status
-                # end if
-                
-                status = depot_obj.delete_in_data_set(isin, irow, rd.data[konto_key].obj)
+                status = depot_obj.delete_in_data_set(isin, irow)
                 
                 if status != hdef.OKAY:  # Abbruch
                     rd.log.write_err(depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
@@ -168,8 +166,7 @@ def anzeige_depot_isin(rd,isin,depot_obj,depot_dict):
             runflag = True
         
         else: #  if choice_isin == choice_isin_update:
-            (status, new_data_set_flag) = depot_obj.update_data_ttable(isin, changed_pos_list, update_date_lliste,
-                                                                      header_liste, type_liste)
+            (status, new_data_set_flag) = depot_obj.update_data_ttable(isin, changed_pos_list, ttable_update)
             
             if status != hdef.OKAY:  # Abbruch
                 rd.log.write_err(depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
@@ -184,7 +181,7 @@ def anzeige_depot_isin(rd,isin,depot_obj,depot_dict):
     return (sw,status)
 
 # end def
-def anzeige_isin(rd, data_lliste, header_liste, title, row_color_dliste):
+def anzeige_isin(rd, ttable, title, row_color_dliste):
     '''
 
     :param data_lliste:
@@ -206,8 +203,7 @@ def anzeige_isin(rd, data_lliste, header_liste, title, row_color_dliste):
     runflag = True
     while (runflag):
         
-        (sw, irow, changed_pos_list, date_set) = depot_gui.depot_isin(rd.gui,header_liste, data_lliste, abfrage_liste, title,
-                                                                   row_color_dliste)
+        (sw, irow, changed_pos_list, ttable_out) = depot_gui.depot_isin(rd.gui,ttable, abfrage_liste, title,row_color_dliste)
         
         if sw <= i_end:
             sw = -1
@@ -230,7 +226,7 @@ def anzeige_isin(rd, data_lliste, header_liste, title, row_color_dliste):
         # end if
     
     # end while
-    return (sw, irow, changed_pos_list, date_set)
+    return (sw, irow, changed_pos_list, ttable_out)
 
 # end def
 

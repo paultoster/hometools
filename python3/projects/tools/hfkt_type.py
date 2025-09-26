@@ -388,16 +388,14 @@ def type_get_default(type):
     # end if
 # end def
 def type_get_default_list(type_list):
-    if len(type_list) > 0:
-        return type_list[0]
-    else:
+    if len(type_list) == 0:
         return None
     # end if
-    # liste = [None for j in range(len(type_list))]
-    # for i,type in enumerate(type_list):
-    #     liste[i] = type_get_default(type)
-    # # end for
-    # return liste
+    liste = [None for j in range(len(type_list))]
+    for i,type in enumerate(type_list):
+        liste[i] = type_get_default(type)
+    # end for
+    return liste
 # end def
 def type_get_default_single(type):
     if type == "str":
@@ -1732,12 +1730,7 @@ def type_transform_list(wert_in,liste,type_out):
     '''
     okay = hdef.NOT_OKAY
     if isinstance(liste,list):
-        if (type_out == "int"):
-            wert_out = find_value_in_list(wert_in,liste)
-            if wert_out != None:
-                okay = hdef.OKAY
-            # end if
-        elif isinstance(type_out,list):
+        if isinstance(type_out, list):
             index = find_value_in_list(wert_in, liste)
             if index != None:
                 n = len(type_out)
@@ -1750,9 +1743,32 @@ def type_transform_list(wert_in,liste,type_out):
             else:
                 wert_out = None
             # end if
+        elif isinstance(type_out, dict):
+            index = find_value_in_list(wert_in, liste)
+            if index != None:
+                if index in type_out.keys():
+                    wert_out = type_out[index]
+                    okay = hdef.OKAY
+                else:
+                    wert_out = None
+                # end if
+            else:
+                wert_out = None
+            # end if
+        elif (type_out == "int"):
+            wert_out = find_value_in_list(wert_in, liste)
+            if wert_out != None:
+                wert_out = int(wert_out)
+                okay = hdef.OKAY
+            # end if
+        elif (type_out == "str"):
+            wert_out = find_value_in_list(wert_in, liste)
+            if wert_out != None:
+                wert_out = str(wert_out)
+                okay = hdef.OKAY
+            # end if
         else:
             wert_out = None
-            raise Exception(f"In type_transform_int ist type_out: {type_out} nicht möglich")
         # end if
     else:
         wert_out = None

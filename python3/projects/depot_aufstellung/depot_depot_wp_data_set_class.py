@@ -23,6 +23,7 @@ class WpDataSet:
     ttable: class              = self.get_wp_data_set_ttable_to_store()
     data_item                  = self.get_one_data_item(irow, header, type)
     tliste: TList              = self.get_one_data_set_tlist(irow,header_liste, type_liste)
+    ttable: TTable             = self.get_data_set_ttable(header_liste,type_liste)
     line_color_liste:list[str] = self.get_line_color_set_liste()
     flag: bool                 = self.exist_id_in_table(id)
                                  self.set_kategorie(kategorie)
@@ -78,15 +79,25 @@ class WpDataSet:
         
         # get basic infos
         self.wp_func_obj = wp_func_obj
-        (status,errtext,info_dict) = self.wp_func_obj.get_basic_info(isin)
+        
+        self.get_wp_info(isin)
+        
+        return
+    # end def
+    def get_wp_info(self,isin):
+        '''
+        
+        :param isin:
+        :return:
+        '''
+    
+        (status, errtext, info_dict) = self.wp_func_obj.get_basic_info(isin)
         if status != hdef.OKAY:
-            self.status  = hdef.NOT_OKAY
+            self.status = hdef.NOT_OKAY
             self.errtext = errtext
         else:
             self.wp_info_dict = info_dict
         # end if
-        
-        
         return
     # end def
     def reset_status(self):
@@ -258,6 +269,10 @@ class WpDataSet:
         :return: self.set_kategorie(kategorie)
         '''
         self.kategorie = kategorie
+    def reget_wp_info(self):
+        self.get_wp_info(self.isin)
+        return
+    # end def
     def set_stored_wp_data_set_ttable(self, wp_data_set_ttable: htvar.TTable, line_color: str):
         '''
         
@@ -268,21 +283,24 @@ class WpDataSet:
         self.status = hdef.OK
         self.errtext = ""
         
-        self.data_set_obj.add_data_set_tvar( wp_data_set_ttable, line_color)
+        if wp_data_set_ttable != None:
         
-        if self.data_set_obj.status != hdef.OKAY:
-            self.status = self.data_set_obj.status
-            self.errtext = self.data_set_obj.errtext
-            self.data_set_obj.reset_status()
-            return self.status
-        # end if
+            self.data_set_obj.add_data_set_tvar( wp_data_set_ttable, line_color)
         
-        self.data_set_obj.update_order_icol(self.par.DEPOT_DATA_INDEX_BUCHDATUM)
+            if self.data_set_obj.status != hdef.OKAY:
+                self.status = self.data_set_obj.status
+                self.errtext = self.data_set_obj.errtext
+                self.data_set_obj.reset_status()
+                return self.status
+            # end if
         
-        if self.data_set_obj.status != hdef.OKAY:
-            self.status = self.data_set_obj.status
-            self.errtext = self.data_set_obj.errtext
-            self.data_set_obj.reset_status()
+            self.data_set_obj.update_order_icol(self.par.DEPOT_DATA_INDEX_BUCHDATUM)
+        
+            if self.data_set_obj.status != hdef.OKAY:
+                self.status = self.data_set_obj.status
+                self.errtext = self.data_set_obj.errtext
+                self.data_set_obj.reset_status()
+            # end if
         # end if
         
         return self.status
@@ -413,24 +431,24 @@ class WpDataSet:
         # end for
         return flag_update
     # end def
-    # def get_data_set_lliste(self,header_liste,type_liste):
-    #     '''
-    #
-    #     :param header_liste:
-    #     :param type_liste:
-    #     :return: data_lliste = self.get_data_setheader_liste,type_liste)
-    #     '''
-    #
-    #     data_lliste = self.data_set_obj.get_data_set_lliste(header_liste, type_liste)
-    #
-    #     if self.data_set_obj.status != hdef.OKAY:
-    #         self.status  = self.data_set_obj.status
-    #         self.errtext = self.data_set_obj.errtext
-    #         self.data_set_obj.reset_status()
-    #     # end if
-    #
-    #     return  data_lliste
-    # # end def
+    def get_data_set_ttable(self,header_liste,type_liste):
+        '''
+
+        :param header_liste:
+        :param type_liste:
+        :return: ttable = self.get_data_set_ttable(header_liste,type_liste)
+        '''
+
+        ttable = self.data_set_obj.get_data_set_ttable(header_liste, type_liste)
+
+        if self.data_set_obj.status != hdef.OKAY:
+            self.status  = self.data_set_obj.status
+            self.errtext = self.data_set_obj.errtext
+            self.data_set_obj.reset_status()
+        # end if
+
+        return  ttable
+    # end def
     def get_line_color_set_liste(self):
         '''
         

@@ -68,6 +68,7 @@ flag   = is_table(ttable)
 flag   = is_list(tlist)
 index  = find_value_in_list_list(tlist,val)                    index = None if not found
 index  = find_value_in_list_list(tlist,val,type)
+ttable = add_table_to_table(table,tableadd)
 """
 import os, sys
 from dataclasses import dataclass, field
@@ -1130,7 +1131,26 @@ def find_value_in_list_list(tlist,valfind,type=None):
     # end for
     return None
 # end def
+def add_table_to_table(ttable,ttableadd):
+    '''
+    
+    :param table:
+    :param tableadd:
+    :return: ttable = add_table_to_table(table,tableadd)
+    '''
 
+    if (ttable.names == ttableadd.names) and (ttable.types == ttableadd.types):
+        
+        ttable.table += ttableadd.table
+        ttable.ntable += ttableadd.ntable
+    else:
+        
+        raise Exception(
+            f"Error add_table_to_table: not programmed")
+    # end if
+    
+    return ttable
+# end def
 
     
 

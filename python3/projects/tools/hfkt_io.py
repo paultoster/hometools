@@ -759,6 +759,14 @@ def write_csv_file_header_data(file_name,csv_header,csv_data,delim=";"):
               f.write("\n")
     
     return hdef.OK
+# end def
+def write_csv_file_ttable(file_name,ttable,delim=";"):
+    ''' Write DAta with ttable from hfkt_tvar
+
+    '''
+    
+    return write_csv_file_header_data(file_name,ttable.names,ttable.table,delim)
+# end def
 
 def read_ascii_build_list_of_lines(file_name):
 

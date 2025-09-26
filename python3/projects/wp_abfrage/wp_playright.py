@@ -1,5 +1,12 @@
 from playwright.sync_api import Playwright, sync_playwright, expect
 import time
+import os, sys
+
+tools_path = os.getcwd() + "\\.."
+if (tools_path not in sys.path):
+    sys.path.append(tools_path)
+# endif
+
 import tools.hfkt_def as hdef
 
 def get_ariva_url_playwright(isin):
@@ -40,13 +47,19 @@ def get_ariva_url_playwright(isin):
             time.sleep(5)
         # end try
         
-        if len(url) > 10:
+        if icount >= 2:
+            status = hdef.NOT_FOUND
+            errtext = f"get_ariva_url_playwright: icount = {icount} playwright hat nicht funktioniert"
+        elif len(url) > 10:
             status  = hdef.OKAY
         else:
             status = hdef.NOT_FOUND
-            errtext = f"url = {url} ist kleiner 10 Zeichen"
+            errtext = f"get_ariva_url_playwright: url = {url} ist kleiner 10 Zeichen"
         # end if
     # end while
     
     return (status,errtext,url)
 # end def
+
+if __name__ == '__main__':
+    (status,errtext,url) = get_ariva_url_playwright("NO0010844079")

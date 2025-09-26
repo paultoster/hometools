@@ -340,18 +340,29 @@ def data_set(rd):
                 wp_data_obj.data_dict = wp_data_obj.pickle_obj.get_ddict()
             # endif
             
-            wp_data_obj.data_dict[rd.par.DDICT_TYPE_NAME] = rd.par.DEPOT_WP_DATA_TYPE_NAME
+            if len(wp_data_obj.data_dict) == 0:
+                depot_data_obj.depot_obj.set_stored_wp_data_set_ttable(isin,"",None)
+                wp_data_obj.wp_obj = depot_data_obj.depot_obj.get_wp_data_obj(isin)
+            else:
+                wp_data_obj.data_dict[rd.par.DDICT_TYPE_NAME] = rd.par.DEPOT_WP_DATA_TYPE_NAME
             
-            # Umbau filter vorübergehend
-            wp_data_obj.data_dict = umbau_wp_data_dict_filter(rd.par, wp_data_obj.data_dict)
-            # Tvariable bilden
-            wp_data_obj.data_dict_tvar = build_wp_transform_data_dict(rd.par, wp_data_obj.data_dict)
+                # Umbau filter vorübergehend
+                try:
+                    wp_data_obj.data_dict = umbau_wp_data_dict_filter(rd.par, wp_data_obj.data_dict)
+                except:
+                    wp_data_obj.data_dict = umbau_wp_data_dict_filter(rd.par, wp_data_obj.data_dict)
+                # end try
             
-            depot_data_obj.depot_obj.set_stored_wp_data_set_ttable(wp_data_obj.data_dict[rd.par.ISIN]
+                # Tvariable bilden
+                wp_data_obj.data_dict_tvar = build_wp_transform_data_dict(rd.par, wp_data_obj.data_dict)
+            
+                depot_data_obj.depot_obj.set_stored_wp_data_set_ttable(wp_data_obj.data_dict[rd.par.ISIN]
                                                                ,wp_data_obj.data_dict[rd.par.WP_KATEGORIE]
                                                                ,wp_data_obj.data_dict_tvar[rd.par.WP_DATA_SET_TABLE_NAME])
+                wp_data_obj.wp_obj = depot_data_obj.depot_obj.get_wp_data_obj(wp_data_obj.data_dict[rd.par.ISIN])
+            # end if
             
-            wp_data_obj.wp_obj = depot_data_obj.depot_obj.get_wp_data_obj(wp_data_obj.data_dict[rd.par.ISIN])
+            
             
             depot_data_obj.wp_obj_dict[wp_list_name] = copy.deepcopy(wp_data_obj)
             del wp_data_obj
@@ -490,6 +501,8 @@ def data_save(rd):
         wp_name_liste = rd.depot_dict[depot_name].data_dict[rd.par.DEPOT_DATA_DEPOT_WP_LIST_NAME]
         for i,wp_list_name in enumerate(wp_name_liste):
             
+            isin = rd.depot_dict[depot_name].data_dict[rd.par.DEPOT_DATA_ISIN_LIST_NAME][i]
+            
             # for new isins:
             if wp_list_name not in rd.depot_dict[depot_name].wp_obj_dict:
                 
@@ -508,10 +521,12 @@ def data_save(rd):
                     errtext = f"{errtext}/ allg: {wp_data_obj.pickle_obj.errtext}"
                 # endif
                 
-                isin = rd.depot_dict[depot_name].data_dict[rd.par.DEPOT_DATA_ISIN_LIST_NAME][i]
-                wp_data_obj.wp_obj = rd.depot_dict[depot_name].get_wp_data_obj(isin)
+                
+                wp_data_obj.wp_obj = rd.depot_dict[depot_name].depot_obj.get_wp_data_obj(isin)
                 
                 rd.depot_dict[depot_name].wp_obj_dict[wp_list_name] = wp_data_obj
+            else:
+                rd.depot_dict[depot_name].wp_obj_dict[wp_list_name].wp_obj = rd.depot_dict[depot_name].depot_obj.get_wp_data_obj(isin)
             # end if
             
             rd.depot_dict[depot_name].wp_obj_dict[wp_list_name].data_dict[rd.par.ISIN] = \

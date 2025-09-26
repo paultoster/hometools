@@ -19,7 +19,7 @@ def bearbeiten(rd):
     status = hdef.OKAY
     runflag = True
 
-    start_auswahl = ["Cancel","DataSet csv-Umsatz einlesen","DataSet anzeigen/bearbeiten","DataSet csv-Ausgabe" ]
+    start_auswahl = ["Cancel","DataSet csv-Umsatz einlesen","DataSet anzeigen/bearbeiten","DataSet csv-Ausgabe (reopen)" ]
     index_cancel  = 0
     index_read_umsatz  = 1
     index_anzeige = 2
@@ -94,11 +94,11 @@ def depot_konto_bearbeiten_csv_ausgabe(rd):
     
     
     # Konto data in ini
-    konto_obj = rd.data[choice].obj
+    konto_obj = rd.konto_dict[choice].konto_obj
     
-    (header_list, data_llist, _) = konto_obj.build_data_table_list_and_color_list()
+    (ttable, _) = konto_obj.get_anzeige_ttable()
     
-    status = hio.write_csv_file_header_data(filename, header_list, data_llist, delim=rd.par.CSV_AUSGABE_TRENN_ZEICHEN)
+    status = hio.write_csv_file_ttable(filename, ttable, delim=rd.par.CSV_AUSGABE_TRENN_ZEICHEN)
     
     if status != hdef.OKAY:
         rd.log.write_err(f"CSV-Ausgabe von Konto: <{choice}> nicht möglich", screen=rd.par.LOG_SCREEN_OUT)

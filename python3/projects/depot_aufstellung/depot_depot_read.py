@@ -18,6 +18,7 @@ if (tools_path not in sys.path):
 import tools.hfkt_def as hdef
 # import hfkt_list as hlist
 # import hfkt_type as htype
+import depot_depot_anzeige
 
 import depot_gui
 # import depot_konto_anzeige
@@ -53,31 +54,23 @@ def depot_konto_einlesen(rd):
     # endwhile
     
     # Depot data
-    depot_dict  = rd.data[choice].ddict
-    depot_obj   = rd.data[choice].obj
+    # depot_dict  = rd.depot_dict[choice].data_dict
+    # depot_obj   = rd.depot_dict[choice].depot_obj
     
-    # konto_obj set anlegen
-    #----------------------
-    konto_key = depot_dict[rd.par.INI_DEPOT_KONTO_NAME]
+    flag_changed = rd.depot_dict[choice].depot_obj.update_from_konto_data()
     
-    if konto_key not in rd.data:
-        status = hdef.NOT_OKAY
-        errtext = f"Von Depot Auswahl: {choice} benutztes Konto: {konto_key} ist nicht im data-dict"
-        rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
-        return status
+    if len(rd.depot_dict[choice].depot_obj.infotext):
+        rd.log.write_info("konto_einlesen: " + rd.depot_dict[choice].depot_obj.infotext, screen=rd.par.LOG_SCREEN_OUT)
+        rd.depot_dict[choice].depot_obj.delete_infotext()
     # end if
     
-    depot_obj.update_from_konto_data(rd.data[konto_key].obj)
-    
-    if len(depot_obj.infotext):
-        rd.log.write_info("konto_einlesen: " + depot_obj.infotext, screen=rd.par.LOG_SCREEN_OUT)
-        depot_obj.delete_infotext()
-    # end if
-    
-    if depot_obj.status != hdef.OKAY:
+    if rd.depot_dict[choice].depot_obj.status != hdef.OKAY:
         status = hdef.NOT_OKAY
-        rd.log.write_err(depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
+        rd.log.write_err(rd.depot_dict[choice].depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
         return status
+    elif flag_changed:
+        status = depot_depot_anzeige.anzeige_depot(rd,choice,rd.depot_dict[choice].depot_dict
+                                                   ,rd.depot_dict[choice].depot_obj,True)
     # end if
 
     return status

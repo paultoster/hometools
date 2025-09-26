@@ -172,7 +172,7 @@ class DepotDataSet:
     isin_list: list[str]           = obj.get_to_store_isin_list()
     depot_wp_name_list: list[str]  = obj.get_to_store_depot_wp_name_list()
                                      obj.update_from_konto_data()
-    tlist: TList                   = obj.get_konto_data_at_i_tlist(i,buch_type)
+    tlist: TList                   = obj.get_konto_data_at_irow_tlist(irow,buch_type)
     (flag,isin_index,id)           = obj.proof_raw_dict_isin_id(new_data_tlist)
     wp_data_obj_dict: dict         = obj.get_wp_data_obj(isin)
     wp_obj: class                  = obj.build_wp_data_obj(isin)
@@ -271,6 +271,16 @@ class DepotDataSet:
             raise Exception(f"set_kategorie: isin = {isin} nicht vorhanden")
         # end if
         return
+    # end def
+    def reget_wp_info(self,isin):
+
+        if isin in self.isin_liste:
+            self.wp_data_obj_dict[isin].reget_wp_info()
+        else:
+            raise Exception(f"set_kategorie: isin = {isin} nicht vorhanden")
+        # end if
+        return
+
     # end def
     def get_isin_liste(self):
         '''
@@ -386,7 +396,7 @@ class DepotDataSet:
     def update_from_konto_data(self):
         '''
         
-        :return: update_from_konto_data()
+        :return: flag_changed = update_from_konto_data()
         '''
         self.status = hdef.OKAY
         self.errtext = ""
@@ -398,14 +408,14 @@ class DepotDataSet:
         n_new_read = 0
         n_update   = 0
         isin_new_or_update_liste = []
-        for i in range(n):
-            buchtype_str = self.konto_obj.get_buchtype_str(i)
+        for irow in range(n):
+            buchtype_str = self.konto_obj.get_buchtype_str(irow)
             
             if buchtype_str in self.par.DEPOT_DATA_BUCHTYPE_DICT.values():
                 
                 buch_type = self.par.DEPOT_BUCHTYPE_INDEX_LIST[self.par.DEPOT_BUCHTYPE_TEXT_LIST.index(buchtype_str)]
                 
-                new_data_tlist = self.get_konto_data_at_i_tlist(i,buch_type)
+                new_data_tlist = self.get_konto_data_at_irow_tlist(irow,buch_type)
                 
                 (flag_read,isin,id) = self.proof_raw_dict_isin_id(new_data_tlist) # proof id
                 if self.status != hdef.OKAY:
@@ -430,10 +440,10 @@ class DepotDataSet:
                     # end if
                     
                     # claculate anzahl as guess
-                    irow = self.wp_data_obj_dict[isin].get_n_data() - 1
-                    if (irow >= 0) and (anzahl is not None) and (anzahl > 0.0):
+                    irow_last = self.wp_data_obj_dict[isin].get_n_data() - 1
+                    if (irow_last >= 0) and (anzahl is not None) and (anzahl > 0.0):
                         self.wp_data_obj_dict[isin].set_item_in_irow(anzahl, self.par.DEPOT_DATA_NAME_ANZAHL,
-                                                                     'float',irow,self.par.LINE_COLOR_NEW)
+                                                                     'float',irow_last,self.par.LINE_COLOR_NEW)
                         
                 else: # proof for update
                     
@@ -459,46 +469,47 @@ class DepotDataSet:
             self.wp_data_obj_dict[isin].update_order_by_date()
         
         if n_new_read > 0:
-            self.infotext = f"{self.errtext}\nVom Konto: <{self.konto_obj.set_konto_name()}> n_new: {n_new_read} neuen Daten eingelesen"
+            self.infotext = f"{self.errtext}\nVom Konto: <{self.konto_obj.get_konto_name()}> n_new: {n_new_read} neuen Daten eingelesen"
         # end if
         if n_update > 0:
-            self.infotext = f"{self.errtext}\nVom Konto: <{self.konto_obj.set_konto_name()}> n_update: {n_update}  Daten upgedatet"
+            self.infotext = f"{self.errtext}\nVom Konto: <{self.konto_obj.get_konto_name()}> n_update: {n_update}  Daten upgedatet"
         # end if
         if (n_new_read == 0) and (n_update == 0):
             if n == 0:
-                self.infotext = f"{self.errtext}\nIm Konto: <{self.konto_obj.set_konto_name()}> sind keine Daten vorhanden"
+                self.infotext = f"{self.errtext}\nIm Konto: <{self.konto_obj.get_konto_name()}> sind keine Daten vorhanden"
             else:
-                self.infotext = f"{self.errtext}\nVom Konto: <{self.konto_obj.set_konto_name()}> keine neuen Daten eingelesen"
+                self.infotext = f"{self.errtext}\nVom Konto: <{self.konto_obj.get_konto_name()}> keine neuen Daten eingelesen"
             # end if
         # end if
-        return
+        
+        return (n_new_read > 0) or (n_update>0)
     # end def
-    def get_konto_data_at_i_tlist(self,i,buch_type):
+    def get_konto_data_at_irow_tlist(self,irow,buch_type):
         '''
         
-        :param i:
+        :param irow:
         :param buch_type:
-        :return:  tlist = self.get_konto_data_at_i_tlist(i,buch_type)
+        :return:  tlist = self.get_konto_data_at_irow_tlist(irow,buch_type)
         '''
         new_vals    = [None for i in self.par.DEPOT_KONTO_DATA_INDEX_LIST]
         new_types   = [None for i in self.par.DEPOT_KONTO_DATA_INDEX_LIST]
         new_headers = [None for i in self.par.DEPOT_KONTO_DATA_INDEX_LIST]
-        for index in self.par.DEPOT_KONTO_DATA_INDEX_LIST:
+        for i,index in enumerate(self.par.DEPOT_KONTO_DATA_INDEX_LIST):
             
             # buchtype
             if index == self.par.DEPOT_DATA_INDEX_BUCHTYPE:
-                new_vals[index] = buch_type
+                new_vals[i] = buch_type
             else: # sonst
-                new_vals[index] = self.konto_obj.get_data_item_at_irow(i,self.par.DEPOT_DATA_NAME_DICT[index],self.par.DEPOT_DATA_TYPE_DICT[index])
+                new_vals[i] = self.konto_obj.get_data_item_at_irow(irow,self.par.DEPOT_DATA_NAME_DICT[index],self.par.DEPOT_DATA_TYPE_DICT[index])
             # end if
-            new_types[index] = self.par.DEPOT_DATA_TYPE_DICT[index]
-            new_headers[index] = self.par.DEPOT_DATA_NAME_DICT[index]
+            new_types[i] = self.par.DEPOT_DATA_TYPE_DICT[index]
+            new_headers[i] = self.par.DEPOT_DATA_NAME_DICT[index]
             
             if self.par.DEPOT_DATA_NAME_DICT[index] == self.par.DEPOT_DATA_NAME_WERT:
-                    new_vals[index] = abs(new_vals[index])
+                    new_vals[i] = abs(new_vals[i])
             # end if
         # end ofr
-        tlist = htvar.build_tlist(new_headers,new_vals,new_types)
+        tlist = htvar.build_list(new_headers,new_vals,new_types)
         return tlist
     # end def
     def proof_raw_dict_isin_id(self,new_data_tlist: htvar.TList):
@@ -510,23 +521,23 @@ class DepotDataSet:
         '''
         
         isin_proof = htvar.get_val_from_list(new_data_tlist,self.par.DEPOT_DATA_NAME_ISIN)
-        
+        id = htvar.get_val_from_list(new_data_tlist,self.par.DEPOT_DATA_NAME_KONTO_ID)
+
         # proof isin
         # -----------
         (okay, isin) = htype.type_proof(isin_proof,self.par.DEPOT_DATA_TYPE_DICT[self.par.DEPOT_DATA_INDEX_ISIN])
         if okay != hdef.OKAY:
             self.status  = okay
             self.errtext = f"proof_raw_dict_isin_id: isin: <{isin_proof}> has not correct type: <{self.DEPOT_DATA_TYPE_DICT[self.DEPOT_DATA_INDEX_ISIN]}> !!!"
-            return (False,-1)
+            return (False,-1,id)
         # end if
         
         # search isin in self.wp class
         wp_obj = self.get_wp_data_obj(isin)
         if self.status != hdef.OKAY:
-            return (False,isin)
+            return (False,isin,id)
         # end if
         
-        id = htvar.get_val_from_list(new_data_tlist,self.par.DEPOT_DATA_NAME_KONTO_ID)
         # proof id in data object
         if wp_obj.exist_id_in_table(id):
             flag = False
@@ -649,7 +660,7 @@ class DepotDataSet:
                       "euroStrK",
                       "str"]
         
-        end_zeile = htype.type_get_default(type_liste)
+        
         data_lliste = []
         row_color_dliste = []
         
@@ -734,6 +745,8 @@ class DepotDataSet:
         # Summenzeile
         (okay, summe_wert) = htype.type_transform(summe_wert, 'euro', type_liste[4])
         (okay, summe_einnahmen) = htype.type_transform(summe_einnahmen, 'euro', type_liste[5])
+        
+        end_zeile = htype.type_get_default(type_liste)
         
         end_zeile[1] = "Summe:"
         end_zeile[4] = summe_wert
@@ -849,7 +862,7 @@ class DepotDataSet:
             # end if
         # end for
         
-        ttable = htvar.build_ttable(header_liste, data_lliste, type_liste)
+        ttable = htvar.build_table(header_liste, data_lliste, type_liste)
         
         return (ttable, row_color_dliste)
     # end def
@@ -885,7 +898,7 @@ class DepotDataSet:
                       "euroStrK",
                       "euroStrK"]
         
-        data_lliste = self.wp_data_obj_dict[isin].get_data_set_lliste(header_liste,type_liste)
+        ttable = self.wp_data_obj_dict[isin].get_data_set_ttable(header_liste,type_liste)
 
         if self.wp_data_obj_dict[isin].status != hdef.OKAY:
             self.status = hdef.NOT_OKAY
@@ -900,8 +913,6 @@ class DepotDataSet:
         else:
             buchtype_index_in_header_liste = -1
         # endif
-        
-        ttable = htvar.build_ttable(header_liste, data_lliste, type_liste)
         
         return (ttable, line_color_liste)
         
@@ -920,7 +931,7 @@ class DepotDataSet:
         if isin not in self.isin_liste:
             self.status = hdef.NOT_OKAY
             self.errtext = f"get_depot_daten_sets_isin: gewünschte isin = {isin} is nicht in Depot enthalten"
-            return ([], [], [], [],0)
+            return (None, [],0)
         # end if
         
         header_liste = [self.par.DEPOT_DATA_NAME_BUCHDATUM,
@@ -1050,7 +1061,7 @@ class DepotDataSet:
             return self.status
         # end if
         
-        (self.status, self.errtext) = self.konto_obj.delete_data_list(irow_konto)
+        (self.status, self.errtext) = self.konto_obj.delete_data_set(irow_konto)
         
         return self.status
     def set_kurs_value(self,isin,irow):
@@ -1146,7 +1157,7 @@ class DepotDataSet:
         for (irow, icol) in changed_pos_list:
             header = ttable_update.names[icol]
             type   = ttable_update.types[icol]
-            value = ttable_update.vals[irow][icol]
+            value = ttable_update.table[irow][icol]
             
             if header == self.par.DEPOT_DATA_NAME_KOSTEN:
                 
@@ -1293,7 +1304,7 @@ class DepotDataSet:
         # end if
         
         # Bilde kurs
-        if (kurswert is not None) and (kurs == 0) and (anzahl > 0.01):
+        if (kurswert is not None) and (anzahl > 0.01):
             kurs = int( (kurswert / anzahl)+0.5)
             (okay, kurs) = htype.type_transform(kurs, 'cent', type)
         else:

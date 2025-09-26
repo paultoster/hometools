@@ -52,8 +52,8 @@ def ods_ausgabe_mit_depot_wahl(rd):
     # endwhile
     
     # Konto data in ini
-    depot_dict = rd.data[auswahl].ddict
-    depot_obj = rd.data[auswahl].obj
+    # depot_dict = rd.depot_dict[auswahl].ddict
+    depot_obj = rd.depot_dict[auswahl].depot_obj
 
     
     file_name = hdate.get_name_by_dat_time(depot_obj.depot_name+"_","")+".xlsx"
@@ -65,7 +65,7 @@ def ods_ausgabe_mit_depot_wahl(rd):
     # Übersichtsdaten von allen  WPs
     worksheet.title = depot_obj.depot_name
     
-    (data_lliste, header_liste, _ , _) = depot_obj.get_depot_daten_sets_overview(0)
+    (ttable, _ ) = depot_obj.get_depot_daten_sets_overview(0)
     
     if depot_obj.status != hdef.OKAY:
         status = depot_obj.status
@@ -76,11 +76,11 @@ def ods_ausgabe_mit_depot_wahl(rd):
     # end if
     
     row_num = 1
-    for i,header in enumerate(header_liste):
+    for i,header in enumerate(ttable.names):
         col_num = i+1
         worksheet.cell(row=row_num,column=col_num,value=header)
     # end if
-    for data_liste in data_lliste:
+    for data_liste in ttable.table:
         row_num += 1
         for i,data in enumerate(data_liste):
             col_num = i + 1
@@ -96,7 +96,7 @@ def ods_ausgabe_mit_depot_wahl(rd):
         worksheet = workbook.create_sheet(title=isin)
         workbook.active = workbook[isin]
         
-        (data_lliste, header_liste, _ , _) = depot_obj.get_depot_daten_sets_isin(isin)
+        (ttable_isin, _ ) = depot_obj.get_depot_daten_sets_isin(isin)
         
         if depot_obj.status != hdef.OKAY:
             status = depot_obj.status
@@ -107,11 +107,11 @@ def ods_ausgabe_mit_depot_wahl(rd):
         # end if
         
         row_num = 1
-        for i,header in enumerate(header_liste):
+        for i,header in enumerate(ttable_isin.names):
             col_num = i+1
             worksheet.cell(row=row_num,column=col_num,value=header)
         # end if
-        for data_liste in data_lliste:
+        for data_liste in ttable_isin.table:
             row_num += 1
             for i,data in enumerate(data_liste):
                 col_num = i + 1

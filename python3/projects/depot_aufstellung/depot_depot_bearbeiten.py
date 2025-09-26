@@ -19,7 +19,7 @@ def bearbeiten(rd):
     status = hdef.OKAY
     runflag = True
 
-    start_auswahl = ["Cancel","DepotDatenSet von KontoDaten einlesen","DepotDatenSet anzeigen/bearbeiten","KategorieDatenSet anzeigen/bearbeiten","DepotDatenSet in ods (excel) ausgeben"]
+    start_auswahl = ["Cancel","DepotDatenSet von KontoDaten einlesen","DepotDatenSet anzeigen/bearbeiten","KategorieDatenSet anzeigen/bearbeiten","DepotDatenSet in ods (xls) ausgeben"]
     index_cancel  = 0
     index_read_konto  = 1
     index_anzeige = 2
@@ -28,7 +28,7 @@ def bearbeiten(rd):
     
     while (runflag):
 
-        (index,_) = depot_gui.listen_abfrage(start_auswahl,"Auswahl Depot")
+        (index,_) = depot_gui.listen_abfrage(rd.gui,start_auswahl,"Auswahl Depot")
         
         rd.log.write(f"Depot Abfrage  \"{start_auswahl[index]}\" ausgewählt")
         

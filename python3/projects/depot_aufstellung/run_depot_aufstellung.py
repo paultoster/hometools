@@ -27,7 +27,7 @@ import depot_iban_bearbeiten as ib
 import depot_depot_bearbeiten as db
 import depot_gui
 import depot_konto_data_set_class as dkonto
-
+import depot_wp_info_dict
 
 
 # Hilfsfunktionen
@@ -125,13 +125,15 @@ def depot_aufstellung():
 
     runflag = True
 
-    start_auswahl = ["Cancel (no save)","Ende","Save","Iban","Konto","Depot"]
+    start_auswahl = ["Cancel (no save)","Ende","Save","Konto","Depot","edit wp_info"] # ["Cancel (no save)","Ende","Iban","Save","Konto","Depot"]
     index_cancel_no_save  = 0
     index_ende    = 1
     index_save    = 2
-    index_iban    = 3
-    index_konto   = 4
-    index_depot   = 5
+    # index_iban    = 3
+    index_konto   = 3
+    index_depot   = 4
+    index_wp_edit = 5
+    
     save_flag = True
     abfrage_liste = ["okay","cancel","ende"]
     i_abfrage_okay = 0
@@ -176,15 +178,22 @@ def depot_aufstellung():
             # if (status != hdef.OKAY):
             #    runflag = False
             # endif
-        elif index == index_iban:
-            rd.log.write(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
-            status = ib.bearbeiten(rd)
-            # if (status != hdef.OKAY):
-            #     runflag = False
-            # endif
+        # elif index == index_iban:
+        #     rd.log.write(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
+        #     status = ib.bearbeiten(rd)
+        #     # if (status != hdef.OKAY):
+        #     #     runflag = False
+        #     # endif
         elif index == index_depot:
+            
             rd.log.write(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
             status = db.bearbeiten(rd)
+            
+        elif index == index_wp_edit:
+            
+            rd.log.write(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
+            status = depot_wp_info_dict.wp_info_dict_bearbeiten(rd)
+            
         else:
             errtext = f"Auswahl: {index} nicht bekannt"
             rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)

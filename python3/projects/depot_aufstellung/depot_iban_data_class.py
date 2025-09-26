@@ -189,8 +189,12 @@ class IbanDataSet:
             # end for
         else:  # add
             
-            title = 'Neue IBAN-Nummer eingeben'
-            listeErgebnis = gui.abfrage_n_eingabezeilen(liste=self.item_list, title=title)
+            ddict = {}
+            ddict["liste_abfrage"] = self.item_list
+            
+            ddict["title"] = 'Neue IBAN-Nummer eingeben'
+            
+            listeErgebnis = gui.abfrage_n_eingabezeilen_dict(ddict)
             
             if (len(listeErgebnis) == 0):
                 status = hdef.NOT_OKAY
@@ -317,8 +321,11 @@ def iban_add_data_set(gui,header_list,data_list,id_max):
     status = hdef.OKAY
     errtext = ""
 
-    title = 'Neue IBAN-Nummer eingeben'
-    listeErgebnis = gui.abfrage_n_eingabezeilen(liste=header_list[1:], title=title)
+    ddict = {}
+    ddict["liste_abfrage"] = header_list[1:]
+    ddict["title"]         =  'Neue IBAN-Nummer eingeben'
+
+    listeErgebnis = gui.abfrage_n_eingabezeilen_dict(ddict)
     
     if (len(listeErgebnis) == 0):
         status = hdef.NOT_OKAY

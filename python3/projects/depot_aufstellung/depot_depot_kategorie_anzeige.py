@@ -17,6 +17,7 @@ if (tools_path not in sys.path):
 # Hilfsfunktionen
 import tools.hfkt_def as hdef
 import tools.hfkt_io as hio
+import tools.hfkt_tvar as htvar
 
 
 import depot_gui
@@ -43,7 +44,7 @@ def anzeige_mit_kategorie_wahl(rd):
             # end if
         # end for
         
-        (index, kategorie) = depot_gui.auswahl_depot_kategorie_liste(rd.gui,kategorie_liste)
+        (index, kategorie) = depot_gui.auswahl_liste(rd.gui,kategorie_liste,"Kategorie auswählen")
         
         
         if index < 0:
@@ -76,7 +77,7 @@ def anzeige_mit_kategorie_wahl(rd):
             return status
         elif choice == 0:
             
-            (status,errtext,data_lliste, header_liste, type_liste, row_color_dliste,icol_isin,icol_depot) \
+            (status,errtext,ttable, row_color_dliste,icol_isin,icol_depot) \
                 = get_depot_daten_sets_einer_kategorie(rd,kategorie)
                 
             if status != hdef.OKAY:  # Abbruch
@@ -88,7 +89,7 @@ def anzeige_mit_kategorie_wahl(rd):
             # --------------------------------------
             titlename = f"Alle WPs der kategorie: {kategorie}"
             
-            (sw, depot_name,isin) = anzeige_overview(rd, data_lliste, header_liste, icol_isin,icol_depot, titlename, row_color_dliste,kategorie)
+            (sw, depot_name,isin) = anzeige_overview(rd, ttable, icol_isin,icol_depot, titlename, row_color_dliste,kategorie)
             
             if sw < 0:
                 runflag = False
@@ -98,8 +99,8 @@ def anzeige_mit_kategorie_wahl(rd):
             # end if
         elif choice == 1:
             
-            depot_dict = rd.data[depot_name].ddict
-            depot_obj = rd.data[depot_name].obj
+            depot_dict = rd.depot_dict[depot_name].data_dict
+            depot_obj = rd.depot_dict[depot_name].depot_obj
             
             print(f"Depot: {depot_name} isin: {isin}")
             pyperclip.copy(isin)
@@ -127,7 +128,7 @@ def get_kategorie_liste(rd):
     kategorie_liste = []
     
     for depot_name in rd.ini.ddict[rd.par.INI_DEPOT_DATA_LIST_NAMES_NAME]:
-        kategorie_liste += rd.data[depot_name].obj.get_kategorie_liste()
+        kategorie_liste += rd.depot_dict[depot_name].depot_obj.get_kategorie_liste()
     # end for
     
     kategorie_liste = list(set(kategorie_liste))
@@ -145,30 +146,33 @@ def get_depot_daten_sets_einer_kategorie(rd,kategorie):
     
     status = hdef.OKAY
     errtext = ""
-    data_lliste = []
+    ttable = None
     row_color_dliste = []
     for depot_name in rd.ini.ddict[rd.par.INI_DEPOT_DATA_LIST_NAMES_NAME]:
         
-        (data_lliste0, header_liste, type_liste, row_color_dliste0) \
-            = rd.data[depot_name].obj.get_depot_daten_sets_overview_kategorie(kategorie)
+        (ttable0, row_color_dliste0) \
+            = rd.depot_dict[depot_name].depot_obj.get_depot_daten_sets_overview_kategorie(kategorie)
         
-        if rd.data[depot_name].obj.status != hdef.OKAY:
-            status = rd.data[depot_name].obj.status
-            errtext = rd.data[depot_name].obj.errtext
-            rd.data[depot_name].obj.reset_status()
+        if rd.depot_dict[depot_name].depot_obj.status != hdef.OKAY:
+            status = rd.depot_dict[depot_name].depot_obj.status
+            errtext = rd.depot_dict[depot_name].depot_obj.errtext
+            rd.depot_dict[depot_name].depot_obj.reset_status()
             return (status,errtext,[],[],[],[],-1,"")
         # end if
-        
-        data_lliste += data_lliste0
-        row_color_dliste +=row_color_dliste0
-        
-        icol_isin = header_liste.index(rd.data[depot_name].obj.par.DEPOT_DATA_NAME_ISIN)
-        icol_depot = header_liste.index(rd.data[depot_name].obj.par.DEPOT_DATA_NAME_DEPOT)
+        if ttable is None:
+            ttable = ttable0
+        else:
+            ttable = htvar.add_table_to_table(ttable,ttable0)
+        # end if
+        row_color_dliste += row_color_dliste0                
+
+        icol_isin = htvar.get_index_from_table(ttable,rd.depot_dict[depot_name].depot_obj.par.DEPOT_DATA_NAME_ISIN)
+        icol_depot = htvar.get_index_from_table(ttable,rd.depot_dict[depot_name].depot_obj.par.DEPOT_DATA_NAME_DEPOT)
     # end for
     
-    return (status,errtext,data_lliste, header_liste, type_liste, row_color_dliste,icol_isin,icol_depot)
+    return (status,errtext,ttable, row_color_dliste,icol_isin,icol_depot)
 # end def
-def anzeige_overview(rd, data_lliste, header_liste, icol_isin,icol_depot, titlename, row_color_dliste,kategorie):
+def anzeige_overview(rd, ttable, icol_isin,icol_depot, titlename, row_color_dliste,kategorie):
     '''
 
     :param data_lliste:
@@ -177,19 +181,24 @@ def anzeige_overview(rd, data_lliste, header_liste, icol_isin,icol_depot, titlen
     sw = 1  Auswahl isin
        = -1 Ende
     '''
-    abfrage_liste = ["ende", "wp auswahl","anzeige csv"]
+    abfrage_liste = ["ende", "wp auswahl","csv(reopen)"]
     i_end = 0
     i_auswahl = 1
     i_csv_anzeige = 2
     runflag = True
     isin = None
     depot = None
-    n = len(data_lliste)
+    n = ttable.ntable
     
     while (runflag):
         
-        (sw, irow) = depot_gui.depot_overview(rd.gui,header_liste, data_lliste, abfrage_liste, titlename, row_color_dliste)
-        
+        (status,errtext,sw, irow) = depot_gui.depot_overview(rd.gui,ttable, abfrage_liste, titlename, row_color_dliste)
+
+        if status != hdef.OKAY:
+            rd.log.write_err(errtext,screen=rd.par.LOG_SCREEN_OUT)
+            sw = i_end
+        # end if
+
         if sw <= i_end:
             sw = -1
             runflag = False
@@ -199,14 +208,14 @@ def anzeige_overview(rd, data_lliste, header_liste, icol_isin,icol_depot, titlen
                 rd.log.write_warn("Keine Zeile ausgewählt", screen=rd.par.LOG_SCREEN_OUT)
                 runflag = True
             else:
-                isin = data_lliste[irow][icol_isin]
-                depot = data_lliste[irow][icol_depot]
+                isin = htvar.get_val_from_table(ttable,irow,icol_isin)
+                depot = htvar.get_val_from_table(ttable,irow,icol_depot)
                 runflag = False
                 sw = 1
             # end if
         else: # if sw == i_csv_anzeige
             
-            status = anzeige_csv_ausgabe(rd, data_lliste, header_liste, kategorie)
+            status = anzeige_csv_ausgabe(rd, ttable, kategorie)
             
             if status != hdef.OKAY:
                 sw = -1
@@ -219,11 +228,11 @@ def anzeige_overview(rd, data_lliste, header_liste, icol_isin,icol_depot, titlen
     # end while
     return (sw, depot,isin)
 # end def
-def anzeige_csv_ausgabe(rd,data_lliste, header_liste,kategorie):
+def anzeige_csv_ausgabe(rd,ttable,kategorie):
     """
 
     :param rd:
-    :return: status = anzeige_csv_ausgabe(data_lliste, header_liste,kategorie)
+    :return: status = anzeige_csv_ausgabe(ttable,kategorie)
     """
     
     status = hdef.OKAY
@@ -233,7 +242,7 @@ def anzeige_csv_ausgabe(rd,data_lliste, header_liste,kategorie):
     # filename = htime.get_name_by_dat_time(pre_text=f"depot_kategorie_{kategorie}_") + ".csv"
     filename = f"depot_kategorie_{kategorie}_" + ".csv"
 
-    status = hio.write_csv_file_header_data(filename, header_liste, data_lliste, delim=rd.par.CSV_AUSGABE_TRENN_ZEICHEN)
+    status = hio.write_csv_file_ttable(filename, ttable, delim=rd.par.CSV_AUSGABE_TRENN_ZEICHEN)
     
     if status != hdef.OKAY:
         rd.log.write_err(f"CSV-Ausgabe von Konto: <{kategorie}> nicht möglich", screen=rd.par.LOG_SCREEN_OUT)

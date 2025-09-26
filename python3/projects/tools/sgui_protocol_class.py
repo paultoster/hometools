@@ -419,7 +419,7 @@ class SguiProtocol:
         
         if not self.run_protocol_data:
             
-            ddict = sgui.abfrage_dict(ddict)
+            (ddict,changed_key_liste) = sgui.abfrage_dict(ddict)
             
             if self.save_protocol_data:
                 self.set_next_protocol_data("ddict", ddict)

@@ -187,9 +187,9 @@ class KontoDataSet:
                                     obj.set_stored_data_set_tvar(data_set,konto_start_datum,konto_start_wert)
                                     obj.set_start_row()  set with start_wert and date
                                     obj.get_to_store_data_set_tvar()
-    ndata                              = self.get_number_of_data()
-    irow                               = self.get_irow_by_id(id)
-    konto_name                         = self.get_konto_name()
+    ndata                         = self.get_number_of_data()
+    irow                          = self.get_irow_by_id(id)
+    konto_name                    = self.get_konto_name()
     status                        = obj.proof_csv_read_buchtype_zuordnung_names(buchtype_zuordnungs_liste)
     status                        = obj.proof_csv_read_header_zuordnung_names(header_zuordnungs_liste)
                                     obj.set_csvfunc(csvfunc)
@@ -1545,23 +1545,18 @@ class KontoDataSet:
         :param id:
         :return:
         '''
-        (okay, wert) = htype.type_proof(id, self.par.KONTO_DATA_TYPE_DICT[self.par.KONTO_DATA_INDEX_ID])
-        if okay != hdef.OKAY:
-            raise Exception(
-                f"Fehler type proof of  id = {id} von type: {self.par.KONTO_DATA_TYPE_DICT[self.par.KONTO_DATA_INDEX_ID]} !!!")
-        # end if
         
-        irow_list = self.data_set_obj.find_in_col(id, self.par.KONTO_DATA_TYPE_DICT[self.par.KONTO_DATA_INDEX_ID], self.par.KONTO_DATA_NAME_ID)
-        if self.data_set_obj != hdef.OKAY:
+        irow_list = self.data_set_obj.find_in_col(id
+                                                  , self.par.KONTO_DATA_TYPE_DICT[self.par.KONTO_DATA_INDEX_ID]
+                                                  , self.par.KONTO_DATA_NAME_ID)
+        if self.data_set_obj.status != hdef.OKAY:
             self.status = self.data_set_obj.status
             self.errtext = self.data_set_obj.errtext
         # end if
         
-        index_liste = hlist.search_value_in_llist_return_indexlist(self.data_set_llist, self.par.KONTO_DATA_INDEX_ID, wert)
-        
         if len(irow_list) > 1:
             raise Exception(
-                f"Fehler mit  id = {id}, kommt im data_set mehrfach vor index_liste = {index_liste} !!!")
+                f"Fehler mit  id = {id}, kommt im data_set mehrfach vor index_liste = {irow_list} !!!")
         # end if
         
         if len(irow_list) == 1:

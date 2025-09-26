@@ -183,8 +183,14 @@ def konto_depot_kategorie(gui,kategorie, titlename):
     :param titlename:
     :return: kategorie = depot_gui.konto_depot_kategorie(gui,kategorie, titlename)
     '''
-    kategorie = gui.abfrage_n_eingabezeilen(liste=["kategorie"], vorgabe_liste=[kategorie], title=titlename)
-    return kategorie
+    ddict = {}
+    ddict["liste_abfrage"] = ["kategorie"]
+    ddict["liste_vorgabe"] = [kategorie]
+    ddict["title"]         = titlename
+    
+    
+    kategorie_liste = gui.abfrage_n_eingabezeilen_dict(ddict)
+    return kategorie_liste
 # end dfe
 def  depot_overview(gui,ttable, abfrage_liste,titlename,row_color_dliste):
     '''
@@ -211,7 +217,7 @@ def  depot_overview(gui,ttable, abfrage_liste,titlename,row_color_dliste):
     
     return (dict_out["status"], dict_out["errtext"], dict_out["index_abfrage"], dict_out["irow_select"])
 # end def
-def depot_isin(gui,header_liste, data_lliste, abfrage_liste,title,row_color_dliste):
+def depot_isin(gui, ttable,abfrage_liste,title,row_color_dliste):
     '''
     
     :param header_liste:
@@ -222,28 +228,59 @@ def depot_isin(gui,header_liste, data_lliste, abfrage_liste,title,row_color_dlis
     '''
     
     dict_inp = {}
-    dict_inp["header_liste"] = header_liste
-    dict_inp["data_set_lliste"] = data_lliste
+    dict_inp["ttable"] = ttable
+    # dict_inp["header_liste"] = header_liste
+    # dict_inp["data_set_lliste"] = data_lliste
     dict_inp["abfrage_liste"] = abfrage_liste
     dict_inp["title"] = title
     dict_inp["row_color_dliste"] = row_color_dliste
     
     dict_out = gui.abfrage_tabelle(dict_inp)
     
-    return (dict_out["index_abfrage"], dict_out["irow_select"], dict_out["data_change_irow_icol_liste"],dict_out["data_set"])
-def auswahl_depot_kategorie_liste(gui,kategorie_liste):
+    return (dict_out["index_abfrage"], dict_out["irow_select"], dict_out["data_change_irow_icol_liste"],dict_out["ttable"])
+def auswahl_liste(gui,auswahl_liste,titlename):
     '''
     
-    :param kategorie_liste:
-    :return: (index,choice) = auswahl_depot_kategorie_liste(gui,kategorie_liste)
+    :param auswahl_liste:
+    :return: (index,choice) = auswahl_depot_kategorie_liste(gui,auswahl_liste)
     '''
     
     
-    index = gui.abfrage_liste_index(kategorie_liste, "Kategorie auswählen")
+    index = gui.abfrage_liste_index(auswahl_liste,titlename )
+    
     if index < 0:
         choice =  ""
     else:
-        choice = kategorie_liste[index]
+        choice = auswahl_liste[index]
     # endif
     return (index,choice)
 # enddef
+def auswahl_liste_abfrage_liste(gui, auswahl_liste,abfrage_liste, titlename):
+    '''
+
+    :param auswahl_liste:
+    :return: (index,choice,indexAbfrage) = abfrage_liste_index_abfrage_index(gui,auswahl_liste)
+    '''
+    
+    
+    (index, indexAbfrage) = gui.abfrage_liste_index_abfrage_index(auswahl_liste, abfrage_liste,titlename)
+    if index < 0:
+        choice = ""
+    else:
+        choice = auswahl_liste[index]
+    # endif
+    
+    return (index, choice,indexAbfrage)
+# enddef
+def abfrage_dict(gui,isin_dict,ttilename):
+    '''
+    
+    :param isin_dict:
+    :param ttilename:
+    :return: isin_result_dict = depot_gui.abfrage_dict(isin_dict,"Edit wp_info(isin)")
+    '''
+    
+    (result_dict, changed_key_liste) = gui.abfrage_dict(isin_dict,ttilename)
+    
+    return (result_dict, changed_key_liste)
+    

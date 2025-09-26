@@ -22,6 +22,7 @@ import tools.hfkt_tvar as htvar
 
 import depot_gui
 import depot_depot_anzeige_isin
+import depot_wp_info_dict
 
 
 def anzeige_mit_depot_wahl(rd):
@@ -58,31 +59,49 @@ def anzeige_mit_depot_wahl(rd):
     depot_dict = rd.depot_dict[auswahl].data_dict
     depot_obj  = rd.depot_dict[auswahl].depot_obj
     
+    status = anzeige_depot(rd,auswahl,depot_dict,depot_obj,False)
+
+    return status
+
+# enddef
+def anzeige_depot(rd,auswahl,depot_dict,depot_obj,flag_update):
+    '''
+    
+    :param auswahl:
+    :param depot_dict:
+    :param depot_obj:
+    :return: status = anzeige_mit_depot_wahl(rd,auswahl,depot_dict,depot_obj)
+    '''
+    status = hdef.OKAY
     # choice = 0 Zusammenfassung
     #        = 1 Auswahl isin
     #        = 2 toggle
     #        = 3 kategorie
+    #        = 4 wp_info
     #        = -1 Ende
-    choice = 0 # Zusammenfassung
+    choice = 0  # Zusammenfassung
     runflag = True
-    depot_show_type = 1 # 0: alle, 1: nur aktive, 2: inaktive
+    if flag_update:
+        depot_show_type = 0 # 0: alle, 1: nur aktive, 2: inaktive
+    else:
+        depot_show_type = 1
     
     while runflag:
-
+        
         if choice < 0:
             return status
         elif choice == 0:
-            (ttable,row_color_dliste) = depot_obj.get_depot_daten_sets_overview(depot_show_type)
+            (ttable, row_color_dliste) = depot_obj.get_depot_daten_sets_overview(depot_show_type)
             if depot_obj.status != hdef.OKAY:  # Abbruch
                 status = depot_obj.status
                 rd.log.write_err(depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
                 depot_obj.reset_status()
                 return status
-    
-            icol_isin = htvar.get_index_from_table(ttable,depot_obj.par.DEPOT_DATA_NAME_ISIN)
-    
+            
+            icol_isin = htvar.get_index_from_table(ttable, depot_obj.par.DEPOT_DATA_NAME_ISIN)
+            
             # Overview Anzeigen
-            #--------------------------------------
+            # --------------------------------------
             if depot_show_type == 0:
                 addtext = "alle WPs"
             elif depot_show_type == 1:
@@ -91,58 +110,77 @@ def anzeige_mit_depot_wahl(rd):
                 addtext = "inaktive WPs"
             # end if
             titlename = f"Depot: {depot_obj.get_depot_name()} {addtext}"
-            (sw, isin) = anzeige_overview(rd,ttable,icol_isin,titlename,row_color_dliste)
+            (sw, isin) = anzeige_overview(rd, ttable, icol_isin, titlename, row_color_dliste)
             
             if sw < 0:
                 runflag = False
             elif sw == 1:
-                choice = 1      # auswahl isin
+                choice = 1  # auswahl isin
                 runflag = True
-            elif sw == 2: # toggle
+            elif sw == 2:  # toggle
                 depot_show_type += 1
                 if depot_show_type > 2:
                     depot_show_type = 0
-                choice = 0      # auswahl overview
+                choice = 0  # auswahl overview
                 runflag = True
-            else: # sw == 3
-                choice = 3      # auswahl kategorie
+            elif sw == 3:
+                choice = 3  # auswahl kategorie
+                runflag = True
+            else:  # sw == 4
+                choice = 4  # auswahl wp_info
                 runflag = True
 
             # end if
-        elif choice == 1: # isin spezifisch
+        elif choice == 1:  # isin spezifisch
             
             print(f"Depot: {auswahl} isin: {isin}")
             pyperclip.copy(isin)
             
-            (sw,status) = depot_depot_anzeige_isin.anzeige_depot_isin(rd,isin,depot_obj,depot_dict)
-
+            (sw, status) = depot_depot_anzeige_isin.anzeige_depot_isin(rd, isin, depot_obj, depot_dict)
+            
             if sw < 0:
                 runflag = False
-            else: # if sw == 0: # zurück
+            else:  # if sw == 0: # zurück
                 choice = 0
                 runflag = True
             # end if
-            
-        elif choice == 3: # kategorie
+        
+        elif choice == 3:  # kategorie
             
             kategorie = depot_obj.get_kategorie(isin)
             titlename = depot_obj.get_titlename(isin)
- 
+            
+            print(f"{titlename =}\n{kategorie =}\{isin =}")
+            
             # edit kateorie
-            kategorie_liste = depot_gui.konto_depot_kategorie(rd.gui,kategorie, titlename)
+            kategorie_liste = depot_gui.konto_depot_kategorie(rd.gui, kategorie, titlename)
             
             if len(kategorie_liste):
-                depot_obj.set_kategorie(isin,kategorie_liste[0])
+                depot_obj.set_kategorie(isin, kategorie_liste[0])
             
             choice = 0
             runflag = True
+        elif choice ==4:  # wp_info
             
-        # end if
+            # edii wp_info
+            status = depot_wp_info_dict.wp_info_dict_bearbeiten_isin(rd,isin)
+
+            if status == hdef.OKAY:
+                depot_obj.reget_wp_info(isin)
+            
+            choice = 0
+            runflag = True
         
+        # end if
+    
     # end while
     
     return status
-# enddef
+
+
+# end def
+
+
 def anzeige_overview(rd,ttable, icol_isin,titlename,row_color_dliste):
     '''
     
@@ -152,11 +190,12 @@ def anzeige_overview(rd,ttable, icol_isin,titlename,row_color_dliste):
        = 2  toggle die Zusammenfassung
        = -1 Ende
     '''
-    abfrage_liste = ["ende", "wp auswahl","toggle indepot","edit kategorie"]
+    abfrage_liste = ["ende", "wp auswahl","toggle indepot","edit kategorie","edit wkn_info"]
     i_end = 0
     i_auswahl = 1
     i_toggle = 2
-    # i_kategorie = 3
+    i_kategorie = 3
+    # i_wp_info = 4
     runflag = True
     isin    = None
     
@@ -182,13 +221,13 @@ def anzeige_overview(rd,ttable, icol_isin,titlename,row_color_dliste):
                 rd.log.write_warn("Summen-Zeile ausgewählt",screen=rd.par.LOG_SCREEN_OUT)
                 runflag = True
             else:
-                isin = data_lliste[irow][icol_isin]
+                isin = htvar.get_val_from_table(ttable,irow,icol_isin)
                 runflag = False
             # end if
         elif sw == i_toggle:
             sw = 2
             runflag = False
-        else:
+        elif sw == i_kategorie:
             
             if irow < 0:
                 rd.log.write_warn("Keine Zeile ausgewählt",screen=rd.par.LOG_SCREEN_OUT)
@@ -197,10 +236,24 @@ def anzeige_overview(rd,ttable, icol_isin,titlename,row_color_dliste):
                 rd.log.write_warn("Summen-Zeile ausgewählt", screen=rd.par.LOG_SCREEN_OUT)
                 runflag = True
             else:
-                isin = data_lliste[irow][icol_isin]
+                isin = htvar.get_val_from_table(ttable,irow,icol_isin)
                 runflag = False
                 sw = 3
             # end if
+        else:  # sw == i_wp_info:
+            
+            if irow < 0:
+                rd.log.write_warn("Keine Zeile ausgewählt", screen=rd.par.LOG_SCREEN_OUT)
+                runflag = True
+            elif irow == (n - 1):
+                rd.log.write_warn("Summen-Zeile ausgewählt", screen=rd.par.LOG_SCREEN_OUT)
+                runflag = True
+            else:
+                isin = htvar.get_val_from_table(ttable, irow, icol_isin)
+                runflag = False
+                sw = 4
+            # end if
+        # end if
         # end if
     # end while
     return (sw, isin)
