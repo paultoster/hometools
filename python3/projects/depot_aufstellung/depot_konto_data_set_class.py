@@ -263,7 +263,7 @@ class KontoDataSet:
         :return: self.set_stored_data_set_tvar(data_set,konto_start_datum,konto_start_wert)
         '''
         
-        ttable = self.recalc_chash_wo_comment(ttable)
+        # ttable = self.recalc_chash_wo_comment(ttable)
         
         if( self.data_set_obj.add_data_set_tvar(ttable,self.par.LINE_COLOR_BASE) != hdef.OKAY):
             raise Exception(f"Fehler set_stored_data_set_tvar errtext={self.errtext} !!!")
@@ -300,27 +300,31 @@ class KontoDataSet:
         '''
     def set_start_row(self):
         
-        names = [self.par.KONTO_DATA_INDEX_BUCHDATUM
-                ,self.par.KONTO_DATA_INDEX_WERTDATUM
-                ,self.par.KONTO_DATA_INDEX_WER
-                ,self.par.KONTO_DATA_INDEX_BUCHTYPE
-                ,self.par.KONTO_DATA_INDEX_WERT
-                ,self.par.KONTO_DATA_INDEX_SUMWERT
-                ,self.par.KONTO_DATA_INDEX_COMMENT]
-        vals  = [self.konto_start_datum
+        names = [self.par.KONTO_DATA_NAME_ID
+                ,self.par.KONTO_DATA_NAME_BUCHDATUM
+                ,self.par.KONTO_DATA_NAME_WERTDATUM
+                ,self.par.KONTO_DATA_NAME_WER
+                ,self.par.KONTO_DATA_NAME_BUCHTYPE
+                ,self.par.KONTO_DATA_NAME_WERT
+                ,self.par.KONTO_DATA_NAME_SUMWERT
+                ,self.par.KONTO_DATA_NAME_COMMENT]
+        
+        vals  = [self.idfunc.get_new_id()
+                ,self.konto_start_datum
                 ,self.konto_start_datum
                 ,"Thomas"
                 ,self.par.KONTO_DATA_BUCHTYPE_DICT[self.par.KONTO_BUCHTYPE_INDEX_EINZAHLUNG]
                 ,0
                 ,self.konto_start_wert
                 ,"Startwert"]
-        types = ["dat"
+        types = ["int"
+                ,"dat"
                 ,"dat"
                 ,"str"
                 ,self.par.KONTO_BUCHTYPE_TEXT_LIST
-                ,"str"
                 ,"cent"
-                ,"cent"]
+                ,"cent"
+                ,"str"]
         
         data_tlist = htvar.build_list(names,vals,types)
 
@@ -1058,26 +1062,27 @@ class KontoDataSet:
         
         return new_data_table
     # end def
-    def recalc_chash_wo_comment(self,ttable):
-        '''
-        
-        :param ttable:
-        :return: ttable = self.recalc_chash_wo_comment(ttable)
-        '''
-
-        index_buchdatum = htvar.get_index_from_table(ttable, self.par.KONTO_DATA_NAME_BUCHDATUM)
-        index_wert      = htvar.get_index_from_table(ttable, self.par.KONTO_DATA_NAME_WERT)
-        index_chash     = htvar.get_index_from_table(ttable, self.par.KONTO_DATA_NAME_CHASH)
-        for irow in range(ttable.ntable):
-            buchdatum = htvar.get_val_from_table(ttable, irow, index_buchdatum)
-            wert = htvar.get_val_from_table(ttable, irow, index_wert)
-            value = str(buchdatum) + str(wert)
-            chash_new = htype.type_convert_to_hashkey(value)
-            ttable = htvar.set_val_in_table(ttable,chash_new,irow,index_chash,'int')
-        # end for
-        
-        return ttable
-    # end def
+    # def recalc_chash_wo_comment(self,ttable):
+    #     '''
+    #
+    #     :param ttable:
+    #     :return: ttable = self.recalc_chash_wo_comment(ttable)
+    #     '''
+    #     if ttable.ntable:
+    #         index_buchdatum = htvar.get_index_from_table(ttable, self.par.KONTO_DATA_NAME_BUCHDATUM)
+    #         index_wert      = htvar.get_index_from_table(ttable, self.par.KONTO_DATA_NAME_WERT)
+    #         index_chash     = htvar.get_index_from_table(ttable, self.par.KONTO_DATA_NAME_CHASH)
+    #     # end if
+    #     for irow in range(ttable.ntable):
+    #         buchdatum = htvar.get_val_from_table(ttable, irow, index_buchdatum)
+    #         wert = htvar.get_val_from_table(ttable, irow, index_wert)
+    #         value = str(buchdatum) + str(wert)
+    #         chash_new = htype.type_convert_to_hashkey(value)
+    #         ttable = htvar.set_val_in_table(ttable,chash_new,irow,index_chash,'int')
+    #     # end for
+    #
+    #     return ttable
+    # # end def
     def add_chash_to_table(self, new_data_table):
         '''
         
@@ -1097,6 +1102,7 @@ class KontoDataSet:
             wert = htvar.get_val_from_table(new_data_table,irow,index_wert)
             value = str(buchdatum) + str(wert)
             chash_new = htype.type_convert_to_hashkey(value)
+            print(f"{irow =} {chash_new =}")
             chash_liste.append(chash_new)
         # end for
         new_data_table = htvar.add_row_liste_to_table(new_data_table, self.par.KONTO_DATA_NAME_CHASH,chash_liste,"int")
@@ -1123,9 +1129,11 @@ class KontoDataSet:
             irow_list = self.data_set_obj.find_in_col(chash, type_chash,icol_chash )
             if len(irow_list) > 0:
                 irow_erase_list.append(irow)
+            else:
+                nnn = len(irow_erase_list)
             # end if
         # end for
-        
+        nnn = len(irow_erase_list)
         if len(irow_erase_list) > 0:
             new_data_table = htvar.erase_irows_in_table(new_data_table,irow_erase_list)
         return new_data_table

@@ -94,21 +94,21 @@ class DataSet:
     def get_n_data(self):
         return self.n_data_sets
     # end def
-    def add_data_set_tvar(self ,new_data_set: htvar.TTable | htvar.TList ,line_color :str = ""):
+    def add_data_set_tvar(self ,tvar: htvar.TTable | htvar.TList ,line_color :str = ""):
         '''
         
         :param self:
-        :param new_data_set:
+        :param tvar:
         :param line_color:
-        :return: status = self.add_data_set_tvar(new_data_set,[line_color=""])
+        :return: status = self.add_data_set_tvar(tvar,[line_color=""])
                  status = self.add_data_set_tvar(data_set_tlist,[line_color=""])
                  status = self.add_data_set_tvar(data_set_ttable,[line_color=""])
         '''
 
-        if isinstance(new_data_set, htvar.TTable):
-            return self.add_data_set_ttable(new_data_set,line_color)
+        if isinstance(tvar, htvar.TTable):
+            return self.add_data_set_ttable(tvar,line_color)
         else:
-            return self.add_data_set_tlist(new_data_set, line_color)
+            return self.add_data_set_tlist(tvar, line_color)
         # end if
     # end def
     def add_data_set_ttable(self ,new_ttable: htvar.TTable ,line_color :str = ""):

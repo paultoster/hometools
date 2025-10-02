@@ -14,10 +14,16 @@ if (tools_path not in sys.path):
     sys.path.append(tools_path)
 # endif
 
-WORKING_DIRECTORY = "K:/data/orga/Toped"
-LOG_FILE_NAME = "depot_aufstellung.log"
-INI_FILE_NAME = "depot_aufstellung.ini"
-
+switch = 1
+if switch == 1:
+    WORKING_DIRECTORY = "K:/data/orga/Otnok"
+    LOG_FILE_NAME = "konto_aufstellung.log"
+    INI_FILE_NAME = "konto_aufstellung.ini"
+else:
+    WORKING_DIRECTORY = "K:/data/orga/Toped"
+    LOG_FILE_NAME = "depot_aufstellung.log"
+    INI_FILE_NAME = "depot_aufstellung.ini"
+# end if
 
 import depot_par
 import depot_ini_file
@@ -125,7 +131,11 @@ def depot_aufstellung():
 
     runflag = True
 
-    start_auswahl = ["Cancel (no save)","Ende","Save","Konto","Depot","edit wp_info"] # ["Cancel (no save)","Ende","Iban","Save","Konto","Depot"]
+    if len(rd.ini.ddict[rd.par.INI_DEPOT_DATA_LIST_NAMES_NAME]) == 0:
+        start_auswahl = ["Cancel (no save)", "Ende", "Save", "Konto"]
+    else:
+        start_auswahl = ["Cancel (no save)","Ende","Save","Konto","Depot","edit wp_info"] # ["Cancel (no save)","Ende","Iban","Save","Konto","Depot"]
+    # end if
     index_cancel_no_save  = 0
     index_ende    = 1
     index_save    = 2

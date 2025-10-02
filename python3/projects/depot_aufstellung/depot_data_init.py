@@ -669,21 +669,30 @@ def umbau_kont_data_dict_filter(par,konto_par,data_dict):
     
     data_dict_out[par.DDICT_TYPE_NAME] = data_dict[par.DDICT_TYPE_NAME]
     
-    data_dict_out[par.KONTO_DATA_SET_DICT_LIST_NAME] = data_dict[par.KONTO_DATA_SET_DICT_LIST_NAME]
+    if par.KONTO_DATA_SET_DICT_LIST_NAME in data_dict:
+        data_dict_out[par.KONTO_DATA_SET_DICT_LIST_NAME] = data_dict[par.KONTO_DATA_SET_DICT_LIST_NAME]
+    else:
+        data_dict_out[par.KONTO_DATA_SET_DICT_LIST_NAME] = []
+    # end if
+    
+    if (par.KONTO_DATA_TYPE_DICT_NAME in data_dict) and (par.KONTO_DATA_TYPE_DICT_NAME in data_dict):
+        data_dict_out[par.KONTO_DATA_TYPE_DICT_NAME] = data_dict[par.KONTO_DATA_TYPE_DICT_NAME]
+        # change buchtype if still int
+        data_dict_out[par.KONTO_DATA_TYPE_DICT_NAME]["buchtype"] = konto_par.KONTO_BUCHTYPE_TEXT_LIST
 
-    data_dict_out[par.KONTO_DATA_TYPE_DICT_NAME] = data_dict[par.KONTO_DATA_TYPE_DICT_NAME]
-
-    # change buchtype if still int
-    data_dict_out[par.KONTO_DATA_TYPE_DICT_NAME]["buchtype"] = konto_par.KONTO_BUCHTYPE_TEXT_LIST
-        
-    for i in range(len(data_dict_out[par.KONTO_DATA_SET_DICT_LIST_NAME])):
-        
-        index = data_dict_out[par.KONTO_DATA_SET_DICT_LIST_NAME][i]["buchtype"]
-        
-        if isinstance(index,int):
-            data_dict_out[par.KONTO_DATA_SET_DICT_LIST_NAME][i]["buchtype"] = konto_par.KONTO_BUCHTYPE_TEXT_LIST[index]
-        # end if
-    # end for
+        for i in range(len(data_dict_out[par.KONTO_DATA_SET_DICT_LIST_NAME])):
+            
+            index = data_dict_out[par.KONTO_DATA_SET_DICT_LIST_NAME][i]["buchtype"]
+            
+            if isinstance(index, int):
+                data_dict_out[par.KONTO_DATA_SET_DICT_LIST_NAME][i]["buchtype"] = \
+                    konto_par.KONTO_BUCHTYPE_TEXT_LIST[index]
+            # end if
+        # end for
+    else:
+        data_dict_out[par.KONTO_DATA_TYPE_DICT_NAME] = {}
+        data_dict_out[par.KONTO_DATA_TYPE_DICT_NAME]["buchtype"] = []
+    # end if
     
     return data_dict_out
 # end def

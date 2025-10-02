@@ -86,8 +86,15 @@ class KontoCsvRead:
         # merge incase of double e.g. comments
         (merged_data_matrix,name_list, type_list) = self.proof_merge_double_items(new_data_matrix,name_list,type_list)
 
-        # make type conversion
-        (merged_data_matrix,name_list, type_list) = self.make_type_conversion(merged_data_matrix,name_list,type_list)
+        # make type conversion buchtype
+        (merged_data_matrix,name_list, type_list) = self.make_buchtype_conversion(merged_data_matrix,name_list,type_list)
+        if self.status != hdef.OKAY:
+            return (self.status,self.errtext,None,None)
+        # end if
+        
+        # proof each line if readable
+        (merged_data_matrix, name_list, type_list) = self.proof_each_data_set(merged_data_matrix, name_list,
+                                                                                   type_list)
         if self.status != hdef.OKAY:
             return (self.status,self.errtext,None,None)
         # end if
@@ -184,7 +191,7 @@ class KontoCsvRead:
             # end if
         # end for
         
-        if len(csv_icol_list) >= min(3,n):
+        if len(csv_icol_list) >= n:
             flag_found = True
         # end if
         
@@ -348,12 +355,12 @@ class KontoCsvRead:
         # end if
         return (merged_data_matrix,merged_name_list,merged_type_list)
     # end def
-    def make_type_conversion(self,new_data_matrix,name_list,type_list):
+    def make_buchtype_conversion(self,new_data_matrix,name_list,type_list):
         '''
         
         :param new_data_matrix:
         :param name_list:
-        :return: (new_data_matrix,name_list,type_list) = self.make_type_conversion(new_data_matrix, name_list)
+        :return: (new_data_matrix,name_list,type_list) = self.make_buchtype_conversion(new_data_matrix, name_list)
         '''
     
         if "buchtype" in name_list:
@@ -370,8 +377,8 @@ class KontoCsvRead:
             
             if index == None:
                 self.status = hdef.NOT_OKAY
-                self.errtext = f"make_type_conversion: der buchtype: {val} in irow: {irow} kann nicht in buchtype_zuordnung_tlist: {self.buchtype_zuordnung_tlist} gefunden werden !!"
-                return None
+                self.errtext = f"make_buchtype_conversion: der buchtype: {val} in irow: {irow} kann nicht in buchtype_zuordnung_tlist: {self.buchtype_zuordnung_tlist} gefunden werden !!"
+                return (None,None,None)
             # end if
             
             data_set[icol] = self.buchtype_zuordnung_tlist.names[index]
@@ -382,5 +389,24 @@ class KontoCsvRead:
         type_list[icol] = self.buchtype_zuordnung_tlist.names
         
         return (new_data_matrix,name_list,type_list)
+    # end def
+    def proof_each_data_set(self,data_matrix,name_list,type_list):
+        '''
         
+        :param new_data_matrix:
+        :param name_list:
+        :return: (new_data_matrix,name_list,type_list) = self.proof_each_data_set(new_data_matrix, name_list)
+        '''
         
+        new_data_matrix = []
+        for data_set in data_matrix:
+            
+            (status, _) = htvar.proof_list(name_list, data_set, type_list)
+            
+            if status == hdef.OKAY:
+                new_data_matrix.append(data_set)
+            # end if
+        # end for
+        
+        return (new_data_matrix,name_list,type_list)
+    # end def

@@ -33,7 +33,14 @@
 # ddict_out["errtext"]                      errtext
 # ddict_out["data_change_irow_icol_liste"]  list of (irow,icol) from data whih were changed
 # ddict_out["data_change_flag"]             are dates changed
-
+#
+# bei verwendung ddict_inp["auswahl_filter_col_liste"]
+# 1) der String kann kann geteilt werden mit ";"
+# Z.B. mit "Nummer;Zahl" sucht sowohl "Nummer" als auch "Zahl"
+# 2) wird bei string immer nur der gesammte string einer Zelle gesucht,
+# Wenn ! vorangestellt ist, dann wird nur der Teil gesucht (wenn größer 3 Zeichen)
+# z.B. "!Num"   sucht alles in der Spalte mit Num
+#
 
 import tkinter as Tk
 from tkinter import ttk
@@ -480,24 +487,24 @@ class abfrage_tabelle_class:
     # end def
     # -------------------------------------------------------------------------------
     # -------------------------------------------------------------------------------
-    def runDoFilter(self,*dummy):
-
-        tt = self.StringVarFiltText.get()
-
-        self.str_auswahl_liste   = []
-        self.index_auswahl_liste = []
-
-        for i in range(0,len(self.str_liste),1):
-
-            ii = self.str_liste[i].find(tt)
-            if( ii > -1 ):
-                self.str_auswahl_liste.append(self.str_liste[i])
-                self.index_auswahl_liste.append(self.index_liste[i])
-            #endif
-        #endfor
-
-        self.makeTabGui()
-    # end def
+    # def runDoFilter(self,*dummy):
+    #
+    #     tt = self.StringVarFiltText.get()
+    #
+    #     self.str_auswahl_liste   = []
+    #     self.index_auswahl_liste = []
+    #
+    #     for i in range(0,len(self.str_liste),1):
+    #
+    #         ii = self.str_liste[i].find(tt)
+    #         if( ii > -1 ):
+    #             self.str_auswahl_liste.append(self.str_liste[i])
+    #             self.index_auswahl_liste.append(self.index_liste[i])
+    #         #endif
+    #     #endfor
+    #
+    #     self.makeTabGui()
+    # # end def
     # -------------------------------------------------------------------------------
     # -------------------------------------------------------------------------------
     def makeTabGui(self):
@@ -689,8 +696,18 @@ class abfrage_tabelle_class:
                 try:
                     diliste = []
                     if type == self.DATA_STRING:
-                        if tval in cliste:
-                            diliste = hlist.such_in_liste(cliste, tval, regel="e")
+                        
+                        if tval[0] == '!': # Erkennung, dass nur der folgende str (wenn größer 3)
+                                           # als Teil gefunden werden muss
+                            ttval = tval[1:]
+                            
+                            if len(ttval) > 3:
+                                diliste = hlist.such_in_liste(cliste, ttval, regel="n")
+                            # end if
+                        else:
+                            if tval in cliste:
+                                diliste = hlist.such_in_liste(cliste, tval, regel="e")
+                            # end if
                         # end if
                     elif type == self.DATA_FLOAT:
                         fval = float(tval)
