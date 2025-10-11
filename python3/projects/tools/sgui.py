@@ -1508,8 +1508,13 @@ def abfrage_file(file_types="*.*", comment=None, start_dir=None, default_extensi
 # enddef
 
 if __name__ == '__main__':
+    anzeige_text("Test\nTest2")
     
-    ddict_inp = {}
+    ddict_inp = {"abc":2,"def":"sggd","ghj":"ddd"}
+
+    (ddict_inp,changed_key_liste) = abfrage_dict(ddict_inp, title="modify dictionary")
+
+
     ddict_inp["header_liste"] = ["Datum", "Markt", "Kosten", "Datum2", "Markt2", "Kosten2"]
     ddict_inp["data_set_lliste"] = [["1.2.2010", "Rewe", 10.15, "1.2.2010", "Rewe", 10.15]
                              , ["2.2.2010", "Penny", 20.15, "1.2.2010", "Rewe", 10.15]
@@ -1524,7 +1529,6 @@ if __name__ == '__main__':
     ddict_inp["abfrage_liste"] = ["okay", "cancel", "end", "edit"]
     ddict_inp["auswahl_filter_col_liste"] = ["Markt", "Markt2"]
     
-    (ddict_inp,changed_key_liste) = abfrage_dict(ddict_inp, title="modify dictionary")
 
     ddict_out = abfrage_tabelle(ddict_inp)
 

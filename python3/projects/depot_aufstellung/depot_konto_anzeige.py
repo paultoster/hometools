@@ -23,46 +23,46 @@ import tools.sgui as sgui
 import depot_gui
 
 
-def anzeige_mit_konto_wahl(rd):
-    '''
-    
-    :param rd:
-    :return: status =  anzeige_mit_wahl(rd)
-    '''
-
-    
-    status = hdef.OKAY
-    
-    # Kontoauswählen
-    runflag = True
-    while (runflag):
-        
-        konto_liste =  list(rd.ini.ddict[rd.par.INI_KONTO_DATA_LIST_NAMES_NAME])
-        
-        (index, choice) = depot_gui.auswahl_konto(rd.gui,konto_liste)
-        
-        if index < 0:
-            return status
-        elif choice in rd.ini.ddict[rd.par.INI_KONTO_DATA_LIST_NAMES_NAME]:
-            
-            rd.log.write(f"konto  \"{choice}\" ausgewählt")
-            break
-        else:
-            status = hdef.NOT_OKAY
-            errtext = f"Konto Auswahl: {choice} nicht bekannt"
-            rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
-            return status
-        # endif
-    # endwhile
-    
-    # Anzeigen
-    status = anzeige(rd,rd.konto_dict[choice].konto_obj)
-    
-    if status != hdef.OKAY:  # Abbruch
-        return status
-        
-    return status
-# enddef
+# def anzeige_mit_konto_wahl(rd):
+#     '''
+#
+#     :param rd:
+#     :return: status =  anzeige_mit_wahl(rd)
+#     '''
+#
+#
+#     status = hdef.OKAY
+#
+#     # Kontoauswählen
+#     runflag = True
+#     while (runflag):
+#
+#         konto_liste =  list(rd.ini.ddict[rd.par.INI_KONTO_DATA_LIST_NAMES_NAME])
+#
+#         (index, choice) = depot_gui.auswahl_konto(rd.gui,konto_liste)
+#
+#         if index < 0:
+#             return status
+#         elif choice in rd.ini.ddict[rd.par.INI_KONTO_DATA_LIST_NAMES_NAME]:
+#
+#             rd.log.write(f"konto  \"{choice}\" ausgewählt")
+#             break
+#         else:
+#             status = hdef.NOT_OKAY
+#             errtext = f"Konto Auswahl: {choice} nicht bekannt"
+#             rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
+#             return status
+#         # endif
+#     # endwhile
+#
+#     # Anzeigen
+#     status = anzeige(rd,rd.konto_dict[choice].konto_obj)
+#
+#     if status != hdef.OKAY:  # Abbruch
+#         return status
+#
+#     return status
+# # enddef
 
 def anzeige(rd,konto_obj):
     '''

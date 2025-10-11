@@ -49,8 +49,6 @@ class Parameter:
     INI_KONTO_DATA_LIST_NAMES_NAME: str = "konto_names"
     INI_DEPOT_DATA_LIST_NAMES_NAME: str = "depot_names"
     INI_CSV_IMPORT_CONFIG_NAMES_NAME: str = "csv_import_config_names"
-    INI_IBAN_LIST_FILE_NAME: str = "iban_list_file_name"
-    
     INI_DATA_PICKLE_USE_JSON: str = "data_pickle_use_json"
     INI_DATA_PICKLE_JSONFILE_LIST: str = "data_pickle_jsonfile_list"
     INI_DATA_PICKLE_USE_JSON_NO: int = 0
@@ -58,6 +56,7 @@ class Parameter:
     INI_DATA_PICKLE_USE_JSON_READ: int = 2
     INI_LOG_SCREEN_OUT_NAME: str = "log_screen_out"
     INI_IBAN_LIST_FILE_NAME: str = "iban_list_file_name"
+    INI_KONTO_KAT_JSON_FILE_NAME:str = "konto_kat_json_file_name"
     INI_WP_DATA_STORE_PATH_NAME: str = "wp_data_store_path"
     INI_WP_DATA_USE_JSON_NAME: str = "wp_data_use_json"
     INI_PROTOCOL_TYPE_NAME: str = "protocol_type"
@@ -73,6 +72,7 @@ class Parameter:
                            ,(INI_DATA_PICKLE_JSONFILE_LIST, "list_str")
                            ,(INI_LOG_SCREEN_OUT_NAME,"str")
                            ,(INI_IBAN_LIST_FILE_NAME,"str")
+                           ,(INI_KONTO_KAT_JSON_FILE_NAME,"str")
                            ,(INI_WP_DATA_STORE_PATH_NAME,"str")
                            ,(INI_WP_DATA_USE_JSON_NAME,"str")
                            ,(INI_PROTOCOL_TYPE_NAME,"str")
@@ -214,8 +214,10 @@ class Parameter:
     WP_DATA_SET_TYPE_DICT: str = "wp_data_set_type_dict"
     WP_DATA_SET_TABLE_NAME: str = "wp_data_set_table"
 
+    KONTO_HKAT_LIST_NAME: str = "hauptkategorie"
+    KONTO_KAT_DICT_NAME: str = "kategorie"
+    KONTO_KAT_REGEL_DICT_NAME: str = "regel"
 
-  
 def get(log):
     
     p = Parameter()

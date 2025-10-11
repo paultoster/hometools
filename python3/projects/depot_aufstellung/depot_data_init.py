@@ -10,6 +10,9 @@
 #     rd.allg.data_dict
 #     rd.allg.idfunc
 #     rd.allg.wpfunc
+#     rd.allg.kat_json_obj
+#     rd.allg.katfunc
+#     rd.allg.kat_dict
 #     rd.iban.pickle_obj
 #     rd.iban.data_dict
 #     rd.iban.data_dict_tvar
@@ -52,8 +55,7 @@ import depot_konto_data_set_class
 import depot_konto_csv_read_class
 import depot_depot_data_set_class
 import depot_data_class_defs
-import depot_konto_data_set_class as dkonto
-import depot_data_class_defs as dclassdef
+import depot_kategorie_class
 
 @dataclass
 class AllgData:
@@ -61,6 +63,9 @@ class AllgData:
     data_dict: dict = field(default_factory=dict)
     idfunc = None   # : dclassdef.IDCount = field(default_factory=dclassdef.IDCount)
     wpfunc = None   # : wp_base.WPData = field(default_factory=wp_base.WPData)
+    kat_json_obj = None
+    katfunc = None  # konto kategorie
+    kat_dict: dict = field(default_factory=dict)
 
 @dataclass
 class KontoData:
@@ -154,9 +159,47 @@ def data_set(rd):
     
     if (rd.allg.wpfunc.status != hdef.OK):
         status = hdef.NOT_OKAY
-        errtext = rd.wpfunc.errtext
+        errtext = rd.allg.wpfunc.errtext
         return (status, errtext)
     # endif
+    
+    # konto_kategorie func if filename is set
+    #----------------------------------------
+    if os.path.isfile(rd.ini.ddict[rd.par.INI_KONTO_KAT_JSON_FILE_NAME]):
+        
+        rd.allg.kat_json_obj = hpickle.DataJson(rd.ini.ddict[rd.par.INI_KONTO_KAT_JSON_FILE_NAME])
+        rd.allg.kat_json_obj.read()
+        if rd.allg.kat_json_obj.status != hdef.OKAY:
+            status = hdef.NOT_OKAY
+            errtext = rd.allg.kat_json_obj.errtext
+            return(status,errtext)
+        # end if
+        rd.allg.kat_dict     = rd.allg.kat_json_obj.get_data()
+        
+        for key in [rd.par.KONTO_HKAT_LIST_NAME,rd.par.KONTO_KAT_DICT_NAME,rd.par.KONTO_KAT_REGEL_DICT_NAME]:
+            if key not in rd.allg.kat_dict.keys():
+                status = hdef.NOT_OKAY
+                errtext = f"In json-File \"{rd.allg.kat_json_obj.get_filename()}\" kein dict[\"{key}\"] vorhanden"
+                return(status,errtext)
+            # end if
+        # end for
+        
+        rd.allg.katfunc = depot_kategorie_class.KategorieClass(
+            rd.allg.kat_dict[rd.par.KONTO_HKAT_LIST_NAME],
+            rd.allg.kat_dict[rd.par.KONTO_KAT_DICT_NAME],
+            rd.allg.kat_dict[rd.par.KONTO_KAT_REGEL_DICT_NAME])
+        
+        if rd.allg.katfunc.status != hdef.OKAY:
+            status = hdef.NOT_OKAY
+            errtext = rd.allg.katfunc.errtext
+            rd.allg.katfunc.reset_status()
+            return (status,errtext)
+        # end if
+    else:
+        rd.allg.kat_dict = {}
+        rd.allg.katfunc = None
+    # end if
+    
     
     #================================================================================
     # read konto-pickle-file
@@ -192,7 +235,8 @@ def data_set(rd):
         konto_data_obj.data_dict_tvar = build_konto_transform_data_dict(rd.par,konto_data_obj.data_dict)
         
         # konto Klasse bilden
-        konto_data_obj.konto_obj = depot_konto_data_set_class.KontoDataSet(konto_name,rd.allg.idfunc,rd.allg.wpfunc)
+        konto_data_obj.konto_obj = depot_konto_data_set_class.KontoDataSet(
+            konto_name,rd.allg.idfunc,rd.allg.wpfunc,rd.allg.katfunc)
         
         # gespeicherte DatenSet übergeben  data_dict_tvar[]
         konto_data_obj.konto_obj.set_stored_data_set_tvar(konto_data_obj.data_dict_tvar[rd.par.KONTO_DATA_SET_TABLE_NAME]
@@ -434,6 +478,7 @@ def data_save(rd):
     #     rd.allg.data_dict
     #     rd.allg.idfunc
     #     rd.allg.wpfunc
+    #     rd.allg.katfunc
     rd.allg.data_dict[rd.par.ID_MAX_NAME] = rd.allg.idfunc.get_act_id()
     rd.allg.pickle_obj.set_ddict(rd.allg.data_dict)
     
@@ -444,6 +489,18 @@ def data_save(rd):
         errtext = f"{errtext}/ allg: {rd.allg.pickle_obj.errtext}"
     # endif
 
+    # Kategorie
+    if rd.allg.katfunc is not None:
+        rd.allg.kat_dict[rd.par.KONTO_HKAT_LIST_NAME]      = rd.allg.katfunc.get_hkat_list()
+        rd.allg.kat_dict[rd.par.KONTO_KAT_DICT_NAME]       = rd.allg.katfunc.get_kat_dict()
+        rd.allg.kat_dict[rd.par.KONTO_KAT_REGEL_DICT_NAME] = rd.allg.katfunc.get_regel_dict()
+        
+        rd.allg.kat_json_obj.save(rd.allg.kat_dict)
+        if rd.allg.kat_json_obj.status != hdef.OKAY:
+            status  = hdef.NOT_OKAY
+            errtext = f"{errtext}/ allg: {rd.allg.kat_json_obj.errtext}"
+        # end if
+    # end if
     # --------------------------------------------------------------------
     # konto data
     # --------------------------------------------------------------------

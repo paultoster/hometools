@@ -24,7 +24,7 @@ import tools.sgui as sgui
 import depot_gui
 import depot_konto_anzeige
 
-def report_einlesen(rd):
+def report_einlesen(rd,choice,konto_dict,konto_obj,csv_obj):
     """
 
     :param rd:
@@ -32,35 +32,6 @@ def report_einlesen(rd):
     """
     
     status = hdef.OKAY
-    errtext = ""
-    
-    # Kontoauswählen
-    runflag = True
-    while (runflag):
-        
-        konto_liste = list(rd.konto_dict.keys())
-        
-        
-        (index,choice) = depot_gui.auswahl_konto(rd.gui,konto_liste)
-        
-        if index < 0:
-            return status
-        elif choice in konto_liste:
-            
-            rd.log.write(f"konto  \"{choice}\" ausgewählt")
-            break
-        else:
-            status = hdef.NOT_OKAY
-            errtext = f"Konto Auswahl: {choice} nicht bekannt"
-            rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
-            return status
-        # endif
-    # endwhile
-    
-    # Konto data in ini
-    konto_dict  = rd.konto_dict[choice].data_dict
-    konto_obj   = rd.konto_dict[choice].konto_obj
-    csv_obj     = rd.csv_dict[rd.ini.ddict[choice][rd.par.INI_IMPORT_CONFIG_TYPE_NAME]].csv_obj
     
     # csv lesen
     if csv_obj is None:

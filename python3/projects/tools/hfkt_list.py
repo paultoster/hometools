@@ -4,7 +4,6 @@
 #############################
 
 
-
 ###################################################################################
 # Listenbearbeitung
 ###################################################################################
@@ -20,6 +19,11 @@
                                        index_list liste(int)   Index Liste mit den Übereinstimmungen
                                                                wenn keine liste ist leer []
 
+ find_first_value_in_list(liste,value) liste   list    mit strings zu durchsuchen
+                                       value   str     vollständiger wert in Liste
+                                       
+                                       retunr index/None
+                                       
  reduce_double_items_in_liste(liste)  Reduziert doppelte Einträge in Liste
                                       liste_r = reduce_double_items_in_liste(liste)
 
@@ -30,6 +34,8 @@
  list_out = erase_from_list(list_in,index/index_list) löscht index oder indexliste von list_in
 
  llist = erase_from_llist(llist,index_list)
+ 
+ llist = erase_from_list_by_value(list_in,list_cntrl,erase_not_in_cntrl=0)
  
  list_moved =  list_move_items(list_in,index_liste,index_end = -1):
                 list_move_items(list_in,[0,1,2,10,12])    moves index 0,1,2,10,12 to new list
@@ -91,18 +97,16 @@ import math
 # import fnmatch
 from operator import itemgetter
 
-
 KITCHEN_MODUL_AVAILABLE = False
 
-
-OK     = 1
+OK = 1
 NOT_OK = 0
-QUOT    = 1
+QUOT = 1
 NO_QUOT = 0
 TCL_ALL_EVENTS = 0
 
 
-def join_list(liste,delim=None):
+def join_list(liste, delim=None):
     """
     Fügt list sofern text mit delim zusammen
     """
@@ -112,22 +116,23 @@ def join_list(liste,delim=None):
     else:
         ddlim = delim
     # end if
-
-    n   = len(liste)
+    
+    n = len(liste)
     for i in range(n):
-        if( isinstance(liste[i],str) ):
-            if( i > 0 ):
+        if (isinstance(liste[i], str)):
+            if (i > 0):
                 txt = txt + ddlim
-            #endif
-            txt = txt+liste[i]
-        #endif
-    #endif
+            # endif
+            txt = txt + liste[i]
+        # endif
+    # endif
     return txt
+
 
 ###################################################################################
 # Listenbearbeitung
 ###################################################################################
-def such_in_liste(liste,muster,regel=""):
+def such_in_liste(liste, muster, regel=""):
     """
     Suche nach dem string-Muster in der Liste nach der Regel
     Input:
@@ -144,35 +149,58 @@ def such_in_liste(liste,muster,regel=""):
     len1 = len(liste)
     index_liste = []
     for il in range(len1):
-        if( regel == "e" ):
-            if( liste[il] == muster):
+        if (regel == "e"):
+            if (liste[il] == muster):
                 index_liste.append(il)
         else:
             ll = liste[il].lower()
             mm = muster.lower()
             i0 = ll.find(mm);
-            if( i0 > -1 ):
+            if (i0 > -1):
                 index_liste.append(il)
     return index_liste
-def string_is_in_liste(tt,liste):
-  """
-    True wenn tt vollständig in einem item der Liste
-    False wenn nicht
-  """
-  index_list_liste = such_in_liste(liste,tt,regel="e")
 
-  if( len(index_list_liste) > 0 ):
-    return True
-  else:
-    return False
-def string_is_not_in_liste(tt,liste):
-  """
-    False wenn tt vollständig in einem item der Liste
-    True wenn nicht
-  """
-  return not string_is_in_liste(tt,liste)
 
-def get_clist_from_llist(llist,index):
+def find_first_value_in_list(liste, value):
+    '''
+    
+    :param liste: list    mit strings zu durchsuchen
+    :param value: value   str     vollständiger wert in Liste
+    :return: index/None
+    '''
+    
+    index_list_liste = such_in_liste(liste, value, regel="e")
+    
+    if (len(index_list_liste) > 0):
+        return index_list_liste[0]
+    else:
+        return None
+    # end if
+
+
+# end def
+def string_is_in_liste(tt, liste):
+    """
+      True wenn tt vollständig in einem item der Liste
+      False wenn nicht
+    """
+    index_list_liste = such_in_liste(liste, tt, regel="e")
+    
+    if (len(index_list_liste) > 0):
+        return True
+    else:
+        return False
+
+
+def string_is_not_in_liste(tt, liste):
+    """
+      False wenn tt vollständig in einem item der Liste
+      True wenn nicht
+    """
+    return not string_is_in_liste(tt, liste)
+
+
+def get_clist_from_llist(llist, index):
     '''
     get column list from llist
     llist = [[1,2,3,4],[10,20,30,40],[100,200,300,400]]
@@ -188,14 +216,16 @@ def get_clist_from_llist(llist,index):
         # end if
     # end for
     return clist
+
+
 # end def
-def get_condensed_list_by_index_list(liste,index_liste):
+def get_condensed_list_by_index_list(liste, index_liste):
     '''
     liste = [10,20,30,40,50]
     index_liste = [1,3,4]
     return [20,40,50]
     '''
-
+    
     condens_liste = []
     n = len(liste)
     for i in index_liste:
@@ -204,33 +234,36 @@ def get_condensed_list_by_index_list(liste,index_liste):
         # end if
     # end for
     return condens_liste
+
+
 # end def
-def erase_from_list(list_in,index_list):
-  """
-   löscht index oder indexliste von list_in
-  """
+def erase_from_list(list_in, index_list):
+    """
+     löscht index oder indexliste von list_in
+    """
+    
+    if (isinstance(type(index_list), int)):
+        index_list = [index_list]
+    # endif
+    if (isinstance(type(index_list), float)):
+        index_list = [int(index_list)]
+    # endif
+    
+    ioffset = 0
+    
+    index_list.sort()
+    
+    for index in index_list:
+        if ((index - ioffset) < len(list_in)):
+            del list_in[index - ioffset]
+            ioffset += 1
+        # endif
+    # endfor
+    
+    return list_in
 
-  if( isinstance(type(index_list), int) ):
-    index_list = [index_list]
-  #endif
-  if( isinstance(type(index_list), float) ):
-    index_list = [int(index_list)]
-  #endif
 
-  ioffset = 0
-
-  index_list.sort()
-
-  for index in index_list:
-    if( (index-ioffset) < len(list_in)):
-      del list_in[index-ioffset]
-      ioffset += 1
-    #endif
-  #endfor
-
-  return list_in
-
-def erase_from_llist(llist,index_list):
+def erase_from_llist(llist, index_list):
     '''
     löscht von eine doppellist
     :param llist_in:
@@ -238,84 +271,108 @@ def erase_from_llist(llist,index_list):
     :return: llist = erase_from_llist(llist,index_list)
     '''
     
-    for i,liste in enumerate(llist):
+    for i, liste in enumerate(llist):
         llist[i] = erase_from_list(liste, index_list)
     # end for
     return llist
+
+
 # end def
 
-def list_move_items(list_in,index_liste,index_end = -1):
-  """
-    list_moved = list_move_items(list_in,[0,1,2,10,12])    moves index 0,1,2,10,12 to new list
-    list_moved = list_move_items(list_in,1,12)             moves index 1,2,... 10,11,12 to new list
-  """
-  list_moved = []
-  if( index_end > -1 and not isinstance(index_liste,list)):
-    i0 = int(index_liste)
-    i1 = int(index_end)
-    index_liste = [*range(i0,i1+1,1)]
-  elif(not isinstance(index_liste,list)):
-    index_liste = [index_liste]
-  #endif
+def erase_from_list_by_value(list_in, list_cntrl, erase_not_in_cntrl=0):
+    '''
+    Wenn erase_not_in_cntrl==0: alle aus list_cntrl in list_in werden gelöscht
+    wenn erase_not_in_cntrl==1: alle aus list_cntrl nicht in list_in werden gelöscht
+    :param list_in:
+    :param list_cntrl:
+    :param erase_not_in_cntrl:
+    :return: llist = erase_from_list_by_value(list_in,list_cntrl,erase_not_in_cntrl=0)
+    
+    '''
+    index_list = []
+    for index, var in enumerate(list_in):
+        if (erase_not_in_cntrl == 0) and (var in list_cntrl):
+            index_list.append(index)
+        elif (erase_not_in_cntrl != 0) and (var not in list_cntrl):
+            index_list.append(index)
+        # end if
+    # end for
+    
+    return erase_from_llist(list_in, index_list)
 
-  for i in index_liste:
-    if( i < len(list_in) ):
-      list_moved.append(list_in[i])
-    #endif
-  #endfor
 
-  list_in = erase_from_list(list_in,index_liste)
-
-  return list_moved
-
+# end def
+def list_move_items(list_in, index_liste, index_end=-1):
+    """
+      list_moved = list_move_items(list_in,[0,1,2,10,12])    moves index 0,1,2,10,12 to new list
+      list_moved = list_move_items(list_in,1,12)             moves index 1,2,... 10,11,12 to new list
+    """
+    list_moved = []
+    if (index_end > -1 and not isinstance(index_liste, list)):
+        i0 = int(index_liste)
+        i1 = int(index_end)
+        index_liste = [*range(i0, i1 + 1, 1)]
+    elif (not isinstance(index_liste, list)):
+        index_liste = [index_liste]
+    # endif
+    
+    for i in index_liste:
+        if (i < len(list_in)):
+            list_moved.append(list_in[i])
+        # endif
+    # endfor
+    
+    list_in = erase_from_list(list_in, index_liste)
+    
+    return list_moved
 
 
 def multiply_constant(ll, value):
-  """
-    multiplies a list with const value
     """
-  if (isinstance(ll, list)):
-    out = []
-    for i in range(len(ll)):
-      if (isinstance(ll[i], str)):
-        val = float(ll[i]) * value
-        out.append(str(val))
-      else:
-        out.append(ll[i] * value)
-  else:
-    if (isinstance(ll, str)):
-      val = float(ll) * value
-      out = str(val)
+      multiplies a list with const value
+      """
+    if (isinstance(ll, list)):
+        out = []
+        for i in range(len(ll)):
+            if (isinstance(ll[i], str)):
+                val = float(ll[i]) * value
+                out.append(str(val))
+            else:
+                out.append(ll[i] * value)
     else:
-      out = ll * value
-
-  return out
+        if (isinstance(ll, str)):
+            val = float(ll) * value
+            out = str(val)
+        else:
+            out = ll * value
+    
+    return out
 
 
 def add_constant(ll, value):
-  """
-    add to a list const value
     """
-  if (isinstance(ll, list)):
-    for i in range(len(ll)):
-      if (isinstance(ll[i], str)):
-        ll[i] = float(ll[i]) + value
-        ll[i] = str(ll[i])
-      else:
-        ll[i] += value
-  else:
-    if (isinstance(ll, str)):
-      ll = float(ll) + value
-      ll = str(ll)
+      add to a list const value
+      """
+    if (isinstance(ll, list)):
+        for i in range(len(ll)):
+            if (isinstance(ll[i], str)):
+                ll[i] = float(ll[i]) + value
+                ll[i] = str(ll[i])
+            else:
+                ll[i] += value
     else:
-      ll += value
+        if (isinstance(ll, str)):
+            ll = float(ll) + value
+            ll = str(ll)
+        else:
+            ll += value
+    
+    return ll
 
-  return ll
 
+# enddef
 
-#enddef
-
-def sort_list_of_list(lliste,index,aufsteigend=1):
+def sort_list_of_list(lliste, index, aufsteigend=1):
     '''
     z.B. lliste = [[0,10,'a',2.],[0,5,'b',2.],[0,5,'bbbbb',3.],[0,15,'rrr',2.]]
     sortiere nach dem index lliste[i][index]
@@ -334,7 +391,8 @@ def sort_list_of_list(lliste,index,aufsteigend=1):
     
     return new_llist
 
-def search_double_value_in_list_return_indexlist(liste,value):
+
+def search_double_value_in_list_return_indexlist(liste, value):
     '''
     
     :param liste:
@@ -342,23 +400,27 @@ def search_double_value_in_list_return_indexlist(liste,value):
     :return: index_liste = search_value_in_list_retunr_indexlist(liste,value)
     '''
     return [i for i, x in enumerate(liste) if x == value]
+
+
 # end def
 
 def search_double_value_in_list_return_indexllist(liste):
     indexllist = []
     set_liste = set(liste)
-    if( len(set_liste) != len(liste) ):
+    if (len(set_liste) != len(liste)):
         for val in set_liste:
-            liste1 = search_double_value_in_list_return_indexlist(liste,val)
+            liste1 = search_double_value_in_list_return_indexlist(liste, val)
             if len(liste1) > 1:
                 indexllist.append(liste1)
             # end if
         # end for
     # end if
     return indexllist
+
+
 # end def
 
-def search_value_in_list_return_indexlist(liste,value):
+def search_value_in_list_return_indexlist(liste, value):
     '''
     
     :param liste:
@@ -367,14 +429,16 @@ def search_value_in_list_return_indexlist(liste,value):
     '''
     
     index_liste = []
-    for i,item in enumerate(liste):
+    for i, item in enumerate(liste):
         if value == item:
             index_liste.append(i)
         # end if
     # end for
     return index_liste
+
+
 # end def
-def search_value_in_llist_return_indexlist(lliste, icol,value):
+def search_value_in_llist_return_indexlist(lliste, icol, value):
     '''
 
     :param liste:
@@ -391,17 +455,18 @@ def search_value_in_llist_return_indexlist(lliste, icol,value):
         # end if
     # end for
     return index_liste
+
+
 # end def
 
-def sort_list(liste,aufsteigend=1):
+def sort_list(liste, aufsteigend=1):
     '''
     
     :param liste:
     :param aufsteigend: 0/1
     :return: newlist = sort_list(liste,aufsteigend=1)
     '''
-
-
+    
     if aufsteigend:
         new_llist = sorted(lliste)
     else:
@@ -410,7 +475,8 @@ def sort_list(liste,aufsteigend=1):
     
     return new_llist
 
-def sort_two_list(liste1,liste2,aufsteigend=1):
+
+def sort_two_list(liste1, liste2, aufsteigend=1):
     '''
     
     :param liste1:
@@ -419,12 +485,13 @@ def sort_two_list(liste1,liste2,aufsteigend=1):
     :return: (newliste1,newliste2) = sort_two_list(liste1,liste2,aufsteigend=1)
     '''
     if aufsteigend:
-        newliste1,newliste2 = (list(t) for t in zip(*sorted(zip(liste1, liste2))))
+        newliste1, newliste2 = (list(t) for t in zip(*sorted(zip(liste1, liste2))))
     else:
-        newliste1, newliste2 = (list(t) for t in zip(*sorted(zip(liste1, liste2),reverse=True)))
+        newliste1, newliste2 = (list(t) for t in zip(*sorted(zip(liste1, liste2), reverse=True)))
     # end if
     
-    return (newliste1,newliste2)
+    return (newliste1, newliste2)
+
 
 def sort_list_of_dict(lliste, keyname, aufsteigend=1):
     '''
@@ -444,6 +511,8 @@ def sort_list_of_dict(lliste, keyname, aufsteigend=1):
     # edn fi
     
     return new_llist
+
+
 # end def
 ###########################################################################
 # testen mit main
@@ -453,7 +522,8 @@ if __name__ == '__main__':
     # print(sort_list_of_list(lliste, 1))
     # print(sort_list_of_list(lliste, 1,aufsteigend=0))
     
-    lliste = [{'name': 'Homer', 'age': 39}, {'name': 'Bart', 'age': 10}, {'name': 'Constantin', 'age': 10}, {'name': 'Alfred', 'age': 10}]
+    lliste = [{'name': 'Homer', 'age': 39}, {'name': 'Bart', 'age': 10}, {'name': 'Constantin', 'age': 10},
+              {'name': 'Alfred', 'age': 10}]
     print(sort_list_of_dict(lliste, 'name', aufsteigend=1))
     print(sort_list_of_dict(lliste, 'name', aufsteigend=0))
     print(sort_list_of_dict(lliste, 'age', aufsteigend=1))

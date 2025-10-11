@@ -222,7 +222,7 @@ class KontoDataSet:
     OKAY = hdef.OK
     NOT_OKAY = hdef.NOT_OK
     
-    def __init__(self,konto_name: str,idfunc,wpfunc):
+    def __init__(self,konto_name: str,idfunc,wpfunc,katfunc):
         self.konto_name: str = konto_name
         self.par = KontoParam()
         self.KONTO_DATA_CSV_NAME_DICT = {}
@@ -252,8 +252,11 @@ class KontoDataSet:
         self.new_read_id_list: list = []
         self.idfunc = idfunc
         self.wpfunc = wpfunc
+        self.katfunc = katfunc
         self.csvfunc = None
-
+    
+        return
+    # end def
     def set_stored_data_set_tvar(self, ttable: htvar.TTable, tkonto_start_datum: htvar.TVal, tkonto_start_wert: htvar.TVal):
         '''
         
@@ -819,16 +822,25 @@ class KontoDataSet:
         return (ttable,row_color_dliste)
         
     # end def
-    def write_anzeige_back_data(self, ttable_anzeige, data_changed_pos_list):
+    def write_anzeige_back_data(self, ttable_anzeige, data_changed_pos_list,header_liste=[]):
         '''
         
         :param new_data_llist:
         :param data_changed_pos_list:
-        :param istart:
+        :param header_liste=[]:  Liste mit den Headernamen, die geändert werden können, leer: alle ändern
         :return: self.write_anzeige_back_data(ttable_anzeige, data_changed_pos_list)
         '''
         self.infotext = ""
         self.errtext = ""
+        
+        if not isinstance(header_liste,list):
+            header_liste = [header_liste]
+        # end if
+        
+        if len(header_liste) == 0:
+            noproof = True
+        else:
+            noproof = False
         
         index_liste = list(self.par.KONTO_DATA_EXTERN_NAME_DICT.keys())
         
@@ -839,19 +851,21 @@ class KontoDataSet:
             name  = ttable_anzeige.names[icol]
             type  = ttable_anzeige.types[icol]
             
-            if name in self.par.KONTO_DATA_IMMUTABLE_NAME_LIST:
-                self.infotext = f"Der Wert von {name} mit dem Wert in table.vals[{irow}][{icol}] = {value} darf nicht verändert werden !!!!!!!"
-            else:
-                if self.data_set_obj.set_data_item(value, self.par.LINE_COLOR_EDIT, irow, name, type):
-                    
-                    if self.data_set_obj.status != hdef.OKAY:
-                        self.status = hdef.NOT_OKAY
-                        self.errtext = f"write_anzeige_back_data: Fehler set_data_item  errtext: {self.data_set_obj.errtext}"
-                        return
+            if noproof or name in header_liste:
+            
+                if name in self.par.KONTO_DATA_IMMUTABLE_NAME_LIST:
+                    self.infotext = f"Der Wert von {name} mit dem Wert in table.vals[{irow}][{icol}] = {value} darf nicht verändert werden !!!!!!!"
+                else:
+                    if self.data_set_obj.set_data_item(value, self.par.LINE_COLOR_EDIT, irow, name, type):
+                        
+                        if self.data_set_obj.status != hdef.OKAY:
+                            self.status = hdef.NOT_OKAY
+                            self.errtext = f"write_anzeige_back_data: Fehler set_data_item  errtext: {self.data_set_obj.errtext}"
+                            return
+                        # end if
+                        changed = True
                     # end if
-                    changed = True
                 # end if
-            # end if
         # end for
         
 
@@ -864,6 +878,7 @@ class KontoDataSet:
         # end if
     
     # end def
+    #
     # def update_sumwert_in_lliste(self,istart):
     #     '''
     #
@@ -1603,4 +1618,37 @@ class KontoDataSet:
         else:
             return None
     # end def
-# end class
+    def kategorie_regel_anwenden(self):
+        '''
+        Anwenden der Kategorie Regeln auf nicht gesetzte Kategorien
+        :return:
+        '''
+        
+        icol_kat = self.par.KONTO_DATA_EXTERN_NAME_LIST.index(self.par.KONTO_DATA_NAME_KATEGORIE)
+        
+        for irow in range(self.data_set_obj.get_n_data()):
+            
+            if irow == 5:
+                iii = 1
+            
+            tlist = self.data_set_obj.get_one_data_set_tlist(
+                irow,
+                self.par.KONTO_DATA_EXTERN_NAME_LIST,
+                self.par.KONTO_DATA_EXTERN_TYPE_LIST)
+            
+            if len(tlist.vals[icol_kat]) == 0:
+                (found,kat) = self.katfunc.regel_anwedung_data_set(tlist)
+                
+                if found:
+                    self.data_set_obj.set_data_item(kat,self.par.LINE_COLOR_EDIT,irow, self.par.KONTO_DATA_NAME_KATEGORIE)
+                    if self.data_set_obj.status != hdef.OKAY:
+                        self.status = hdef.NOT_OKAY
+                        self.errtext = self.data_set_obj.errtext
+                        self.data_set_obj.reset_status()
+                        return
+                # end if
+            # end if
+        # end for
+        
+        return
+    # end def

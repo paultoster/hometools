@@ -8,6 +8,12 @@
  str = get_str_from_int(intval,intwidth) gibt string mit vorangestellten nullen aus
 
  index = such(text,muster,regel) Sucht muster im text return index or -1
+                    vs  vorwaerts muster suchen
+                    vn  vorwaerts suchen, wann muster nicht mehr
+                        vorhanden ist
+                    rs  rueckwrts muster suchen
+                    rn  rueckwaerts suchen, wann muster nicht mehr
+                        vorhanden ist
  
  index = such_mit_liste(text,muster_liste,type) type = 'l' lower oder 'e' exakt
                                                 return index or -1 => muster_liste[index]

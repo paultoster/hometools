@@ -3,7 +3,6 @@
 #   beinhaltet die data_llist ´für eingelesene DepotDaten und funktion dafür
 #
 import os, sys
-import copy
 
 tools_path = os.getcwd() + "\\.."
 if (tools_path not in sys.path):

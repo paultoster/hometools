@@ -5,6 +5,32 @@
 #
 # data[par.konto_names]
 # data[par.IBAN_DATA_DICT_NAME]
+#
+#-------------------------------------------------------------------
+# obj = hfkt_pickle.DataPickle(name_prefix, body_name, use_json)
+#       name_prefix Prefixname for pickle- or json-File
+#       body_name   Bodyname for pickle- or json-File
+#       use_json    0: don't use 1: write, 2: read
+#
+#       proof obj.status and obj.errtext
+#
+# ddict = obj.get_ddict():  get read dictionary
+#         obj.set_ddict(ddict)
+#         obj.update_ddict(ddict)
+#         obj.save()
+#         obj.save(ddict)
+#-------------------------------------------------------------------
+# obj = hfkt_pickle.DataJson(file_name)
+#
+#       proof obj.status and obj.errtext
+#
+#        obj.read()
+# data = obj.get_data():  get read dictionary
+#        obj.set_data(data)
+#        obj.save()
+#        obj.save(data)
+
+
 
 import os, sys
 import pickle
@@ -230,7 +256,9 @@ class DataJson:
         self.name = ""
         self.data = None
         self.filename_json = filename_json
-    
+    def get_filename(self):
+        return self.filename_json
+    # end def
     def read(self):
         
         if (os.path.isfile(self.filename_json)):
