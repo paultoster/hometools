@@ -31,7 +31,7 @@ class KontoCsvRead:
     (name_list,merged_data_matrix, type_set_list)
                                 = self.proof_merge_double_items(new_data_matrix,name_list,type_list,names_possible_merge_list)
     '''
-    def __init__(self,trennzeichen_tval,wert_pruefung_tval,buchtype_zuordnung_tlist,header_zuordnung_tlist,header_type_zuordnung_tlist):
+    def __init__(self,trennzeichen_tval,wert_pruefung_tval,csv_datei_pfad_tval,buchtype_zuordnung_tlist,header_zuordnung_tlist,header_type_zuordnung_tlist):
         
         self.status = hdef.OK
         self.errtext = ""
@@ -42,12 +42,15 @@ class KontoCsvRead:
         else:
             self.flag_proof_wert = True
         # end if
+        self.csv_datei_pfad = htvar.get_val(csv_datei_pfad_tval,"str")
         self.buchtype_zuordnung_tlist  = buchtype_zuordnung_tlist
         self.header_zuordnung_tlist = header_zuordnung_tlist
         self.header_type_zuordnung_tlist = header_type_zuordnung_tlist
         self.filename           = ""
     # end def
-    
+    def get_csv_datei_pfad(self):
+        return self.csv_datei_pfad
+    # end def
     def read_data(self,filename: str):
         '''
         

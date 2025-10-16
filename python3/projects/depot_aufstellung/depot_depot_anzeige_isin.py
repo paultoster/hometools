@@ -139,8 +139,8 @@ def anzeige_depot_isin(rd,isin,depot_obj,depot_dict):
                 #     rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
                 #     return status
                 # # end if
-                
-                status = depot_obj.delete_in_data_set(isin, irow)
+                konto_name = depot_obj.get_konto_name()
+                status = depot_obj.delete_in_data_set(rd.konto_dict[konto_name].konto_obj,isin, irow)
                 
                 if status != hdef.OKAY:  # Abbruch
                     rd.log.write_err(depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)

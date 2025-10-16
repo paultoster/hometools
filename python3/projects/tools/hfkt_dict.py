@@ -164,6 +164,10 @@ def proof_transform_ddict_to_tvar(ddict, proof_liste):
                       ("name","str","str"),
                       ("datum","datStrP","dat")]
                                                  hier wird der Type geprüft und transformiert "euroStrK" => "euro"
+    4. proof_liste = [("wert","euroStrK","euro","0,0"),  vierte Position ist defaultwert
+                      ("name","str","str"),
+                      ("datum","datStrP","dat")]
+                                                 hier wird der Type geprüft und transformiert "euroStrK" => "euro"
 
     output ist
      dict_tvar["wert"] = TVal("wert",10.34,"euro")
@@ -182,6 +186,7 @@ def proof_transform_ddict_to_tvar(ddict, proof_liste):
         proof_name = False
         proof_type = False
         trans_type = False
+        default_value = None
         if isinstance(item, str):
             proof_name = True
             name = item
@@ -202,6 +207,9 @@ def proof_transform_ddict_to_tvar(ddict, proof_liste):
             if (n > 2) and isinstance(item[2], str):
                 trans_type = True
             # end if
+            if (n > 3):
+                default_value = item[3]
+            # end if
         else:
             status = hdef.NOT_OKAY
             errtext = f"proof_transform_ddict: proof_liste wird nicht erkannt proof_liste[{index}] = {item}"
@@ -209,9 +217,12 @@ def proof_transform_ddict_to_tvar(ddict, proof_liste):
         # end if
         
         if proof_name and (name not in ddict):
-            status = hdef.NOT_OKAY
-            errtext = f"proof_transform_ddict: proof_liste[{index}] = {name} ist nicht in dictionary"
-            return (status, errtext, dict_tvar)
+            if default_value:
+                ddict[name] = default_value
+            else:
+                status = hdef.NOT_OKAY
+                errtext = f"proof_transform_ddict: proof_liste[{index}] = {name} ist nicht in dictionary"
+                return (status, errtext, dict_tvar)
         # end if
         if trans_type:
             [okay, wert] = htype.type_transform(ddict[name], item[1], item[2])

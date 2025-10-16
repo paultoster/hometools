@@ -57,7 +57,8 @@ def depot_konto_einlesen(rd):
     # depot_dict  = rd.depot_dict[choice].data_dict
     # depot_obj   = rd.depot_dict[choice].depot_obj
     
-    flag_changed = rd.depot_dict[choice].depot_obj.update_from_konto_data()
+    konto_name = rd.depot_dict[choice].depot_obj.get_konto_name()
+    flag_changed = rd.depot_dict[choice].depot_obj.update_from_konto_data(rd.konto_dict[konto_name].konto_obj)
     
     if len(rd.depot_dict[choice].depot_obj.infotext):
         rd.log.write_info("konto_einlesen: " + rd.depot_dict[choice].depot_obj.infotext, screen=rd.par.LOG_SCREEN_OUT)
@@ -69,7 +70,7 @@ def depot_konto_einlesen(rd):
         rd.log.write_err(rd.depot_dict[choice].depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
         return status
     elif flag_changed:
-        status = depot_depot_anzeige.anzeige_depot(rd,choice,rd.depot_dict[choice].depot_dict
+        status = depot_depot_anzeige.anzeige_depot(rd,choice,rd.depot_dict[choice].data_dict
                                                    ,rd.depot_dict[choice].depot_obj,True)
     # end if
 

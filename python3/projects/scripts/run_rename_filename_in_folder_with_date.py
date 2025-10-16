@@ -91,8 +91,8 @@ def change_body_name(fullfile,fbody):
 if __name__ == '__main__':
 
   # start_dir_vorschlag=os.getcwd()
-  # start_dir_vorschlag="M:/pdata/Bank/ING/2024"
-  start_dir_vorschlag="M:/pdata/Bank/Smartbroker/2024"
+  start_dir_vorschlag="M:/pdata/Bank/ING/2025"
+  # start_dir_vorschlag="M:/pdata/Bank/Smartbroker/2024"
 
   start_dir = h.abfrage_dir(comment="In welchem Verzeichnis Datum in Filename bringen",start_dir=start_dir_vorschlag)
 

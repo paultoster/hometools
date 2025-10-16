@@ -40,10 +40,15 @@ def report_einlesen(rd,choice,konto_dict,konto_obj,csv_obj):
     
     else:  # if( konto_dict[rd.par.INI_IMPORT_CONFIG_TYPE_NAME] in rd.ini.ddict[rd.par.INI_CSV_IMPORT_TYPE_NAMES_NAME] ):
         
+        start_pfad = csv_obj.get_csv_datei_pfad()
+        if not os.path.isdir(start_pfad):
+            start_pfad = os.getcwd()
+        # end if
+        
         # csv-Datei auswählen
         filename = rd.gui.abfrage_file(file_types="*.csv",
                                      comment=f"Wähle ein report von ING-DiBa für den Kontoumsatz von Konto: {choice}",
-                                     start_dir=os.getcwd())
+                                     start_dir=start_pfad)
         
         if (len(filename) == 0):  # Abbruch
             return status
@@ -61,6 +66,9 @@ def report_einlesen(rd,choice,konto_dict,konto_obj,csv_obj):
         
         # eingelsene Daten in konto einsortieren
         #---------------------------------------
+        print(f"{choice =}: {rd.konto_dict[choice].konto_obj =} ; {hex(id(rd.konto_dict[choice].konto_obj))}")
+        print(f"{choice =}: {konto_obj =} ; {hex(id(konto_obj))}")
+
         (flag_newdata,status,errtext,infotext) = konto_obj.set_new_data(ttable,flag_proof_wert)
         
         if status != hdef.OKAY:

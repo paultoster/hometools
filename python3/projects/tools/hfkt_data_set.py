@@ -92,6 +92,7 @@ class DataSet:
         return
     # end def
     def get_n_data(self):
+        self.n_data_sets = len(self.data_set_llist)
         return self.n_data_sets
     # end def
     def add_data_set_tvar(self ,tvar: htvar.TTable | htvar.TList ,line_color :str = ""):

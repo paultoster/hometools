@@ -206,7 +206,7 @@ def data_set(rd):
     #================================================================================
     for konto_name in rd.ini.ddict[rd.par.INI_KONTO_DATA_LIST_NAMES_NAME]:
         
-        konto_data_obj = KontoData()
+        rd.konto_dict[konto_name] = KontoData()
         
         if konto_name in rd.ini.ddict[rd.par.INI_DATA_PICKLE_JSONFILE_LIST]:
             use_json = rd.ini.ddict[rd.par.INI_DATA_PICKLE_USE_JSON]
@@ -216,37 +216,35 @@ def data_set(rd):
         
         # get data set
         #-------------
-        konto_data_obj.pickle_obj = hpickle.DataPickle(rd.par.KONTO_PREFIX, konto_name, use_json)
-        if (konto_data_obj.pickle_obj.status != hdef.OK):
+        rd.konto_dict[konto_name].pickle_obj = hpickle.DataPickle(rd.par.KONTO_PREFIX, konto_name, use_json)
+        if (rd.konto_dict[konto_name].pickle_obj.status != hdef.OK):
             status = hdef.NOT_OKAY
-            errtext = konto_data_obj.pickle_obj.errtext
+            errtext = rd.konto_dict[konto_name].pickle_obj.errtext
             return (status, errtext)
         else:
-            konto_data_obj.data_dict = konto_data_obj.pickle_obj.get_ddict()
+            rd.konto_dict[konto_name].data_dict = rd.konto_dict[konto_name].pickle_obj.get_ddict()
         # endif
         
         # type
-        konto_data_obj.data_dict[rd.par.DDICT_TYPE_NAME] = rd.par.KONTO_DATA_TYPE_NAME
+        rd.konto_dict[konto_name].data_dict[rd.par.DDICT_TYPE_NAME] = rd.par.KONTO_DATA_TYPE_NAME
         
         # Umbau filter vorübergehend
-        konto_data_obj.data_dict = umbau_kont_data_dict_filter(rd.par,depot_konto_data_set_class.KontoParam
-                                                          ,konto_data_obj.data_dict)
+        rd.konto_dict[konto_name].data_dict = umbau_kont_data_dict_filter(rd.par,depot_konto_data_set_class.KontoParam
+                                                          ,rd.konto_dict[konto_name].data_dict)
         # Tvariable bilden
-        konto_data_obj.data_dict_tvar = build_konto_transform_data_dict(rd.par,konto_data_obj.data_dict)
+        rd.konto_dict[konto_name].data_dict_tvar = build_konto_transform_data_dict(rd.par,rd.konto_dict[konto_name].data_dict)
         
         # konto Klasse bilden
-        konto_data_obj.konto_obj = depot_konto_data_set_class.KontoDataSet(
+        rd.konto_dict[konto_name].konto_obj = depot_konto_data_set_class.KontoDataSet(
             konto_name,rd.allg.idfunc,rd.allg.wpfunc,rd.allg.katfunc)
         
+        print(f"{konto_name =}: {rd.konto_dict[konto_name].konto_obj} ; {hex(id(rd.konto_dict[konto_name].konto_obj))}")
+        
         # gespeicherte DatenSet übergeben  data_dict_tvar[]
-        konto_data_obj.konto_obj.set_stored_data_set_tvar(konto_data_obj.data_dict_tvar[rd.par.KONTO_DATA_SET_TABLE_NAME]
+        rd.konto_dict[konto_name].konto_obj.set_stored_data_set_tvar(rd.konto_dict[konto_name].data_dict_tvar[rd.par.KONTO_DATA_SET_TABLE_NAME]
                                                     ,rd.ini.dict_tvar[konto_name][rd.par.INI_START_DATUM_NAME]
                                                     ,rd.ini.dict_tvar[konto_name][rd.par.INI_START_WERT_NAME])
-        
-        rd.konto_dict[konto_name] = copy.deepcopy(konto_data_obj)
-        
-        del konto_data_obj
-        
+                
     # endfor
 
     #================================================================================
@@ -269,6 +267,7 @@ def data_set(rd):
         # Klassen-Objekt erstellen
         csv_data_obj.csv_obj = depot_konto_csv_read_class.KontoCsvRead(csv_data_obj.data_dict_tvar[rd.par.CSV_TRENNZEICHEN]
                                                      ,csv_data_obj.data_dict_tvar[rd.par.CSV_WERT_PRUEFUNG]
+                                                     ,csv_data_obj.data_dict_tvar[rd.par.CSV_PFAD_CSV_DATEI]
                                                      ,csv_data_obj.data_dict_tvar[rd.par.CSV_BUCHTYPE_ZUORDNUNG_NAME]
                                                      ,csv_data_obj.data_dict_tvar[rd.par.CSV_HEADER_ZUORDNUNG_NAME]
                                                      ,csv_data_obj.data_dict_tvar[rd.par.CSV_HEADER_TYPE_ZUORDNUNG_NAME])
@@ -348,11 +347,14 @@ def data_set(rd):
         # end if
         
         # depot obj Klasse
+        
+        print(f"{depot_name =} {konto_name =}: {rd.konto_dict[konto_name].konto_obj} ; {hex(id(rd.konto_dict[konto_name].konto_obj))}")
+        
         depot_data_obj.depot_obj = depot_depot_data_set_class.DepotDataSet(depot_name
                                                                          ,depot_data_obj.data_dict[rd.par.DEPOT_DATA_ISIN_LIST_NAME]
                                                                          ,depot_data_obj.data_dict[rd.par.DEPOT_DATA_DEPOT_WP_LIST_NAME]
                                                                          ,rd.allg.wpfunc
-                                                                         ,rd.konto_dict[konto_name].konto_obj)
+                                                                         ,konto_name)
         
         if (depot_data_obj.depot_obj.status != hdef.OK):
             status = hdef.NOT_OKAY
@@ -804,16 +806,13 @@ def get_csv_dict_values_from_ini(csv_config_name,par,ini_dict):
     # type
     data_dict[par.DDICT_TYPE_NAME] = par.CSV_DATA_TYPE_NAME
 
-    # INI_CSV_PROOF_LISTE = [(INI_CSV_TRENNZEICHEN, "str")
-    #     , (INI_CSV_HEADER_NAMEN, "list")
-    #     , (INI_CSV_HEADER_ZUORDNUNG, "list_str")
-    #     , (INI_CSV_HEADER_DATA_TYPE, "list_str")
-    #     , (INI_CSV_BUCHTYPE_NAMEN, "list")
-    #     , (INI_CSV_BUCHTYPE_ZUORDNUNG, "list_str")]
-
     # Trennungszeichen in csv-Datei
     #--------------------------------
     data_dict[par.CSV_TRENNZEICHEN] = ini_dict[par.INI_CSV_TRENNZEICHEN]
+
+    # Datei-Pfad-Vorschlag in csv-Datei
+    #--------------------------------
+    data_dict[par.CSV_PFAD_CSV_DATEI] = ini_dict[par.INI_CSV_PFAD_CSV_DATEI]
 
     # wert prüfung in csv-Datei
     #--------------------------------
@@ -874,6 +873,9 @@ def build_csv_transform_data_dict(csv_config_name,par,data_dict):
     
     # CSV_TRENNZEICHEN
     data_dict_tvar[par.CSV_TRENNZEICHEN] = htvar.build_val(par.CSV_TRENNZEICHEN, data_dict[par.CSV_TRENNZEICHEN], 'str')
+
+    # CSV_PFAD_CSV_DATEI
+    data_dict_tvar[par.CSV_PFAD_CSV_DATEI] = htvar.build_val(par.CSV_PFAD_CSV_DATEI, data_dict[par.CSV_PFAD_CSV_DATEI], 'str')
 
     # CSV_WERT_PRUEFUNG
     data_dict_tvar[par.CSV_WERT_PRUEFUNG] = htvar.build_val(par.CSV_WERT_PRUEFUNG, data_dict[par.CSV_WERT_PRUEFUNG], 'str')
