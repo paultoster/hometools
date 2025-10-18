@@ -129,9 +129,11 @@ def data_set(rd):
     else:
         use_json = 0
     # end if
+    
+    make_backup = rd.ini.ddict[rd.par.INI_DATA_PICKLE_MAKE_BACKUP]
 
     # pickle object
-    rd.allg.pickle_obj = hpickle.DataPickle(rd.par.ALLG_PREFIX_NAME,rd.par.ALLG_DATA_NAME,use_json)
+    rd.allg.pickle_obj = hpickle.DataPickle(rd.par.ALLG_PREFIX_NAME,rd.par.ALLG_DATA_NAME,use_json,make_backup)
     if (rd.allg.pickle_obj.status != hdef.OK):
         status = hdef.NOT_OKAY
         errtext = rd.allg.pickle_obj.errtext
@@ -168,6 +170,10 @@ def data_set(rd):
     if os.path.isfile(rd.ini.ddict[rd.par.INI_KONTO_KAT_JSON_FILE_NAME]):
         
         rd.allg.kat_json_obj = hpickle.DataJson(rd.ini.ddict[rd.par.INI_KONTO_KAT_JSON_FILE_NAME])
+
+        if rd.ini.ddict[rd.par.INI_DATA_PICKLE_MAKE_BACKUP]:
+            rd.allg.kat_json_obj.make_backup()
+
         rd.allg.kat_json_obj.read()
         if rd.allg.kat_json_obj.status != hdef.OKAY:
             status = hdef.NOT_OKAY
@@ -214,9 +220,11 @@ def data_set(rd):
             use_json = 0
         # end if
         
+        make_backup = rd.ini.ddict[rd.par.INI_DATA_PICKLE_MAKE_BACKUP]
+        
         # get data set
         #-------------
-        rd.konto_dict[konto_name].pickle_obj = hpickle.DataPickle(rd.par.KONTO_PREFIX, konto_name, use_json)
+        rd.konto_dict[konto_name].pickle_obj = hpickle.DataPickle(rd.par.KONTO_PREFIX, konto_name, use_json,make_backup)
         if (rd.konto_dict[konto_name].pickle_obj.status != hdef.OK):
             status = hdef.NOT_OKAY
             errtext = rd.konto_dict[konto_name].pickle_obj.errtext
@@ -324,8 +332,10 @@ def data_set(rd):
             use_json = 0
         # end if
         
+        make_backup = rd.ini.ddict[rd.par.INI_DATA_PICKLE_MAKE_BACKUP]
+        
         # get data set
-        depot_data_obj.pickle_obj = hpickle.DataPickle(rd.par.DEPOT_PREFIX, depot_name, use_json)
+        depot_data_obj.pickle_obj = hpickle.DataPickle(rd.par.DEPOT_PREFIX, depot_name, use_json,make_backup)
         if (depot_data_obj.pickle_obj.status != hdef.OK):
             status = hdef.NOT_OKAY
             errtext = depot_data_obj.pickle_obj.errtext
@@ -377,7 +387,9 @@ def data_set(rd):
                 use_json_wp = 0
             # end if
             
-            wp_data_obj.pickle_obj = hpickle.DataPickle(rd.par.DEPOT_WP_PREFIX, wp_list_name, use_json_wp)
+            make_backup = rd.ini.ddict[rd.par.INI_DATA_PICKLE_MAKE_BACKUP]
+            
+            wp_data_obj.pickle_obj = hpickle.DataPickle(rd.par.DEPOT_WP_PREFIX, wp_list_name, use_json_wp,make_backup)
             if (wp_data_obj.pickle_obj.status != hdef.OK):
                 status = hdef.NOT_OKAY
                 errtext = wp_data_obj.pickle_obj.errtext
@@ -431,7 +443,10 @@ def data_set(rd):
     else:
         use_json = 0
     # end if
-    iban_data_obj.pickle_obj = hpickle.DataPickle(rd.par.IBAN_PREFIX, rd.ini.ddict[rd.par.INI_IBAN_LIST_FILE_NAME], use_json)
+    
+    make_backup = rd.ini.ddict[rd.par.INI_DATA_PICKLE_MAKE_BACKUP]
+    
+    iban_data_obj.pickle_obj = hpickle.DataPickle(rd.par.IBAN_PREFIX, rd.ini.ddict[rd.par.INI_IBAN_LIST_FILE_NAME], use_json,make_backup)
     
     if (iban_data_obj.pickle_obj.status != hdef.OK):
         status = hdef.NOT_OKAY
@@ -574,7 +589,9 @@ def data_save(rd):
                     use_json_wp = 0
                 # end if
                 
-                wp_data_obj.pickle_obj = hpickle.DataPickle(rd.par.DEPOT_WP_PREFIX, wp_list_name, use_json_wp)
+                make_backup = rd.ini.ddict[rd.par.INI_DATA_PICKLE_MAKE_BACKUP]
+                
+                wp_data_obj.pickle_obj = hpickle.DataPickle(rd.par.DEPOT_WP_PREFIX, wp_list_name, use_json_wp,make_backup)
                 if (wp_data_obj.pickle_obj.status != hdef.OKAY):
                     status = hdef.NOT_OKAY
                     errtext = f"{errtext}/ allg: {wp_data_obj.pickle_obj.errtext}"

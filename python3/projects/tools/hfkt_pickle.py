@@ -35,7 +35,7 @@
 import os, sys
 import pickle
 import json
-import pprint
+import datetime
 import zlib
 import traceback
 
@@ -46,12 +46,14 @@ if (tools_path not in sys.path):
 
 # Hilfsfunktionen
 import tools.hfkt_def as hdef
+import tools.hfkt_date_time as hdate
+import tools.hfkt_file_path as hfile
 
 class DataPickle:
     OKAY = hdef.OK
     NOT_OKAY = hdef.NOT_OK
     
-    def __init__(self, name_prefix: str, body_name: str, use_json: int):
+    def __init__(self, name_prefix: str, body_name: str, use_json: int, run_backup: int=0):
         '''
         build data dict
         :param name_prefix: Filename
@@ -74,6 +76,10 @@ class DataPickle:
             self.filename_json = body_name + ".json"
         # end if
         
+        if run_backup:
+            make_backup(self.filename)
+            make_backup(self.filename_json)
+
         self.name = body_name
         self.use_json = use_json
         
@@ -259,6 +265,9 @@ class DataJson:
     def get_filename(self):
         return self.filename_json
     # end def
+    def make_backup(self):
+        make_backup(self.filename_json)
+        return
     def read(self):
         
         if (os.path.isfile(self.filename_json)):
@@ -330,26 +339,56 @@ class DataJson:
             return
             
     # enddef
-
-
+# end class
+def make_backup(filename):
+    '''
+    Mach Backup, wennn filename vorhanden und noch kein Backup gemacht mit Datum gemacht ist
+    :param filename:
+    :return: None
+    '''
+    if os.path.isfile(filename):
+        
+        t = os.path.getmtime(filename)
+        
+        (p, fbody, ext) = hfile.get_pfe(filename)
+        
+        backup_body_name = hdate.secs_time_epoch_to_str(t,'_',True,True) + "_" + fbody
+        backup_filename = hfile.set_pfe(p, backup_body_name, ext)
+        
+        if not os.path.isfile(backup_filename):
+            okay = hfile.copy(filename, backup_filename, silent=1)
+            if okay == hdef.OKAY:
+                print(f"Backupcopy: {filename} => {backup_filename}")
+            else:
+                print(f"!!!! No Backupcopy: {filename} => {backup_filename}")
+        # end if
+    # end if
+    return
+    
 ###########################################################################
 # testen mit main
 ###########################################################################
 if __name__ == '__main__':
-    # chnage to directory of data-Files
-    WORKING_DIRECTORY = "K:/data/orga/Toped_save_250823"
-    os.chdir(WORKING_DIRECTORY)
-
-    obj = DataPickle("depot_wp_smartbroker_depot", "DE000A0S9GB0",1)
     
-    if obj.status != hdef.OKAY:
-        print(f"Error: {obj.errtext}")
-        exit(1)
-    else:
-        ddict = obj.get_ddict()
-        print(ddict)
-        obj.save()
-    # end if
+    # with open("demofile.txt", "a") as f:
+    #     f.write("Now the file has more content!")
+    # # end with
+    make_backup("demofile.txt")
+    
+    # # chnage to directory of data-Files
+    # WORKING_DIRECTORY = "K:/data/orga/Toped_save_250823"
+    # os.chdir(WORKING_DIRECTORY)
+    #
+    # obj = DataPickle("depot_wp_smartbroker_depot", "DE000A0S9GB0",1)
+    #
+    # if obj.status != hdef.OKAY:
+    #     print(f"Error: {obj.errtext}")
+    #     exit(1)
+    # else:
+    #     ddict = obj.get_ddict()
+    #     print(ddict)
+    #     obj.save()
+    # # end if
     
 
 

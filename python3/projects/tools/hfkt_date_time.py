@@ -15,7 +15,7 @@
  secs = secs_time_epoch_from_str_re(str_dat)
  secs = secs_time_epoch_from_str(str_dat,delim=".")
  secs = secs_time_epoch_from_int(intval,plus_hours)
- string = secs_time_epoch_to_str(secs): Wandelt in string Datum
+ string = secs_time_epoch_to_str(secs,delim=".",date_inverse_flag=False,with_time_flag=False): Wandelt in string Datum
  int    = secs_time_epoch_to_int(secs): Wandelt in int Datum
  flag   = datum_str_is_correct(str_dat,delim=".")
  strnew = datum_str_make_correction(str_dat,delim=".")
@@ -853,12 +853,18 @@ def secs_time_epoch_from_str(str_dat, delim="."):
 
 
 ########################################################################################################################
-def secs_time_epoch_to_str(secs,delim="."):
+def secs_time_epoch_to_str(secs,delim=".",date_inverse_flag=False,with_time_flag=False):
     """
     Wandelt epochen Zeist in secs nach Datum tt.m.yyyy
     """
-    
-    format = "%d"+delim+"%m"+delim+"%Y"
+    if date_inverse_flag:
+        format = "%Y"+delim+"%m"+delim+"%d"
+    else:
+        format = "%d" + delim + "%m" + delim + "%Y"
+    # end if
+    if with_time_flag:
+        format += delim + "%H"+ delim + "%M"+ delim + "%S"
+    # end if
     
     if isinstance(secs, list):
         strtime = []

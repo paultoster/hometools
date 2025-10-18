@@ -217,7 +217,7 @@ def proof_transform_ddict_to_tvar(ddict, proof_liste):
         # end if
         
         if proof_name and (name not in ddict):
-            if default_value:
+            if default_value is not None:
                 ddict[name] = default_value
             else:
                 status = hdef.NOT_OKAY
