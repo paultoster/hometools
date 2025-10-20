@@ -1608,11 +1608,15 @@ class KontoDataSet:
         :return: value = self.get_data_item_at_irow(irow,data_name,data_type)
         '''
         if irow < self.data_set_obj.get_n_data():
-            
+            if irow == 2:
+                a=0
+                
             value = self.data_set_obj.get_data_item(irow,data_name,data_type)
+            
             if self.data_set_obj.status != hdef.OKAY:
+                org_data_type = self.data_set_obj.get_type_of_header(data_name)
                 raise Exception(
-                    f"get_data_item_at_irow: Fehler get_data_item irow: {irow} has no data_name: {data_name} and/or type: <{self.par.KONTO_DATA_TYPE_DICT[index]}> in type <{data_type}> !!!")
+                    f"get_data_item_at_irow: Fehler get_data_item irow: {irow} has no data_name: {data_name} and/or type: <{org_data_type}> in type <{data_type}> !!!")
             # end if
             return value
         else:

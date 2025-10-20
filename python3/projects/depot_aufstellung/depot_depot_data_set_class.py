@@ -187,10 +187,11 @@ class DepotDataSet:
      status                        = obj.set_kurs_value(isin,irow)
      status                        = obj.update_data_ttable(isin,changed_pos_list,ttable_update)
     '''
-    def __init__(self,depot_name,isin_liste,wp_name_liste,wp_func_obj,konto_name):
+    def __init__(self,depot_name,isin_liste,wp_name_liste,wp_func_obj,konto_obj):
     
         self.depot_name = depot_name
-        self.konto_name = konto_name
+        self.konto_obj  = konto_obj
+        self.konto_name = konto_obj.get_konto_name()
         self.par = DepotParam()
         
         self.DEPOT_DATA_TO_SHOW_DICT = {}
@@ -200,7 +201,7 @@ class DepotDataSet:
         self.infotext = ""
 
         self.wp_func_obj = wp_func_obj
-        # self.konto_obj = konto_obj
+        
         
         (self.isin_liste,self.wp_name_liste) = hlist.sort_two_list(isin_liste,wp_name_liste)
         # self.isin_liste = sorted(isin_liste)
@@ -415,8 +416,14 @@ class DepotDataSet:
         self.errtext = ""
         self.infotext = ""
         
-        # print
-
+        # print test
+        if self.konto_obj != konto_obj:
+            print('-=-' * 30)
+            print(f"set konto_obj {self.konto_obj = } does not fit with external set {konto_obj =}")
+            print('-=-' * 30)
+            raise Exception(f"set konto_obj {self.konto_obj = } does not fit with external set {konto_obj =}")
+        # end if
+        
         n = konto_obj.get_number_of_data()
         flag_read = False
         # new_data_dict_list = []
@@ -425,6 +432,12 @@ class DepotDataSet:
         isin_new_or_update_liste = []
         for irow in range(n):
             buchtype_str = konto_obj.get_buchtype_str(irow)
+            
+            if buchtype_str == self.par.DEPOT_BUCHTYPE_NAME_UNBEKANNT:
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"Error update_from_konto_data: In {irow =} ist buchttype = {buchtype_str}. Korrigiere in Konto wp-Buchungen!!! "
+                return False
+            # end if
             
             if buchtype_str in self.par.DEPOT_DATA_BUCHTYPE_DICT.values():
                 
@@ -506,6 +519,15 @@ class DepotDataSet:
         :param buch_type:
         :return:  tlist = self.get_konto_data_at_irow_tlist(irow,buch_type)
         '''
+        
+        # print test
+        if self.konto_obj != konto_obj:
+            print('-=-' * 30)
+            print(f"set konto_obj {self.konto_obj = } does not fit with external set {konto_obj =}")
+            print('-=-' * 30)
+            raise Exception(f"set konto_obj {self.konto_obj = } does not fit with external set {konto_obj =}")
+        # end if
+
         new_vals    = [None for i in self.par.DEPOT_KONTO_DATA_INDEX_LIST]
         new_types   = [None for i in self.par.DEPOT_KONTO_DATA_INDEX_LIST]
         new_headers = [None for i in self.par.DEPOT_KONTO_DATA_INDEX_LIST]
@@ -538,7 +560,13 @@ class DepotDataSet:
         
         isin_proof = htvar.get_val_from_list(new_data_tlist,self.par.DEPOT_DATA_NAME_ISIN)
         id = htvar.get_val_from_list(new_data_tlist,self.par.DEPOT_DATA_NAME_KONTO_ID)
-
+        
+        if len(isin_proof) == 0:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"Error proof_raw_dict_isin_id: Von new_data_tlist isin ist leer Korrigiere in Konto wp-Buchungen müssen eine isin haben {new_data_tlist =} "
+            return (False,isin_proof,id)
+        # end if
+        
         # proof isin
         # -----------
         (okay, isin) = htype.type_proof(isin_proof,self.par.DEPOT_DATA_TYPE_DICT[self.par.DEPOT_DATA_INDEX_ISIN])
@@ -774,7 +802,7 @@ class DepotDataSet:
         (okay, summe_wert) = htype.type_transform(summe_wert, 'euro', type_liste[4])
         (okay, summe_einnahmen) = htype.type_transform(summe_einnahmen, 'euro', type_liste[5])
         
-        end_zeile = htype.type_get_default(type_liste)
+        end_zeile = htype.type_get_default(type_liste,value_flag=False)
         
         end_zeile[1] = "Summe:"
         end_zeile[4] = summe_wert
@@ -1068,6 +1096,14 @@ class DepotDataSet:
         :param irow:
         :return: flag = self.delete_in_data_set(isin,irow)
         '''
+
+        # print test
+        if self.konto_obj != konto_obj:
+            print('-=-' * 30)
+            print(f"set konto_obj {self.konto_obj = } does not fit with external set {konto_obj =}")
+            print('-=-' * 30)
+            raise Exception(f"set konto_obj {self.konto_obj = } does not fit with external set {konto_obj =}")
+        # end if
 
         if isin not in self.isin_liste:
             self.status = hdef.NOT_OKAY

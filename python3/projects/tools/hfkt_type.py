@@ -374,7 +374,7 @@ def type_proof_str_excel_float(wert_in):
 
 
 # enddef
-def type_get_default(type):
+def type_get_default(type,value_flag=True):
     '''
     
     :param type: siehe unten
@@ -382,10 +382,25 @@ def type_get_default(type):
     '''
     
     if isinstance(type, list):
-        return type_get_default_list(type)
+        if value_flag:
+            return type_get_default_list_value(type)
+        else: # list_flag
+            return type_get_default_list(type)
     else:
         return type_get_default_single(type)
     # end if
+# end def
+def type_get_default_list_value(type_list):
+    if len(type_list) == 0:
+        return None
+    else:
+        return type_list[0]
+    # end if
+    # liste = [None for j in range(len(type_list))]
+    # for i,type in enumerate(type_list):
+    #     liste[i] = type_get_default(type)
+    # # end for
+    # return liste
 # end def
 def type_get_default_list(type_list):
     if len(type_list) == 0:
@@ -807,7 +822,9 @@ def type_proof_isin(wert_in):
     if (okay == hdef.OKAY):
         
         isins = find_ISIN(wert)
-        if( len(isins) > 0 ):
+        if len(isins) == 0:
+            wert = ""
+        elif len(isins) > 0:
             (okay, errtext, number) = isin_validate(isins[0])
             if okay == hdef.OKAY:
                 wert = number

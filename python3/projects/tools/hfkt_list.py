@@ -484,12 +484,20 @@ def sort_two_list(liste1, liste2, aufsteigend=1):
     :param aufsteigend:
     :return: (newliste1,newliste2) = sort_two_list(liste1,liste2,aufsteigend=1)
     '''
-    if aufsteigend:
-        newliste1, newliste2 = (list(t) for t in zip(*sorted(zip(liste1, liste2))))
-    else:
-        newliste1, newliste2 = (list(t) for t in zip(*sorted(zip(liste1, liste2), reverse=True)))
+    if len(liste1) != len(liste2):
+        raise Exception(f"sort_two_list: len(liste1) not same as len(liste2) \n {liste1 =} \n {liste2 =}")
     # end if
     
+    if len(liste1) == 0:
+        newliste1 = liste1
+        newliste2 = liste2
+    else:
+        if aufsteigend:
+            newliste1, newliste2 = (list(t) for t in zip(*sorted(zip(liste1, liste2))))
+        else:
+            newliste1, newliste2 = (list(t) for t in zip(*sorted(zip(liste1, liste2), reverse=True)))
+        # end if
+    # end if
     return (newliste1, newliste2)
 
 

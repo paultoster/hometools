@@ -324,7 +324,7 @@ def data_set(rd):
     #================================================================================
     for depot_name in rd.ini.ddict[rd.par.INI_DEPOT_DATA_LIST_NAMES_NAME]:
         
-        depot_data_obj = DepotData()
+        rd.depot_dict[depot_name] = DepotData()
         
         if depot_name in rd.ini.ddict[rd.par.INI_DATA_PICKLE_JSONFILE_LIST]:
             use_json = rd.ini.ddict[rd.par.INI_DATA_PICKLE_USE_JSON]
@@ -335,20 +335,25 @@ def data_set(rd):
         make_backup = rd.ini.ddict[rd.par.INI_DATA_PICKLE_MAKE_BACKUP]
         
         # get data set
-        depot_data_obj.pickle_obj = hpickle.DataPickle(rd.par.DEPOT_PREFIX, depot_name, use_json,make_backup)
-        if (depot_data_obj.pickle_obj.status != hdef.OK):
+        rd.depot_dict[depot_name].pickle_obj = hpickle.DataPickle(rd.par.DEPOT_PREFIX, depot_name, use_json,make_backup)
+        if (rd.depot_dict[depot_name].pickle_obj.status != hdef.OK):
             status = hdef.NOT_OKAY
-            errtext = depot_data_obj.pickle_obj.errtext
+            errtext = rd.depot_dict[depot_name].pickle_obj.errtext
             return (status, errtext)
         else:
-            depot_data_obj.data_dict = depot_data_obj.pickle_obj.get_ddict()
+            rd.depot_dict[depot_name].data_dict = rd.depot_dict[depot_name].pickle_obj.get_ddict()
         # endif
         
         # type
-        depot_data_obj.data_dict[rd.par.DDICT_TYPE_NAME] = rd.par.DEPOT_DATA_TYPE_NAME
+        rd.depot_dict[depot_name].data_dict[rd.par.DDICT_TYPE_NAME] = rd.par.DEPOT_DATA_TYPE_NAME
         
+        # depot_data_isin_list
+        if rd.par.DEPOT_DATA_ISIN_LIST_NAME not in rd.depot_dict[depot_name].data_dict.keys():
+            rd.depot_dict[depot_name].data_dict[rd.par.DEPOT_DATA_ISIN_LIST_NAME] = []
+            rd.depot_dict[depot_name].data_dict[rd.par.DEPOT_DATA_DEPOT_WP_LIST_NAME] = []
+
         # Tvariable bilden
-        depot_data_obj.data_dict_tvar = build_depot_transform_data_dict(rd.par,depot_data_obj.data_dict)
+        rd.depot_dict[depot_name].data_dict_tvar = build_depot_transform_data_dict(rd.par,rd.depot_dict[depot_name].data_dict)
         
         # zugehöriges Konto
         konto_name = rd.ini.ddict[depot_name][rd.par.INI_DEPOT_KONTO_NAME]
@@ -356,29 +361,28 @@ def data_set(rd):
             raise Exception(f"data_set: {konto_name = } sind nicht im ini-File als konto definition (section) vorhanden")
         # end if
         
-        # depot obj Klasse
+        # depot obj
+        print(f"{depot_name =} {konto_name =}")
         
-        print(f"{depot_name =} {konto_name =}: {rd.konto_dict[konto_name].konto_obj} ; {hex(id(rd.konto_dict[konto_name].konto_obj))}")
-        
-        depot_data_obj.depot_obj = depot_depot_data_set_class.DepotDataSet(depot_name
-                                                                         ,depot_data_obj.data_dict[rd.par.DEPOT_DATA_ISIN_LIST_NAME]
-                                                                         ,depot_data_obj.data_dict[rd.par.DEPOT_DATA_DEPOT_WP_LIST_NAME]
+        rd.depot_dict[depot_name].depot_obj = depot_depot_data_set_class.DepotDataSet(depot_name
+                                                                         ,rd.depot_dict[depot_name].data_dict[rd.par.DEPOT_DATA_ISIN_LIST_NAME]
+                                                                         ,rd.depot_dict[depot_name].data_dict[rd.par.DEPOT_DATA_DEPOT_WP_LIST_NAME]
                                                                          ,rd.allg.wpfunc
-                                                                         ,konto_name)
+                                                                         ,rd.konto_dict[konto_name].konto_obj)
         
-        if (depot_data_obj.depot_obj.status != hdef.OK):
+        if (rd.depot_dict[depot_name].depot_obj.status != hdef.OK):
             status = hdef.NOT_OKAY
-            errtext = depot_data_obj.depot_obj.errtext
+            errtext = rd.depot_dict[depot_name].depot_obj.errtext
             return (status, errtext)
         # end if
         
         # load each depot_wp_data_set
-        wp_name_liste = depot_data_obj.depot_obj.get_wp_name_liste()
-        for i,isin in enumerate(depot_data_obj.depot_obj.get_isin_liste()):
-            
-            wp_data_obj = WpData()
+        wp_name_liste = rd.depot_dict[depot_name].depot_obj.get_wp_name_liste()
+        for i,isin in enumerate(rd.depot_dict[depot_name].depot_obj.get_isin_liste()):
             
             wp_list_name = wp_name_liste[i]
+
+            rd.depot_dict[depot_name].wp_obj_dict[wp_list_name] = WpData()
             
             # get data set
             if wp_list_name in rd.ini.ddict[rd.par.INI_DATA_PICKLE_JSONFILE_LIST]:
@@ -389,48 +393,44 @@ def data_set(rd):
             
             make_backup = rd.ini.ddict[rd.par.INI_DATA_PICKLE_MAKE_BACKUP]
             
-            wp_data_obj.pickle_obj = hpickle.DataPickle(rd.par.DEPOT_WP_PREFIX, wp_list_name, use_json_wp,make_backup)
-            if (wp_data_obj.pickle_obj.status != hdef.OK):
+            rd.depot_dict[depot_name].wp_obj_dict[wp_list_name].pickle_obj = hpickle.DataPickle(rd.par.DEPOT_WP_PREFIX, wp_list_name, use_json_wp,make_backup)
+            if (rd.depot_dict[depot_name].wp_obj_dict[wp_list_name].pickle_obj.status != hdef.OK):
                 status = hdef.NOT_OKAY
-                errtext = wp_data_obj.pickle_obj.errtext
+                errtext = rd.depot_dict[depot_name].wp_obj_dict[wp_list_name].pickle_obj.errtext
                 return (status, errtext)
             else:
-                wp_data_obj.data_dict = wp_data_obj.pickle_obj.get_ddict()
+                rd.depot_dict[depot_name].wp_obj_dict[wp_list_name].data_dict = rd.depot_dict[depot_name].wp_obj_dict[wp_list_name].pickle_obj.get_ddict()
             # endif
             
-            if len(wp_data_obj.data_dict) == 0:
-                depot_data_obj.depot_obj.set_stored_wp_data_set_ttable(isin,"",None)
-                wp_data_obj.wp_obj = depot_data_obj.depot_obj.get_wp_data_obj(isin)
+            if len(rd.depot_dict[depot_name].wp_obj_dict[wp_list_name].data_dict) == 0:
+                rd.depot_dict[depot_name].depot_obj.set_stored_wp_data_set_ttable(isin,"",None)
+                rd.depot_dict[depot_name].wp_obj_dict[wp_list_name].wp_obj = rd.depot_dict[depot_name].depot_obj.get_rd.depot_dict[depot_name].wp_obj_dict[wp_list_name](isin)
             else:
-                wp_data_obj.data_dict[rd.par.DDICT_TYPE_NAME] = rd.par.DEPOT_WP_DATA_TYPE_NAME
+                rd.depot_dict[depot_name].wp_obj_dict[wp_list_name].data_dict[rd.par.DDICT_TYPE_NAME] = rd.par.DEPOT_WP_DATA_TYPE_NAME
             
                 # Umbau filter vorübergehend
                 try:
-                    wp_data_obj.data_dict = umbau_wp_data_dict_filter(rd.par, wp_data_obj.data_dict)
+                    rd.depot_dict[depot_name].wp_obj_dict[wp_list_name].data_dict = umbau_wp_data_dict_filter(rd.par, rd.depot_dict[depot_name].wp_obj_dict[wp_list_name].data_dict)
                 except:
-                    wp_data_obj.data_dict = umbau_wp_data_dict_filter(rd.par, wp_data_obj.data_dict)
+                    rd.depot_dict[depot_name].wp_obj_dict[wp_list_name].data_dict = umbau_wp_data_dict_filter(rd.par, rd.depot_dict[depot_name].wp_obj_dict[wp_list_name].data_dict)
                 # end try
             
                 # Tvariable bilden
-                wp_data_obj.data_dict_tvar = build_wp_transform_data_dict(rd.par, wp_data_obj.data_dict)
+                rd.depot_dict[depot_name].wp_obj_dict[wp_list_name].data_dict_tvar = build_wp_transform_data_dict(rd.par, rd.depot_dict[depot_name].wp_obj_dict[wp_list_name].data_dict)
             
-                depot_data_obj.depot_obj.set_stored_wp_data_set_ttable(wp_data_obj.data_dict[rd.par.ISIN]
-                                                               ,wp_data_obj.data_dict[rd.par.WP_KATEGORIE]
-                                                               ,wp_data_obj.data_dict_tvar[rd.par.WP_DATA_SET_TABLE_NAME])
-                wp_data_obj.wp_obj = depot_data_obj.depot_obj.get_wp_data_obj(wp_data_obj.data_dict[rd.par.ISIN])
+                rd.depot_dict[depot_name].depot_obj.set_stored_wp_data_set_ttable(rd.depot_dict[depot_name].wp_obj_dict[wp_list_name].data_dict[rd.par.ISIN]
+                                                               ,rd.depot_dict[depot_name].wp_obj_dict[wp_list_name].data_dict[rd.par.WP_KATEGORIE]
+                                                               ,rd.depot_dict[depot_name].wp_obj_dict[wp_list_name].data_dict_tvar[rd.par.WP_DATA_SET_TABLE_NAME])
+                rd.depot_dict[depot_name].wp_obj_dict[wp_list_name].wp_obj = rd.depot_dict[depot_name].depot_obj.get_wp_data_obj(rd.depot_dict[depot_name].wp_obj_dict[wp_list_name].data_dict[rd.par.ISIN])
             # end if
-            
-            
-            
-            depot_data_obj.wp_obj_dict[wp_list_name] = copy.deepcopy(wp_data_obj)
-            del wp_data_obj
         # end for
         
-        rd.depot_dict[depot_name] = copy.deepcopy(depot_data_obj)
-        
-        del depot_data_obj
-        
     # endfor
+    for depot_name in rd.ini.ddict[rd.par.INI_DEPOT_DATA_LIST_NAMES_NAME]:
+        print('-=-' * 30)
+        konto_name = rd.depot_dict[depot_name].depot_obj.konto_name
+        print(f"depot konto_obj {rd.depot_dict[depot_name].depot_obj.konto_obj = } \n == external set {rd.konto_dict[konto_name].konto_obj =}")
+        print('-=-' * 30)
     
     #================================================================================
     # iban-liste pickle --------------------------------------------
