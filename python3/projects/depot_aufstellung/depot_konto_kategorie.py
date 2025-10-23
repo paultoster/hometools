@@ -31,10 +31,12 @@ def anzeige(rd, konto_obj):
     '''
     
     status = hdef.OKAY
-    abfrage_liste = ["ende", "regel(run)"]
+    abfrage_liste = ["ende", "regel(run)", "kat(edit)","hkat(edit)"]
     i_end = 0
     i_regel_anwenden = 1
-    
+    i_edit_kategorie = 2
+    i_edit_haupt_kategorie = 3
+
     data_changed_pos_list = []
     ttable_anzeige = None
     runflag = True
@@ -65,7 +67,7 @@ def anzeige(rd, konto_obj):
         # ----------------------------
         elif (index_abfrage == i_regel_anwenden):
             
-            # Daten updaten, wenn Kategorie geändert
+            # Daten updaten, wenn Kategorie in der Eingabe geändert
             if len(data_changed_pos_list) > 0:
                 konto_obj.write_anzeige_back_data(ttable_anzeige, data_changed_pos_list,"kategorie")
                 if konto_obj.status != hdef.OKAY:
@@ -76,10 +78,13 @@ def anzeige(rd, konto_obj):
             # end if
 
             if status == hdef.OKAY:
+                
+                # Regeln anwenden
                 konto_obj.kategorie_regel_anwenden()
+                
                 if konto_obj.status != hdef.OKAY:
                     rd.log.write_err("konto_kategorie regel anwenden" + konto_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
-                    return (status, konto_obj)
+                    return (konto_obj.status, konto_obj)
                 else:
                     if len(konto_obj.infotext):
                         rd.log.write_info("konto_kategorie regel anwenden" + konto_obj.infotext, screen=rd.par.LOG_SCREEN_OUT)
@@ -87,6 +92,44 @@ def anzeige(rd, konto_obj):
                 # endif
                 runflag = True
             # end if
+        elif index_abfrage == i_edit_kategorie:
+            
+            kat_dict = rd.allg.katfunc.get_kat_dict()
+            
+            kat_dict_mod = depot_gui.konto_kat_abfrage(rd.gui, kat_dict)
+            
+            if len(kat_dict_mod) > 0:
+                rd.allg.katfunc.set_kat_dict(kat_dict_mod)
+                
+                if rd.allg.katfunc.status != hdef.OKAY:
+                    rd.log.write_err("konto_kategorie edit kategorie" + rd.allg.katfunc.errtext, screen=rd.par.LOG_SCREEN_OUT)
+                    return (rd.allg.katfunc.status, konto_obj)
+
+                if len(rd.allg.katfunc.infotext) > 0:
+                    rd.log.write_info("konto_kategorie kat(edit): " + rd.allg.katfunc.infotext,
+                                      screen=rd.par.LOG_SCREEN_OUT)
+                # end if
+            # end if
+            runflag = True
+        elif index_abfrage == i_edit_haupt_kategorie:
+            
+            hkat_list = rd.allg.katfunc.get_hkat_list()
+            
+            hkat_list_mod = depot_gui.konto_hkat_abfrage(rd.gui, hkat_list)
+            
+            if len(hkat_list_mod) > 0:
+                rd.allg.katfunc.set_hkat_list(hkat_list_mod)
+                
+                if rd.allg.katfunc.status != hdef.OKAY:
+                    rd.log.write_err("konto_kategorie edit haupt kategorie" + rd.allg.katfunc.errtext, screen=rd.par.LOG_SCREEN_OUT)
+                    return (rd.allg.katfunc.status, konto_obj)
+
+                if len(rd.allg.katfunc.infotext) > 0:
+                    rd.log.write_info("konto_kategorie hkat(edit): " + rd.allg.katfunc.infotext,
+                                      screen=rd.par.LOG_SCREEN_OUT)
+                # end if
+            # end if
+            runflag = True
         else:
             runflag = True
     # end while

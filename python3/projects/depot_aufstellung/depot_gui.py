@@ -105,6 +105,31 @@ def konto_isin_wkn_set_eingabe(gui,eingabe_liste,data_set=None,title=None):
 
     return new_data_list
 
+
+def konto_kat_abfrage(gui, kat_dict):
+    '''
+
+    :param gui:
+    :param kat_dict:
+    :return: kat_dict_mod = konto_kat_abfrage(gui, kat_dict)
+    '''
+    title = "Veränderung der dict der Kategorie mit Hauptkategorie für Konto"
+    kat_dict_mod = gui.modify_variable(kat_dict, title)
+    
+    return kat_dict_mod
+# end def
+def konto_hkat_abfrage(gui, hkat_list):
+    '''
+
+    :param gui:
+    :param hkat_list:
+    :return: hkat_list_mod = konto_hkat_abfrage(gui, hkat_list)
+    '''
+    title = "Veränderung der Liste der Hauptkategorie für Konto"
+    hkat_list_mod = gui.modify_variable(hkat_list, title)
+    
+    return hkat_list_mod
+# end def
 def konto_depot_data_set_eingabe(gui,tlist,buchtype_index_in_header_liste,buchungs_type_list,title=None,immutable_liste=None):
     '''
     
@@ -176,12 +201,12 @@ def konto_depot_data_set_eingabe(gui,tlist,buchtype_index_in_header_liste,buchun
 
     return (tlist_new,change_flag)
 # end def
-def konto_depot_kategorie(gui,kategorie, titlename):
+def depot_kategorie(gui,kategorie, titlename):
     '''
     
     :param kategorie:
     :param titlename:
-    :return: kategorie = depot_gui.konto_depot_kategorie(gui,kategorie, titlename)
+    :return: kategorie = depot_gui.depot_kategorie(gui,kategorie, titlename)
     '''
     ddict = {}
     ddict["liste_abfrage"] = ["kategorie"]

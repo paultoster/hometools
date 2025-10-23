@@ -153,7 +153,7 @@ def anzeige_depot(rd,auswahl,depot_dict,depot_obj,flag_update):
             print(f"{titlename =}\n{kategorie =}\{isin =}")
             
             # edit kateorie
-            kategorie_liste = depot_gui.konto_depot_kategorie(rd.gui, kategorie, titlename)
+            kategorie_liste = depot_gui.depot_kategorie(rd.gui, kategorie, titlename)
             
             if len(kategorie_liste):
                 depot_obj.set_kategorie(isin, kategorie_liste[0])

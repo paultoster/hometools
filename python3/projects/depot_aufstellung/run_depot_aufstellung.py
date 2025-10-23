@@ -14,7 +14,7 @@ if (tools_path not in sys.path):
     sys.path.append(tools_path)
 # endif
 
-switch = 0
+switch = 1
 if switch == 1:
     WORKING_DIRECTORY = "K:/data/orga/Otnok"
     LOG_FILE_NAME = "konto_aufstellung.log"

@@ -167,6 +167,7 @@ import types
 # import tkinter.ttk
 import string
 import copy
+import json
 
 # -------------------------------------------------------------------------------
 t_path, _ = os.path.split(__file__)
@@ -550,6 +551,48 @@ def abfrage_n_eingabezeilen_dict(ddict):
 # ===============================================================================
 
 # ===============================================================================
+# ========================== modify_variable ============================
+def modify_variable(var,title="Editiere in der Syntax variable"):
+    '''
+    
+    :param ddict:
+    :param key:
+    :return:
+    '''
+    
+    
+    
+    try:
+        json_obj = json.dumps(var, indent=2)
+
+    except Exception as e:
+        raise Exception(f"An error occurred while reading the data {ddict}")
+    
+    runflag = True
+    while( runflag):
+    
+        json_dump = abfrage_text(json_obj, title=title, textcolor='blue',build_string=True)
+    
+        if len(json_dump) == 0:
+            runflag = False
+        else:
+            try:
+                var = json.loads(json_dump)
+                runflag = False
+            except Exception as e:
+                texteingabe = f"An error occurred while reading the text \n\n\"{json_dump}\" \n message with {e}"
+                anzeige_text(texteingabe, title="Fehler Syntax in Eingabe", textcolor='red')
+                json_obj = json_dump
+            # end try
+        # end if
+    # end while
+    
+    return var
+# ========================== modify_variable ============================
+# ===============================================================================
+
+
+# ===============================================================================
 # ========================== abfrage_janein ============================
 def abfrage_janein(text=None, title=None):
     """
@@ -583,7 +626,39 @@ def anzeige_text(texteingabe, title=None, textcolor='black'):
     del obj
 
 
-
+def abfrage_text(textvorgabe, title=None, textcolor='black',build_string= False):
+    '''
+    
+    :param textvorgabe:
+    :param title:
+    :param textcolor:
+    :return: textrueckgabe =  abfrage_text(textvorgabe, title=None, textcolor='black')
+    '''
+    text_liste = []
+    
+    if (isinstance(textvorgabe, str)):
+        text_liste = textvorgabe.split('\n')
+    elif (isinstance(textvorgabe, list)):
+        text_liste = textvorgabe
+    
+    obj = stext_class.anzeige_text_class(text_liste, title, textcolor,True)
+    
+    if build_string:
+        textrueckgabe = ""
+        for i, t in enumerate(obj.str_liste_out):
+            if i > 0:
+                textrueckgabe += "\n" + t
+            else:
+                textrueckgabe += t
+            # end if
+        # end for
+    else:
+        textrueckgabe = obj.str_liste_out
+    # end if
+    
+    del obj
+    
+    return textrueckgabe
 
 # ========================== abfrage_dir ========================================
 # ===============================================================================
@@ -1508,7 +1583,15 @@ def abfrage_file(file_types="*.*", comment=None, start_dir=None, default_extensi
 # enddef
 
 if __name__ == '__main__':
-    anzeige_text("Test\nTest2")
+    
+    
+    ddict = {"abc":"Test1(abc)","def":"Test2(def)","ghi":[1,2,3,4]}
+    r = modify_variable(ddict)
+    liste = ["ggg","gttr","gsteke","hsvd"]
+    r = modify_variable(liste)
+
+    textrueckgabe = abfrage_text("Test\nTest2")
+    print(f"{textrueckgabe = }")
     
     ddict_inp = {"abc":2,"def":"sggd","ghj":"ddd"}
 

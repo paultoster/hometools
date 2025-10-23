@@ -10,7 +10,7 @@ if (t_path == os.getcwd()):
     # import hfkt as h
     import hfkt_def as hdef
     # import hfkt_type as htype
-    # import hfkt_list as hlist
+    import hfkt_list as hlist
     # import hfkt_tvar as htvar
     import sgui_def as sdef
     # import sgui_class_abfrage_n_eingabezeilen as sclass_ane
@@ -25,7 +25,7 @@ else:
     # from tools import hfkt as h
     from tools import hfkt_def as hdef
     # from tools import hfkt_type as htype
-    # from tools import hfkt_list as hlist
+    from tools import hfkt_list as hlist
     # from tools import hfkt_tvar as htvar
     # from tools import sgui_class_abfrage_n_eingabezeilen as sclass_ane
     from tools import sgui_def as sdef
@@ -66,20 +66,24 @@ class anzeige_text_class:
     
     # -------------------------------------------------------------------------------
     # -------------------------------------------------------------------------------
-    def __init__(self, text_liste, title=None, textcolor='black'):
+    def __init__(self, text_liste, title=None, textcolor='black',use_cancel_button=False):
         """
         """
         self.status = hdef.OKAY
         self.str_liste = []
+        self.str_liste_out = []
         self.index_liste = []
         self.str_auswahl_liste = []
         self.index_auswahl_liste = []
         self.indexListe = []
-        self.abfrage_liste = [u'okay']
         self.index = -1
         self.act_frame_id = 0
         self.title = u"Anzeigee"
         self.textcolor = textcolor
+        if use_cancel_button:
+            self.abfrage_liste = [u'okay',u'cancel']
+        else:
+            self.abfrage_liste = [u'okay']
         # liste in string-liste wandeln
         index = 0
         for item in text_liste:
@@ -129,12 +133,19 @@ class anzeige_text_class:
             self.root.destroy()
             self.flag_mainloop = False
     
-    def exitMenu(self):
+    def exitMenu(self,button_name):
         ''' Beenden der Gui
         '''
         # Vor Beenden Speichern abfragen
         # ans = tkinter.messagebox.askyesno(parent=self.root,title='Sichern', message='Soll Datenbasis gesichert werden')
         # if( ans ): self.base.save_db_file()
+        
+        if button_name == u'okay':
+        
+            tstr = self.listGui_Anzeige.get('1.0',Tk.END)
+            self.str_liste_out = hlist.split_str_into_list(tstr,'\n',True)
+        else:
+            self.str_liste_out = []
         
         if (self.flag_mainloop):
             self.root.destroy()
@@ -171,7 +182,7 @@ class anzeige_text_class:
         
         self.Button = []
         for name in self.abfrage_liste:
-            b_back = Tk.Button(gr_buts, text=name, command=self.exitMenu)  # lambda m=method: self.populateMethod(m))
+            b_back = Tk.Button(gr_buts, text=name, command=lambda m=name: self.exitMenu(m))  # lambda m=method: self.populateMethod(m))
             b_back.pack(side=Tk.LEFT, pady=4, padx=2)  # side=Tk.LEFT,pady=4,padx=2
             self.Button.append(b_back)
     

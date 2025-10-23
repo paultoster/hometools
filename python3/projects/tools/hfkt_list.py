@@ -71,6 +71,8 @@ newlist = sort_list_of_dict(lliste, keyname, aufsteigend=1)
 newlist = sort_list(liste,aufsteigend=1)
 (newlist1,newlist2) = sort_two_list(liste1,liste2,aufsteigend=1)
 
+liste = split_str_into_list(textstr,delim='\n',remove_empty=True)
+
 
 '''
 
@@ -82,7 +84,7 @@ newlist = sort_list(liste,aufsteigend=1)
 import string
 # import types
 # import copy
-# import sys
+import sys
 import os
 # import stat
 # import time
@@ -96,6 +98,22 @@ import math
 # import ftfy
 # import fnmatch
 from operator import itemgetter
+
+# -------------------------------------------------------------------------------
+t_path, _ = os.path.split(__file__)
+if (t_path == os.getcwd()):
+    
+    import hfkt_str as hstr
+else:
+    p_list = os.path.normpath(t_path).split(os.sep)
+    if (len(p_list) > 1): p_list = p_list[: -1]
+    t_path = ""
+    for i, item in enumerate(p_list): t_path += item + os.sep
+    if (os.path.normpath(t_path) not in sys.path): sys.path.append(t_path)
+    
+    from tools import hfkt_str as hstr
+
+# endif--------------------------------------------------------------------------
 
 KITCHEN_MODUL_AVAILABLE = False
 
@@ -520,7 +538,18 @@ def sort_list_of_dict(lliste, keyname, aufsteigend=1):
     
     return new_llist
 
-
+def split_str_into_list(textstr,delim='\n',remove_empty=True):
+    '''
+    
+    :param textstr:
+    :param delim:
+    :param remove_empty:
+    :return: liste = split_str_into_list(textstr,delim='\n',remove_empty=True)
+    '''
+    if remove_empty:
+        return hstr.split_text(textstr, delim, flagmulti=1)
+    else:
+        return hstr.split_text(textstr, delim, flagmulti=0)
 # end def
 ###########################################################################
 # testen mit main
@@ -529,6 +558,8 @@ if __name__ == '__main__':
     # lliste = [[0, 10, 'a', 2.], [0, 5, 'b', 2.], [0, 5, 'bbbbb', 3.], [0, 15, 'rrr', 2.]]
     # print(sort_list_of_list(lliste, 1))
     # print(sort_list_of_list(lliste, 1,aufsteigend=0))
+    
+    liste = split_str_into_list("test0\nTest1\n\nTest3\n\n", delim='\n', remove_empty=False)
     
     lliste = [{'name': 'Homer', 'age': 39}, {'name': 'Bart', 'age': 10}, {'name': 'Constantin', 'age': 10},
               {'name': 'Alfred', 'age': 10}]

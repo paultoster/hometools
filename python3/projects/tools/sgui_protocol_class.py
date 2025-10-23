@@ -463,6 +463,35 @@ class SguiProtocol:
         return liste
     
     # end def
+    def modify_variable(self,var,title="Editiere in der Syntax variable"):
+        '''
+        
+        :param var:
+        :return: var_mod = self.modify_variable(var)
+        '''
+    
+        if self.run_protocol_data:
+            
+            (success, var_mod) = self.get_next_protocol_data("var_mod")
+            
+            if success:
+                return var_mod
+            else:
+                self.run_protocol_data = False
+            # end if
+        # end if
+        
+        if not self.run_protocol_data:
+            
+            var_mod = sgui.modify_variable(var,title)
+            
+            if self.save_protocol_data:
+                self.set_next_protocol_data("var_mod", var_mod)
+            # end if
+        # end if
+        
+        return var_mod
+    # end def
     def abfrage_janein(self,text=None,title=None):
         '''
         
@@ -515,6 +544,39 @@ class SguiProtocol:
                 self.set_act_protocol_data("textcolor", textcolor)
             # end if
         # end if
+    # end def
+    def abfrage_text(self,textvorgabe, title=None, textcolor='black', build_string=False):
+        '''
+        
+        :param textvorgabe:
+        :param title:
+        :param textcolor:
+        :param build_string:
+        :return: self.abfrage_text(texteingabe, title=None, textcolor='black', build_string=False)
+        '''
+        if self.run_protocol_data:
+            
+            (s1, textrueckgabe) = self.get_next_protocol_data("txt_liste")
+            
+            if s1:
+                return textrueckgabe
+            else:
+                self.run_protocol_data = False
+            # end if
+        # end if
+        
+        if not self.run_protocol_data:
+            
+            textrueckgabe = sgui.abfrage_text(textvorgabe)
+            
+            if self.save_protocol_data:
+                
+                self.set_next_protocol_data("txt_liste", textrueckgabe)
+                
+            # end if
+        # end if
+        
+        return textrueckgabe
     # end def
     def abfrage_file(self,file_types="*.*",comment=None,start_dir=None):
         '''

@@ -47,6 +47,42 @@ class KategorieClass:
         self.kat_hkat_index_list = []
         self.hkat_list = hkat_list
         
+        self.set_kat_list(kat_dict)
+        
+        if  self.status != hdef.OKAY:
+            return
+        
+        self.proof_regel(regel_dict)
+        
+        return
+    # end def
+    def proof_regel(self,regel_dict):
+        '''
+        
+        :param regel_dict:
+        :return:
+        '''
+        self.regel_dict = {}
+        for rkat_name in regel_dict:
+            
+            if rkat_name not in self.kat_list:
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"In regel_dict ist kategorie \"{rkat_name}\"  nicht kategorie_liste enthalten {self.kat_list =} "
+                return
+            # end if
+            self.regel_dict[rkat_name] = regel_dict[rkat_name]
+        # end for
+    
+    def set_kat_list(self,kat_dict):
+        '''
+        
+        :param kat_dict:
+        :return: self.set_kat_list(kat_dict)
+        '''
+        kat_list_org = self.kat_list
+        kat_hkat_index_list_org = self.kat_hkat_index_list
+        hkat_list_org = self.hkat_list
+
         
         # Prüfen ob hkey in jeder Kategorie vorhanden ist und
         # ob die Hauptkategorie in hkat_list existiert
@@ -55,7 +91,7 @@ class KategorieClass:
             
             # hkey nicht in kategorie-dict
             if hkey not in kat_dict[kat].keys():
-                self.status  = hdef.NOT_OKAY
+                self.status = hdef.NOT_OKAY
                 self.errtext = f"dict mit Kategorie: \"{kat}\" hat kein key \"{hkey}\" "
                 return
             # end if
@@ -65,25 +101,67 @@ class KategorieClass:
                 self.hkat_list.append(kat_dict[kat][hkey])
             # end if
             
-            self.kat_list.append(kat)
-            self.kat_hkat_index_list.append(self.hkat_list.index(kat_dict[kat][hkey]))
+            if kat in self.kat_list:
+                index = self.kat_list.index(kat)
+                self.kat_hkat_index_list[index] = self.hkat_list.index(kat_dict[kat][hkey])
+            else:
+                self.kat_list.append(kat)
+                self.kat_hkat_index_list.append(self.hkat_list.index(kat_dict[kat][hkey]))
         # end for
         
-        self.regel_dict = {}
-        for rkat_name in regel_dict:
-            
-            if rkat_name not in self.kat_list:
-                self.status  = hdef.NOT_OKAY
-                self.errtext = f"In regel_dict ist kategorie \"{rkat_name}\"  nicht kategorie_liste enthalten {self.kat_list =} "
-                return
-            # end if
-            self.regel_dict[rkat_name] = regel_dict[rkat_name]
-        # end for
-
+        # prüfen, ob etwas weg muss
+        flagrun = True
+        while(flagrun):
+            flagrun = False
+            for i,kat in enumerate(self.kat_list):
+                
+                if kat not in kat_dict.keys():
+                    del self.kat_list[i]
+                    del self.kat_hkat_index_list[i]
+                    flagrun = True
+                    break
+                # end if
+            # end for
+        # end while
+        
+        # prüfe Regeln
+        self.proof_regel(self.regel_dict)
+        
+        # Zurücksetzen bei Fehler
+        if self.status != hdef.OKAY:
+            self.kat_list = kat_list_org
+            self.kat_hkat_index_list = kat_hkat_index_list_org
+            self.hkat_list = hkat_list_org
+        
         return
-    # end def
+    #end def
     def get_hkat_list(self):
         return self.hkat_list
+    def set_hkat_list(self,hkat_list):
+        
+        hkat_list_mod = hkat_list
+        hkey = "haupt"
+        self.infotext = ""
+        for i,kat in enumerate(self.kat_list):
+            
+            index = self.kat_hkat_index_list[i]
+            hkat  = self.hkat_list[index]
+            
+            # Hauptkategorie nicht in hkat_list:
+            if hkat not in hkat_list_mod:
+                if len(self.infotext) == 0:
+                    self.infotext = "In modifizierte Hauptkategorie-Liste fehlen Namen, die noch inder kategorie stehen:"
+                # endif
+                self.infotext += f"\n In Katgegorie \"{kat =}\" wird die Hauptkategorie \"{hkat =}\" benutzt"
+                
+                hkat_list_mod.append(hkat)
+            # end if
+            
+            self.kat_hkat_index_list[i] = hkat_list_mod.index(hkat)
+
+        # end for
+        self.hkat_list = hkat_list_mod
+        
     def get_kat_dict(self):
         kat_dict = {}
         for i,kat in enumerate(self.kat_list):
@@ -92,6 +170,15 @@ class KategorieClass:
         # end for
         return kat_dict
     # end def
+    def set_kat_dict(self,kat_dict):
+        '''
+        
+        :param kat_dict:
+        :return:
+        '''
+        self.set_kat_list(kat_dict)
+        return
+        
     def get_regel_dict(self):
         return self.regel_dict
     # end def
