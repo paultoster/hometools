@@ -510,7 +510,7 @@ def data_save(rd):
     if rd.allg.katfunc is not None:
         rd.allg.kat_dict[rd.par.KONTO_HKAT_LIST_NAME]      = rd.allg.katfunc.get_hkat_list()
         rd.allg.kat_dict[rd.par.KONTO_KAT_DICT_NAME]       = rd.allg.katfunc.get_kat_dict()
-        rd.allg.kat_dict[rd.par.KONTO_KAT_REGEL_DICT_NAME] = rd.allg.katfunc.get_regel_dict()
+        rd.allg.kat_dict[rd.par.KONTO_KAT_REGEL_DICT_NAME] = rd.allg.katfunc.get_regel_list()
         
         rd.allg.kat_json_obj.save(rd.allg.kat_dict)
         if rd.allg.kat_json_obj.status != hdef.OKAY:

@@ -196,6 +196,7 @@ class KontoDataSet:
     csvfunc                       = obj.get_csvfunc()
     titlename                     = obj.get_titlename()
     (new_flag, status, errtext)   = self.set_data_set_extern_liste(new_tlist,irow)
+    (new_flag, status, errtext)   = self.set_data_set_value(self, headername,value,typename, irow)
     (new_data_set_flag,status,errtext,infotext) =  self.set_new_data(new_data_table)
     (new_data_set_flag,status,errtext,infotext) =  self.set_new_data(new_data_table,flag_proof_wert)
                                           self.update_isin_find()
@@ -558,39 +559,43 @@ class KontoDataSet:
         # ============================
         if self.data_set_obj.get_n_data() == 0:
             raise Exception(f"set_data_set_extern_liste Error n_data_sets = 0")
+
         index_row = irow
         if index_row >= self.data_set_obj.get_n_data():
             index_row = self.data_set_obj.get_n_data() - 1
 
-        tlist = self.data_set_obj.get_one_data_set_tlist(index_row)
-        
-        
         for i,name in enumerate(new_tlist.names):
-            new_val  = new_tlist.vals[i]
+            new_val = new_tlist.vals[i]
             new_type = new_tlist.types[i]
-            index    = htvar.get_index_from_list(tlist, name)
-            val      = tlist.vals[index]
-            type     = tlist.types[index]
-            
-            (okay, wert) = htype.type_transform(new_val, new_type,type)
-            if okay != hdef.OKAY:
-                self.status = hdef.NOT_OKAY
-                self.errtext = f"Fehler transform Wert {new_val} von {new_type} zu type: {type}  !!!"
-                return (new_data_set_flag, self.status, self.errtext)
-            # end if
-            
-            if wert != val:
-                new_data_set_flag = self.data_set_obj.set_data_item(wert, self.par.LINE_COLOR_EDIT, index_row, name)
-    
+            (new_data_set_flag,self.status,self.errtext) = self.set_data_set_value(self, name, new_val, new_type, index_row)
+            if new_data_set_flag:
                 if name == self.par.KONTO_DATA_NAME_BUCHDATUM:
                     new_data_buchdatum_flag = True
                 # end if
                 if name == self.par.KONTO_DATA_NAME_WERT:
                     new_data_wert_flag = True
                 # end if
-                
-                
             # endif
+            
+            #
+            # new_type = new_tlist.types[i]
+            # index    = htvar.get_index_from_list(tlist, name)
+            # val      = tlist.vals[index]
+            # type     = tlist.types[index]
+            #
+            # (okay, wert) = htype.type_transform(new_val, new_type,type)
+            # if okay != hdef.OKAY:
+            #     self.status = hdef.NOT_OKAY
+            #     self.errtext = f"Fehler transform Wert {new_val} von {new_type} zu type: {type}  !!!"
+            #     return (new_data_set_flag, self.status, self.errtext)
+            # # end if
+            #
+            # if wert != val:
+            #     new_data_set_flag = self.data_set_obj.set_data_item(wert, self.par.LINE_COLOR_EDIT, index_row, name)
+            #
+            #
+            #
+            #
         # end for
         
         # new id
@@ -611,7 +616,49 @@ class KontoDataSet:
 
         return (new_data_set_flag,self.status,self.errtext)
     # end def
-    
+    def set_data_set_value(self, headername,value,typename, irow):
+        '''
+        
+        :param header:
+        :param value:
+        :param type:
+        :param irow:
+        :return: (new_data_set_flag,status,errtext) = obj.set_data_set_value(header,value,type, irow)
+        '''
+        
+        new_data_set_flag = False
+        
+        # set value
+        # ============================
+        if self.data_set_obj.get_n_data() == 0:
+            raise Exception(f"set_data_set_extern_liste Error n_data_sets = 0")
+        index_row = irow
+        if index_row >= self.data_set_obj.get_n_data():
+            index_row = self.data_set_obj.get_n_data() - 1
+        
+        value_old = self.data_set_obj.get_data_item(index_row, headername, typename)
+        type_intern = self.data_set_obj.get_type_of_header(headername)
+        
+        if self.data_set_obj.status != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"Fehler self.data_set_obj.get_data_item({index_row =},{headername =},{typename =}  !!!"
+            return (new_data_set_flag, self.status, self.errtext)
+        # end if
+        
+        if value != value_old:
+            (okay, wert) = htype.type_transform(value, typename,type_intern)
+            if okay != hdef.OKAY:
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"Fehler transform Wert {value} von {typename} zu type: {type_intern}  !!!"
+                return (new_data_set_flag, self.status, self.errtext)
+            # end if
+            
+            new_data_set_flag = self.data_set_obj.set_data_item(wert, self.par.LINE_COLOR_EDIT, index_row, headername)
+            
+        # end if
+        
+        return (new_data_set_flag, self.status, self.errtext)
+    # end def
     def set_new_data(self, new_data_table: htvar.TTable | htvar.TList,flag_proof_wert = False):
         '''
         

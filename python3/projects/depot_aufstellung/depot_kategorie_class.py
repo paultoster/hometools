@@ -38,41 +38,47 @@ class KategorieClass:
     (found,kat) = obj.regel_anwedung_data_set(tlist)
     
     '''
-    def __init__(self,hkat_list,kat_dict,regel_dict):
+    def __init__(self,hkat_list,kat_dict,regel_list):
         self.status = hdef.OK
         self.errtext = ""
         self.infotext = ""
         
+        self.kat_name = "kategorie"
         self.kat_list = []
         self.kat_hkat_index_list = []
         self.hkat_list = hkat_list
+        self.regel_list  = regel_list
         
         self.set_kat_list(kat_dict)
         
         if  self.status != hdef.OKAY:
             return
         
-        self.proof_regel(regel_dict)
-        
         return
     # end def
-    def proof_regel(self,regel_dict):
+    def proof_regel(self,regel_list):
         '''
         
-        :param regel_dict:
+        :param regel_list:
         :return:
         '''
-        self.regel_dict = {}
-        for rkat_name in regel_dict:
+        self.regel_list = []
+        for i,reg_dict in enumerate(regel_list):
             
-            if rkat_name not in self.kat_list:
+            if self.kat_name not in reg_dict.keys():
                 self.status = hdef.NOT_OKAY
-                self.errtext = f"In regel_dict ist kategorie \"{rkat_name}\"  nicht kategorie_liste enthalten {self.kat_list =} "
+                self.errtext = f"In regel_list[{i}] ist key: \"{self.kat_name}\"  nicht enthalten !!!"
                 return
             # end if
-            self.regel_dict[rkat_name] = regel_dict[rkat_name]
+            if reg_dict[self.kat_name] not in self.kat_list:
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"In regel_list[{i}] ist kategorie: \"{reg_dict[self.kat_name]}\"  nicht kategorie_liste enthalten {self.kat_list =} "
+                return
+            # end if
+            self.regel_list.append(reg_dict)
         # end for
-    
+        return
+    # end def
     def set_kat_list(self,kat_dict):
         '''
         
@@ -125,7 +131,7 @@ class KategorieClass:
         # end while
         
         # prüfe Regeln
-        self.proof_regel(self.regel_dict)
+        self.proof_regel(self.regel_list)
         
         # Zurücksetzen bei Fehler
         if self.status != hdef.OKAY:
@@ -161,7 +167,14 @@ class KategorieClass:
 
         # end for
         self.hkat_list = hkat_list_mod
+    # end def
+    def get_kat_list(self):
+        '''
         
+        :return: kat_liste = self.get_kat_list()
+        '''
+        return self.kat_list
+    # end def
     def get_kat_dict(self):
         kat_dict = {}
         for i,kat in enumerate(self.kat_list):
@@ -179,8 +192,37 @@ class KategorieClass:
         self.set_kat_list(kat_dict)
         return
         
-    def get_regel_dict(self):
-        return self.regel_dict
+    def get_regel_list(self):
+        return self.regel_list
+    # end def
+    def set_regel_list(self,regel_list):
+        '''
+        
+        :param regel_liste_mod:
+        :return:
+        '''
+        
+        self.proof_regel(regel_list)
+        return
+    # end def
+    def add_regel_dict(self,regel_dict):
+        '''
+        
+        :param regel_dict:
+        :return:
+        '''
+        if self.kat_name not in regel_dict.keys():
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"In regel_dict ist key \"{self.kat_name}\"  nicht  enthalten  "
+            return
+        
+        if regel_dict[self.kat_name] not in self.kat_list:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"In regel_dict ist \"{self.kat_name}\" =  \"{regel_dict[self.kat_name]}\"  nicht kategorie_liste enthalten {self.kat_list =} "
+            return
+        
+        self.regel_list.append(regel_dict)
+        return
     # end def
     def reset_status(self):
         self.status = hdef.OKAY
@@ -193,44 +235,49 @@ class KategorieClass:
         :return: (found, kat) = obj.regel_anwedung_data_set(tlist)
         '''
         found = False
-        kat   = None
+        kategorie   = None
         
         # loop over all regel-sätze
-        for rkat_name,rdict in self.regel_dict.items():
+        for rdict in self.regel_list:
+            
+            kategorie = rdict[self.kat_name]
             
             # Anzahl zu prüfenden Kategorien
-            nregel = len(rdict.keys())
+            nregel = len(rdict.keys())-1
             
-            # Prüfe jeden header der regel
-            for header in rdict.keys():
-                
-                # Suche header in Liste
-                index = hlist.find_first_value_in_list(tlist.names,header)
-                
-                # Wenn in Liste enthalten
-                if index != None:
+            if nregel > 0:
+                # Prüfe jeden header der regel
+                for header in rdict.keys():
                     
-                    # Suche Inhalt der regel in dem data set
-                    ind = hstr.such(tlist.vals[index],rdict[header],"vs")
+                    if header != self.kat_name:
                     
-                    # Wenn entahlten
-                    if ind >= 0:
+                        # Suche header in Liste
+                        index = hlist.find_first_value_in_list(tlist.names,header)
+                    
+                        # Wenn in Liste enthalten
+                        if index != None:
                         
-                        # Zähle die Anzhl der Regeln runter
-                        nregel -= 1
-                    # end if
-                # end if
-            # end for
-            
-            # Wenn Anzahl der Regeln runter gezählt ist (aller Inhalt der Regel ist enthalten)
-            if nregel == 0:
+                            # Suche Inhalt der regel in dem data set
+                            ind = hstr.such(tlist.vals[index],rdict[header],"vs")
+                        
+                            # Wenn entahlten
+                            if ind >= 0:
+                            
+                                # Zähle die Anzahl der Regeln runter
+                                nregel -= 1
+                            # end if
+                        # end if
+                    # end for
                 
-                # Kategorie und found übergeben
-                kat = rkat_name
-                found = True
-                break
+                # Wenn Anzahl der Regeln runter gezählt ist (aller Inhalt der Regel ist enthalten)
+                if nregel == 0:
+                    
+                    # Kategorie und found übergeben
+                    found = True
+                    break
+                # end if
             # end if
         # end for
         
-        return (found,kat)
+        return (found,kategorie)
         

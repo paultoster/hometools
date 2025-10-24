@@ -104,8 +104,54 @@ def konto_isin_wkn_set_eingabe(gui,eingabe_liste,data_set=None,title=None):
     new_data_list = gui.abfrage_n_eingabezeilen_dict(ddict)
 
     return new_data_list
+def konto_set_kat(gui, eingabeListe, vorgabeListe,immutableListe, title):
+    ddict = {}
 
 
+    ddict["liste_abfrage"] = eingabeListe
+    ddict["title"] = title
+    ddict["liste_immutable"] = immutableListe
+    
+    ddict["liste_vorgabe"] = vorgabeListe
+    
+    new_data_list = gui.abfrage_n_eingabezeilen_dict(ddict)
+    
+    return new_data_list
+
+# end def
+def konto_regel_edit_abfrage(gui,reg_list):
+    '''
+    
+    :param gui:
+    :param reg_list:
+    :return: reg_list_mod = konto_regel_edit_abfrage(gui, reg_list)
+    '''
+    title = "Konto-Regel-dictionary editieren"
+    reg_list_mod = gui.modify_variable(reg_list, title)
+    
+    return reg_list_mod
+# end def
+def konto_regel_edit(gui, eingabeListe, vorgabeListe,title):
+    '''
+    
+    :param gui:
+    :param eingabeListe:
+    :param vorgabeListe:
+    :param title:
+    :return:
+    '''
+    
+    ddict = {}
+    ddict["liste_abfrage"] = eingabeListe
+    ddict["title"] = title
+    # ddict["liste_immutable"] = immutable_liste
+    
+    ddict["liste_vorgabe"] = vorgabeListe
+    
+    new_data_list = gui.abfrage_n_eingabezeilen_dict(ddict)
+
+    return new_data_list
+# end def
 def konto_kat_abfrage(gui, kat_dict):
     '''
 
