@@ -221,7 +221,8 @@ class Parameter:
     WP_DATA_SET_TYPE_DICT: str = "wp_data_set_type_dict"
     WP_DATA_SET_TABLE_NAME: str = "wp_data_set_table"
 
-    KONTO_HKAT_LIST_NAME: str = "hauptkategorie"
+    KONTO_GRUP_DICT_NAME: str = "gruppe"
+    KONTO_HKAT_DICT_NAME: str = "hauptkategorie"
     KONTO_KAT_DICT_NAME: str = "kategorie"
     KONTO_KAT_REGEL_DICT_NAME: str = "regel"
 

@@ -291,6 +291,9 @@ class KontoDataSet:
                 self.recalc_sum_data_set()
             # end if
             
+            self.proof_kategorie_in_data_set()
+            
+            
         else:
             self.set_start_row()
         # end if
@@ -354,6 +357,25 @@ class KontoDataSet:
     # end def
     def get_konto_name(self):
         return self.konto_name
+    def proof_kategorie_in_data_set(self):
+        '''
+        
+        :return: self.proof_kategorie_in_data_set()
+        '''
+        
+        icol_kat = self.data_set_obj.find_header_index(self.par.KONTO_DATA_NAME_KATEGORIE)
+        
+        kat_list = self.katfunc.get_kat_list()
+        
+        for irow in range(self.data_set_obj.get_n_data()):
+            value = self.data_set_obj.get_data_item(irow, icol_kat, "str")
+            
+            if (len(value)>0) and (value not in kat_list):
+                
+                self.data_set_obj.set_data_item("",self.par.LINE_COLOR_EDIT,irow, icol_kat, "str")
+            # end if
+        # end for
+    # end def
     def proof_csv_read_buchtype_zuordnung_names(self,buchtype_zuordnungs_liste: list):
         '''
         

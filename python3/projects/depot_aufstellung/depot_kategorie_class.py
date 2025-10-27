@@ -38,23 +38,99 @@ class KategorieClass:
     (found,kat) = obj.regel_anwedung_data_set(tlist)
     
     '''
-    def __init__(self,hkat_list,kat_dict,regel_list):
+    def __init__(self,gruppen_dict,hkat_dict,kat_dict,regel_list):
         self.status = hdef.OK
         self.errtext = ""
         self.infotext = ""
         
         self.kat_name = "kategorie"
+        self.gruppen_list = []
+        self.gruppen_zeit_list = []
+        self.hkat_list = []
+        self.hkat_grup_index_list = []
         self.kat_list = []
         self.kat_hkat_index_list = []
-        self.hkat_list = hkat_list
         self.regel_list  = regel_list
         
+        self.set_grup_list(gruppen_dict)
+        self.set_hkat_list(hkat_dict)
         self.set_kat_list(kat_dict)
-        
+        # prüfe Regeln
+        self.proof_regel(self.regel_list)
+
         if  self.status != hdef.OKAY:
             return
         
         return
+    # end def
+    def set_grup_list(self,gruppen_dict):
+        '''
+        
+        :param gruppen_dict:
+        :return:
+        '''
+        self.gruppen_list = list(gruppen_dict.keys())
+        self.gruppen_zeit_list = list(gruppen_dict.values())
+        
+        for i,num in enumerate(self.gruppen_zeit_list):
+            try:
+                self.gruppen_zeit_list[i] = int(num)
+            except:
+                self.gruppen_zeit_list[i] = 1
+            # end if
+        # end for
+        return
+    # end def
+    def set_hkat_list(self, hkat_dict):
+        '''
+
+        :param hkat_dict:
+        :return: self.set_hkat_list(hkat_dict)
+        '''
+        
+        # Prüfen ob hkey in jeder Hauptkategorie vorhanden eine gruppe hat
+        self.hkat_list = []
+        self.hkat_grup_index_list = []
+        for key in hkat_dict.keys():
+            
+            self.hkat_list.append(key)
+            self.hkat_grup_index_list.append(self.proof_and_get_gruppen_index(hkat_dict[key]))
+        # end for
+        
+        return
+    
+    # end def
+    def proof_and_get_gruppen_index(self,grup):
+        if grup not in self.gruppen_list:
+            self.gruppen_list.append(grup)
+            self.gruppen_zeit_list.append(1)
+        # end if
+        return self.gruppen_list.index(grup)
+    # end def
+    def set_kat_list(self, kat_dict):
+        '''
+
+        :param hkat_dict:
+        :return: self.set_kat_list(kat_dict)
+        '''
+        
+        # Prüfen ob hkey in jeder Hauptkategorie vorhanden eine gruppe hat
+        self.kat_list = []
+        self.kat_hkat_index_list = []
+        for key in kat_dict.keys():
+            
+            # Hauptkategorie nicht in gruppen_dict:
+            if kat_dict[key] not in self.hkat_list:
+                self.hkat_list.append(kat_dict[key])
+                self.hkat_grup_index_list.append(self.proof_and_gruppen_index(kat_dict[key]))
+            # end if
+            
+            self.kat_list.append(key)
+            self.kat_hkat_index_list.append(self.hkat_list.index(kat_dict[key]))
+        # end for
+        
+        return
+    
     # end def
     def proof_regel(self,regel_list):
         '''
@@ -79,95 +155,48 @@ class KategorieClass:
         # end for
         return
     # end def
-    def set_kat_list(self,kat_dict):
-        '''
-        
-        :param kat_dict:
-        :return: self.set_kat_list(kat_dict)
-        '''
-        kat_list_org = self.kat_list
-        kat_hkat_index_list_org = self.kat_hkat_index_list
-        hkat_list_org = self.hkat_list
-
-        
-        # Prüfen ob hkey in jeder Kategorie vorhanden ist und
-        # ob die Hauptkategorie in hkat_list existiert
-        hkey = "haupt"
-        for kat in kat_dict.keys():
-            
-            # hkey nicht in kategorie-dict
-            if hkey not in kat_dict[kat].keys():
-                self.status = hdef.NOT_OKAY
-                self.errtext = f"dict mit Kategorie: \"{kat}\" hat kein key \"{hkey}\" "
-                return
-            # end if
-            
-            # Hauptkategorie nicht in hkat_list:
-            if kat_dict[kat][hkey] not in self.hkat_list:
-                self.hkat_list.append(kat_dict[kat][hkey])
-            # end if
-            
-            if kat in self.kat_list:
-                index = self.kat_list.index(kat)
-                self.kat_hkat_index_list[index] = self.hkat_list.index(kat_dict[kat][hkey])
-            else:
-                self.kat_list.append(kat)
-                self.kat_hkat_index_list.append(self.hkat_list.index(kat_dict[kat][hkey]))
+    def get_grup_list(self):
+        return self.gruppen_list
+    def get_grup_dict(self):
+        grup_dict = {}
+        for i,grup in enumerate(self.gruppen_list):
+            grup_dict[grup] = self.gruppen_zeit_list[i]
         # end for
-        
-        # prüfen, ob etwas weg muss
-        flagrun = True
-        while(flagrun):
-            flagrun = False
-            for i,kat in enumerate(self.kat_list):
-                
-                if kat not in kat_dict.keys():
-                    del self.kat_list[i]
-                    del self.kat_hkat_index_list[i]
-                    flagrun = True
-                    break
-                # end if
-            # end for
-        # end while
-        
-        # prüfe Regeln
-        self.proof_regel(self.regel_list)
-        
-        # Zurücksetzen bei Fehler
-        if self.status != hdef.OKAY:
-            self.kat_list = kat_list_org
-            self.kat_hkat_index_list = kat_hkat_index_list_org
-            self.hkat_list = hkat_list_org
-        
-        return
-    #end def
+        return grup_dict
     def get_hkat_list(self):
         return self.hkat_list
-    def set_hkat_list(self,hkat_list):
-        
-        hkat_list_mod = hkat_list
-        hkey = "haupt"
-        self.infotext = ""
-        for i,kat in enumerate(self.kat_list):
-            
-            index = self.kat_hkat_index_list[i]
-            hkat  = self.hkat_list[index]
-            
-            # Hauptkategorie nicht in hkat_list:
-            if hkat not in hkat_list_mod:
-                if len(self.infotext) == 0:
-                    self.infotext = "In modifizierte Hauptkategorie-Liste fehlen Namen, die noch inder kategorie stehen:"
-                # endif
-                self.infotext += f"\n In Katgegorie \"{kat =}\" wird die Hauptkategorie \"{hkat =}\" benutzt"
-                
-                hkat_list_mod.append(hkat)
-            # end if
-            
-            self.kat_hkat_index_list[i] = hkat_list_mod.index(hkat)
-
+    def get_hkat_dict(self):
+        hkat_dict = {}
+        for i,hkat in enumerate(self.hkat_list):
+            index = self.hkat_grup_index_list[i]
+            hkat_dict[hkat] = self.gruppen_list[index]
         # end for
-        self.hkat_list = hkat_list_mod
-    # end def
+        return hkat_dict
+    # def set_hkat_list(self,hkat_list):
+    #
+    #     hkat_list_mod = hkat_list
+    #     hkey = "haupt"
+    #     self.infotext = ""
+    #     for i,kat in enumerate(self.kat_list):
+    #
+    #         index = self.kat_hkat_index_list[i]
+    #         hkat  = self.hkat_list[index]
+    #
+    #         # Hauptkategorie nicht in hkat_list:
+    #         if hkat not in hkat_list_mod:
+    #             if len(self.infotext) == 0:
+    #                 self.infotext = "In modifizierte Hauptkategorie-Liste fehlen Namen, die noch inder kategorie stehen:"
+    #             # endif
+    #             self.infotext += f"\n In Katgegorie \"{kat =}\" wird die Hauptkategorie \"{hkat =}\" benutzt"
+    #
+    #             hkat_list_mod.append(hkat)
+    #         # end if
+    #
+    #         self.kat_hkat_index_list[i] = hkat_list_mod.index(hkat)
+    #
+    #     # end for
+    #     self.hkat_list = hkat_list_mod
+    # # end def
     def get_kat_list(self):
         '''
         
@@ -179,7 +208,7 @@ class KategorieClass:
         kat_dict = {}
         for i,kat in enumerate(self.kat_list):
             index = self.kat_hkat_index_list[i]
-            kat_dict[kat] = {"haupt":self.hkat_list[index]}
+            kat_dict[kat] = self.hkat_list[index]
         # end for
         return kat_dict
     # end def

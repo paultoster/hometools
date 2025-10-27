@@ -182,7 +182,7 @@ def data_set(rd):
         # end if
         rd.allg.kat_dict     = rd.allg.kat_json_obj.get_data()
         
-        for key in [rd.par.KONTO_HKAT_LIST_NAME,rd.par.KONTO_KAT_DICT_NAME,rd.par.KONTO_KAT_REGEL_DICT_NAME]:
+        for key in [rd.par.KONTO_GRUP_DICT_NAME,rd.par.KONTO_HKAT_DICT_NAME,rd.par.KONTO_KAT_DICT_NAME,rd.par.KONTO_KAT_REGEL_DICT_NAME]:
             if key not in rd.allg.kat_dict.keys():
                 status = hdef.NOT_OKAY
                 errtext = f"In json-File \"{rd.allg.kat_json_obj.get_filename()}\" kein dict[\"{key}\"] vorhanden"
@@ -191,7 +191,8 @@ def data_set(rd):
         # end for
         
         rd.allg.katfunc = depot_kategorie_class.KategorieClass(
-            rd.allg.kat_dict[rd.par.KONTO_HKAT_LIST_NAME],
+            rd.allg.kat_dict[rd.par.KONTO_GRUP_DICT_NAME],
+            rd.allg.kat_dict[rd.par.KONTO_HKAT_DICT_NAME],
             rd.allg.kat_dict[rd.par.KONTO_KAT_DICT_NAME],
             rd.allg.kat_dict[rd.par.KONTO_KAT_REGEL_DICT_NAME])
         
@@ -508,7 +509,8 @@ def data_save(rd):
 
     # Kategorie
     if rd.allg.katfunc is not None:
-        rd.allg.kat_dict[rd.par.KONTO_HKAT_LIST_NAME]      = rd.allg.katfunc.get_hkat_list()
+        rd.allg.kat_dict[rd.par.KONTO_GRUP_DICT_NAME]      = rd.allg.katfunc.get_grup_dict()
+        rd.allg.kat_dict[rd.par.KONTO_HKAT_DICT_NAME]      = rd.allg.katfunc.get_hkat_dict()
         rd.allg.kat_dict[rd.par.KONTO_KAT_DICT_NAME]       = rd.allg.katfunc.get_kat_dict()
         rd.allg.kat_dict[rd.par.KONTO_KAT_REGEL_DICT_NAME] = rd.allg.katfunc.get_regel_list()
         
