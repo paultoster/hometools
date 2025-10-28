@@ -77,7 +77,7 @@ def konto_abfrage(gui, ttable, abfrage_liste,color_list):
     dict_inp["ttable"] = ttable
     dict_inp["row_color_dliste"] = color_list
     dict_inp["abfrage_liste"] = abfrage_liste
-    dict_inp["auswahl_filter_col_liste"] = ["buchdatum","isin","buchtype"]
+    dict_inp["auswahl_filter_col_liste"] = ["buchdatum","wer","buchtype","wert","comment","isin","kategorie"]
     
     dict_out = gui.abfrage_tabelle(dict_inp)
     
@@ -164,17 +164,17 @@ def konto_kat_abfrage(gui, kat_dict):
     
     return kat_dict_mod
 # end def
-def konto_hkat_abfrage(gui, hkat_list):
+def konto_kategorie_dict_abfrage(gui, ddict):
     '''
 
     :param gui:
     :param hkat_list:
-    :return: hkat_list_mod = konto_hkat_abfrage(gui, hkat_list)
+    :return: ddict = konto_kategorie_dict_abfrage(gui, ddict)
     '''
-    title = "Veränderung der Liste der Hauptkategorie für Konto"
-    hkat_list_mod = gui.modify_variable(hkat_list, title)
+    title = "Kategorie editieren"
+    ddict_mod = gui.modify_variable(ddict, title)
     
-    return hkat_list_mod
+    return ddict_mod
 # end def
 def konto_depot_data_set_eingabe(gui,tlist,buchtype_index_in_header_liste,buchungs_type_list,title=None,immutable_liste=None):
     '''

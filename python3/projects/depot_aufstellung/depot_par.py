@@ -222,9 +222,8 @@ class Parameter:
     WP_DATA_SET_TABLE_NAME: str = "wp_data_set_table"
 
     KONTO_GRUP_DICT_NAME: str = "gruppe"
-    KONTO_HKAT_DICT_NAME: str = "hauptkategorie"
     KONTO_KAT_DICT_NAME: str = "kategorie"
-    KONTO_KAT_REGEL_DICT_NAME: str = "regel"
+    KONTO_KAT_REGEL_LIST_NAME: str = "regel"
 
 def get(log):
     

@@ -26,20 +26,20 @@ def anzeige(rd, konto_obj):
     '''
 
     :param rd:
-    :param ddict:
+    :param konto_obj:
     :return: (status, konto_obj) =  anzeige(rd,konto_obj)
     '''
     
     status = hdef.OKAY
-    abfrage_liste = ["ende", "set kat", "del kat","regel(run)","regel(edit)", "regel(build)","kat(edit)","hkat(edit)"]
+    abfrage_liste = ["ende", "set kat", "del kat","regel(run)","regel(build)","edit(gkr)","update(edit)"]
     i_end = 0
     i_set_kat = 1
     i_del_kat = 2
     i_regel_anwenden = 3
-    i_regel_edit = 4
-    i_regel_build = 5
-    i_edit_kategorie = 6
-    i_edit_haupt_kategorie = 7
+    i_regel_build = 4
+    i_edit = 5
+    i_update = 6
+    i_go_on  = 7
 
     data_changed_pos_list = []
     ttable_anzeige = None
@@ -64,6 +64,20 @@ def anzeige(rd, konto_obj):
             index_abfrage = i_end
         # end if
         
+        # Daten updaten, wenn Kategorie in der Eingabe geändert
+        if (index_abfrage != i_end) and (len(data_changed_pos_list) > 0):
+            konto_obj.write_anzeige_back_data(ttable_anzeige, data_changed_pos_list,"kategorie")
+            if konto_obj.status != hdef.OKAY:
+                status = hdef.NOT_OKAY
+                rd.log.write_err("konto_anzeige update " + konto_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
+                runflag = True
+                index_abfrage = i_go_on
+            # end if
+        # end if
+
+
+
+
         # Beenden
         # ----------------------------
         if index_abfrage == i_end:
@@ -146,50 +160,17 @@ def anzeige(rd, konto_obj):
         # ----------------------------
         elif index_abfrage == i_regel_anwenden:
             
-            # Daten updaten, wenn Kategorie in der Eingabe geändert
-            if len(data_changed_pos_list) > 0:
-                konto_obj.write_anzeige_back_data(ttable_anzeige, data_changed_pos_list,"kategorie")
-                if konto_obj.status != hdef.OKAY:
-                    status = hdef.NOT_OKAY
-                    rd.log.write_err("konto_anzeige update " + konto_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
-                    runflag = True
+            # Regeln anwenden
+            konto_obj.kategorie_regel_anwenden()
+            
+            if konto_obj.status != hdef.OKAY:
+                rd.log.write_err("konto_kategorie regel anwenden" + konto_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
+                return (konto_obj.status, konto_obj)
+            else:
+                if len(konto_obj.infotext):
+                    rd.log.write_info("konto_kategorie regel anwenden" + konto_obj.infotext, screen=rd.par.LOG_SCREEN_OUT)
                 # end if
-            # end if
-
-            if status == hdef.OKAY:
-                
-                # Regeln anwenden
-                konto_obj.kategorie_regel_anwenden()
-                
-                if konto_obj.status != hdef.OKAY:
-                    rd.log.write_err("konto_kategorie regel anwenden" + konto_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
-                    return (konto_obj.status, konto_obj)
-                else:
-                    if len(konto_obj.infotext):
-                        rd.log.write_info("konto_kategorie regel anwenden" + konto_obj.infotext, screen=rd.par.LOG_SCREEN_OUT)
-                    # end if
-                # endif
-                runflag = True
-            # end if
-        elif index_abfrage == i_regel_edit:
-            
-            regel_list = rd.allg.katfunc.get_regel_list()
-            
-            regel_list_mod = depot_gui.konto_regel_edit_abfrage(rd.gui, regel_list)
-            
-            if len(regel_list_mod) > 0:
-                rd.allg.katfunc.set_regel_list(regel_list_mod)
-                
-                if rd.allg.katfunc.status != hdef.OKAY:
-                    rd.log.write_err("konto_kategorie edit regel" + rd.allg.katfunc.errtext,
-                                     screen=rd.par.LOG_SCREEN_OUT)
-                    return (rd.allg.katfunc.status, konto_obj)
-                
-                if len(rd.allg.katfunc.infotext) > 0:
-                    rd.log.write_info("konto_kategorie regel(edit): " + rd.allg.katfunc.infotext,
-                                      screen=rd.par.LOG_SCREEN_OUT)
-                # end if
-            # end if
+            # endif
             runflag = True
             
         elif index_abfrage == i_regel_build:
@@ -204,14 +185,14 @@ def anzeige(rd, konto_obj):
                 (tlist, _, _) = konto_obj.get_extern_default_tlist()
             # end if
             i_count = 0
-            i_kat = 0
+            #i_kat = 0
             for i,name in enumerate(tlist.names):
                 if name not in non_use_kat_list:
                     if name == konto_obj.par.KONTO_DATA_NAME_KATEGORIE:
                         kat_liste = rd.allg.katfunc.get_kat_list()
                         eingabeListe.append(["kategorie", kat_liste])
                         vorgabeListe.append("")
-                        i_kat = i_count
+                        #i_kat = i_count
                         
                     else:
                         eingabeListe.append(name)
@@ -229,21 +210,18 @@ def anzeige(rd, konto_obj):
             
                 if len(ergebnisListe) == 0: #cancel
                     flag = False
-                elif len(ergebnisListe[i_kat]) == 0:
-                    rd.log.write_err("depot_konto_kategorie build regel: kategorie ist leer !!! ", screen=rd.par.LOG_SCREEN_OUT)
-                    flag = True
                 else:
                     # neue regel dict
-                    inner_dict = {}
+                    regel_dict = {}
                     for i,name in enumerate(eingabeListe):
-                        # wenn value nicht leer
-                        if (len(ergebnisListe[i]) > 0) and (i != i_kat):
-                            inner_dict[eingabeListe[i]]=ergebnisListe[i]
+                        # wenn value nicht leer und nicht Kategorie
+                        if (len(ergebnisListe[i]) > 0):
+                            if isinstance(eingabeListe[i],list):
+                                regel_dict[eingabeListe[i][0]]=ergebnisListe[i]
+                            else:
+                                regel_dict[eingabeListe[i]] = ergebnisListe[i]
                         # end if
                     # end ofr
-                    regel_dict = {}
-                    regel_dict[eingabeListe[i_kat][0]] = ergebnisListe[i_kat]
-                    
                     
                     rd.allg.katfunc.add_regel_dict(regel_dict)
                     
@@ -255,15 +233,37 @@ def anzeige(rd, konto_obj):
                     flag = False
                 # end if
             # end while
+            
+            # Regeln anwenden
+            konto_obj.kategorie_regel_anwenden()
+            
+            if konto_obj.status != hdef.OKAY:
+                rd.log.write_err("konto_kategorie regel anwenden" + konto_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
+                return (konto_obj.status, konto_obj)
+            else:
+                if len(konto_obj.infotext):
+                    rd.log.write_info("konto_kategorie regel anwenden" + konto_obj.infotext,
+                                      screen=rd.par.LOG_SCREEN_OUT)
+                # end if
+            # endif
             runflag = True
-        elif index_abfrage == i_edit_kategorie:
             
-            kat_dict = rd.allg.katfunc.get_kat_dict()
+        elif index_abfrage == i_edit:
+            ddict = {}
+            ddict[rd.par.KONTO_GRUP_DICT_NAME]      = rd.allg.katfunc.get_grup_dict()
+            ddict[rd.par.KONTO_KAT_DICT_NAME]       = rd.allg.katfunc.get_kat_dict()
+            ddict[rd.par.KONTO_KAT_REGEL_LIST_NAME] = rd.allg.katfunc.get_regel_list()
             
-            kat_dict_mod = depot_gui.konto_kat_abfrage(rd.gui, kat_dict)
+            ddict_mod = depot_gui.konto_kategorie_dict_abfrage(rd.gui, ddict)
             
-            if len(kat_dict_mod) > 0:
-                rd.allg.katfunc.set_kat_dict(kat_dict_mod)
+            
+            if (rd.par.KONTO_GRUP_DICT_NAME in ddict_mod.keys()) and \
+                (rd.par.KONTO_KAT_DICT_NAME in ddict_mod.keys()) and \
+                (rd.par.KONTO_KAT_REGEL_LIST_NAME in ddict_mod.keys()):
+                
+                rd.allg.katfunc.set_dicts( ddict_mod[rd.par.KONTO_GRUP_DICT_NAME]
+                                         , ddict_mod[rd.par.KONTO_KAT_DICT_NAME]
+                                         , ddict_mod[rd.par.KONTO_KAT_REGEL_LIST_NAME])
                 
                 if rd.allg.katfunc.status != hdef.OKAY:
                     rd.log.write_err("konto_kategorie edit kategorie" + rd.allg.katfunc.errtext, screen=rd.par.LOG_SCREEN_OUT)
@@ -275,26 +275,20 @@ def anzeige(rd, konto_obj):
                 # end if
             # end if
             runflag = True
+        elif index_abfrage == i_update:
             
-        elif index_abfrage == i_edit_haupt_kategorie:
-            
-            hkat_list = rd.allg.katfunc.get_hkat_list()
-            
-            hkat_list_mod = depot_gui.konto_hkat_abfrage(rd.gui, hkat_list)
-            
-            if len(hkat_list_mod) > 0:
-                rd.allg.katfunc.set_hkat_list(hkat_list_mod)
-                
-                if rd.allg.katfunc.status != hdef.OKAY:
-                    rd.log.write_err("konto_kategorie edit haupt kategorie" + rd.allg.katfunc.errtext, screen=rd.par.LOG_SCREEN_OUT)
-                    return (rd.allg.katfunc.status, konto_obj)
-
-                if len(rd.allg.katfunc.infotext) > 0:
-                    rd.log.write_info("konto_kategorie hkat(edit): " + rd.allg.katfunc.infotext,
-                                      screen=rd.par.LOG_SCREEN_OUT)
+            # Daten updaten, wenn Kategorie in der Eingabe geändert
+            if len(data_changed_pos_list) > 0:
+                konto_obj.write_anzeige_back_data(ttable_anzeige, data_changed_pos_list, "kategorie")
+                if konto_obj.status != hdef.OKAY:
+                    status = hdef.NOT_OKAY
+                    rd.log.write_err("konto_anzeige update " + konto_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
+                    runflag = True
                 # end if
             # end if
+            
             runflag = True
+            
         else:
             runflag = True
     # end while
