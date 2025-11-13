@@ -218,32 +218,65 @@ GUI_ICON_FILE_BASE = "SGUI.ico"
 # ===============================================================================
 # ========================== abfrage_liste ======================================
 # ===============================================================================
-def abfrage_liste_index(liste, title=None):
-    obj = sliste_class.abfrage_liste_class(liste, title=title)
+def abfrage_liste_index(liste, title=None,geometry_list=None):
+    obj = sliste_class.abfrage_liste_class(liste, title=title,geometry_list=geometry_list)
     index = obj.index
+    
+    if isinstance(geometry_list,list):
+        geometry_list[0] = obj.GUI_GEOMETRY_WIDTH
+        geometry_list[1] = obj.GUI_GEOMETRY_HEIGHT
+        geometry_list[2] = obj.GUI_GEOMETRY_POSX
+        geometry_list[3] = obj.GUI_GEOMETRY_POSY
+    # end if
+
     del obj
+
     return index
 
 
-def abfrage_liste_indexListe(liste, title=None):
-    obj = sliste_class.abfrage_liste_class(liste, title=title)
+def abfrage_liste_indexListe(liste, title=None,geometry_list=None):
+    
+    obj = sliste_class.abfrage_liste_class(liste, title=title,geometry_list=geometry_list)
     indexListe = obj.indexListe
+    
+    if isinstance(geometry_list, list):
+        geometry_list[0] = obj.GUI_GEOMETRY_WIDTH
+        geometry_list[1] = obj.GUI_GEOMETRY_HEIGHT
+        geometry_list[2] = obj.GUI_GEOMETRY_POSX
+        geometry_list[3] = obj.GUI_GEOMETRY_POSY
+    # end if
+
     del obj
+
     return indexListe
 
 
-def abfrage_liste_index_abfrage_index(liste, listeAbfrage, title=None):
-    obj = sliste_class.abfrage_liste_class(liste, listeAbfrage, title)
+def abfrage_liste_index_abfrage_index(liste, listeAbfrage, title=None,geometry_list=None):
+    obj = sliste_class.abfrage_liste_class(liste, listeAbfrage, title,geometry_list)
     index = obj.index
     indexAbfrage = obj.indexAbfrage
+    if isinstance(geometry_list, list):
+        geometry_list[0] = obj.GUI_GEOMETRY_WIDTH
+        geometry_list[1] = obj.GUI_GEOMETRY_HEIGHT
+        geometry_list[2] = obj.GUI_GEOMETRY_POSX
+        geometry_list[3] = obj.GUI_GEOMETRY_POSY
+    # end if
     del obj
     return (index, indexAbfrage)
 
 
-def abfrage_liste_indexListe_abfrage_index(liste, listeAbfrage, title=None):
-    obj = sliste_class.abfrage_liste_class(liste, listeAbfrage, title)
+def abfrage_liste_indexListe_abfrage_index(liste, listeAbfrage, title=None,geometry_list=None):
+    obj = sliste_class.abfrage_liste_class(liste, listeAbfrage, title,geometry_list)
     indexListe = obj.indexListe
     indexAbfrage = obj.indexAbfrage
+    
+    if isinstance(geometry_list,list):
+        geometry_list[0] = obj.GUI_GEOMETRY_WIDTH
+        geometry_list[1] = obj.GUI_GEOMETRY_HEIGHT
+        geometry_list[2] = obj.GUI_GEOMETRY_POSX
+        geometry_list[3] = obj.GUI_GEOMETRY_POSY
+    # end if
+    
     del obj
     return (indexListe, indexAbfrage)
 
@@ -270,6 +303,8 @@ def abfrage_tabelle(ddict_inp):
 # ddict_inp["auswahl_filter_col_liste"] = ["headername1","headername3"] oder [0,2]
 # ddict_inp["GUI_GEOMETRY_WIDTH"] = 1000
 # ddict_inp["GUI_GEOMETRY_HEIGHT"] = 600
+# ddict_inp["GUI_GEOMETRY_POSX"] = 100
+# ddict_inp["GUI_GEOMETRY_POSY"] = 100
 # ddict_inp["GUI_ICON_FILE"] = file.icon
 # ddict_inp["GUI_TITLE"] = text
 #
@@ -284,6 +319,10 @@ def abfrage_tabelle(ddict_inp):
 # ddict_out["errtext"]                      errtext
 # ddict_out["data_change_irow_icol_liste"]  list of (irow,icol) from data whih were changed
 # ddict_out["data_change_flag"]             are dates changed
+# ddict_out["GUI_GEOMETRY_WIDTH"]
+# ddict_out["GUI_GEOMETRY_HEIGHT"]
+# ddict_out["GUI_GEOMETRY_POSX"]
+# ddict_out["GUI_GEOMETRY_POSY"]
 
     :param ddict_inp:
     :return:
@@ -306,6 +345,11 @@ def abfrage_tabelle(ddict_inp):
         ddict_out["irow_select"] = obj.current_row
         ddict_out["data_change_irow_icol_liste"] = obj.data_change_irow_icol_liste
         ddict_out["data_change_flag"] = obj.data_change_flag
+        
+        ddict_out["GUI_GEOMETRY_WIDTH"] = obj.GUI_GEOMETRY_WIDTH
+        ddict_out["GUI_GEOMETRY_HEIGHT"] = obj.GUI_GEOMETRY_HEIGHT
+        ddict_out["GUI_GEOMETRY_POSX"] = obj.GUI_GEOMETRY_POSX
+        ddict_out["GUI_GEOMETRY_POSY"] = obj.GUI_GEOMETRY_POSY
     # end if
     del obj
     return ddict_out
@@ -315,7 +359,7 @@ def abfrage_tabelle(ddict_inp):
 
 # ===============================================================================
 # ========================== abfrage_dict =======================================
-def abfrage_dict(ddict,title=None):
+def abfrage_dict(ddict,title=None,geometry_list=None):
     DATA_FLOAT = 0
     DATA_INTEGER = 1
     DATA_STRING = 2
@@ -386,7 +430,7 @@ def abfrage_dict(ddict,title=None):
         # end if
     # end for
     if len(liste) > 0:
-        obj = sclass_ane.abfrage_n_eingabezeilen_class(liste=liste, vorgabe_liste=vorgabe_liste, title=title)
+        obj = sclass_ane.abfrage_n_eingabezeilen_class(liste=liste, vorgabe_liste=vorgabe_liste, title=title,geometry_list=geometry_list)
         liste_ausgabe = obj.eingabeListe
         del obj
 
@@ -537,9 +581,25 @@ def abfrage_n_eingabezeilen_dict(ddict):
     else:
         liste_immutable = None
     # end if
-
-    obj = sclass_ane.abfrage_n_eingabezeilen_class(liste=ddict["liste_abfrage"], vorgabe_liste=vorgabe_liste, title=title, liste_immutable=liste_immutable)
+    geometry_list = []
+    keys = ["GUI_GEOMETRY_WIDTH","GUI_GEOMETRY_HEIGHT","GUI_GEOMETRY_POSX","GUI_GEOMETRY_POSY"]
+    for key in keys:
+        if key in ddict.keys():
+            geometry_list.append(ddict[key])
+        # end if
+    # end ofr
+    if len(geometry_list) < 4:
+        geometry_list = None
+    # end if
+    
+    obj = sclass_ane.abfrage_n_eingabezeilen_class(liste=ddict["liste_abfrage"], vorgabe_liste=vorgabe_liste, title=title, liste_immutable=liste_immutable,geometry_list=geometry_list)
     liste = obj.eingabeListe
+
+    for key in keys:
+        wert = getattr(obj,key)
+        ddict[key] = wert
+    # end ofr
+
     del obj
     return liste
 
@@ -552,7 +612,7 @@ def abfrage_n_eingabezeilen_dict(ddict):
 
 # ===============================================================================
 # ========================== modify_variable ============================
-def modify_variable(var,title="Editiere in der Syntax variable"):
+def modify_variable(var,title="Editiere in der Syntax variable",geometry_list=None):
     '''
     
     :param ddict:
@@ -571,7 +631,7 @@ def modify_variable(var,title="Editiere in der Syntax variable"):
     runflag = True
     while( runflag):
     
-        json_dump = abfrage_text(json_obj, title=title, textcolor='blue',build_string=True)
+        json_dump = abfrage_text(json_obj, title=title, textcolor='blue',build_string=True,geometry_list=geometry_list)
     
         if len(json_dump) == 0:
             runflag = False
@@ -613,7 +673,7 @@ def abfrage_janein(text=None, title=None):
 
 # ========================== anzeige_text ========================================
 # ===============================================================================
-def anzeige_text(texteingabe, title=None, textcolor='black'):
+def anzeige_text(texteingabe, title=None, textcolor='black',geometry_list=None):
     text_liste = []
     
     if (isinstance(texteingabe, str)):
@@ -621,12 +681,12 @@ def anzeige_text(texteingabe, title=None, textcolor='black'):
     elif (isinstance(texteingabe, list)):
         text_liste = texteingabe
     
-    obj = stext_class.anzeige_text_class(text_liste, title, textcolor)
+    obj = stext_class.anzeige_text_class(text_liste, title, textcolor,geometry_list=geometry_list)
     
     del obj
 
 
-def abfrage_text(textvorgabe, title=None, textcolor='black',build_string= False):
+def abfrage_text(textvorgabe, title=None, textcolor='black',build_string= False,geometry_list=None):
     '''
     
     :param textvorgabe:
@@ -641,7 +701,7 @@ def abfrage_text(textvorgabe, title=None, textcolor='black',build_string= False)
     elif (isinstance(textvorgabe, list)):
         text_liste = textvorgabe
     
-    obj = stext_class.anzeige_text_class(text_liste, title, textcolor,True)
+    obj = stext_class.anzeige_text_class(text_liste, title, textcolor,True,geometry_list=geometry_list)
     
     if build_string:
         textrueckgabe = ""

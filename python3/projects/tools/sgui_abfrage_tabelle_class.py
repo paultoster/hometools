@@ -19,6 +19,8 @@
 # ddict_inp["auswahl_filter_col_liste"] = ["headername1","headername3"] oder [0,2]
 # ddict_inp["GUI_GEOMETRY_WIDTH"] = 1000
 # ddict_inp["GUI_GEOMETRY_HEIGHT"] = 600
+# ddict_inp["GUI_GEOMETRY_POSX"] = 100
+# ddict_inp["GUI_GEOMETRY_POSY"] = 100
 # ddict_inp["GUI_ICON_FILE"] = file.icon
 # ddict_inp["GUI_TITLE"] = text
 #
@@ -33,6 +35,10 @@
 # ddict_out["errtext"]                      errtext
 # ddict_out["data_change_irow_icol_liste"]  list of (irow,icol) from data whih were changed
 # ddict_out["data_change_flag"]             are dates changed
+# ddict_out["GUI_GEOMETRY_WIDTH"]
+# ddict_out["GUI_GEOMETRY_HEIGHT"]
+# ddict_out["GUI_GEOMETRY_POSX"]
+# ddict_out["GUI_GEOMETRY_POSY"]
 #
 # bei verwendung ddict_inp["auswahl_filter_col_liste"]
 # 1) der String kann kann geteilt werden mit ";"
@@ -235,7 +241,7 @@ class abfrage_tabelle_class:
         # ddict_inp["GUI_GEOMETRY_WIDTH"] = 1000
         # ---------------------------------------------------------------
         key = "GUI_GEOMETRY_WIDTH"
-        if (key not in ddict_inp.keys()):
+        if key not in ddict_inp.keys() or (not isinstance(ddict_inp[key], int)):
             self.GUI_GEOMETRY_WIDTH = sdef.GUI_GEOMETRY_WIDTH_BASE
         else:
             self.GUI_GEOMETRY_WIDTH = ddict_inp[key]
@@ -245,16 +251,16 @@ class abfrage_tabelle_class:
         # ddict_inp["GUI_GEOMETRY_HEIGHT"] = 600
         # ---------------------------------------------------------------
         key = "GUI_GEOMETRY_HEIGHT"
-        if (key not in ddict_inp.keys()):
+        if key not in ddict_inp.keys() or (not isinstance(ddict_inp[key], int)):
             self.GUI_GEOMETRY_HEIGHT = sdef.GUI_GEOMETRY_HEIGHT_BASE
         else:
-            self.GUI_GEOMETRY_WIDTH = ddict_inp[key]
+            self.GUI_GEOMETRY_HEIGHT = ddict_inp[key]
         # end if
         
         # ddict_inp["GUI_GEOMETRY_POSX"] = 0
         # ---------------------------------------------------------------
         key = "GUI_GEOMETRY_POSX"
-        if (key not in ddict_inp.keys()):
+        if key not in ddict_inp.keys() or (not isinstance(ddict_inp[key], int)):
             self.GUI_GEOMETRY_POSX = 0
         else:
             self.GUI_GEOMETRY_POSX = ddict_inp[key]
@@ -263,7 +269,7 @@ class abfrage_tabelle_class:
         # ddict_inp["GUI_GEOMETRY_POSY"] = 0
         # ---------------------------------------------------------------
         key = "GUI_GEOMETRY_POSY"
-        if (key not in ddict_inp.keys()):
+        if key not in ddict_inp.keys() or (not isinstance(ddict_inp[key], int)):
             self.GUI_GEOMETRY_POSY = 0
         else:
             self.GUI_GEOMETRY_POSY = ddict_inp[key]
@@ -272,7 +278,7 @@ class abfrage_tabelle_class:
         # ddict_inp["GUI_ICON_FILE"]
         # ---------------------------------------------------------------
         key = "GUI_ICON_FILE"
-        if (key not in ddict_inp.keys()) or (not isinstance(ddict_inp[key], str)):
+        if key not in ddict_inp.keys() or (not isinstance(ddict_inp[key], str)):
             self.GUI_ICON_FILE = sdef.GUI_ICON_FILE_BASE
         else:
             self.GUI_ICON_FILE = ddict_inp[key]
@@ -354,6 +360,10 @@ class abfrage_tabelle_class:
     
     def __del__(self):
         if (self.flag_mainloop):
+            self.GUI_GEOMETRY_HEIGHT = self.root.winfo_height()
+            self.GUI_GEOMETRY_WIDTH = self.root.winfo_width()
+            self.GUI_GEOMETRY_POSX  = self.root.winfo_x()
+            self.GUI_GEOMETRY_POSY  = self.root.winfo_y()
             self.root.destroy()
             self.flag_mainloop = False
     
@@ -365,6 +375,10 @@ class abfrage_tabelle_class:
         # if( ans ): self.base.save_db_file()
         
         if (self.flag_mainloop):
+            self.GUI_GEOMETRY_HEIGHT = self.root.winfo_height()
+            self.GUI_GEOMETRY_WIDTH = self.root.winfo_width()
+            self.GUI_GEOMETRY_POSX  = self.root.winfo_x()
+            self.GUI_GEOMETRY_POSY  = self.root.winfo_y()
             self.root.destroy()
             self.flag_mainloop = False
     

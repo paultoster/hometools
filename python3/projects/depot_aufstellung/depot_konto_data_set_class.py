@@ -359,7 +359,7 @@ class KontoDataSet:
         return self.konto_name
     def proof_kategorie_in_data_set(self):
         '''
-        
+        Prüft über alle Einträge, ob Kategorie mit der Liste passt
         :return: self.proof_kategorie_in_data_set()
         '''
         

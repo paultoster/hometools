@@ -43,7 +43,14 @@ class SguiProtocol:
         self.setup(protocol_type,protocol_file)
         
         self.store_each_demand = store_each_demand
-    
+        
+        self.GUI_GEOMETRY_WIDTH = 800
+        self.GUI_GEOMETRY_HEIGHT = 800
+        self.GUI_GEOMETRY_POSX = 0
+        self.GUI_GEOMETRY_POSY = 0
+        
+        self.key_list = ["GUI_GEOMETRY_WIDTH", "GUI_GEOMETRY_HEIGHT", "GUI_GEOMETRY_POSX", "GUI_GEOMETRY_POSY"]
+
     def setup(self,protocol_type,protocol_file):
     
         if protocol_file == None:
@@ -220,7 +227,11 @@ class SguiProtocol:
         
         if not self.run_protocol_data:
             
-            index = sgui.abfrage_liste_index(liste,title)
+            geometry_list = self.set_geometry_list([800,600])
+            
+            index = sgui.abfrage_liste_index(liste,title,geometry_list)
+            
+            # self.get_geometry_list(geometry_list)
             
             if self.save_protocol_data:
                 self.set_next_protocol_data("title", title)
@@ -251,7 +262,11 @@ class SguiProtocol:
         
         if not self.run_protocol_data:
             
-            indexListe = sgui.abfrage_liste_indexListe(liste, title)
+            geometry_list = self.set_geometry_list([800,600])
+            
+            indexListe = sgui.abfrage_liste_indexListe(liste, title,geometry_list)
+            
+            # self.get_geometry_list(geometry_list)
             
             if self.save_protocol_data:
                 self.set_next_protocol_data("title", title)
@@ -285,7 +300,11 @@ class SguiProtocol:
         
         if not self.run_protocol_data:
             
-            (index,indexAbfrage) = sgui.abfrage_liste_index_abfrage_index(liste, listeAbfrage, title)
+            geometry_list = self.set_geometry_list([800,600])
+            
+            (index,indexAbfrage) = sgui.abfrage_liste_index_abfrage_index(liste, listeAbfrage, title,geometry_list)
+            
+            # self.get_geometry_list(geometry_list)
             
             if self.save_protocol_data:
                 self.set_next_protocol_data("title", title)
@@ -318,7 +337,11 @@ class SguiProtocol:
         
         if not self.run_protocol_data:
             
-            (indexListe, indexAbfrage) = sgui.abfrage_liste_indexListe_abfrage_index(liste, listeAbfrage, title)
+            geometry_list = self.set_geometry_list([800,600])
+            
+            (indexListe, indexAbfrage) = sgui.abfrage_liste_indexListe_abfrage_index(liste, listeAbfrage, title,geometry_list)
+            
+            # self.get_geometry_list(geometry_list)
             
             if self.save_protocol_data:
                 self.set_next_protocol_data("title", title)
@@ -368,7 +391,11 @@ class SguiProtocol:
         
         if not self.run_protocol_data:
             
+            dict_inp = self.set_geometry(dict_inp)
+            
             ddict_out = sgui.abfrage_tabelle(dict_inp)
+
+            self.get_geometry(ddict_out)
             
             if self.save_protocol_data:
                 self.set_next_protocol_data("status", ddict_out["status"])
@@ -419,7 +446,11 @@ class SguiProtocol:
         
         if not self.run_protocol_data:
             
-            (ddict,changed_key_liste) = sgui.abfrage_dict(ddict)
+            geometry_list = self.set_geometry_list()
+            
+            (ddict,changed_key_liste) = sgui.abfrage_dict(ddict,geometry_list=geometry_list)
+            
+            self.get_geometry_list(geometry_list)
             
             if self.save_protocol_data:
                 self.set_next_protocol_data("ddict", ddict)
@@ -449,7 +480,11 @@ class SguiProtocol:
         
         if not self.run_protocol_data:
             
+            dict_inp = self.set_geometry(dict_inp)
+            
             liste = sgui.abfrage_n_eingabezeilen_dict(dict_inp)
+            
+            self.get_geometry(dict_inp)
             
             if self.save_protocol_data:
                 if "liste_abfrage" in dict_inp.keys():
@@ -483,7 +518,9 @@ class SguiProtocol:
         
         if not self.run_protocol_data:
             
-            var_mod = sgui.modify_variable(var,title)
+            geometry_list = self.set_geometry_list()
+            var_mod = sgui.modify_variable(var,title,geometry_list)
+            self.get_geometry_list(geometry_list)
             
             if self.save_protocol_data:
                 self.set_next_protocol_data("var_mod", var_mod)
@@ -536,7 +573,12 @@ class SguiProtocol:
         
         if not self.run_protocol_data:
             
-            sgui.anzeige_text(texteingabe, title,textcolor)
+            geometry_list = self.set_geometry_list()
+            
+            sgui.anzeige_text(texteingabe, title,textcolor,geometry_list=geometry_list)
+            
+            self.get_geometry_list(geometry_list)
+            
             
             if self.save_protocol_data:
                 self.set_next_protocol_data("texteingabe", texteingabe)
@@ -567,7 +609,11 @@ class SguiProtocol:
         
         if not self.run_protocol_data:
             
-            textrueckgabe = sgui.abfrage_text(textvorgabe)
+            geometry_list = self.set_geometry_list()
+            
+            textrueckgabe = sgui.abfrage_text(textvorgabe,geometry_list=geometry_list)
+            
+            self.get_geometry_list(geometry_list)
             
             if self.save_protocol_data:
                 
@@ -607,6 +653,75 @@ class SguiProtocol:
         # end if
         
         return filename
+    # end def
+    def set_geometry(self,dict_inp):
+        '''
+        
+        :param dict_inp:
+        :return: dict_inp
+        '''
 
+        
+        for key in self.key_list:
+            wert = getattr(self, key)
+            if wert is not None:
+                dict_inp[key] = wert
+            # end if
+        # end for
+        return dict_inp
+    # end def
+    def set_geometry_list(self,liste=None):
+        '''
+
+        
+        :return: geometry_list
+        '''
+        geometry_list = []
+        for index,key in enumerate(self.key_list):
+            
+            if isinstance(liste,list) and (len(liste)>index):
+                wert = liste[index]
+            else:
+                wert = getattr(self, key)
+                
+            if wert is None:
+                geometry_list = None
+                break
+            else:
+                geometry_list.append(wert)
+            # end if
+        # end for
+        return geometry_list
+    
+    # end def
+    def get_geometry(self,ddict_out):
+        '''
+        
+        :param ddict_out:
+        :return:
+        '''
+        
+        for key in self.key_list:
+            if key in ddict_out.keys():
+                setattr(self, key,ddict_out[key])
+            # end if
+        # end for
+        return
+    # end def
+    def get_geometry_list(self, geometry_list):
+        '''
+
+        :param ddict_out:
+        :return:
+        '''
+        if isinstance(geometry_list,list):
+            for index,key in enumerate(self.key_list):
+                if len(geometry_list) > index:
+                    setattr(self, key, geometry_list[index])
+                # end if
+            # end for
+        # end if
+        return
+    # end def
 
     

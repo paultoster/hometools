@@ -22,16 +22,34 @@ import tools.hfkt_str as hstr
 
 class KategorieClass:
     '''
-    obj = KategorieClass(hkat_list,kat_dict,regel_list,kat_name)
+    obj = KategorieClass(grup_dict,kat_dict,regel_list)
 
-        :param hkat_list:  Liste Hauptkategorie
-        :param kat_dict:   Dict Kategorie mit "haupt":hkat_list[i]
+        :param grup_dict:  Liste Gruppenkategorie {"gruppe":zeit, ...}
+        :param kat_dict:   Dict Kategorie mit {"verbrauch":gruppe, ...}
         :param regel_list: Regel list mit  dict of header z.B.
                            {"wer": "ARNDT","comment": "MIETE MARTINSTR. 64","kategorie":"miete"}
     Funktionen:
-    hkat_list = obj.get_hkat_list()
-    kat_dict = obj.get_kat_dict()
+    obj.reset_status()                   resetet Status und Text
+    obj.set_dicts(grup_dict,kat_dict,regel_list) Setzt geänderte Dict, siehe  status für fehler
+    
+    obj.set_grup_list(grup_dict)         setzt von dict in zwei Listen um self.grup_list, self.grup_zeit_list
+    obj.proof_and_get_grup_index(grup)   prüft ob grup vorhanden, wenn nicht fügt hinzu und gibt index zurück
+    obj.set_kat_list(kat_dict)           setzt von dict in zweiListen um self.kat_list self.kat_grup_index_list
+    obj.set_kat_dict(kat_dict)           das gleiche
+    obj.proof_regel(regel_list)          prüft die regel-liste mit den jeweiligen dict einträgen, siehe status
+    obj.set_regel_list(regel_list)       das gleiche
+    
+    grup_list = obj.get_grup_list()
+    grup_dict = obj.get_grup_dict()
+    kat_list  = obj.get_kat_list()
+    kat_dict  = obj.get_kat_dict()
     regel_list = obj.get_regel_list()
+    
+    obj.add_regel_dict(regel_dict)
+    obj.regel_anwedung_data_set(tlist)   Wendet Regel set auf eine Datenzeile aus Tabelle an, überschreibt kategorie Eintrag
+    
+    flag = obj.is_kat_set(kat)           Prüft, ob es die Kategorie gibt
+    
     
     obj.reset_status()
     
@@ -57,6 +75,10 @@ class KategorieClass:
             return
         
         return
+    # end def
+    def reset_status(self):
+        self.status = hdef.OKAY
+        self.errtext = ""
     # end def
     def set_dicts(self,grup_dict,kat_dict,regel_list):
         '''
@@ -224,10 +246,6 @@ class KategorieClass:
         self.regel_list.append(regel_dict)
         return
     # end def
-    def reset_status(self):
-        self.status = hdef.OKAY
-        self.errtext = ""
-    # end def
     def regel_anwedung_data_set(self,tlist):
         '''
         
@@ -280,4 +298,16 @@ class KategorieClass:
         # end for
         
         return (found,kategorie)
+    # end def
+    def is_kat_set(self,kat):
+        '''
+        
+        :param kat:
+        :return: True/False
+        '''
+        
+        if kat in self.kat_list:
+            return True
+        else:
+            return False
         

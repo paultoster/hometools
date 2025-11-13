@@ -44,10 +44,6 @@ class anzeige_text_class:
       Rückgabe: keine
 
     """
-    GUI_GEOMETRY_WIDTH = sdef.GUI_GEOMETRY_WIDTH_BASE
-    GUI_GEOMETRY_HEIGHT = sdef.GUI_GEOMETRY_HEIGHT_BASE
-    GUI_GEOMETRY_POSX = 0
-    GUI_GEOMETRY_POSY = 0
     GUI_ICON_FILE = sdef.GUI_ICON_FILE_BASE
     GUI_TITLE = "Anzeige"
     
@@ -66,7 +62,7 @@ class anzeige_text_class:
     
     # -------------------------------------------------------------------------------
     # -------------------------------------------------------------------------------
-    def __init__(self, text_liste, title=None, textcolor='black',use_cancel_button=False):
+    def __init__(self, text_liste, title=None, textcolor='black',use_cancel_button=False,geometry_list=None):
         """
         """
         self.status = hdef.OKAY
@@ -84,6 +80,12 @@ class anzeige_text_class:
             self.abfrage_liste = [u'okay',u'cancel']
         else:
             self.abfrage_liste = [u'okay']
+        
+        self.GUI_GEOMETRY_WIDTH = sdef.GUI_GEOMETRY_WIDTH_BASE
+        self.GUI_GEOMETRY_HEIGHT = sdef.GUI_GEOMETRY_HEIGHT_BASE
+        self.GUI_GEOMETRY_POSX = 0
+        self.GUI_GEOMETRY_POSY = 0
+        
         # liste in string-liste wandeln
         index = 0
         for item in text_liste:
@@ -103,6 +105,16 @@ class anzeige_text_class:
             self.title = title
         # endif
         
+        if isinstance(geometry_list,list):
+            if len(geometry_list):
+                self.GUI_GEOMETRY_WIDTH = geometry_list[0]
+            if len(geometry_list) > 1:
+                self.GUI_GEOMETRY_HEIGHT = geometry_list[1]
+            if len(geometry_list) > 2:
+                self.GUI_GEOMETRY_POSX = geometry_list[2]
+            if len(geometry_list) > 3:
+                self.GUI_GEOMETRY_POSY = geometry_list[3]
+
         # TK-Grafik anlegen
         # ------------------
         self.root = Tk.Tk()
@@ -130,6 +142,10 @@ class anzeige_text_class:
     
     def __del__(self):
         if (self.flag_mainloop):
+            self.GUI_GEOMETRY_HEIGHT = self.root.winfo_height()
+            self.GUI_GEOMETRY_WIDTH = self.root.winfo_width()
+            self.GUI_GEOMETRY_POSX  = self.root.winfo_x()
+            self.GUI_GEOMETRY_POSY  = self.root.winfo_y()
             self.root.destroy()
             self.flag_mainloop = False
     
@@ -148,6 +164,10 @@ class anzeige_text_class:
             self.str_liste_out = []
         
         if (self.flag_mainloop):
+            self.GUI_GEOMETRY_HEIGHT = self.root.winfo_height()
+            self.GUI_GEOMETRY_WIDTH = self.root.winfo_width()
+            self.GUI_GEOMETRY_POSX  = self.root.winfo_x()
+            self.GUI_GEOMETRY_POSY  = self.root.winfo_y()
             self.root.destroy()
             self.flag_mainloop = False
     
