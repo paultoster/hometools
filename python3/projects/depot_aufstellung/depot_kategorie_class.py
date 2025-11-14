@@ -56,7 +56,7 @@ class KategorieClass:
     (found,kat) = obj.regel_anwedung_data_set(tlist)
     
     '''
-    def __init__(self,grup_dict,kat_dict,regel_list):
+    def __init__(self,grup_dict,kat_dict,regel_list,tausch_kategorie_dict):
         self.status = hdef.OK
         self.errtext = ""
         self.infotext = ""
@@ -68,6 +68,9 @@ class KategorieClass:
         self.kat_list = []
         self.kat_grup_index_list = []
         self.regel_list  = []
+        self.tausch_kategorie_dict = tausch_kategorie_dict
+        
+        (kat_dict,regel_list) = self.tausche_kategorie(kat_dict,regel_list)
 
         self.set_dicts(grup_dict,kat_dict,regel_list)
 
@@ -79,6 +82,49 @@ class KategorieClass:
     def reset_status(self):
         self.status = hdef.OKAY
         self.errtext = ""
+    # end def
+    def tausche_kategorie(self,kat_dict,regel_list):
+        '''
+        
+        :param kat_dict:
+        :param regel_list:
+        :return: (kat_dict,regel_list) = self.tausche_kategorie(kat_dict,regel_list)
+        '''
+        kat_dict_out = {}
+        for key in kat_dict.keys():
+            if key in self.tausch_kategorie_dict.keys():
+                kat_dict_out[self.tausch_kategorie_dict[key]] = kat_dict[key]
+            else:
+                kat_dict_out[key] = kat_dict[key]
+            # end if
+        # end for
+        
+        regel_list_out = []
+        for regel_dict in regel_list:
+            if self.kat_name in regel_dict.keys():
+                if regel_dict[self.kat_name] in self.tausch_kategorie_dict.keys():
+                    regel_dict[self.kat_name] = self.tausch_kategorie_dict[regel_dict[self.kat_name]]
+                # end if
+            # end if
+            regel_list_out.append(regel_dict)
+        # end for
+        
+        return (kat_dict_out,regel_list_out)
+    # end def
+    def get_tausch_kategorie(self,kat_old):
+        '''
+        
+        :param kat_old:
+        :return: tausch_kat = self.katfunc.get_tausch_kategorie(kat_old)
+        '''
+        
+        if kat_old in self.tausch_kategorie_dict.keys():
+            kat_new = self.tausch_kategorie_dict[kat_old]
+        else:
+            kat_new = ""
+        # end if
+        
+        return kat_new
     # end def
     def set_dicts(self,grup_dict,kat_dict,regel_list):
         '''
@@ -274,13 +320,27 @@ class KategorieClass:
                     
                         # Wenn in Liste enthalten
                         if index != None:
+                            found = False
+                            if isinstance(rdict[header],list):
+                                found = False
+                                for val in rdict[header]:
+                                    ind = hstr.such(tlist.vals[index], val, "vs")
+                                    
+                                    if ind >= 0:
+                                        found = True
+                                        break
+                                    # end if
+                                # end for
+                            elif isinstance(rdict[header],str):
+                                # Suche Inhalt der regel in dem data set
+                                ind = hstr.such(tlist.vals[index],rdict[header],"vs")
                         
-                            # Suche Inhalt der regel in dem data set
-                            ind = hstr.such(tlist.vals[index],rdict[header],"vs")
-                        
-                            # Wenn entahlten
-                            if ind >= 0:
-                            
+                                # Wenn entahlten
+                                if ind >= 0:
+                                    found = True
+                                # end if
+                            # end if
+                            if found:
                                 # Zähle die Anzahl der Regeln runter
                                 nregel -= 1
                             # end if

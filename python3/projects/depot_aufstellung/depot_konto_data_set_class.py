@@ -372,7 +372,9 @@ class KontoDataSet:
             
             if (len(value)>0) and (value not in kat_list):
                 
-                self.data_set_obj.set_data_item("",self.par.LINE_COLOR_EDIT,irow, icol_kat, "str")
+                tausch_kat = self.katfunc.get_tausch_kategorie(value) # ist leer "" wenn kein Tausch
+                
+                self.data_set_obj.set_data_item(tausch_kat,self.par.LINE_COLOR_EDIT,irow, icol_kat, "str")
             # end if
         # end for
     # end def
@@ -1696,6 +1698,9 @@ class KontoDataSet:
         Anwenden der Kategorie Regeln auf nicht gesetzte Kategorien
         :return:
         '''
+        
+        # Zuerst prüfen, falls geändert
+        self.proof_kategorie_in_data_set()
         
         icol_kat = self.par.KONTO_DATA_EXTERN_NAME_LIST.index(self.par.KONTO_DATA_NAME_KATEGORIE)
         

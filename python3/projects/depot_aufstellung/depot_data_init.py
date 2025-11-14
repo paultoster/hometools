@@ -190,10 +190,15 @@ def data_set(rd):
             # end if
         # end for
         
+        if rd.par.KONTO_TAUSCH_DICT_NAME not in rd.allg.kat_dict.keys():
+            rd.allg.kat_dict[rd.par.KONTO_TAUSCH_DICT_NAME] = {}
+        # end if
+    
         rd.allg.katfunc = depot_kategorie_class.KategorieClass(
             rd.allg.kat_dict[rd.par.KONTO_GRUP_DICT_NAME],
             rd.allg.kat_dict[rd.par.KONTO_KAT_DICT_NAME],
-            rd.allg.kat_dict[rd.par.KONTO_KAT_REGEL_LIST_NAME])
+            rd.allg.kat_dict[rd.par.KONTO_KAT_REGEL_LIST_NAME],
+            rd.allg.kat_dict[rd.par.KONTO_TAUSCH_DICT_NAME])
         
         if rd.allg.katfunc.status != hdef.OKAY:
             status = hdef.NOT_OKAY
@@ -508,6 +513,7 @@ def data_save(rd):
 
     # Kategorie
     if rd.allg.katfunc is not None:
+        rd.allg.kat_dict[rd.par.KONTO_TAUSCH_DICT_NAME]    = {}
         rd.allg.kat_dict[rd.par.KONTO_GRUP_DICT_NAME]      = rd.allg.katfunc.get_grup_dict()
         rd.allg.kat_dict[rd.par.KONTO_KAT_DICT_NAME]       = rd.allg.katfunc.get_kat_dict()
         rd.allg.kat_dict[rd.par.KONTO_KAT_REGEL_LIST_NAME] = rd.allg.katfunc.get_regel_list()
