@@ -95,7 +95,9 @@ def anzeige(rd, konto_obj):
                         wert = htvar.get_val_from_table(ttable,irow_change,konto_obj.par.KONTO_DATA_NAME_WERT,"cent")
                         katval = htvar.get_val_from_table(ttable_anzeige,irow_change,icol_change)
                         
-                        if rd.allg.katfunc.is_katval_set_and_correct(katval,wert):
+                        (flag,katval) = rd.allg.katfunc.is_katval_set_and_correct(katval,wert)
+                        if flag:
+                            ttable_anzeige.table[irow_change][icol_change] = katval
                             konto_obj.write_anzeige_back_data(ttable_anzeige, [(irow_change,icol_change)], "kategorie")
                             if konto_obj.status != hdef.OKAY:
                                 status = hdef.NOT_OKAY

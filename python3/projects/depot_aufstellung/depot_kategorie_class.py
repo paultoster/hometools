@@ -370,28 +370,29 @@ class KategorieClass:
         '''
         
         if len(katval) == 0: # leer gleich keine kategorie
-            return True
+            return (True,katval)
         else:
             katdict = self.build_katdict(katval,wert)
             
             if katdict == None:
-                return False
+                return (False,katval)
             # end if
             
             n = len(katdict.keys())
             for kat in katdict.keys():
                 if (kat == self.kat_empty) and (len(katdict.keys()) == 1):  # Wenn empty und nur ein item
-                        return True
+                        return (True,katval)
                 elif kat in self.kat_list:
                     n -= 1
                 # end if
             # end for
             
             if n == 0:
-                return True
+                katval = self.build_katval(katdict)
+                return (True,katval)
             # end if
         # end if
-        return False
+        return (False,katval)
     # end def
     def build_katdict(self,katval,wert_cent):
         '''
@@ -520,7 +521,7 @@ class KategorieClass:
             if kat != self.kat_empty:
                 
                 if index > 0:
-                    katval += self.self.kat_separator
+                    katval += self.kat_separator
                 # end if
                 
                 katval += kat
