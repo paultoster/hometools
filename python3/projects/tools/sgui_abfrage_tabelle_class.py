@@ -692,7 +692,7 @@ class abfrage_tabelle_class:
         else:
             
             header = self.combo_box.get()
-            print(f"tt={tt} hedaer={header}")
+            # print(f"tt={tt} hedaer={header}")
             
             if header not in self.header_liste:
                 return
@@ -770,7 +770,7 @@ class abfrage_tabelle_class:
         
         # get cell position and cell dimensions
         x, y, width, height = self.tabGui_TabBox.bbox(rowid, column)
-        print(x, y, width, height)
+        # print(x, y, width, height)
         
         # y-axis offset
         pady = height // 2

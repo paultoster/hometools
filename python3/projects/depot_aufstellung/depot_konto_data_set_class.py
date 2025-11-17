@@ -287,7 +287,7 @@ class KontoDataSet:
 
             value = self.data_set_obj.get_data_item(0, self.par.KONTO_DATA_INDEX_SUMWERT, "cent")
             if value != self.konto_start_wert:
-                # self.update_sumwert_in_lliste(0)
+                self.data_set_obj.set_data_item(self.konto_start_wert,self.par.LINE_COLOR_NEW,0,self.par.KONTO_DATA_INDEX_SUMWERT, "cent")
                 self.recalc_sum_data_set()
             # end if
             
@@ -357,24 +357,56 @@ class KontoDataSet:
     # end def
     def get_konto_name(self):
         return self.konto_name
-    def proof_kategorie_in_data_set(self):
+    def proof_kategorie_in_data_set(self,irow_inp=None):
         '''
         Prüft über alle Einträge, ob Kategorie mit der Liste passt
         :return: self.proof_kategorie_in_data_set()
         '''
         
         icol_kat = self.data_set_obj.find_header_index(self.par.KONTO_DATA_NAME_KATEGORIE)
-        
+        icol_wert = self.data_set_obj.find_header_index(self.par.KONTO_DATA_NAME_WERT)
+
         kat_list = self.katfunc.get_kat_list()
         
-        for irow in range(self.data_set_obj.get_n_data()):
-            value = self.data_set_obj.get_data_item(irow, icol_kat, "str")
+        if irow_inp == None:
+            irow_list = range(self.data_set_obj.get_n_data())
+        else:
+            irow_list = [irow_inp]
+        # end if
+        
+        for irow in irow_list:
             
-            if (len(value)>0) and (value not in kat_list):
+            katval    = self.data_set_obj.get_data_item(irow, icol_kat, "str")
+            wert_cent = self.data_set_obj.get_data_item(irow, icol_wert, "cent")
+
+            katdict = self.katfunc.build_katdict(katval,wert_cent)
+            
+            if katdict is None:
+                self.status = self.katfunc.status
+                self.errtext = self.katfunc.status
+                self.katfunc.reset_status()
+                return
+            # end if
+            
+            new_katdict = {}
+            flag_change = False
+            for kat in katdict.keys():
+                if (kat != self.katfunc.kat_empty) and (kat not in kat_list):
                 
-                tausch_kat = self.katfunc.get_tausch_kategorie(value) # ist leer "" wenn kein Tausch
+                    tausch_kat = self.katfunc.get_tausch_kategorie(kat) # ist leer "" wenn kein Tausch
+                    new_katdict[tausch_kat] = katdict[kat]
+                    flag_change = True
+                else:
+                    new_katdict[kat] = katdict[kat]
+                # end if
+            # end for
+            
+            if flag_change:
+            
+                katval = self.katfunc.build_katval(new_katdict)
                 
-                self.data_set_obj.set_data_item(tausch_kat,self.par.LINE_COLOR_EDIT,irow, icol_kat, "str")
+                self.data_set_obj.set_data_item(katval,self.par.LINE_COLOR_EDIT,irow, icol_kat, "str")
+                
             # end if
         # end for
     # end def
@@ -1701,6 +1733,8 @@ class KontoDataSet:
         
         # Zuerst prüfen, falls geändert
         self.proof_kategorie_in_data_set()
+        if self.status != hdef.OKAY:
+            return
         
         icol_kat = self.par.KONTO_DATA_EXTERN_NAME_LIST.index(self.par.KONTO_DATA_NAME_KATEGORIE)
         

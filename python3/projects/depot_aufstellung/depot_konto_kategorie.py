@@ -32,6 +32,7 @@ def anzeige(rd, konto_obj):
     
     status = hdef.OKAY
     abfrage_liste = ["ende", "set kat", "del kat","regel(run)","regel(build)","edit(gkr)","update(edit)"]
+    
     i_end = 0
     i_set_kat = 1
     i_del_kat = 2
@@ -47,62 +48,88 @@ def anzeige(rd, konto_obj):
         , konto_obj.par.KONTO_DATA_NAME_BUCHTYPE
         , konto_obj.par.KONTO_DATA_NAME_SUMWERT]
     
+    abfrage_title = "Kategorieabfrage (synatx: \"kat1:wert1; kat2:wert2, ...\") "
+    index_abfrage = i_go_on
     runflag = True
     while (runflag):
         
-        (ttable, row_color_dlist) = konto_obj.get_anzeige_ttable()
-        
-        if ttable.ntable > 0:
-            (status, errtext, ttable_anzeige, index_abfrage, irow, data_changed_pos_list) = \
-                depot_gui.konto_abfrage(rd.gui, ttable, abfrage_liste, row_color_dlist)
-            if status != hdef.OKAY:
-                rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
+        if index_abfrage == i_go_on:
+
+            (ttable, row_color_dlist) = konto_obj.get_anzeige_ttable()
+            
+            # print out kategorie-Liste
+            print(f"kat_liste = {rd.allg.katfunc.get_kat_list()}")
+            
+            if ttable.ntable > 0:
+                (status, errtext, ttable_anzeige, index_abfrage, irow, data_changed_pos_list) = \
+                    depot_gui.konto_abfrage(rd.gui, ttable, abfrage_liste, row_color_dlist,abfrage_title)
+                if status != hdef.OKAY:
+                    rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
+                    index_abfrage = i_end
+                # end if
+            else:
+                rd.log.write_warn("Noch keine Daten für dieses Konto angelegt, es geht weiter zu Add ",
+                                  screen=rd.par.LOG_SCREEN_OUT)
                 index_abfrage = i_end
             # end if
-        else:
-            rd.log.write_warn("Noch keine Daten für dieses Konto angelegt, es geht weiter zu Add ",
-                              screen=rd.par.LOG_SCREEN_OUT)
-            index_abfrage = i_end
-        # end if
-        
-        # Daten updaten, wenn Kategorie in der Eingabe geändert
-        if (index_abfrage != i_end) and (len(data_changed_pos_list) > 0):
             
-            info_text = ""
-            for irow,icol in data_changed_pos_list:
+            # Daten updaten, wenn Kategorie in der Eingabe geändert
+            if (index_abfrage != i_end) and (len(data_changed_pos_list) > 0):
                 
-                # nur Kategorie änderung machen
-                if ttable_anzeige.names[icol] != "kategorie":
-                    if len(info_text):
-                        info_text += "\n"
-                    # end if
-                    info_text += f"Die geänderte Zelle {icol =} ist header: {ttable_anzeige.names[icol]} und nicht die \"kategorie\""
-                else:
-                    if rd.allg.katfunc.is_kat_set(htvar.get_val_from_table(ttable_anzeige,irow,icol)):
-                        konto_obj.write_anzeige_back_data(ttable_anzeige, [(irow,icol)], "kategorie")
-                        if konto_obj.status != hdef.OKAY:
-                            status = hdef.NOT_OKAY
-                            rd.log.write_err("konto_anzeige update " + konto_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
-                            runflag = True
-                            index_abfrage = i_go_on
-                            break
-                        # end if
-                    else:
+                info_text = ""
+                icount = 0
+                for irow_change,icol_change in data_changed_pos_list:
+                    
+                    # debug
+                    print(f"data_changed_pos_list[{icount} = ({irow_change},{icol_change})")
+                    icount += 1
+                    
+                    # nur Kategorie änderung machen
+                    if ttable_anzeige.names[icol_change] != "kategorie":
                         if len(info_text):
                             info_text += "\n"
                         # end if
-                        info_text += f"Die geänderte Kategorie {htvar.get_val_from_table(ttable_anzeige,irow,icol)} mit {irow =} und {icol =} ist ist nicht in Kategorieliste:\n {rd.allg.katfunc.get_kat_list()}"
-                    # end if
-            # end for
-            if len(info_text):
-                rd.log.write_info("Kategorieänderungen : " + info_text, screen=rd.par.LOG_SCREEN_OUT)
-                index_abfrage = i_go_on
-            # end if
-            
-            if index_abfrage == i_update:
-                index_abfrage = i_go_on
-            # end if
-            
+                        info_text += f"Die geänderte Zelle {icol_change =} ist header: {ttable_anzeige.names[icol_change]} und nicht die \"kategorie\""
+                    else:
+                        
+                        wert = htvar.get_val_from_table(ttable,irow_change,konto_obj.par.KONTO_DATA_NAME_WERT,"cent")
+                        katval = htvar.get_val_from_table(ttable_anzeige,irow_change,icol_change)
+                        
+                        if rd.allg.katfunc.is_katval_set_and_correct(katval,wert):
+                            konto_obj.write_anzeige_back_data(ttable_anzeige, [(irow_change,icol_change)], "kategorie")
+                            if konto_obj.status != hdef.OKAY:
+                                status = hdef.NOT_OKAY
+                                rd.log.write_err("konto_anzeige update " + konto_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
+                                konto_obj.reset_status()
+                                runflag = True
+                                index_abfrage = i_go_on
+                                break
+                            # end if
+                        else:
+                            if rd.allg.katfunc.status != hdef.OKAY:
+                                status = hdef.NOT_OKAY
+                                rd.log.write_err("konto_anzeige update " + rd.allg.katfunc.errtext, screen=rd.par.LOG_SCREEN_OUT)
+                                rd.allg.katfunc.reset_status()
+                                runflag = True
+                                index_abfrage = i_go_on
+                                
+                                break
+                            # end if
+                            
+                            if len(info_text):
+                                info_text += "\n"
+                            # end if
+                            info_text += f"Die geänderte Kategorie {htvar.get_val_from_table(ttable_anzeige,irow_change,icol_change)} mit {irow_change =} und {icol_change =} ist ist nicht in Kategorieliste:\n {rd.allg.katfunc.get_kat_list()}"
+                        # end if
+                # end for
+                if len(info_text):
+                    rd.log.write_info("Kategorieänderungen : " + info_text, screen=rd.par.LOG_SCREEN_OUT)
+                    index_abfrage = i_go_on
+                # end if
+        # end if
+        
+        if index_abfrage == i_update:
+            index_abfrage = i_go_on
         elif index_abfrage == i_update:
             rd.log.write_info("Kategorieänderungen : keine Zelle wurde verändert", screen=rd.par.LOG_SCREEN_OUT)
             index_abfrage = i_go_on
@@ -170,7 +197,7 @@ def anzeige(rd, konto_obj):
             # end if
             
             runflag = True
-            
+            index_abfrage = i_go_on
         # Delete Kat
         # ----------------------------
         elif index_abfrage == i_del_kat:
@@ -191,7 +218,7 @@ def anzeige(rd, konto_obj):
             # end if
             
             runflag = True
-        
+            index_abfrage = i_go_on
         # Regel anwenden
         # ----------------------------
         elif index_abfrage == i_regel_anwenden:
@@ -208,7 +235,7 @@ def anzeige(rd, konto_obj):
                 # end if
             # endif
             runflag = True
-            
+            index_abfrage = i_go_on
         elif index_abfrage == i_regel_build:
             
             
@@ -241,6 +268,7 @@ def anzeige(rd, konto_obj):
 
             title = "Erstelle Regel: %s (keine Regel heißt value leer lassen)" % ("{kategorie:{header1:value,header2:value,...}}")
             flag = True
+            index_abfrage = i_go_on
             while flag:
                 ergebnisListe = depot_gui.konto_regel_edit(rd.gui, eingabeListe, vorgabeListe,title)
             
@@ -267,21 +295,10 @@ def anzeige(rd, konto_obj):
                         return (rd.allg.katfunc.status, konto_obj)
                     # end if
                     flag = False
+                    index_abfrage = i_regel_anwenden
                 # end if
             # end while
             
-            # Regeln anwenden
-            konto_obj.kategorie_regel_anwenden()
-            
-            if konto_obj.status != hdef.OKAY:
-                rd.log.write_err("konto_kategorie regel anwenden" + konto_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
-                return (konto_obj.status, konto_obj)
-            else:
-                if len(konto_obj.infotext):
-                    rd.log.write_info("konto_kategorie regel anwenden" + konto_obj.infotext,
-                                      screen=rd.par.LOG_SCREEN_OUT)
-                # end if
-            # endif
             runflag = True
             
         elif index_abfrage == i_edit:
@@ -311,6 +328,7 @@ def anzeige(rd, konto_obj):
                 # end if
             # end if
             runflag = True
+            index_abfrage = i_go_on
         # elif index_abfrage == i_update:
         #
         #     # Daten updaten, wenn Kategorie in der Eingabe geändert
@@ -327,6 +345,7 @@ def anzeige(rd, konto_obj):
         #
         else:
             runflag = True
+            index_abfrage = i_go_on
     # end while
     
     return (status, konto_obj)

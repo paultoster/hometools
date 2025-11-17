@@ -79,6 +79,18 @@ def report_einlesen(rd,choice,konto_dict,konto_obj,csv_obj):
             rd.log.write_info(infotext, screen=rd.par.LOG_SCREEN_OUT)
         # end if
         if flag_newdata :
+            
+            konto_obj.kategorie_regel_anwenden()
+            
+            if konto_obj.status != hdef.OKAY:
+                rd.log.write_err("konto_kategorie regel anwenden" + konto_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
+                return konto_obj.status
+            else:
+                if len(konto_obj.infotext):
+                    rd.log.write_info("konto_kategorie regel anwenden" + konto_obj.infotext, screen=rd.par.LOG_SCREEN_OUT)
+                # end if
+            # endif
+            
             (status,konto_obj) = depot_konto_anzeige.anzeige(rd,konto_obj)
         # end if
 

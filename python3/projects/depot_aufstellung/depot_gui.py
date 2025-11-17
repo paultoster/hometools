@@ -62,7 +62,7 @@ def auswahl_depot(gui,abfrage_liste):
     return (index,choice)
 # enddef
 
-def konto_abfrage(gui, ttable, abfrage_liste,color_list):
+def konto_abfrage(gui, ttable, abfrage_liste,color_list,title=None):
     '''
     
     
@@ -78,6 +78,9 @@ def konto_abfrage(gui, ttable, abfrage_liste,color_list):
     dict_inp["row_color_dliste"] = color_list
     dict_inp["abfrage_liste"] = abfrage_liste
     dict_inp["auswahl_filter_col_liste"] = ["buchdatum","wer","buchtype","wert","comment","isin","kategorie"]
+    if title:
+        dict_inp["title"] = title
+    # end if
     
     dict_out = gui.abfrage_tabelle(dict_inp)
     

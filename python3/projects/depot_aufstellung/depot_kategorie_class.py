@@ -13,7 +13,7 @@ if (tools_path not in sys.path):
 
 
 import tools.hfkt_def as hdef
-# import tools.hfkt_type as htype
+import tools.hfkt_type as htype
 # import tools.hfkt_tvar as htvar
 import tools.hfkt_list as hlist
 import tools.hfkt_str as hstr
@@ -62,6 +62,9 @@ class KategorieClass:
         self.infotext = ""
         
         self.kat_name = "kategorie"
+        self.kat_separator = ";"
+        self.kat_val_separator = ":"
+        self.kat_empty = "empty"
         
         self.grup_list = []
         self.grup_zeit_list = []
@@ -121,7 +124,7 @@ class KategorieClass:
         if kat_old in self.tausch_kategorie_dict.keys():
             kat_new = self.tausch_kategorie_dict[kat_old]
         else:
-            kat_new = ""
+            kat_new = self.kat_empty
         # end if
         
         return kat_new
@@ -359,15 +362,184 @@ class KategorieClass:
         
         return (found,kategorie)
     # end def
-    def is_kat_set(self,kat):
+    def is_katval_set_and_correct(self,katval,wert):
         '''
         
         :param kat:
         :return: True/False
         '''
         
-        if kat in self.kat_list:
+        if len(katval) == 0: # leer gleich keine kategorie
             return True
         else:
-            return False
+            katdict = self.build_katdict(katval,wert)
+            
+            if katdict == None:
+                return False
+            # end if
+            
+            n = len(katdict.keys())
+            for kat in katdict.keys():
+                if (kat == self.kat_empty) and (len(katdict.keys()) == 1):  # Wenn empty und nur ein item
+                        return True
+                elif kat in self.kat_list:
+                    n -= 1
+                # end if
+            # end for
+            
+            if n == 0:
+                return True
+            # end if
+        # end if
+        return False
+    # end def
+    def build_katdict(self,katval,wert_cent):
+        '''
+        
+        :param katval: Kategorie und Euro Anteil
+                        Beispiele
+                        "transport"  eine Kategorie fertig
+                        "transport,kauf" zwei Kategorie zu jeweils der Hälfte
+                        "transport:10,41,kauf" zwei Kategorie 10,41 € für Transport Rest kauf
+                        "transport:10,41,kauf:2,0,sonst" zwei Kategorie 10,41 € für Transport und 2 € für Kauf Rest sonst
+        :param wert_cent:
+        :return: katdict = self.build_katdict(katval, wert_cent) katdict = {kat1:wert1_cent,kat2:wert2_cent}
+        '''
+        
+        liste = katval.split(self.kat_separator)
+        
+        kat_list = []
+        wert_list = []
+        for index,item in enumerate(liste):
+            nlist = item.split(self.kat_val_separator)
+            
+            if len(nlist) == 1:  # nur katergorie z.B. "transport" steht da
+                kat_list.append(nlist[0])
+                wert_list.append(0)
+            elif len(nlist) > 1: # katergorie und wert z.B. "transport:20,48" steht da
+                kat_list.append(nlist[0])
+                (okay,wert) = htype.type_transform(nlist[1],"euroStrK", "cent")
+                # Immer positive
+                if wert < 0:
+                    wert *= -1
+                # end if
+                if okay != hdef.OKAY:
+                    self.status = hdef.NOT_OKAY
+                    self.errtext = f"Aus Kategoriewert: \"{katval}\" kann an der Stelle {index =} der Eurowert: {nlist[1]} nicht in cent gewandelt werden"
+                    return None
+                # end if
+                wert_list.append(wert)
+            # end if
+        # end for
+        
+        # Wertliste überprüfen
+        summe = 0
+        n_ohne_wert = 0
+        for wert in wert_list:
+            if wert == 0:
+                n_ohne_wert += 1
+            else:
+                summe += wert
+            # end if
+        # end for
+        
+        # Immer positiv
+        if wert_cent >= 0:
+            gesamt_wert = wert_cent
+        else:
+            gesamt_wert = -wert_cent
+        # end
+        
+        # Summe zu groß
+        if summe > gesamt_wert:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"Aus Kategoriewert: \"{katval}\" ist der Summenwert {summe =} größer als der wert: {gesamt_wert =}"
+            return None
+        # end if
+        else:
+            # Differenz
+            diff = gesamt_wert - summe
+            index_list = []
+            if n_ohne_wert > 0:
+            
+                delta = int(diff/n_ohne_wert)
+            
+                for index,wert in enumerate(wert_list):
+                    if wert == 0:
+                        wert_list[index] = delta
+                        index_list.append(index)
+                    # end if
+                # end for
+            elif diff != 0:
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"Aus Kategoriewert: \"{katval}\"  die Differenz {diff =} zwischen der Summenwert {summe =} und wert: {gesamt_wert =} kann nicht verteilt werden"
+                return None
+            # end if
+        # end if
+
+        # Rundungsfehler einfach addieret
+        summe = 0
+        for wert in wert_list:
+            summe += wert
+        # end for
+        
+        diff = gesamt_wert - summe
+        if diff != 0:
+            if len(index_list) > 0:
+                wert_list[index_list[0]] += diff
+            else:
+                wert_list[0] += diff
+            # end if
+        # end if
+        
+        katdict = {}
+        for index,kat in enumerate(kat_list):
+            
+            if len(kat) == 0:
+                katdict[self.kat_empty] = wert_list[index]
+            else:
+                katdict[kat] = wert_list[index]
+            # end if
+        # endfor
+        
+        return katdict
+    # end def
+    def build_katval(self,katdict):
+        '''
+        
+        :param self:
+        :param katdict:
+        :return: katval = self.katfunc.build_katval(katdict)
+        '''
+    
+        katval = ""
+        
+        n = len(katdict.keys())
+        for index,kat in enumerate(katdict.keys()):
+            
+            if kat != self.kat_empty:
+                
+                if index > 0:
+                    katval += self.self.kat_separator
+                # end if
+                
+                katval += kat
+                
+                if n > 1:
+                    (okay, wert) = htype.type_transform(katdict[kat], "cent","euroStrK")
+                    if okay != hdef.OKAY:
+                        raise Exception("Soll nicht vorkommen")
+                    # end if
+                    katval += self.kat_val_separator + wert
+                # end if
+            # end if
+        # end ofr
+        return katval
+    # end def
+        
+        
+        
+        
+        
+        
         
