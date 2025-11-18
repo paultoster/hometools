@@ -1173,7 +1173,7 @@ def type_proof_euroStrK(wert_in, delim=",", thousandsign="."):
     # end if
     return (okay, wert)
 # end def
-def  check_euroStrK_witheuroStrP(wert_in, delim, thousandsign):
+def  check_euroStrK_witheuroStrP(wert_in0, delim, thousandsign):
     '''
     Prüft, ob nicht ausversehen ein Punkt anstatt Komma gesetzt ist
     
@@ -1182,7 +1182,7 @@ def  check_euroStrK_witheuroStrP(wert_in, delim, thousandsign):
     :param thousandsign:
     :return: wert_in =  check_euroStrK_witheuroStrP(wert_in, delim, thousandsign)
     '''
-    
+    wert_in = wert_in0.replace("€","")
     list1 = wert_in.split(".")
     n1 = len(list1)
     list2 = list1[-1].split(",")

@@ -404,11 +404,15 @@ class KontoCsvRead:
         new_data_matrix = []
         for data_set in data_matrix:
             
-            (status, _) = htvar.proof_list(name_list, data_set, type_list)
+            (status, errtext) = htvar.proof_list(name_list, data_set, type_list)
             
-            if status == hdef.OKAY:
-                new_data_matrix.append(data_set)
+            if status != hdef.OKAY:
+                
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"{errtext}\n{name_list =}\n{data_set =}\n{type_list =}"
+                return (None,None,None)
             # end if
+            new_data_matrix.append(data_set)
         # end for
         
         return (new_data_matrix,name_list,type_list)

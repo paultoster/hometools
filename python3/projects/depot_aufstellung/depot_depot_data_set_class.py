@@ -1408,4 +1408,13 @@ class DepotDataSet:
         # print
         
         return (value,kurs,kosten_calc,steuer_calc)
+    # end def
+    def reset_line_color(self):
+        '''
+        
+        :return:
+        '''
+        for isin in self.isin_liste:
+            self.wp_data_obj_dict[isin].reset_line_color()
+            self.wp_color_dict[isin] = self.par.LINE_COLOR_BASE
 # end class

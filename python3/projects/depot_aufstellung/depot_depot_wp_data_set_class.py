@@ -581,4 +581,12 @@ class WpDataSet:
         
         return self.status
     # end def
+    def reset_line_color(self):
+        '''
+        
+        :return:
+        '''
+        self.data_set_obj.reset_line_color(self.par.LINE_COLOR_BASE)
+        return
+    # end def
 # end class

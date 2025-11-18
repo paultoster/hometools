@@ -42,6 +42,7 @@ class DataSet:
                  flag             = self.set_data_item(value,line_color,irow, name)
                  status           = self.set_data_tlist(tlist,line_color,irow)
                  status           = self.delete_row_in_data_set(irow)
+                                    self.reset_line_color(line_color)
                  
                                     self.update_order_icol(icol)
                                     self.update_order_name(self, name)
@@ -905,6 +906,17 @@ class DataSet:
         self.n_data_sets -= 1
         
         return self.status
+    # end def
+    def reset_line_color(self,line_color):
+        '''
+        
+        :param line_color:
+        :return:
+        '''
+        for irow in range(self.n_data_sets):
+            self.line_color_liste[irow] = line_color
+        # end for
+        return
     # end def
     def update_order_icol(self ,icol):
         self.data_set_llist = hlist.sort_list_of_list(self.data_set_llist, icol ,aufsteigend=1)

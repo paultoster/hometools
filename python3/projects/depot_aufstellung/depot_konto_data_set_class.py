@@ -218,6 +218,7 @@ class KontoDataSet:
      isin                              = self.search_isin(isin_in, comment)
      (okay, wkn,isin)                  = self.search_wkn_from_comment(comment)
                                          self.recalc_sum_data_set()
+                                         self.reset_line_color()
     '''
     
     OKAY = hdef.OK
@@ -1762,5 +1763,13 @@ class KontoDataSet:
             # end if
         # end for
         
+        return
+    # end def
+    def reset_line_color(self):
+        '''
+        
+        :return:
+        '''
+        self.data_set_obj.reset_line_color(self.par.LINE_COLOR_BASE)
         return
     # end def

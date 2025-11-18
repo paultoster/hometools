@@ -547,6 +547,9 @@ def data_save(rd):
             status = hdef.NOT_OKAY
             errtext = f"{errtext}/ allg: {rd.konto_dict[konto_name].pickle_obj.errtext}"
         # endif
+        
+        # reset line color for tables
+        rd.konto_dict[konto_name].konto_obj.reset_line_color()
     #end for
     
     # --------------------------------------------------------------------
@@ -631,6 +634,11 @@ def data_save(rd):
                 errtext = f"{errtext}/ allg: {rd.depot_dict[depot_name].wp_obj_dict[wp_list_name].pickle_obj.errtext}"
             # endif
         # end for wp
+        
+        # reset line color for tables
+        if status == hdef.OKAY:
+            rd.depot_dict[depot_name].depot_obj.reset_line_color()
+        # end if
     # end for depot
 
     # --------------------------------------------------------------------

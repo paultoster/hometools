@@ -573,6 +573,15 @@ def is_datum_str(str_dat, delim="."):
     """
 
     liste = str_dat.split(delim)
+    
+    for i,item in enumerate(liste):
+    
+        lliste = item.split(' ')
+        if( len(lliste) > 1):
+            liste[i] = lliste[0]
+        # end if
+    # end for
+    
     if len(liste) < 3:  # dreiteilig
         flag = False
     elif int(liste[0]) > 31 or int(liste[0]) < 1:  # tag 1-31
