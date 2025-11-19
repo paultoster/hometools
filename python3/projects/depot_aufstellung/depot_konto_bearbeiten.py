@@ -15,6 +15,7 @@ import depot_gui
 import depot_konto_reports_read
 import depot_konto_anzeige
 import depot_konto_kategorie
+import depot_konto_kategorie_anzeige
 
 def bearbeiten(rd):
     status = hdef.OKAY
@@ -27,10 +28,12 @@ def bearbeiten(rd):
     index_csv_ausgabe = 3
     
     if rd.allg.katfunc is not None:
-        start_auswahl.append("Kategorie")
+        start_auswahl.append("Kategorie DataSet")
+        start_auswahl.append("Kategorie Auswertung")
     # end if
     index_kategorie = 4
-    
+    index_kategorie_auswertung = 5
+
     while (runflag):
 
         (index,_) = depot_gui.listen_abfrage(rd.gui,start_auswahl,"Auswahl Konto")
@@ -55,10 +58,16 @@ def bearbeiten(rd):
             runflag = False
 
         elif index == index_kategorie:
-            
+        
             status = depot_konto_bearbeiten_kategorie(rd)
+        
             runflag = False
-    
+        
+        elif index == index_kategorie_auswertung:
+        
+            status = depot_konto_bearbeiten_kategorie_auswertung(rd)
+            runflag = False
+        
         else:
             errtext = f"Konto Abfrage Auswahl: {index} nicht bekannt"
             rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
@@ -136,11 +145,18 @@ def depot_konto_bearbeiten_kategorie(rd):
     (status,choice) = depot_konto_bearbeiten_konto_auswahl(rd)
 
     if status == hdef.OKAY:
-        # Anzeigen
+        # Anzeigen und Kategorie bearbeiten
         status = depot_konto_kategorie.anzeige(rd,rd.konto_dict[choice].konto_obj)
 
     return status
 # end def
+def depot_konto_bearbeiten_kategorie_auswertung(rd):
+
+    # Anzeigen excel
+    status = depot_konto_kategorie_anzeige.anzeige(rd)
+
+    return status
+
 def depot_konto_bearbeiten_konto_auswahl(rd):
     
     # Kontoauswählen

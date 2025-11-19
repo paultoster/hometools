@@ -419,6 +419,8 @@ def type_get_default_single(type):
         return hdate.str_akt_datum(delim=".")
     elif type == "datStrB":
         return hdate.str_akt_datum(delim="-")
+    elif type == "yearStr":
+        return hdate.datum_akt_year_str()
     elif type == "float":
         return 0.0
     elif type == "int":
@@ -459,7 +461,7 @@ def type_name_proof(type):
     '''
     if type == "str" or type == "float" or type == "int":
         return hdef.OKAY
-    if type == "dat" or type == "datStrP" or type == "datStrB":
+    if type == "dat" or type == "datStrP" or type == "datStrB" or type == "yearStr":
         return hdef.OKAY
     if type == "iban" or type == "wkn" or type == "list":
         return hdef.OKAY
@@ -478,6 +480,7 @@ def type_proof(wert_in, type):
     "dat": Convert to epoch seconds
     "datStrP": Convert to date string mit Punkt "20.03.2024"
     "datStrB": Convert to date string mit Bindesttrich "20-03-2024"
+    "yearStr": Covert to year string "2024"
     "iban": string, 2 letters and 20 digits, could be with spaces
     "wkn": string, 6 alphanum big letters
     "str": string
@@ -508,6 +511,8 @@ def type_proof(wert_in, type):
         return type_proof_datStrP(wert_in)
     elif (type == "datStrB"):
         return type_proof_datStrB(wert_in)
+    elif type == "yearStr":
+        return type_proof_yearStr(wert_in)
     elif type == "iban":
         return type_proof_iban(wert_in)
     elif type == "isin":
@@ -725,8 +730,29 @@ def type_proof_datStrB(wert_in):
     # end if
     
     return (hdef.NOT_OKAY, None)
-
-
+# enddef
+def type_proof_yearStr(wert_in):
+    """ return value in epoch seconds"""
+    
+    if (isinstance(wert_in, str)):
+        
+        flag = hdate.is_year_str(wert_in)
+        
+        if flag:
+            return (hdef.OKAY, wert_in)
+    
+    elif (isinstance(wert_in, list) or isinstance(wert_in, tuple)):
+        
+        for item in wert_in:
+            flag = hdate.is_year_str(item)
+            if not flag:
+                return (hdef.NOT_OKAY, None)
+            # end if
+        # end ofr
+        return (hdef.OKAY, wert_in)
+    
+    # end if
+    return (hdef.NOT_OKAY, None)
 # enddef
 
 def type_proof_iban(wert_in):
@@ -1304,6 +1330,7 @@ def type_transform(wert_in: any, type_in: str | list, type_out: str | list):
     "dat": Convert to epoch seconds
     "datStrP": Convert to date string mit Punkt "20.03.2024"
     "datStrB": Convert to date string mit Bindesttrich "20-03-2024"
+    "yearStr": Convert to year string "2024"
     "iban": string, 2 letters and 20 digits, could be with spaces
     "str": string
     "int": integer
@@ -1324,6 +1351,8 @@ def type_transform(wert_in: any, type_in: str | list, type_out: str | list):
         (okay, wert_out) = type_transform_dat(wert_in,type_out)
     elif (type_in == "datStr") or (type_in == "datStrP") or (type_in == "datStrB"):
         (okay, wert_out) = type_transform_datStr(wert_in, type_out)
+    elif (type_in == "yearStr"):
+        (okay, wert_out) = type_transform_yearStr(wert_in, type_out)
     elif type_in == "str":
         (okay, wert_out) = type_transform_str(wert_in, type_out)
     elif type_in == "int":
@@ -1392,6 +1421,33 @@ def  type_transform_datStr(wert_in,type_out):
             wert_out = int(wert)
         else:
             raise Exception(f"In type_transform_datStrP ist type_out: {type_out} nicht möglich")
+        # end if
+    else:
+        wert_out = wert
+    # end if
+    return (okay,wert_out)
+# end def
+def type_transform_yearStr(wert_in, type_out):
+    '''
+    
+    :param wert_in:
+    :param type_out:
+    :return: (okay, wert_out) = type_transform_yearStr(wert_in, type_out)
+    '''
+    (okay, wert) = type_proof_yearStr(wert_in)
+    if( okay == hdef.OKAY):
+        
+        epoch_secs = hdate.secs_time_epoch_from_year_str(wert)
+        if type_out == "dat":
+            wert_out = epoch_secs
+        elif (type_out == "datStr") or (type_out == "datStrP"):
+            wert_out = hdate.secs_time_epoch_to_str(epoch_secs, delim=".")
+        elif type_out == "datStrB":
+            wert_out = hdate.secs_time_epoch_to_str(epoch_secs, delim="-")
+        elif type_out == "int":
+            wert_out = int(epoch_secs)
+        else:
+            raise Exception(f"In type_transform_yearStr ist type_out: {type_out} nicht möglich")
         # end if
     else:
         wert_out = wert

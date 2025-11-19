@@ -4,6 +4,8 @@
 #
 import os, sys
 
+from hfkt_tvar import transform_type_table
+
 tools_path = os.getcwd() + "\\.."
 if (tools_path not in sys.path):
     sys.path.append(tools_path)
@@ -202,7 +204,10 @@ class KontoDataSet:
                                           self.update_isin_find()
     (tlist, change_flag)               = self.update_isin_data_set_tlist(tlist)
     ttable                             = self.get_data_set_dict_ttable()
+    ttable                             = self.get_data_set_dict_ttable(header_list,type_list)
+    ttable                             = self.get_timedepend_data_set_dict_ttable(header_list,type_list,min_epoch_time,max_epoch_time)
     (ttable,row_color_dliste)          = self.get_anzeige_ttable()
+    
                                          self.write_anzeige_back_data(ttable_anzeige, data_changed_pos_list)
     (tlist, buchungs_type_list, buchtype_index_in_header_liste) = self.get_edit_data(irow)
     (tlist, buchungs_type_list, buchtype_index_in_header_liste) =  self.get_extern_default_tlist()
@@ -857,54 +862,53 @@ class KontoDataSet:
         return (tlist, change_flag)
     
     # end def
-    def get_data_set_dict_ttable(self):
+    def get_data_set_dict_ttable(self,header_liste=None ,type_liste=None):
         '''
         :return: ttable = get_data_set_dict_ttable()
         '''
         
         
-        ttable = self.data_set_obj.get_data_set_ttable()
+        ttable = self.data_set_obj.get_data_set_ttable(header_liste,type_liste)
         return  ttable
     # end def
-    # def set_dat_set_dict_list(self,konto_data_dict_list,konto_data_type_dict):
-    #     '''
-    #
-    #     :param konto_data_dict_list:
-    #     :param konto_data_type_dict:
-    #     :return:
-    #     '''
-    #     # base_konto_data_set_list = [None for item in self.par.KONTO_DATA_INDEX_LIST]
-    #
-    #     konto_data_llist = []
-    #     for data_dict in konto_data_dict_list:
-    #         konto_data_set_list = [None for item in self.par.KONTO_DATA_INDEX_LIST]
-    #         for name in data_dict.keys():
-    #             index = hdict.find_first_key_dict_value(self.par.KONTO_DATA_NAME_DICT, name)
-    #             if index is not None:
-    #                 (okay, wert) = htype.type_transform(data_dict[name],konto_data_type_dict[name],self.par.KONTO_DATA_TYPE_DICT[index])
-    #                 if okay == hdef.OK:
-    #                     konto_data_set_list[index]= wert
-    #                 else:
-    #                     raise Exception("Problem")
-    #                 # end if
-    #             # end if
-    #         # end for
-    #         konto_data_llist.append(konto_data_set_list)
-    #         del konto_data_set_list
-    #     # end for
-    #
-    #     return konto_data_llist
-    # def get_data_type_dict(self):
-    #     '''
-    #
-    #     :return:
-    #     '''
-    #     data_type_dict = {}
-    #     for key in self.par.KONTO_DATA_NAME_DICT.keys():
-    #         data_type_dict[self.par.KONTO_DATA_NAME_DICT[key]] = self.par.KONTO_DATA_TYPE_DICT[key]
-    #     # end for
-    #
-    #     return  data_type_dict
+    def get_timedepend_data_set_dict_ttable(self,header_list, type_list, tval_min_time, tval_max_time) :
+        '''
+        
+        :param header_list:
+        :param type_list:
+        :param min_time:
+        :param max_time:
+        :return: ttable = self.get_timedepend_data_set_dict_ttable(header_list, type_list, min_time, max_time)
+        '''
+
+        ttable = htvar.build_table(header_list,[],type_list)
+
+        irowlist = self.data_set_obj.get_irowlist_in_limits(self.par.KONTO_DATA_NAME_BUCHDATUM
+                                                           ,tval_min_time,tval_max_time)
+        
+        if self.data_set_obj.status != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"get_timedepend_data_set_dict_ttable: \n{self.data_set_obj.errtext}"
+            self.data_set_obj.reset_status()
+            return ttable
+        # end if
+        
+        for irow in irowlist:
+           
+            tlist =  self.data_set_obj.get_one_data_set_tlist(irow,header_list,type_list)
+            
+            if self.data_set_obj.status != hdef.OKAY:
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"get_timedepend_data_set_dict_ttable: \n{self.data_set_obj.errtext}"
+                self.data_set_obj.reset_status()
+                return ttable
+            # end if
+            
+            ttable = htvar.add_list_to_table(ttable,tlist)
+        # end for
+        
+        return ttable
+    
     # # end def
     def get_anzeige_ttable(self):
         '''

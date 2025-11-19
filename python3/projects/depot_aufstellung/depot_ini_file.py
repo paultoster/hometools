@@ -50,8 +50,9 @@ class ini:
         # endif
         
         # check base input
-        (self.status, self.errtext, dict_tvar) = hdict.proof_transform_ddict_to_tvar(self.ddict, par.INI_BASE_PROOF_LISTE)
+        (self.status, errtext, dict_tvar) = hdict.proof_transform_ddict_to_tvar(self.ddict, par.INI_BASE_PROOF_LISTE)
         if self.status != hdef.OK:
+            self.errtext = f"depot_ini_file check base input: \n{errtext}"
             return
         else:
             self.dict_tvar = hdict.add_dict_to_dict(self.dict_tvar,dict_tvar)

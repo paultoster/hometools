@@ -1,5 +1,5 @@
 #
-# datensatz anzeigen
+# datensatz anzeigen und Kategorien bearbeiten
 #
 #
 #

@@ -14,6 +14,7 @@
  secs = secs_time_epoch_from_int(intval)
  secs = secs_time_epoch_from_str_re(str_dat)
  secs = secs_time_epoch_from_str(str_dat,delim=".")
+ secs = secs_time_epoch_from_year_str(str_year)
  secs = secs_time_epoch_from_int(intval,plus_hours)
  string = secs_time_epoch_to_str(secs,delim=".",date_inverse_flag=False,with_time_flag=False): Wandelt in string Datum
  int    = secs_time_epoch_to_int(secs): Wandelt in int Datum
@@ -498,9 +499,18 @@ def datum_intliste_to_str(int_liste: list[int], delim: str = "."):
 def datum_akt_year_int():
     """
       aktuelle Jahr in int z.B. 2017
-      """
+    """
     t = time.localtime()
     return t.tm_year
+
+
+# enddef
+def datum_akt_year_str():
+    """
+      aktuelle Jahr in string z.B. "2017"
+    """
+    t = time.localtime()
+    return str(t.tm_year)
 
 
 # enddef
@@ -568,6 +578,27 @@ def datum_str_to_day_int(str_dat, delim="."):
 
 
 ########################################################################################################################
+def is_year_str(str_year_in):
+    '''
+    Prüft, ob str_year ein Jahr wie 2005 ist
+    
+    :param str_year:
+    :return: flag = is_year_str("2015")
+    '''
+    
+    lliste = str_year_in.split(' ')
+    if (len(lliste) > 1):
+        str_year = lliste[0]
+    else:
+        str_year = str_year_in
+    # end if
+    if 99 < int(str_year) < 1970:  # jahr 0-99 oder 1970-20xx
+        flag = False
+    else:
+        flag = True
+    # end if
+    return flag
+# enddef
 def is_datum_str(str_dat, delim="."):
     """ Prüft, ob str_dat ein Datum wie 01.03.2005 ist
     """
@@ -594,10 +625,7 @@ def is_datum_str(str_dat, delim="."):
         flag = True
 
     return flag
-
-
 # enddef
-
 def is_datum_reverse_str(str_dat, delim="."):
     """
     Prüft, ob str_dat ein Datum wie 2005.04.01 ist
@@ -859,8 +887,27 @@ def secs_time_epoch_from_str(str_dat, delim="."):
 
 
 # enddef
-
-
+# ----------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------
+def secs_time_epoch_from_year_str(str_year):
+    """
+    Das Str-Datum str_year (z.B. "2004") wird in Sekunden in epochaler Zeit umgerechnet
+    secs = secs_time_epoch_from_year_str(str_year)
+    """
+    form = "%Y"
+    if not isinstance(str_year, list):
+        str_to_dt = datetime.datetime(int(str_year), 1, 1, 0, 0,0)
+        # str_to_dt = datetime.datetime.strptime(str_year, form)
+        return int(str_to_dt.timestamp()+3600)
+    else:
+        ll = []
+        for stri in str_year:
+            str_to_dt = datetime.datetime(int(stri), 1, 1, 0, 0, 0)
+            # str_to_dt = datetime.datetime.strptime(stri, form)
+            ll.append(int(str_to_dt.timestamp()+3600))
+        # endfor
+        return ll
+# enddef
 ########################################################################################################################
 def secs_time_epoch_to_str(secs,delim=".",date_inverse_flag=False,with_time_flag=False):
     """
@@ -944,6 +991,11 @@ def epoch_day_time_to_secs_time_epoch(eday: int, edaysecs: int) -> int:
 ###########################################################################
 if __name__ == '__main__':
 
+
+    value = secs_time_epoch_from_year_str("2015")
+    
+    formatted_time = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(value))
+    print(f"{formatted_time = }")
     value1= secs_time_epoch_from_str_re("2022-07-27 T00:00 abc 2021.6.2")
     value2 = secs_time_epoch_from_str_re("2022-07-27")
     value3 = secs_time_epoch_from_str_re("27-07-2022")

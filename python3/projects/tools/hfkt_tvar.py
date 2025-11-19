@@ -21,6 +21,7 @@ obj = hfkt_tvar.build_table_from_list(tlist)
 (status,errtext) = proof_list(names,vals,types)
 (status,errtext) = proof_table(names,table,types)
 
+type  = get_type(tval)                                         get type of single value
 val   = get_val(tval,type)                                     get single value out of TVal with given type
 vals  =  get_list(tlist, types)                                get list values out of TList with given types
 val   =  get_val_from_list(tlist,name,type)                    get one value from tlist with given name and type
@@ -45,11 +46,13 @@ types =  get_types(ttable)
 types =  get_types(tlist)
 (val_dict_list,type_dict) = get_dict_list_from_table(ttable)
 (val_dict,type_dict) = get_dict_list_from_list(ttable)
+ttable = add_list_to_table(ttable,tlist)
 ttable = add_row_liste_to_table(ttable, name,add_row_liste,type)
 ttable = set_val_in_table(ttable,val,irow,name,type)
 ttable = set_val_in_table(ttable,val,irow,name)
 ttable = set_val_in_table(ttable,val,irow,icol,type)
 ttable = set_val_in_table(ttable,val,irow,icol)
+
 tlist  = set_val_in_list(tlist,val,name,type)
 tlist  = set_val_in_list(tlist,val,name)
 tlist  = set_val_in_list(tlist,val,icol,type)
@@ -394,20 +397,33 @@ def proof_table(names:list, table:list, types:list):
     
     return (status, errtext)
 # end def
-def get_val(tval:TVal,type: str):
+def get_type(tval:TVal):
+    '''
+    
+    :param tval:
+    :return: type  = get_type(tval)
+    '''
+    return tval.type
+# end def
+def get_val(tval:TVal,type: str = None):
     '''
     
     :param tval:
     :param type:
     :return: val = get_val(tval,type)
+             val = get_val(tval)
     '''
     # transform value
-    (okay, wert) = htype.type_transform(tval.val, tval.type, type)
-
-    if okay != hdef.OKAY:
-        raise Exception(
-            f"Error get_val: type_transform for tval.val ={tval.val} not possible from tval.type = {tval.type} to type={type} for variable = {tval.name}")
-    # end if
+    if type is None:
+        wert = tval.val
+    else:
+    
+        (okay, wert) = htype.type_transform(tval.val, tval.type, type)
+    
+        if okay != hdef.OKAY:
+            raise Exception(
+                f"Error get_val: type_transform for tval.val ={tval.val} not possible from tval.type = {tval.type} to type={type} for variable = {tval.name}")
+        # end if
     
     return wert
 # end def
@@ -748,13 +764,16 @@ def set_val_in_table(ttable,val,irow,name,type=None):
              ttable = set_val_in_table(ttable,val,irow,icol)
     '''
     
-    if len(ttable.table) == 0:
-        raise Exception(
-            f"Error set_val_in_table: tlist = {ttable} is leer")
-    # end if
+    # if len(ttable.table) == 0:
+    #     raise Exception(
+    #         f"Error set_val_in_table: tlist = {ttable} is leer")
+    # # end if
     
     if irow >= ttable.ntable:
-        irow = ttable.ntable - 1
+        irow = ttable.ntable
+        tlist = build_default_list(ttable.names,ttable.types)
+        ttable.table.append(tlist.vals)
+        ttable.ntable += 1
     # end if
     
     if isinstance(name, int):
@@ -833,6 +852,22 @@ def set_val_in_list(tlist, val, name, type=None):
     return tlist
 
 
+# end def
+def add_list_to_table(ttable: TTable,tlist: TList):
+    '''
+    
+    :param ttable:
+    :param tlist:
+    :return: ttable = add_list_to_table(ttable,tlist)
+    '''
+    
+    irow = ttable.ntable
+    for i in range(tlist.n):
+        
+        ttable = set_val_in_table(ttable, tlist.vals[i], irow, tlist.names[i], tlist.types[i])
+        
+    # end for
+    return ttable
 # end def
 def add_row_liste_to_table(ttable, name,add_row_liste,type):
     '''

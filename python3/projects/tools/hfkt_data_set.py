@@ -27,6 +27,8 @@ class DataSet:
                  value            = self.get_data_item_special(calc_type, headername [,type]): calc_type = "sum"
                  irow_list        = self.find_in_col(value,type, icol)
                  irow_list        = self.find_in_col(value,type, headername)
+                 irow_list        = self.find_in_col_between_min_max(val_min, val_max,type, icol)
+                 irow_list        = self.find_in_col_between_min_max(val_min, val_max,type, name)
                  icol             = self.find_header_index(header)
                  ttable:class     = self.get_data_set_to_store_ttable()
                  ttable:class     = self.get_data_set_ttable([[header_liste],type_liste])
@@ -357,6 +359,49 @@ class DataSet:
             # end if
         # end for
         return irow_list
+    # end def
+    def find_in_col_between_min_max(self, val_min, val_max, type, icol):
+        '''
+
+        :param val_min:
+        :param val_max:
+        :param type:
+        :param icol:
+        :return: irow_list = self.find_in_col_between_min_max(val_min, val_max,type, icol)
+                 irow_list = self.find_in_col_between_min_max(val_min, val_max,type, name)
+        '''
+        
+        irow_list = []
+        
+        if isinstance(icol, str):  # header name
+            # search headername
+            key = self.find_header_index(icol)
+            if key is None:
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"find_in_col:  Fehler headername = {icol} kann nicht im header of data_set gefunden werden (header_dict: {self.name_dict.items()} !!!"
+                return []
+            else:
+                icol = key
+            # end if
+        # end if
+        
+        if (icol >= self.ncol):
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"find_in_col: Fehler in find_in_col  icol = {icol} ist >= self.ncol  {self.ncol} !!!"
+            return
+        # end if
+        for i, data_set in enumerate(self.data_set_llist):
+            (okay, val_intern) = htype.type_transform(data_set[icol], self.type_dict[icol], type)
+            if okay != hdef.OKAY:
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"find_in_col:  Fehler transform data_item = <{data_set[icol]}> von type: <{self.type_dict[icol]}> in type {type} wandeln !!!!!!"
+                return
+            if (val_intern >= val_min) and (val_intern < val_max):
+                irow_list.append(i)
+            # end if
+        # end for
+        return irow_list
+    
     # end def
     def find_header_index(self ,header):
         '''
@@ -929,5 +974,22 @@ class DataSet:
         else:
             self.update_order_icol(icol)
         # end if
+    # end def
+    def get_irowlist_in_limits(self,header_name,tval_min_time,tval_max_time):
+        '''
+        
+        :param header:
+        :param tval_min_time:
+        :param tval_max_time:
+        :return: (irowstart, irowend) = self.get_irow_ascend_limits(header,tval_min_time, tval_max_time)
+        '''
+        
+        type    = htvar.get_type(tval_min_time)
+        val_min = htvar.get_val(tval_min_time)
+        val_max = htvar.get_val(tval_max_time,type)
+
+        irow_list = self.find_in_col_between_min_max(val_min, val_max, type, header_name)
+        
+        return irow_list
     # end def
 # end class

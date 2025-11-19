@@ -181,11 +181,11 @@ class KontoCsvRead:
         
         flag_found,csv_icol_list, name_csv_list, name_list,type_list = False,[],[],[],[]
         
-        n = self.header_zuordnung_tlist.n
-        
-        for index,item in enumerate(csv_liste):
+        for i,header_csv in enumerate(self.header_zuordnung_tlist.vals):
             
-            (flag,name,name_csv,type) = self.search_header_name(item)
+            type = self.header_type_zuordnung_tlist.vals[i]
+            name = self.header_zuordnung_tlist.names[i]
+            (flag,index,name_csv) = self.search_header_name(header_csv,csv_liste)
             if flag:
                 csv_icol_list.append(index)
                 name_csv_list.append(name_csv)
@@ -193,37 +193,61 @@ class KontoCsvRead:
                 type_list.append(type)
             # end if
         # end for
-        
-        if len(csv_icol_list) >= n:
+
+        if len(self.header_zuordnung_tlist.vals) == len(csv_icol_list): # Wieviel header suchen wir
             flag_found = True
+        else:
+            flag_found = False
         # end if
         
         return (flag_found,csv_icol_list, name_csv_list, name_list,type_list)
     # end def
-    def search_header_name(self,item):
+    def search_header_name(self,header_csv,csv_liste):
         '''
         
-        :param item:
-        :return: (flag, name, name_csv,type) = self.search_header_name(item)
+        :param name_csv:
+        :param csv_liste:
+        :return: (flag, index) = self.search_header_name(name_csv, csv_liste)
         '''
-        
-        for i in range(self.header_zuordnung_tlist.n):
-            
-            if (self.header_zuordnung_tlist.types[i] == "list_str") or (self.header_zuordnung_tlist.types[i] == "listStr"):
-                for csv_name in self.header_zuordnung_tlist.vals[i]:
-                    if csv_name == item:
-                        return (True,self.header_zuordnung_tlist.names[i],csv_name,self.header_type_zuordnung_tlist.vals[i])
+        for (index,csv_item) in enumerate(csv_liste):
+            if isinstance(header_csv,list):
+                for name_csv in header_csv:
+                    if csv_item == name_csv:
+                        return (True,index,name_csv)
                     # end if
-                # end ofr
-            elif self.header_zuordnung_tlist.types[i] == "str":
-                if self.header_zuordnung_tlist.vals[i] == item:
-                    return (True, self.header_zuordnung_tlist.names[i],self.header_zuordnung_tlist.vals[i],self.header_type_zuordnung_tlist.vals[i])
-                # end if
+                # end for
             else:
-                raise Exception(f"search_header_name: self.header_zuordnung_tlist.types[{i}] = {self.header_zuordnung_tlist.types[i]} is not str nor list type = {self.header_zuordnung_tlist.types[i]}")
+                if csv_item == header_csv:
+                    return (True, index, header_csv)
+                # end if
             # end if
-        return (False,"","","")
-    # end if
+        # end for
+        return (False,-1,"")
+    # end def
+    # def search_header_name(self,item):
+    #     '''
+    #
+    #     :param item:
+    #     :return: (flag, name, name_csv,type) = self.search_header_name(item)
+    #     '''
+    #
+    #     for i in range(self.header_zuordnung_tlist.n):
+    #
+    #         if (self.header_zuordnung_tlist.types[i] == "list_str") or (self.header_zuordnung_tlist.types[i] == "listStr"):
+    #             for csv_name in self.header_zuordnung_tlist.vals[i]:
+    #                 if csv_name == item:
+    #                     return (True,self.header_zuordnung_tlist.names[i],csv_name,self.header_type_zuordnung_tlist.vals[i])
+    #                 # end if
+    #             # end ofr
+    #         elif self.header_zuordnung_tlist.types[i] == "str":
+    #             if self.header_zuordnung_tlist.vals[i] == item:
+    #                 return (True, self.header_zuordnung_tlist.names[i],self.header_zuordnung_tlist.vals[i],self.header_type_zuordnung_tlist.vals[i])
+    #             # end if
+    #         else:
+    #             raise Exception(f"search_header_name: self.header_zuordnung_tlist.types[{i}] = {self.header_zuordnung_tlist.types[i]} is not str nor list type = {self.header_zuordnung_tlist.types[i]}")
+    #         # end if
+    #     return (False,"","","")
+    # # end if
     # def search_header_line_find_name_in_list(csv_liste: list):
     #     '''
     #     name is a string or a list of strings

@@ -869,8 +869,13 @@ def get_csv_dict_values_from_ini(csv_config_name,par,ini_dict):
 
     # Bilde list für header name csv, index und buchungstype
     # -------------------------------------------------------
-    n = min(len(ini_dict[par.INI_CSV_HEADER_NAMEN]), len(ini_dict[par.INI_CSV_HEADER_ZUORDNUNG]))
-    n = min(n, len(ini_dict[par.INI_CSV_HEADER_DATA_TYPE]))
+    n  = len(ini_dict[par.INI_CSV_HEADER_NAMEN])
+    n2 = len(ini_dict[par.INI_CSV_HEADER_ZUORDNUNG])
+    n3 = len(ini_dict[par.INI_CSV_HEADER_DATA_TYPE])
+    
+    if (n != n2) or (n != n3):
+        raise Exception(f"get_csv_dict_values_from_ini: In ini-data für section [{csv_config_name}] sind die Listen {par.INI_CSV_HEADER_NAMEN}, {par.INI_CSV_HEADER_ZUORDNUNG} und {par.INI_CSV_HEADER_DATA_TYPE} nicht gleich lange.")
+    # end if
     
     csv_header_name_liste = []
     csv_header_zuordnung_liste = []
