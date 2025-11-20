@@ -35,7 +35,8 @@
 
  llist = erase_from_llist(llist,index_list)
  
- llist = erase_from_list_by_value(list_in,list_cntrl,erase_not_in_cntrl=0)
+ liste = erase_from_list(liste,index_list)
+ liste = erase_from_list_by_value(list_in,list_cntrl,erase_not_in_search=0)
  
  list_moved =  list_move_items(list_in,index_liste,index_end = -1):
                 list_move_items(list_in,[0,1,2,10,12])    moves index 0,1,2,10,12 to new list
@@ -281,6 +282,31 @@ def erase_from_list(list_in, index_list):
     return list_in
 
 
+def erase_from_list(list_in, index_list):
+    '''
+    löscht von eine doppellist
+    :param list_in:
+    :param index_list:
+    :return: liste = erase_from_list(liste,index_list)
+    '''
+    
+    if not isinstance(index_list,list):
+        index_list1 = [index_list]
+    else:
+        index_list1 = index_list
+    # end if
+    
+    index_list1.sort(reverse=True)
+    
+    for index in index_list1:
+        if (index >= 0) and (index < len(list_in)):
+            del list_in[index]
+        # end if
+    # end for
+    return list_in
+
+
+# end def
 def erase_from_llist(llist, index_list):
     '''
     löscht von eine doppellist
@@ -297,26 +323,33 @@ def erase_from_llist(llist, index_list):
 
 # end def
 
-def erase_from_list_by_value(list_in, list_cntrl, erase_not_in_cntrl=0):
+def erase_from_list_by_value(list_in, list_cntrl, erase_not_in_search=0):
     '''
-    Wenn erase_not_in_cntrl==0: alle aus list_cntrl in list_in werden gelöscht
-    wenn erase_not_in_cntrl==1: alle aus list_cntrl nicht in list_in werden gelöscht
+    Wenn erase_not_in_search==0: alle aus list_cntrl in list_in werden gelöscht
+    wenn erase_not_in_search==1: alle aus list_cntrl nicht in list_in werden gelöscht
     :param list_in:
     :param list_cntrl:
-    :param erase_not_in_cntrl:
-    :return: llist = erase_from_list_by_value(list_in,list_cntrl,erase_not_in_cntrl=0)
+    :param erase_not_in_search:
+    :return: llist = erase_from_list_by_value(list_in,list_cntrl,erase_not_in_search=0)
     
     '''
+    
+    if not isinstance(list_cntrl,list):
+        list_cntrl1 = [list_cntrl]
+    else:
+        list_cntrl1 = list_cntrl
+    # end if
+    
     index_list = []
     for index, var in enumerate(list_in):
-        if (erase_not_in_cntrl == 0) and (var in list_cntrl):
+        if (erase_not_in_search == 0) and (var in list_cntrl1):
             index_list.append(index)
-        elif (erase_not_in_cntrl != 0) and (var not in list_cntrl):
+        elif (erase_not_in_search != 0) and (var not in list_cntrl1):
             index_list.append(index)
         # end if
     # end for
     
-    return erase_from_llist(list_in, index_list)
+    return erase_from_list(list_in, index_list)
 
 
 # end def

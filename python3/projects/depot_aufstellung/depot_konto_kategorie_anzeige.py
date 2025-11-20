@@ -21,37 +21,50 @@ import tools.hfkt_def as hdef
 import tools.hfkt_tvar as htvar
 # import tools.sgui as sgui
 
-import depot_gui
+import depot_kategorie_auswertung
 
 def anzeige(rd):
     
     
     (tval_min_time,tval_max_time) = get_limits_epocht_time_of_year(rd.ini.dict_tvar[rd.par.INI_KONTO_AUSWERTUNG_JAHR_NAME].val)
     
+    if len(rd.ini.ddict[rd.par.INI_KONTO_DATA_LIST_NAMES_NAME]) == 0:
+        rd.log.write_err("anzeige  kategorie: kein Konto eingerichtet", screen=rd.par.LOG_SCREEN_OUT)
+        return hdef.NOT_OKAY
+    # end if
     
-    flag = True
+    kont_name = rd.ini.ddict[rd.par.INI_KONTO_DATA_LIST_NAMES_NAME][0]
+    konto_obj = rd.konto_dict[kont_name].konto_obj
+    
+    header_list = [konto_obj.par.KONTO_DATA_NAME_BUCHDATUM,
+                   konto_obj.par.KONTO_DATA_NAME_WER,
+                   konto_obj.par.KONTO_DATA_NAME_WERT,
+                   konto_obj.par.KONTO_DATA_NAME_COMMENT,
+                   konto_obj.par.KONTO_DATA_NAME_KATEGORIE]
+    type_list = ["dat", "str", "cent", "str", "str"]
+    
+    # Erstelle Auswert Klassenobjekt
+    # zur headerlist kommt noch der Kontoname:
+    katauswertfunc = depot_kategorie_auswertung.KategorieAuswertungClass(konto_obj.par,
+                                                                         header_list + [konto_obj.par.KONTO_NAME],
+                                                                         type_list + ["str"],
+                                                                         rd.allg.katfunc)
+    
     # Loop over each konto
     for kont_name in rd.ini.ddict[rd.par.INI_KONTO_DATA_LIST_NAMES_NAME]:
         
         konto_obj = rd.konto_dict[kont_name].konto_obj
         
-        if flag:
-            flag = False
-            header_list = [konto_obj.par.KONTO_DATA_NAME_BUCHDATUM,
-                           konto_obj.par.KONTO_DATA_NAME_WER,
-                           konto_obj.par.KONTO_DATA_NAME_WERT,
-                           konto_obj.par.KONTO_DATA_NAME_COMMENT,
-                           konto_obj.par.KONTO_DATA_NAME_KATEGORIE]
-            type_list = ["datStrP","str","euroStrK","str","str"]
-        # end if
-        
         ttable = konto_obj.get_timedepend_data_set_dict_ttable(header_list, type_list,
-                                                               tval_min_time, tval_max_time)
+                                                               tval_min_time, tval_max_time,
+                                                               with_start=False)
         
         if konto_obj.status != hdef.OKAY:
             rd.log.write_err("anzeige  kategorie " + konto_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
             return konto_obj.status
         # end if
+        
+        
     
     # end for
     

@@ -44,6 +44,7 @@ class KategorieClass:
     kat_list  = obj.get_kat_list()
     kat_dict  = obj.get_kat_dict()
     regel_list = obj.get_regel_list()
+    (gruppe,zeit) = obj.get_grup_type_from_kat(kategorie)
     
     obj.add_regel_dict(regel_dict)
     obj.regel_anwedung_data_set(tlist)   Wendet Regel set auf eine Datenzeile aus Tabelle an, überschreibt kategorie Eintrag
@@ -85,6 +86,8 @@ class KategorieClass:
     def reset_status(self):
         self.status = hdef.OKAY
         self.errtext = ""
+        self.infotext = ""
+    
     # end def
     def tausche_kategorie(self,kat_dict,regel_list):
         '''
@@ -265,6 +268,21 @@ class KategorieClass:
         
     def get_regel_list(self):
         return self.regel_list
+    # end def
+    def get_grup_type_from_kat(self,kat):
+        '''
+        
+        :param kategorie:
+        :return: (gruppe, zeit) = get_grup_type_from_kat(kategorie)
+        '''
+        if kat in self.kat_list:
+            
+            index  = self.kat_grup_index_list[self.kat_list.index(kat)]
+            gruppe = self.grup_list[index]
+            zeit   = self.grup_zeit_list[index]
+            return (gruppe, zeit)
+        #end if
+        return (None,None)
     # end def
     def set_regel_list(self,regel_list):
         '''

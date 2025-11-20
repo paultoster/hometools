@@ -182,6 +182,8 @@ class KontoParam:
     LINE_COLOR_NEW = "aquamarine1"  # "aliceblue"
     LINE_COLOR_EDIT = "orange1"
 
+    KONTO_NAME = "konto_name"  #  für Kategorie Auswertung
+    
 # end class
 class KontoDataSet:
     '''
@@ -240,6 +242,8 @@ class KontoDataSet:
         self.infotext = ""
         self.konto_start_wert: int = 0
         self.konto_start_datum: int = 0
+        self.konto_start_comment: str = "Startwert Konto"
+        self.konto_start_irow: int = 0
         # self.DECIMAL_TRENN_STR: str = ","
         # self.TAUSEND_TRENN_STR: str = "."
         self.data_set_obj = hdset.DataSet(konto_name)
@@ -284,16 +288,32 @@ class KontoDataSet:
         
         if self.data_set_obj.get_n_data() > 0:
             
-            value = self.data_set_obj.get_data_item(0, self.par.KONTO_DATA_INDEX_BUCHDATUM, "dat")
+            
+            irow_list = self.data_set_obj.find_in_col(self.konto_start_comment, "str", self.par.KONTO_DATA_NAME_COMMENT)
+            
+            if len(irow_list) == 0:
+                # Vorübergehend
+                irow_list = self.data_set_obj.find_in_col("Startwert", "str",self.par.KONTO_DATA_NAME_COMMENT)
+                if len(irow_list):
+                    self.data_set_obj.set_data_item(self.konto_start_comment, self.par.LINE_COLOR_EDIT, irow_list[0],
+                                                    self.par.KONTO_DATA_NAME_COMMENT, "str")
+                else:
+                    self.status = hdef.NOT_OKAY
+                    self.errtext = f"set_stored_data_set_tvar: Start Kommentar: Konto: {self.konto_name}, {self.konto_start_comment} kann nicht im Kommentar gefunden werden"
+                    return
+                # end if
+            # end if
+            self.konto_start_irow = irow_list[0]
+            value = self.data_set_obj.get_data_item(self.konto_start_irow, self.par.KONTO_DATA_NAME_BUCHDATUM, "dat")
             if value != self.konto_start_datum: # value,line_color,irow, icol, type
-                self.data_set_obj.set_data_item(value,self.par.LINE_COLOR_NEW,0,self.par.KONTO_DATA_INDEX_BUCHDATUM, "dat")
-                self.data_set_obj.set_data_item(value,self.par.LINE_COLOR_NEW,0,self.par.KONTO_DATA_INDEX_WERTDATUM, "dat")
+                self.data_set_obj.set_data_item(value,self.par.LINE_COLOR_EDIT,self.konto_start_irow,self.par.KONTO_DATA_NAME_BUCHDATUM, "dat")
+                self.data_set_obj.set_data_item(value,self.par.LINE_COLOR_EDIT,self.konto_start_irow,self.par.KONTO_DATA_NAME_BUCHDATUM, "dat")
                 self.data_set_obj.update_order_name(self.par.KONTO_DATA_NAME_BUCHDATUM)
             # end if
 
-            value = self.data_set_obj.get_data_item(0, self.par.KONTO_DATA_INDEX_SUMWERT, "cent")
+            value = self.data_set_obj.get_data_item(self.konto_start_irow, self.par.KONTO_DATA_INDEX_SUMWERT, "cent")
             if value != self.konto_start_wert:
-                self.data_set_obj.set_data_item(self.konto_start_wert,self.par.LINE_COLOR_NEW,0,self.par.KONTO_DATA_INDEX_SUMWERT, "cent")
+                self.data_set_obj.set_data_item(self.konto_start_wert,self.par.LINE_COLOR_NEW,self.konto_start_irow,self.par.KONTO_DATA_NAME_SUMWERT, "cent")
                 self.recalc_sum_data_set()
             # end if
             
@@ -305,12 +325,12 @@ class KontoDataSet:
         # end if
         return
     # end def
-    def add_tlist_to_data_set(self,data_set: htvar.TList):
-        '''
-        
-        :param data_set:
-        :return:
-        '''
+    # def add_tlist_to_data_set(self,data_set: htvar.TList):
+    #     '''
+    #
+    #     :param data_set:
+    #     :return:
+    #     '''
     def set_start_row(self):
         
         names = [self.par.KONTO_DATA_NAME_ID
@@ -329,7 +349,7 @@ class KontoDataSet:
                 ,self.par.KONTO_DATA_BUCHTYPE_DICT[self.par.KONTO_BUCHTYPE_INDEX_EINZAHLUNG]
                 ,0
                 ,self.konto_start_wert
-                ,"Startwert"]
+                ,self.konto_start_comment]
         types = ["int"
                 ,"dat"
                 ,"dat"
@@ -343,7 +363,17 @@ class KontoDataSet:
 
         if( self.data_set_obj.add_data_set_tvar(data_tlist,self.par.LINE_COLOR_BASE) != hdef.OKAY):
             raise Exception(f"Fehler set_stored_data_set_tvar errtext={self.errtext} !!!")
+        else:
+            irow_list = self.data_set_obj.find_in_col(self.konto_start_comment, "str", self.par.KONTO_DATA_NAME_COMMENT)
+            self.konto_start_irow = irow_list[0]
         # end if
+    # end def
+    def get_konto_start_irow(self):
+        '''
+        
+        :return:
+        '''
+        return self.konto_start_irow
     # end def
     def get_to_store_data_set_tvar(self):
         '''
@@ -871,14 +901,15 @@ class KontoDataSet:
         ttable = self.data_set_obj.get_data_set_ttable(header_liste,type_liste)
         return  ttable
     # end def
-    def get_timedepend_data_set_dict_ttable(self,header_list, type_list, tval_min_time, tval_max_time) :
+    def get_timedepend_data_set_dict_ttable(self,header_list, type_list, tval_min_time, tval_max_time,with_start=True) :
         '''
         
         :param header_list:
         :param type_list:
         :param min_time:
         :param max_time:
-        :return: ttable = self.get_timedepend_data_set_dict_ttable(header_list, type_list, min_time, max_time)
+        :param with_start: True/False
+        :return: ttable = self.get_timedepend_data_set_dict_ttable(header_list, type_list, min_time, max_time,with_start)
         '''
 
         ttable = htvar.build_table(header_list,[],type_list)
@@ -891,6 +922,11 @@ class KontoDataSet:
             self.errtext = f"get_timedepend_data_set_dict_ttable: \n{self.data_set_obj.errtext}"
             self.data_set_obj.reset_status()
             return ttable
+        # end if
+        
+        if not with_start:
+            
+            irowlist = hlist.erase_from_list_by_value(irowlist, self.konto_start_irow)
         # end if
         
         for irow in irowlist:

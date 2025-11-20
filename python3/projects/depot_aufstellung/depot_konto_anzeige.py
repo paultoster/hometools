@@ -166,7 +166,9 @@ def anzeige(rd,konto_obj):
         # ----------------------------
         elif index_abfrage == i_edit:
             
-            if (irow >= 0):
+            if irow == konto_obj.get_konto_start_irow():
+                rd.log.write_err("konto__anzeige edit: irow is irowstart: {irow}  of konto not changeable", screen=rd.par.LOG_SCREEN_OUT)
+            elif (irow >= 0):
                 (tlist,buchungs_type_list, buchtype_index_in_header_liste) = konto_obj.get_edit_data(irow)
 
                 (tlist_anzeige, change_flag) = depot_gui.konto_depot_data_set_eingabe(rd.gui,tlist,

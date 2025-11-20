@@ -257,7 +257,12 @@ def data_set(rd):
         rd.konto_dict[konto_name].konto_obj.set_stored_data_set_tvar(rd.konto_dict[konto_name].data_dict_tvar[rd.par.KONTO_DATA_SET_TABLE_NAME]
                                                     ,rd.ini.dict_tvar[konto_name][rd.par.INI_START_DATUM_NAME]
                                                     ,rd.ini.dict_tvar[konto_name][rd.par.INI_START_WERT_NAME])
-                
+    
+        if rd.konto_dict[konto_name].konto_obj.status != hdef.OKAY:
+            status = hdef.NOT_OKAY
+            errtext = f"In Konto: \"{konto_name}\" ist ein Fehler aufgetreten: \n{rd.konto_dict[konto_name].konto_obj.errtext}"
+            return (status, errtext)
+        # end if
     # endfor
 
     #================================================================================
