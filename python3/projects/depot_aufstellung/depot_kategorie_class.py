@@ -30,19 +30,19 @@ class KategorieClass:
                            {"wer": "ARNDT","comment": "MIETE MARTINSTR. 64","kategorie":"miete"}
     Funktionen:
     obj.reset_status()                   resetet Status und Text
-    obj.set_dicts(grup_dict,kat_dict,regel_list) Setzt geänderte Dict, siehe  status für fehler
+    obj,add_kat_grup_zeit(kat,grup,zeit)
+    obj.add_dicts(grup_dict,kat_dict,regel_list) Setzt geänderte Dict, siehe  status für fehler
     
     obj.set_grup_list(grup_dict)         setzt von dict in zwei Listen um self.grup_list, self.grup_zeit_list
-    obj.proof_and_get_grup_index(grup)   prüft ob grup vorhanden, wenn nicht fügt hinzu und gibt index zurück
     obj.set_kat_list(kat_dict)           setzt von dict in zweiListen um self.kat_list self.kat_grup_index_list
-    obj.set_kat_dict(kat_dict)           das gleiche
     obj.proof_regel(regel_list)          prüft die regel-liste mit den jeweiligen dict einträgen, siehe status
     obj.set_regel_list(regel_list)       das gleiche
     
     grup_list = obj.get_grup_list()
     grup_dict = obj.get_grup_dict()
     kat_list  = obj.get_kat_list()
-    kat_dict  = obj.get_kat_dict()
+    katliste = obj.get_kat_list_von_grup(group)
+    zeit_str_liste = obj.get_zeit_str_von_kat_list(katliste)
     regel_list = obj.get_regel_list()
     (gruppe,zeit) = obj.get_grup_type_from_kat(kategorie)
     
@@ -57,26 +57,39 @@ class KategorieClass:
     (found,kat) = obj.regel_anwedung_data_set(tlist)
     
     '''
-    def __init__(self,grup_dict,kat_dict,regel_list,tausch_kategorie_dict):
+    def __init__(self,kat_dict_list,regel_list,tausch_kategorie_dict,grup_zusam_llist):
         self.status = hdef.OK
         self.errtext = ""
         self.infotext = ""
         
         self.kat_name = "kategorie"
+        self.grup_name = "gruppe"
+        self.zeit_name = "zeit"
+        
+        self.TYPE_MONAT = 1
+        self.TYPE_JAHR  = 12
+        
+        # self.type_str_monat = 'm'
+        # self.type_str_jahr = 'j'
+
         self.kat_separator = ";"
         self.kat_val_separator = ":"
         self.kat_empty = "empty"
         
         self.grup_list = []
-        self.grup_zeit_list = []
+        self.kat_zeit_list = []
         self.kat_list = []
         self.kat_grup_index_list = []
         self.regel_list  = []
         self.tausch_kategorie_dict = tausch_kategorie_dict
         
-        (kat_dict,regel_list) = self.tausche_kategorie(kat_dict,regel_list)
+        (kat_dict_list,regel_list) = self.tausche_kategorie(kat_dict_list,regel_list)
+        
+        
 
-        self.set_dicts(grup_dict,kat_dict,regel_list)
+        self.set_dicts(kat_dict_list,regel_list)
+        
+        self.grup_zusam_llist = self.proof_grup_zusam_llist(grup_zusam_llist)
 
         if  self.status != hdef.OKAY:
             return
@@ -89,20 +102,22 @@ class KategorieClass:
         self.infotext = ""
     
     # end def
-    def tausche_kategorie(self,kat_dict,regel_list):
+    def tausche_kategorie(self,kat_list,regel_list):
         '''
         
-        :param kat_dict:
+        :param kat_list:
         :param regel_list:
-        :return: (kat_dict,regel_list) = self.tausche_kategorie(kat_dict,regel_list)
+        :return: (kat_list,regel_list) = self.tausche_kategorie(kat_list,regel_list)
         '''
-        kat_dict_out = {}
-        for key in kat_dict.keys():
-            if key in self.tausch_kategorie_dict.keys():
-                kat_dict_out[self.tausch_kategorie_dict[key]] = kat_dict[key]
-            else:
-                kat_dict_out[key] = kat_dict[key]
+        kat_list_out = []
+        for katdict in kat_list:
+            kat_dict_out = katdict
+            if self.kat_name in katdict.keys():
+                if katdict[self.kat_name] in self.tausch_kategorie_dict.keys():
+                    kat_dict_out[self.kat_name] = self.tausch_kategorie_dict[katdict[self.kat_name]]
+                # end if
             # end if
+            kat_list_out.append(kat_dict_out)
         # end for
         
         regel_list_out = []
@@ -115,7 +130,7 @@ class KategorieClass:
             regel_list_out.append(regel_dict)
         # end for
         
-        return (kat_dict_out,regel_list_out)
+        return (kat_list_out,regel_list_out)
     # end def
     def get_tausch_kategorie(self,kat_old):
         '''
@@ -132,7 +147,7 @@ class KategorieClass:
         
         return kat_new
     # end def
-    def set_dicts(self,grup_dict,kat_dict,regel_list):
+    def set_dicts(self,kat_dict_list,regel_list):
         '''
         
         :param grup_dict:
@@ -141,75 +156,113 @@ class KategorieClass:
         :return:
         '''
         
-        grup_list_inter      = self.grup_list
-        grup_zeit_list_inter = self.grup_zeit_list
-        kat_list_inter = self.kat_list
-        kat_grup_index_list_inter = self.kat_grup_index_list
-        regel_list_inter = self.regel_list
-
-        self.set_grup_list(grup_dict)
         
-        self.set_kat_list(kat_dict)
+        grup_list_inter           = self.grup_list
+        kat_zeit_list_inter       = self.kat_zeit_list
+        kat_list_inter            = self.kat_list
+        kat_grup_index_list_inter = self.kat_grup_index_list
+        regel_list_inter          = self.regel_list
+        
+        self.grup_list = []
+        self.kat_list = []
+        self.kat_zeit_list = []
+        self.kat_grup_index_list = []
+
+        for i,katdict in enumerate(kat_dict_list):
+            
+            # proof
+            for key in [self.kat_name,self.grup_name,self.zeit_name]:
+                if key not in katdict.keys():
+                    self.status  = hdef.NOT_OKAY
+                    self.errtext = f" kat_name: key: {key} is not in kat_dict_list with index {i} in kategorie-Files"
+                    break
+                # end if
+            # end for
+            
+            self.add_kat_grup_zeit(katdict[self.kat_name],katdict[self.grup_name],katdict[self.zeit_name])
+            
+        # end for
         
         self.regel_list  = regel_list
         self.proof_regel(self.regel_list)
         
         if  self.status != hdef.OKAY:
             self.grup_list = grup_list_inter
-            self.grup_zeit_list = grup_zeit_list_inter
+            self.kat_zeit_list = kat_zeit_list_inter
             self.kat_list = kat_list_inter
             self.kat_grup_index_list = kat_grup_index_list_inter
             self.regel_list = regel_list_inter
     
-    def set_grup_list(self,grup_dict):
+    def proof_grup_zusam_llist(self,grup_zusam_llist):
         '''
         
-        :param grup_dict:
-        :return:
+        :param grup_zusam_llist:
+        :return: grup_zusam_llist = self.proof_grup_zusam_llist(grup_zusam_llist)
         '''
-        self.grup_list = list(grup_dict.keys())
-        self.grup_zeit_list = list(grup_dict.values())
-        
-        for i,num in enumerate(self.grup_zeit_list):
-            try:
-                self.grup_zeit_list[i] = int(num)
-            except:
-                self.grup_zeit_list[i] = 1
-            # end if
+        grup_zusam_llist_out = []
+        for liste in grup_zusam_llist:
+            grup_zusam_list_out = []
+            for group in liste:
+                if group in self.grup_list:
+                    grup_zusam_list_out.append(group)
+                # end if
+            # end for
+            grup_zusam_llist_out.append(grup_zusam_list_out)
         # end for
-        return
+        
+        return grup_zusam_llist_out
     # end def
-    def proof_and_get_grup_index(self,grup):
-        if grup not in self.grup_list:
-            self.grup_list.append(grup)
-            self.grup_zeit_list.append(1)
-        # end if
-        return self.grup_list.index(grup)
-    # end def
-    def set_kat_list(self, kat_dict):
+    # def set_grup_list(self,grup_dict):
+    #     '''
+    #
+    #     :param grup_dict:
+    #     :return:
+    #     '''
+    #     self.grup_list = list(grup_dict.keys())
+    #     self.grup_zeit_list = list(grup_dict.values())
+    #
+    #     for i,num in enumerate(self.grup_zeit_list):
+    #         try:
+    #             self.grup_zeit_list[i] = int(num)
+    #         except:
+    #             self.grup_zeit_list[i] = 1
+    #         # end if
+    #     # end for
+    #     return
+    # # end def
+    # def proof_and_get_grup_index(self,grup):
+    #     if grup not in self.grup_list:
+    #         self.grup_list.append(grup)
+    #         self.grup_zeit_list.append(1)
+    #     # end if
+    #     return self.grup_list.index(grup)
+    # # end def
+    def add_kat_grup_zeit(self,kat,grup,zeit):
         '''
 
-        :param hkat_dict:
-        :return: self.set_kat_list(kat_dict)
+        :param kat:
+        :param grup:
+        :param zeit:
+        :return: self.add_kat_grup_zeit(kat,grup,zeit)
         '''
+        if zeit not in [self.TYPE_MONAT, self.TYPE_JAHR]:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"add_kat_grup_zeit  {zeit = } ist nicht {self.TYPE_MONAT = } oder {self.TYPE_JAHR = }"
+        # end if
         
-        # Prüfen ob hkey in jeder Hauptkategorie vorhanden eine gruppe hat
-        self.kat_list = []
-        self.kat_grup_index_list = []
-        for key in kat_dict.keys():
+        if kat not in self.kat_list:
+            self.kat_list.append(kat)
+            self.kat_zeit_list.append(zeit)
+
+            if grup not in self.grup_list:
+                self.grup_list.append(grup)
             
-            # Hauptkategorie nicht in grup_dict:
-            if kat_dict[key] not in self.grup_list:
-                self.grup_list.append(kat_dict[key])
-                self.grup_zeit_list.append(1)
-            # end if
-            
-            self.kat_list.append(key)
-            self.kat_grup_index_list.append(self.grup_list.index(kat_dict[key]))
-        # end for
-        
+            self.kat_grup_index_list.append(self.grup_list.index(grup))
+        else:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"add_kat_grup_zeit: Kategorie: {kat} ist bereits in kat_list: {self.kat_list}"
+        # end if
         return
-    
     # end def
     def proof_regel(self,regel_list):
         '''
@@ -236,12 +289,12 @@ class KategorieClass:
     # end def
     def get_grup_list(self):
         return self.grup_list
-    def get_grup_dict(self):
-        grup_dict = {}
-        for i,grup in enumerate(self.grup_list):
-            grup_dict[grup] = self.grup_zeit_list[i]
-        # end for
-        return grup_dict
+    # def get_grup_dict(self):
+    #     grup_dict = {}
+    #     for i,grup in enumerate(self.grup_list):
+    #         grup_dict[grup] = self.grup_zeit_list[i]
+    #     # end for
+    #     return grup_dict
     def get_kat_list(self):
         '''
         
@@ -249,23 +302,78 @@ class KategorieClass:
         '''
         return self.kat_list
     # end def
-    def get_kat_dict(self):
-        kat_dict = {}
+    def get_kat_list_von_grup(self,grup):
+        '''
+        
+        :param grup:
+        :return: katliste = obj.get_kat_list_von_grup(group)
+        '''
+        
+        kat_list = []
         for i,kat in enumerate(self.kat_list):
-            index = self.kat_grup_index_list[i]
-            kat_dict[kat] = self.grup_list[index]
+            if self.grup_list[self.kat_grup_index_list[i]] == grup:
+                kat_list.append(kat)
+            # end if
         # end for
-        return kat_dict
+        
+        return kat_list
     # end def
-    def set_kat_dict(self,kat_dict):
+    # def get_zeit_str_von_kat_list(self,katliste):
+    #     '''
+    #
+    #     :param katliste:
+    #     :return: zeit_str_liste = obj.get_zeit_str_von_kat_list(katliste)
+    #     '''
+    #
+    #     zeit_str_liste = []
+    #     for kat in katliste:
+    #         if kat in self.kat_list:
+    #             zeit = self.kat_zeit_list[self.kat_list.index(kat)]
+    #             if zeit == self.TYPE_MONAT:
+    #                 zeit_str_liste.append(self.type_str_monat)
+    #             else:
+    #                 zeit_str_liste.append(self.type_str_jahr)
+    #             # end if
+    #         # end if
+    #     # end for
+    #     return zeit_str_liste
+    #
+    # def get_kat_dict(self):
+    #     kat_dict = {}
+    #     for i,kat in enumerate(self.kat_list):
+    #         index = self.kat_grup_index_list[i]
+    #         kat_dict[kat] = self.grup_list[index]
+    #     # end for
+    #     return kat_dict
+    # # end def
+    # def set_kat_dict(self,kat_dict):
+    #     '''
+    #
+    #     :param kat_dict:
+    #     :return:
+    #     '''
+    #     self.set_kat_list(kat_dict)
+    #     return
+    #
+    def get_kat_dict_list(self):
         '''
         
-        :param kat_dict:
-        :return:
+        :return: kat_dict_list = obj.get_kat_dict_list()
         '''
-        self.set_kat_list(kat_dict)
-        return
+        kat_dict_list = []
         
+        for i,kat in enumerate(self.kat_list):
+            
+            katdict = {}
+            katdict[self.kat_name] = kat
+            katdict[self.grup_name] = self.grup_list[self.kat_grup_index_list[i]]
+            katdict[self.zeit_name] = self.kat_zeit_list[i]
+            
+            kat_dict_list.append(katdict)
+        # end for
+        
+        return kat_dict_list
+    # end def
     def get_regel_list(self):
         return self.regel_list
     # end def
@@ -276,10 +384,11 @@ class KategorieClass:
         :return: (gruppe, zeit) = get_grup_type_from_kat(kategorie)
         '''
         if kat in self.kat_list:
+            i = self.kat_list.index(kat)
+            index  = self.kat_grup_index_list[i]
             
-            index  = self.kat_grup_index_list[self.kat_list.index(kat)]
             gruppe = self.grup_list[index]
-            zeit   = self.grup_zeit_list[index]
+            zeit   = self.kat_zeit_list[i]
             return (gruppe, zeit)
         #end if
         return (None,None)

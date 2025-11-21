@@ -18,6 +18,7 @@
  secs = secs_time_epoch_from_int(intval,plus_hours)
  string = secs_time_epoch_to_str(secs,delim=".",date_inverse_flag=False,with_time_flag=False): Wandelt in string Datum
  int    = secs_time_epoch_to_int(secs): Wandelt in int Datum
+ int_list = secs_time_epoch_to_int_list(secs): Wandelt in int Datum liste int_liste = [year,month,day,hour,minute,second]
  flag   = datum_str_is_correct(str_dat,delim=".")
  strnew = datum_str_make_correction(str_dat,delim=".")
  daystr = day_from_secs_time_epoch(secs): Man bekommt den Tag in Mo,Di,Mi,Do,Fr,Sa,So
@@ -515,6 +516,14 @@ def datum_akt_year_str():
 
 # enddef
 
+def datum_akt_mont_int_str():
+    '''
+    
+    :return: aktueller Monat in int z.B. 1
+    '''
+    t = time.localtime()
+    return int(t.tm_mon)
+# end def
 
 ########################################################################################################################
 def datum_str_to_year_int(str_dat, delim="."):
@@ -946,8 +955,16 @@ def secs_time_epoch_to_int(secs):
 
 
 # enddef
-
-
+def secs_time_epoch_to_int_list(secs):
+    '''
+    int_liste = [year,month,day,hour,minute,second]
+    :param secs:
+    :return: int_list = secs_time_epoch_to_int_list(secs)
+    '''
+    dt = datetime.datetime.fromtimestamp(secs)
+    liste = [dt.year,dt.month,dt.day,dt.hour,dt.minute,dt.second]
+    return liste
+# end def
 ########################################################################################################################
 def datum_str_to_secs(str_dat, delim="."):
     """
@@ -993,9 +1010,12 @@ if __name__ == '__main__':
 
 
     value = secs_time_epoch_from_year_str("2015")
-    
     formatted_time = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(value))
     print(f"{formatted_time = }")
+
+    value = secs_time_epoch_to_int_list(secs_time_epoch_from_str_re("27-07-2022"))
+    print(f"{value = }")
+
     value1= secs_time_epoch_from_str_re("2022-07-27 T00:00 abc 2021.6.2")
     value2 = secs_time_epoch_from_str_re("2022-07-27")
     value3 = secs_time_epoch_from_str_re("27-07-2022")

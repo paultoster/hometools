@@ -104,7 +104,9 @@ def depot_konto_bearbeiten_anzeige(rd):
     
     if status == hdef.OKAY:
         # Anzeigen
-        status = depot_konto_anzeige.anzeige(rd,rd.konto_dict[choice].konto_obj)
+        (status,konto_obj) = depot_konto_anzeige.anzeige(rd,rd.konto_dict[choice].konto_obj)
+        
+        rd.konto_dict[choice].konto_obj = konto_obj
     # end if
     
     return status
@@ -146,7 +148,9 @@ def depot_konto_bearbeiten_kategorie(rd):
 
     if status == hdef.OKAY:
         # Anzeigen und Kategorie bearbeiten
-        status = depot_konto_kategorie.anzeige(rd,rd.konto_dict[choice].konto_obj)
+        (status,konto_obj) = depot_konto_kategorie.anzeige(rd,rd.konto_dict[choice].konto_obj)
+        
+        rd.konto_dict[choice].konto_obj = konto_obj
 
     return status
 # end def

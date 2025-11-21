@@ -268,6 +268,11 @@ class KontoDataSet:
     
         return
     # end def
+    def reset_status(self):
+        self.status = hdef.OKAY
+        self.errtext = ""
+        self.infotext = ""
+    # end def
     def set_stored_data_set_tvar(self, ttable: htvar.TTable, tkonto_start_datum: htvar.TVal, tkonto_start_wert: htvar.TVal):
         '''
         

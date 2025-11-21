@@ -421,6 +421,8 @@ def type_get_default_single(type):
         return hdate.str_akt_datum(delim="-")
     elif type == "yearStr":
         return hdate.datum_akt_year_str()
+    elif type == "monthInt":
+        return hdate.datum_akt_mont_int_str()
     elif type == "float":
         return 0.0
     elif type == "int":
@@ -461,7 +463,7 @@ def type_name_proof(type):
     '''
     if type == "str" or type == "float" or type == "int":
         return hdef.OKAY
-    if type == "dat" or type == "datStrP" or type == "datStrB" or type == "yearStr":
+    if type == "dat" or type == "datStrP" or type == "datStrB" or type == "yearStr" or type == "monthInt":
         return hdef.OKAY
     if type == "iban" or type == "wkn" or type == "list":
         return hdef.OKAY
@@ -481,6 +483,7 @@ def type_proof(wert_in, type):
     "datStrP": Convert to date string mit Punkt "20.03.2024"
     "datStrB": Convert to date string mit Bindesttrich "20-03-2024"
     "yearStr": Covert to year string "2024"
+    "monthInt": Convert to month as int from 1 ... 12
     "iban": string, 2 letters and 20 digits, could be with spaces
     "wkn": string, 6 alphanum big letters
     "str": string
@@ -513,6 +516,8 @@ def type_proof(wert_in, type):
         return type_proof_datStrB(wert_in)
     elif type == "yearStr":
         return type_proof_yearStr(wert_in)
+    elif type == "monthInt":
+        return type_proof_monthInt(wert_in)
     elif type == "iban":
         return type_proof_iban(wert_in)
     elif type == "isin":
@@ -754,7 +759,50 @@ def type_proof_yearStr(wert_in):
     # end if
     return (hdef.NOT_OKAY, None)
 # enddef
+def type_proof_monthInt(wert_in):
+    """ return value in month integer"""
+    
+    if (isinstance(wert_in, str)):
+        
+        wert = int(wert_in)
+        if (wert >= 1) and (wert <= 12):
+            okay = hdef.OKAY
+        else:
+            okay = NOT_OK
+        # end if
+        
+        return (hdef.OKAY, wert_in)
 
+
+    elif (isinstance(wert_in, int)):
+        
+        wert = wert_in
+        if (wert >= 1) and (wert <= 12):
+            
+            okay = hdef.OKAY
+        
+        else:
+            
+            okay = NOT_OK
+        
+        # end if
+        
+        return (hdef.OKAY, wert_in)
+    
+    elif (isinstance(wert_in, list) or isinstance(wert_in, tuple)):
+        
+        wert_liste = []
+        for item in wert_in:
+            (okay,wert) = type_proof_monthInt(item)
+            if okay:
+                wert_liste.append(wert)
+            else:
+                return (hdef.NOT_OKAY, None)
+            # end if
+        # end ofr
+        return (hdef.OKAY, wert_liste)
+    # end if
+# end def
 def type_proof_iban(wert_in):
     """ return value in epoch seconds"""
 
@@ -1331,6 +1379,7 @@ def type_transform(wert_in: any, type_in: str | list, type_out: str | list):
     "datStrP": Convert to date string mit Punkt "20.03.2024"
     "datStrB": Convert to date string mit Bindesttrich "20-03-2024"
     "yearStr": Convert to year string "2024"
+    "monthInt": Convert to month int 1 ... 12
     "iban": string, 2 letters and 20 digits, could be with spaces
     "str": string
     "int": integer
@@ -1353,6 +1402,8 @@ def type_transform(wert_in: any, type_in: str | list, type_out: str | list):
         (okay, wert_out) = type_transform_datStr(wert_in, type_out)
     elif (type_in == "yearStr"):
         (okay, wert_out) = type_transform_yearStr(wert_in, type_out)
+    elif (type_in == "monthInt"):
+        (okay, wert_out) = type_transform_monthInt(wert_in, type_out)
     elif type_in == "str":
         (okay, wert_out) = type_transform_str(wert_in, type_out)
     elif type_in == "int":
@@ -1396,7 +1447,13 @@ def  type_transform_dat(wert_in,type_out):
         if (type_out == "datStr") or (type_out == "datStrP"):
             wert_out = hdate.secs_time_epoch_to_str(wert,delim=".")
         elif type_out == "datStrB":
-            wert_out = hdate.secs_time_epoch_to_str(wert,delim="-")
+            wert_out = hdate.secs_time_epoch_to_str(wert, delim="-")
+        elif type_out == "monthInt":
+            liste = hdate.secs_time_epoch_to_int_list(wert)
+            wert_out = int(liste[1])
+        elif type_out == "yearStr":
+            liste = hdate.secs_time_epoch_to_int_list(wert)
+            wert_out = str(liste[0])
         elif type_out == "int":
             wert_out = int(wert)
         else:
@@ -1453,6 +1510,24 @@ def type_transform_yearStr(wert_in, type_out):
         wert_out = wert
     # end if
     return (okay,wert_out)
+# end def
+def type_transform_monthInt(wert_in, type_out):
+    '''
+
+    :param wert_in:
+    :param type_out:
+    :return: (okay, wert_out) = type_transform_monthInt(wert_in, type_out)
+    '''
+    (okay, wert) = type_proof_monthInt(wert_in)
+    if (okay == hdef.OKAY):
+        
+        if type_out != "monthInt":
+            raise Exception(f"In type_transform_monthInt ist type_out: {type_out} nicht möglich")
+        # end if
+    # end if
+    wert_out = wert
+    # end if
+    return (okay, wert_out)
 # end def
 def  type_transform_str(wert_in,type_out):
     '''

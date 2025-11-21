@@ -182,7 +182,7 @@ def data_set(rd):
         # end if
         rd.allg.kat_dict     = rd.allg.kat_json_obj.get_data()
         
-        for key in [rd.par.KONTO_GRUP_DICT_NAME,rd.par.KONTO_KAT_DICT_NAME,rd.par.KONTO_KAT_REGEL_LIST_NAME]:
+        for key in [rd.par.KONTO_KAT_LIST_NAME,rd.par.KONTO_KAT_REGEL_LIST_NAME]:
             if key not in rd.allg.kat_dict.keys():
                 status = hdef.NOT_OKAY
                 errtext = f"In json-File \"{rd.allg.kat_json_obj.get_filename()}\" kein dict[\"{key}\"] vorhanden"
@@ -193,12 +193,17 @@ def data_set(rd):
         if rd.par.KONTO_TAUSCH_DICT_NAME not in rd.allg.kat_dict.keys():
             rd.allg.kat_dict[rd.par.KONTO_TAUSCH_DICT_NAME] = {}
         # end if
-    
+
+        if rd.par.KONTO_GRUPPEN_ZUSAMMENFASSUNG_LLIST_NAME not in rd.allg.kat_dict.keys():
+            rd.allg.kat_dict[rd.par.KONTO_GRUPPEN_ZUSAMMENFASSUNG_LLIST_NAME] = []
+        # end if
+
+        
         rd.allg.katfunc = depot_kategorie_class.KategorieClass(
-            rd.allg.kat_dict[rd.par.KONTO_GRUP_DICT_NAME],
-            rd.allg.kat_dict[rd.par.KONTO_KAT_DICT_NAME],
+            rd.allg.kat_dict[rd.par.KONTO_KAT_LIST_NAME],
             rd.allg.kat_dict[rd.par.KONTO_KAT_REGEL_LIST_NAME],
-            rd.allg.kat_dict[rd.par.KONTO_TAUSCH_DICT_NAME])
+            rd.allg.kat_dict[rd.par.KONTO_TAUSCH_DICT_NAME],
+            rd.allg.kat_dict[rd.par.KONTO_GRUPPEN_ZUSAMMENFASSUNG_LLIST_NAME])
         
         if rd.allg.katfunc.status != hdef.OKAY:
             status = hdef.NOT_OKAY
@@ -519,8 +524,7 @@ def data_save(rd):
     # Kategorie
     if rd.allg.katfunc is not None:
         rd.allg.kat_dict[rd.par.KONTO_TAUSCH_DICT_NAME]    = {}
-        rd.allg.kat_dict[rd.par.KONTO_GRUP_DICT_NAME]      = rd.allg.katfunc.get_grup_dict()
-        rd.allg.kat_dict[rd.par.KONTO_KAT_DICT_NAME]       = rd.allg.katfunc.get_kat_dict()
+        rd.allg.kat_dict[rd.par.KONTO_KAT_LIST_NAME]       = rd.allg.katfunc.get_kat_dict_list()
         rd.allg.kat_dict[rd.par.KONTO_KAT_REGEL_LIST_NAME] = rd.allg.katfunc.get_regel_list()
         
         rd.allg.kat_json_obj.save(rd.allg.kat_dict)

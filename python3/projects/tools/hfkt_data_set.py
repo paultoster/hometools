@@ -992,4 +992,18 @@ class DataSet:
         
         return irow_list
     # end def
+    def get_irowlist_of_val(self, header_name, month_num:int):
+        '''
+    
+        :param header:
+        :param month_num: int mit = 1 ... 12
+        :return: irow_list = self.get_irowlist_of_month(header,month_num)
+        '''
+        
+        
+        
+        irow_list = [] # self.find_in_col_between_min_max(val_min, val_max, type, header_name)
+        
+        return irow_list
+    # end def
 # end class

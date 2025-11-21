@@ -305,19 +305,16 @@ def anzeige(rd, konto_obj):
             
         elif index_abfrage == i_edit:
             ddict = {}
-            ddict[rd.par.KONTO_GRUP_DICT_NAME]      = rd.allg.katfunc.get_grup_dict()
-            ddict[rd.par.KONTO_KAT_DICT_NAME]       = rd.allg.katfunc.get_kat_dict()
+            ddict[rd.par.KONTO_KAT_LIST_NAME]       = rd.allg.katfunc.get_kat_dict_list()
             ddict[rd.par.KONTO_KAT_REGEL_LIST_NAME] = rd.allg.katfunc.get_regel_list()
             
             ddict_mod = depot_gui.konto_kategorie_dict_abfrage(rd.gui, ddict)
             
             
-            if (rd.par.KONTO_GRUP_DICT_NAME in ddict_mod.keys()) and \
-                (rd.par.KONTO_KAT_DICT_NAME in ddict_mod.keys()) and \
+            if  (rd.par.KONTO_KAT_LIST_NAME in ddict_mod.keys()) and \
                 (rd.par.KONTO_KAT_REGEL_LIST_NAME in ddict_mod.keys()):
                 
-                rd.allg.katfunc.set_dicts( ddict_mod[rd.par.KONTO_GRUP_DICT_NAME]
-                                         , ddict_mod[rd.par.KONTO_KAT_DICT_NAME]
+                rd.allg.katfunc.set_dicts( ddict_mod[rd.par.KONTO_KAT_LIST_NAME]
                                          , ddict_mod[rd.par.KONTO_KAT_REGEL_LIST_NAME])
                 
                 if rd.allg.katfunc.status != hdef.OKAY:

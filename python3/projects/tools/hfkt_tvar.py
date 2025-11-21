@@ -32,6 +32,7 @@ index =  get_index_from_table(ttable,name)
 flag  =  check_name_from_list(tlist,name)
 flag  =  check_name_from_table(ttable,name)
 table =  get_table(ttable, types)                              get table values out of TTable with given types
+tlist =  get_list_from_table(ttable,irow)
 val   =  get_val_from_table(ttable,irow,name,type)
 val   =  get_val_from_table(ttable,irow,name)
 val   =  get_val_from_table(ttable,irow,index,type)
@@ -75,6 +76,7 @@ ttable = add_table_to_table(table,tableadd)
 """
 import os, sys
 from dataclasses import dataclass, field
+import copy
 
 tools_path = os.getcwd() + "\\.."
 if (tools_path not in sys.path):
@@ -89,33 +91,56 @@ import tools.hfkt_list as hlist
 
 
 
-@dataclass
+# @dataclass
+# class TVal:
+#     name: str                # name
+#     val: str | int | float   # any value
+#     type: str                # type siehe hfk_type.type_proof()
+
 class TVal:
-    name: str                # name
-    val: str | int | float   # any value
-    type: str                # type siehe hfk_type.type_proof()
+    def __init__(self,name: str,val: str | int | float,type: str):
+        self.name = copy.copy(name)
+        self.val = copy.copy(val)
+        self.type = copy.copy(type)
 
-@dataclass
+# @dataclass
+# class TList:
+#     names: list[str]         # list of names
+#     vals: list               # list of values
+#     types: list[str]         # list of types
+#     n: int = field(init=False)               # length of list
+#
+#     def __post_init__(self):
+#         self.n = len(self.names)
+
 class TList:
-    names: list[str]         # list of names
-    vals: list               # list of values
-    types: list[str]         # list of types
-    n: int = field(init=False)               # length of list
-    
-    def __post_init__(self):
+    def __init__(self,names: list[str],vals: list,types: list[str]):
+        self.names = copy.copy(names)
+        self.vals = copy.copy(vals)
+        self.types = copy.copy(types)
         self.n = len(self.names)
-@dataclass
-class TTable:
-    names: list[str]         # list of names
-    table: list[list]        # list of list of values (table)
-    types: list[str]         # list of types
-    n: int = field(init=False)              # length of names
-    ntable: int = field(init=False)          # length of table
-    
-    def __post_init__(self):
-        self.ntable = len(self.table)
-        self.n      = len(self.names)
 
+# @dataclass
+# class TTable:
+#     names: list[str]         # list of names
+#     table: list[list]        # list of list of values (table)
+#     types: list[str]         # list of types
+#     n: int = field(init=False)              # length of names
+#     ntable: int = field(init=False)          # length of table
+#
+#     def __post_init__(self):
+#         self.ntable = len(self.table)
+#         self.n      = len(self.names)
+
+class TTable:
+    def __init__(self,names: list[str],table: list[list],types: list[str]):
+        self.names = copy.copy(names)
+        self.table = copy.deepcopy(table)
+        self.types = copy.copy(types)
+        self.ntable = len(self.table)
+        self.n = len(self.names)
+    # end def
+# end class
 
 def build_val(name: str,val: any,type: str,type_store: str=None):
     '''
@@ -580,6 +605,24 @@ def get_table(ttable: TTable, types: list):
     # end for
     return table
 # end def
+def get_list_from_table(ttable,irow):
+    '''
+    
+    :param ttable:
+    :param irow:
+    :return: tlist =  get_list_from_table(ttable,irow)
+    '''
+ 
+    if irow >= ttable.ntable:
+        irow = ttable.ntable-1
+    elif irow < 0:
+        irow = 0
+    # end if
+    
+    tlist = build_list(ttable.names,ttable.table[irow], ttable.types)
+    
+    return tlist
+# end def
 def get_val_from_table(ttable, irow,name, type=None):
     '''
     get one value from tlist with given name and type
@@ -599,6 +642,8 @@ def get_val_from_table(ttable, irow,name, type=None):
 
     if irow >= ttable.ntable:
         irow = ttable.ntable-1
+    elif irow < 0:
+        irow = 0
     # end if
     
     if isinstance(name, int):

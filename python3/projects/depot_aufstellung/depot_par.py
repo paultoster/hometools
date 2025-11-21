@@ -223,10 +223,10 @@ class Parameter:
     WP_DATA_SET_TYPE_DICT: str = "wp_data_set_type_dict"
     WP_DATA_SET_TABLE_NAME: str = "wp_data_set_table"
 
-    KONTO_TAUSCH_DICT_NAME: str = "tausch"
-    KONTO_GRUP_DICT_NAME: str = "gruppe"
-    KONTO_KAT_DICT_NAME: str = "kategorie"
-    KONTO_KAT_REGEL_LIST_NAME: str = "regel"
+    KONTO_TAUSCH_DICT_NAME: str = "tauschdict"
+    KONTO_GRUPPEN_ZUSAMMENFASSUNG_LLIST_NAME: str = "gruppen_zusammenfassung_llist"
+    KONTO_KAT_LIST_NAME: str = "katliste"
+    KONTO_KAT_REGEL_LIST_NAME: str = "regelliste"
 
 def get(log):
     
