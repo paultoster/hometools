@@ -20,6 +20,70 @@ import tools.hfkt_list as hlist
 import tools.hfkt_str as hstr
 import tools.hfkt_data_set as hdset
 
+
+class GroupDataClass:
+    def __init__(self,group):
+        self.group = group
+        self.summe_monat_liste = [0 for i in range(12)]
+        self.summe_jahr = 0
+    def add_monat_summen_liste(self,summe_monat_liste):
+        
+        summe = 0
+        for i in range(12):
+            self.summe_monat_liste[i] += summe_monat_liste[i]
+            summe += summe_monat_liste[i]
+        # end for
+        self.summe_jahr += summe
+        return
+    
+    def get_summe_monat_liste(self):
+        return self.summe_monat_liste
+    def get_summe_jahr(self):
+        return self.summe_jahr
+    def get_sumwert_monat_liste(self, type_out):
+        '''
+    
+        :param type:
+        :return: sumwert_monat_liste = obj.get_sumwert_monat_liste(self,type)
+        '''
+    
+        sumwert_monat_liste = []
+        for i in range(12):
+            (okay, wert) = htype.type_transform(self.summe_monat_liste[i], "cent", type_out)
+            if okay != hdef.OKAY:
+                raise Exception(
+                    f"get_sumwert_monat_liste:  Fehler transform self.sumwert_monat_liste[{i}] = <{self.summe_monat_liste[i]}> von type: <{"cent"}> in type {type_out} wandeln !!!!!!")
+            # end if
+        
+            sumwert_monat_liste.append(wert)
+    
+        # end for
+    
+        return sumwert_monat_liste
+    # end def
+    def get_sumwert_jahr(self, type_out):
+        '''
+    
+        :param type_out:
+        :return: sumwert_jahr = obj.get_sumwert_jahr(type_out)
+        '''
+        
+        (okay, sumwert_jahr) = htype.type_transform(self.summe_jahr, "cent", type_out)
+        if okay != hdef.OKAY:
+            raise Exception(
+                f"get_sumwert_jahr:  Fehler transform self.sumwert_jahr = <{self.summe_jahr}> von type: <{"cent"}> in type {type_out} wandeln !!!!!!")
+        # end if
+        
+        return sumwert_jahr
+    # end def
+# end class
+class ZusammfassDataClass(GroupDataClass):
+    def __init__(self, zusammenfass):
+        """ Initalisieren über Eltern-Klasse """
+        super().__init__(zusammenfass)
+        
+        self.zusammenfass = zusammenfass
+# end class
 class KatDataClass:
     '''
     obj = KatDataClass(kategorie,kattype,header_list,type_list)
@@ -70,6 +134,12 @@ class KatDataClass:
         self.status = hdef.OKAY
         self.errtext = ""
         self.infotext = ""
+    def get_group(self):
+        return self.group
+    # end def
+    def get_monats_summen_liste(self):
+        return self.sumwert_monat_liste
+    # end def
     def build_data_set_obj(self,header_list,type_list):
         
         # Data-Set anlegen
@@ -217,7 +287,10 @@ class KategorieAuswertungClass:
         
         self.kat_data_obj_dict  = {}
         self.n_kat_data_obj     = 0
-
+        
+        self.group_data_obj_dict = {}
+        self.zusammfass_data_obj_dict = {}
+        
         self.build_kategorie_data_sets()
     # end def
     def reset_status(self):
@@ -300,12 +373,49 @@ class KategorieAuswertungClass:
         :return:
         '''
         for kat in self.kat_data_obj_dict.keys():
-            if kat == "transfer":
-                print(kat)
-            # end if
             self.kat_data_obj_dict[kat].run_auswert()
         # end for
         
+        self.run_auswert_summe_gruppe()
+        self.run_auswert_summe_zusammfass()
+
+        return
+    # end def
+    def run_auswert_summe_gruppe(self):
+        '''
+        
+        :return:
+        '''
+        grup_liste = self.katfunc.get_grup_list()
+        
+        for grup in grup_liste:
+            
+            self.group_data_obj_dict[grup] = GroupDataClass(grup)
+            
+            for kat in self.kat_data_obj_dict.keys():
+                if grup == self.kat_data_obj_dict[kat].get_group():
+                    
+                    monats_summen_liste = self.kat_data_obj_dict[kat].get_monats_summen_liste()
+                    self.group_data_obj_dict[grup].add_monat_summen_liste(monats_summen_liste)
+                # end if
+            # end for
+        # end for
+        return
+    def run_auswert_summe_zusammfass(self):
+        
+        grup_zusam_dict = self.katfunc.get_grup_zusam_dict()
+        
+        for zusammfass in grup_zusam_dict.keys():
+            self.zusammfass_data_obj_dict[zusammfass] = ZusammfassDataClass(zusammfass)
+            
+            for group in grup_zusam_dict[zusammfass]:
+                if group in self.group_data_obj_dict.keys():
+                    monats_summen_liste = self.group_data_obj_dict[group].get_summe_monat_liste()
+                    self.zusammfass_data_obj_dict[zusammfass].add_monat_summen_liste(monats_summen_liste)
+                # end if
+            # end for
+        
+        # end for
         return
     # end def
     def get_auswert_ueberblick(self):
@@ -354,79 +464,36 @@ class KategorieAuswertungClass:
             table.append(val_liste)
         # end if
         
-        # Summe der Gruppen
-        #------------------
-        table_summe_group = []
-        all_summe_monat_cent = [0 for i in range(12)]
-        all_summe_jahr_cent = 0
-        for group in group_liste:
-            
-            katliste = self.katfunc.get_kat_list_von_grup(group)
-            
-            group_summe_monat_cent = [0 for i in range(12)]
-            group_summe_jahr_cent = 0
-            for kat in katliste:
-                
-                summe_monat_cent = self.kat_data_obj_dict[kat].get_sumwert_monat_liste("cent")
-                for i in range(12):
-                    group_summe_monat_cent[i] += summe_monat_cent[i]
-                group_summe_jahr_cent += self.kat_data_obj_dict[kat].get_sumwert_jahr("cent")
-            # end for
-            
-            for i in range(12):
-                all_summe_monat_cent[i] += group_summe_monat_cent[i]
-            # end for
-            all_summe_jahr_cent  += group_summe_jahr_cent
-            
-            val_liste = ["summe", "", group]
-            for i in range(12):
-                (okay, wert) = htype.type_transform(group_summe_monat_cent[i], "cent", "euroStrK")
-                val_liste.append(wert)
-            # end for
-            (okay, wert) = htype.type_transform(group_summe_jahr_cent, "cent", "euroStrK")
-            val_liste.append(wert)
-            
-            table_summe_group.append(val_liste)
-        
-        # end for
-        
-        if "leer" in self.kat_data_obj_dict.keys():
-            kat = "leer"
-            group_summe_monat_cent = self.kat_data_obj_dict[kat].get_sumwert_monat_liste("cent")
-            group_summe_jahr_cent  = self.kat_data_obj_dict[kat].get_sumwert_jahr("cent")
-            
-            for i in range(12):
-                all_summe_monat_cent[i] += group_summe_monat_cent[i]
-            # end for
-            all_summe_jahr_cent  += group_summe_jahr_cent
 
-            val_liste = ["summe", "", "leer"]
-            for i in range(12):
-                (okay, wert) = htype.type_transform(group_summe_monat_cent[i], "cent", "euroStrK")
-                val_liste.append(wert)
-            # end for
-            (okay, wert) = htype.type_transform(group_summe_jahr_cent, "cent", "euroStrK")
-            val_liste.append(wert)
+        
+        # Summe der Gruppen und Zusammenfassung
+        #--------------------------------------
+        grup_zusam_dict = self.katfunc.get_grup_zusam_dict()
+        
+        for zusammfass in grup_zusam_dict.keys():
             
-            table_summe_group.append(val_liste)
-        # end if
-        
-        summe_liste = ["summe", "", ""]
-        for i in range(12):
-            (okay, wert) = htype.type_transform(all_summe_monat_cent[i], "cent", "euroStrK")
-            summe_liste.append(wert)
+            # Zwischen zeile
+            val_liste = ["" for s in header_liste]
+            table.append(val_liste)
+            
+            for group in grup_zusam_dict[zusammfass]:
+                
+                val_liste = [zusammfass,"summe",group]
+                val_liste += self.group_data_obj_dict[group].get_sumwert_monat_liste("euroStrK")
+                val_liste += [self.group_data_obj_dict[group].get_sumwert_jahr("euroStrK")]
+                
+                table.append(val_liste)
+            # end for
+            
+            # Summe über  die Zusammenfassung
+            if len(grup_zusam_dict[zusammfass]) > 1:
+                
+                val_liste = [zusammfass,"","summe"]
+                val_liste += self.zusammfass_data_obj_dict[zusammfass].get_sumwert_monat_liste("euroStrK")
+                val_liste += [self.zusammfass_data_obj_dict[zusammfass].get_sumwert_jahr("euroStrK")]
+                
+                table.append(val_liste)
         # end for
-        (okay, wert) = htype.type_transform(all_summe_jahr_cent, "cent", "euroStrK")
-        summe_liste.append(wert)
-        
-        # Alles zusamensetzen
-        val_liste = ["" for s in summe_liste]
-        table.append(val_liste)
-        
-        table += table_summe_group
-        
-        table.append(val_liste)
-        table.append(summe_liste)
 
         return htvar.build_table(header_liste,table,type_liste)
     # end def

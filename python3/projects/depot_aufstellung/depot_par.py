@@ -224,7 +224,7 @@ class Parameter:
     WP_DATA_SET_TABLE_NAME: str = "wp_data_set_table"
 
     KONTO_TAUSCH_DICT_NAME: str = "tauschdict"
-    KONTO_GRUPPEN_ZUSAMMENFASSUNG_LLIST_NAME: str = "gruppen_zusammenfassung_llist"
+    KONTO_GRUPPEN_ZUSAMMENFASSUNG_DICT_NAME: str = "gruppen_zusammenfassung_dict"
     KONTO_KAT_LIST_NAME: str = "katliste"
     KONTO_KAT_REGEL_LIST_NAME: str = "regelliste"
 

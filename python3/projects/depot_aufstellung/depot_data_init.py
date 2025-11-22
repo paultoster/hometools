@@ -194,8 +194,8 @@ def data_set(rd):
             rd.allg.kat_dict[rd.par.KONTO_TAUSCH_DICT_NAME] = {}
         # end if
 
-        if rd.par.KONTO_GRUPPEN_ZUSAMMENFASSUNG_LLIST_NAME not in rd.allg.kat_dict.keys():
-            rd.allg.kat_dict[rd.par.KONTO_GRUPPEN_ZUSAMMENFASSUNG_LLIST_NAME] = []
+        if rd.par.KONTO_GRUPPEN_ZUSAMMENFASSUNG_DICT_NAME not in rd.allg.kat_dict.keys():
+            rd.allg.kat_dict[rd.par.KONTO_GRUPPEN_ZUSAMMENFASSUNG_DICT_NAME] = {}
         # end if
 
         
@@ -203,7 +203,7 @@ def data_set(rd):
             rd.allg.kat_dict[rd.par.KONTO_KAT_LIST_NAME],
             rd.allg.kat_dict[rd.par.KONTO_KAT_REGEL_LIST_NAME],
             rd.allg.kat_dict[rd.par.KONTO_TAUSCH_DICT_NAME],
-            rd.allg.kat_dict[rd.par.KONTO_GRUPPEN_ZUSAMMENFASSUNG_LLIST_NAME])
+            rd.allg.kat_dict[rd.par.KONTO_GRUPPEN_ZUSAMMENFASSUNG_DICT_NAME])
         
         if rd.allg.katfunc.status != hdef.OKAY:
             status = hdef.NOT_OKAY

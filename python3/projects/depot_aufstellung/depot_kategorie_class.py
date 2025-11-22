@@ -11,6 +11,7 @@ if (tools_path not in sys.path):
     sys.path.append(tools_path)
 # endif
 
+import copy
 
 import tools.hfkt_def as hdef
 import tools.hfkt_type as htype
@@ -57,7 +58,7 @@ class KategorieClass:
     (found,kat) = obj.regel_anwedung_data_set(tlist)
     
     '''
-    def __init__(self,kat_dict_list,regel_list,tausch_kategorie_dict,grup_zusam_llist):
+    def __init__(self,kat_dict_list,regel_list,tausch_kategorie_dict,grup_zusam_dict):
         self.status = hdef.OK
         self.errtext = ""
         self.infotext = ""
@@ -89,7 +90,7 @@ class KategorieClass:
 
         self.set_dicts(kat_dict_list,regel_list)
         
-        self.grup_zusam_llist = self.proof_grup_zusam_llist(grup_zusam_llist)
+        self.grup_zusam_dict = self.proof_grup_zusam_dict(grup_zusam_dict)
 
         if  self.status != hdef.OKAY:
             return
@@ -102,6 +103,8 @@ class KategorieClass:
         self.infotext = ""
     
     # end def
+    def get_grup_zusam_dict(self):
+        return self.grup_zusam_dict
     def tausche_kategorie(self,kat_list,regel_list):
         '''
         
@@ -193,24 +196,31 @@ class KategorieClass:
             self.kat_grup_index_list = kat_grup_index_list_inter
             self.regel_list = regel_list_inter
     
-    def proof_grup_zusam_llist(self,grup_zusam_llist):
+    def proof_grup_zusam_dict(self,grup_zusam_dict):
         '''
         
         :param grup_zusam_llist:
-        :return: grup_zusam_llist = self.proof_grup_zusam_llist(grup_zusam_llist)
+        :return: grup_zusam_llist = self.proof_grup_zusam_dict(grup_zusam_dict)
         '''
-        grup_zusam_llist_out = []
-        for liste in grup_zusam_llist:
+        grup_list_not = copy.copy(self.grup_list)
+        grup_zusam_dict_out = {}
+        for key in grup_zusam_dict.keys():
             grup_zusam_list_out = []
-            for group in liste:
+            for group in grup_zusam_dict[key]:
                 if group in self.grup_list:
                     grup_zusam_list_out.append(group)
+                    if group in grup_list_not:
+                        del grup_list_not[grup_list_not.index(group)]
                 # end if
             # end for
-            grup_zusam_llist_out.append(grup_zusam_list_out)
+            grup_zusam_dict_out[key] = grup_zusam_list_out
         # end for
         
-        return grup_zusam_llist_out
+        # Auffüllen der Zusammenfassung mit nicht enthaltenden groups
+        for grup in grup_list_not:
+            grup_zusam_dict_out[grup] = [grup]
+        
+        return grup_zusam_dict_out
     # end def
     # def set_grup_list(self,grup_dict):
     #     '''
