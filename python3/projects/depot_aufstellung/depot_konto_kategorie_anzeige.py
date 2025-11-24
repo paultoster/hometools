@@ -73,6 +73,7 @@ def anzeige(rd):
         add_row_liste = [kont_name for i in range(ttable.ntable)]
         ttable = htvar.add_row_liste_to_table(ttable, konto_obj.par.KONTO_NAME, add_row_liste, "str")
         # print(f"nach1: {header_list =}")
+        
         status = katauswertfunc.add_ttable(ttable)
         # print(f"nach2: {header_list =}")
         if status != hdef.OKAY:
@@ -83,16 +84,19 @@ def anzeige(rd):
     
     # end for
     
+    # run Auswertung
+    #===============
     katauswertfunc.run_auswert()
     
-    ttable_ueberblick = katauswertfunc.get_auswert_ueberblick()
+    (ttable_ueberblick,index_ttable_ueberblick) = katauswertfunc.get_auswert_ueberblick()
+    ttable_einzel_liste = katauswertfunc.get_auswert_einzel_liste()
     file_name         = hdate.get_name_by_dat_time("Kontoauswertung_" + str(jahr) + "_", "") + ".xlsx"
 
-    status = bilde_ods_File(file_name,ttable_ueberblick)
+    status = bilde_ods_File(file_name,ttable_ueberblick,index_ttable_ueberblick)
     
     return status
 # end def
-def bilde_ods_File(file_name, ttable_ueberblick):
+def bilde_ods_File(file_name, ttable_ueberblick,index_ttable_ueberblick):
     '''
     
     :param file_name:
@@ -107,19 +111,38 @@ def bilde_ods_File(file_name, ttable_ueberblick):
     
     # Übersichtsdaten von allen  WPs
     worksheet.title = "Zusammenfassung"
-
-    row_num = 1
+    
+    ft = openpyxl.styles.fonts.Font(bold=True)
+    al = openpyxl.styles.Alignment(horizontal='center',shrink_to_fit=True)
+    
+    # border_thick = openpyxl.styles.Side(style='thick')
+    # border_thin = openpyxl.styles.Side(style='thin')
+    borded_dashed = openpyxl.styles.Side(style='dashed')
+    # border_dotted = openpyxl.styles.Side(style='dotted')
+    
+    bd = openpyxl.styles.Border(top=borded_dashed, left=borded_dashed, right=borded_dashed, bottom=borded_dashed)
+    row_num = 0
     for i,header in enumerate(ttable_ueberblick.names):
-        col_num = i+1
-        worksheet.cell(row=row_num,column=col_num,value=header)
+        worksheet[htype.excel_calc_alph_num(row_num,i)] = header
+        worksheet[htype.excel_calc_alph_num(row_num, i)].font = ft
+        worksheet[htype.excel_calc_alph_num(row_num, i)].alignment  = al
+        worksheet[htype.excel_calc_alph_num(row_num, i)].border = bd
     # end if
-    for data_liste in ttable_ueberblick.table:
+    
+    for irow,data_liste in enumerate(ttable_ueberblick.table):
         row_num += 1
-        for i,data in enumerate(data_liste):
-            col_num = i + 1
-            worksheet.cell(row=row_num, column=col_num, value=data)
-        # end for
+        for icol,data in enumerate(data_liste):
+            worksheet[htype.excel_calc_alph_num(row_num, icol)] = data
+            color = htype.get_excel_color_by_index(index_ttable_ueberblick.table[irow][icol])
+            fill = openpyxl.styles.PatternFill(start_color=color, end_color=color, fill_type="solid")
+            worksheet[htype.excel_calc_alph_num(row_num, icol)].fill = fill
+            worksheet[htype.excel_calc_alph_num(row_num, icol)].alignment = al
+            worksheet[htype.excel_calc_alph_num(row_num, icol)].border = bd
+            # end for
     # end for
+    
+    # fill_color = openpyxl.styles.PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")
+    # cell.fill = fill_color
     
     workbook.save(file_name)
     

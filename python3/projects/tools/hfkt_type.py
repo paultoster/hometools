@@ -3,9 +3,9 @@
 # 18.06.23 von hfkt.py
 #############################
 import os.path
-##################################################################################
-# Sonstiges
-###################################################################################
+import string
+
+# ==========================================================================================
 # value = str_to_float_possible(string_val),  if not possible value = None
 # ival  = str_to_int_possible(string_val),  if not possible ival = None
 # def summe_euro_to_cent(text,delim=","):
@@ -26,7 +26,13 @@ import os.path
 #
 #
 # print_python_is_32_or_64_bit
-# ---------------------------------
+#
+#---------------------------------------------------------------------------
+# alphanum = excel_calc_aplph_num(row_num,col_num)
+#                                 row_num: row staring with 1, 2, 3, ...
+#                                 col_num: column staring with 1, 2, 3, ...
+#---------------------------------------------------------------------------
+# ==========================================================================================
 # multiply_constant(list,const)  multiplies a list with const value
 
 # import types
@@ -1946,11 +1952,71 @@ def find_value_in_list(wert_in,liste):
 def print_python_is_32_or_64_bit():
     print(struct.calcsize("P") * 8)
 
+def excel_calc_alph_num(row_num,col_num):
+    '''
+    
+    :param row_num: row staring with 0,1,2,3, ...
+    :param col_num: column staring with 0,1,2,3, ...
+    :return: alphanum = excel_calc_aplph_num(row_num,col_num)
+    '''
+    if col_num > 26 ** 3:
+        raise Exception("excel_calc_aplph_num only supports columns < 26^3")
+    c2chars = [''] + list(string.ascii_uppercase)
+    c2, c1 = divmod(col_num, 26)
+    c3, c2 = divmod(c2, 26)
+    part1 =  "%s%s%s" % (c2chars[c3], c2chars[c2], string.ascii_uppercase[c1])
+    return "%s%d" % (part1, row_num+1)
 
+
+def excel_calc_alph_num_row(row_num, col_num0, col_num1):
+    '''
+
+    :param row_num: row staring with 0,1,2,3, ...
+    :param col_num0: start column staring with 0,1,2,3, ...
+    :param col_num1: end column staring with 0,1,2,3, ...
+    :return: alphnum = excel_calc_alph_num_row(row_num,col_num0,col_num1)
+    '''
+    
+    part0 = excel_calc_alph_num(row_num, col_num0)
+    part1 = excel_calc_alph_num(row_num, col_num1)
+    return "%s:%s" % (part0, part1)
+
+
+def excel_calc_alph_num_col(row_num0, row_num1, col_num):
+    '''
+
+    :param row_num: row staring with 0,1,2,3, ...
+    :param col_num0: start column staring with 0,1,2,3, ...
+    :param col_num1: end column staring with 0,1,2,3, ...
+    :return: alphnum = excel_calc_alph_num_row(row_num,col_num0,col_num1)
+    '''
+    
+    part0 = excel_calc_alph_num(row_num0, col_num)
+    part1 = excel_calc_alph_num(row_num1, col_num)
+    return "%s:%s" % (part0, part1)
+
+def get_excel_color_by_index(index):
+    
+    if index < 0:
+        color = "00FFFFFF"
+    else:
+        color_liste = ["0000FF00","00808080","00FFFF00","00FF00FF","0000FFFF","00C0C0C0","009999FF","00FFFFCC","00CCFFFF","00FF8080",
+                       "00CCCCFF","0000CCFF","00CCFFCC","00FFCC99","0033CCCC","0099CC00","00FFCC00"]
+        n_color     = len(color_liste)
+        
+        i           = index % n_color
+        
+        color = color_liste[i]
+        
+    # end for
+    return color
+# end def
 ###########################################################################
 # testen mit main
 ###########################################################################
 if __name__ == '__main__':
+    alphanum = excel_calc_aplph_num(1, 1)
+    
     (okay, wert) = type_transform("-380,14", "euroStrK", "cent")
     
     wert = numeric_string_to_float("154.372,55",delim=",",thousandsign=".")

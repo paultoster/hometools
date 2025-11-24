@@ -57,6 +57,19 @@ class KategorieClass:
     
     (found,kat) = obj.regel_anwedung_data_set(tlist)
     
+    katdict = obj.build_katdict(katval, wert_cent):
+    katval  = obj.build_katval(self,katdict)
+        
+        :param katval: Kategorie und Euro Anteil
+                        Beispiele
+                        "transport"  eine Kategorie fertig
+                        "transport,kauf" zwei Kategorie zu jeweils der Hälfte
+                        "transport:10,41,kauf" zwei Kategorie 10,41 € für Transport Rest kauf
+                        "transport:10,41,kauf:2,0,sonst" zwei Kategorie 10,41 € für Transport und 2 € für Kauf Rest sonst
+        :param wert_cent:
+        :param: katdict: katdict = {kat1:wert1_cent,kat2:wert2_cent}
+        
+    
     '''
     def __init__(self,kat_dict_list,regel_list,tausch_kategorie_dict,grup_zusam_dict):
         self.status = hdef.OK

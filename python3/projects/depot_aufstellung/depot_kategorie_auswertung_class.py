@@ -138,7 +138,7 @@ class KatDataClass:
         return self.group
     # end def
     def get_monats_summen_liste(self):
-        return self.sumwert_monat_liste
+        return self.get_sumwert_monat_liste('cent')
     # end def
     def build_data_set_obj(self,header_list,type_list):
         
@@ -331,13 +331,28 @@ class KategorieAuswertungClass:
         :return:
         '''
         
-        icol = htvar.get_index_from_table(ttable,self.par.KONTO_DATA_NAME_KATEGORIE)
-        
+        icol_kat = htvar.get_index_from_table(ttable,self.par.KONTO_DATA_NAME_KATEGORIE)
+        icol_wert = htvar.get_index_from_table(ttable,self.par.KONTO_DATA_NAME_WERT)
+
         for irow in range(ttable.ntable):
             
             tlist = htvar.get_list_from_table(ttable,irow)
             
-            self.add_tlist_to_data_set(tlist.vals[icol],tlist)
+            katval    = htvar.get_val_from_list(tlist,icol_kat,"str")
+            wert_cent = htvar.get_val_from_list(tlist,icol_wert,"cent")
+            
+            katdict = self.katfunc.build_katdict(katval, wert_cent)
+            
+            if len(katdict.keys()) == 1:
+                self.add_tlist_to_data_set(katval,tlist)
+            else:
+                for kat in katdict.keys():
+                    tlist_part = copy.copy(tlist)
+                    tlist_part = htvar.set_val_in_list(tlist_part,kat,icol_kat,"str")
+                    tlist_part = htvar.set_val_in_list(tlist_part, katdict[kat], icol_wert, "cent")
+                    
+                    self.add_tlist_to_data_set(kat, tlist_part)
+                # end for
         # end for
         
         return self.status
@@ -421,7 +436,7 @@ class KategorieAuswertungClass:
     def get_auswert_ueberblick(self):
         '''
         
-        :return: ttable = obj.get_auswert_ueberblick()
+        :return: (ttable,index_ttable) = obj.get_auswert_ueberblick()
         '''
     
         # Header
@@ -435,22 +450,30 @@ class KategorieAuswertungClass:
                       "str", "str", "str", "str", "str", "str",
                       "str"]
         
+        type_index_liste = ["int" for type in type_liste]
+        
         # Bilde Data Block
         group_liste = self.katfunc.get_grup_list()
         
         table = []
+        table_color_index = []
         
-        for group in group_liste:
+        for i,group in enumerate(group_liste):
             
             katliste = self.katfunc.get_kat_list_von_grup(group)
             # zeit_str_liste = self.katfunc.get_zeit_str_von_kat_list(katliste)
             for kat in katliste:
                 
-                val_liste =  self.kat_data_obj_dict[kat].get_kat_zeit_str_group_liste()    # [kat,zeit_str_liste[i],group]
+                val_liste   =  self.kat_data_obj_dict[kat].get_kat_zeit_str_group_liste()    # [kat,zeit_str_liste[i],group]
+                index_liste =  [-1,-1,i]
                 val_liste += self.kat_data_obj_dict[kat].get_sumwert_monat_liste("euroStrK")
+                index_liste += [-1 for i in range(12)]
                 val_liste += [self.kat_data_obj_dict[kat].get_sumwert_jahr("euroStrK")]
-                
+                index_liste += [i]
+
                 table.append(val_liste)
+                table_color_index.append(index_liste)
+                
             
             # end for
         # end for
@@ -458,10 +481,14 @@ class KategorieAuswertungClass:
         if "leer" in self.kat_data_obj_dict.keys():
             kat = "leer"
             val_liste = self.kat_data_obj_dict[kat].get_kat_zeit_str_group_liste()  # [kat,zeit_str_liste[i],group]
+            index_liste = [-1, -1, len(group_liste)]
             val_liste += self.kat_data_obj_dict[kat].get_sumwert_monat_liste("euroStrK")
+            index_liste += [-1 for i in range(12)]
             val_liste += [self.kat_data_obj_dict[kat].get_sumwert_jahr("euroStrK")]
+            index_liste += [len(group_liste)]
             
             table.append(val_liste)
+            table_color_index.append(index_liste)
         # end if
         
 
@@ -475,14 +502,22 @@ class KategorieAuswertungClass:
             # Zwischen zeile
             val_liste = ["" for s in header_liste]
             table.append(val_liste)
+            index_liste = [-1 for s in header_liste]
+            table_color_index.append(index_liste)
             
             for group in grup_zusam_dict[zusammfass]:
                 
+                index = group_liste.index(group)
+                
                 val_liste = [zusammfass,"summe",group]
+                index_liste = [-1, -1, index]
                 val_liste += self.group_data_obj_dict[group].get_sumwert_monat_liste("euroStrK")
+                index_liste += [index for i in range(12)]
                 val_liste += [self.group_data_obj_dict[group].get_sumwert_jahr("euroStrK")]
+                index_liste += [index]
                 
                 table.append(val_liste)
+                table_color_index.append(index_liste)
             # end for
             
             # Summe über  die Zusammenfassung
@@ -491,10 +526,30 @@ class KategorieAuswertungClass:
                 val_liste = [zusammfass,"","summe"]
                 val_liste += self.zusammfass_data_obj_dict[zusammfass].get_sumwert_monat_liste("euroStrK")
                 val_liste += [self.zusammfass_data_obj_dict[zusammfass].get_sumwert_jahr("euroStrK")]
-                
+                index_liste = [-1 for s in header_liste]
+
                 table.append(val_liste)
+                table_color_index.append(index_liste)
         # end for
 
-        return htvar.build_table(header_liste,table,type_liste)
+        return (htvar.build_table(header_liste,table,type_liste),htvar.build_table(header_liste,table_color_index,type_index_liste))
+    # end def
+    def get_auswert_einzel_liste(self):
+        '''
+        
+        :return: ttable_einzel_liste = obj.get_auswert_einzel_liste() ttable = ttable_einzel_liste[i]
+        '''
+        
+        # Header
+        header_liste = self.header_list
+        # Type
+        type_liste = []
+        for type in self.type_list:
+            if type == "cent": type_liste.append("euroStrK")
+            elif type == "dat": type_liste.append("datStrP")
+            else:               type_liste.append(type)
+        # end for
+        
+        return []
     # end def
 # end class
