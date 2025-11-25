@@ -223,29 +223,42 @@ class KatDataClass:
         :return: sumwert_monat_liste = obj.get_sumwert_monat_liste(self,type)
         '''
         
-        (okay, sumwert_monat_mittel) = htype.type_transform(self.sumwert_monat_mittel, "cent", type_out)
-        if okay != hdef.OKAY:
-            raise Exception(
-                f"get_sumwert_monat_liste:  Fehler transform self.sumwert_monat_mittel = <{self.sumwert_monat_mittel}> von type: <{"cent"}> in type {type_out} wandeln !!!!!!")
-        # end if
-
         sumwert_monat_liste = []
-        for i in range(12):
-            
-            if self.katzeit == self.TYPE_MONAT:
-                (okay,wert) = htype.type_transform(self.sumwert_monat_liste[i],"cent",type_out)
-                if okay != hdef.OKAY:
-                    raise Exception(f"get_sumwert_monat_liste:  Fehler transform self.sumwert_monat_liste[{i}] = <{self.sumwert_monat_liste[i]}> von type: <{"cent"}> in type {type_out} wandeln !!!!!!")
-                # end if
-            else:
-                wert = sumwert_monat_mittel
-            # end if
-            
+        for month in range(1,13):
+            wert = self.get_sumwert_monat(month,type_out)
             sumwert_monat_liste.append(wert)
-            
         # end for
         
         return sumwert_monat_liste
+    # end def
+    def get_sumwert_monat(self,month,type_out):
+        '''
+        
+        :param type_out:
+        :return: wert = self.get_sumwert_monat(month,type_out)
+        '''
+        
+        i = min(max(month-1,0),12)
+        if self.katzeit == self.TYPE_MONAT:
+            (okay, wert) = htype.type_transform(self.sumwert_monat_liste[i], "cent", type_out)
+            if okay != hdef.OKAY:
+                raise Exception(
+                    f"get_sumwert_monat_liste:  Fehler transform self.sumwert_monat_liste[{i}] = <{self.sumwert_monat_liste[i]}> von type: <{"cent"}> in type {type_out} wandeln !!!!!!")
+            # end if
+        else:
+            (okay, sumwert_monat_mittel) = htype.type_transform(self.sumwert_monat_mittel, "cent", type_out)
+            if okay != hdef.OKAY:
+                raise Exception(
+                    f"get_sumwert_monat_liste:  Fehler transform self.sumwert_monat_mittel = <{self.sumwert_monat_mittel}> von type: <{"cent"}> in type {type_out} wandeln !!!!!!")
+            # end if
+            wert = sumwert_monat_mittel
+        
+        # end if
+        
+        return wert
+    # end def
+    def is_sumwert_monat_gemittelt(self):
+        return self.katzeit == self.TYPE_JAHR
     # end def
     def get_sumwert_jahr(self,type_out):
         '''
@@ -262,6 +275,26 @@ class KatDataClass:
 
         return sumwert_jahr
     # end def
+    def get_ttable_and_month_list(self,header_liste,type_liste,dat_header):
+        
+        ttable = self.data_set_obj.get_data_set_ttable(header_liste,type_liste)
+        if self.data_set_obj.status != hdef.OKAY:
+            
+            self.status = self.data_set_obj.status
+            self.errtext = self.data_set_obj.errtext
+            self.data_set_obj.reset_status()
+            return ([],[])
+        # end if
+        
+        month_list = self.data_set_obj.get_row_list_of_header(dat_header, "monthInt")
+        if self.data_set_obj.status != hdef.OKAY:
+            self.status = self.data_set_obj.status
+            self.errtext = self.data_set_obj.errtext
+            self.data_set_obj.reset_status()
+            return ([], [])
+        # end if
+        
+        return (ttable,month_list)
 # end class
 class KategorieAuswertungClass:
     '''
@@ -541,15 +574,89 @@ class KategorieAuswertungClass:
         '''
         
         # Header
-        header_liste = self.header_list
+        header_liste = [self.par.KONTO_NAME,self.par.KONTO_DATA_NAME_WER,
+                        self.par.KONTO_DATA_NAME_COMMENT,self.par.KONTO_DATA_NAME_BUCHDATUM,
+                        self.par.KONTO_DATA_NAME_WERT]
+        
         # Type
-        type_liste = []
-        for type in self.type_list:
-            if type == "cent": type_liste.append("euroStrK")
-            elif type == "dat": type_liste.append("datStrP")
-            else:               type_liste.append(type)
+        type_liste = ["str","str","str","datStrP","euroStrK"]
+        
+        type_index_liste = ["int" for type in type_liste]
+
+        ttable_liste = []
+        ttable_color_index_liste = []
+        
+        kat_liste    = list(self.kat_data_obj_dict.keys())
+        for kat in kat_liste:
+            
+            (ttable,month_list) = self.kat_data_obj_dict[kat].get_ttable_and_month_list(header_liste,type_liste,self.par.KONTO_DATA_NAME_BUCHDATUM)
+            
+            if self.kat_data_obj_dict[kat].status != hdef.OKAY:
+                self.status = self.kat_data_obj_dict[kat].status
+                self.errtext = self.kat_data_obj_dict[kat].errtext
+                self.kat_data_obj_dict[kat].reset_status()
+                return []
+            # end if
+            
+            ttable_color_index = htvar.build_table_default_value(header_liste,-1,ttable.ntable,type_index_liste)
+
+            section_list = self.build_section_liste(month_list)
+            for section in section_list:
+                
+                month = month_list[section[0]]
+                iinsert = section[1]+1
+                
+                wert = self.kat_data_obj_dict[kat].get_sumwert_monat(month, "euroStrK")
+                
+                vals = ["Summe","","","",wert]
+                
+                tlist = htvar.build_list(header_liste,vals,type_liste)
+                
+                if self.kat_data_obj_dict[kat].is_sumwert_monat_gemittelt():
+                    tlist.vals[3] = (htype.get_MonthName_from_MonthInt(1)
+                                     + " - "
+                                     + htype.get_MonthName_from_MonthInt(12))
+                else:
+                    tlist.vals[3] = htype.get_MonthName_from_MonthInt(month)
+                # end if
+                
+                htvar.insert_list_to_table(ttable, tlist, iinsert)
+
+                vals = [0, 0, 0, 0, 0]
+                tlist = htvar.build_list(header_liste, vals, type_index_liste)
+                ttable_color_index = htvar.insert_list_to_table(ttable_color_index, tlist, iinsert)
+
+                
+            # end for
+
+            ttable_liste.append(ttable)
+            ttable_color_index_liste.append(ttable_color_index)
         # end for
         
-        return []
+        return (kat_liste,ttable_liste,ttable_color_index_liste)
     # end def
+    def build_section_liste(self,month_list):
+        '''
+        
+        :param month_list:
+        :return: section_list = self.build_section_liste(month_list)
+        '''
+        
+        istart = 0
+        section_list = []
+        for index,month in enumerate(month_list):
+            
+            if month != month_list[istart]:
+                iend = index - 1
+                section_list.append((istart,iend))
+                istart = index
+            # end if
+        # end for
+        if len(month_list):
+            iend = len(month_list)-1
+            section_list.append((istart, iend))
+        # end if
+        
+        return reversed(section_list)
+        
 # end class

@@ -78,6 +78,7 @@ def anzeige(rd):
         # print(f"nach2: {header_list =}")
         if status != hdef.OKAY:
             rd.log.write_err("anzeige  kategorie add ttable \n" + katauswertfunc.errtext, screen=rd.par.LOG_SCREEN_OUT)
+            katauswertfunc.reset_status()
             return status
         # end if
         # print(f"nach3: {header_list =}")
@@ -89,31 +90,46 @@ def anzeige(rd):
     katauswertfunc.run_auswert()
     
     (ttable_ueberblick,index_ttable_ueberblick) = katauswertfunc.get_auswert_ueberblick()
-    ttable_einzel_liste = katauswertfunc.get_auswert_einzel_liste()
+    if katauswertfunc.status != hdef.OKAY:
+        status = katauswertfunc.status
+        rd.log.write_err("anzeige  kategorie add ttable \n" + katauswertfunc.errtext, screen=rd.par.LOG_SCREEN_OUT)
+        katauswertfunc.reset_status()
+        return status
+    # end if
+
+    (kat_liste,ttable_einzel_liste,ttable_color_index_liste) = katauswertfunc.get_auswert_einzel_liste()
+    if katauswertfunc.status != hdef.OKAY:
+        status = katauswertfunc.status
+        rd.log.write_err("anzeige  kategorie add ttable \n" + katauswertfunc.errtext, screen=rd.par.LOG_SCREEN_OUT)
+        katauswertfunc.reset_status()
+        return status
+    # end if
+    
     file_name         = hdate.get_name_by_dat_time("Kontoauswertung_" + str(jahr) + "_", "") + ".xlsx"
 
-    status = bilde_ods_File(file_name,ttable_ueberblick,index_ttable_ueberblick)
+    status = bilde_ods_File(file_name,ttable_ueberblick,index_ttable_ueberblick,kat_liste,ttable_einzel_liste,ttable_color_index_liste)
     
     return status
 # end def
-def bilde_ods_File(file_name, ttable_ueberblick,index_ttable_ueberblick):
+def bilde_ods_File(file_name, ttable_ueberblick,index_ttable_ueberblick,kat_liste,ttable_einzel_liste,ttable_color_index_liste):
     '''
     
     :param file_name:
     :param ttable_ueberblick:
     :return: status = bilde_ods_File(file_name, ttable_ueberblick)
     '''
-    
+    front_page_title = "Zusammenfassung"
+    max_col_wdth     = 120
     # start ods-Output
     workbook = openpyxl.Workbook()
     
     worksheet = workbook.active
     
     # Übersichtsdaten von allen  WPs
-    worksheet.title = "Zusammenfassung"
+    worksheet.title = front_page_title
     
     ft = openpyxl.styles.fonts.Font(bold=True)
-    al = openpyxl.styles.Alignment(horizontal='center',shrink_to_fit=True)
+    al = openpyxl.styles.Alignment(horizontal='right',wrap_text=True)
     
     # border_thick = openpyxl.styles.Side(style='thick')
     # border_thin = openpyxl.styles.Side(style='thin')
@@ -141,9 +157,58 @@ def bilde_ods_File(file_name, ttable_ueberblick,index_ttable_ueberblick):
             # end for
     # end for
     
+    # Adjust column widths
+    for col in worksheet.columns:
+        max_length = max(len(str(cell.value or "")) for cell in col)
+        max_length = min(max_length,max_col_wdth)
+        col_letter = openpyxl.utils.get_column_letter(col[0].column)
+        worksheet.column_dimensions[col_letter].width = max_length + 5
+    # end for
+    
     # fill_color = openpyxl.styles.PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")
     # cell.fill = fill_color
     
+    # Einzelwerte:
+    #-------------
+    for index,kat in enumerate(kat_liste):
+        
+        worksheet = workbook.create_sheet(title=kat)
+        workbook.active = workbook[kat]
+        
+        ttable = ttable_einzel_liste[index]
+        ttable_color_index = ttable_color_index_liste[index]
+        
+        # Header
+        row_num = 0
+        for icol,header in enumerate(ttable.names):
+            worksheet[htype.excel_calc_alph_num(row_num,icol)] = header
+            worksheet[htype.excel_calc_alph_num(row_num, icol)].font = ft
+            worksheet[htype.excel_calc_alph_num(row_num, icol)].alignment  = al
+            worksheet[htype.excel_calc_alph_num(row_num, icol)].border = bd
+        # end if
+
+        for irow,data_liste in enumerate(ttable.table):
+            row_num += 1
+            for icol,data in enumerate(data_liste):
+                worksheet[htype.excel_calc_alph_num(row_num, icol)] = data
+                color = htype.get_excel_color_by_index(ttable_color_index.table[irow][icol])
+                fill = openpyxl.styles.PatternFill(start_color=color, end_color=color, fill_type="solid")
+                worksheet[htype.excel_calc_alph_num(row_num, icol)].fill = fill
+                worksheet[htype.excel_calc_alph_num(row_num, icol)].alignment = al
+                worksheet[htype.excel_calc_alph_num(row_num, icol)].border = bd
+                # end for
+        # end for
+        
+        # Adjust column widths
+        for col in worksheet.columns:
+            max_length = max(len(str(cell.value or "")) for cell in col)
+            max_length = min(max_length, max_col_wdth)
+            col_letter = openpyxl.utils.get_column_letter(col[0].column)
+            worksheet.column_dimensions[col_letter].width = max_length + 5
+            print(f"{max_length = }")
+        # end for
+    # end for
+    workbook.active = workbook[front_page_title]
     workbook.save(file_name)
     
     os.startfile(file_name)

@@ -697,6 +697,9 @@ def type_proof_datStrP(wert_in):
         if not flag:
             flag = hdate.is_datum_reverse_str(wert_in, delim=".")
             
+        if (not flag) and (len(wert_in)) == 0:
+                flag = True
+            
         if flag:
             return (hdef.OKAY, wert_in)
     
@@ -807,6 +810,23 @@ def type_proof_monthInt(wert_in):
             # end if
         # end ofr
         return (hdef.OKAY, wert_liste)
+    # end if
+# end def
+def get_MonthName_from_MonthInt(monthInt: int):
+    '''
+    
+    :param monthInt:
+    :return:
+    '''
+    
+    MontNameList = ["Jan","Feb","Mrz","Apr","Mai","Jun","Jul","Aug","Sept","Okt","Nov","Dez"]
+    
+    if monthInt <= 1:
+        return MontNameList[0]
+    elif monthInt >= 12:
+        return MontNameList[-1]
+    else:
+        return MontNameList[monthInt-1]
     # end if
 # end def
 def type_proof_iban(wert_in):

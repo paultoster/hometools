@@ -48,6 +48,7 @@ types =  get_types(tlist)
 (val_dict_list,type_dict) = get_dict_list_from_table(ttable)
 (val_dict,type_dict) = get_dict_list_from_list(ttable)
 ttable = add_list_to_table(ttable,tlist)
+ttable = insert_list_to_table(ttable,tlist,irow)
 ttable = add_row_liste_to_table(ttable, name,add_row_liste,type)
 ttable = set_val_in_table(ttable,val,irow,name,type)
 ttable = set_val_in_table(ttable,val,irow,name)
@@ -352,6 +353,26 @@ def build_table_from_list(tlist,types_store= None):
     '''
     
     return build_table(tlist.names, [tlist.vals], tlist.types, types_store)
+def build_table_default_value(names,default_liste,ntable,types):
+    '''
+    
+    :param header_liste:
+    :param default_index_liste:
+    :param ntable:
+    :param type_index_liste:
+    :return:
+    '''
+    
+    if isinstance(default_liste,list):
+        val_liste = default_liste
+    else:
+        n = min(len(names), len(types))
+        val_liste = [default_liste for i in range(n)]
+    # end if
+    table = [val_liste for i in range(ntable)]
+    
+    return build_table(names, table, types)
+    
 def proof_val(name:str,val:any,type: str):
     '''
     
@@ -913,6 +934,23 @@ def add_list_to_table(ttable: TTable,tlist: TList):
         
     # end for
     return ttable
+# end def
+def insert_list_to_table(ttable: TTable,tlist: TList,irow: int):
+    '''
+    
+    :param ttable:
+    :param tlist:
+    :param irow:
+    :return: ttable insert_list_to_table(ttable,tlist,irow)
+    '''
+    if irow > ttable.ntable-1:
+        return add_list_to_table(ttable,tlist)
+    else:
+        irow = max(irow,0)
+        ttable.table.insert(irow,tlist.vals)
+        ttable.ntable += 1
+        return ttable
+    # end if
 # end def
 def add_row_liste_to_table(ttable, name,add_row_liste,type):
     '''
