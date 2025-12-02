@@ -30,6 +30,14 @@ class IDCount:
     def get_act_id(self):
         return IDCount.idmax
     # end def
+    def set_new_id(self,id:int):
+        if  id-IDCount.idmax != 1:
+            raise Exception(f"set id = {id} is not idmax+1: idmax = {IDCount.idmax}")
+        else:
+            IDCount.idmax = id
+        # end if
+        return
+    # end def
     def get_new_id(self):
         IDCount.idmax += 1
         return IDCount.idmax

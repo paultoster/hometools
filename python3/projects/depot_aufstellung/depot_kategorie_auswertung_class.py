@@ -620,7 +620,7 @@ class KategorieAuswertungClass:
                     tlist.vals[3] = htype.get_MonthName_from_MonthInt(month)
                 # end if
                 
-                htvar.insert_list_to_table(ttable, tlist, iinsert)
+                ttable = htvar.insert_list_to_table(ttable, tlist, iinsert)
 
                 vals = [0, 0, 0, 0, 0]
                 tlist = htvar.build_list(header_liste, vals, type_index_liste)
@@ -628,6 +628,19 @@ class KategorieAuswertungClass:
 
                 
             # end for
+            
+            # Summe
+            wert = self.kat_data_obj_dict[kat].get_sumwert_jahr( "euroStrK")
+            vals = ["Summe", "", "", "", wert]
+            tlist = htvar.build_list(header_liste, vals, type_liste)
+            tlist.vals[3] = str(self.jahr)
+            
+            ttable = htvar.insert_list_to_table(ttable, tlist, ttable.ntable)
+            
+            vals = [2, 2, 2, 2, 2]
+            tlist = htvar.build_list(header_liste, vals, type_index_liste)
+            ttable_color_index = htvar.insert_list_to_table(ttable_color_index, tlist, ttable_color_index.ntable)
+
 
             ttable_liste.append(ttable)
             ttable_color_index_liste.append(ttable_color_index)

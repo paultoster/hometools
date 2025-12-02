@@ -222,7 +222,7 @@ class IbanDataSet:
         
         return (status, errtext)
     # enddef
-
+# end class
 def iban_find(data_list, iban):
     """
     find iban number in data_list with data_set = [iban,bank,wer,comment]

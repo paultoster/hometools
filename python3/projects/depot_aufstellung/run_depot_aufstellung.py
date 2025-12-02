@@ -132,17 +132,17 @@ def depot_aufstellung():
     runflag = True
 
     if len(rd.ini.ddict[rd.par.INI_DEPOT_DATA_LIST_NAMES_NAME]) == 0:
-        start_auswahl = ["Cancel (no save)", "Ende", "Save", "Konto"]
+        start_auswahl = ["Cancel (no save)", "Ende", "Save", "Iban","Konto"]
     else:
-        start_auswahl = ["Cancel (no save)","Ende","Save","Konto","Depot","edit wp_info"] # ["Cancel (no save)","Ende","Iban","Save","Konto","Depot"]
+        start_auswahl = ["Cancel (no save)","Ende","Save","Iban","Konto","Depot","edit wp_info"] # ["Cancel (no save)","Ende","Iban","Save","Konto","Depot"]
     # end if
     index_cancel_no_save  = 0
     index_ende    = 1
     index_save    = 2
-    # index_iban    = 3
-    index_konto   = 3
-    index_depot   = 4
-    index_wp_edit = 5
+    index_iban    = 3
+    index_konto   = 4
+    index_depot   = 5
+    index_wp_edit = 6
     
     save_flag = True
     abfrage_liste = ["okay","cancel","ende"]
@@ -188,10 +188,10 @@ def depot_aufstellung():
             # if (status != hdef.OKAY):
             #    runflag = False
             # endif
-        # elif index == index_iban:
-        #     rd.log.write(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
-        #     status = ib.bearbeiten(rd)
-        #     # if (status != hdef.OKAY):
+        elif index == index_iban:
+            rd.log.write(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
+            status = ib.bearbeiten(rd)
+            # if (status != hdef.OKAY):
         #     #     runflag = False
         #     # endif
         elif index == index_depot:

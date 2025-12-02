@@ -49,6 +49,8 @@ import tools.hfkt_tvar as htvar
 
 
 import wp_abfrage.wp_base as wp_base
+import bank_name_bestimmen.blz_class as blz_class
+
 
 import depot_iban_data_class
 import depot_konto_data_set_class
@@ -63,6 +65,7 @@ class AllgData:
     data_dict: dict = field(default_factory=dict)
     idfunc = None   # : dclassdef.IDCount = field(default_factory=dclassdef.IDCount)
     wpfunc = None   # : wp_base.WPData = field(default_factory=wp_base.WPData)
+    banknamefunc = None
     kat_json_obj = None
     katfunc = None  # konto kategorie
     kat_dict: dict = field(default_factory=dict)
@@ -164,6 +167,10 @@ def data_set(rd):
         errtext = rd.allg.wpfunc.errtext
         return (status, errtext)
     # endif
+    
+    # function Banknamen bestimmen
+    #-------------------------
+    rd.allg.banknamefunc = blz_class.Bankdaten()
     
     # konto_kategorie func if filename is set
     #----------------------------------------
