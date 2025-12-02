@@ -172,6 +172,52 @@ def data_set(rd):
     #-------------------------
     rd.allg.banknamefunc = blz_class.Bankdaten()
     
+    # ================================================================================
+    # iban-liste pickle --------------------------------------------
+    # ================================================================================
+    
+    iban_data_obj = IbanData()
+    
+    if rd.ini.ddict[rd.par.INI_IBAN_LIST_FILE_NAME] in rd.ini.ddict[rd.par.INI_DATA_PICKLE_JSONFILE_LIST]:
+        use_json = rd.ini.ddict[rd.par.INI_DATA_PICKLE_USE_JSON]
+    else:
+        use_json = 0
+    # end if
+    
+    make_backup = rd.ini.ddict[rd.par.INI_DATA_PICKLE_MAKE_BACKUP]
+    
+    iban_data_obj.pickle_obj = hpickle.DataPickle(rd.par.IBAN_PREFIX, rd.ini.ddict[rd.par.INI_IBAN_LIST_FILE_NAME],
+                                                  use_json, make_backup)
+    
+    if (iban_data_obj.pickle_obj.status != hdef.OK):
+        status = hdef.NOT_OKAY
+        errtext = iban_data_obj.pickle_obj.errtext
+        return (status, errtext)
+    else:
+        iban_data_obj.data_dict = iban_data_obj.pickle_obj.get_ddict()
+    # endif
+    
+    iban_data_obj.data_dict[rd.par.DDICT_TYPE_NAME] = rd.par.IBAN_DATA_TYPE_NAME
+    
+    # Umbau filter vorübergehend
+    # iban_data_obj.data_dict = umbau_iban_data_dict_filter(rd.par, iban_data_obj.data_dict)
+    # Tvariable bilden
+    iban_data_obj.data_dict_tvar = build_iban_transform_data_dict(rd.par,iban_data_obj.data_dict)
+    
+    iban_data_obj.iban_obj = depot_iban_data_class.IbanDataSet(
+        iban_data_obj.data_dict_tvar[rd.par.IBAN_DATA_TABLE_NAME],
+        rd.allg.banknamefunc)
+    
+    if (iban_data_obj.iban_obj.status != hdef.OK):
+        status = hdef.NOT_OKAY
+        errtext = iban_data_obj.iban_obj.errtext
+        return (status, errtext)
+    # endif
+    
+    rd.iban = copy.deepcopy(iban_data_obj)
+    
+    del iban_data_obj
+    
     # konto_kategorie func if filename is set
     #----------------------------------------
     if os.path.isfile(rd.ini.ddict[rd.par.INI_KONTO_KAT_JSON_FILE_NAME]):
@@ -261,7 +307,7 @@ def data_set(rd):
         
         # konto Klasse bilden
         rd.konto_dict[konto_name].konto_obj = depot_konto_data_set_class.KontoDataSet(
-            konto_name,rd.allg.idfunc,rd.allg.wpfunc,rd.allg.katfunc)
+            konto_name,rd.allg.idfunc,rd.allg.wpfunc,rd.allg.katfunc,rd.iban.iban_obj)
         
         print(f"{konto_name =}: {rd.konto_dict[konto_name].konto_obj} ; {hex(id(rd.konto_dict[konto_name].konto_obj))}")
         
@@ -454,50 +500,6 @@ def data_set(rd):
         print(f"depot konto_obj {rd.depot_dict[depot_name].depot_obj.konto_obj = } \n == external set {rd.konto_dict[konto_name].konto_obj =}")
         print('-=-' * 30)
     
-    #================================================================================
-    # iban-liste pickle --------------------------------------------
-    #================================================================================
-    
-    iban_data_obj = IbanData()
-    
-    if rd.ini.ddict[rd.par.INI_IBAN_LIST_FILE_NAME] in rd.ini.ddict[rd.par.INI_DATA_PICKLE_JSONFILE_LIST]:
-        use_json = rd.ini.ddict[rd.par.INI_DATA_PICKLE_USE_JSON]
-    else:
-        use_json = 0
-    # end if
-    
-    make_backup = rd.ini.ddict[rd.par.INI_DATA_PICKLE_MAKE_BACKUP]
-    
-    iban_data_obj.pickle_obj = hpickle.DataPickle(rd.par.IBAN_PREFIX, rd.ini.ddict[rd.par.INI_IBAN_LIST_FILE_NAME], use_json,make_backup)
-    
-    if (iban_data_obj.pickle_obj.status != hdef.OK):
-        status = hdef.NOT_OKAY
-        errtext = iban_data_obj.pickle_obj.errtext
-        return (status, errtext)
-    else:
-        iban_data_obj.data_dict = iban_data_obj.pickle_obj.get_ddict()
-    # endif
-    
-    
-    iban_data_obj.data_dict[rd.par.DDICT_TYPE_NAME] = rd.par.IBAN_DATA_TYPE_NAME
-    
-    # Umbau filter vorübergehend
-    iban_data_obj.data_dict = umbau_iban_data_dict_filter(rd.par, iban_data_obj.data_dict)
-    # Tvariable bilden
-    iban_data_obj.data_dict_tvar = build_iban_transform_data_dict(rd.par,depot_iban_data_class.IbanParam, iban_data_obj.data_dict)
-    
-    
-    iban_data_obj.iban_obj = depot_iban_data_class.IbanDataSet(iban_data_obj.data_dict_tvar[rd.par.IBAN_DATA_TABLE_NAME])
-    
-    if (iban_data_obj.iban_obj.status != hdef.OK):
-        status = hdef.NOT_OKAY
-        errtext = iban_data_obj.iban_obj.errtext
-        return (status, errtext)
-    # endif
-    
-    rd.iban = copy.deepcopy(iban_data_obj)
-    
-    del iban_data_obj
     
     return (status, errtext)
 # end def
@@ -665,7 +667,19 @@ def data_save(rd):
     #     rd.allg.idfunc
     #     rd.allg.wpfunc
     #     rd.iban
-    #####
+    
+    ttable = rd.iban.iban_obj.get_data_table()
+    
+    (val_dict_list, type_dict) = htvar.get_dict_list_from_table(ttable)
+    
+    rd.iban.data_dict[rd.par.IBAN_DATA_DICT_NAME] = val_dict_list
+    rd.iban.data_dict[rd.par.IBAN_TYPE_DICT_NAME] = type_dict
+    rd.iban.pickle_obj.save(rd.iban.data_dict)
+    
+    if (rd.iban.pickle_obj.status != hdef.OKAY):
+        status = hdef.NOT_OKAY
+        errtext = f"{errtext}/ iban: {rd.iban.pickle_obj.errtext}"
+    # endif
     
     # # first get depot wk data into data dict
     # for key in data:
@@ -1107,32 +1121,32 @@ def build_wp_transform_data_dict(par, data_dict):
 
 
 # end def
-def umbau_iban_data_dict_filter(par, data_dict):
-    data_dict_out = {}
-    
-    data_dict_out[par.DDICT_TYPE_NAME] = data_dict[par.DDICT_TYPE_NAME]
-    
-    if par.IBAN_DATA_LIST_NAME in data_dict.keys():
-        
-        lliste0 = data_dict[par.IBAN_DATA_LIST_NAME]
-        lliste  = []
-        for liste0 in lliste0:
-            if len(liste0) > 4:
-                liste = liste0[1:5]
-            else:
-                liste = liste0
-            # end if
-            lliste.append(liste)
-        # end for
-        data_dict_out[par.IBAN_DATA_LIST_NAME] = lliste
-    else:
-        data_dict_out[par.IBAN_DATA_LIST_NAME] = []
-    # end if
-    return data_dict_out
-
-
-# end def
-def build_iban_transform_data_dict(par, iban_par, data_dict):
+# def umbau_iban_data_dict_filter(par, data_dict):
+#     data_dict_out = {}
+#
+#     data_dict_out[par.DDICT_TYPE_NAME] = data_dict[par.DDICT_TYPE_NAME]
+#
+#     if par.IBAN_DATA_LIST_NAME in data_dict.keys():
+#
+#         lliste0 = data_dict[par.IBAN_DATA_LIST_NAME]
+#         lliste  = []
+#         for liste0 in lliste0:
+#             if len(liste0) > 4:
+#                 liste = liste0[1:5]
+#             else:
+#                 liste = liste0
+#             # end if
+#             lliste.append(liste)
+#         # end for
+#         data_dict_out[par.IBAN_DATA_LIST_NAME] = lliste
+#     else:
+#         data_dict_out[par.IBAN_DATA_LIST_NAME] = []
+#     # end if
+#     return data_dict_out
+#
+#
+# # end def
+def build_iban_transform_data_dict(par, data_dict):
     '''
 
     :param par:
@@ -1147,12 +1161,17 @@ def build_iban_transform_data_dict(par, iban_par, data_dict):
     data_dict_tvar[name] = htvar.build_val(name, data_dict[name], 'str')
     
     # IBAN_DATA_SET_DICT_LIST
-    
-    if par.IBAN_DATA_LIST_NAME in data_dict.keys():
+    if (par.IBAN_DATA_DICT_NAME in data_dict.keys()) and (par.IBAN_TYPE_DICT_NAME in data_dict.keys()):
         
-        names = iban_par.IBAN_DATA_NAME_LIST
-        types = iban_par.IBAN_DATA_TYPE_LIST
-        table = data_dict[par.IBAN_DATA_LIST_NAME]
+        val_dict_list = data_dict[par.IBAN_DATA_DICT_NAME]
+        type_dict = data_dict[par.IBAN_TYPE_DICT_NAME]
+
+        names = list(type_dict.keys())
+        types = list(type_dict.values())
+        table = []
+        for ddict in val_dict_list:
+            table.append(list(ddict.values()))
+        # end for
     else:
         names = []
         types = []

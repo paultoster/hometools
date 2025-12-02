@@ -27,21 +27,21 @@ class IbanParam:
 
     IBAN_DATA_INDEX_IBAN: int = 0
     IBAN_DATA_INDEX_BANK: int = 1
-    IBAN_DATA_INDEX_WER: int = 2
+    IBAN_DATA_INDEX_BLZ: int = 2
     IBAN_DATA_INDEX_COMMENT: int = 3
     
-    IBAN_DATA_INDEX_LIST = [IBAN_DATA_INDEX_IBAN, IBAN_DATA_INDEX_BANK, IBAN_DATA_INDEX_WER
+    IBAN_DATA_INDEX_LIST = [IBAN_DATA_INDEX_IBAN, IBAN_DATA_INDEX_BANK, IBAN_DATA_INDEX_BLZ
                            ,IBAN_DATA_INDEX_COMMENT]
         
     IBAN_DATA_NAME_IBAN: str = "iban"
     IBAN_DATA_NAME_BANK = "bank"
-    IBAN_DATA_NAME_WER = "wer"
+    IBAN_DATA_NAME_BLZ = "wer"
     IBAN_DATA_NAME_COMMENT = "comment"
     
     IBAN_DATA_LLIST = [
         [IBAN_DATA_INDEX_IBAN, IBAN_DATA_NAME_IBAN, "str", "str"],
         [IBAN_DATA_INDEX_BANK, IBAN_DATA_NAME_BANK, "str", "str"],
-        [IBAN_DATA_INDEX_WER, IBAN_DATA_NAME_WER, "str", "str"],
+        [IBAN_DATA_INDEX_BLZ, IBAN_DATA_NAME_BLZ, "str", "str"],
         [IBAN_DATA_INDEX_COMMENT, IBAN_DATA_NAME_COMMENT, "str", "str"],
     ]
     IBAN_DATA_NAME_DICT = {}
@@ -67,21 +67,28 @@ class IbanDataSet:
     '''
     members:
     functions:
-    (status,ertext) = self.add(iban,bank,comment)      add new iban
-    (status,ertext) = self.add(iban,bank)
-    found           = self.find(iban)                  find specific iban
+    
+    (status,ertext) = obj.add(iban,bank,blz,comment)      add new iban
+    (status,ertext) = obj.add(iban,bank)
+    (status,ertext) = obj.add(iban)
+    
+    (table , color_list) = obj.get_data_table()
+    (status,errtext)     = obj.delete_data_set(irow)
+    
+    found           = self.iban_find(iban)                  find specific iban
 
-    (status,ertext) = self.show()                      show in GUI
+    
 
     '''
     OKAY = hdef.OK
     NOT_OKAY = hdef.NOT_OK
     
-    def __init__(self, iban_data_table: htvar.TTable ):
+    def __init__(self, iban_data_table: htvar.TTable, banknamefunc = None):
         self.par = IbanParam()
         self.status = hdef.OK
         self.errtext = ""
         self.data_set_obj = hdset.DataSet(self.par.NAME)
+        self.banknamefunc = banknamefunc
 
         for index in self.par.IBAN_DATA_NAME_DICT.keys():
             
@@ -104,8 +111,90 @@ class IbanDataSet:
             self.errtext = self.data_set_obj.errtext
             self.data_set_obj.reset_status()
         # end if
+    def reset_status(self):
+        self.status = hdef.OKAY
+        self.errtext = ""
+        self.infotext = ""
+    # end def
+
+    def get_data_table(self):
+        '''
+        
+        :return: table = self.get_to_store_data_set_tvar()
+        '''
     
-    def add(self, iban, bank, wer, comment=""):
+        ttable = self.data_set_obj.get_data_set_ttable()
+        
+        ttable = htvar.transform_icol_table(ttable, self.par.IBAN_DATA_NAME_LIST)
+        
+        ttable = htvar.transform_type_table(ttable, self.par.IBAN_DATA_TYPE_LIST)
+        
+        row_color_dliste = self.data_set_obj.get_line_color_set_liste()
+        
+        return (ttable, row_color_dliste)
+    
+    def write_anzeige_back_data(self, ttable_anzeige, data_changed_pos_list, header_liste=[]):
+        '''
+
+        :param new_data_llist:
+        :param data_changed_pos_list:
+        :param header_liste=[]:  Liste mit den Headernamen, die geändert werden können, leer: alle ändern
+        :return: self.write_anzeige_back_data(ttable_anzeige, data_changed_pos_list)
+        '''
+        self.infotext = ""
+        self.errtext = ""
+        
+        if not isinstance(header_liste, list):
+            header_liste = [header_liste]
+        # end if
+        
+        if len(header_liste) == 0:
+            noproof = True
+        else:
+            noproof = False
+        
+        # index_liste = list(self.par.IBAN_DATA_NAME_DICT.keys())
+        
+        changed = False
+        for (irow, icol) in data_changed_pos_list:
+            
+            value = ttable_anzeige.table[irow][icol]
+            name = ttable_anzeige.names[icol]
+            type = ttable_anzeige.types[icol]
+            
+            if noproof or name in header_liste:
+                
+                if self.data_set_obj.set_data_item(value, self.par.LINE_COLOR_EDIT, irow, name, type):
+                    
+                    if self.data_set_obj.status != hdef.OKAY:
+                        self.status = hdef.NOT_OKAY
+                        self.errtext = f"write_anzeige_back_data: Fehler set_data_item  errtext: {self.data_set_obj.errtext}"
+                        return
+                    # end if
+                    changed = True
+                # end if
+        # end for
+        
+        if changed:
+            # sort
+            self.data_set_obj.update_order_name(self.par.IBAN_DATA_NAME_BANK)
+        # end if
+    
+    # end def
+    def get_extern_default_tlist(self):
+        '''
+        index_in_header_liste index in header list für buch type
+        :return: (tlist, buchungs_type_list, buchtype_index_in_header_liste) =  self.get_extern_default_tlist()
+        '''
+        
+        header_liste = self.par.IBAN_DATA_NAME_LIST
+        type_liste = self.par.IBAN_DATA_TYPE_LIST
+        tlist = htvar.build_default_list(header_liste, type_liste)
+        
+        return tlist
+    
+    # end def
+    def add(self, iban, bank=None, blz=None, comment=""):
         '''
         add a new iban number into a data_set
 
@@ -130,152 +219,190 @@ class IbanDataSet:
         # endif
         
         # proof if iban already in
-        if (not self.find(iban)):
+        if (not self.iban_find(iban)):
             # build iban_data_set as list data_set = [iban,bank,wer,comment]
-            # and add to data_list
-            self.idmax += 1
-            self.data_list.append([self.idmax, iban, wer, bank, comment])
+            
+            daten = None
+            
+            #------------------------------------
+            # Bank
+            #------------------------------------
+            if bank == None:
+                daten = self.banknamefunc.bankdatensatz_von_iban(iban)
+                if self.banknamefunc.status != hdef.OKAY:
+                    self.status  = self.banknamefunc.status
+                    self.errtext =  self.banknamefunc.errtext
+                    return (self.status, self.errtext)
+                # end if
+                
+                bank = daten["Kurzbezeichnung"]
+            # end if
+            
+            (okay, wert) = htype.type_proof(bank,
+                                            self.par.IBAN_DATA_TYPE_LIST[self.par.IBAN_DATA_INDEX_BLZ],
+                                            self.par.IBAN_DATA_STORE_TYPE_LIST[self.par.IBAN_DATA_INDEX_BLZ])
+
+            if okay != hdef.OKAY:
+                self.status  = hdef.NOT_OKAY
+                self.errtext = f"BLZ zu iban: {iban} = {bank = } kann nicht gewandelt werden type_in={self.par.IBAN_DATA_TYPE_LIST[self.par.IBAN_DATA_INDEX_BANK]} => type_store={self.par.IBAN_DATA_STORE_TYPE_LIST[self.par.IBAN_DATA_INDEX_BANK]}"
+                return (self.status, self.errtext)
+            # end if
+            
+            # ------------------------------------
+            # BLZ
+            # ------------------------------------
+            if blz == None:
+                if daten == None:
+                    daten = self.banknamefunc.bankdatensatz_von_iban(iban)
+                    if self.banknamefunc.status != hdef.OKAY:
+                        self.status = self.banknamefunc.status
+                        self.errtext = self.banknamefunc.errtext
+                        return (self.status, self.errtext)
+                    # end if
+                # end if
+                blz = daten["Bankleitzahl"]
+            # end if
+            
+            (okay, wert) = htype.type_proof(bank,
+                                            self.par.IBAN_DATA_TYPE_LIST[self.par.IBAN_DATA_INDEX_BANK],
+                                            self.par.IBAN_DATA_STORE_TYPE_LIST[self.par.IBAN_DATA_INDEX_BANK])
+            
+            if okay != hdef.OKAY:
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"Bank zu iban: {iban} = {bank = } kann nicht gewandelt werden type_in={self.par.IBAN_DATA_TYPE_LIST[self.par.IBAN_DATA_INDEX_BLZ]} => type_store={self.par.IBAN_DATA_STORE_TYPE_LIST[self.par.IBAN_DATA_INDEX_BLZ]}"
+                return (self.status, self.errtext)
+            # end if
+            
+            tlist = htvar.build_list(self.par.IBAN_DATA_NAME_LIST,[iban,bank,blz,comment],self.par.IBAN_DATA_STORE_TYPE_LIST)
+            
+            self.data_set_obj.add_data_set_tvar(tlist,self.par.LINE_COLOR_NEW)
         # endif
         
-        return (status, errtext)
+        return (self.status, self.errtext)
     
     # enddef
+    def delete_data_set(self, irow):
+        '''
+
+        :param irow:
+        :return: (status,errtext) = delete_data_set(irow)
+        '''
+        if irow < 0:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"IbanDataSet.delete_data_set: irow = {irow} is negative"
+        
+        elif irow >= self.data_set_obj.get_n_data():
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"IbanDataSet.delete_data_set: irow = {irow} >= len(data_set_llist) = {self.data_set_obj.get_n_data()}"
+        else:
+            self.data_set_obj.delete_row_in_data_set(irow)
+            if self.data_set_obj.status != hdef.OKAY:
+                self.status = self.data_set_obj.status
+                self.errtext = self.data_set_obj.errtext
+            # end if
+        # end if
+        
+        return (self.status, self.errtext)
     
-    def show(self,gui):
-        '''
-        show data in gui and possibly correct in gui
-        :return: (status,errtext)
-        '''
-        status = hdef.OKAY
-        errtext = ""
-        
-        (d_new, indexAbfrage) = gui.abfrage_tabelle(header_liste=self.item_list
-                                                     , data_set=self.data_list
-                                                     , listeAbfrage=["okay", "change", "add"])
-        
-        if (indexAbfrage == 0):  # okay , cancel
-            return (status, errtext)
-        elif (indexAbfrage == 1):  # change
-            # data_set = [iban,bank,wer,comment]
-            
-            # proof what has changed and store in index_tri = [ilist,idataset,value]
-            index_tri = []
-            for i, d in enumerate(self.data_list):
-                if (d[I_IBAN] != d_new[i][I_IBAN]):
-                    # proof iban
-                    (okay, wert) = htype.type_proof_iban(d_new[i][I_IBAN])
-                    if (okay != hdef.OKAY):
-                        status = hdef.NOT_OKAY
-                        errtext = f"iban_data: error input iban = {d_new[i][I_IBAN]} from Bank:{d[I_BANK]} and Comment:{d[I_COM]} is not valid"
-                        return (status, errtext)
-                    else:
-                        index_tri.append((i, I_IBAN, wert))
-                    # endif
-                # endif iban
-                if (d[I_BANK] != d_new[i][I_BANK]):
-                    index_tri.append((i, I_BANK, d_new[i][I_BANK]))
-                # endif
-                if (d[I_WER] != d_new[i][I_WER]):
-                    index_tri.append((i, I_WER, d_new[i][I_WER]))
-                # endif
-                if (d[I_COM] != d_new[i][I_COM]):
-                    index_tri.append((i, I_COM, d_new[i][I_COM]))
-                # endif
-            # endif
-            
-            # set changed values
-            for [i, j, value] in index_tri:
-                self.data_list[i][j] = value
-            # end for
-        else:  # add
-            
-            ddict = {}
-            ddict["liste_abfrage"] = self.item_list
-            
-            ddict["title"] = 'Neue IBAN-Nummer eingeben'
-            
-            listeErgebnis = gui.abfrage_n_eingabezeilen_dict(ddict)
-            
-            if (len(listeErgebnis) == 0):
-                status = hdef.NOT_OKAY
-                errtext = f"iban_data: Keine IBAN-Nummer eingegeben"
-                return (status, errtext)
-            # endif
-            
-            iban = hstr.elim_ae(listeErgebnis[I_IBAN], ' ')
-            bank = hstr.elim_ae(listeErgebnis[I_BANK], ' ')
-            wer = hstr.elim_ae(listeErgebnis[I_WER], ' ')
-            comment = hstr.elim_ae(listeErgebnis[I_COM], ' ')
-            
-            (okay, wert) = htype.type_proof_iban(iban)
-            if (okay != hdef.OKAY):
-                status = hdef.NOT_OKAY
-                errtext = f"iban_data: error input iban = {iban} from Bank:{bank} and Comment:{comment} is not valid"
-                return (status, errtext)
-            else:
-                iban = wert
-            # endif
-            
-            (status, errtext) = self.add(self, iban, bank, wer, comment)
-        
-        # endif
-        
-        return (status, errtext)
-    # enddef
-# end class
-def iban_find(data_list, iban):
+    # end def
+
+
+#     def show(self,gui):
+#         '''
+#         show data in gui and possibly correct in gui
+#         :return: (status,errtext)
+#         '''
+#         status = hdef.OKAY
+#         errtext = ""
+#
+#         (d_new, indexAbfrage) = gui.abfrage_tabelle(header_liste=self.item_list
+#                                                      , data_set=self.data_list
+#                                                      , listeAbfrage=["okay", "change", "add"])
+#
+#         if (indexAbfrage == 0):  # okay , cancel
+#             return (status, errtext)
+#         elif (indexAbfrage == 1):  # change
+#             # data_set = [iban,bank,wer,comment]
+#
+#             # proof what has changed and store in index_tri = [ilist,idataset,value]
+#             index_tri = []
+#             for i, d in enumerate(self.data_list):
+#                 if (d[I_IBAN] != d_new[i][I_IBAN]):
+#                     # proof iban
+#                     (okay, wert) = htype.type_proof_iban(d_new[i][I_IBAN])
+#                     if (okay != hdef.OKAY):
+#                         status = hdef.NOT_OKAY
+#                         errtext = f"iban_data: error input iban = {d_new[i][I_IBAN]} from Bank:{d[I_BANK]} and Comment:{d[I_COM]} is not valid"
+#                         return (status, errtext)
+#                     else:
+#                         index_tri.append((i, I_IBAN, wert))
+#                     # endif
+#                 # endif iban
+#                 if (d[I_BANK] != d_new[i][I_BANK]):
+#                     index_tri.append((i, I_BANK, d_new[i][I_BANK]))
+#                 # endif
+#                 if (d[I_WER] != d_new[i][I_WER]):
+#                     index_tri.append((i, I_WER, d_new[i][I_WER]))
+#                 # endif
+#                 if (d[I_COM] != d_new[i][I_COM]):
+#                     index_tri.append((i, I_COM, d_new[i][I_COM]))
+#                 # endif
+#             # endif
+#
+#             # set changed values
+#             for [i, j, value] in index_tri:
+#                 self.data_list[i][j] = value
+#             # end for
+#         else:  # add
+#
+#             ddict = {}
+#             ddict["liste_abfrage"] = self.item_list
+#
+#             ddict["title"] = 'Neue IBAN-Nummer eingeben'
+#
+#             listeErgebnis = gui.abfrage_n_eingabezeilen_dict(ddict)
+#
+#             if (len(listeErgebnis) == 0):
+#                 status = hdef.NOT_OKAY
+#                 errtext = f"iban_data: Keine IBAN-Nummer eingegeben"
+#                 return (status, errtext)
+#             # endif
+#
+#             iban = hstr.elim_ae(listeErgebnis[I_IBAN], ' ')
+#             bank = hstr.elim_ae(listeErgebnis[I_BANK], ' ')
+#             wer = hstr.elim_ae(listeErgebnis[I_WER], ' ')
+#             comment = hstr.elim_ae(listeErgebnis[I_COM], ' ')
+#
+#             (okay, wert) = htype.type_proof_iban(iban)
+#             if (okay != hdef.OKAY):
+#                 status = hdef.NOT_OKAY
+#                 errtext = f"iban_data: error input iban = {iban} from Bank:{bank} and Comment:{comment} is not valid"
+#                 return (status, errtext)
+#             else:
+#                 iban = wert
+#             # endif
+#
+#             (status, errtext) = self.add(self, iban, bank, wer, comment)
+#
+#         # endif
+#
+#         return (status, errtext)
+#     # enddef
+# # end class
+def iban_find(self, iban):
     """
     find iban number in data_list with data_set = [iban,bank,wer,comment]
     :param iban:
     :return: True/False
     """
-    found = False
-    for data_set in data_list:
-        if (iban == data_set[I_IBAN]):
-            found = True
-            break
-        # end if
-    # end for
-    return found
-
-
-# enddef
-def iban_add(data_list, idmax, iban, bank, wer, comment=""):
-    '''
-    add a new iban number into a data_set
-
-    data_set = [iban,bank,wer,comment]
-
-    :param iban:     IBAN-Nummer
-    :param bank:     Welche Bank
-    :param wer:      Wem gehört die IBAN
-    :param comment:
-    :return: (status,ertext,data_list)
-    '''
     
-    status = hdef.OKAY
-    errtext = ""
-    warntext = ""
+    irow_list = self.data_set_obj.find_in_col(iban, self.par.IBAN_DATA_TYPE_LIST[self.par.IBAN_DATA_INDEX_IBAN], self.par.IBAN_DATA_NAME_IBAN)
     
-    # proof iban
-    (okay, wert) = htype.type_proof_iban(iban)
-    if (okay != hdef.OKAY):
-        status = hdef.NOT_OKAY
-        errtext = f"iban_data: error input iban = {iban} is not valid"
-        return (status, errtext,warntext,data_list)
-    # endif
-    
-    # proof if iban already in
-    if (not iban_find(data_list,iban)):
-        # build iban_data_set as list data_set = [iban,bank,wer,comment]
-        # and add to data_list
-        
-        data_list.append([idmax, iban, wer, bank, comment])
+    if len(irow_list) == 0:
+        return False
     else:
-        warntext = f"iban_data: Eingabe iban = {iban} ist bereits vorhanden"
-    # endif
-    
-    return (status, errtext,warntext,data_list)
+        return True
+    # end if
 # enddef
 def iban_mod(data_list,d_new):
     

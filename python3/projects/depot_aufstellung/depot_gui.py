@@ -22,25 +22,96 @@ def listen_abfrage(gui,auswahl_liste,auswahl_title,abfrage_liste=None):
     return (index,indexAbfrage)
 # enddef
 
-def iban_abfrage(gui,header_liste,data_llist,abfrage_liste):
+def iban_abfrage(gui,ttable, abfrage_liste, color_list, title=None):
     '''
     
     :param gui:
     :param header_liste:
     :param data_llist:
     :param abfrage_liste:
-    :return: (d_new,index_abfrage,irow) =  iban_abfrage(rd,header_liste,data_llist,abfrage_liste)
+    :return: (d_new,index_abfrage,irow) =  iban_abfrage(rd.gui,ttable, abfrage_liste, color_list, title=None)
     '''
-   
+    
     dict_inp = {}
-    dict_inp["header_liste"] = header_liste
-    dict_inp["data_set_lliste"] = data_llist
+    dict_inp["ttable"] = ttable
+    dict_inp["row_color_dliste"] = color_list
     dict_inp["abfrage_liste"] = abfrage_liste
+    # dict_inp["auswahl_filter_col_liste"] = ["buchdatum", "wer", "buchtype", "wert", "comment", "isin", "kategorie"]
+    if title:
+        dict_inp["title"] = title
+    # end if
     
     dict_out = gui.abfrage_tabelle(dict_inp)
     
+    if dict_out["status"] != hdef.OKAY:
+        return (dict_out["status"], dict_out["errtext"], [], -1, -1, [])
+    # end if
     
-    return (dict_out["data_set"],dict_out["index_abfrage"] ,dict_out["irow_select"] )
+    return (dict_out["status"], dict_out["errtext"], dict_out["ttable"]
+                , dict_out["index_abfrage"], dict_out["irow_select"], dict_out["data_change_irow_icol_liste"])
+    
+# end def
+def iban_data_set_eingabe(gui, tlist,  title=None,
+                                 immutable_liste=None):
+    '''
+
+
+    :param header_liste:
+    :param buchungs_type_list:
+    :return: new_data_list = depot_gui.konto_data_set_eingabe(header_liste,buchungs_type_list)
+    '''
+    
+    # Erstelle die Eingabe liste
+    eingabe_liste = tlist.names
+    
+    if title is None:
+        title = "Eine Kontobewegung eingeben"
+    # end if
+
+    ddict = {}
+    ddict["liste_abfrage"] = eingabe_liste
+    ddict["title"] = title
+    # dict["liste_immutable"] = immutable_liste
+    
+    ddict["liste_vorgabe"] = tlist.vals
+    
+    run_flag = True
+    errtext = "Error in Eingabe "
+    change_flag = False
+    
+    while run_flag:
+        new_data_list = gui.abfrage_n_eingabezeilen_dict(ddict)
+        
+        if len(new_data_list) == 0:
+            return ([], False)
+        # end if
+        
+        run_flag = False
+        vals = []
+        for i in range(tlist.n):
+            (okay, val) = htype.type_proof(new_data_list[i], tlist.types[i])
+            if okay == hdef.OKAY:
+                if val != tlist.vals[i]:
+                    change_flag = True
+                # end if
+                vals.append(val)
+            else:
+                run_flag = True
+                errtext = f"{errtext}/name: {tlist.names[i]} = val: {new_data_list[i]}"
+                vals.append(tlist.vals[i])
+            # end if
+        # end for
+        
+        if run_flag:
+            gui.anzeige_text(errtext, title="Fehler bei Eingabe", textcolor='red')
+        # end if
+    # end while
+    
+    tlist_new = htvar.build_list(tlist.names, vals, tlist.types)
+    
+    return (tlist_new, change_flag)
+
+
 # end def
 
 def auswahl_konto(gui,konto_liste):

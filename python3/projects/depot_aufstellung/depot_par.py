@@ -177,6 +177,7 @@ class Parameter:
     ALLG_DATA_NAME = "prog_data"
 
     IBAN_DATA_DICT_NAME: str = "iban_data_dict"
+    IBAN_TYPE_DICT_NAME: str = "iban_type_dict"
     IBAN_DATA_LIST_NAME: str = "iban_data_list"
     
     IBAN_DATA_TABLE_NAME: str = "iban_data_table"

@@ -178,6 +178,9 @@ class KontoParam:
         KONTO_DATA_EXTERN_INDEX_LIST.append(liste[0])
     # end for
     
+    KONTO_IBAN_SUCH_HEADER_LIST = [KONTO_DATA_NAME_WER,KONTO_DATA_NAME_COMMENT]
+    KONTO_IBAN_SUCH_TYPE_LIST = ["str","str"]
+
     LINE_COLOR_BASE = ""
     LINE_COLOR_NEW = "aquamarine1"  # "aliceblue"
     LINE_COLOR_EDIT = "orange1"
@@ -226,12 +229,15 @@ class KontoDataSet:
      (okay, wkn,isin)                  = self.search_wkn_from_comment(comment)
                                          self.recalc_sum_data_set()
                                          self.reset_line_color()
+                                         self.check_iban()
+                                         self.check_iban(irow)
     '''
     
     OKAY = hdef.OK
     NOT_OKAY = hdef.NOT_OK
     
-    def __init__(self,konto_name: str,idfunc,wpfunc,katfunc):
+    def __init__(self,konto_name: str,idfunc,wpfunc,katfunc,iban_obj):
+        
         self.konto_name: str = konto_name
         self.par = KontoParam()
         self.KONTO_DATA_CSV_NAME_DICT = {}
@@ -264,6 +270,7 @@ class KontoDataSet:
         self.idfunc = idfunc
         self.wpfunc = wpfunc
         self.katfunc = katfunc
+        self.iban_obj = iban_obj
         self.csvfunc = None
     
         return
@@ -328,7 +335,42 @@ class KontoDataSet:
         else:
             self.set_start_row()
         # end if
+        
+        self.check_iban()
+        
         return
+    # end def
+    def check_iban(self,irow_in=None):
+        '''
+        
+        :return:
+        '''
+    
+        if irow_in == None:
+            irow_list = list(range(self.data_set_obj.get_n_data()))
+        else:
+            irow_list = [irow_in]
+        # end if
+        for irow in irow_list:
+            
+            tlist = self.data_set_obj.get_one_data_set_tlist(irow,
+                                                             self.par.KONTO_IBAN_SUCH_HEADER_LIST,
+                                                             self.par.KONTO_IBAN_SUCH_TYPE_LIST)
+            (hits, iban_liste) = htype.eval_iban(tlist.vals[0]) # wer
+            iban = None
+            if hits:
+                iban = iban_liste[0]
+            else:
+                (hits, iban_liste) = htype.eval_iban(tlist.vals[1])
+                if hits:
+                    iban = iban_liste[0]
+                # end if
+            # end if
+            
+            if iban != None:
+                self.iban_obj.add(iban)
+            # end if
+        # end for
     # end def
     # def add_tlist_to_data_set(self,data_set: htvar.TList):
     #     '''
@@ -700,6 +742,9 @@ class KontoDataSet:
             id = self.data_set_obj.get_data_item(index_row, self.par.KONTO_DATA_NAME_ID)
             if id not in self.new_read_id_list:
                 self.new_read_id_list.append(id)
+            # end if
+            
+            
 
         # sort
         if new_data_buchdatum_flag:
@@ -710,6 +755,8 @@ class KontoDataSet:
         if new_data_wert_flag:
             self.recalc_sum_data_set()
         # end if
+        
+        
 
         return (new_data_set_flag,self.status,self.errtext)
     # end def
@@ -783,6 +830,8 @@ class KontoDataSet:
         # endif
         
         if new_data_table.ntable > 0:
+            
+            n_data_old = self.data_set_obj.get_n_data()
 
             # sort buchtypes in correct order
             new_data_table = self.proof_and_set_correct_order_buchttypes(new_data_table)
@@ -818,6 +867,13 @@ class KontoDataSet:
                 self.data_set_obj.reset_status()
                 return (False, self.status, self.errtext)
             # endif
+            
+            # check iban
+            if self.data_set_obj.get_n_data() > n_data_old:
+                for irow in range(n_data_old,self.data_set_obj.get_n_data()):
+                    self.check_iban(irow)
+                # end for
+            # end if
 
             # sort
             self.data_set_obj.update_order_name(self.par.KONTO_DATA_NAME_BUCHDATUM)

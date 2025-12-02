@@ -11,7 +11,6 @@ if (tools_path not in sys.path):
 import tools.hfkt_def as hdef
 
 import depot_gui
-import depot_iban_data_class
 
 def bearbeiten(rd):
     
@@ -28,11 +27,16 @@ def bearbeiten(rd):
     runflag = True
     while (runflag):
         
-        data_list = rd.iban.data_dict[rd.par.IBAN_DATA_LIST_NAME]
-        id_max = rd.data[rd.par.IBAN_DATA_DICT_NAME].ddict[rd.par.IBAN_DATA_ID_MAX_NAME]
-
-        (d_new,index_abfrage,irow) = depot_gui.iban_abfrage(rd, header_liste, data_list, abfrage_liste)
+        (ttable,color_liste) = rd.iban.iban_obj.get_data_table()
         
+        (status, errtext, ttable_out, index_abfrage, irow_select,data_change_irow_icol_liste) = \
+            depot_gui.iban_abfrage(rd, ttable, abfrage_liste,color_liste)
+        
+        if (status != hdef.OK):
+            rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
+            return status
+        # end fi
+
         # Beenden
         #----------------------------
         if( index_abfrage == i_end ):
@@ -41,12 +45,12 @@ def bearbeiten(rd):
         # Update des editierten
         # ----------------------------
         elif( index_abfrage == i_update ):
-            (status, errtext, rd.data[rd.par.IBAN_DATA_DICT_NAME].ddict[rd.par.IBAN_DATA_LIST_NAME]) \
-                = depot_iban_data.iban_mod(data_list,d_new)
             
-            if (status != hdef.OK):
-                rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
-                return status
+            rd.iban.iban_obj.write_anzeige_back_data(ttable_out, data_change_irow_icol_liste)
+            
+            if (rd.iban.iban_obj.status != hdef.OK):
+                rd.log.write_err(rd.iban.iban_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
+                return rd.iban.iban_obj.status
             # end fi
             
             runflag = False
@@ -55,25 +59,30 @@ def bearbeiten(rd):
         # ----------------------------
         elif( index_abfrage == i_add ):
             
-            id_max = rd.allg.idfunc.get_act_id()+1
-            (status, errtext,rd.data[rd.par.IBAN_DATA_DICT_NAME].ddict[rd.par.IBAN_DATA_LIST_NAME]) \
-                = depot_iban_data.iban_add_data_set(header_liste,data_list,id_max)
-        
-            if (status != hdef.OK):
-                rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
-                return status
-            else:
-                rd.allg.idfunc.set_new_id(id_max)
-            # end fi
+            tlist = rd.iban.iban_obj.get_extern_default_tlist()
+            
+            # Erstelle die Eingabe liste
+            eingabeListe = tlist.names
+            
+            titlename = "IBAN hinzufügen"
+            
+            (tlist_out, change_flag) = depot_gui.iban_data_set_eingabe(rd.gui, tlist,titlename, None)
+            
+            if change_flag:
+                (status, errtext) = rd.iban.iban_obj.add(tlist_out)
+                
+                if status != hdef.OKAY:
+                    rd.log.write_err("konto__anzeige add " + errtext, screen=rd.par.LOG_SCREEN_OUT)
+                    return status
+                # endif
+            # endif
+            runflag = True
             
         # Eintrag Löschen
         # ----------------------------
         else:
-            if irow >= 0:
-                
-                (status, errtext, rd.data[rd.par.IBAN_DATA_DICT_NAME].ddict[rd.par.IBAN_DATA_LIST_NAME]) \
-                    = depot_iban_data.iban_delete_data_set(data_list, irow)
-                
+            if irow_select >= 0:
+                (status, errtext) = rd.iban.iban_obj.delete_data_set(irow_select)
                 if status != hdef.OK:
                     rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
                     return status

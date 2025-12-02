@@ -871,6 +871,7 @@ country_iban_dic = {"AL": [28, "Albania"], "AD": [24, "Andorra"], "AT": [20, "Au
 
 def eval_iban(input):
     # Evaluates how many IBAN's are found in the input string
+    # return (hits, iban_liste)
     try:
         if input:
             hits = 0

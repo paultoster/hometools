@@ -1,5 +1,12 @@
 import csv
 import os
+import sys
+
+tools_path = os.getcwd() + "\\.."
+if (tools_path not in sys.path):
+  sys.path.append(tools_path)
+# endif
+from tools import hfkt_def as hdef
 
 class Bankdaten:
     """
@@ -7,6 +14,8 @@ class Bankdaten:
     """
 
     def __init__(self, csv_pfad=None):
+        self.status = hdef.OK
+        self.errtext = ""
         if csv_pfad == None:
             verzeichnis = os.path.dirname(os.path.abspath(__file__))
             self.csv_pfad = os.path.join(verzeichnis,"BLZ.csv")
@@ -30,6 +39,10 @@ class Bankdaten:
             "Nachfolge-Bankleitzahl"
         ]
         self._lade_csv()
+        
+    def reset_status(self):
+        self.status = hdef.OKAY
+        self.errtext = ""
 
     def _lade_csv(self):
         """Interne Methode zum Laden der CSV-Datei."""
@@ -97,11 +110,17 @@ class Bankdaten:
 
         # 1. Länderprüfung
         if not iban.startswith("DE"):
-            raise ValueError("Nur deutsche IBANs (DE...) werden unterstützt.")
-
+            self.status  = hdef.NOT_OKAY
+            self.errtext = "Nur deutsche IBANs (DE...) werden unterstützt."
+            return None
+        # end if
+        
         # 2. Prüfen, ob IBAN formal gültig ist
         if not self._iban_validieren(iban):
-            raise ValueError("Die IBAN ist nicht gültig (Mod-97-Prüfung fehlgeschlagen).")
+            self.status  = hdef.NOT_OKAY
+            self.errtext = "Die IBAN ist nicht gültig (Mod-97-Prüfung fehlgeschlagen)."
+            return None
+        # end if
 
         # 3. BLZ extrahieren (Stellen 5–12)
         blz = iban[4:12]
@@ -109,6 +128,8 @@ class Bankdaten:
         datensatz = self.get_datensatz_by_blz(blz)
 
         if datensatz is None:
+            self.status  = hdef.NOT_OKAY
+            self.errtext = f"Die IBAN: {iban} ist nicht gültig (Mod-97-Prüfung fehlgeschlagen)."
             return None
 
         return datensatz
@@ -125,10 +146,12 @@ if __name__ == '__main__':
     
     try:
         daten = bankdaten.bankdatensatz_von_iban(iban)
-        if daten:
+        if bankdaten.status == hdef.OKAY:
             print("Gefundener Datensatz:", daten)
         else:
-            print("Keine Bank zur IBAN-BLZ gefunden.")
+            print(f"Keine Bank zur IBAN-BLZ {iban = } gefunden: \\n{bankdaten.errtext}")
+            bankdaten.reset_status()
+            
     except ValueError as e:
         print("Fehler:", e)
 
