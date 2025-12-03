@@ -747,8 +747,18 @@ def type_proof_datStrB(wert_in):
 # enddef
 def type_proof_yearStr(wert_in):
     """ return value in epoch seconds"""
+    if isinstance(wert_in, int):
+        
+        (okay,wert) = type_proof_string(wert_in)
+        
+        if okay == hdef.OKAY:
+            
+            flag = hdate.is_year_str(wert)
+            
+            if flag:
+                return (hdef.OKAY, wert)
     
-    if (isinstance(wert_in, str)):
+    elif (isinstance(wert_in, str)):
         
         flag = hdate.is_year_str(wert_in)
         
@@ -878,17 +888,22 @@ def eval_iban(input):
             ibans = []
             for word in input.upper().split():
                 iban = word.replace(" ", "")
-                correct_length = country_iban_dic[iban[:2]]
-                if len(iban) == correct_length[0]:
-                    flag = True
-                    for d in iban[2:]:
-                        if (d not in string.digits):
-                            flag = False
-                            break  # endif
-                    # endfor
-                    if (flag):
-                        hits += 1
-                        ibans.append(iban)  # endif  # endif
+                if iban[:2] in country_iban_dic.keys():
+                    correct_length = country_iban_dic[iban[:2]]
+                    if len(iban) == correct_length[0]:
+                        flag = True
+                        for d in iban[2:]:
+                            if (d not in string.digits):
+                                flag = False
+                                break
+                            # endif
+                        # endfor
+                        if (flag):
+                            hits += 1
+                            ibans.append(iban)
+                        # endif
+                    # endif
+                # end if
             # endfor
             #
             #

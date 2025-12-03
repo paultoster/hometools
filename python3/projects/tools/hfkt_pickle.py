@@ -53,7 +53,7 @@ class DataPickle:
     OKAY = hdef.OK
     NOT_OKAY = hdef.NOT_OK
     
-    def __init__(self, name_prefix: str, body_name: str, use_json: int, run_backup: int=0):
+    def __init__(self, name_prefix: str, body_name: str, use_json: int, run_backup: int=0, path_backup:str = '.'):
         '''
         build data dict
         :param name_prefix: Filename
@@ -77,8 +77,8 @@ class DataPickle:
         # end if
         
         if run_backup:
-            make_backup(self.filename)
-            make_backup(self.filename_json)
+            make_backup(path_backup,self.filename)
+            make_backup(path_backup,self.filename_json)
 
         self.name = body_name
         self.use_json = use_json
@@ -265,8 +265,8 @@ class DataJson:
     def get_filename(self):
         return self.filename_json
     # end def
-    def make_backup(self):
-        make_backup(self.filename_json)
+    def make_backup(self,path_backup:str="."):
+        make_backup(path_backup,self.filename_json)
         return
     def read(self):
         
@@ -340,7 +340,7 @@ class DataJson:
             
     # enddef
 # end class
-def make_backup(filename):
+def make_backup(path_backup,filename):
     '''
     Mach Backup, wennn filename vorhanden und noch kein Backup gemacht mit Datum gemacht ist
     :param filename:
@@ -353,9 +353,15 @@ def make_backup(filename):
         (p, fbody, ext) = hfile.get_pfe(filename)
         
         backup_body_name = hdate.secs_time_epoch_to_str(t,'_',True,True) + "_" + fbody
-        backup_filename = hfile.set_pfe(p, backup_body_name, ext)
+        backup_filename = hfile.set_pfe(path_backup, backup_body_name, ext)
         
         if not os.path.isfile(backup_filename):
+            if not os.path.isdir(path_backup):
+                try:
+                    os.mkdir(path_backup)
+                except OSError as e:
+                    raise Exception(f"Error: {e}")
+                
             okay = hfile.copy(filename, backup_filename, silent=1)
             if okay == hdef.OKAY:
                 print(f"Backupcopy: {filename} => {backup_filename}")

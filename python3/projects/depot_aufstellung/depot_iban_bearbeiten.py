@@ -30,7 +30,7 @@ def bearbeiten(rd):
         (ttable,color_liste) = rd.iban.iban_obj.get_data_table()
         
         (status, errtext, ttable_out, index_abfrage, irow_select,data_change_irow_icol_liste) = \
-            depot_gui.iban_abfrage(rd, ttable, abfrage_liste,color_liste)
+            depot_gui.iban_abfrage(rd.gui, ttable, abfrage_liste,color_liste)
         
         if (status != hdef.OK):
             rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)

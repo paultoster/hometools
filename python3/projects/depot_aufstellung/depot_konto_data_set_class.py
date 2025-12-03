@@ -15,7 +15,7 @@ if (tools_path not in sys.path):
 import tools.hfkt_def as hdef
 import tools.hfkt_type as htype
 import tools.hfkt_list as hlist
-import tools.hfkt_dict as hdict
+import tools.hfkt_str as hstr
 import tools.hfkt_tvar as htvar
 import tools.hfkt_data_set as hdset
 
@@ -353,22 +353,33 @@ class KontoDataSet:
         # end if
         for irow in irow_list:
             
+            # DE44520604101906432654
+            
             tlist = self.data_set_obj.get_one_data_set_tlist(irow,
                                                              self.par.KONTO_IBAN_SUCH_HEADER_LIST,
                                                              self.par.KONTO_IBAN_SUCH_TYPE_LIST)
-            (hits, iban_liste) = htype.eval_iban(tlist.vals[0]) # wer
+            
+            
+            wer = htvar.get_val_from_list(tlist,self.par.KONTO_DATA_NAME_WER,'str')
+            
+            (hits, iban_liste) = htype.eval_iban(wer) # wer
             iban = None
             if hits:
                 iban = iban_liste[0]
             else:
-                (hits, iban_liste) = htype.eval_iban(tlist.vals[1])
+                comment = htvar.get_val_from_list(tlist, self.par.KONTO_DATA_NAME_COMMENT, 'str')
+                
+                # index = hstr.such(comment, "DE71503302002320969002", "vs")
+                # if index >= 0:
+                #     a = 0
+                (hits, iban_liste) = htype.eval_iban(comment)
                 if hits:
                     iban = iban_liste[0]
                 # end if
             # end if
             
             if iban != None:
-                self.iban_obj.add(iban)
+                self.iban_obj.add(iban,wer)
             # end if
         # end for
     # end def

@@ -594,7 +594,6 @@ def is_year_str(str_year_in):
     :param str_year:
     :return: flag = is_year_str("2015")
     '''
-    
     lliste = str_year_in.split(' ')
     if (len(lliste) > 1):
         str_year = lliste[0]

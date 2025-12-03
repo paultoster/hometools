@@ -156,6 +156,9 @@ def build_val(name: str,val: any,type: str,type_store: str=None):
     
     if type_store is None: # proof
         # proof value
+        # if type == "yearStr":
+        #     a = 0
+        # end if
         (okay,wert) = htype.type_proof(val,type)
         if okay != hdef.OKAY:
             raise Exception(f"Error build_val: type_proof for val={val} not possible type = {type}")

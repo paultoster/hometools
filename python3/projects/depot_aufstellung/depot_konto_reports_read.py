@@ -66,8 +66,8 @@ def report_einlesen(rd,choice,konto_dict,konto_obj,csv_obj):
         
         # eingelsene Daten in konto einsortieren
         #---------------------------------------
-        print(f"{choice =}: {rd.konto_dict[choice].konto_obj =} ; {hex(id(rd.konto_dict[choice].konto_obj))}")
-        print(f"{choice =}: {konto_obj =} ; {hex(id(konto_obj))}")
+        # print(f"{choice =}: {rd.konto_dict[choice].konto_obj =} ; {hex(id(rd.konto_dict[choice].konto_obj))}")
+        # print(f"{choice =}: {konto_obj =} ; {hex(id(konto_obj))}")
 
         (flag_newdata,status,errtext,infotext) = konto_obj.set_new_data(ttable,flag_proof_wert)
         

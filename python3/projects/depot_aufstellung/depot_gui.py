@@ -36,7 +36,7 @@ def iban_abfrage(gui,ttable, abfrage_liste, color_list, title=None):
     dict_inp["ttable"] = ttable
     dict_inp["row_color_dliste"] = color_list
     dict_inp["abfrage_liste"] = abfrage_liste
-    # dict_inp["auswahl_filter_col_liste"] = ["buchdatum", "wer", "buchtype", "wert", "comment", "isin", "kategorie"]
+    dict_inp["auswahl_filter_col_liste"] = ttable.names
     if title:
         dict_inp["title"] = title
     # end if

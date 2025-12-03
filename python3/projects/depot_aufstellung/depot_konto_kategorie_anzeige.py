@@ -19,13 +19,15 @@ import tools.hfkt_date_time as hdate
 # import tools.hfkt_str as hstr
 import tools.hfkt_tvar as htvar
 import tools.hfkt_type as htype
+import tools.hfkt_file_path as hfile
 
 import depot_kategorie_auswertung_class
 
-def anzeige(rd):
+def excel_auswertung(rd):
     
     jahr = rd.ini.dict_tvar[rd.par.INI_KONTO_AUSWERTUNG_JAHR_NAME].val
-    
+    auswert_path = rd.ini.dict_tvar[rd.par.INI_AUSWERT_PATH].val
+
     (tval_min_time,tval_max_time) = get_limits_epocht_time_of_year(jahr)
     
     if len(rd.ini.ddict[rd.par.INI_KONTO_DATA_LIST_NAMES_NAME]) == 0:
@@ -105,8 +107,18 @@ def anzeige(rd):
         return status
     # end if
     
-    file_name         = hdate.get_name_by_dat_time("Kontoauswertung_" + str(jahr) + "_", "") + ".xlsx"
-
+    
+    
+    if not os.path.isdir(auswert_path):
+        try:
+            os.mkdir(auswert_path)
+        except OSError as e:
+            raise Exception(f"Error: {e}")
+        # end try
+    # end if
+    file_body         = hdate.get_name_by_dat_time("Kontoauswertung_" + str(jahr) + "_", "")
+    file_name         = hfile.set_pfe(auswert_path, file_body, "xlsx")
+    
     status = bilde_ods_File(file_name,ttable_ueberblick,index_ttable_ueberblick,kat_liste,ttable_einzel_liste,ttable_color_index_liste)
     
     return status
@@ -205,7 +217,7 @@ def bilde_ods_File(file_name, ttable_ueberblick,index_ttable_ueberblick,kat_list
             max_length = min(max_length, max_col_wdth)
             col_letter = openpyxl.utils.get_column_letter(col[0].column)
             worksheet.column_dimensions[col_letter].width = max_length + 5
-            print(f"{max_length = }")
+            # print(f"{max_length = }")
         # end for
     # end for
     workbook.active = workbook[front_page_title]

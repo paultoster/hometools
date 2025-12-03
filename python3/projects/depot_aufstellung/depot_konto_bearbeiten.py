@@ -157,7 +157,7 @@ def depot_konto_bearbeiten_kategorie(rd):
 def depot_konto_bearbeiten_kategorie_auswertung(rd):
 
     # Anzeigen excel
-    status = depot_konto_kategorie_anzeige.anzeige(rd)
+    status = depot_konto_kategorie_anzeige.excel_auswertung(rd)
 
     return status
 

@@ -38,6 +38,7 @@ class Bankdaten:
             "Bankleitzahllöschung",
             "Nachfolge-Bankleitzahl"
         ]
+        self.num_header = 'Kontonummer'
         self._lade_csv()
         
     def reset_status(self):
@@ -69,12 +70,11 @@ class Bankdaten:
 
     def get_datensatz_by_blz(self, blz: str):
         treffer = self.filter_nach_blz(blz)
+        
         if len(treffer) == 0:
             return None
-        elif len(treffer) == 1:
-            return treffer[0]
         else:
-            return treffer
+            return treffer[0]
 
     # -------------------------------------------------------------
     # IBAN-Features
@@ -126,6 +126,10 @@ class Bankdaten:
         blz = iban[4:12]
 
         datensatz = self.get_datensatz_by_blz(blz)
+        
+        num = iban[12:]
+        
+        datensatz[self.num_header] = num
 
         if datensatz is None:
             self.status  = hdef.NOT_OKAY

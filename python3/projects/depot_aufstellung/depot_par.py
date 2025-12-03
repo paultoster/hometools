@@ -51,6 +51,7 @@ class Parameter:
     INI_CSV_IMPORT_CONFIG_NAMES_NAME: str = "csv_import_config_names"
     INI_DATA_PICKLE_USE_JSON: str = "data_pickle_use_json"
     INI_DATA_PICKLE_MAKE_BACKUP: str = "data_pickle_make_backup"
+    INI_BACKUP_PATH:str = "backup_path"
     INI_DATA_PICKLE_JSONFILE_LIST: str = "data_pickle_jsonfile_list"
     INI_DATA_PICKLE_USE_JSON_NO: int = 0
     INI_DATA_PICKLE_USE_JSON_WRITE: int = 1
@@ -67,12 +68,14 @@ class Parameter:
     INI_PROTOCOL_TYPE_READ: int = 2
     INI_PROTOCOL_FILE_NAME: str = "protocol_file"
     INI_KONTO_AUSWERTUNG_JAHR_NAME: str = "konto_auswert_jahr"
+    INI_AUSWERT_PATH: str = "konto_auswert_path"
 
     INI_BASE_PROOF_LISTE = [(INI_KONTO_DATA_LIST_NAMES_NAME,"list_str")
                            ,(INI_DEPOT_DATA_LIST_NAMES_NAME,"list_str")
                            ,(INI_CSV_IMPORT_CONFIG_NAMES_NAME,"list_str")
                            ,(INI_DATA_PICKLE_USE_JSON,"int","int")
                            ,(INI_DATA_PICKLE_MAKE_BACKUP,"int","int",0)
+                           ,(INI_BACKUP_PATH,"str","str",".")
                            ,(INI_DATA_PICKLE_JSONFILE_LIST, "list_str")
                            ,(INI_LOG_SCREEN_OUT_NAME,"str")
                            ,(INI_IBAN_LIST_FILE_NAME,"str")
@@ -83,6 +86,7 @@ class Parameter:
                            ,(INI_PROTOCOL_TYPE_NAME,"str")
                            ,(INI_PROTOCOL_FILE_NAME,"str")
                            ,(INI_KONTO_AUSWERTUNG_JAHR_NAME,"yearStr","yearStr","2025")
+                           ,(INI_AUSWERT_PATH,"str","str",".")
                            ]
     
 
