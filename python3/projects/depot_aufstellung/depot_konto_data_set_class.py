@@ -473,6 +473,9 @@ class KontoDataSet:
             katval    = self.data_set_obj.get_data_item(irow, icol_kat, "str")
             wert_cent = self.data_set_obj.get_data_item(irow, icol_wert, "cent")
 
+            if katval == "jentnahme:7.494,32;transfer:7.505,68":
+                a = 0
+            # end if
             katdict = self.katfunc.build_katdict(katval,wert_cent)
             
             if katdict is None:

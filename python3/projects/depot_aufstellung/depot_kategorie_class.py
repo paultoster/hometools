@@ -557,6 +557,12 @@ class KategorieClass:
         :return: katdict = self.build_katdict(katval, wert_cent) katdict = {kat1:wert1_cent,kat2:wert2_cent}
         '''
         
+        if wert_cent < 0:
+            vorzeichen = -1
+        else:
+            vorzeichen = +1
+        # end if
+        
         liste = katval.split(self.kat_separator)
         
         kat_list = []
@@ -570,16 +576,13 @@ class KategorieClass:
             elif len(nlist) > 1: # katergorie und wert z.B. "transport:20,48" steht da
                 kat_list.append(nlist[0])
                 (okay,wert) = htype.type_transform(nlist[1],"euroStrK", "cent")
-                # Immer positive
-                if wert < 0:
-                    wert *= -1
-                # end if
+
                 if okay != hdef.OKAY:
                     self.status = hdef.NOT_OKAY
                     self.errtext = f"Aus Kategoriewert: \"{katval}\" kann an der Stelle {index =} der Eurowert: {nlist[1]} nicht in cent gewandelt werden"
                     return None
                 # end if
-                wert_list.append(wert)
+                wert_list.append(abs(wert)*vorzeichen)
             # end if
         # end for
         
@@ -594,15 +597,10 @@ class KategorieClass:
             # end if
         # end for
         
-        # Immer positiv
-        if wert_cent >= 0:
-            gesamt_wert = wert_cent
-        else:
-            gesamt_wert = -wert_cent
-        # end
+        gesamt_wert = wert_cent
         
         # Summe zu groß
-        if summe > gesamt_wert:
+        if abs(summe) > abs(gesamt_wert):
             self.status = hdef.NOT_OKAY
             self.errtext = f"Aus Kategoriewert: \"{katval}\" ist der Summenwert {summe =} größer als der wert: {gesamt_wert =}"
             return None
