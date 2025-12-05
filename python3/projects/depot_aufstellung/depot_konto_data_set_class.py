@@ -329,7 +329,8 @@ class KontoDataSet:
                 self.recalc_sum_data_set()
             # end if
             
-            self.proof_kategorie_in_data_set()
+            if self.katfunc:
+                self.proof_kategorie_in_data_set()
             
             
         else:
@@ -1848,7 +1849,9 @@ class KontoDataSet:
         '''
         
         # Zuerst prüfen, falls geändert
-        self.proof_kategorie_in_data_set()
+        if self.katfunc:
+            self.proof_kategorie_in_data_set()
+            
         if self.status != hdef.OKAY:
             return
         
@@ -1864,7 +1867,8 @@ class KontoDataSet:
                 self.par.KONTO_DATA_EXTERN_NAME_LIST,
                 self.par.KONTO_DATA_EXTERN_TYPE_LIST)
             
-            if len(tlist.vals[icol_kat]) == 0:
+            if self.katfunc and (len(tlist.vals[icol_kat]) == 0):
+                
                 (found,kat) = self.katfunc.regel_anwedung_data_set(tlist)
                 
                 if found:
