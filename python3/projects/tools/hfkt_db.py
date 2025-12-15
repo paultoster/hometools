@@ -13,7 +13,7 @@
 # db.errtext
 #
 # db.has_log_text()
-# db.get_log_text
+# db.get_log_text()
 #
 # db.has_err_text()
 # db.get_err_text()
@@ -67,6 +67,7 @@
 #
 # flag = db.data_base_is_modified()
 #      True: database has changed in this run
+#
 # intern:
 #
 # self.open_dbfile(file)

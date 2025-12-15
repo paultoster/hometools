@@ -721,7 +721,7 @@ class KontoDataSet:
         for i,name in enumerate(new_tlist.names):
             new_val = new_tlist.vals[i]
             new_type = new_tlist.types[i]
-            (new_data_set_flag,self.status,self.errtext) = self.set_data_set_value(self, name, new_val, new_type, index_row)
+            (new_data_set_flag,self.status,self.errtext) = self.set_data_set_value(name, new_val, new_type, index_row)
             if new_data_set_flag:
                 if name == self.par.KONTO_DATA_NAME_BUCHDATUM:
                     new_data_buchdatum_flag = True
@@ -1261,9 +1261,9 @@ class KontoDataSet:
             
             irow_list = self.data_set_obj.find_in_col(wert, type_wert, self.par.KONTO_DATA_INDEX_WERT)
             
-            for irow in irow_list:
+            for irow_data in irow_list:
                 buchdatum_proof \
-                    = self.data_set_obj.get_data_item(irow,self.par.KONTO_DATA_INDEX_BUCHDATUM,type_buchdatum)
+                    = self.data_set_obj.get_data_item(irow_data,self.par.KONTO_DATA_INDEX_BUCHDATUM,type_buchdatum)
                 
                 if buchdatum == buchdatum_proof:
                     bdat = htvar.get_val_from_table(new_data_table, irow, index_buchdatum,'datStrP')

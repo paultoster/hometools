@@ -477,7 +477,7 @@ def data_set(rd):
             
             if len(rd.depot_dict[depot_name].wp_obj_dict[wp_list_name].data_dict) == 0:
                 rd.depot_dict[depot_name].depot_obj.set_stored_wp_data_set_ttable(isin,"",None)
-                rd.depot_dict[depot_name].wp_obj_dict[wp_list_name].wp_obj = rd.depot_dict[depot_name].depot_obj.get_rd.depot_dict[depot_name].wp_obj_dict[wp_list_name](isin)
+                rd.depot_dict[depot_name].wp_obj_dict[wp_list_name].wp_obj = rd.depot_dict[depot_name].depot_obj.get_wp_data_obj(isin)
             else:
                 rd.depot_dict[depot_name].wp_obj_dict[wp_list_name].data_dict[rd.par.DDICT_TYPE_NAME] = rd.par.DEPOT_WP_DATA_TYPE_NAME
             

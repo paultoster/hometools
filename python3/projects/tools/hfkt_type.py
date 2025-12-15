@@ -727,7 +727,10 @@ def type_proof_datStrB(wert_in):
 
         if not flag:
             flag = hdate.is_datum_reverse_str(wert_in, delim="-")
-        
+            
+        if (not flag) and (len(wert_in)) == 0:
+                flag = True
+
         if flag:
             return (hdef.OKAY, wert_in)
     
@@ -1518,6 +1521,10 @@ def  type_transform_datStr(wert_in,type_out):
             wert_out = wert
         elif type_out == "int":
             wert_out = int(wert)
+        elif (type_out == "datStrP") or (type_out == "datStr"):
+            wert_out = hdate.secs_time_epoch_to_str(wert, delim=".")
+        elif type_out == "datStrB":
+            wert_out = hdate.secs_time_epoch_to_str(wert, delim="-")
         else:
             raise Exception(f"In type_transform_datStrP ist type_out: {type_out} nicht möglich")
         # end if

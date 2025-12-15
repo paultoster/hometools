@@ -9,7 +9,7 @@ if (tools_path not in sys.path):
 
 import tools.hfkt_def as hdef
 import tools.hfkt_io as hio
-import tools.hfkt_list as hlist
+import tools.hfkt_type as htype
 import tools.hfkt_str as hstr
 import tools.hfkt_tvar as htvar
 
@@ -428,7 +428,21 @@ class KontoCsvRead:
         new_data_matrix = []
         for data_set in data_matrix:
             
+            if ('buchdatum' in name_list) and ('wertdatum' in name_list):
+                ib = name_list.index('buchdatum')
+                iw = name_list.index('wertdatum')
+                if (len(data_set[ib]) == 0) and (len(data_set[iw]) != 0):
+                    data_set[ib] = data_set[iw]
+                elif (len(data_set[ib]) != 0) and (len(data_set[iw]) == 0):
+                    data_set[iw] = data_set[ib]
+                elif (len(data_set[ib]) == 0) and (len(data_set[iw]) == 0):
+                    data_set[iw] = htype.type_get_default(type_list[iw])
+                    data_set[ib] = data_set[iw]
+                # end if
+            # end if
+            
             (status, errtext) = htvar.proof_list(name_list, data_set, type_list)
+            
             
             if status != hdef.OKAY:
                 
