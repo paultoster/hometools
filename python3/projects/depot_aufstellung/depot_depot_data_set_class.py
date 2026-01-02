@@ -1120,6 +1120,15 @@ class DepotDataSet:
             return self.status
         # end if
 
+        # Lösche id in wp-Datensatz
+        self.wp_data_obj_dict[isin].delete_in_wp_data_set(irow)
+
+        if self.wp_data_obj_dict[isin].status != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = self.wp_data_obj_dict[isin].errtext
+            return self.status
+        # end if
+
         # finde konto row in konto_data_set
         irow_konto = konto_obj.get_irow_by_id(id)
         if irow_konto < 0:
@@ -1128,17 +1137,8 @@ class DepotDataSet:
             return self.status
         # end if
 
-        self.wp_data_obj_dict[isin].delete_in_wp_data_set(irow)
-
-        if self.wp_data_obj_dict[isin].status != hdef.OKAY:
-            self.status = hdef.NOT_OKAY
-            self.errtext = self.wp_data_obj_dict[isin].errtext
-            return self.status
-        # end if
-        
+        # Lösche in Konto
         (self.status, self.errtext) = konto_obj.delete_data_set(irow_konto)
-        
-        # print
         
         return self.status
     def set_kurs_value(self,isin,irow):

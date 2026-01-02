@@ -40,7 +40,7 @@ def anzeige_depot_isin(rd,isin,depot_obj,depot_dict):
                 status = depot_obj.status
                 rd.log.write_err(depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
                 depot_obj.reset_status()
-                return status
+                return (sw,status)
             # end if
             
             title = depot_obj.get_titlename(isin)
@@ -80,7 +80,7 @@ def anzeige_depot_isin(rd,isin,depot_obj,depot_dict):
                 status = depot_obj.status
                 rd.log.write_err(depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
                 depot_obj.reset_status()
-                return status
+                return (sw,status)
             # end if
             
             immutable_liste = depot_obj.get_immutable_list_from_header_list(isin, tliste.names)
@@ -89,7 +89,7 @@ def anzeige_depot_isin(rd,isin,depot_obj,depot_dict):
                 status = depot_obj.status
                 rd.log.write_err(depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
                 depot_obj.reset_status()
-                return status
+                return (sw,status)
             # end if
             
             titlename = depot_obj.get_titlename(isin)
@@ -106,7 +106,7 @@ def anzeige_depot_isin(rd,isin,depot_obj,depot_dict):
                     status = depot_obj.status
                     rd.log.write_err("anzeige_mit_depot_wahl edit " + depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
                     depot_obj.reset_status()
-                    return status
+                    return (sw,status)
                 elif len(depot_obj.infotext) != 0:
                     rd.log.write_info("anzeige_mit_depot_wahl edit " + depot_obj.infotext, screen=rd.par.LOG_SCREEN_OUT)
                     depot_obj.reset_infotext()
@@ -145,7 +145,7 @@ def anzeige_depot_isin(rd,isin,depot_obj,depot_dict):
                 if status != hdef.OKAY:  # Abbruch
                     rd.log.write_err(depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
                     status = depot_obj.reset_status()
-                    return status
+                    return (sw,status)
                 # end if
             # end if
             
@@ -159,7 +159,7 @@ def anzeige_depot_isin(rd,isin,depot_obj,depot_dict):
             if status != hdef.OKAY:  # Abbruch
                 rd.log.write_err(depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
                 status = depot_obj.reset_status()
-                return status
+                return (sw,status)
             # end if
             
             choice_isin = choice_isin_overview
@@ -171,7 +171,7 @@ def anzeige_depot_isin(rd,isin,depot_obj,depot_dict):
             if status != hdef.OKAY:  # Abbruch
                 rd.log.write_err(depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
                 status = depot_obj.reset_status()
-                return status
+                return (sw,status)
             # end if
             
             choice_isin = choice_isin_overview
