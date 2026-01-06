@@ -16,11 +16,11 @@ if tools_path not in sys.path:
 # endif
 
 # Hilfsfunktionen
-import hfkt_def as hdef
-import hfkt_type as htype
-import hfkt_date_time as hdt
-import hfkt_dict as hdict
-import hfkt_tvar as htvar
+import tools.hfkt_def as hdef
+# import hfkt_type as htype
+import tools.hfkt_date_time as hdt
+import tools.hfkt_dict as hdict
+import tools.hfkt_tvar as htvar
 
 status = hdef.OKAY
 errtext = ""

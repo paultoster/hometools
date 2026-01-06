@@ -6,7 +6,7 @@
 import os
 import sys
 
-import hfkt_tvar
+# import hfkt_tvar
 
 tools_path = os.getcwd() + "\\.."
 if (tools_path not in sys.path):

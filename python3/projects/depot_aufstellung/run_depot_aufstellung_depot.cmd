@@ -1,0 +1,1 @@
+C:/Python312/python.exe run_depot_aufstellung.py "depot"

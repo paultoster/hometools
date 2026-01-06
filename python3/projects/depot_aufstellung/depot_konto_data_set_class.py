@@ -4,7 +4,7 @@
 #
 import os, sys
 
-from hfkt_tvar import transform_type_table
+# from hfkt_tvar import transform_type_table
 
 tools_path = os.getcwd() + "\\.."
 if (tools_path not in sys.path):
@@ -15,7 +15,7 @@ if (tools_path not in sys.path):
 import tools.hfkt_def as hdef
 import tools.hfkt_type as htype
 import tools.hfkt_list as hlist
-import tools.hfkt_str as hstr
+# import tools.hfkt_str as hstr
 import tools.hfkt_tvar as htvar
 import tools.hfkt_data_set as hdset
 

@@ -1,7 +1,7 @@
 import os
 import sys
 
-import hfkt_tvar
+
 
 # -------------------------------------------------------------------------------
 t_path, _ = os.path.split(__file__)
@@ -10,6 +10,7 @@ if (t_path == os.getcwd()):
     import sgui
     import hfkt_def as hdef
     import hfkt_pickle as hpickle
+    import hfkt_tvar
 else:
     p_list = os.path.normpath(t_path).split(os.sep)
     if (len(p_list) > 1): p_list = p_list[: -1]
@@ -20,6 +21,7 @@ else:
     from tools import sgui
     from tools import hfkt_def as hdef
     from tools import hfkt_pickle as hpickle
+    import tools.hfkt_tvar as hfkt_tvar
 # endif--------------------------------------------------------------------------
 
 

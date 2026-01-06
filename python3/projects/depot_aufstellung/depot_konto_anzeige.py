@@ -6,7 +6,7 @@
 import os
 import sys
 
-import hfkt_tvar
+
 
 tools_path = os.getcwd() + "\\.."
 if (tools_path not in sys.path):
@@ -18,7 +18,8 @@ import tools.hfkt_def as hdef
 import tools.hfkt_date_time as hdate
 import tools.hfkt_str as hstr
 import tools.hfkt_type as htype
-import tools.sgui as sgui
+# import tools.sgui as sgui
+import tools.hfkt_tvar as hfkt_tvar
 
 import depot_gui
 
