@@ -160,8 +160,7 @@ def data_set(rd):
     # function wp-data anlgene
     #-------------------------
     # wp funktion wert papier rd.ini.ddict["wp_abfrage"]["store_path"]
-    rd.allg.wpfunc = wp_base.WPData(rd.ini.ddict[rd.par.INI_WP_DATA_STORE_PATH_NAME]
-                                   ,rd.ini.ddict[rd.par.INI_WP_DATA_USE_JSON_NAME])
+    rd.allg.wpfunc = wp_base.WPData(rd.ini.ddict[rd.par.INI_WP_FUNC_INI_FILE_NAME])
     
     if (rd.allg.wpfunc.status != hdef.OK):
         status = hdef.NOT_OKAY

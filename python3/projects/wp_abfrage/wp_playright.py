@@ -61,5 +61,6 @@ def get_ariva_url_playwright(isin):
     return (status,errtext,url)
 # end def
 
+
 if __name__ == '__main__':
     (status,errtext,url) = get_ariva_url_playwright("NO0010844079")

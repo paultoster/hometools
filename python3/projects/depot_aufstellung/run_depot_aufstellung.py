@@ -127,7 +127,7 @@ if __name__ == '__main__':
             switch = 1
         # end if
     else:
-        switch = 0
+        switch = 1
     # end if
     
     if switch == 1:

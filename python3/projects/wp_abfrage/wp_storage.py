@@ -7,12 +7,12 @@ import traceback
 import tools.hfkt_def as hdef
 # import tools.hfkt_str as hstr
 
-def info_storage_eixst(isin,ddict):
+def info_storage_eixst(isin,base_ddict):
     
-    if ddict["use_json"] == 2:
-        file_name = build_file_name_json(ddict["basic_info_pre_file_name"] + str(isin),ddict)
+    if base_ddict["use_json"] == 2:
+        file_name = build_file_name_json(base_ddict["basic_info_pre_file_name"] + str(isin),base_ddict)
     else:
-        file_name = build_file_name_pickle(ddict["basic_info_pre_file_name"] + str(isin),ddict)
+        file_name = build_file_name_pickle(base_ddict["basic_info_pre_file_name"] + str(isin),base_ddict)
     # end if
 
     if os.path.isfile(file_name):
@@ -21,19 +21,19 @@ def info_storage_eixst(isin,ddict):
         return False
     # end if
 # end def
-def read_info_dict(isin,ddict):
+def read_info_dict(isin,base_ddict):
     '''
     
     :param isin:
-    :param ddict:
+    :param base_ddict:
     :return:
     '''
     status = hdef.OKAY
     errtext = ""
 
-    if (ddict["use_json"] == 2):  # read json
+    if (base_ddict["use_json"] == 2):  # read json
         
-        file_name = build_file_name_json(ddict["basic_info_pre_file_name"]+str(isin), ddict)
+        file_name = build_file_name_json(base_ddict["basic_info_pre_file_name"]+str(isin), base_ddict)
         
         if (os.path.isfile(file_name)):
             (status, errtext, info_dict) = read_json(file_name)
@@ -44,7 +44,7 @@ def read_info_dict(isin,ddict):
         # end if
     
     else:  # normal pickle load
-        file_name = build_file_name_pickle(ddict["basic_info_pre_file_name"] + str(isin), ddict)
+        file_name = build_file_name_pickle(base_ddict["basic_info_pre_file_name"] + str(isin), base_ddict)
         
         # Wenn die Datei vorhanden ist:
         if (os.path.isfile(file_name)):
@@ -57,19 +57,19 @@ def read_info_dict(isin,ddict):
     
     return (status,errtext,info_dict)
 # end def
-def read_wpname_isin_dict(ddict):
+def read_wpname_isin_dict(base_ddict):
     '''
     
-    :param ddict:
+    :param base_ddict:
     :return:
     '''#
     status = hdef.OKAY
     errtext = ""
     
-    file_name_pckl = build_file_name_pickle(ddict["wpname_isin_filename"], ddict)
-    file_name_json = build_file_name_json(ddict["wpname_isin_filename"], ddict)
+    file_name_pckl = build_file_name_pickle(base_ddict["wpname_isin_filename"], base_ddict)
+    file_name_json = build_file_name_json(base_ddict["wpname_isin_filename"], base_ddict)
     
-    if (ddict["use_json"] == 2):  # read json
+    if (base_ddict["use_json"] == 2):  # read json
         
         if (os.path.isfile(file_name_json)):
             (status, errtext, wpname_dict) = read_json(file_name_json)
@@ -91,44 +91,44 @@ def read_wpname_isin_dict(ddict):
     # end if
     return (status, errtext,wpname_dict)
 # end def
-def save_info_dict(isin, info_dict, ddict):
+def save_info_dict(isin, info_dict, base_ddict):
     '''
     
     :param isin:
     :param info_dict:
-    :param ddict:
-    :return: (status, errtext) = wp_storage.save_info_dict(isin, info_dict, ddict)
+    :param base_ddict:
+    :return: (status, errtext) = wp_storage.save_info_dict(isin, info_dict, base_ddict)
     '''
     status = hdef.OKAY
     errtext = ""
     
     # save pckl
-    file_name = build_file_name_pickle(ddict["basic_info_pre_file_name"] + str(isin), ddict)
+    file_name = build_file_name_pickle(base_ddict["basic_info_pre_file_name"] + str(isin), base_ddict)
     
     (status, errtext) = save_pickle(info_dict, file_name)
     
-    if (ddict["use_json"] == 1):  # write json
-        file_name = build_file_name_json(ddict["basic_info_pre_file_name"]+str(isin), ddict)
+    if (base_ddict["use_json"] == 1):  # write json
+        file_name = build_file_name_json(base_ddict["basic_info_pre_file_name"]+str(isin), base_ddict)
         
         (status, errtext) = save_json(info_dict, file_name)
     # end if
     
     # update isin wpname liste
     if status == hdef.OKAY:
-        (status, errtext) = update_isin_name_dict(isin,info_dict["name"],ddict)
+        (status, errtext) = update_isin_name_dict(isin,info_dict["name"],base_ddict)
 
     return (status,errtext)
 # end def
-def update_isin_name_dict(isin,wpname,ddict):
+def update_isin_name_dict(isin,wpname,base_ddict):
     '''
     
     :param isin:
     :param wpname:
-    :param ddict:
-    :return: (status, errtext) = update_isin_name_dict(isin,info_dict["name"],ddict)
+    :param base_ddict:
+    :return: (status, errtext) = update_isin_name_dict(isin,info_dict["name"],base_ddict)
     '''
     
-    (status, errtext,wpname_dict) = read_wpname_isin_dict(ddict)
+    (status, errtext,wpname_dict) = read_wpname_isin_dict(base_ddict)
     
     if( status != hdef.OKAY):
         return (status, errtext)
@@ -140,34 +140,34 @@ def update_isin_name_dict(isin,wpname,ddict):
         
     wpname_dict[isin] = wpname
     
-    file_name_pckl = build_file_name_pickle(ddict["wpname_isin_filename"], ddict)
+    file_name_pckl = build_file_name_pickle(base_ddict["wpname_isin_filename"], base_ddict)
     (status, errtext) = save_pickle(wpname_dict, file_name_pckl)
     
-    if (ddict["use_json"] == 1):  # write json
-        file_name_json = build_file_name_json(ddict["wpname_isin_filename"], ddict)
+    if (base_ddict["use_json"] == 1):  # write json
+        file_name_json = build_file_name_json(base_ddict["wpname_isin_filename"], base_ddict)
         (status, errtext) = save_json(wpname_dict, file_name_json)
     # end if
     
     return (status, errtext)
 
 
-def build_file_name_pickle(body, ddict):
+def build_file_name_pickle(body, base_ddict):
     '''
 
     :param isin:
-    :param ddict:
+    :param base_ddict:
     :return: file_name
     '''
-    return os.path.join(ddict["store_path"], body + ".pkl")
+    return os.path.join(base_ddict["store_path"], body + ".pkl")
 # end def
-def build_file_name_json(body,ddict):
+def build_file_name_json(body,base_ddict):
     '''
 
     :param isin:
-    :param ddict:
+    :param base_ddict:
     :return: file_name
     '''
-    return os.path.join(ddict["store_path"], body+".json")
+    return os.path.join(base_ddict["store_path"], body+".json")
 # end def
 def read_pickle(file_name):
     '''
@@ -364,16 +364,16 @@ def save_dict_file_json(dict_dict,filebodyname,ddict):
     # end if
     return
 # end def
-def save_dict_file_pickle(dict_dict, filebodyname, ddict):
+def save_dict_file_pickle(data_ddict, filebodyname, base_ddict):
     '''
 
-    :param dict_dict:
-    :param ddict:
+    :param data_ddict:
+    :param base_ddict:
     :return:
     '''
-    file_name = build_file_name_pickle(filebodyname, ddict)
+    file_name = build_file_name_pickle(filebodyname, base_ddict)
     
-    (status, errtext) = save_pickle(dict_dict, file_name)
+    (status, errtext) = save_pickle(data_ddict, file_name)
     if status != hdef.OKAY:
         raise Exception(f"save_dict_file_pickle: Problems saving {file_name} errtext: {errtext}")
     # end if
