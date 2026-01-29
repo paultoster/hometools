@@ -1,12 +1,21 @@
 import re
 import time
+import tomllib
+
 from playwright.sync_api import Playwright, sync_playwright, expect
 
+INT_FILENAME = "K:/data/orga/wp_store/wp_abfrage.ini"
 
 def run(playwright: Playwright) -> None:
     
     TimeoutTime = 100000
     isin        = "IE00B5BMR087"
+    
+    with open(INT_FILENAME, "rb") as f:
+        ddict = tomllib.load(f)
+    
+    auser = ddict["ariva_user"]
+    apw   = ddict["ariva_pw"]
     
     browser = playwright.chromium.launch(headless=False,slow_mo=50)
     context = browser.new_context()
@@ -15,10 +24,10 @@ def run(playwright: Playwright) -> None:
     page.locator("iframe[title=\"SP Consent Message\"]").content_frame.get_by_role("button", name="Akzeptieren und weiter").click()
     page.get_by_role("link", name="Login").click(timeout=TimeoutTime)
     page.goto("https://login.ariva.de/realms/ariva/protocol/openid-connect/auth?client_id=ariva-web&redirect_uri=https%3A%2F%2Fwww.ariva.de%2F%3Fbase64_redirect%3DaHR0cHM6Ly93d3cuYXJpdmEuZGUv&response_type=code&scope=openid+profile+email&state=ebf48737-c647-4f9a-aed4-06307db5f022")
-    page.get_by_role("textbox", name="Nutzername oder E-Mail").fill("PaulToster")
+    page.get_by_role("textbox", name="Nutzername oder E-Mail").fill(auser)
     page.get_by_role("textbox", name="Passwort").click(timeout=TimeoutTime)
     page.get_by_role("textbox", name="Passwort").click(timeout=TimeoutTime)
-    page.get_by_role("textbox", name="Passwort").fill("RLj+onx,!aJL?|3y:UOE")
+    page.get_by_role("textbox", name="Passwort").fill(apw)
     page.get_by_role("button", name="Anmelden").click()
     page.get_by_role("textbox", name="Name / WKN / ISIN").click(timeout=TimeoutTime)
     page.get_by_role("textbox", name="Name / WKN / ISIN").fill(isin)
