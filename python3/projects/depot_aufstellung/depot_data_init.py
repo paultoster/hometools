@@ -48,27 +48,29 @@ import tools.hfkt_pickle as hpickle
 import tools.hfkt_tvar as htvar
 
 
-import wp_abfrage.wp_base as wp_base
-import bank_name_bestimmen.blz_class as blz_class
+# import wp_abfrage.wp_base as wp_base
+# import bank_name_bestimmen.blz_class as blz_class
 
+import depot_data_init_allg
+import depot_data_init_iban
 
-import depot_iban_data_class
+# import depot_iban_data_class
 import depot_konto_data_set_class
 import depot_konto_csv_read_class
 import depot_depot_data_set_class
-import depot_data_class_defs
-import depot_kategorie_class
+# import depot_data_class_defs
+# import depot_kategorie_class
 
-@dataclass
-class AllgData:
-    pickle_obj = None
-    data_dict: dict = field(default_factory=dict)
-    idfunc = None   # : dclassdef.IDCount = field(default_factory=dclassdef.IDCount)
-    wpfunc = None   # : wp_base.WPData = field(default_factory=wp_base.WPData)
-    banknamefunc = None
-    kat_json_obj = None
-    katfunc = None  # konto kategorie
-    kat_dict: dict = field(default_factory=dict)
+# @dataclass
+# class AllgData:
+#     pickle_obj = None
+#     data_dict: dict = field(default_factory=dict)
+#     idfunc = None   # : dclassdef.IDCount = field(default_factory=dclassdef.IDCount)
+#     wpfunc = None   # : wp_base.WPData = field(default_factory=wp_base.WPData)
+#     banknamefunc = None
+#     kat_json_obj = None
+#     katfunc = None  # konto kategorie
+#     kat_dict: dict = field(default_factory=dict)
 
 @dataclass
 class KontoData:
@@ -98,12 +100,12 @@ class WpData:
     data_dict_tvar: dict = field(default_factory=dict)
     wp_obj = None
 
-@dataclass
-class IbanData:
-    pickle_obj = None
-    data_dict: dict = field(default_factory=dict)
-    data_dict_tvar: dict = field(default_factory=dict)
-    iban_obj = None
+# @dataclass
+# class IbanData:
+#     pickle_obj = None
+#     data_dict: dict = field(default_factory=dict)
+#     data_dict_tvar: dict = field(default_factory=dict)
+#     iban_obj = None
 
 
 # --------------------------------------------------------------------------------------
@@ -111,7 +113,7 @@ class IbanData:
 # Get DATA Start
 #
 # --------------------------------------------------------------------------------------
-def data_set(rd):
+def data_read(rd):
     '''
 
     :param rd: data-structure
@@ -122,154 +124,18 @@ def data_set(rd):
     data = {}
     
     #================================================================================
-    # read allgeime-pickle-file
+    # read allgeine-pickle-file
     #================================================================================
-    
-    rd.allg = AllgData()
-    
-    if rd.par.ALLG_DATA_NAME in rd.ini.ddict[rd.par.INI_DATA_PICKLE_JSONFILE_LIST]:
-        use_json = rd.ini.ddict[rd.par.INI_DATA_PICKLE_USE_JSON]
-    else:
-        use_json = 0
-    # end if
-    
-    make_backup = rd.ini.ddict[rd.par.INI_DATA_PICKLE_MAKE_BACKUP]
-    path_backup = rd.ini.ddict[rd.par.INI_BACKUP_PATH]
-
-    # pickle object
-    rd.allg.pickle_obj = hpickle.DataPickle(rd.par.ALLG_PREFIX_NAME,rd.par.ALLG_DATA_NAME,use_json,make_backup,path_backup)
-    if (rd.allg.pickle_obj.status != hdef.OK):
-        status = hdef.NOT_OKAY
-        errtext = rd.allg.pickle_obj.errtext
+    (rd.allg,status,errtext) = depot_data_init_allg.read(rd)
+    if status != hdef.OK:
         return (status, errtext)
-    # endif
-    
-    rd.allg.data_dict = rd.allg.pickle_obj.get_ddict()
-    
-    # class id anlegen
-    #-----------------
-    if rd.par.ID_MAX_NAME in rd.allg.data_dict:
-        idmax = rd.allg.data_dict[rd.par.ID_MAX_NAME]
-    else:
-        idmax = 0
     # end if
-    
-    rd.allg.idfunc = depot_data_class_defs.IDCount()
-    rd.allg.idfunc.set_act_id(idmax)
-
-    # function wp-data anlgene
-    #-------------------------
-    # wp funktion wert papier rd.ini.ddict["wp_abfrage"]["store_path"]
-    rd.allg.wpfunc = wp_base.WPData(rd.ini.ddict[rd.par.INI_WP_FUNC_INI_FILE_NAME])
-    
-    if (rd.allg.wpfunc.status != hdef.OK):
-        status = hdef.NOT_OKAY
-        errtext = rd.allg.wpfunc.errtext
-        return (status, errtext)
-    # endif
-    
-    # function Banknamen bestimmen
-    #-------------------------
-    rd.allg.banknamefunc = blz_class.Bankdaten()
     
     # ================================================================================
     # iban-liste pickle --------------------------------------------
     # ================================================================================
+    (rd.iban, status, errtext) = depot_data_init_iban.read(rd)
     
-    iban_data_obj = IbanData()
-    
-    if rd.ini.ddict[rd.par.INI_IBAN_LIST_FILE_NAME] in rd.ini.ddict[rd.par.INI_DATA_PICKLE_JSONFILE_LIST]:
-        use_json = rd.ini.ddict[rd.par.INI_DATA_PICKLE_USE_JSON]
-    else:
-        use_json = 0
-    # end if
-    
-    make_backup = rd.ini.ddict[rd.par.INI_DATA_PICKLE_MAKE_BACKUP]
-    path_backup = rd.ini.ddict[rd.par.INI_BACKUP_PATH]
-    
-    iban_data_obj.pickle_obj = hpickle.DataPickle(rd.par.IBAN_PREFIX, rd.ini.ddict[rd.par.INI_IBAN_LIST_FILE_NAME],
-                                                  use_json, make_backup,path_backup)
-    
-    if (iban_data_obj.pickle_obj.status != hdef.OK):
-        status = hdef.NOT_OKAY
-        errtext = iban_data_obj.pickle_obj.errtext
-        return (status, errtext)
-    else:
-        iban_data_obj.data_dict = iban_data_obj.pickle_obj.get_ddict()
-    # endif
-    
-    iban_data_obj.data_dict[rd.par.DDICT_TYPE_NAME] = rd.par.IBAN_DATA_TYPE_NAME
-    
-    # Umbau filter vorübergehend
-    # iban_data_obj.data_dict = umbau_iban_data_dict_filter(rd.par, iban_data_obj.data_dict)
-    # Tvariable bilden
-    iban_data_obj.data_dict_tvar = build_iban_transform_data_dict(rd.par,iban_data_obj.data_dict)
-    
-    iban_data_obj.iban_obj = depot_iban_data_class.IbanDataSet(
-        iban_data_obj.data_dict_tvar[rd.par.IBAN_DATA_TABLE_NAME],
-        rd.allg.banknamefunc)
-    
-    if (iban_data_obj.iban_obj.status != hdef.OK):
-        status = hdef.NOT_OKAY
-        errtext = iban_data_obj.iban_obj.errtext
-        return (status, errtext)
-    # endif
-    
-    rd.iban = copy.deepcopy(iban_data_obj)
-    
-    del iban_data_obj
-    
-    # konto_kategorie func if filename is set
-    #----------------------------------------
-    if os.path.isfile(rd.ini.ddict[rd.par.INI_KONTO_KAT_JSON_FILE_NAME]):
-        
-        rd.allg.kat_json_obj = hpickle.DataJson(rd.ini.ddict[rd.par.INI_KONTO_KAT_JSON_FILE_NAME])
-
-        if rd.ini.ddict[rd.par.INI_DATA_PICKLE_MAKE_BACKUP]:
-            path_backup = rd.ini.ddict[rd.par.INI_BACKUP_PATH]
-            rd.allg.kat_json_obj.make_backup(path_backup)
-
-        rd.allg.kat_json_obj.read()
-        if rd.allg.kat_json_obj.status != hdef.OKAY:
-            status = hdef.NOT_OKAY
-            errtext = rd.allg.kat_json_obj.errtext
-            return(status,errtext)
-        # end if
-        rd.allg.kat_dict     = rd.allg.kat_json_obj.get_data()
-        
-        for key in [rd.par.KONTO_KAT_LIST_NAME,rd.par.KONTO_KAT_REGEL_LIST_NAME]:
-            if key not in rd.allg.kat_dict.keys():
-                status = hdef.NOT_OKAY
-                errtext = f"In json-File \"{rd.allg.kat_json_obj.get_filename()}\" kein dict[\"{key}\"] vorhanden"
-                return(status,errtext)
-            # end if
-        # end for
-        
-        if rd.par.KONTO_TAUSCH_DICT_NAME not in rd.allg.kat_dict.keys():
-            rd.allg.kat_dict[rd.par.KONTO_TAUSCH_DICT_NAME] = {}
-        # end if
-
-        if rd.par.KONTO_GRUPPEN_ZUSAMMENFASSUNG_DICT_NAME not in rd.allg.kat_dict.keys():
-            rd.allg.kat_dict[rd.par.KONTO_GRUPPEN_ZUSAMMENFASSUNG_DICT_NAME] = {}
-        # end if
-
-        
-        rd.allg.katfunc = depot_kategorie_class.KategorieClass(
-            rd.allg.kat_dict[rd.par.KONTO_KAT_LIST_NAME],
-            rd.allg.kat_dict[rd.par.KONTO_KAT_REGEL_LIST_NAME],
-            rd.allg.kat_dict[rd.par.KONTO_TAUSCH_DICT_NAME],
-            rd.allg.kat_dict[rd.par.KONTO_GRUPPEN_ZUSAMMENFASSUNG_DICT_NAME])
-        
-        if rd.allg.katfunc.status != hdef.OKAY:
-            status = hdef.NOT_OKAY
-            errtext = rd.allg.katfunc.errtext
-            rd.allg.katfunc.reset_status()
-            return (status,errtext)
-        # end if
-    else:
-        rd.allg.kat_dict = {}
-        rd.allg.katfunc = None
-    # end if
     
     
     #================================================================================
@@ -513,39 +379,22 @@ def data_set(rd):
 #
 # --------------------------------------------------------------------------------------
 def data_save(rd):
-    status = hdef.OKAY
-    errtext = ""
+    # status = hdef.OKAY
+    # errtext = ""
     
     # --------------------------------------------------------------------
     # allg data
-    # --------------------------------------------------------------------
     #     rd.allg.pickle_obj
     #     rd.allg.data_dict
     #     rd.allg.idfunc
     #     rd.allg.wpfunc
     #     rd.allg.katfunc
-    rd.allg.data_dict[rd.par.ID_MAX_NAME] = rd.allg.idfunc.get_act_id()
-    rd.allg.pickle_obj.set_ddict(rd.allg.data_dict)
-    
-    
-    rd.allg.pickle_obj.save(rd.allg.data_dict)
-    if (rd.allg.pickle_obj.status != hdef.OKAY):
-        status = hdef.NOT_OKAY
-        errtext = f"{errtext}/ allg: {rd.allg.pickle_obj.errtext}"
-    # endif
+    # --------------------------------------------------------------------
+    (status,errtext) = depot_data_init_allg.save(rd)
+    if status != hdef.OK:
+        return (status,errtext)
+    # end def
 
-    # Kategorie
-    if rd.allg.katfunc is not None:
-        rd.allg.kat_dict[rd.par.KONTO_TAUSCH_DICT_NAME]    = {}
-        rd.allg.kat_dict[rd.par.KONTO_KAT_LIST_NAME]       = rd.allg.katfunc.get_kat_dict_list()
-        rd.allg.kat_dict[rd.par.KONTO_KAT_REGEL_LIST_NAME] = rd.allg.katfunc.get_regel_list()
-        
-        rd.allg.kat_json_obj.save(rd.allg.kat_dict)
-        if rd.allg.kat_json_obj.status != hdef.OKAY:
-            status  = hdef.NOT_OKAY
-            errtext = f"{errtext}/ allg: {rd.allg.kat_json_obj.errtext}"
-        # end if
-    # end if
     # --------------------------------------------------------------------
     # konto data
     # --------------------------------------------------------------------
@@ -667,24 +516,12 @@ def data_save(rd):
     # iban data
     # --------------------------------------------------------------------
     #     rd.iban.pickle_obj
-    #     rd.allg.data_dict
-    #     rd.allg.idfunc
-    #     rd.allg.wpfunc
     #     rd.iban
-    
-    (ttable, _) = rd.iban.iban_obj.get_data_table()
-    
-    (val_dict_list, type_dict) = htvar.get_dict_list_from_table(ttable)
-    
-    rd.iban.data_dict[rd.par.IBAN_DATA_DICT_NAME] = val_dict_list
-    rd.iban.data_dict[rd.par.IBAN_TYPE_DICT_NAME] = type_dict
-    rd.iban.pickle_obj.save(rd.iban.data_dict)
-    
-    if (rd.iban.pickle_obj.status != hdef.OKAY):
-        status = hdef.NOT_OKAY
-        errtext = f"{errtext}/ iban: {rd.iban.pickle_obj.errtext}"
-    # endif
-    
+    (status,errtext) = depot_data_init_iban.save(rd)
+    if status != hdef.OK:
+        return (status,errtext)
+    # end def
+
     # # first get depot wk data into data dict
     # for key in data:
     #     if par.DDICT_TYPE_NAME in data[key].ddict.keys():
@@ -1150,43 +987,6 @@ def build_wp_transform_data_dict(par, data_dict):
 #
 #
 # # end def
-def build_iban_transform_data_dict(par, data_dict):
-    '''
-
-    :param par:
-    :param data_dict:
-    :return: data_dict_tvar = build_wp_transform_data_dict(par,data_dict)
-    '''
-    
-    data_dict_tvar = {}
-    
-    # DDICT_TYPE_NAME
-    name = par.DDICT_TYPE_NAME
-    data_dict_tvar[name] = htvar.build_val(name, data_dict[name], 'str')
-    
-    # IBAN_DATA_SET_DICT_LIST
-    if (par.IBAN_DATA_DICT_NAME in data_dict.keys()) and (par.IBAN_TYPE_DICT_NAME in data_dict.keys()):
-        
-        val_dict_list = data_dict[par.IBAN_DATA_DICT_NAME]
-        type_dict = data_dict[par.IBAN_TYPE_DICT_NAME]
-
-        names = list(type_dict.keys())
-        types = list(type_dict.values())
-        table = []
-        for ddict in val_dict_list:
-            table.append(list(ddict.values()))
-        # end for
-    else:
-        names = []
-        types = []
-        table = []
-    # end if
-    data_dict_tvar[par.IBAN_DATA_TABLE_NAME] = htvar.build_table(names, table, types)
-    
-    return data_dict_tvar
-
-
-# end def
 
 # def build_konto_data_csv_obj(par, konto_data, konto_name,ini_data_dict):
 #     #----------------------------------------------------------------------------

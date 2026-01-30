@@ -22,10 +22,11 @@ def first_question_loop(rd):
     '''
     
     :param rd:
-    :return:  first_question_loop(rd)
+    :return:  (runflag, save_flag) = first_question_loop(rd)
     '''
     
     runflag = True
+    save_flag = True
     
     if len(rd.ini.ddict[rd.par.INI_DEPOT_DATA_LIST_NAMES_NAME]) == 0:
         start_auswahl = ["Cancel (no save)", "Ende", "Save", "Iban", "Konto"]
@@ -41,9 +42,9 @@ def first_question_loop(rd):
     index_depot = 5
     index_wp_edit = 6
     
-    save_flag = True
+    
     abfrage_liste = ["okay", "cancel", "ende"]
-    i_abfrage_okay = 0
+    # i_abfrage_okay = 0
     i_abfrage_cancel = 1
     i_abfrage_ende = 2
     
@@ -77,12 +78,8 @@ def first_question_loop(rd):
         elif index == index_save:
             rd.log.write(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
             
-            (status, errtext) = depot_data_init.data_save(rd)
-            if (status != hdef.OK):
-                rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
-            # end if
-        
-        
+            return (runflag, save_flag)
+            
         elif index == index_konto:
             rd.log.write(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
             status = kb.bearbeiten(rd)
@@ -109,22 +106,20 @@ def first_question_loop(rd):
             errtext = f"Auswahl: {index} nicht bekannt"
             rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
         # endif
-        
-        # # enddef
     
     # endwhile
 
-    if save_flag:
-        (status, errtext) = depot_data_init.data_save(rd)
-
-        if (status != hdef.OK):
-            rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
-        # end if
+    # if save_flag:
+    #     (status, errtext) = depot_data_init.data_save(rd)
+    #
+    #     if (status != hdef.OK):
+    #         rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
+    #     # end if
     # else:
     #     rd.log.write_info("Keine Datensicherung",screen=rd.par.LOG_SCREEN_OUT)
     # end if
 
-    return
+    return (runflag, save_flag)
 # end def
 def rd_consistency_check(rd):
     '''
@@ -161,8 +156,6 @@ def print_some_ini_ddict_parameter(par, ddict):
              par.INI_DATA_PICKLE_JSONFILE_LIST,
              par.INI_LOG_SCREEN_OUT_NAME,
              par.INI_IBAN_LIST_FILE_NAME,
-             par.INI_WP_DATA_STORE_PATH_NAME,
-             par.INI_WP_DATA_USE_JSON_NAME,
              par.INI_PROTOCOL_TYPE_NAME,
              par.INI_PROTOCOL_FILE_NAME]
     max_width = max([len(word) for word in liste])

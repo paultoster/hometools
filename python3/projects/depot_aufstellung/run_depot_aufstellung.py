@@ -37,8 +37,9 @@ class RootData:
     ini: depot_ini_file.ini = field(default_factory=depot_ini_file.ini)
     allg = None
     iban = None
-    konto_dict: dict = field(default_factory=dict)
-    depot_dict: dict = field(default_factory=dict)
+    konto_dict = {} # : dict = field(default_factory=dict)
+    csv_dict = {}
+    depot_dict = {} # : dict = field(default_factory=dict)
     
     
 
@@ -49,16 +50,14 @@ def depot_aufstellung(log_filename,ini_filename):
 
     rd.gui = sgui_prot.SguiProtocol()
 
-    # Log-File start
+    # Log-File start ---------------
     rd.log = hlog.log(log_filename,rd.gui)
-    #-------------------------------
     if (rd.log.state != hdef.OK):
         print("Logfile not working !!!!")
         return
     # endif
-        
-    # read ini-File
-    # --------------
+
+    # read ini-File with par -------
     rd.par = depot_par.get(rd.log)
     rd.ini = depot_ini_file.ini(rd.par,ini_filename)
     depot_base.print_some_ini_ddict_parameter(rd.par,rd.ini.ddict)
@@ -67,7 +66,8 @@ def depot_aufstellung(log_filename,ini_filename):
         rd.log.write_err(rd.ini.errtext, screen=rd.par.LOG_SCREEN_OUT)
         return
     # end if
-    
+    #-------------------------------
+
     # set protocol
     rd.gui.set_protcol_type_file(rd.ini.ddict[rd.par.INI_PROTOCOL_TYPE_NAME] \
                                 ,rd.ini.ddict[rd.par.INI_PROTOCOL_FILE_NAME] \
@@ -77,38 +77,37 @@ def depot_aufstellung(log_filename,ini_filename):
     rd.par.LOG_SCREEN_OUT = rd.ini.ddict[rd.par.INI_LOG_SCREEN_OUT_NAME]
     
     
-    # # wp funktion wert papier rd.ini.ddict["wp_abfrage"]["store_path"]
-    # rd.wpfunc = wp_base.WPData(rd.ini.ddict[rd.par.INI_WP_DATA_STORE_PATH_NAME]
-    #                          ,rd.ini.ddict[rd.par.INI_WP_DATA_USE_JSON_NAME])
-    # if (rd.wpfunc.status != hdef.OK):
-    #     rd.log.write_err(rd.wpfunc.errtext, screen=rd.par.LOG_SCREEN_OUT)
-    #     return
-    # # endif
-
-    # data_base
-    # -----------
-    rd.allg = None
-    rd.iban = None
-    rd.konto_dict = {}
-    rd.csv_dict = {}
-    rd.depot_dict = {}
-    (status, errtext) = depot_data_init.data_set(rd)
+    # data_base init ----------------------------------------------------
+    (status, errtext) = depot_data_init.data_read(rd)
 
     if (status != hdef.OK):
         rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
         return
     # endif
+    # -------------------------------------------------------------------
 
-    # id consistency check
-    #---------------------
+    # id consistency check ---------------------------------------
     (status, errtext) = depot_base.rd_consistency_check(rd)
     if (status != hdef.OK):
         rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
         return
     # endif
-    
-    depot_base.first_question_loop(rd)
+    #-------------------------------------------------------------
 
+    # base level loop ---------------------
+    run_flag = True
+    while run_flag:
+        (run_flag,save_flag) = depot_base.first_question_loop(rd)
+        
+        if save_flag:
+            (status, errtext) = depot_data_init.data_save(rd)
+            if (status != hdef.OK):
+                rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
+            # end if
+        # end if
+    # end while
+    # -------------------------------------
+    
     # close log-file
     rd.log.close()
     

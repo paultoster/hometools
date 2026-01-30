@@ -150,7 +150,7 @@ def anzeige_depot(rd,auswahl,depot_dict,depot_obj,flag_update):
             kategorie = depot_obj.get_kategorie(isin)
             titlename = depot_obj.get_titlename(isin)
             
-            print(f"{titlename =}\n{kategorie =}\{isin =}")
+            print(f"{titlename =}\n{kategorie =}/{isin =}")
             
             # edit kateorie
             kategorie_liste = depot_gui.depot_kategorie(rd.gui, kategorie, titlename)
