@@ -151,6 +151,10 @@ class Parameter:
     INI_KONTO_STR_EURO_TRENN_BRUCH = "string_euro_trenn_bruch"
     INI_KONTO_STR_EURO_TRENN_TAUSEND = "string_euro_trenn_tausend"
     INI_KONTO_CSV_TRENN_DATA = "string_csv_trenn_zeichen"
+
+    INI_FILE_COMMENT_DICT = {INI_DATA_PICKLE_USE_JSON: "0 => keine json-Datei, 1 => schreibe auch json-datei, 2 => lesen von json Datei statt pickle",
+                             INI_LOG_SCREEN_OUT_NAME: "0 => no screen, 1 => print screen, 2 => gui screen 3 => 1+2",
+                             INI_PROTOCOL_TYPE_NAME: "0 => no, 1 => save, 2 => read"}
     
 
     DDICT_TYPE_NAME: str = "dict_type"

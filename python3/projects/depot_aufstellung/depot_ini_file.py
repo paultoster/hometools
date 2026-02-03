@@ -9,15 +9,19 @@
 
 import os, sys
 import tomllib
+import tomlkit
+
 
 tools_path = os.getcwd() + "\\.."
 if tools_path not in sys.path:
     sys.path.append(tools_path)
 # endif
 
+import depot_gui
+
 # Hilfsfunktionen
 import tools.hfkt_def as hdef
-# import hfkt_type as htype
+import hfkt_str as hstr
 import tools.hfkt_date_time as hdt
 import tools.hfkt_dict as hdict
 import tools.hfkt_tvar as htvar
@@ -47,7 +51,11 @@ class ini:
             self.ini_file_name = ini_file_name
             with open(ini_file_name, "rb") as f:
                 self.ddict = tomllib.load(f)
+            
+
         # endif
+        
+        
         
         # check base input
         (self.status, errtext, dict_tvar) = hdict.proof_transform_ddict_to_tvar(self.ddict, par.INI_BASE_PROOF_LISTE)
@@ -222,4 +230,38 @@ class ini:
         return err_text
     
     # -----------------------------------------------------------------------------
-# enddef
+    # enddef
+    def edit_save_data(self,par,gui):
+        """
+
+        :return: (status,errtext) = obj.edit_save_data(par)
+        """
+        status  = hdef.OKAY
+        errtext = ""
+
+        ddict_mod = depot_gui.konto_ini_dict_abfrage(gui, self.ddict,par.INI_FILE_COMMENT_DICT)
+
+        if ddict_mod != self.ddict:
+
+            self.ddict = ddict_mod
+
+            ini_text = tomlkit.dumps(ddict_mod)
+
+
+            for key, value in par.INI_FILE_COMMENT_DICT.items():
+
+                ini_text = hstr.search_var_insert_py_comment_at_start_of_line(ini_text, key, value)
+            # end for
+
+            with open(self.ini_file_name, "w", encoding="utf-8") as f:
+
+                f.write(ini_text)
+            # end with
+        # end if
+
+        return (status,errtext)
+    # end def
+
+
+
+# end class

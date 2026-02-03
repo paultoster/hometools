@@ -1,13 +1,13 @@
 
-from bs4 import BeautifulSoup as bs
-import urllib.request
+# from bs4 import BeautifulSoup as bs
+# import urllib.request
 import os
 
 
 import tools.hfkt_def as hdef
-import tools.hfkt_str as hstr
+# import tools.hfkt_str as hstr
 import tools.hfkt_type as htype
-import time
+# import time
 
 if os.path.isfile('wp_base.py'):
     import wp_storage as wp_storage

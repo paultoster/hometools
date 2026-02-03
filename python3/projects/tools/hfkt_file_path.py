@@ -45,24 +45,24 @@
     
 '''
 
-from tkinter import *
-from tkinter.constants import *
-import tkinter.filedialog
-import tkinter.messagebox
-import tkinter.tix
+# from tkinter import *
+# from tkinter.constants import *
+# import tkinter.filedialog
+# import tkinter.messagebox
+# import tkinter.tix
 import string
-import types
+# import types
 import copy
 import sys
 import os
 import stat
 import time
-import datetime
-import calendar
+# import datetime
+# import calendar
 import array
 import shutil
-import math
-import struct
+# import math
+# import struct
 import fnmatch
 
 # -------------------------------------------------------------------------------

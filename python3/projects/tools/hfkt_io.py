@@ -53,7 +53,7 @@ from tkinter import *
 #from tkinter.constants import *
 import tkinter.filedialog
 import tkinter.messagebox
-import tkinter.tix
+import tkinter.ttk
 import string
 #import types
 #import copy
@@ -429,7 +429,7 @@ def abfrage_ok_box(text="Ist das okay"):
 
 def abfrage_dir(comment=None,start_dir=None):
     """ gui für Pfad auszuwählen """
-##    import tkinter.messagebox, traceback, tkinter.tix
+##    import tkinter.messagebox, traceback, tkinter.ttk
 ##
 ##    global dirlist
 ##
@@ -439,7 +439,7 @@ def abfrage_dir(comment=None,start_dir=None):
 ##        start_dir = abfrage_root_dir()
 ##
 ##    try:
-##        root=tkinter.tix.Tk()
+##        root=tkinter.ttk.Tk()
 ##        dirlist = DirList(root,start_dir,comment)
 ##        dirlist.mainloop()
 ##
@@ -468,7 +468,7 @@ def abfrage_dir(comment=None,start_dir=None):
 ##        text = "Error running the demo script:\n"
 ##        for line in traceback.format_exception(t,v,tb):
 ##            text = text + line + '\n'
-##            d = tkinter.messagebox.showerror ( 'tkinter.tix Demo Error', text)
+##            d = tkinter.messagebox.showerror ( 'tkinter.ttk Demo Error', text)
 ##    return dirname
     root = Tk()
     dir = tkinter.filedialog.askdirectory(master=root, title=comment, initialdir=start_dir)
@@ -477,7 +477,7 @@ def abfrage_dir(comment=None,start_dir=None):
     return dir
 def abfrage_sub_dir(comment=None,start_dir=None):
     """ gui für Unterpfad von start_dir auszuwählen """
-    import tkinter.messagebox, traceback, tkinter.tix
+    import tkinter.messagebox, traceback, tkinter.ttk
 
     global dirlist
 
@@ -490,7 +490,7 @@ def abfrage_sub_dir(comment=None,start_dir=None):
     dir_not_found = True
     while dir_not_found :
         try:
-            root=tkinter.tix.Tk()
+            root=tkinter.ttk.Tk()
             dirlist = DirList(root,start_dir,comment,True)
             dirlist.mainloop()
 
@@ -509,7 +509,7 @@ def abfrage_sub_dir(comment=None,start_dir=None):
             text = "Error running the demo script:\n"
             for line in traceback.format_exception(t,v,tb):
                 text = text + line + '\n'
-                d = tkinter.messagebox.showerror ( 'tkinter.tix Demo Error', text)
+                d = tkinter.messagebox.showerror ( 'tkinter.ttk Demo Error', text)
 
         dirname = change_max(dirname,"/","\\")
 
@@ -553,7 +553,7 @@ def abfrage_file(file_types="*.*",comment=None,start_dir=None,default_extension=
     file_names = ["C-Files","H-Files"]
 
     """
-##    root = tkinter.tix.Tk()
+##    root = tkinter.ttk.Tk()
 ##    f = SFileSelectBox(root,file_types,comment,start_dir)
 ##    f.mainloop()
 ##    f.destroy()
@@ -597,7 +597,7 @@ def eingabe_file(file_types="*",comment="Waehle oder benenne neue Datei",start_d
     count = 0
     while( count < 10 ):
         count = count + 1
-        root = tkinter.tix.Tk()
+        root = tkinter.ttk.Tk()
         f = SFileSelectBox(root,file_types,comment,start_dir)
         f.mainloop()
         f.destroy()
@@ -614,7 +614,7 @@ def eingabe_file(file_types="*",comment="Waehle oder benenne neue Datei",start_d
             return selected_file
 
 def abfrage_str_box(comment="",width=400):
-    root = tkinter.tix.Tk()
+    root = tkinter.ttk.Tk()
 
     geotext = str(max(width,300))+"x90"
     root.geometry(geotext)

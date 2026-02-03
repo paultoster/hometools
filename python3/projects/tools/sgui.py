@@ -176,6 +176,7 @@ if (t_path == os.getcwd()):
     import sstr
     import hfkt as h
     import hfkt_def as hdef
+    import hfkt_str as hstr
     import hfkt_type as htype
     import hfkt_list as hlist
     import hfkt_tvar as htvar
@@ -195,6 +196,7 @@ else:
     from tools import sstr
     from tools import hfkt as h
     from tools import hfkt_def as hdef
+    from tools import hfkt_str as hstr
     from tools import hfkt_type as htype
     from tools import hfkt_list as hlist
     from tools import hfkt_tvar as htvar
@@ -612,7 +614,7 @@ def abfrage_n_eingabezeilen_dict(ddict):
 
 # ===============================================================================
 # ========================== modify_variable ============================
-def modify_variable(var,title="Editiere in der Syntax variable",geometry_list=None):
+def modify_variable(var,title="Editiere in der Syntax variable",geometry_list=None,comment_dict=None):
     '''
     
     :param ddict:
@@ -626,12 +628,20 @@ def modify_variable(var,title="Editiere in der Syntax variable",geometry_list=No
         json_obj = json.dumps(var, indent=2)
 
     except Exception as e:
-        raise Exception(f"An error occurred while reading the data {ddict}")
-    
+        raise Exception(f"An error occurred while reading the data {var}")
+
+    if comment_dict != None:
+        for key,value in comment_dict.items():
+            json_obj = hstr.search_var_insert_py_comment_at_start_of_line(json_obj,key,value)
+        # end for
+    # end if
+
     runflag = True
     while( runflag):
     
         json_dump = abfrage_text(json_obj, title=title, textcolor='blue',build_string=True,geometry_list=geometry_list)
+
+        json_dump = hstr.elim_py_comment(json_dump)
     
         if len(json_dump) == 0:
             runflag = False

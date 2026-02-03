@@ -14,7 +14,9 @@
                     rs  rueckwrts muster suchen
                     rn  rueckwaerts suchen, wann muster nicht mehr
                         vorhanden ist
- 
+ index = such_in_quot(text,muster,quot0,quot1)
+ index_liste = suche_alle_in_quot(text,muster,quot0,quot1)
+
  index = such_mit_liste(text,muster_liste,type) type = 'l' lower oder 'e' exakt
                                                 return index or -1 => muster_liste[index]
 
@@ -48,6 +50,8 @@
 
  get_index_quoted(text,quot0,quot1) das gleiche
 
+
+
  get_index_no_quot(text,quot0,quot1) Gibt Indexpaare in dem der Text nicht gequotet ist
 
  get_index_not_quoted(text,quot0,quot1) das gleiche
@@ -55,6 +59,9 @@
  get_string_quoted(text,quot0,quot1) Gibt Liste mit string in dem der gequotet Text steht
 
  get_string_not_quoted(text,quot0,quot1) Gibt Liste mit string in dem der nicht gequotet Text steht
+
+ (text, replace_text,n) = replace_muster_in_quot_with_not_used_string(text,"#",quot)
+    Replace Text ist nicht im Text enthalten, damit man später wieder einfach zurückersetzen kann
 
  elim_a(text,muster) Eliminiert text am Anfang
 
@@ -111,6 +118,17 @@
  vergleiche_text(text1,text2) Vergleicht, Ausgabe in Anteil, text als ganzes
 
  vergleiche_worte(text1,text2) Vergleicht, Ausgabe in Anteil, dir Leerzeichen getrennt Worte, und jedes Wort dem anderen
+
+ text = search_var_insert_py_comment_at_start_of_line(text,var,comment)
+
+        z.B. text = search_var_insert_py_comment_at_start_of_line("abc=0\ndef=1","def"," wichtiger Parameter")
+
+        print(text) => "abc=0\n# def: wichtiger Parameter\ndef=1"
+
+ text = hstr.elim_py_comment(text)
+
+        z.B. text = elim_py_comment("abc=0\n# def: wichtiger Parameter\ndef=1")
+        print(text) => "abc=0\ndef=1"
 
  to_unicode(string)   converts byte-string into unicode utf8
  to_bytes(unicode)    converts unicode into byte-string
@@ -287,6 +305,49 @@ def such(text, muster, regel="vs"):
             return ireturn
 
 # -------------------------------------------------------
+def  such_in_quot(text,muster,quot0,quot1):
+    """
+
+    :param text:
+    :param muster:
+    :param quot0:
+    :param quot1:
+    :return: index = such_in_quot(text, muster, quot0, quot1) return -1: no
+    """
+    index_liste_2tuple = get_index_quot(text, quot0, quot1)
+
+    for tup in index_liste_2tuple:
+        index = such(text[tup[0]:tup[1]],muster)
+        if index >= 0:
+            return index
+        # end if
+    # end for
+    return -1
+# end def
+def suche_alle_in_quot(text,muster,quot0,quot1):
+    """
+
+    :param text:
+    :param muster:
+    :param quot0:
+    :param quot1:
+    :return: index_liste = suche_alle_in_quot(text,muster,quot0,quot1) => []: nichts gefunden
+    """
+    index_liste = []
+    index_liste_2tuple = get_index_quot(text, quot0, quot1)
+
+    for tup in index_liste_2tuple:
+        index = such(text[tup[0]:tup[1]], muster)
+        if index >= 0:
+            index_liste.append(index+tup[0])
+        # end if
+    # end for
+    return index_liste
+
+
+# end def
+
+
 def such_mit_liste(text,muster_liste,type='e'):
     '''
     
@@ -750,6 +811,56 @@ def get_string_not_quoted(text, quot0, quot1):
         tdum = text[t[0]:t[1]]
         liste.append(tdum)
     return liste
+
+def replace_muster_in_quot_with_not_used_string(text,muster,quot0,quot1):
+    """
+
+    :param text:
+    :param muster:
+    :param quot0:
+    :param quot1:
+    :return: (text,replace_text,n) = replace_muster_in_quot_with_not_used_string(text,"#",quot0,quot1)
+
+    """
+    index_liste = suche_alle_in_quot(text,muster,quot0,quot1)
+
+    # print(text[index_liste[0]])
+
+    if len(index_liste):
+
+        count = 0
+        replace_text = str(count)
+        if replace_text == muster:
+            count += 1
+            replace_text += str(count)
+        flag = True
+        while flag:
+            if such(text,replace_text) >= 0:
+                count += 1
+                replace_text += str(count)
+                if replace_text == muster:
+                    count += 1
+                    replace_text += str(count)
+            else:
+                flag = False
+            # end if
+        # end while
+        n = 0
+        for index in reversed(index_liste):
+
+            text = str_replace(text, replace_text, index, len(muster))
+            n += 1
+        # end for
+    else:
+        replace_text = ""
+        n = 0
+    # end if
+
+    return (text,replace_text,n)
+# end if
+
+
+
 
 
 def elim_comment_not_quoted(text, comment_liste, quot0, quot1):
@@ -1421,6 +1532,77 @@ def vergleiche_worte(text1, text2):
     
     return lfound
 
+def search_var_insert_py_comment_at_start_of_line(text,var,comment):
+    """
+
+    :param text:
+    :param var:
+    :param comment:
+    :return: text = search_var_insert_py_comment_at_start_of_line(text,var,comment)
+    """
+
+    index_liste = such_alle(text,var)
+
+    offset = 0
+
+    for index in index_liste:
+
+        t = text[0:index+offset]
+        i = such(t,'\n','rs')
+        if i < 0:
+            i = 0
+        else:
+            i += 1
+        # end if
+
+        c = "# " + var + ": " + comment + "\n"
+
+        offset += len(c)
+
+        text = str_insert(text,c,i)
+
+    # end for
+    return text
+# end def
+def elim_py_comment(text):
+    """
+
+    :param text:
+    :return: text = hstr.elim_py_comment(text)
+    """
+
+    # Find quot
+    i = such(text,'"')
+    if  such(text,'"') >= 0:
+        quot = '"'
+    elif such(text,"'") >= 0:
+        quot = "'"
+    else:
+        quot = ""
+    # end if
+
+    (text,replace_text,nreplace) = replace_muster_in_quot_with_not_used_string(text,"#",quot,quot)
+
+    while(True):
+
+        index0 = such(text,"#","vs")
+
+        if index0 < 0:
+            break
+        else:
+            index1 = such(text[index0:], "\n", "vs")
+
+            if index1 < 0: index1 = len(text) - index0
+
+            text = str_elim(text, index0, index1+1)
+        # end if
+    # end while
+
+    if nreplace:
+        text = change_max(text, replace_text, "#")
+
+    return text
+# end def
 
 # ===============================================================================
 # (text2,errtext) = make_unicode(text1)
@@ -1494,7 +1676,9 @@ def text_to_write(text):
     return tt
 
 
-#
+# end def
+
+
 
 
 ###########################################################################
@@ -1503,3 +1687,28 @@ def text_to_write(text):
 if __name__ == '__main__':
     # str_euro = convert_int_cent_to_string_euro(100)
     print(change_at_index("123,456", 3, 2, '.'))
+
+    text = \
+    '''{
+        "konto_names": [
+            "ingbank_giro",
+            "postbank_giro",
+            "c24_giro"
+        ],
+        "depot_names": [],
+        "csv_import_config_names": [
+            "csv_ing",
+            "csv_postbank",
+            "csv_c24"
+        ],
+        "data_pickle_use_json": 0,
+        "data_pickle_jsonfile_list": [
+            "ing_bank_giro",
+            "postbank_giro",
+            "c24_giro"
+        ]
+        }'''
+    text = search_var_insert_py_comment_at_start_of_line(text, "data_pickle_use_json", "0 => keine json-Datei")
+    text = elim_py_comment(text)
+    print(text)
+    print(text)

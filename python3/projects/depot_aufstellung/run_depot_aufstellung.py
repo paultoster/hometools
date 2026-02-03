@@ -19,8 +19,6 @@ import depot_ini_file
 import depot_data_init
 import depot_base
 
-
-
 # Hilfsfunktionen
 import tools.hfkt_def as hdef
 import tools.hfkt_log as hlog
@@ -97,7 +95,7 @@ def depot_aufstellung(log_filename,ini_filename):
     # base level loop ---------------------
     run_flag = True
     while run_flag:
-        (run_flag,save_flag) = depot_base.first_question_loop(rd)
+        (run_flag,save_flag,init_flag) = depot_base.first_question_loop(rd)
         
         if save_flag:
             (status, errtext) = depot_data_init.data_save(rd)
@@ -105,6 +103,15 @@ def depot_aufstellung(log_filename,ini_filename):
                 rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
             # end if
         # end if
+
+        if init_flag:
+
+            (status, errtext) = depot_data_init.data_read(rd)
+
+            if (status != hdef.OK):
+                rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
+                return
+            # endif
     # end while
     # -------------------------------------
     

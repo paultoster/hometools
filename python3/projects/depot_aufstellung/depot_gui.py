@@ -428,4 +428,16 @@ def abfrage_dict(gui,isin_dict,ttilename):
     (result_dict, changed_key_liste) = gui.abfrage_dict(isin_dict,ttilename)
     
     return (result_dict, changed_key_liste)
-    
+# end def
+def konto_ini_dict_abfrage(gui, ddict,comment_dict):
+    '''
+
+    :param gui:
+    :param hkat_list:
+    :return: ddict = konto_kategorie_dict_abfrage(gui, ddict)
+    '''
+    title = "Kategorie editieren"
+    ddict_mod = gui.modify_variable(ddict, title,comment_dict)
+
+    return ddict_mod
+# end def

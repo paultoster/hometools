@@ -11,7 +11,7 @@ if (tools_path not in sys.path):
 import tools.hfkt_def as hdef
 
 import depot_gui
-import depot_data_init
+import depot_ini_file
 import depot_konto_bearbeiten as kb
 import depot_iban_bearbeiten as ib
 import depot_depot_bearbeiten as db
@@ -22,25 +22,27 @@ def first_question_loop(rd):
     '''
     
     :param rd:
-    :return:  (runflag, save_flag) = first_question_loop(rd)
+    :return:  (runflag, save_flag,init_flag) = first_question_loop(rd)
     '''
     
     runflag = True
     save_flag = True
+    init_flag = False
     
     if len(rd.ini.ddict[rd.par.INI_DEPOT_DATA_LIST_NAMES_NAME]) == 0:
-        start_auswahl = ["Cancel (no save)", "Ende", "Save", "Iban", "Konto"]
+        start_auswahl = ["Cancel (no save)", "Ende", "Save", "Ini edit and save", "Iban", "Konto"]
     else:
-        start_auswahl = ["Cancel (no save)", "Ende", "Save", "Iban", "Konto", "Depot",
+        start_auswahl = ["Cancel (no save)", "Ende", "Save", "Ini edit and save", "Iban", "Konto", "Depot",
                          "edit wp_info"]  # ["Cancel (no save)","Ende","Iban","Save","Konto","Depot"]
     # end if
     index_cancel_no_save = 0
     index_ende = 1
     index_save = 2
-    index_iban = 3
-    index_konto = 4
-    index_depot = 5
-    index_wp_edit = 6
+    index_ini = 3
+    index_iban = 4
+    index_konto = 5
+    index_depot = 6
+    index_wp_edit = 7
     
     
     abfrage_liste = ["okay", "cancel", "ende"]
@@ -79,6 +81,12 @@ def first_question_loop(rd):
             rd.log.write(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
             
             return (runflag, save_flag)
+
+        elif index == index_ini:
+            rd.log.write(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
+
+            (status,errtext) = rd.ini.edit_save_data(rd.par,rd.gui)
+            init_flag = True
             
         elif index == index_konto:
             rd.log.write(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
@@ -119,7 +127,7 @@ def first_question_loop(rd):
     #     rd.log.write_info("Keine Datensicherung",screen=rd.par.LOG_SCREEN_OUT)
     # end if
 
-    return (runflag, save_flag)
+    return (runflag, save_flag,init_flag)
 # end def
 def rd_consistency_check(rd):
     '''

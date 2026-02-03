@@ -500,7 +500,7 @@ class SguiProtocol:
         return liste
     
     # end def
-    def modify_variable(self,var,title="Editiere in der Syntax variable"):
+    def modify_variable(self,var,title="Editiere in der Syntax variable",comment_dict=None):
         '''
         
         :param var:
@@ -521,7 +521,7 @@ class SguiProtocol:
         if not self.run_protocol_data:
             
             geometry_list = self.set_geometry_list()
-            var_mod = sgui.modify_variable(var,title,geometry_list)
+            var_mod = sgui.modify_variable(var,title,geometry_list,comment_dict)
             self.get_geometry_list(geometry_list)
             
             if self.save_protocol_data:
