@@ -80,7 +80,7 @@ def first_question_loop(rd):
         elif index == index_save:
             rd.log.write(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
             
-            return (runflag, save_flag)
+            return (runflag, save_flag, init_flag)
 
         elif index == index_ini:
             rd.log.write(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
