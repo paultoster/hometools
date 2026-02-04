@@ -30,7 +30,7 @@ def first_question_loop(rd):
     init_flag = False
     
     if len(rd.ini.ddict[rd.par.INI_DEPOT_DATA_LIST_NAMES_NAME]) == 0:
-        start_auswahl = ["Cancel (no save)", "Ende", "Save", "Ini edit and save", "Iban", "Konto"]
+        start_auswahl = ["Cancel (no save)", "Ende", "Save", "Ini edit (and save)", "Iban", "Konto"]
     else:
         start_auswahl = ["Cancel (no save)", "Ende", "Save", "Ini edit and save", "Iban", "Konto", "Depot",
                          "edit wp_info"]  # ["Cancel (no save)","Ende","Iban","Save","Konto","Depot"]

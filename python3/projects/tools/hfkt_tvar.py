@@ -29,8 +29,8 @@ val   =  get_val_from_list(tlist,name)                         get one value fro
 val   =  get_val_from_list(tlist,index)                        get one value from tlist with given index
 index =  get_index_from_list(tlist,name)
 index =  get_index_from_table(ttable,name)
-flag  =  check_name_from_list(tlist,name)
-flag  =  check_name_from_table(ttable,name)
+flag  =  check_name_from_list(tlist,name)                      True/False
+flag  =  check_name_from_table(ttable,name)                    True/False
 table =  get_table(ttable, types)                              get table values out of TTable with given types
 tlist =  get_list_from_table(ttable,irow)
 val   =  get_val_from_table(ttable,irow,name,type)
@@ -955,7 +955,7 @@ def insert_list_to_table(ttable: TTable,tlist: TList,irow: int):
         return ttable
     # end if
 # end def
-def add_row_liste_to_table(ttable, name,add_row_liste,type):
+def add_row_liste_to_table(ttable, name,add_row_listeraw,type):
     '''
     
     :param ttable:
@@ -965,6 +965,11 @@ def add_row_liste_to_table(ttable, name,add_row_liste,type):
     :return: ttable = add_row_liste_to_table(ttable, name,add_row_liste,type)
 
     '''
+    if isinstance(add_row_listeraw,list):
+        add_row_liste = add_row_listeraw
+    else:
+        add_row_liste = [add_row_listeraw for i in range(ttable.ntable)]
+    # end if
     n = len(add_row_liste)
     
     if check_name_from_table(ttable,name):   # Werte ersetzen

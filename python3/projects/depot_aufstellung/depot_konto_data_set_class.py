@@ -852,9 +852,9 @@ class KontoDataSet:
             new_data_table = self.proof_and_set_correct_order_buchttypes(new_data_table)
 
             if flag_proof_wert:
-                new_data_table = self.proof_wert_in_table_mit_buchtype(new_data_table)
-            else:
                 new_data_table = self.proof_buchtype_in_table_mit_wert(new_data_table)
+            else:
+                new_data_table = self.proof_wert_in_table_mit_buchtype(new_data_table)
             # end if
             
             if self.status != hdef.OKAY:
@@ -1421,48 +1421,63 @@ class KontoDataSet:
         :return: new_data_table = self.proof_buchtype_in_table_mit_wert(new_data_table)
  
         '''
-        
+
+        if not htvar.check_name_from_table(new_data_table, self.par.KONTO_DATA_NAME_WERT):
+            raise Exception(f"Fehler proof_buchtype_in_table_mit_wert: In eingelesener Tabelle ist {self.par.KONTO_DATA_NAME_WERT} nicht entahlt !!!")
+        # end if
+
+        if not htvar.check_name_from_table(new_data_table, self.par.KONTO_DATA_NAME_BUCHTYPE):
+
+            new_data_table = htvar.add_row_liste_to_table(new_data_table,
+                                                          self.par.KONTO_DATA_NAME_BUCHTYPE,
+                                                          self.par.KONTO_DATA_BUCHTYPE_DICT[self.par.KONTO_BUCHTYPE_INDEX_UNBEKANNT],
+                                                          "str")
+        # end if
+
         for irow in range(new_data_table.ntable):
             
-            if htvar.check_name_from_table(new_data_table, self.par.KONTO_DATA_NAME_BUCHTYPE) \
-               and htvar.check_name_from_table(new_data_table, self.par.KONTO_DATA_NAME_WERT) :
-            
-                buchtype = htvar.get_val_from_table(new_data_table,irow,self.par.KONTO_DATA_NAME_BUCHTYPE)
-            
-                if buchtype in self.par.KONTO_BUCHTYPE_TEXT_LIST:
-                    buchtype_index = self.par.KONTO_BUCHTYPE_TEXT_LIST.index(buchtype)
+            buchtype = htvar.get_val_from_table(new_data_table,irow,self.par.KONTO_DATA_NAME_BUCHTYPE)
+
+            if buchtype in self.par.KONTO_BUCHTYPE_TEXT_LIST:
+                buchtype_index = self.par.KONTO_BUCHTYPE_TEXT_LIST.index(buchtype)
+            else:
+                buchtype_index = -1
+            # end if
+
+            wert = htvar.get_val_from_table(new_data_table, irow, self.par.KONTO_DATA_NAME_WERT, 'cent')
+            change_flag = False
+            if (buchtype_index == self.par.KONTO_BUCHTYPE_INDEX_UNBEKANNT) or (buchtype_index == -1):
+                if wert < 0:
+                    buchtype = self.par.KONTO_BUCHTYPE_INDEX_AUSZAHLUNG
                 else:
-                    buchtype_index = -1
+                    buchtype = self.par.KONTO_BUCHTYPE_INDEX_EINZAHLUNG
                 # end if
-                if buchtype_index in self.par.KONTO_DATA_BUCHTYPE_PROOF_DICT.keys():
-                    change_flag = False
-                    wert = htvar.get_val_from_table(new_data_table,irow,self.par.KONTO_DATA_NAME_WERT,'cent')
-                    wert_type = self.par.KONTO_DATA_BUCHTYPE_PROOF_DICT[buchtype_index][0]
-                    if  wert_type > 0: # soll positiv sein
-                        if wert < 0:
-                            buchtype = self.par.KONTO_DATA_BUCHTYPE_PROOF_DICT[buchtype_index][1]
-                            change_flag = True
-                        # end if
-                    else: # soll negative sein
-                        if wert > 0:
-                            buchtype = self.par.KONTO_DATA_BUCHTYPE_PROOF_DICT[buchtype_index][1]
-                            change_flag = True
-                        # end if
+                change_flag = True
+            else:   # if buchtype_index in self.par.KONTO_DATA_BUCHTYPE_PROOF_DICT.keys():
+                wert_type = self.par.KONTO_DATA_BUCHTYPE_PROOF_DICT[buchtype_index][0]
+                if  wert_type > 0: # soll positiv sein
+                    if wert < 0:
+                        buchtype = self.par.KONTO_DATA_BUCHTYPE_PROOF_DICT[buchtype_index][1]
+                        change_flag = True
                     # end if
-                    
-                    if change_flag:
-                        
-                        (okay, wert) = htype.type_transform(buchtype, self.par.KONTO_BUCHTYPE_INDEX_LIST,
-                                                            self.par.KONTO_BUCHTYPE_TEXT_LIST)
-                        if okay == hdef.OKAY:
-                            buchtype = wert
-                        else:
-                            raise Exception(f"proof_buchtype_in_table_mit_wert: Problem buchtype")
-                        # end if
-                        
-                        new_data_table = htvar.set_val_in_table(new_data_table, buchtype, irow, self.par.KONTO_DATA_NAME_BUCHTYPE)
+                else: # soll negative sein
+                    if wert > 0:
+                        buchtype = self.par.KONTO_DATA_BUCHTYPE_PROOF_DICT[buchtype_index][1]
+                        change_flag = True
                     # end if
                 # end if
+            # end if
+            if change_flag:
+
+                (okay, wert) = htype.type_transform(buchtype, self.par.KONTO_BUCHTYPE_INDEX_LIST,
+                                                    self.par.KONTO_BUCHTYPE_TEXT_LIST)
+                if okay == hdef.OKAY:
+                    buchtype = wert
+                else:
+                    raise Exception(f"proof_buchtype_in_table_mit_wert: Problem buchtype")
+                # end if
+
+                new_data_table = htvar.set_val_in_table(new_data_table, buchtype, irow, self.par.KONTO_DATA_NAME_BUCHTYPE)
             # end if
         # end for
         return new_data_table
@@ -1474,50 +1489,58 @@ class KontoDataSet:
         :return: new_data_table = self.proof_wert_in_table_mit_buchtype(new_data_table)
 
         '''
-        
+
+        if htvar.check_name_from_table(new_data_table, self.par.KONTO_DATA_NAME_WERT):
+            raise Exception(f"Fehler proof_buchtype_in_table_mit_wert: In eingelesener Tabelle ist {self.par.KONTO_DATA_NAME_WERT} nicht entahlt !!!")
+        # end if
+
+        if htvar.check_name_from_table(new_data_table, self.par.KONTO_DATA_NAME_BUCHTYPE):
+
+            new_data_table = htvar.add_row_liste_to_table(new_data_table,
+                                                          self.par.KONTO_DATA_NAME_BUCHTYPE,
+                                                          self.par.KONTO_DATA_BUCHTYPE_DICT[self.par.KONTO_BUCHTYPE_INDEX_UNBEKANNT],
+                                                          "str")
+        # end if
+
         for irow in range(new_data_table.ntable):
             
-            if htvar.check_name_from_table(new_data_table, self.par.KONTO_DATA_NAME_BUCHTYPE) \
-                and htvar.check_name_from_table(new_data_table, self.par.KONTO_DATA_NAME_WERT):
-                
-                buchtype = htvar.get_val_from_table(new_data_table, irow, self.par.KONTO_DATA_NAME_BUCHTYPE)
-                
-                if buchtype in self.par.KONTO_BUCHTYPE_TEXT_LIST:
-                    buchtype_index = self.par.KONTO_BUCHTYPE_TEXT_LIST.index(buchtype)
-                else:
-                    buchtype_index = -1
+            buchtype = htvar.get_val_from_table(new_data_table, irow, self.par.KONTO_DATA_NAME_BUCHTYPE)
+
+            if buchtype in self.par.KONTO_BUCHTYPE_TEXT_LIST:
+                buchtype_index = self.par.KONTO_BUCHTYPE_TEXT_LIST.index(buchtype)
+            else:
+                buchtype_index = -1
+            # end if
+            if buchtype_index in self.par.KONTO_DATA_BUCHTYPE_PROOF_DICT.keys():
+                change_flag = False
+                wert = htvar.get_val_from_table(new_data_table, irow, self.par.KONTO_DATA_NAME_WERT, 'cent')
+                wert_type = self.par.KONTO_DATA_BUCHTYPE_PROOF_DICT[buchtype_index][0]
+                if wert_type > 0:  # soll positiv sein
+                    if wert < 0:
+                        wert *= -1
+                        change_flag = True
+                    # end if
+                else:  # soll negative sein
+                    if wert > 0:
+                        wert *= -1
+                        change_flag = True
+                    # end if
                 # end if
-                if buchtype_index in self.par.KONTO_DATA_BUCHTYPE_PROOF_DICT.keys():
-                    change_flag = False
-                    wert = htvar.get_val_from_table(new_data_table, irow, self.par.KONTO_DATA_NAME_WERT, 'cent')
-                    wert_type = self.par.KONTO_DATA_BUCHTYPE_PROOF_DICT[buchtype_index][0]
-                    if wert_type > 0:  # soll positiv sein
-                        if wert < 0:
-                            wert *= -1
-                            change_flag = True
-                        # end if
-                    else:  # soll negative sein
-                        if wert > 0:
-                            wert *= -1
-                            change_flag = True
-                        # end if
+
+                if change_flag:
+
+                    (okay, value) = htype.type_transform(wert, 'cent',self.par.KONTO_DATA_TYPE_DICT[self.par.KONTO_DATA_INDEX_WERT])
+                    if okay == hdef.OKAY:
+                        wert = value
+                    else:
+                        raise Exception(f"proof_wert_in_table_mit_buchtype: Problem wert")
                     # end if
-                    
-                    if change_flag:
-                        
-                        (okay, value) = htype.type_transform(wert, 'cent',self.par.KONTO_DATA_TYPE_DICT[self.par.KONTO_DATA_INDEX_WERT])
-                        if okay == hdef.OKAY:
-                            wert = value
-                        else:
-                            raise Exception(f"proof_wert_in_table_mit_buchtype: Problem wert")
-                        # end if
-                        
-                        new_data_table = htvar.set_val_in_table(new_data_table
-                                                                , wert
-                                                                , irow
-                                                                , self.par.KONTO_DATA_NAME_WERT
-                                                                , self.par.KONTO_DATA_TYPE_DICT[self.par.KONTO_DATA_INDEX_WERT])
-                    # end if
+
+                    new_data_table = htvar.set_val_in_table(new_data_table
+                                                            , wert
+                                                            , irow
+                                                            , self.par.KONTO_DATA_NAME_WERT
+                                                            , self.par.KONTO_DATA_TYPE_DICT[self.par.KONTO_DATA_INDEX_WERT])
                 # end if
             # end if
         # end for
@@ -1584,10 +1607,12 @@ class KontoDataSet:
             sum_liste.append(0)
             
         # endfor
-        
+
+        if not htvar.check_name_from_table(new_data_table,self.par.KONTO_DATA_NAME_KATEGORIE):
+            new_data_table = htvar.add_row_liste_to_table(new_data_table, self.par.KONTO_DATA_NAME_KATEGORIE, kat_liste,"str")
+
         new_data_table = htvar.add_row_liste_to_table(new_data_table, self.par.KONTO_DATA_NAME_ISIN, isin_liste,"isin")
         new_data_table = htvar.add_row_liste_to_table(new_data_table, self.par.KONTO_DATA_NAME_ID, id_liste,"int")
-        new_data_table = htvar.add_row_liste_to_table(new_data_table, self.par.KONTO_DATA_NAME_KATEGORIE, kat_liste,"str")
         new_data_table = htvar.add_row_liste_to_table(new_data_table, self.par.KONTO_DATA_NAME_SUMWERT, sum_liste,"cent")
 
         

@@ -137,7 +137,8 @@ def save(rd,konto_data):
     :param rd:
     :return: (status, errtext) = depot_data_init_konto.save(rd)
     """
-
+    status  = hdef.OK
+    errtext = ""
 
     (ttable, _) = konto_data.konto_obj.get_to_store_data_set_tvar()
     

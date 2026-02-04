@@ -38,9 +38,9 @@ class KontoCsvRead:
         self.trennzeichen = htvar.get_val(trennzeichen_tval,"str")
         self.wert_pruefung = htvar.get_val(wert_pruefung_tval,"str")
         if self.wert_pruefung == "wert":
-            self.flag_proof_wert = False
-        else:
             self.flag_proof_wert = True
+        else:
+            self.flag_proof_wert = False
         # end if
         self.csv_datei_pfad = htvar.get_val(csv_datei_pfad_tval,"str")
         self.buchtype_zuordnung_tlist  = buchtype_zuordnung_tlist
