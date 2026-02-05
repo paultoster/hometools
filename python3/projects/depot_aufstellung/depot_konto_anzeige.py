@@ -23,6 +23,7 @@ import tools.hfkt_tvar as hfkt_tvar
 
 import depot_gui
 
+import depot_konto_kategorie
 
 # def anzeige_mit_konto_wahl(rd):
 #     '''
@@ -74,7 +75,7 @@ def anzeige(rd,konto_obj):
     '''
     
     status = hdef.OKAY
-    abfrage_liste = ["ende", "update(edit)","scan(isin)", "edit_row","edit_row(isin)","add", "delete_row"]
+    abfrage_liste = ["ende", "update(edit)","scan(isin)", "edit_row","edit_row(isin)","add", "delete_row","set_kat","del_kat","kat_regel_run","kat_regel_build"]
     i_end = 0
     i_update = 1
     i_update_isin = 2
@@ -82,6 +83,10 @@ def anzeige(rd,konto_obj):
     i_edit_isin = 4
     i_add = 5
     i_delete = 6
+    i_set_kat = 7
+    i_del_kat = 8
+    i_kat_regel_run = 9
+    i_kat_regel_build = 10
     
     data_changed_pos_list = []
     ttable_anzeige = None
@@ -91,8 +96,14 @@ def anzeige(rd,konto_obj):
         (ttable,row_color_dlist) = konto_obj.get_anzeige_ttable()
         
         if ttable.ntable > 0:
-            (status,errtext,ttable_anzeige, index_abfrage, irow, data_changed_pos_list) = \
-                depot_gui.konto_abfrage(rd.gui,ttable, abfrage_liste, row_color_dlist)
+            title = f"konto: {konto_obj.get_konto_name()} (kat synatx: \"kat1:wert1; kat2:wert2, ...\") "
+            (status,errtext,
+             ttable_anzeige, index_abfrage,
+             irow, data_changed_pos_list) = depot_gui.konto_abfrage(rd.gui,
+                                                                    ttable,
+                                                                    abfrage_liste,
+                                                                    row_color_dlist,
+                                                                    title)
             if status != hdef.OKAY:
                 rd.log.write_err(errtext,screen=rd.par.LOG_SCREEN_OUT)
                 index_abfrage = i_end
@@ -102,30 +113,6 @@ def anzeige(rd,konto_obj):
             index_abfrage = i_end
         # end if
         
-        # # Vorblättern
-        # # ----------------------------
-        # if (index_abfrage == i_vor):
-        #
-        #     # Daten updaten
-        #     if len(data_changed_pos_list) > 0:
-        #         konto_obj.write_anzeige_back_data(new_data_llist, data_changed_pos_list, istart)
-        #
-        #     # Vorwärts gehen
-        #     dir = +1
-        #     runflag = True
-        #
-        # # Zurückblättern
-        # # ----------------------------
-        # elif (index_abfrage == i_back):
-        #
-        #     # Daten updaten
-        #     if len(data_changed_pos_list) > 0:
-        #         konto_obj.write_anzeige_back_data(new_data_llist, data_changed_pos_list,istart)
-        #
-        #     # Rückwärts gehen
-        #     dir = -1
-        #     runflag = True
-        #
         # Beenden
         # ----------------------------
         if (index_abfrage == i_end):
@@ -311,22 +298,74 @@ def anzeige(rd,konto_obj):
             # endif
             dir = 0
             runflag = True
-        elif( index_abfrage == i_delete ):
-            
+        elif index_abfrage == i_delete :
+            runflag = True
+            dir = 0
             if( irow >= 0 ):
                 flag = rd.gui.abfrage_janein(text=f"Soll irow = {irow} (von null gezält) gelöschen werden")
                 if( flag ):
                     (status,errtext) = konto_obj.delete_data_set(irow)
                     if( status != hdef.OKAY ):
                         rd.log.write_err("konto__anzeige delete " + errtext, screen=rd.par.LOG_SCREEN_OUT)
-                        return (status, konto_obj)
+                        runflag = False
                     # end if
                 # end if
-            # end if
+            else:
+                rd.log.write_err("konto__anzeige del row: irow out of range or not set", screen=rd.par.LOG_SCREEN_OUT)
+            # endif
+        elif index_abfrage == i_set_kat:
             runflag = True
             dir = 0
-        else:
+            if (irow >= 0):
+
+                (status, konto_obj) = depot_konto_kategorie.set_kat(rd,konto_obj,irow)
+
+                if( status != hdef.OKAY ):
+                    runflag = False
+            else:
+                rd.log.write_err("konto__anzeige set_kat: irow out of range or not set", screen=rd.par.LOG_SCREEN_OUT)
+            # endif
+        elif index_abfrage == i_del_kat:
             runflag = True
+            dir = 0
+            if (irow >= 0):
+
+                (flag, status, errtext) = \
+                    konto_obj.set_data_set_value(konto_obj.par.KONTO_DATA_NAME_KATEGORIE,
+                                                 "","str", irow)
+
+                if (status != hdef.OKAY):
+                    rd.log.write_err("konto_anzeige sdel kat " + errtext, screen=rd.par.LOG_SCREEN_OUT)
+                    runflag = False
+            else:
+                rd.log.write_err("konto_anzeige del_kat: irow out of range or not set", screen=rd.par.LOG_SCREEN_OUT)
+            # endif
+
+        elif index_abfrage == i_kat_regel_run:
+
+            runflag = True
+            dir = 0
+            # Kategorie Regeln anwenden
+            konto_obj.kategorie_regel_anwenden()
+
+            if konto_obj.status != hdef.OKAY:
+                rd.log.write_err("konto_anzeige regel anwenden" + konto_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
+                runflag = False
+            elif len(konto_obj.infotext):
+                rd.log.write_info("konto_anzeige regel anwenden" + konto_obj.infotext
+                                  ,screen=rd.par.LOG_SCREEN_OUT)
+            # endif
+        elif index_abfrage == i_kat_regel_build:
+
+            runflag = True
+            dir = 0
+
+            (status, konto_obj) = depot_konto_kategorie.kat_regel_build(rd, konto_obj, irow)
+
+        else:
+
+            runflag = True
+        # end if
     # end while
     
     return (status, konto_obj)

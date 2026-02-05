@@ -68,6 +68,7 @@ class Parameter:
     INI_PROTOCOL_FILE_NAME: str = "protocol_file"
     INI_KONTO_AUSWERTUNG_JAHR_NAME: str = "konto_auswert_jahr"
     INI_AUSWERT_PATH: str = "konto_auswert_path"
+    INI_AUSWERT_KONTO_NAMES: str = "konto_auswert_konto_names"
 
     INI_BASE_PROOF_LISTE = [(INI_KONTO_DATA_LIST_NAMES_NAME,"list_str")
                            ,(INI_DEPOT_DATA_LIST_NAMES_NAME,"list_str")
@@ -83,8 +84,9 @@ class Parameter:
                            ,(INI_WP_FUNC_INI_FILE_NAME,"str")
                            ,(INI_PROTOCOL_TYPE_NAME,"str")
                            ,(INI_PROTOCOL_FILE_NAME,"str")
-                           ,(INI_KONTO_AUSWERTUNG_JAHR_NAME,"yearStr","yearStr","2025")
+                           ,(INI_KONTO_AUSWERTUNG_JAHR_NAME,"yearStr","yearStr","2026")
                            ,(INI_AUSWERT_PATH,"str","str",".")
+                           ,(INI_AUSWERT_KONTO_NAMES,"list_str")
                            ]
     
 

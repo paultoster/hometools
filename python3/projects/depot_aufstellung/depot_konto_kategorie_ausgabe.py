@@ -23,6 +23,7 @@ import tools.hfkt_file_path as hfile
 
 import depot_kategorie_auswertung_class
 
+
 def excel_auswertung(rd):
     
     jahr = rd.ini.dict_tvar[rd.par.INI_KONTO_AUSWERTUNG_JAHR_NAME].val
@@ -34,29 +35,39 @@ def excel_auswertung(rd):
         rd.log.write_err("anzeige  kategorie: kein Konto eingerichtet", screen=rd.par.LOG_SCREEN_OUT)
         return hdef.NOT_OKAY
     # end if
+    konto_name_list = rd.ini.dict_tvar[rd.par.INI_AUSWERT_KONTO_NAMES].val
+    header_list = []
+    type_list = []
+    katauswertfunc = None
+
+    for ikont,konto_name in enumerate(konto_name_list):
+
+        if konto_name not in rd.ini.ddict[rd.par.INI_KONTO_DATA_LIST_NAMES_NAME]:
+            rd.log.write_err(f"anzeige kategorie: Kontoname {konto_name =} aus ini-File (var: {rd.par.INI_AUSWERT_KONTO_NAMES})  ist nicht angelegt", screen=rd.par.LOG_SCREEN_OUT)
+            return hdef.NOT_OKAY
+        # end if
+
+        if ikont == 0:
+
+            konto_obj = rd.konto_dict[konto_name].konto_obj
     
-    kont_name = rd.ini.ddict[rd.par.INI_KONTO_DATA_LIST_NAMES_NAME][0]
-    konto_obj = rd.konto_dict[kont_name].konto_obj
+            header_list = [konto_obj.par.KONTO_DATA_NAME_BUCHDATUM,
+                           konto_obj.par.KONTO_DATA_NAME_WER,
+                           konto_obj.par.KONTO_DATA_NAME_WERT,
+                           konto_obj.par.KONTO_DATA_NAME_COMMENT,
+                           konto_obj.par.KONTO_DATA_NAME_KATEGORIE]
+            type_list = ["dat", "str", "cent", "str", "str"]
     
-    header_list = [konto_obj.par.KONTO_DATA_NAME_BUCHDATUM,
-                   konto_obj.par.KONTO_DATA_NAME_WER,
-                   konto_obj.par.KONTO_DATA_NAME_WERT,
-                   konto_obj.par.KONTO_DATA_NAME_COMMENT,
-                   konto_obj.par.KONTO_DATA_NAME_KATEGORIE]
-    type_list = ["dat", "str", "cent", "str", "str"]
-    
-    # Erstelle Auswert Klassenobjekt
-    # zur headerlist kommt noch der Kontoname:
-    katauswertfunc = depot_kategorie_auswertung_class.KategorieAuswertungClass(konto_obj.par,
-                                                                         [konto_obj.par.KONTO_NAME] + header_list,
-                                                                         ["str"] + type_list,
-                                                                         rd.allg.katfunc,
-                                                                         jahr)
-    
-    # Loop over each konto
-    for kont_name in rd.ini.ddict[rd.par.INI_KONTO_DATA_LIST_NAMES_NAME]:
-        
-        konto_obj = rd.konto_dict[kont_name].konto_obj
+            # Erstelle Auswert Klassenobjekt
+            # zur headerlist kommt noch der Kontoname:
+            katauswertfunc = depot_kategorie_auswertung_class.KategorieAuswertungClass(konto_obj.par,
+                                                                                 [konto_obj.par.KONTO_NAME] + header_list,
+                                                                                 ["str"] + type_list,
+                                                                                 rd.allg.katfunc,
+                                                                                 jahr)
+        # end if
+
+        konto_obj = rd.konto_dict[konto_name].konto_obj
         
         # print(f"vor: {header_list =}")
         
@@ -72,7 +83,7 @@ def excel_auswertung(rd):
             return konto_obj.status
         # end if
         
-        add_row_liste = [kont_name for i in range(ttable.ntable)]
+        add_row_liste = [konto_name for i in range(ttable.ntable)]
         ttable = htvar.add_row_liste_to_table(ttable, konto_obj.par.KONTO_NAME, add_row_liste, "str")
         # print(f"nach1: {header_list =}")
         

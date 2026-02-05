@@ -15,7 +15,7 @@ import depot_gui
 import depot_konto_reports_read
 import depot_konto_anzeige
 import depot_konto_kategorie
-import depot_konto_kategorie_anzeige
+import depot_konto_kategorie_ausgabe
 
 def bearbeiten(rd):
     status = hdef.OKAY
@@ -28,10 +28,12 @@ def bearbeiten(rd):
     index_csv_ausgabe = 3
     
     if rd.allg.katfunc is not None:
-        start_auswahl.append("Kategorie DataSet")
-        start_auswahl.append("Kategorie Auswertung")
+        # start_auswahl.append("Kategorie DataSet")
+        start_auswahl.append("Kategorie edit (gruppe,kat,regel)")
+        start_auswahl.append("Kategorie für excel auswerten")
     # end if
-    index_kategorie = 4
+    # index_kategorie = 4
+    index_kategorie_edit_dict = 4
     index_kategorie_auswertung = 5
 
     while (runflag):
@@ -57,10 +59,15 @@ def bearbeiten(rd):
             status = depot_konto_bearbeiten_csv_ausgabe(rd)
             runflag = False
 
-        elif index == index_kategorie:
-        
-            status = depot_konto_bearbeiten_kategorie(rd)
-        
+        # elif index == index_kategorie:
+        #
+        #     status = depot_konto_bearbeiten_kategorie(rd)
+        #
+        #     runflag = False
+        #
+        elif index == index_kategorie_edit_dict:
+
+            status = depot_konto_bearbeiten_kategorie_edit(rd)
             runflag = False
         
         elif index == index_kategorie_auswertung:
@@ -142,22 +149,28 @@ def depot_konto_bearbeiten_csv_ausgabe(rd):
     # end if
     return status
 # end def
-def depot_konto_bearbeiten_kategorie(rd):
-    
-    (status,choice) = depot_konto_bearbeiten_konto_auswahl(rd)
+# def depot_konto_bearbeiten_kategorie(rd):
+#
+#     (status,choice) = depot_konto_bearbeiten_konto_auswahl(rd)
+#
+#     if status == hdef.OKAY:
+#         # Anzeigen und Kategorie bearbeiten
+#         (status,konto_obj) = depot_konto_kategorie.anzeige(rd,rd.konto_dict[choice].konto_obj)
+#
+#         rd.konto_dict[choice].konto_obj = konto_obj
+#
+#     return status
+# # end def
+def depot_konto_bearbeiten_kategorie_edit(rd):
 
-    if status == hdef.OKAY:
-        # Anzeigen und Kategorie bearbeiten
-        (status,konto_obj) = depot_konto_kategorie.anzeige(rd,rd.konto_dict[choice].konto_obj)
-        
-        rd.konto_dict[choice].konto_obj = konto_obj
-
+    # Anzeigen excel
+    status = depot_konto_kategorie.edit_dict(rd)
     return status
-# end def
+
 def depot_konto_bearbeiten_kategorie_auswertung(rd):
 
     # Anzeigen excel
-    status = depot_konto_kategorie_anzeige.excel_auswertung(rd)
+    status = depot_konto_kategorie_ausgabe.excel_auswertung(rd)
 
     return status
 

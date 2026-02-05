@@ -1063,7 +1063,7 @@ class KontoDataSet:
             noproof = False
         
         index_liste = list(self.par.KONTO_DATA_EXTERN_NAME_DICT.keys())
-        
+
         changed = False
         for (irow, icol) in data_changed_pos_list:
             
@@ -1072,10 +1072,32 @@ class KontoDataSet:
             type  = ttable_anzeige.types[icol]
             
             if noproof or name in header_liste:
-            
+
+                run_change = True
                 if name in self.par.KONTO_DATA_IMMUTABLE_NAME_LIST:
+                    run_change = False
                     self.infotext = f"Der Wert von {name} mit dem Wert in table.vals[{irow}][{icol}] = {value} darf nicht verändert werden !!!!!!!"
-                else:
+                elif name == self.par.KONTO_DATA_NAME_KATEGORIE:
+
+                    wert = htvar.get_val_from_table(ttable_anzeige, irow, self.par.KONTO_DATA_NAME_WERT, "cent")
+
+                    (flag, value) = self.katfunc.is_katval_set_and_correct(value, wert)
+                    if self.katfunc.status != hdef.OKAY:
+                        self.status  = hdef.NOT_OKAY
+                        self.errtext = "konto_anzeige update " + self.katfunc.errtext
+                        self.katfunc.reset_status()
+                        return
+                    # end if
+
+                    if not flag:
+                        run_change = False
+                        if len(self.infotext):
+                            self.infotext += "\n"
+                        # end if
+                        self.infotext += f"Die geänderte Kategorie \"{htvar.get_val_from_table(ttable_anzeige, irow, icol)}\" mit {irow =} und {icol =} ist ist nicht in Kategorieliste:\n {self.katfunc.get_kat_list()}"
+                    # end if
+                # end if
+                if run_change:
                     if self.data_set_obj.set_data_item(value, self.par.LINE_COLOR_EDIT, irow, name, type):
                         
                         if self.data_set_obj.status != hdef.OKAY:
@@ -1096,36 +1118,9 @@ class KontoDataSet:
             # recalc
             self.recalc_sum_data_set()
         # end if
-    
+
+        return
     # end def
-    #
-    # def update_sumwert_in_lliste(self,istart):
-    #     '''
-    #
-    #     :return:
-    #     '''
-    #
-    #     if istart == 0:
-    #         sumwert = self.konto_start_wert
-    #     else:
-    #         sumwert = self.data_set_obj.get_data_item(istart - 1,self.par.KONTO_DATA_NAME_SUMWERT)
-    #     # end if
-    #
-    #     i = istart
-    #     while i < self.data_set_obj.get_n_data():
-    #         sumwert += self.data_set_obj.get_data_item(i,self.par.KONTO_DATA_NAME_WERT)
-    #         self.data_set_obj.set_data_item(int(sumwert), self.par.KONTO_DATA_NAME_SUMWERT, "cent")
-    #         i += 1
-    #     # end while
-    #
-    # def delete_new_data_list(self):
-    #     '''
-    #
-    #     :return: self.delete_new_data_list()
-    #     '''
-    #     self.new_read_id_list = []
-    #
-    # # end def
     def get_edit_data(self,irow):
         '''
         
