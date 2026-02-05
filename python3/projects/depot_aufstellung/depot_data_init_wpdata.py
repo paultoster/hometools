@@ -94,7 +94,10 @@ def save(rd,depot_data_obj,wp_list_name,isin):
                                                     wp_list_name,
                                                     isin)
     """
-    
+
+    status = hdef.OKAY
+    errtext = ""
+
     # for new isins:
     if wp_list_name not in depot_data_obj.wp_obj_dict:
         

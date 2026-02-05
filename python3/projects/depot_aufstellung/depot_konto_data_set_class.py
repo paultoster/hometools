@@ -833,15 +833,21 @@ class KontoDataSet:
         if isinstance(new_data_table,htvar.TList):
             new_data_table = htvar.build_table_from_list(new_data_table)
         # end if
-        
+
+        if new_data_table.ntable == 0:
+            self.status = hdef.NOT_OKAY
+            self.errtext = "The new table is empty"
+            return (False, self.status, self.errtext,self.infotext)
+        # end if
+
         new_data_table = self.add_chash_to_table(new_data_table)
         if self.status != hdef.OKAY:
-            return (False, self.status, self.errtext)
+            return (False, self.status, self.errtext,self.infotext)
         # endif
 
         new_data_table = self.filter_by_chash_to_table(new_data_table)
         if self.status != hdef.OKAY:
-            return (False, self.status, self.errtext)
+            return (False, self.status, self.errtext,self.infotext)
         # endif
         
         if new_data_table.ntable > 0:
@@ -858,7 +864,7 @@ class KontoDataSet:
             # end if
             
             if self.status != hdef.OKAY:
-                return (False, self.status, self.errtext)
+                return (False, self.status, self.errtext,self.infotext)
             # endif
         
         
@@ -868,7 +874,7 @@ class KontoDataSet:
             
             new_data_table = self.build_internal_values_new_data_table(new_data_table)
             if self.status != hdef.OKAY:
-                return (False, self.status, self.errtext)
+                return (False, self.status, self.errtext,self.infotext)
             # endif
             
             # find suspicious
@@ -880,7 +886,7 @@ class KontoDataSet:
                 self.status = status
                 self.errtext = self.data_set_obj.errtext
                 self.data_set_obj.reset_status()
-                return (False, self.status, self.errtext)
+                return (False, self.status, self.errtext,self.infotext)
             # endif
             
             # check iban
@@ -1634,7 +1640,7 @@ class KontoDataSet:
         # end if
     
         # if not search wkn from comment
-        if (okay != hdef.OKAY) and (len(comment) > 0):
+        if (len(isin) == 0) and (len(comment) > 0):
             (okay, wkn,isin) = self.search_wkn_from_comment(comment)
         # end if
     

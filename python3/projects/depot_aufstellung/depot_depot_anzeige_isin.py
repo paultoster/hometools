@@ -50,21 +50,29 @@ def anzeige_depot_isin(rd,isin,depot_obj,depot_dict):
             (sw, irow, changed_pos_list, ttable_update) = anzeige_isin(rd, ttable, title, row_color_dliste)
             
             if sw <= 0: # ende
+
+                status = update_ttable(rd, depot_obj, isin, changed_pos_list, ttable_update)
                 runflag = False
                 sw = -1
             elif sw == 1:  # zurück zu overview
+
+                status = update_ttable(rd, depot_obj, isin, changed_pos_list, ttable_update)
                 sw = 0
                 runflag = False
             elif sw == 2:  # edit
+
                 choice_isin = choice_isin_edit
                 runflag = True
             elif sw == 3:  # delete
+
                 choice_isin = choice_isin_delete
                 runflag = True
             elif sw == 4:  # kurs
+
                 choice_isin = choice_isin_kurs
                 runflag = True
             else:  # update
+
                 choice_isin = choice_isin_update
                 runflag = True
             # end if
@@ -166,20 +174,41 @@ def anzeige_depot_isin(rd,isin,depot_obj,depot_dict):
             runflag = True
         
         else: #  if choice_isin == choice_isin_update:
-            (status, new_data_set_flag) = depot_obj.update_data_ttable(isin, changed_pos_list, ttable_update)
-            
-            if status != hdef.OKAY:  # Abbruch
-                rd.log.write_err(depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
-                status = depot_obj.reset_status()
-                return (sw,status)
-            # end if
-            
+
+            status = update_ttable(rd,depot_obj,isin, changed_pos_list, ttable_update)
+
             choice_isin = choice_isin_overview
             runflag = True
         # end if
     # end while
     return (sw,status)
 
+# end def
+def update_ttable(rd,depot_obj,isin, changed_pos_list, ttable_update):
+    """
+
+    :param rd:
+    :param depot_obj:
+    :param isin:
+    :param changed_pos_list:
+    :param ttable_update:
+    :return: (status,new_data_set_flag) = update_ttable(rd,depot_obj,isin, changed_pos_list, ttable_update)
+    """
+
+    if (len(changed_pos_list) > 0) and (len(isin) > 0):
+
+        (status, new_data_set_flag) = depot_obj.update_data_ttable(isin, changed_pos_list, ttable_update)
+
+        if status != hdef.OKAY:  # Abbruch
+            rd.log.write_err(depot_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
+            status = depot_obj.reset_status()
+        # end if
+    else:
+        status = hdef.OKAY
+        new_data_set_flag = False
+    # end if
+
+    return (status, new_data_set_flag)
 # end def
 def anzeige_isin(rd, ttable, title, row_color_dliste):
     '''
