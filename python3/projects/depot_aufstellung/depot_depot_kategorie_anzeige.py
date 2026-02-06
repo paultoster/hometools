@@ -105,7 +105,7 @@ def anzeige_mit_kategorie_wahl(rd):
             print(f"Depot: {depot_name} isin: {isin}")
             pyperclip.copy(isin)
             
-            (sw, status) = depot_depot_anzeige_isin.anzeige_depot_isin(rd, isin, depot_obj, depot_dict)
+            (sw, status) = depot_depot_anzeige_isin.anzeige_depot_isin(rd, isin, depot_obj)
             
             if sw < 0:
                 runflag = False
