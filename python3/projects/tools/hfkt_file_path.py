@@ -42,6 +42,9 @@
                                 path      = "d:\\abc\\def"
                                 body      = "ghj"
                                 ext       = "dat"
+
+def build_path_with_forward_slash(path_name)
+fullpath = get_abs_dir(rel_dir,base_dir)
     
 '''
 
@@ -70,6 +73,7 @@ t_path, _ = os.path.split(__file__)
 if (t_path == os.getcwd()):
     
     import hfkt_str as hstr
+    import hfkt_def as hdef
 else:
     p_list = os.path.normpath(t_path).split(os.sep)
     if (len(p_list) > 1): p_list = p_list[: -1]
@@ -952,8 +956,165 @@ def file_split(file_name):
 
 
 # end def
+def build_list_from_path(path_name):
+    """
+
+    :param path_name:
+    :return: liste = build_list_from_path(path_name)
+    """
+    path_mod_name = hstr.change_max(path_name,"/",os.sep)
+    path_liste = os.path.normpath(path_mod_name).split(os.sep)
+    return path_liste
+# end def
+def build_path_with_forward_slash(path_name):
+    """
+
+    :param path_name:
+    :return: path_name_mod = build_path_with_forward_slash(path_name)
+    """
+    p_list = os.path.normpath(path_name).split(os.sep)
+    return build_path_from_list_with_forward_slash(p_list)
+# end def
+def build_path_from_list_with_forward_slash(p_list):
+    """
+
+    :param p_list:
+    :return:
+    """
+    n = len(p_list)
+    path_name_mod = ""
+    for i,item in enumerate(p_list):
+        path_name_mod += item
+        if i < n-1:
+            path_name_mod += '/'
+    # end for
+    return path_name_mod
+# end def
+def get_abs_dir(rel_dir,base_dir):
+    """
+
+    :param rel_dir:
+    :param base_dir:
+    :return: fullpath = get_abs_dir(rel_dir,base_dir)
+             fullpath = get_abs_dir(rel_dir_list,base_dir_list)
+    """
+
+    if isinstance(rel_dir,list):
+        rel_dir_list = rel_dir
+    else:
+        rel_dir_list = os.path.normpath(rel_dir).split(os.sep)
+    # end if
+
+    if isinstance(base_dir,list):
+        base_dir_list = base_dir
+    else:
+        base_dir_list = os.path.normpath(base_dir).split(os.sep)
+    # end if
+
+    rev_base_dir_list = base_dir_list[::-1]
+
+    t = '.'
+    prev_fold = False
+    curr_fold = True
+    has_rel_path = False
+
+    while prev_fold or curr_fold:
+
+        if len(rel_dir_list):
+            t = rel_dir_list[0]
+            del rel_dir_list[0]
+        else:
+            t = ""
+
+        prev_fold = (t == '..')
+        curr_fold = (t == '.')
+
+        if prev_fold and len(rev_base_dir_list):
+            del rev_base_dir_list[0]
+        # end if
+        if prev_fold or curr_fold:
+            has_rel_path = True
+    # end while
+
+    if has_rel_path:
+        liste = rev_base_dir_list[::-1]
+    else:
+        liste = []
+    # end if
+
+    if len(t):
+        liste.append(t)
+    # end if
+
+    liste += rel_dir_list
+
+    return build_path_from_list_with_forward_slash(liste)
+# end def
+def get_rel_dir(target_dir,abs_dir):
+    """
+    
+    :param target_dir: 
+    :param abs_dir: 
+    :return: rel_dir = get_rel_dir(target_dir,abs_dir)
+    """
+
+    if isinstance(abs_dir,list):
+        abs_dir_list = abs_dir
+    else:
+        abs_dir_list = os.path.normpath(abs_dir).split(os.sep)
+    # end if
+
+    if isinstance(target_dir,list):
+        target_dir_list = target_dir
+    else:
+        target_dir_list = os.path.normpath(target_dir).split(os.sep)
+    # end if
+
+    nabs = len(abs_dir_list)
+    ntar = len(target_dir_list)
+
+    n = min(nabs,ntar)
+
+    if n == 1:
+
+        rel_dir_list = ["."]
+    else:
+
+        istart = n-1
+        for i in range(0,n):
+            if abs_dir_list[i] != target_dir_list[i]:
+                istart = i-1
+                break
+            # end if
+        # end for
+
+        rel_dir_list = []
+        if (istart == n-1) and (nabs == ntar):
+            rel_dir_list.append(".")
+        else:
+            if nabs > istart+1:
+                rel_dir_list = [".."]
+                for i in range(istart+2,nabs):
+                    rel_dir_list.append("..")
+                # end ofr
+            else:
+                rel_dir_list.append(".")
+            # end if
+
+            if ntar > istart+1:
+                for i in range(istart+1,ntar):
+                    rel_dir_list.append(target_dir_list[i])
+                # end for
+            # end if
+        # end if
+    # end if
+    return build_path_from_list_with_forward_slash(rel_dir_list)
 ###########################################################################
 # testen mit main
 ###########################################################################
 if __name__ == '__main__':
-    pass
+    # path_name_mod = build_path_with_forward_slash("K:/data/md")
+    # print(f"{path_name_mod = }")
+
+    p = get_rel_dir("K:/data/md/_bilder/erste",'K:/data/md/Music/Rock',)
+    print(f"{p = }")

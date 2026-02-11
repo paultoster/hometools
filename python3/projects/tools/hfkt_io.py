@@ -29,8 +29,9 @@
  def (state,header,data)=read_csv_file_header_data(file_name,delim=";")
  def write_csv_file_header_data(file_name,csv_header,csv_data,delim=";")
  (okay,data) = read_ascii(file_name=name) entire ascii-text with all carriage return (\n)
+ (okay,lines) =  read_ascii_build_list_of_lines(file_name) return(okay,lines) list of lines from ascii-text
  okay = write_ascii(file_name=name,data) write ascii with carriage return (\n)
- def read_ascii_build_list_of_lines(file_name) return(okay,lines) list of lines from ascii-text
+
 ##################################################################################
 # Schreiben in HTML-File
 ##################################################################################
@@ -771,27 +772,76 @@ def write_csv_file_ttable(file_name,ttable,delim=";"):
 def read_ascii_build_list_of_lines(file_name):
 
     (okay,txt) = read_ascii(file_name)
+
+    lines = []
     if( okay):
 
-      lines = txt.split("\n")
-      if( len(lines[-1]) == 0 ):lines = lines[:-1]
-    else:
-      lines = []
-    #endif
+        index = hstr.such(txt, "\r\n")
+        if index >= 0:
+            line_list = txt.split("\r\n")
+        else:
+            line_list = hstr.split_text(txt, "\n")
+            # index = hstr.such(txt, "\n\n")
+            # if index >= 0:
+            #     line_list = txt.split("\n\n")
+            # else:
+            #     line_list = hstr.split_text(txt, "\n")
+            # # end if
+        # end if
+        n = len(line_list)
+        while (n > 0 ) and (len(line_list[-1]) == 0):
+            del line_list[-1]
+            n = len(line_list)
+        # end while
+        n = len(line_list)
+        i = 0
+        while i < n:
+            line = hstr.change(line_list[i], '\ufeff', '')
+            # line = hstr.elim_e(line,'\n')
+            lines.append(line)
+            i = i + 1
+        # end while
+    # end if
 
     return (okay,lines)
 
 def read_ascii(file_name):
-
     okay  = hdef.NOT_OK
+    data = ""
+
     if( os.path.isfile(file_name) ):
+
         with open(file_name) as f:
-            data = f.read()
-        okay = hdef.OK
+            try:
+                data = f.read()
+                okay = hdef.OK
+            except:
+                okay = hdef.NOT_OKAY
+        # end with
+        if okay != hdef.OK:
+            with open(file_name,mode='r',encoding='utf-8') as f:
+                try:
+                    data = f.read()
+                    okay = hdef.OK
+                except:
+                    okay = hdef.NOT_OKAY
+            # end with
+        if okay != hdef.OK:
+            with codecs.open(file_name, 'r', encoding='utf-8') as f:
+                try:
+                    data = f.read()
+                    f.close()
+                    okay = hdef.OK
+                except:
+                    f.close()
+            # end with
+        # end if
+
     else:
         print("Datei: "+file_name+" besteht nicht !!!")
     #endif
     return (okay,data)
+# end def
 def write_ascii(file_name,data):
     """
      write ascii with carriage return (\n)
