@@ -181,3 +181,12 @@ def get_last_price_volume(wp_obj):
     
     return (status, errtext)
 # end def
+def get_last_price_volume_isin(wp_obj, isin):
+    """
+
+    :param wp_obj:
+    :param isin:
+    :return: (status, errtext) = get_last_price_volume_isin(wp_obj, isin)
+    """
+
+    last_active_date =

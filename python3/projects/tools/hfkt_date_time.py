@@ -10,6 +10,12 @@
  def int_akt_time():
  def str_akt_datum(delim="."):
  def str_datum(int_dat):
+
+ dat_in  = calc_dat_tuple_to_int_dat(date_tuple)
+ (d,m,j) = get_akt_dat_tuple()
+ flag    = is_dat_tuple_a_to_b(a_date_tuple,b_dat_list,'>','>=','==','<=','<')
+ str_dat = str_dat_from_dat_tuple(date_tuple)
+
  secs = secs_akt_time_epoch()
  secs = secs_time_epoch_from_int(intval)
  secs = secs_time_epoch_from_str_re(str_dat)
@@ -47,6 +53,7 @@ import datetime
 import calendar
 import math
 import re
+from sys import excepthook
 from typing import Any
 import dateparser
 import os
@@ -221,7 +228,134 @@ def str_datum(int_dat):
 
 
 # enddef
+def get_akt_dat_list():
+    """
+    retun dat_list day month year
+    :return: (d, m, y) = get_akt_dat_list()
+    """
+    current_date = datetime.datetime.now()
 
+    return [current_date.day, current_date.month, current_date.year]
+# end def
+def calc_dat_list_to_int_dat(tup):
+    """
+        tup = (12,05,1959) (tt,mm,jjjj)
+        int_dat = calc_dat_list_to_int_dat(tup)
+        int_dat : 19590512 jjjjmmtt
+    :param tup:
+    :return: int_dat = calc_date_tuple_to_int_dat(tup)
+    """
+    return tup[2]*10000 + tup[1]*100 + tup[0]
+# end def
+def  is_dat_list_a_to_b(a_dat_list, b_dat_list,sign):
+
+    a_int_dat = calc_dat_list_to_int_dat(a_dat_list)
+    b_int_dat = calc_dat_list_to_int_dat(b_dat_list)
+    if sign == '>':
+        return a_int_dat > b_int_dat
+    elif sign == '>=':
+        return a_int_dat >= b_int_dat
+    elif sign == '==':
+        return a_int_dat == b_int_dat
+    elif sign == '<=':
+        return a_int_dat <= b_int_dat
+    elif sign == '<':
+        return a_int_dat < b_int_dat
+    else:
+        raise exception(f"is_date_tuple_a_to_b: sign = {sign} is unkown")
+    # end
+# end def
+def get_isoweekday(dat_tup):
+    """
+    1: montag, ... 7:Sonntag
+
+    :param dat_tup: Tuple mit mindestens Datum (tt,mm,jjjj)
+    :return: isoweekday =  get_isoweekday(dat_tup)
+    """
+    datum = datetime.date(dat_tup[2], dat_tup[1], dat_tup[0])
+    return datum.isoweekday()
+# end if
+def verschiebe_dat_list_in_tagen(dat_list,tage):
+    """
+        tage > 0 nach vorne
+        tage < 0 zurück
+
+    :param dat_list:
+    :param tage:
+    :return: dat_tup = verschiebe_dat_tup_in_tagen(dat_tup,tage)
+    """
+    datum = datetime.date(dat_list[2], dat_list[1], dat_list[0])
+
+    if tage < 0:
+        datum -= datetime.timedelta(days=abs(tage))
+    elif tage > 0:
+        datum += datetime.timedelta(days=tage)
+    # endif
+
+    dat_list[0] = datum.day
+    dat_list[1] = datum.month
+    dat_list[2] = datum.year
+
+    return dat_list
+# end if
+def str_dat_from_dat_list(dat_tup):
+    """
+    format: (tt,mm,jjjj) → tt.mm.jjjj
+    :param dat_tup:
+    :return: str_dat = str_dat_from_dat_list(date_tuple)
+    """
+    st = ("%s" % dat_tup[0]) + (".%s" % dat_tup[1]) + (".%s" % dat_tup[2])
+    return st
+# end def
+def get_akt_dat_time_list():
+    """
+    format: (tt,mm,jjjj,hh,mm,ss)
+    :return: tup = get_akt_dat_time_list()
+    """
+    current_date = datetime.datetime.now()
+
+    return [current_date.day, current_date.month, current_date.year,current_date.hour,current_date.minute,current_date.second]
+# end def
+def calc_dat_time_list_to_int_dat(tup):
+    """
+        tup = (12,05,1959) (tt,mm,jjjj)
+        int_dat = calc_dat_list_to_int_dat(tup)
+        int_dat : 19590512 jjjjmmtt
+    :param tup:
+    :return: int_dat = calc_date_tuple_to_int_dat(tup)
+    """
+    val = tup[2]*10000 + tup[1]*100 + tup[0]
+    val = val*1000000 + tup[3]*10000 + tup[4]*100 + tup[5]
+    return val
+# end def
+def  is_dat_time_list_a_to_b(a_dat_time_list, b_dat_time_list,sign):
+
+    a_int_dat_time = calc_dat_time_list_to_int_dat(a_dat_time_list)
+    b_int_dat_time = calc_dat_time_list_to_int_dat(b_dat_time_list)
+    if sign == '>':
+        return a_int_dat_time > b_int_dat_time
+    elif sign == '>=':
+        return a_int_dat_time >= b_int_dat_time
+    elif sign == '==':
+        return a_int_dat_time == b_int_dat_time
+    elif sign == '<=':
+        return a_int_dat_time <= b_int_dat_time
+    elif sign == '<':
+        return a_int_dat_time < b_int_dat_time
+    else:
+        raise exception(f"is_date_tuple_a_to_b: sign = {sign} is unkown")
+    # end
+# end def
+def str_dat_time_from_dat_time_list(dat_time_list):
+    """
+    format: (tt,mm,jjjj,hh,mm,ss) → tt.mm.jjjj
+    :param dat_tup:
+    :return: str_dat = str_dat_from_dat_list(date_tuple)
+    """
+    st = ("%s" % dat_time_list[0]) + (".%s" % dat_time_list[1]) + (".%s" % dat_time_list[2])
+    st += (" %s" % dat_time_list[3]) + (":%s" % dat_time_list[4]) + (":%s" % dat_time_list[5])
+    return st
+# end def
 
 ########################################################################################################################
 def datum_str_make_correction(str_dat, delim="."):

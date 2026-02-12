@@ -71,7 +71,7 @@ class log:
     # Log-File öffnen
     #----------------
     try:
-      self.fid              = open(self.log_file,"w")
+      self.fid              = open(self.log_file,mode='w', encoding='utf-8')
       self.logfile_out_flag = True
 
     except IOError:

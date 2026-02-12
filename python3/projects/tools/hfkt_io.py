@@ -31,7 +31,7 @@
  (okay,data) = read_ascii(file_name=name) entire ascii-text with all carriage return (\n)
  (okay,lines) =  read_ascii_build_list_of_lines(file_name) return(okay,lines) list of lines from ascii-text
  okay = write_ascii(file_name=name,data) write ascii with carriage return (\n)
-
+okay = read_http_file(http_filename,local_filename)
 ##################################################################################
 # Schreiben in HTML-File
 ##################################################################################
@@ -72,6 +72,9 @@ import csv
 # import ftfy
 #import fnmatch
 import codecs
+import requests
+import locale
+
 #-------------------------------------------------------------------------------
 t_path, _ = os.path.split(__file__)
 if( t_path == os.getcwd() ):
@@ -797,6 +800,7 @@ def read_ascii_build_list_of_lines(file_name):
         i = 0
         while i < n:
             line = hstr.change(line_list[i], '\ufeff', '')
+
             # line = hstr.elim_e(line,'\n')
             lines.append(line)
             i = i + 1
@@ -811,21 +815,13 @@ def read_ascii(file_name):
 
     if( os.path.isfile(file_name) ):
 
-        with open(file_name) as f:
+        with open(file_name, mode='r', encoding='utf-8') as f:
             try:
                 data = f.read()
                 okay = hdef.OK
             except:
                 okay = hdef.NOT_OKAY
         # end with
-        if okay != hdef.OK:
-            with open(file_name,mode='r',encoding='utf-8') as f:
-                try:
-                    data = f.read()
-                    okay = hdef.OK
-                except:
-                    okay = hdef.NOT_OKAY
-            # end with
         if okay != hdef.OK:
             with codecs.open(file_name, 'r', encoding='utf-8') as f:
                 try:
@@ -836,21 +832,33 @@ def read_ascii(file_name):
                     f.close()
             # end with
         # end if
+        if okay != hdef.OK:
+            with open(file_name) as f:
+                try:
+                    data = f.read()
+                    okay = hdef.OK
+                except:
+                    okay = hdef.NOT_OKAY
+            # end with
 
     else:
         print("Datei: "+file_name+" besteht nicht !!!")
     #endif
     return (okay,data)
 # end def
-def write_ascii(file_name,data):
+def write_ascii(file_name,data,preferred_encoding=None):
     """
      write ascii with carriage return (\n)
     """
     okay  = hdef.OK
+
+    if not preferred_encoding:
+        preferred_encoding = locale.getpreferredencoding()
+
     if( htype.is_list(data) ):
 
         try:
-            with open(file_name, 'w') as f:
+            with open(file_name, mode='w', encoding=preferred_encoding) as f:
                 for line in data:
                     f.write(line)
                     f.write('\n')
@@ -861,7 +869,7 @@ def write_ascii(file_name,data):
 
     else:
         try:
-            with open(file_name, 'w') as f:
+            with open(file_name, mode='w', encoding=preferred_encoding) as f:
                 f.write(data)
             #endwith
         except:
@@ -869,6 +877,45 @@ def write_ascii(file_name,data):
 
     #endif
     return okay
+# end def
+def read_http_file(http_filename,local_filename):
+    """
+
+    :param http_filename:
+    :param local_filename:
+    :return: okay = read_http_file(http_filename,local_filename)
+    """
+    # Bild von der URL herunterladen
+    response = requests.get(http_filename)
+
+    # Überprüfen, ob der Abruf erfolgreich war (Status Code 200)
+    if response.status_code == 200:
+        # Bild im "Write Binary" Modus ('wb') speichern
+        with open(local_filename, 'wb') as f:
+            f.write(response.content)
+        okay = hdef.OK
+    else:
+        okay = hdef.NOT_OKAY
+    # end if
+    return okay
+# end def
+def exist_http_file(http_filename):
+    """
+
+    :param http_filename:
+    :return: okay = exist_http_file(http_filename)
+    """
+    # Bild von der URL herunterladen
+    response = requests.get(http_filename)
+
+    # Überprüfen, ob der Abruf erfolgreich war (Status Code 200)
+    if response.status_code == 200:
+        okay = hdef.OK
+    else:
+        okay = hdef.NOT_OKAY
+    # end if
+    return okay
+# end def
 ##################################################################################
 # Schreiben in HTML-File
 ##################################################################################
@@ -1020,4 +1067,7 @@ def html_get_filename_for_browser(filename):
 # testen mit main
 ###########################################################################
 if __name__ == '__main__':
-    pass
+
+
+
+    okay = read_http_file(http_filename,local_filename)

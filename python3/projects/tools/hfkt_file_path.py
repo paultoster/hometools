@@ -43,9 +43,11 @@
                                 body      = "ghj"
                                 ext       = "dat"
 
-def build_path_with_forward_slash(path_name)
+liste = build_list_from_path(path_name)
+path = build_path_with_forward_slash(path_name)
+path = build_path_from_list_with_forward_slash(p_list)
 fullpath = get_abs_dir(rel_dir,base_dir)
-    
+rel_dir = get_rel_dir(target_dir,abs_dir)
 '''
 
 # from tkinter import *
@@ -853,7 +855,7 @@ def build_path(pathname):
             print("Das Zielverzeichnis %s kann nicht erstellt werden" % pathname)
             return NOT_OK
     else:
-        return True
+        return OK
 
 
 #
@@ -869,7 +871,33 @@ def clear_path(pathname):
             return NOT_OK
     return OK
 
+def find_file(filename,searchpath):
+    """
 
+    :param filename:
+    :param path:
+    :return: fullfilename =  find_file(filename,searchpath)
+
+            e.g. fullfilename =  find_file("abcd.txt","D:/doku")
+
+                fullfilename = None if not found
+                fullfilename = "D:/doku/Texte/abcd.txt" wenn gefunden
+    """
+
+    (fpath, fbody, fext) = get_pfe(filename)
+    fullfilename = None
+    fbody_lower  = fbody.lower()
+    liste = find_file_pattern("*."+fext,searchpath)
+
+    for file in liste:
+        (spath, sbody, sext) = get_pfe(file)
+        if fbody_lower == sbody.lower():
+            fullfilename = file
+            break
+        #end if
+    # end if
+    return fullfilename
+# end def
 def find_file_pattern(pattern, path):
     """
     find_file_pattern(pattern, path) returns a list of file
@@ -979,7 +1007,7 @@ def build_path_from_list_with_forward_slash(p_list):
     """
 
     :param p_list:
-    :return:
+    :return: path = build_path_from_list_with_forward_slash(p_list)
     """
     n = len(p_list)
     path_name_mod = ""
@@ -1116,5 +1144,14 @@ if __name__ == '__main__':
     # path_name_mod = build_path_with_forward_slash("K:/data/md")
     # print(f"{path_name_mod = }")
 
-    p = get_rel_dir("K:/data/md/_bilder/erste",'K:/data/md/Music/Rock',)
-    print(f"{p = }")
+    # p = get_rel_dir("K:/data/md/_bilder/erste",'K:/data/md/Music/Rock',)
+    # print(f"{p = }")
+
+    searchfile = "Newmont240905.jpg"
+    base_path = "K:\\data\\md"
+    f = find_file(searchfile,base_path )
+
+    if f:
+        print(f"fullfile = {f}")
+    else:
+        print(f"File {searchfile} not found")
