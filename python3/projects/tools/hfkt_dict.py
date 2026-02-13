@@ -85,6 +85,7 @@ def proof_transform_ddict(ddict, proof_liste):
                       ("name","str","str"),
                       ("datum","datStrP","dat"2")]
                                                  hier wird der Type geprüft und transformiert "euroStrK" => "euro"
+    4. proof_liste = [("wert","euroStrK","euro","0,00")]  gibt einen default-Wert an
      
     
     :param ddict:
@@ -98,6 +99,7 @@ def proof_transform_ddict(ddict, proof_liste):
         proof_name = False
         proof_type = False
         trans_type = False
+        default_val = False
         if isinstance(item,str):
             proof_name = True
             name       = item
@@ -118,16 +120,27 @@ def proof_transform_ddict(ddict, proof_liste):
             if (n > 2) and isinstance(item[2],str):
                 trans_type = True
             # end if
+            if n > 3:
+                default_val = True
+            # end if
         else:
             status = hdef.NOT_OKAY
             errtext = f"proof_transform_ddict: proof_liste wird nicht erkannt proof_liste[{index}] = {item}"
             return (status,errtext,ddict)
         # end if
         
-        if proof_name and (name not in ddict):
-            status = hdef.NOT_OKAY
-            errtext = f"proof_transform_ddict: proof_liste[{index}] = {name} ist nicht in dictionary"
-            return (status, errtext,ddict)
+        if proof_name:
+            if default_val:
+                if name in ddict:
+                    defualt_val = False
+                else:
+                    ddict[name] = item[3]
+                # end if
+            elif  (name not in ddict):
+                status = hdef.NOT_OKAY
+                errtext = f"proof_transform_ddict: proof_liste[{index}] = {name} ist nicht in dictionary"
+                return (status, errtext,ddict)
+            # end if
         # end if
         if trans_type:
             [okay, wert] = htype.type_transform(ddict[name], item[1], item[2])

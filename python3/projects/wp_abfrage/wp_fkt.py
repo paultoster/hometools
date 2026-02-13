@@ -102,9 +102,9 @@ def letzter_beendeter_handelstag_dat_list(boerse):
     """
 
     :param boerse:
-    :return: dat_list = letzter_beendeter_handelstag_dat_list(boerse)
+    :return: dat_time_list = letzter_beendeter_handelstag_dat_list(boerse)
     """
-    # aktuelle Zeit
+    # letzte Handelszeit Zeit
     dat_time_list = hdt.get_akt_dat_time_list()
 
     # wenn kein Handelstag, dann ein Tag zurück bis Handelstag
@@ -118,6 +118,7 @@ def letzter_beendeter_handelstag_dat_list(boerse):
         raise exception(f"ausgewählte Börse {boerse} ist nicht implementiert")
     # end if
 
+    # aktuelle Zeit
     akt_dat_time_list = hdt.get_akt_dat_time_list()
 
     # Wenn aktuelle Zeit nach Handelschluß dann Handelstag nehmen

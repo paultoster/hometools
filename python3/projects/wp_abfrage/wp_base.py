@@ -23,7 +23,9 @@ INI_DICT_PROOF_LISTE = [("store_path", "str"),
                         ("wkn_isin_n_times", "int", "int", 2),
                         ("ariva_user","str"),
                         ("ariva_pw","str"),
-                        ("ariva_timeout_playright","int","int",10000)
+                        ("ariva_timeout_playright","int","int",10000),
+                        ("boerse","str","str","xetra"),
+                        ("price_volumen_pre_file_name", "str")
                         ]
 
 
@@ -349,8 +351,7 @@ if __name__ == '__main__':
     isin = "DE000ETFL482"
     
     store_path = "K:/data/orga/wp_store"
-    use_json = 0 # 0: don't 1: write, 2: read
-    wp = WPData(store_path,use_json)
+    wp = WPData(store_path)
     if wp.status != hdef.OKAY:
         print(f"WPData: Fehler  errtext = {wp.errtext}")
         exit(1)

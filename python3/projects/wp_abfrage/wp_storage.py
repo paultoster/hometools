@@ -3,6 +3,7 @@ import pickle
 import json
 import zlib
 import traceback
+import pandas as pd
 
 import tools.hfkt_def as hdef
 # import tools.hfkt_str as hstr
@@ -168,6 +169,15 @@ def build_file_name_json(body,base_ddict):
     :return: file_name
     '''
     return os.path.join(base_ddict["store_path"], body+".json")
+# end def
+def build_file_name_pandas(body,base_ddict):
+    '''
+
+    :param base:
+    :param base_dict:
+    :return: file_name
+    '''
+    return os.path.join(base_ddict["store_path"], body+".parquet")
 # end def
 def read_pickle(file_name):
     '''
@@ -378,4 +388,35 @@ def save_dict_file_pickle(data_ddict, filebodyname, base_ddict):
         raise Exception(f"save_dict_file_pickle: Problems saving {file_name} errtext: {errtext}")
     # end if
     return
+# end def
+def price_volume_storage_eixst(isin, base_ddict):
+    '''
+
+    :param isin:
+    :param base_ddict:
+    :return: flag
+    '''
+    file_name = build_file_name_pandas(base_ddict["price_volumen_pre_file_name"] + str(isin), base_ddict)
+
+    if os.path.isfile(file_name):
+        return True
+    else:
+        return False
+    # end if
+# end def
+def read_parquet(isin, base_ddict):
+    """
+
+    :param file_name:
+    :return:
+    """
+    file_name = build_file_name_pandas(base_ddict["price_volumen_pre_file_name"] + str(isin), base_ddict)
+
+    if os.path.isfile(file_name):
+        df = pd.read_parquet(file_name)
+    else:
+        df = None
+    # end if
+
+    return df
 # end def

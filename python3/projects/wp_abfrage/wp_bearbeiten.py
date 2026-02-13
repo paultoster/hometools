@@ -8,6 +8,8 @@ if (tools_path not in sys.path):
 from tools import sgui
 from tools import hfkt_def as hdef
 
+import wp_price_volume
+
 
 def edit_basic_info(wp_obj):
     '''
@@ -169,7 +171,7 @@ def get_last_price_volume(wp_obj):
                 isin = isin_liste[index]
                 wpname = wpname_isin_dict[isin]
                 print(isin_wpname_liste[index])
-                (status, errtext) = get_last_price_volume_isin(wp_obj, isin)
+                (status, errtext) = wp_price_volume.update_last_price_volume_isin(wp_obj, isin)
                 if status != hdef.OKAY:
                     return (status, errtext)
                 # end if
@@ -181,12 +183,3 @@ def get_last_price_volume(wp_obj):
     
     return (status, errtext)
 # end def
-def get_last_price_volume_isin(wp_obj, isin):
-    """
-
-    :param wp_obj:
-    :param isin:
-    :return: (status, errtext) = get_last_price_volume_isin(wp_obj, isin)
-    """
-
-    last_active_date =
