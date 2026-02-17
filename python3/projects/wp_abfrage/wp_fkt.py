@@ -115,7 +115,7 @@ def letzter_beendeter_handelstag_dat_list(boerse):
     if boerse == "xetra":
         dat_time_list[3:6] = XETRA_HANDEL_ENDE_TIME_TUP[0:3]
     else:
-        raise exception(f"ausgewählte Börse {boerse} ist nicht implementiert")
+        raise Exception(f"ausgewählte Börse {boerse} ist nicht implementiert")
     # end if
 
     # aktuelle Zeit
@@ -147,7 +147,7 @@ def ist_kein_handestag(date_tuple,boerse):
     # Feiertage
     if boerse == "xetra":
         if hdt.is_dat_list_a_to_b(date_tuple,FEIERTAGE_XETRA_LLISTE[-1],'>'):
-            raise exception(f"aktuelles Datum: {hdt.str_dat_from_dat_list(date_tuple)} ist später als letzter Feiertag eintrag: {hdt.str_dat_from_dat_list(FEIERTAGE_XETRA_LLISTE[-1])}")
+            raise Exception(f"aktuelles Datum: {hdt.str_dat_from_dat_list(date_tuple)} ist später als letzter Feiertag eintrag: {hdt.str_dat_from_dat_list(FEIERTAGE_XETRA_LLISTE[-1])}")
         # end if
 
         for liste in FEIERTAGE_XETRA_LLISTE:
@@ -156,7 +156,7 @@ def ist_kein_handestag(date_tuple,boerse):
             # end if
         # end for
     else:
-        raise exception(f"ausgewählte Börse {boerse} ist nicht implementiert")
+        raise Exception(f"ausgewählte Börse {boerse} ist nicht implementiert")
     # end if
     return False
 # end def

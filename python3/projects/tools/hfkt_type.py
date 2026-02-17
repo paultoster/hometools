@@ -429,6 +429,10 @@ def type_get_default_single(type):
         return hdate.datum_akt_year_str()
     elif type == "monthInt":
         return hdate.datum_akt_mont_int_str()
+    elif type == "datInt":
+        return hdate.get_akt_dat_list()
+    elif type == "datIntTime": # mit Zeit
+        return hdate.get_akt_dat_time_list()
     elif type == "float":
         return 0.0
     elif type == "int":
@@ -469,7 +473,7 @@ def type_name_proof(type):
     '''
     if type == "str" or type == "float" or type == "int":
         return hdef.OKAY
-    if type == "dat" or type == "datStrP" or type == "datStrB" or type == "yearStr" or type == "monthInt":
+    if type == "dat" or type == "datStrP" or type == "datStrB" or type == "yearStr" or type == "monthInt" or type == "datInt" or type == "datIntTime":
         return hdef.OKAY
     if type == "iban" or type == "wkn" or type == "list":
         return hdef.OKAY
@@ -490,6 +494,8 @@ def type_proof(wert_in, type):
     "datStrB": Convert to date string mit Bindesttrich "20-03-2024"
     "yearStr": Covert to year string "2024"
     "monthInt": Convert to month as int from 1 ... 12
+    "datIntList": Convert to inger list with [day,month,year]
+    "datIntTimeList": Convert to inger list with [day,month,year,hour,minute,second]
     "iban": string, 2 letters and 20 digits, could be with spaces
     "wkn": string, 6 alphanum big letters
     "str": string
@@ -524,6 +530,10 @@ def type_proof(wert_in, type):
         return type_proof_yearStr(wert_in)
     elif type == "monthInt":
         return type_proof_monthInt(wert_in)
+    elif type == "datIntList":
+        return type_proof_datIntList(wert_in)
+    elif type == "datIntTimeList":
+        return type_proof_datIntTimeList(wert_in)
     elif type == "iban":
         return type_proof_iban(wert_in)
     elif type == "isin":
@@ -841,6 +851,72 @@ def get_MonthName_from_MonthInt(monthInt: int):
     else:
         return MontNameList[monthInt-1]
     # end if
+# end def
+def type_proof_datIntList(wert_in):
+    """ return value in integer list [day,month,year]"""
+
+    if (isinstance(wert_in, str)):
+
+        dat_str = hdate.find_str_dat(wert_in)
+        if hdate.is_dat_str(dat_str):
+            data_list = hdate.calc_str_to_dat_list(dat_str)
+            return (hdef.OKAY, data_list)
+        else:
+            return (hdef.NOT_OKAY, None)
+
+    elif (isinstance(wert_in, int)):
+
+        if hdate.is_dat_int(wert_in):
+            dat_list = hdate.calc_int_to_dat_list(wert_in)
+            return (hdef.OKAY, dat_list)
+        else:
+            return (hdef.NOT_OKAY, None)
+        # end if
+
+    elif (isinstance(wert_in, list) or isinstance(wert_in, tuple)):
+
+        if hdate.is_dat_list(wert_in):
+            return (hdef.OKAY, wert_in)
+        else:
+            return (hdef.NOT_OKAY, None)
+        # end if
+
+    # end if
+    return (hdef.NOT_OKAY, None)
+# end def
+def type_proof_datIntTimeList(wert_in):
+    """ return value in integer list [day,month,year]"""
+
+    if (isinstance(wert_in, str)):
+
+        time_str = hdate.find_str_time(wert_in)
+        if hdate.is_time_str(time_str):
+            time_list = hdate.calc_str_to_time_list(time_str)
+            return (hdef.OKAY, time_list)
+        else:
+            return (hdef.NOT_OKAY, None)
+
+    elif (isinstance(wert_in, int)):
+
+        if hdate.is_time_int(wert_in):
+            time_list = hdate.calc_int_to_time_list(wert_in)
+            return (hdef.OKAY, time_list)
+        else:
+            return (hdef.NOT_OKAY, None)
+        # end if
+
+    elif (isinstance(wert_in, list) or isinstance(wert_in, tuple)):
+
+        if hdate.is_time_list(wert_in):
+            return (hdef.OKAY, wert_in)
+        else:
+            return (hdef.NOT_OKAY, None)
+        # end if
+
+    # end if
+    return (hdef.NOT_OKAY, None)
+
+
 # end def
 def type_proof_iban(wert_in):
     """ return value in epoch seconds"""
@@ -1425,6 +1501,8 @@ def type_transform(wert_in: any, type_in: str | list, type_out: str | list):
     "datStrB": Convert to date string mit Bindesttrich "20-03-2024"
     "yearStr": Convert to year string "2024"
     "monthInt": Convert to month int 1 ... 12
+    "datIntList": Convert to inger list with [day,month,year]
+    "datIntTimeList": Convert to inger list with [day,month,year,hour,minute,second]
     "iban": string, 2 letters and 20 digits, could be with spaces
     "str": string
     "int": integer
@@ -1449,6 +1527,10 @@ def type_transform(wert_in: any, type_in: str | list, type_out: str | list):
         (okay, wert_out) = type_transform_yearStr(wert_in, type_out)
     elif (type_in == "monthInt"):
         (okay, wert_out) = type_transform_monthInt(wert_in, type_out)
+    elif (type_in == "datIntList"):
+        (okay, wert_out) = type_transform_datIntList(wert_in, type_out)
+    elif (type_in == "datIntTimeList"):
+        (okay, wert_out) = type_transform_datIntTimeList(wert_in, type_out)
     elif type_in == "str":
         (okay, wert_out) = type_transform_str(wert_in, type_out)
     elif type_in == "int":
@@ -1577,6 +1659,58 @@ def type_transform_monthInt(wert_in, type_out):
     wert_out = wert
     # end if
     return (okay, wert_out)
+# end def
+def type_transform_datIntList(wert_in, type_out):
+    """
+
+    :param wert_in:
+    :param type_out:
+    :return:
+    """
+    (okay, wert) = type_proof_datIntList(wert_in)
+    if (okay == hdef.OKAY):
+
+        if type_out == "dat":
+            wert_out = hdate.calc_dat_list_to_secs(wert)
+        elif (type_out == "datStr") or (type_out == "datStrP"):
+            wert_out = hdate.calc_dat_list_to_str(wert,".")
+        elif (type_out == "datStrB"):
+            wert_out = hdate.calc_dat_list_to_str(wert,"-")
+        elif (type_out == "yearStr"):
+            wert_out = wert[2]
+        elif (type_out == "monthInt"):
+            wert_out = wert[1]
+        else:
+            wert_out = None
+            okay = hdef.NOT_OKAY
+        # end if
+    else:
+        wert_out = None
+        okay = hdef.NOT_OKAY
+    # end if
+    return (okay,wert_out)
+# end def
+def type_transform_datIntTimeList(wert_in, type_out):
+    """
+
+    :param wert_in:
+    :param type_out:
+    :return:
+    """
+    (okay, wert) = type_proof_datIntTimeList(wert_in)
+    if (okay == hdef.OKAY):
+
+        if type_out == "dat":
+            wert_out = hdate.calc_time_list_to_secs(wert)
+        else:
+            wert_out = None
+            okay = hdef.NOT_OKAY
+        # end if
+    else:
+        wert_out = None
+        okay = hdef.NOT_OKAY
+    # end if
+    return (okay,wert_out)
 # end def
 def  type_transform_str(wert_in,type_out):
     '''

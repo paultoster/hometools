@@ -6,6 +6,8 @@ if (tools_path not in sys.path):
 # endif
 
 import tools.hfkt_def as hdef
+import.tools.hfkt_type as htype
+
 
 import wp_abfrage.wp_fkt as wp_fkt
 import wp_abfrage.wp_storage as wp_storage
@@ -108,6 +110,9 @@ def read_price_volume_data_from_ariva(wp_obj, isin, last_active_dat_time_list):
     :param last_active_dat_time_list:
     :return: (df_data,status,errtext) = read_price_volume_data_from_ariva(wp_obj, isin, last_active_date)
     """
+
+    htype.####
+
 
 
 
