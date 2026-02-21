@@ -319,7 +319,7 @@ def  such_in_quot(text,muster,quot0,quot1):
     for tup in index_liste_2tuple:
         index = such(text[tup[0]:tup[1]],muster)
         if index >= 0:
-            return index
+            return index+tup[0]
         # end if
     # end for
     return -1

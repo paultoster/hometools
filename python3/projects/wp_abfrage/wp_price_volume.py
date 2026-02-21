@@ -11,6 +11,7 @@ import.tools.hfkt_type as htype
 
 import wp_abfrage.wp_fkt as wp_fkt
 import wp_abfrage.wp_storage as wp_storage
+import wp_abfrage.wp_playwright as wp_playwright
 
 HEADER_PANDAS_DATUM_NAME = "Datum"
 HEADER_PANDAS_ERSTER_NAME = "Erster"
@@ -111,7 +112,20 @@ def read_price_volume_data_from_ariva(wp_obj, isin, last_active_dat_time_list):
     :return: (df_data,status,errtext) = read_price_volume_data_from_ariva(wp_obj, isin, last_active_date)
     """
 
-    htype.####
+    (okay,datStrLast) = htype.type_transform(last_active_dat_time_list,"datTimeList","datStrP")
+
+    if okay != hdef.OKAY:
+        raise Exception(f"Das Datum konnte nicht gewandlt werden: {last_active_dat_time_list = }")
+    # end if
+
+    (status,errtext,csv_datei) = wp_playwright.get_price_volume_data(wp_obj.base_ddict["ariva_user"],
+                                                                     wp_obj.base_ddict["ariva_pw"],
+                                                                     wp_obj.base_ddict["ariva_timeout_playright"],
+                                                                     isin,
+                                                                     wp_obj.base_ddict["price_volumen_first_dat"],
+                                                                     datStrLast)
+
+
 
 
 

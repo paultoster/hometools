@@ -1034,6 +1034,45 @@ def is_time_int(int_val):
 
     return flag
 # end def
+def is_dat_time_int(int_val):
+    """
+
+    :param int_val:
+    :return:
+    """
+
+    jahr = int(int_val / 10000000000)
+    monat = int((int_val - jahr * 10000000000) / 100000000)
+    tag = int((int_val - jahr * 10000000000 - monat * 100000000) / 1000000)
+
+    jahr = min(9999, max(0, jahr))
+    monat = min(12, max(1, monat))
+    if monat in [1, 3, 5, 7, 8, 10, 12]:
+        tag = min(31, max(1, tag))
+    elif monat in [4, 6, 9, 11]:
+        tag = min(30, max(1, tag))
+    elif (jahr % 4) == 0:
+        tag = min(29, max(1, tag))
+    else:
+        tag = min(28, max(1, tag))
+
+    hh = int((int_val - jahr * 10000000000 - monat * 100000000 - tag * 1000000)/ 10000)
+    mm = int((int_val - jahr * 10000000000 - monat * 100000000 - tag * 1000000 - hh * 10000) / 100)
+    ss = int(int_val - jahr * 10000000000 - monat * 100000000 - tag * 1000000 - hh * 10000 - mm * 100)
+
+    hh = min(23, max(0, hh))
+    mm = min(59, max(0, mm))
+    ss = min(59, max(0, ss))
+
+    # end if
+    if (jahr * 10000000000 + monat * 100000000 + tag * 1000000 + hh * 10000 + mm * 100 + ss) == int_val:
+        flag = True
+    else:
+        flag = False
+    # end if
+
+    return flag
+# end def
 def is_dat_list(liste):
     """
 
@@ -1096,6 +1135,23 @@ def is_time_list(liste):
             return False
         # end if
 
+    # end if
+
+    return True
+# end def
+def is_dat_time_list(liste):
+    """
+
+    :param liste:
+    :return:
+    """
+    if len(liste) < 6:
+        return False
+    else:
+        if not is_dat_list(liste[0:3]):
+            return False
+        if not is_time_list(liste[3:]):
+            return False
     # end if
 
     return True
@@ -1900,6 +1956,9 @@ def epoch_day_time_to_secs_time_epoch(eday: int, edaysecs: int) -> int:
 # testen mit main
 ###########################################################################
 if __name__ == '__main__':
+
+    flag = is_dat_time_list([12,5,1993,10,20,11])
+    flag = is_dat_time_int(19930512102011)
     time_liste_from_str_time_re("abc 10:30:29 99:56:40 11-30-00 5:34:5")
 
     secs = calc_int_to_secs(19930512102011)

@@ -38,6 +38,10 @@ def run_md_check_image_in_md_and_move(md_base_path):
 
         (fpath, fbody, fext) = hfp.get_pfe(fullfilename)
 
+        if fbody == "Lichtschalter":
+            print("halt")
+        # end if
+
         (okay, lines) = hio.read_ascii_build_list_of_lines(file_name=fullfilename)
 
         if okay == hdef.OKAY:
@@ -89,7 +93,14 @@ def get_imagefiles_from_md(lines):
             pext = '.'+ext
             index = line.lower().find(pext)
 
+            index = hstr.such_in_quot(line, pext, "(", ")")
+
+            if index < 0: # no found
+                index = hstr.such_in_quot(line, pext, "[[", "]]")
+            # end if
+
             if  index != -1:
+                # print(line[index:])
                 i1ext = index + len(pext)
                 (proof,imagefilename,i0,i1) = proof_line_for_embedded_link(line,index,i1ext)
 
@@ -104,23 +115,31 @@ def proof_line_for_embedded_link(line,index,i1ext):
     """
     proof = False
     imagefilename = ""
-    iline0 = -1
-    iline1 = -1
+    i0 = -1
+    i1 = -1
+
+    # if hstr.such(line,"SteckerFürLichtschalter") >= 0:
+    #     print(line)
+    # end if
+
     # 1. find '(',')'
     index_liste_2tuple = hstr.get_index_quot(line, '(',')')
     if len(index_liste_2tuple) != 0:
         for tup in index_liste_2tuple:
             if (tup[0] < index) and (tup[1] > index):
                 # finde ![] vor ()
-                (proof,imagefilename,iline0,iline1) = proof_embedded_linkt_first_type(line,tup[0],tup[1],i1ext)
+                (proof,imagefilename,i0,i1) = proof_embedded_linkt_first_type(line,tup[0],tup[1],i1ext)
+
+                if proof:
+                    break
 
     # 2. find '[',']'
     else:
         index_liste_2tuple = hstr.get_index_quot(line, '![[',']]')
         if len(index_liste_2tuple) != 0:
             for tup in index_liste_2tuple:
-                iline0 = tup[0]
-                iline1 = tup[1]
+                i0 = tup[0]
+                i1 = tup[1]
                 imagefilename = line[tup[0]:tup[1]]
                 proof = True
 
@@ -133,7 +152,7 @@ def proof_line_for_embedded_link(line,index,i1ext):
             # end for
         # end if
     # end if
-    return (proof,imagefilename,iline0,iline1)
+    return (proof,imagefilename,i0,i1)
 # end def
 # end def
 def proof_embedded_linkt_first_type(line,index0,index1,i1ext):

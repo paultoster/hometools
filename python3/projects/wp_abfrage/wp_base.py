@@ -25,7 +25,8 @@ INI_DICT_PROOF_LISTE = [("store_path", "str"),
                         ("ariva_pw","str"),
                         ("ariva_timeout_playright","int","int",10000),
                         ("boerse","str","str","xetra"),
-                        ("price_volumen_pre_file_name", "str")
+                        ("price_volumen_pre_file_name", "str"),
+                        ("price_volumen_first_dat","str","datStrP","01.01.2000")
                         ]
 
 
