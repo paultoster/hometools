@@ -20,29 +20,19 @@ def edit_basic_info(wp_obj):
     - Call: edit_isin_basic_info(wpname, isin)
     
     :param wp_obj:            wp_base.WPData Data Objekt
-    :return: (status,errtext) = edit_basic_info(wp_obj)
+    :return: (status,errtext,infotext) = edit_basic_info(wp_obj)
     '''
     status = hdef.OKAY
     errtext = ""
-  
+    infotext = ""
+
     # Hole die dict-Liste mit allen WPs name[isin]
     #---------------------------------------------
-    (status, errtext, wpname_isin_dict) = \
-        wp_obj.get_stored_basic_info_wpname_isin_dict()
-    
+    (status, errtext,isin_liste,isin_wpname_liste)  = get_isin_and_wpname_list(wp_obj)
     if status != hdef.OKAY:
-        errtext = f"Error wp_obj.get_stored_basic_info_wpname_isin_dict() errtext = {errtext}"
-        return (status, errtext)
+        return (status, errtext,infotext)
     # end if
-    
-    # print(f"wpname_isin_dict = {wpname_isin_dict}")
-    isin_wpname_liste = []
-    isin_liste = []
-    for i, isin in enumerate(wpname_isin_dict.keys()):
-        isin_wpname_liste.append(f"{i}:{isin} : {wpname_isin_dict[isin]}")
-        isin_liste.append(isin)
-    # end for
-    
+
     abfrage_liste = ["edit", "ende", "neu", "delete"]
     i_abfrage_ende = 1
     i_abfrage_edit = 0
@@ -65,21 +55,47 @@ def edit_basic_info(wp_obj):
                 
                 # Bearbeite basic infos von isin
                 isin = isin_liste[index]
-                wpname = wpname_isin_dict[isin]
+                wpname = isin_wpname_liste[index]
                 print(isin_wpname_liste[index])
                 (status, errtext) = edit_isin_basic_info(wp_obj,wpname, isin)
                 if status != hdef.OKAY:
-                    return (status, errtext)
+                    return (status, errtext,infotext)
                 # end if
             # end if
         elif indexAbfrage == i_abfrage_neu:
+
+            # Eingabe neue ISIN Beispiel ETF (IE0006FQAF69)
+            isin = sgui.abfrage_eingabezeile(anzeigename="isin",title="Eine isin oder wkn eingeben")
+            if isin != "":
+
+                if isin in isin_liste:
+                    infotext = f"Die isin: {isin} is bereits in der Liste {isin_liste =}"
+                    return (hdef.OKAY, errtext,infotext)
+
+                (status, errtext, output_dict) = wp_obj.get_basic_info(isin)
+                if status != hdef.OKAY:
+                    return (status, errtext,infotext)
+                # end if
+                (status, errtext, isin_liste, isin_wpname_liste) = get_isin_and_wpname_list(wp_obj)
+                if status != hdef.OKAY:
+                    return (status, errtext,infotext)
+                # end if
+                isin = output_dict["isin"]
+                wpname = output_dict["name"]
+                (status, errtext) = edit_isin_basic_info(wp_obj, wpname, isin)
+                if status != hdef.OKAY:
+                    return (status, errtext,infotext)
+                # end if
+            # end if
+
             runflag = True
+
         else:  # if indexAbfrage == i_abfrage_delete:
             runflag = True
         # end if
     # end while
     
-    return (status, errtext)
+    return (status, errtext,infotext)
 
 
 # end def
@@ -182,4 +198,36 @@ def get_last_price_volume(wp_obj):
     # end while
     
     return (status, errtext)
+# end def
+def get_isin_and_wpname_list(wp_obj):
+    """
+
+    :param wp_obj:
+    :return: (status,errtext,isin_liste,isin_wpname_liste)  = get_isin_and_wpname_list(wp_obj)
+    """
+    isin_wpname_liste = []
+    isin_liste = []
+    (status, errtext, wpname_isin_dict) = \
+        wp_obj.get_stored_basic_info_wpname_isin_dict()
+
+    if status != hdef.OKAY:
+        errtext = f"Error wp_obj.get_stored_basic_info_wpname_isin_dict() errtext = {errtext}"
+        return (status, errtext,isin_liste,isin_wpname_liste)
+    # end if
+
+    # print(f"wpname_isin_dict = {wpname_isin_dict}")
+    isin_wpname_liste = []
+    isin_liste = []
+    for i, isin in enumerate(wpname_isin_dict.keys()):
+
+        (status, errtext, output_dict) = wp_obj.get_basic_info(isin)
+        if status != hdef.OKAY:
+            return (status, errtext, isin_liste, isin_wpname_liste)
+        # end if
+
+        isin_wpname_liste.append(f"{i}:{isin} : {output_dict["type"]} : {wpname_isin_dict[isin]}")
+        isin_liste.append(isin)
+    # end for
+
+    return (status, errtext, isin_liste, isin_wpname_liste)
 # end def

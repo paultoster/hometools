@@ -1798,6 +1798,8 @@ def  type_transform_str(wert_in,type_out):
     :param type_out:
     :return: (okay, wert_out) =  type_transform_dat_str(wert_in,type_out)
     '''
+
+
     (okay, wert) = type_proof(wert_in, "str")
     if( okay == hdef.OKAY):
         if (type_out == "float"):
@@ -1875,13 +1877,17 @@ def  type_transform_str(wert_in,type_out):
                 wert_out = hstr.convert_float_euro_to_string_euro(wert_out, ",")
             # end if
         elif type_out == "dat" or type_out == "date":
-            (okay, wert_out) = type_proof(wert, type_out)
+            (okay, wert_out) = type_proof_dat(wert)
+        elif type_out == "datStrP":
+            (okay, wert_out) = type_proof_datStrP(wert)
+        elif type_out == "datStrB":
+            (okay, wert_out) = type_proof_datStrB(wert)
         elif (type_out == "list") or (type_out == "listStr") or (type_out == "list_str"):
             wert_out = [wert]
         elif type_out == "isin":
             (okay, wert_out) = type_proof(wert, type_out)
         else:
-            raise Exception(f"type_transform_str: In type_transform_str ist type_out: {type_out} nicht möglich")
+            raise Exception(f"type_transform_str: In type_transform_str ist wert: {wert_in} nicht in type_out: {type_out} möglich")
         # end if
     else:
         wert_out = wert

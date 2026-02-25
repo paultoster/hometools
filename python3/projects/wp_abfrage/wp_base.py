@@ -57,10 +57,16 @@ class WPData:
         # read ini-file
         else:
             self.ini_file_name = ini_filename
-            with open(ini_filename, "rb") as f:
-                ddict = tomllib.load(f)
+            try:
+                with open(ini_filename, "rb") as f:
+                    ddict = tomllib.load(f)
+            except Exception as e:
+                self.errtext = f"tomllib: Bei lesen {ini_filename} gibt Fehler: {e.args[0]}"
+                self.status = hdef.NOT_OKAY
+                return
+        # endtry
         # endif
-        
+
         (self.status, self.errtext, self.base_ddict) = hdict.proof_transform_ddict(ddict,INI_DICT_PROOF_LISTE)
         if self.status != hdef.OK:
             return

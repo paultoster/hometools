@@ -67,29 +67,30 @@ def read_wpname_isin_dict(base_ddict):
     status = hdef.OKAY
     errtext = ""
     
-    file_name_pckl = build_file_name_pickle(base_ddict["wpname_isin_filename"], base_ddict)
+    # file_name_pckl = build_file_name_pickle(base_ddict["wpname_isin_filename"], base_ddict)
     file_name_json = build_file_name_json(base_ddict["wpname_isin_filename"], base_ddict)
-    
-    if (base_ddict["use_json"] == 2):  # read json
+
+    # Use always json
+    # if (base_ddict["use_json"] == 2):  # read json
         
-        if (os.path.isfile(file_name_json)):
-            (status, errtext, wpname_dict) = read_json(file_name_json)
-        else:
-            status = hdef.NOT_OKAY
-            errtext = f"File {file_name_json} does not exist!"
-            return (status, errtext, {})
-        # end if
-    
-    else:  # normal pickle load
-        
-        # Wenn die Datei vorhanden ist:
-        if (os.path.isfile(file_name_pckl)):
-            (status, errtext, wpname_dict) = read_pickle(file_name_pckl)
-        else:
-            wpname_dict = {}
-        # endif
-    
+    if (os.path.isfile(file_name_json)):
+        (status, errtext, wpname_dict) = read_json(file_name_json)
+    else:
+        status = hdef.NOT_OKAY
+        errtext = f"File {file_name_json} does not exist!"
+        return (status, errtext, {})
     # end if
+    
+    # else:  # normal pickle load
+    #
+    #     # Wenn die Datei vorhanden ist:
+    #     if (os.path.isfile(file_name_pckl)):
+    #         (status, errtext, wpname_dict) = read_pickle(file_name_pckl)
+    #     else:
+    #         wpname_dict = {}
+    #     # endif
+    #
+    # # end if
     return (status, errtext,wpname_dict)
 # end def
 def save_info_dict(isin, info_dict, base_ddict):
@@ -140,13 +141,14 @@ def update_isin_name_dict(isin,wpname,base_ddict):
         print(f"add isin: {isin} und wpname: {wpname} zu wpname_dict[isin] = wpname")
         
     wpname_dict[isin] = wpname
+
+    # save always in json
+    #file_name_pckl = build_file_name_pickle(base_ddict["wpname_isin_filename"], base_ddict)
+    #(status, errtext) = save_pickle(wpname_dict, file_name_pckl)
     
-    file_name_pckl = build_file_name_pickle(base_ddict["wpname_isin_filename"], base_ddict)
-    (status, errtext) = save_pickle(wpname_dict, file_name_pckl)
-    
-    if (base_ddict["use_json"] == 1):  # write json
-        file_name_json = build_file_name_json(base_ddict["wpname_isin_filename"], base_ddict)
-        (status, errtext) = save_json(wpname_dict, file_name_json)
+    # if (base_ddict["use_json"] == 1):  # write json
+    file_name_json = build_file_name_json(base_ddict["wpname_isin_filename"], base_ddict)
+    (status, errtext) = save_json(wpname_dict, file_name_json)
     # end if
     
     return (status, errtext)

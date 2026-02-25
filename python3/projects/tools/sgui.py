@@ -607,8 +607,28 @@ def abfrage_n_eingabezeilen_dict(ddict):
 
 
 # end def
+def abfrage_eingabezeile(anzeigename, vorgabe=None, title=None):
+    '''
 
+    :param anzeigename:
+    :param vorgabe:
+    :param title:
+    :return:
+    '''
 
+    ddict = {}
+    ddict["liste_abfrage"] = [anzeigename]
+    if vorgabe:
+        ddict["liste_vorgabe"] = [vorgabe]
+    ddict["title"] = title
+
+    listeErgebnis = abfrage_n_eingabezeilen_dict(ddict)
+
+    if len(listeErgebnis)==0:
+        return ""
+
+    return listeErgebnis[0]
+# end def
 # ========================== abfrage_n_eingabezeilen ============================
 # ===============================================================================
 

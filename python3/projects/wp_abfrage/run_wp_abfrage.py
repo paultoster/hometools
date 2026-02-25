@@ -57,10 +57,13 @@ def run_wp_abfrage():
             print(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
             
             
-            (status,errtext) = wp_bearbeiten.edit_basic_info(wp_obj)
+            (status,errtext,infotext) = wp_bearbeiten.edit_basic_info(wp_obj)
+
+            if len(infotext) > 0 :
+                sgui.anzeige_text(f"Info wp_bearbeiten.edit_basic_info(wp_obj): {infotext}",textcolor='orange')
             
             if status != hdef.OKAY:
-                print(f"Error wp_bearbeiten.edit_basic_info(wp_obj) errtext = {errtext}")
+                sgui.anzeige_text(f"Error wp_bearbeiten.edit_basic_info(wp_obj) errtext = {errtext}",textcolor='red')
                 exit(1)
             # end if
         elif index == index_price_volume:

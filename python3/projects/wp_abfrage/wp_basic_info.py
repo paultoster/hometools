@@ -10,7 +10,7 @@ import time
 
 if os.path.isfile('wp_base.py'):
     import wp_storage as wp_storage
-    import wp_playright as wp_pr
+    import wp_playwright as wp_pr
     import wp_isin as wp_isin
 else:
     import wp_abfrage.wp_storage as wp_storage
@@ -80,17 +80,33 @@ def extraetf_ETF(isin, info_dict):
     # ISIN, WKN, TICKER
     # ----------------------------------------------------------------
     items = soup.body.find_all('button', class_='btn-product-etf')
+    flag_isin = False
+    flag_wkn  = False
     for item in items:
+        flag_found = False
         word = str(item.get('id'))
         word = word.replace('\xa0', ' ')
         word = hstr.elim_ae(word, " ")
-        if len(word) > 6:
-            info_dict["isin"] = word
-        elif len(word) == 6:
-            info_dict["wkn"] = word
-        else:
+        if not flag_isin:
+            (okay,isin) = htype.type_proof_isin(word)
+            if okay == hdef.OKAY:
+                info_dict["isin"] = isin
+                flag_isin = True
+                flag_found = True
+            # end if
+        # end if
+        if not flag_found and not flag_wkn:
+            (okay, wkn) = htype.type_proof_wkn(word)
+            if okay == hdef.OKAY:
+                info_dict["wkn"] = wkn
+                flag_wkn = True
+                flag_found = True
+            # end if
+        # end if
+        if not flag_found:
             info_dict["ticker"] = word
-    
+        # end if
+    # end for
     # ---------------------------------------------------------------------
     # Indexabbildung, Ertragsverwendung, TER, Fondsgröße, Anzahl Positionen, Anteil Top 10, Währung
     # ---------------------------------------------------------------------
@@ -125,8 +141,6 @@ def extraetf_ETF(isin, info_dict):
     # -----------------------------------------------------
     # Zahlt Dividendne
     # -----------------------------------------------------
-    ######
-    info_dict["zahltdiv"] = 0
     if "ertragsverwendung" in info_dict.keys():
         if info_dict["ertragsverwendung"] == "Ausschüttend":
             info_dict["zahltdiv"] = 1
@@ -185,7 +199,6 @@ def extraetf_ETF(isin, info_dict):
     # -----------------------------------------------------
     # Zahlt Dividendne
     # -----------------------------------------------------
-    info_dict["zahltdiv"] = 0
     if "dividendenrendite" in info_dict.keys():
         (okay, value) = htype.type_transform(info_dict["dividendenrendite"], "percentStr", "float")
         if okay == hdef.OKAY:

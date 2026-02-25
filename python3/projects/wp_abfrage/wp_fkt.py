@@ -15,7 +15,7 @@ import tools.hfkt_date_time as hdt
 
 if os.path.isfile('wp_base.py'):
     import wp_storage as wp_storage
-    import wp_playright as wp_pr
+    import wp_playwright as wp_pr
     import wp_isin as wp_isin
 else:
     import wp_abfrage.wp_storage as wp_storage
