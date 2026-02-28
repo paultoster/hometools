@@ -109,7 +109,7 @@ def letzter_beendeter_handelstag_dat_list(boerse):
 
     # wenn kein Handelstag, dann ein Tag zurück bis Handelstag
     while ist_kein_handestag(dat_time_list,boerse):
-        dat_time_list = hdt.verschiebe_dat_tup_in_tagen(dat_time_list,-1)
+        dat_time_list = hdt.verschiebe_dat_list_in_tagen(dat_time_list,-1)
 
     # Handelstag auf Handelsschluss setzen
     if boerse == "xetra":
@@ -160,6 +160,40 @@ def ist_kein_handestag(date_tuple,boerse):
     # end if
     return False
 # end def
+def build_overlap_dict_of_index(list1, list2,overlap):
+    """
+
+    :param list1: erste Liste mit Daten
+    :param list2: zweite Liste mit Daten
+    :param overlap: overlap offset
+    :return: overlap_ndex_dict = build_index_class_of_euro_dict(dat_np_array,euro_dat_np_array)
+    """
+
+
+    overlap_ndex_dict = {}
+
+    index2 = 0
+    n2 = len(list2)
+
+    for index1, dat in enumerate(list1):
+
+        while (index2 < (n2-1)) and (dat > (list2[index2] + overlap)):
+            index2 += 1
+        # end while
+
+        while (index2 > 0) and (dat < (list2[index2] - overlap)):
+            index2 -= 1
+        # end while
+
+        if abs(dat - list2[index2]) < overlap:
+            overlap_ndex_dict[index1] = index2
+            index2 += 1
+        # end if
+    # end for
+    # print("overlap_ndex_dict:", overlap_ndex_dict)
+    return overlap_ndex_dict
+# end def
+
 ###########################################################################
 # testen mit main
 ###########################################################################

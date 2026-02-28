@@ -391,7 +391,7 @@ def save_dict_file_pickle(data_ddict, filebodyname, base_ddict):
     # end if
     return
 # end def
-def price_volume_storage_eixst(isin, base_ddict):
+def price_volume_storage_exist(isin, base_ddict):
     '''
 
     :param isin:

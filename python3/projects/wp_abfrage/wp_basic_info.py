@@ -557,16 +557,13 @@ def get_default_info_dict(isin):
     info_dict["anzahl"] = ""
     info_dict["zahltdiv"] = 0
     info_dict["url"] = ""
-    info_dict["indexabbildung"] = ""
-    info_dict["ertragsverwendung"] = ""
-    info_dict["ter"] = ""
-    info_dict["volumen"] = ""
-    info_dict["anzahl"] = ""
     info_dict["kgv"] = ""
     info_dict["marktkapitalisierung"] = ""
     info_dict["marktkapitalisierung"] = ""
     info_dict["dividendenrendite"] = ""
     info_dict["gewinn"] = ""
+    info_dict["waehrung"] = "€"
+    info_dict["preisabfrage"] = ""
     return info_dict
 # end def
 

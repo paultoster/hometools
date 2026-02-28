@@ -186,8 +186,14 @@ def get_last_price_volume(wp_obj):
                 # Bearbeite basic infos von isin
                 isin = isin_liste[index]
                 wpname = wpname_isin_dict[isin]
-                print(isin_wpname_liste[index])
-                (status, errtext) = wp_price_volume.update_last_price_volume_isin(wp_obj, isin)
+                print(f"Lese Daten für {wpname = } mit {isin = } ein" )
+                # Hole alle basic-Infos
+                print("Hole basic infos" )
+                (status, errtext, isin_basic_dict) = wp_obj.get_basic_info(isin)
+                if status != hdef.OKAY:
+                    return (status, errtext)
+                # end if
+                (status, errtext) = wp_price_volume.update_last_price_volume_isin(wp_obj,isin_basic_dict,isin)
                 if status != hdef.OKAY:
                     return (status, errtext)
                 # end if

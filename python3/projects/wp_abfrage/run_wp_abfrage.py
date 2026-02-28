@@ -82,7 +82,31 @@ def run_wp_abfrage():
     # endwhile
 # end def
 if __name__ == '__main__':
-    
+
+    import xml.etree.ElementTree as ET
+    import pandas as pd
+
+    tree = ET.parse("usd.xml")
+    root = tree.getroot()
+
+    ns = {
+        "exr": "http://www.ecb.europa.eu/vocabulary/stats/exr/1"
+    }
+
+    rows = []
+
+    for obs in root.findall(".//exr:Obs", ns):
+        rows.append({
+            "date": obs.attrib["TIME_PERIOD"],
+            "value": float(obs.attrib["OBS_VALUE"])
+        })
+
+    df = pd.DataFrame(rows)
+    df["date"] = pd.to_datetime(df["date"])
+
+    print(df.head())
+
+
     run_wp_abfrage()
     
 
