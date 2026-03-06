@@ -25,11 +25,11 @@ def run_wp_abfrage():
 
     runflag = True
     
-    start_auswahl = ["Ende", "edit basic info","get last price and volume"]
+    start_auswahl = ["Ende", "edit basic info","get last price and volume","read EURUSD-Kurs aus EZB-xml-data"]
     index_ende = 0
     index_basic_info = 1
     index_price_volume = 2
-    index_konto = 4
+    index_eurousd_ezb_xml = 3
     index_depot = 5
     save_flag = True
     abfrage_liste = ["okay", "cancel", "ende"]
@@ -72,10 +72,17 @@ def run_wp_abfrage():
             (status, errtext) = wp_bearbeiten.get_last_price_volume(wp_obj)
             
             if status != hdef.OKAY:
-                print(f"Error wp_bearbeiten.get_last_price_volume(wp_obj) errtext = {errtext}")
+                print(f"Error wp_bearbeiten.get_last_price_volume(wp_obj) \n errtext = {errtext}")
                 exit(1)
             # end if
-        
+        elif index == index_eurousd_ezb_xml:
+            print(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
+            xmlfilename = sgui.abfrage_file(file_types="*.xml",comment=f"Wähle eine xml-Datei von EZB",start_dir=wp_obj.base_ddict["store_path"])
+            if len(xmlfilename) > 0 :
+                (status, errtext) = wp_bearbeiten.read_usdeuro_ezb_xml(wp_obj,xmlfilename)
+
+                if status != hdef.OKAY:
+                    print(f"Error wp_bearbeiten.read_usdeuro_ezb_xml(wp_obj,xmlfilename) \n errtext = {errtext}")
         else:
             print(f"Auswahl: {index} nicht bekannt")
         # endif
@@ -83,28 +90,31 @@ def run_wp_abfrage():
 # end def
 if __name__ == '__main__':
 
-    import xml.etree.ElementTree as ET
-    import pandas as pd
+    # import xml.etree.ElementTree as ET
+    # import pandas as pd
+    #
+    # tree = ET.parse("usd.xml")
+    # root = tree.getroot()
+    #
+    # ns = {
+    #     "exr": "http://www.ecb.europa.eu/vocabulary/stats/exr/1"
+    # }
+    #
+    # rows = []
+    #
+    # for obs in root.findall(".//exr:Obs", ns):
+    #     rows.append({
+    #         "date": obs.attrib["TIME_PERIOD"],
+    #         "value": float(obs.attrib["OBS_VALUE"])
+    #     })
+    #
+    # df = pd.DataFrame(rows)
+    # df["date"] = pd.to_datetime(df["date"])
+    #
+    # print(df.head())
 
-    tree = ET.parse("usd.xml")
-    root = tree.getroot()
 
-    ns = {
-        "exr": "http://www.ecb.europa.eu/vocabulary/stats/exr/1"
-    }
 
-    rows = []
-
-    for obs in root.findall(".//exr:Obs", ns):
-        rows.append({
-            "date": obs.attrib["TIME_PERIOD"],
-            "value": float(obs.attrib["OBS_VALUE"])
-        })
-
-    df = pd.DataFrame(rows)
-    df["date"] = pd.to_datetime(df["date"])
-
-    print(df.head())
 
 
     run_wp_abfrage()

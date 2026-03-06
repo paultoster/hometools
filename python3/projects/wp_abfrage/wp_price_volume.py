@@ -176,6 +176,7 @@ def read_price_volume_data_from_yf(wp_obj,par,isin_basic_dict, isin, last_stored
                                                            last_active_dat_time_list)
 
 
+# end def
 
 
 

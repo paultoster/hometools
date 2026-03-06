@@ -14,6 +14,7 @@ if( tools_path not in sys.path ):
   sys.path.append(tools_path)
 
 from tools import hfkt as h
+from tools import hfkt_log as hlog
 
 NAME_TARGET_PATH           = "target_path"
 NAME_SOURCE_PATH           = "source_path"
@@ -296,9 +297,12 @@ class copybackup:
         print("")
 
 
-
+        self.log = hlog.log(log_window=True)
 
         return
+    # end def
+    def __del__(self):
+        self.log.close()
 ############################################################################
     def make_backup(self):
         """ Startet den backup-Vorgang

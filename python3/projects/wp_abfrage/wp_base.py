@@ -1,5 +1,6 @@
 import os, sys, time
 import tomllib
+import pandas as pd
 
 tools_path = os.getcwd() + "\\.."
 if (tools_path not in sys.path):
@@ -13,7 +14,7 @@ import wp_abfrage.wp_isin as wp_isin
 
 import tools.hfkt_def as hdef
 import tools.hfkt_dict as hdict
-# import tools.hfkt_type as htyp
+
 
 INI_DICT_PROOF_LISTE = [("store_path", "str"),
                         ("basic_info_pre_file_name", "str"),
@@ -29,7 +30,48 @@ INI_DICT_PROOF_LISTE = [("store_path", "str"),
                         ("price_volumen_first_dat","str","datStrP","01.01.2000")
                         ]
 
+class WPParam:
 
+    HEADER_PANDAS_DATUM_NAME   = "Datum"
+    HEADER_PANDAS_ERSTER_NAME  = "Erster"
+    HEADER_PANDAS_HOCH_NAME    = "Hoch"
+    HEADER_PANDAS_TIEF_NAME    = "Tief"
+    HEADER_PANDAS_SCHLUSS_NAME = "Schlusskurs"
+    HEADER_PANDAS_STUECKE_NAME = "Stuecke"
+    HEADER_PANDAS_VOLUMEN_NAME = "Volumen"
+
+    HEADER_PANDAS_DATUM_TYPE   = "dat"
+    HEADER_PANDAS_ERSTER_TYPE  = "float"
+    HEADER_PANDAS_HOCH_TYPE    = "float"
+    HEADER_PANDAS_TIEF_TYPE    = "float"
+    HEADER_PANDAS_SCHLUSS_TYPE = "float"
+    HEADER_PANDAS_STUECKE_TYPE = "float"
+    HEADER_PANDAS_VOLUMEN_TYPE = "float"
+
+    HEADER_PANDAS_LLISTE = [(HEADER_PANDAS_DATUM_NAME, HEADER_PANDAS_DATUM_TYPE),
+                           (HEADER_PANDAS_ERSTER_NAME, HEADER_PANDAS_ERSTER_TYPE),
+                           (HEADER_PANDAS_HOCH_NAME, HEADER_PANDAS_HOCH_TYPE),
+                           (HEADER_PANDAS_TIEF_NAME, HEADER_PANDAS_TIEF_TYPE),
+                           (HEADER_PANDAS_SCHLUSS_NAME, HEADER_PANDAS_SCHLUSS_TYPE),
+                           (HEADER_PANDAS_STUECKE_NAME, HEADER_PANDAS_STUECKE_TYPE),
+                           (HEADER_PANDAS_VOLUMEN_NAME, HEADER_PANDAS_VOLUMEN_TYPE),
+                           ]
+    HEADER_PANDAS_NAME_DICT = {}
+    HEADER_PANDAS_NAME_LIST = []
+    HEADER_PANDAS_TYPE_DICT = {}
+    HEADER_PANDAS_TYPE_LIST = []
+
+    for i,liste in enumerate(HEADER_PANDAS_LLISTE):
+        HEADER_PANDAS_NAME_DICT[i] = liste[0]
+        HEADER_PANDAS_TYPE_DICT[i] = liste[1]
+        HEADER_PANDAS_NAME_LIST.append(liste[0])
+        HEADER_PANDAS_TYPE_LIST.append(liste[1])
+    # end for
+
+    HEADER_PANDAS_USDEURO_NAME = "USDEURO"
+    HEADER_PANDAS_USDEURO_TYPE = "float"
+
+# end class
 class WPData:
     '''
     Basis Funktion:
@@ -41,6 +83,8 @@ class WPData:
     (status,errtext, isin_liste)         = obj.get_basic_info_isin_liste()
     (status, errtext)                    = obj.save_basic_info(isin_liste, output_dict_liste)
     (status, errtext)                    = obj.save_basic_info(isin, output_dict)
+
+    (status, errtext)                    = obj.set_usdeuro_course(np_dat_array, np_value_array)
     
     Hilfsfunktionen:
     self.check_store_path()
@@ -48,7 +92,9 @@ class WPData:
     ini_filename
     '''
     def __init__(self,ini_filename):
-        
+
+        self.par =  WPParam()
+
         if (not os.path.isfile(ini_filename)):
             self.status = hdef.NOT_OKAY
             self.errtext = f"ini_file_name = {ini_filename} does not exist !!!!"
@@ -295,61 +341,56 @@ class WPData:
         return self.status
     
     # end def
-    # def check_store_path(self):
-    #     '''
-    #
-    #     :return:
-    #     '''
-    #     if not os.path.isdir(self.base_ddict["store_path"]):
-    #         try:
-    #             os.mkdir(self.base_ddict["store_path"])
-    #         except:
-    #             t = self.base_ddict["store_path"]
-    #             self.errtext = f"Der store_path: {t} konnte nicht erstellt werden"
-    #             self.status = hdef.NOT_OKAY
-    #         # end try
-    #     # end if
-    #
-    #
-    # def check_isin_input(self,isin_input):
-    #     '''
-    #
-    #     :param isin_input:
-    #
-    #     :return: (isin_input_is_list,isin_list) = self.check_isin_input(isin_input)
-    #     '''
-    #     isin_input_is_list = False
-    #     if isinstance(isin_input, str):
-    #         isin_list = [isin_input]
-    #     elif isinstance(isin_input, list):
-    #         (okay, value) = htyp.type_proof(isin_input, "listStr")
-    #         if okay != hdef.OKAY:
-    #             self.status = hdef.NOT_OKAY
-    #             self.errtext = f"isin = {isin_input} ist keine Liste mit strings"
-    #             return
-    #         else:
-    #             isin_input_is_list = True
-    #             isin_list = value
-    #     else:
-    #         self.errtext = f"isin = {isin_input} ist kein string"
-    #         self.status = hdef.NOT_OKAY
-    #         return
-    #     # end if
-    #
-    #     for isin in isin_list:
-    #         (okay,value) = htyp.type_proof(isin,'isin')
-    #         if okay != hdef.OKAY:
-    #
-    #             (okay, value) = htyp.type_proof(isin, 'wkn')
-    #             if okay != hdef.OKAY:
-    #                 self.status = hdef.NOT_OKAY
-    #                 self.errtext = f"isin = {isin} ist kein passender Wert"
-    #                 return
-    #             # end if
-    #         # end if
-    #     # end for
-    # return (isin_input_is_list,isin_list)
-    # # end def
+    def set_usdeuro_course(self,df_new):
+        """
+
+        :param df_new:
+        :return:  status = obj.set_usdeuro_course(df_new)
+        """
+
+        self.status = hdef.OKAY
+
+        (read_flag,df) = wp_storage.read_parquet(self.par.HEADER_PANDAS_USDEURO_NAME, self.base_ddict)
+
+        if read_flag:
+            (self.status, self.errtext, df) = wp_fkt.merge_usdeuro_dfnew_to_df(df,df_new,
+                                                                    self.par.HEADER_PANDAS_DATUM_NAME,
+                                                                    self.par.HEADER_PANDAS_USDEURO_NAME)
+        else:
+            df = df_new
+        # end if
+
+        if self.status != hdef.OKAY:
+            return self.status
+
+        wp_storage.save_parquet(df, self.par.HEADER_PANDAS_USDEURO_NAME, self.base_ddict)
+
+        return self.status
+    # end def
+    def get_number_of_data_usdeuro_course(self):
+        """
+
+        :return: (number,firstdat,lastdat) = get_number_of_data_usdeuro_course()
+        """
+
+        number = 0
+        firstdat = 0
+        lastdat = 0
+
+        (read_flag,df) = wp_storage.read_parquet(self.par.HEADER_PANDAS_USDEURO_NAME, self.base_ddict)
+
+        if read_flag:
+            number = int(df[self.par.HEADER_PANDAS_DATUM_NAME].count())
+            df1    = df.iloc[0]
+            firstdat = int(df1[self.par.HEADER_PANDAS_DATUM_NAME])
+            df1 = df.iloc[-1]
+            lastdat = int(df1[self.par.HEADER_PANDAS_DATUM_NAME])
+        # end if
+
+        return (number,firstdat,lastdat)
+    # end def
+
+
 
 if __name__ == '__main__':
 

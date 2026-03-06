@@ -25,6 +25,8 @@
  fullfilename = set_pfe(path,filebody,ext)
  fullfilename = set_pfe(path,filename)
  leaves_path_name = get_path_leaves(full_path_name,root_path_name)
+ status = merge_path_leaves(root_path_name,leaves_path_name)   status = hedf.OKAY
+
  def remove_dir_all(dir_name): Löscht den Pfad
  def remove_named_dir(dir_name,delete_name,recursive): Loescht von dir_name die Ordber delete_name rekursiv oder nicht weg
  def is_textfile(filename, blocksize = 512) checks if file is an text-file
@@ -34,7 +36,8 @@
  def change_text_in_file(filename,textsearch,textreplace):
  def build_path(pathname): erstellt Pfad wenn nicht vorhanden
  def clear_path(pathname): löscht Inhalt des Pfades
- def find_file_pattern(pattern, path): find_file_pattern(pattern, path) returns a list of file: find('*.txt', 'D:\\temp') => ["D:\\temp\\filea.txt","D:\\temp\\filea.txt"]
+ fullfilenamelist = find_file_pattern(pattern, path): find_file_pattern(pattern, path) returns a list of file: find('*.txt', 'D:\\temp') => ["D:\\temp\\filea.txt","D:\\temp\\filea.txt"]
+ fullfilenamelist = find_file_pattern_pathlist(pattern,pathlist)
  def get_last_subdir_name(fullpathname): gebe letzte Ebene des Unterpfadsnamen zurück
  def file_split(file_name): ZErlegt file_name in path,body,ext
                                 file_name = "d:\\abc\\def\\ghj.dat"
@@ -44,8 +47,9 @@
                                 ext       = "dat"
 
 liste = build_list_from_path(path_name)
-path = build_path_with_forward_slash(path_name)
-path = build_path_from_list_with_forward_slash(p_list)
+path = build_pathname_with_forward_slash(path_name)
+path = build_pathname_from_list_with_forward_slash(p_list)
+path = build_pathname_from_list(p_list)
 fullpath = get_abs_dir(rel_dir,base_dir)
 rel_dir = get_rel_dir(target_dir,abs_dir)
 '''
@@ -481,10 +485,20 @@ def set_pfe(p="", b="", e=""):
 
 
 def get_path_leaves(full_path_name, root_path_name):
+    """
+
+    :param full_path_name:
+    :param root_path_name:
+    :return: leaves_path_name =  get_path_leaves(full_path_name, root_path_name)
+    """
     leaves_path_name = ""
     
-    rlist = root_path_name.split(os.sep)
-    flist = full_path_name.split(os.sep)
+    # rlist = root_path_name.split(os.sep)
+    # flist = full_path_name.split(os.sep)
+
+    rlist = build_list_from_path(root_path_name)
+    flist = build_list_from_path(full_path_name)
+
     icount = 0
     for i in range(len(rlist)):
         if (len(flist) > i):
@@ -504,10 +518,23 @@ def get_path_leaves(full_path_name, root_path_name):
     # endif
     
     return leaves_path_name
-
-
 # enddef
+def merge_path_leaves(root_path_name,leaves_path_name):
+    """
 
+    :param root_path_name:
+    :param leaves_path_name:
+    :return: pathname = merge_path_leaves(root_path_name,leaves_path_name)
+    """
+    rlist = build_list_from_path(root_path_name)
+    flist = build_list_from_path(leaves_path_name)
+
+    liste = rlist + flist
+
+    pathname = build_pathname_from_list(liste)
+
+    return pathname
+# end if
 def remove_dir_all(dir_name):
     try:
         liste = os.listdir(dir_name)
@@ -898,6 +925,22 @@ def find_file(filename,searchpath):
     # end if
     return fullfilename
 # end def
+def find_file_pattern_pathlist(pattern,pathlist):
+    """
+
+    :param pattern: z.B. '*.txt'
+    :param pathlist: z.B. ['D:\\temp','D:\\test']
+    :return: liste = find_file_pattern_pathlist(pattern,pathlist)
+    """
+    liste = []
+    for path in pathlist:
+        if isinstance(path,list):
+            liste += find_file_pattern_pathlist(pattern,path)
+        else:
+            liste += find_file_pattern(pattern, path)
+    # end for
+    return liste
+# end def
 def find_file_pattern(pattern, path):
     """
     find_file_pattern(pattern, path) returns a list of file
@@ -994,20 +1037,35 @@ def build_list_from_path(path_name):
     path_liste = os.path.normpath(path_mod_name).split(os.sep)
     return path_liste
 # end def
-def build_path_with_forward_slash(path_name):
+def build_pathname_with_forward_slash(path_name):
     """
 
     :param path_name:
-    :return: path_name_mod = build_path_with_forward_slash(path_name)
+    :return: path_name_mod = build_pathname_with_forward_slash(path_name)
     """
     p_list = os.path.normpath(path_name).split(os.sep)
     return build_path_from_list_with_forward_slash(p_list)
 # end def
-def build_path_from_list_with_forward_slash(p_list):
+def build_pathname_from_list(p_list):
     """
 
     :param p_list:
-    :return: path = build_path_from_list_with_forward_slash(p_list)
+    :return: path = build_pathname_from_list(p_list)
+    """
+    n = len(p_list)
+    path_name_mod = ""
+    for i,item in enumerate(p_list):
+        path_name_mod += item
+        if i < n-1:
+            path_name_mod += os.sep
+    # end for
+    return path_name_mod
+# end def
+def build_pathname_from_list_with_forward_slash(p_list):
+    """
+
+    :param p_list:
+    :return: path = build_pathname_from_list_with_forward_slash(p_list)
     """
     n = len(p_list)
     path_name_mod = ""
@@ -1146,6 +1204,12 @@ if __name__ == '__main__':
 
     # p = get_rel_dir("K:/data/md/_bilder/erste",'K:/data/md/Music/Rock',)
     # print(f"{p = }")
+
+    full_path_name = "K:\\media\\bilder\\2025\\Suedamerika\\Dagmar"
+    root_path_name = "D:/media/bilder/2025"
+    leaves_path_name = get_path_leaves(full_path_name, root_path_name)
+
+    print(leaves_path_name)
 
     searchfile = "Newmont240905.jpg"
     base_path = "K:\\data\\md"

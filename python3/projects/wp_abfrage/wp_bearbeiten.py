@@ -8,7 +8,10 @@ if (tools_path not in sys.path):
 from tools import sgui
 from tools import hfkt_def as hdef
 
+import tools.hfkt_type as htype
+
 import wp_price_volume
+import wp_storage
 
 
 def edit_basic_info(wp_obj):
@@ -205,6 +208,42 @@ def get_last_price_volume(wp_obj):
     
     return (status, errtext)
 # end def
+def read_usdeuro_ezb_xml(wp_obj,xmlfilename):
+    """
+
+    :param wp_obj:
+    :return: (status, errtext) = read_usdeuro_ezb_xml(wp_obj)
+    """
+
+    (number, firstdat, lastdat) = wp_obj.get_number_of_data_usdeuro_course()
+
+    firstdatstr = htype.type_tranform_direct(firstdat, "dat", "datStrP")
+    lastdatstr = htype.type_tranform_direct(lastdat, "dat", "datStrP")
+
+    print(f"start reading {number = }, {firstdatstr = },{lastdatstr = }")
+
+    (status, errtext, df_new) = wp_storage.read_usdeuro_ezb_xml(xmlfilename,wp_obj.par.HEADER_PANDAS_DATUM_NAME,wp_obj.par.HEADER_PANDAS_USDEURO_NAME)
+
+    if status != hdef.OKAY:
+        return (status, errtext)
+
+
+    status = wp_obj.set_usdeuro_course(df_new)
+
+    if status != hdef.OKAY:
+        return (status, wp_obj.errtext)
+
+    (number, firstdat, lastdat) = wp_obj.get_number_of_data_usdeuro_course()
+
+    firstdatstr = htype.type_tranform_direct(firstdat, "dat", "datStrP")
+    lastdatstr = htype.type_tranform_direct(lastdat, "dat", "datStrP")
+
+    print(f"end reading {number = }, {firstdatstr = },{lastdatstr = }")
+
+
+    return (status,errtext)
+# end def
+
 def get_isin_and_wpname_list(wp_obj):
     """
 

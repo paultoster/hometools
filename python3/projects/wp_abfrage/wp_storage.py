@@ -3,10 +3,15 @@ import pickle
 import json
 import zlib
 import traceback
+import xml.etree.ElementTree as ET
+import numpy as np
+import datetime
 import pandas as pd
 
 import tools.hfkt_def as hdef
 # import tools.hfkt_str as hstr
+
+import wp_fkt
 
 def info_storage_eixst(isin,base_ddict):
     
@@ -410,15 +415,66 @@ def read_parquet(isin, base_ddict):
     """
 
     :param file_name:
-    :return:
+    :return: (read_flag,df) = read_parquet(isin, base_ddict)
     """
     file_name = build_file_name_pandas(base_ddict["price_volumen_pre_file_name"] + str(isin), base_ddict)
 
     if os.path.isfile(file_name):
         df = pd.read_parquet(file_name)
+        read_flag = True
     else:
         df = None
+        read_flag = False
     # end if
 
-    return df
+    return (read_flag,df)
 # end def
+def  save_parquet(df, isin, base_ddict):
+
+    file_name = build_file_name_pandas(base_ddict["price_volumen_pre_file_name"] + str(isin), base_ddict)
+
+    df.to_parquet(file_name)
+
+    return
+# end def
+def read_usdeuro_ezb_xml(xmlfilename,header_pandas_datum_name,header_pandas_usdeuro_name):
+    """
+
+    :param xmlfilename:
+    :param header_pandas_datum_name:
+    :param header_pandas_usdeuro_name:
+
+    :return: (status, errtext,df_xml) = read_usdeuro_ezb_xml(xmlfilename,header_pandas_datum_name,header_pandas_usdeuro_name)
+
+    """
+
+    status = hdef.OKAY
+    errtext = ""
+
+    tree = ET.parse(xmlfilename)
+    root = tree.getroot()
+
+    ns = {
+        "exr": "http://www.ecb.europa.eu/vocabulary/stats/exr/1"
+    }
+
+    date_str_list = []
+    value_string_list = []
+    for obs in root.findall(".//exr:Obs", ns):
+        date_str_list.append(int(datetime.datetime.strptime(obs.attrib["TIME_PERIOD"],"%Y-%m-%d").timestamp()))
+        value_string_list.append(float(obs.attrib["OBS_VALUE"]))
+    # end for
+
+    np_dat_list = np.array(date_str_list)
+    np_usdeuro_liste = np.array(value_string_list)
+
+    if np_dat_list.size == 0:
+        status = hdef.NOT_OKAY
+        errtext = f"Von Datei: {xmlfilename} konnten keine Daten Obs \"TIME_PERIOD\" ist \"OBS_VALUE\" gefunden werden."
+        return (status,errtext,None)
+    # end if
+
+    return wp_fkt.build_usdeuro_df(np_dat_list, header_pandas_datum_name, np_usdeuro_liste, header_pandas_usdeuro_name)
+
+# end def
+

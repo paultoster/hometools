@@ -47,7 +47,7 @@ def report_einlesen(rd,choice,konto_dict,konto_obj,csv_obj):
         
         # csv-Datei auswählen
         filename = rd.gui.abfrage_file(file_types="*.csv",
-                                     comment=f"Wähle ein report von ING-DiBa für den Kontoumsatz von Konto: {choice}",
+                                     comment=f"Wähle ein report für den Kontoumsatz von Konto: {choice}",
                                      start_dir=start_pfad)
         
         if (len(filename) == 0):  # Abbruch

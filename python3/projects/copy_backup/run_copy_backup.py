@@ -9,7 +9,7 @@ dict = {}
 # Quellpafad
 dict[copy_backup.NAME_SOURCE_PATH]  = "K:\\data\\md"
 # Zielpfad
-dict[copy_backup.NAME_TARGET_PATH]  = "K:\\temp"
+dict[copy_backup.NAME_TARGET_PATH]  = "K:\\temp\\md"
 # Ausschlusspfade
 dict[copy_backup.NAME_EXCLUDE_ABS_PATH_LIST] = ["RECYCLER","System Volume Information","ctNotWin2011","found.000"]
 dict[copy_backup.NAME_EXCLUDE_REL_PATH_LIST] = [".svn","ctNotWin2011","RECYCLER","System Volume Information"]
