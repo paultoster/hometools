@@ -1574,9 +1574,9 @@ def type_convert_to_hashkey(obj, salt=0):
     return hash(obj) & 0xffffffff
 
 # -------------------------------------------------------
-def type_tranform_direct(wert_in: any, type_in: str | list, type_out: str | list):
+def type_transform_direct(wert_in: any, type_in: str | list, type_out: str | list):
 
-    if isinstance(wert_in, list):
+    if isinstance(wert_in, list) and ((type_in != "datTimeList") and (type_in != "datList") and (type_in != "timeList")):
         wert_out = []
         for wert in wert_in:
             (status, value) = type_transform(wert, type_in, type_out)
@@ -1693,6 +1693,10 @@ def  type_transform_dat(wert_in,type_out):
             wert_out = str(liste[0])
         elif type_out == "int":
             wert_out = int(wert)
+        elif type_out == "datTimeList":
+            wert_out = hdate.calc_secs_to_dat_time_list(wert)
+        elif type_out == "datList":
+            wert_out = hdate.calc_secs_to_dat_list(wert)
         else:
             raise Exception(f"In type_transform_dat ist type_out: {type_out} nicht möglich")
         # end if
@@ -1847,7 +1851,7 @@ def type_transform_datTimeList(wert_in, type_out):
     if (okay == hdef.OKAY):
 
         if type_out == "datetimeclass":
-            epoch_secs = hdate.calc_dat_list_to_secs(wert)
+            epoch_secs = hdate.calc_dat_time_list_to_secs(wert)
             wert_out = datetime.datetime.fromtimestamp(epoch_secs)
         elif type_out == "dat":
             wert_out = hdate.calc_dat_time_list_to_secs(wert)

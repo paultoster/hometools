@@ -10,6 +10,7 @@ if (tools_path not in sys.path):
 
 from tools import hfkt_type as htype
 from tools import hfkt_def as hdef
+import tools.hfkt_date_time as hdt
 
 if os.path.isfile('wp_fkt.py'):
     import wp_fkt
@@ -54,7 +55,7 @@ def get_price_volume_data(ticker, waehrung, start_dat_time_list, end_dat_time_li
 
     date_str_list = df_data.index.strftime("%d.%m.%Y").tolist()
 
-    dat_np_array = np.array(htype.type_tranform_direct(date_str_list, "datStrP", "dat"), copy=True)
+    dat_np_array = np.array(htype.type_transform_direct(date_str_list, "datStrP", "dat"), copy=True)
     close_np_array = df_data["Close"].to_numpy()
     high_np_array = df_data["High"].to_numpy()
     low_np_array = df_data["Low"].to_numpy()
@@ -74,7 +75,7 @@ def get_price_volume_data(ticker, waehrung, start_dat_time_list, end_dat_time_li
         # end if
 
         date_str_list = df_data_eurodol.index.strftime("%d.%m.%Y").tolist()
-        euro_dat_np_array = np.array(htype.type_tranform_direct(date_str_list, "datStrP", "dat"), copy=True)
+        euro_dat_np_array = np.array(htype.type_transform_direct(date_str_list, "datStrP", "dat"), copy=True)
         euro_close_np_array = df_data_eurodol["Close"].to_numpy()
 
         half_day_seconds = 12 * 60 * 60
@@ -107,6 +108,41 @@ def get_price_volume_data(ticker, waehrung, start_dat_time_list, end_dat_time_li
     # end if
 
     return (status, errtext, df_data)
+# end def
+def get_usdeuro_data(start_dat_time_list, end_dat_time_list,dat_name,usdeuro_name):
+    """
 
+    (status, errtext, df_data) = get_usdeuro_data(start_dat_time_list, end_dat_time_list)
+    """
+    # status = hdef.OKAY
+    errtext = ""
 
+    # Start time
+    (status, start_dat) = htype.type_transform(start_dat_time_list, "datTimeList", "datetimeclass")
+    if status != hdef.OKAY:
+        raise Exception(f"type transform missglückt von {start_dat_time_list = } von \"datTimeList\" zu \"dat\" ")
+    # end if
+
+    end_dat_time_list = hdt.verschiebe_dat_list_in_tagen(end_dat_time_list, 1)
+    (status, end_dat) = htype.type_transform(end_dat_time_list, "datTimeList", "datetimeclass")
+    if status != hdef.OKAY:
+        raise Exception(f"type transform missglückt von {end_dat_time_list = } von \"datTimeList\" zu \"dat\" ")
+    # end if
+
+    t = 'EURUSD=X'
+    df_data_eurodol = yf.download(t, start_dat.strftime('%Y-%m-%d'), end_dat.strftime('%Y-%m-%d'))
+
+    if df_data_eurodol.empty:
+        status = hdef.NOT_OKAY
+        errtext = f"For Euro-Calc Ticker-Symbol \"{t}\" no data from yahoofinance"
+        return (status, errtext, df_data_eurodol)
+    # end if
+
+    date_str_list = df_data_eurodol.index.strftime("%d.%m.%Y").tolist()
+    euro_dat_np_array = np.array(htype.type_transform_direct(date_str_list, "datStrP", "dat"), copy=True)
+    euro_close_np_array = df_data_eurodol["Close"].to_numpy()
+
+    (status, errtext, df) = wp_fkt.build_usdeuro_df(euro_dat_np_array, dat_name, euro_close_np_array, usdeuro_name)
+
+    return (status, errtext, df)
 # end def

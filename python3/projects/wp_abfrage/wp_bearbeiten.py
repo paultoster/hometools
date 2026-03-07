@@ -212,38 +212,62 @@ def read_usdeuro_ezb_xml(wp_obj,xmlfilename):
     """
 
     :param wp_obj:
-    :return: (status, errtext) = read_usdeuro_ezb_xml(wp_obj)
+    :param xmlfilename:
+    :return: (status, errtext) = read_usdeuro_ezb_xml(wp_obj,xmlfilename)
     """
+    errtext = ""
 
     (number, firstdat, lastdat) = wp_obj.get_number_of_data_usdeuro_course()
 
-    firstdatstr = htype.type_tranform_direct(firstdat, "dat", "datStrP")
-    lastdatstr = htype.type_tranform_direct(lastdat, "dat", "datStrP")
+    firstdatstr = htype.type_transform_direct(firstdat, "dat", "datStrP")
+    lastdatstr = htype.type_transform_direct(lastdat, "dat", "datStrP")
 
     print(f"start reading {number = }, {firstdatstr = },{lastdatstr = }")
 
-    (status, errtext, df_new) = wp_storage.read_usdeuro_ezb_xml(xmlfilename,wp_obj.par.HEADER_PANDAS_DATUM_NAME,wp_obj.par.HEADER_PANDAS_USDEURO_NAME)
-
-    if status != hdef.OKAY:
-        return (status, errtext)
-
-
-    status = wp_obj.set_usdeuro_course(df_new)
+    status = wp_obj.read_ezb_xml(xmlfilename)
 
     if status != hdef.OKAY:
         return (status, wp_obj.errtext)
 
     (number, firstdat, lastdat) = wp_obj.get_number_of_data_usdeuro_course()
 
-    firstdatstr = htype.type_tranform_direct(firstdat, "dat", "datStrP")
-    lastdatstr = htype.type_tranform_direct(lastdat, "dat", "datStrP")
+    firstdatstr = htype.type_transform_direct(firstdat, "dat", "datStrP")
+    lastdatstr = htype.type_transform_direct(lastdat, "dat", "datStrP")
 
     print(f"end reading {number = }, {firstdatstr = },{lastdatstr = }")
 
-
     return (status,errtext)
 # end def
+def read_akt_usdeuro(wp_obj):
+    """
 
+    :param wp_obj:
+    :return: (status, errtext) = read_akt_usdeuro_yfinace(wp_obj)
+    """
+
+    errtext = ""
+
+    (number, firstdat, lastdat) = wp_obj.get_number_of_data_usdeuro_course()
+
+    firstdatstr = htype.type_transform_direct(firstdat, "dat", "datStrP")
+    lastdatstr = htype.type_transform_direct(lastdat, "dat", "datStrP")
+
+    print(f"start reading {number = }, {firstdatstr = },{lastdatstr = }")
+
+    status = wp_obj.update_usdeuro()
+
+    if status != hdef.OKAY:
+        return (status, wp_obj.errtext)
+
+    (number, firstdat, lastdat) = wp_obj.get_number_of_data_usdeuro_course()
+
+    firstdatstr = htype.type_transform_direct(firstdat, "dat", "datStrP")
+    lastdatstr = htype.type_transform_direct(lastdat, "dat", "datStrP")
+
+    print(f"end reading {number = }, {firstdatstr = },{lastdatstr = }")
+
+    return (status, errtext)
+# end def
 def get_isin_and_wpname_list(wp_obj):
     """
 

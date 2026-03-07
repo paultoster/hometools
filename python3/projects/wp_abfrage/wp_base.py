@@ -11,9 +11,12 @@ import wp_abfrage.wp_fkt as wp_fkt
 import wp_abfrage.wp_wkn as wp_wkn
 import wp_abfrage.wp_storage as wp_storage
 import wp_abfrage.wp_isin as wp_isin
+import wp_abfrage.wp_yahoofinance as wp_yfinance
+
 
 import tools.hfkt_def as hdef
 import tools.hfkt_dict as hdict
+import tools.hfkt_type as htype
 
 
 INI_DICT_PROOF_LISTE = [("store_path", "str"),
@@ -340,6 +343,64 @@ class WPData:
         
         return self.status
     
+    # end def
+    def update_usdeuro(self):
+        """
+
+        :return: (status, errtext) = wp_obj.update_usdeuro()
+        """
+        self.status = hdef.OKAY
+
+        #---------------------------------------------------------------------------------------------------------------
+        # Hole die aktuellen Werte von yfinace
+        #---------------------------------------------------------------------------------------------------------------
+        # Was ist der letzte gespeicherte wert => start datum
+        (_, _, start_dat) = self.get_number_of_data_usdeuro_course()
+        start_dat_time_list = htype.type_transform_direct(start_dat,"dat","datTimeList")
+        # Was ist der letzte aktuelle Handelsdatum
+        end_dat_time_list = wp_fkt.letzter_beendeter_handelstag_dat_list(self.base_ddict["boerse"])
+        end_dat           = htype.type_transform_direct(end_dat_time_list, "datTimeList", "dat")
+
+        # ---------------------------------------------------------------------------------------------------------------
+        # wennn Daten fehlen: Hole die aktuellen Werte von yfinace
+        # ---------------------------------------------------------------------------------------------------------------
+        if end_dat > start_dat:
+
+            (self.status, self.errtext, df_new) = wp_yfinance.get_usdeuro_data(start_dat_time_list,
+                                                                               end_dat_time_list,
+                                                                               self.par.HEADER_PANDAS_DATUM_NAME,
+                                                                               self.par.HEADER_PANDAS_USDEURO_NAME)
+
+            if self.status != hdef.OKAY:
+                return self.status
+
+            (read_flag,df) = wp_storage.read_parquet(self.par.HEADER_PANDAS_USDEURO_NAME, self.base_ddict)
+
+            if read_flag:
+                (self.status, self.errtext, df) = wp_fkt.merge_usdeuro_dfnew_to_df(df,df_new,
+                                                                        self.par.HEADER_PANDAS_DATUM_NAME,
+                                                                        self.par.HEADER_PANDAS_USDEURO_NAME)
+                if self.status != hdef.OKAY:
+                    return self.status
+
+                wp_storage.save_parquet(df, self.par.HEADER_PANDAS_USDEURO_NAME, self.base_ddict)
+            else:
+                df = df_new
+            # end if
+        # end def
+        return self.status
+    # end def
+    def read_ezb_xml(self,xmlfilename):
+        """
+        
+        :return: status = wp_obj.read_ezb_xml(xmlfilename)
+        """
+        (self.status, self.errtext, df_new) = wp_storage.read_usdeuro_ezb_xml(xmlfilename,self.par.HEADER_PANDAS_DATUM_NAME,self.par.HEADER_PANDAS_USDEURO_NAME)
+
+        if self.status != hdef.OKAY:
+            return self.status
+
+        return self.set_usdeuro_course(df_new)
     # end def
     def set_usdeuro_course(self,df_new):
         """
