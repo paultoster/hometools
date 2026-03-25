@@ -109,40 +109,36 @@ def get_price_volume_data(ticker, waehrung, start_dat_time_list, end_dat_time_li
 
     return (status, errtext, df_data)
 # end def
-def get_usdeuro_data(start_dat_time_list, end_dat_time_list,dat_name,usdeuro_name):
+def get_usdeuro_data(start_dat, end_dat):
     """
-
+    (status, errtext, np_obj) = wp_yfinance.get_usdeuro_data(lastdat,end_dat)
     (status, errtext, df_data) = get_usdeuro_data(start_dat_time_list, end_dat_time_list)
     """
     # status = hdef.OKAY
     errtext = ""
 
     # Start time
-    (status, start_dat) = htype.type_transform(start_dat_time_list, "datTimeList", "datetimeclass")
-    if status != hdef.OKAY:
-        raise Exception(f"type transform missglückt von {start_dat_time_list = } von \"datTimeList\" zu \"dat\" ")
-    # end if
+    start_dat_time_class = htype.type_transform_direct(start_dat,"dat","datetimeclass")
+    # End time
+    # add one day because yfinace need
+    end_dat_add = end_dat + 24 * 60 * 60
 
-    end_dat_time_list = hdt.verschiebe_dat_list_in_tagen(end_dat_time_list, 1)
-    (status, end_dat) = htype.type_transform(end_dat_time_list, "datTimeList", "datetimeclass")
-    if status != hdef.OKAY:
-        raise Exception(f"type transform missglückt von {end_dat_time_list = } von \"datTimeList\" zu \"dat\" ")
-    # end if
+    end_dat_time_class   = htype.type_transform_direct(end_dat_add,"dat","datetimeclass")
 
     t = 'EURUSD=X'
-    df_data_eurodol = yf.download(t, start_dat.strftime('%Y-%m-%d'), end_dat.strftime('%Y-%m-%d'))
+    df_data_eurodol = yf.download(t, start_dat_time_class.strftime('%Y-%m-%d'), end_dat_time_class.strftime('%Y-%m-%d'))
 
     if df_data_eurodol.empty:
         status = hdef.NOT_OKAY
         errtext = f"For Euro-Calc Ticker-Symbol \"{t}\" no data from yahoofinance"
-        return (status, errtext, df_data_eurodol)
+        return (status, errtext, None)
     # end if
 
     date_str_list = df_data_eurodol.index.strftime("%d.%m.%Y").tolist()
     euro_dat_np_array = np.array(htype.type_transform_direct(date_str_list, "datStrP", "dat"), copy=True)
     euro_close_np_array = df_data_eurodol["Close"].to_numpy()
 
-    (status, errtext, df) = wp_fkt.build_usdeuro_df(euro_dat_np_array, dat_name, euro_close_np_array, usdeuro_name)
+    (status, errtext, np_obj) = wp_fkt.build_usdeuro_np_obj_from_np_array(euro_dat_np_array, euro_close_np_array)
 
-    return (status, errtext, df)
+    return (status, errtext, np_obj)
 # end def

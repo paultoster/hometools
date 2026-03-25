@@ -3,7 +3,7 @@
 # import urllib.request
 import os
 import sys
-import pandas as pd
+# import pandas as pd
 import numpy as np
 
 tools_path = os.getcwd() + "\\.."
@@ -19,10 +19,12 @@ if os.path.isfile('wp_base.py'):
     import wp_storage as wp_storage
     import wp_playwright as wp_pr
     import wp_isin as wp_isin
+    import wp_np_dataclass as wp_np_dc
 else:
     import wp_abfrage.wp_storage as wp_storage
     import wp_abfrage.wp_playwright as wp_pr
     import wp_abfrage.wp_isin as wp_isin
+    import wp_abfrage.wp_np_dataclass as wp_np_dc
 # end if
 
 FEIERTAGE_XETRA_LLISTE = [
@@ -202,6 +204,9 @@ def build_sort_list_of_index(list1, list2,overlap):
     Ausgabe liste [(0 oder 1,index0,index1), ....]
     z.B. liste1 = [1.0,2.0,4.0,5.0] liste2 = [2.0,3.0,4.0,5.0,6.0,7.0] overlap = 0.5
     => sort_index_list = [(0,0,1),(1,1,1),(0,2,3),(1,4,5)]
+        erster index steht für welche liste 0: liste1, 1:liste2
+        zweiter index steht für ersten index aus der entspr. liste
+        dritter index steht für letzen index aus der entspr. liste
     bei Zusammensetzen der Liste entsteht liste1[sort_list[0][1]:sort_list[0][2]+1] + liste2[sort_list[1][1]:sort_list[1][2]+1] + ...
 
     :param list1: erste Liste mit Daten
@@ -299,22 +304,57 @@ def build_sort_list_of_index(list1, list2,overlap):
     # end if
     return sort_index_list
 # end def
-def build_usdeuro_df(np_dat_array, dat_name, np_usdeuro_array,usdeuro_name):
+def find_index_range(liste, start_item,last_item, overlap):
     """
-    
-    :param np_dat_array: 
-    :param dat_name: 
-    :param np_usdeuro_array: 
-    :param usdeuro_name: 
-    :return: (status, errtext, df) = build_usdeuro_df(np_dat_array, dat_name, np_usdeuro_array,usdeuro_name)
+    Suche in Liste match mit start_item und last_item und gebe die dazugehörigen indizes aus der List zurück
+    :param liste:
+    :param first_item:
+    :param last_item:
+    :param overlap:
+    :return: (start_index,last_index,start_in_range,last_in_range) = find_index_range(liste, first_item,last_item, overlap)
     """
-    status = hdef.OKAY
-    errtext = ""
+    start_in_range = True
+    last_in_range = True
 
-    df = pd.DataFrame(np_dat_array, columns=[dat_name])
-    df[usdeuro_name] = np_usdeuro_array
+    if start_item is None:
+        start_index = 0
+    elif start_item <= liste[0] + overlap:
+        start_index = 0
+        start_in_range = False
+    elif start_item > liste[-1] + overlap:
+        start_index = None
+        start_in_range = False
+    else:
+        for index,item in enumerate(liste):
+            if (start_item > item - overlap) and (start_item <= item + overlap):
+                start_index = index
+                break
+            # end if
+        # end for
+    # end if
 
-    return (status, errtext, df)
+    if start_index is None:
+        last_index = None
+        last_in_range = False
+    elif last_item is None:
+        last_index = max(start_index,len(liste)-1)
+    elif last_item < liste[0] - overlap:
+        start_index = None
+        last_index = None
+        last_in_range = False
+    elif last_item >= liste[-1] - overlap:
+        last_index = max(start_index,len(liste)-1)
+        last_in_range = False
+    else:
+        for index,item in enumerate(liste):
+            if (last_item > item - overlap) and (last_item <= item + overlap):
+                last_index = max(start_index,index)
+                break
+            # end if
+        # end for
+    # end if
+
+    return (start_index,last_index,start_in_range,last_in_range)
 # end def
 def merge_usdeuro_dfnew_to_df(df,df_new, dat_name,usdeuro_name):
     """
@@ -355,8 +395,71 @@ def merge_usdeuro_dfnew_to_df(df,df_new, dat_name,usdeuro_name):
         (status, errtext, df) = build_usdeuro_df(np_dat_merge, dat_name, np_usdeuro_merge, usdeuro_name)
     # end if
     return (status, errtext, df )
+# end def
+def get_usdeuro_df_with_dat(df,first_dat,last_dat,dat_name,usdeuro_name):
+    """
 
+    :param df:
+    :param first_dat:
+    :param last_dat:
+    :param dat_name:
+    :param usdeuro_name:
+    :return: (status, errtext, dfpart,first_df_dat,last_df_dat) = wp_fkt.get_usdeuro_df_with_dat(df,first_dat,last_dat,dat_name,usdeuro_name)
+    """
+    status = hdef.OKAY
+    errtext = ""
+    dfpart = None
+    first_df_dat = None
+    last_df_dat = None
 
+    np_dat_akt = df[dat_name].to_numpy()
+    np_usdeuro_akt = df[usdeuro_name].to_numpy()
+
+    half_day_seconds = 12 * 60 * 60
+    (start_index,last_index,start_in_range,last_in_range) = find_index_range(list(np_dat_akt), first_dat,last_dat, half_day_seconds)
+
+    if (start_index is None) or (last_index is None):
+        status = hdef.NOT_OKAY
+        errtext = f"Das Datum zwischen {first_dat = } und {last_dat = } konnte nicht gefunden werden."
+        return (status,errtext,dfpart,first_df_dat,last_dat,first_df_dat,last_df_dat)
+    else:
+        np_dat_part = np.array(np_dat_akt[start_index:last_index+1])
+        np_usdeuro_part = np.array(np_usdeuro_akt[start_index:last_index+1])
+        first_df_dat = np_dat_part[0]
+        last_df_dat = np_dat_part[-1]
+        dfpart = build_usdeuro_df(np_dat_part, dat_name, np_usdeuro_part, usdeuro_name)
+    # end if
+    return (status,errtext,dfpart,first_df_dat,last_dat,first_df_dat,last_df_dat)
+# end def
+def build_usdeuro_np_obj_from_list(np_dat_list, np_usdeuro_liste):
+    """
+
+    :param np_dat_list:
+    :param np_usdeuro_liste:
+    :return:
+    """
+    status = hdef.OKAY
+    errtext = ""
+
+    np_dat_arr = np.array(np_dat_list, dtype=np.int64)
+    np_usdeuro_arr = np.array(np_usdeuro_liste, dtype=np.float64)
+
+    return build_usdeuro_np_obj_from_np_array(np_dat_arr, np_usdeuro_arr)
+# end def
+def build_usdeuro_np_obj_from_np_array(np_dat_arr, np_usdeuro_arr):
+    """
+
+    :param np_dat_list:
+    :param np_usdeuro_liste:
+    :return:
+    """
+    status = hdef.OKAY
+    errtext = ""
+
+    np_obj = wp_np_dc.NpUsdEuroClass(np_dat_arr, np_usdeuro_arr)
+
+    return (status,errtext,np_obj)
+# end def
 
 ###########################################################################
 # testen mit main

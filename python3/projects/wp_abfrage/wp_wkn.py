@@ -22,11 +22,19 @@ def wp_search_wkn(wkn,base_ddict):
     '''
     status = hdef.OKAY
     errtext = ""
-    wp_isin_dict = wp_storage.read_dict_file(base_ddict["wpname_isin_filename"],base_ddict)
+    flag_json = base_ddict["use_json"] == 2
+    (status,errtext,wp_isin_dict) = wp_storage.read_dict(base_ddict["wpname_isin_filename"],
+                                                         flag_json,
+                                                         "",
+                                                         base_ddict["store_path"])
     
     for isin in wp_isin_dict.keys():
-    
-        (status,errtext,info_dict) = wp_storage.read_info_dict(isin, base_ddict)
+
+        flag_json = base_ddict["use_json"] == 2  # read json
+        (status,errtext,info_dict) = wp_storage.read_dict(isin,
+                                                          flag_json,
+                                                          base_ddict["basic_info_pre_file_name"],
+                                                          base_ddict["store_path"])
         
         if status != hdef.OKAY:
             return (status,errtext,None)
@@ -99,7 +107,12 @@ def wp_add_wkn_isin(wkn, isin, base_ddict):
     '''
     status = hdef.OKAY
     errtext = ""
-    wkn_isin_dict = wp_storage.read_dict_file(base_ddict["wkn_isin_filename"], base_ddict)
+    flag_json = base_ddict["use_json"] == 2
+
+    (status, errtext,wkn_isin_dict) = wp_storage.read_dict(base_ddict["wkn_isin_filename"],
+                                                           flag_json,
+                                                           "",
+                                                           base_ddict["store_path"])
     
     wkn_isin_dict[wkn] = isin
     
@@ -119,7 +132,11 @@ def wp_search_wpname(wpname, base_ddict):
     '''
     status = hdef.OKAY
     errtext = ""
-    wpname_isin_dict = wp_storage.read_dict_file(base_ddict["wpname_isin_filename"],base_ddict)
+    flag_json = base_ddict["use_json"] == 2
+    (status, errtext,wpname_isin_dict) = wp_storage.read_dict(base_ddict["wpname_isin_filename"],
+                                                              flag_json,
+                                                              "",
+                                                              base_ddict["store_path"])
     
     if wpname in wpname_isin_dict.keys():
         if base_ddict["use_json"] == 1:  # write json
@@ -156,8 +173,11 @@ def wp_search_wpname_in_comment(comment, base_ddict):
     status = hdef.NOT_OKAY
     errtext = f"wp_search_wpname_in_comment: wpname wurde in {comment} nicht gefunden"
     isin = ""
-
-    wpname_isin_dict = wp_storage.read_dict_file(base_ddict["wpname_isin_filename"], base_ddict)
+    flag_json = base_ddict["use_json"] == 2
+    (status, errtext,wpname_isin_dict) = wp_storage.read_dict(base_ddict["wpname_isin_filename"],
+                                                              flag_json,
+                                                              "",
+                                                              base_ddict["store_path"])
     
     for wpname, key in wpname_isin_dict.items():
 
@@ -183,7 +203,11 @@ def wp_add_wpname_isin(wpname,isin, base_ddict):
     '''
     status = hdef.OKAY
     errtext = ""
-    wpname_isin_dict = wp_storage.read_dict_file(base_ddict["wpname_isin_filename"], base_ddict)
+    flag_json = base_ddict["use_json"] == 2
+    (status, errtext,wpname_isin_dict) = wp_storage.read_dict(base_ddict["wpname_isin_filename"],
+                                                              flag_json,
+                                                              "",
+                                                              base_ddict["store_path"])
     
     
     wpname_isin_dict[wpname] = isin

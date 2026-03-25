@@ -721,11 +721,11 @@ def type_proof_datetimeclass(wert_in):
         if (secs == 0):
             return (hdef.NOT_OKAY, None)
         else:
-            date_object = datetime.fromtimestamp(secs)
+            date_object = datetime.datetime.fromtimestamp(secs)
             return (hdef.OKAY, date_object)
 
     elif isinstance(wert_in, int) and wert_in >= 0:
-        date_object = datetime.fromtimestamp(secs)
+        date_object = datetime.datetime.fromtimestamp(secs)
         return (hdef.OKAY,date_object)
     else:
         return (hdef.NOT_OKAY, None)  # endtry  # endif
@@ -1680,7 +1680,8 @@ def  type_transform_dat(wert_in,type_out):
     (okay, wert) = type_proof(wert_in, 'dat')
     if( okay == hdef.OKAY):
         if type_out == "datetimeclass":
-            wert_out = datetime.timestamp(wert)
+
+            wert_out = datetime.datetime.fromtimestamp(wert)
         elif (type_out == "datStr") or (type_out == "datStrP"):
             wert_out = hdate.secs_time_epoch_to_str(wert,delim=".")
         elif type_out == "datStrB":

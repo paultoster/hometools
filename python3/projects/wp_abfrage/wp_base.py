@@ -12,6 +12,8 @@ import wp_abfrage.wp_wkn as wp_wkn
 import wp_abfrage.wp_storage as wp_storage
 import wp_abfrage.wp_isin as wp_isin
 import wp_abfrage.wp_yahoofinance as wp_yfinance
+import wp_abfrage.wp_bearbeiten as wp_bearbeiten
+import wp_abfrage.wp_base_usdeuro as wp_base_usdeuro
 
 
 import tools.hfkt_def as hdef
@@ -20,7 +22,7 @@ import tools.hfkt_type as htype
 
 
 INI_DICT_PROOF_LISTE = [("store_path", "str"),
-                        ("basic_info_pre_file_name", "str"),
+                        ("basic_info_pre_file_name", "str","str","wp_basic_info_data_"),
                         ("wpname_isin_filename", "str"),
                         ("use_json", "int", "int",0),
                         ("wkn_isin_sleep_time", "int", "int", 10),
@@ -29,7 +31,8 @@ INI_DICT_PROOF_LISTE = [("store_path", "str"),
                         ("ariva_pw","str"),
                         ("ariva_timeout_playright","int","int",10000),
                         ("boerse","str","str","xetra"),
-                        ("price_volumen_pre_file_name", "str"),
+                        ("usdeuro_pre_file_name", "str","str","usdeuro_data_"),
+                        ("price_volumen_pre_file_name", "str","str","wp_price_volume_data_"),
                         ("price_volumen_first_dat","str","datStrP","01.01.2000")
                         ]
 
@@ -94,7 +97,7 @@ class WPData:
     self.check_isin_input(isin_input)
     ini_filename
     '''
-    def __init__(self,ini_filename):
+    def __init__(self,ini_filename:str) -> None:
 
         self.par =  WPParam()
 
@@ -132,7 +135,7 @@ class WPData:
         
         (self.status,self.errtext) = wp_fkt.check_store_path(self.base_ddict)
     # end def
-    def get_basic_info_isin_liste(self):
+    def get_basic_info_isin_liste(self) -> (int,str,list):
         '''
         
         Lese wpname_isin_dict ein und bilde daraus eine Liste mit allen ISINs
@@ -149,7 +152,7 @@ class WPData:
         # end if
         
         return (self.status, self.errtext, isin_liste)
-    def get_stored_basic_info_wpname_isin_dict(self):
+    def get_stored_basic_info_wpname_isin_dict(self) -> (int,str,dict):
         '''
         
         Lese wpname_isin_dict ein und gebe sie zurück
@@ -161,7 +164,7 @@ class WPData:
         
         return (self.status,self.errtext,wpname_isin_dict)
     # end def
-    def get_basic_info(self, isin_input):
+    def get_basic_info(self, isin_input: str|list) -> (int,str,dict|list):
         '''
 
         :param isin_input:
@@ -222,7 +225,7 @@ class WPData:
         
         return (self.status, self.errtext, output)
     # end def
-    def save_basic_info(self, isin_input,basic_info_dict):
+    def save_basic_info(self, isin_input: str|list, basic_info_dict: list|dict) -> (int,str):
         '''
 
         Speicheren der basic_info_dict ind die entsprechende Datei
@@ -263,18 +266,30 @@ class WPData:
         # end if
         
         for i,isin in enumerate(isin_list):
-            
-            (status,errtext) =  wp_storage.save_info_dict(isin, basic_info_dict_list[i], self.base_ddict)
+            use_jason = self.base_ddict["use_json"] == 1
+
+            (status,errtext) =  wp_storage.save_dict(basic_info_dict_list[i],isin,
+                                                          use_jason,
+                                                          self.base_ddict["basic_info_pre_file_name"],
+                                                          self.base_ddict["store_path"])
             
             if self.status != hdef.OKAY:
                 return (self.status, self.errtext)
             # end if
+
+            # update isin wpname liste
+            if self.status == hdef.OKAY:
+                (status, errtext) = wp_storage.update_isin_name_dict(isin,
+                                                                     basic_info_dict_list[i]["name"],
+                                                                     self.base_ddict["wpname_isin_filename"],
+                                                                     self.base_ddict["store_path"])
+            # end if
         # end for
+
         return (self.status, self.errtext)
-    
     # end def
     
-    def get_isin_from_wkn(self,wkn):
+    def get_isin_from_wkn(self,wkn:str) -> (int,str):
         '''
         
         Suche die passende isin zu wkn nummer
@@ -288,7 +303,7 @@ class WPData:
         # end if
         return (self.status,isin)
     # end def
-    def find_wpname_in_comment_get_isin(self,comment):
+    def find_wpname_in_comment_get_isin(self,comment:str) -> (int,str):
         '''
         
         :param comment:
@@ -316,7 +331,7 @@ class WPData:
     #     return self.status
     #
     # # end def
-    def update_isin_w_wpname_wkn(self,isin,wpname,wkn):
+    def update_isin_w_wpname_wkn(self,isin:str,wpname:str,wkn:str) -> int:
         '''
 
         :param wpname:
@@ -339,10 +354,59 @@ class WPData:
             info_dict["wkn"] = wkn
             
         if flag:
-            (self.status, self.errtext) = wp_storage.save_info_dict(isin,info_dict,self.base_ddict)
+            (self.status, self.errtext) = wp_storage.save_dict(isin,info_dict,self.base_ddict)
         
         return self.status
     
+    # end def
+    def process_usdeuro_ezb_xml(self, xmlfilename: str) -> (int,str):
+        """
+
+        :param wp_obj:
+        :param xmlfilename:
+        :return: (status, errtext) = wp_obj.process_usdeuro_ezb_xml(xmlfilename)
+        """
+
+        (status, errtext, number, firstdat, lastdat) = wp_base_usdeuro.get_number_of_data(self)
+
+        firstdatstr = htype.type_transform_direct(firstdat, "dat", "datStrP")
+        lastdatstr = htype.type_transform_direct(lastdat, "dat", "datStrP")
+
+        print(f"start reading {number = }, {firstdatstr = },{lastdatstr = }")
+
+
+        (self.status,self.errtext) = wp_base_usdeuro.process_ezb_xml(self,xmlfilename)
+
+
+        firstdatstr = htype.type_transform_direct(firstdat, "dat", "datStrP")
+        lastdatstr = htype.type_transform_direct(lastdat, "dat", "datStrP")
+
+        print(f"end reading {number = }, {firstdatstr = },{lastdatstr = }")
+
+        return (self.status,self.errtext)
+    # end def
+    def process_akt_usdeuro(self) -> (int,str):
+        """
+
+        :return: (status, errtext) = wp_obj.process_akt_usdeuro()
+        """
+        (status, errtext, number, firstdat, lastdat) = wp_base_usdeuro.get_number_of_data(self)
+
+        firstdatstr = htype.type_transform_direct(firstdat, "dat", "datStrP")
+        lastdatstr = htype.type_transform_direct(lastdat, "dat", "datStrP")
+
+        print(f"start reading {number = }, {firstdatstr = },{lastdatstr = }")
+
+        (self.status, self.errtext) = wp_base_usdeuro.process_akt(self)
+
+        (status, errtext, number, firstdat, lastdat) = wp_base_usdeuro.get_number_of_data(self)
+
+        firstdatstr = htype.type_transform_direct(firstdat, "dat", "datStrP")
+        lastdatstr = htype.type_transform_direct(lastdat, "dat", "datStrP")
+
+        print(f"end reading {number = }, {firstdatstr = },{lastdatstr = }")
+
+        return (self.status, self.errtext)
     # end def
     def update_usdeuro(self):
         """
@@ -390,66 +454,31 @@ class WPData:
         # end def
         return self.status
     # end def
-    def read_ezb_xml(self,xmlfilename):
-        """
-        
-        :return: status = wp_obj.read_ezb_xml(xmlfilename)
-        """
-        (self.status, self.errtext, df_new) = wp_storage.read_usdeuro_ezb_xml(xmlfilename,self.par.HEADER_PANDAS_DATUM_NAME,self.par.HEADER_PANDAS_USDEURO_NAME)
-
-        if self.status != hdef.OKAY:
-            return self.status
-
-        return self.set_usdeuro_course(df_new)
-    # end def
-    def set_usdeuro_course(self,df_new):
+    def get_usdeuro_df(self,first_dat,last_dat):
         """
 
-        :param df_new:
-        :return:  status = obj.set_usdeuro_course(df_new)
+        :param first_dat_time_list:
+        :param last_dat_time_list:
+        :return: df = self.get_usdeuro_df(first_dat_time_list,last_dat_time_list)
         """
 
-        self.status = hdef.OKAY
+        dfpart = None
+
+        # update data base
+        self.update_usdeuro()
 
         (read_flag,df) = wp_storage.read_parquet(self.par.HEADER_PANDAS_USDEURO_NAME, self.base_ddict)
 
         if read_flag:
-            (self.status, self.errtext, df) = wp_fkt.merge_usdeuro_dfnew_to_df(df,df_new,
+            (self.status, self.errtext, dfpart,first_dat,last_dat) = wp_fkt.get_usdeuro_df_with_dat(df,first_dat,last_dat,
                                                                     self.par.HEADER_PANDAS_DATUM_NAME,
                                                                     self.par.HEADER_PANDAS_USDEURO_NAME)
         else:
-            df = df_new
+            self.status = hdef.NOT_OKAY
+            self.errtext = "USD-Euro-Werte sind nicht gespeichert!!!"
         # end if
 
-        if self.status != hdef.OKAY:
-            return self.status
 
-        wp_storage.save_parquet(df, self.par.HEADER_PANDAS_USDEURO_NAME, self.base_ddict)
-
-        return self.status
-    # end def
-    def get_number_of_data_usdeuro_course(self):
-        """
-
-        :return: (number,firstdat,lastdat) = get_number_of_data_usdeuro_course()
-        """
-
-        number = 0
-        firstdat = 0
-        lastdat = 0
-
-        (read_flag,df) = wp_storage.read_parquet(self.par.HEADER_PANDAS_USDEURO_NAME, self.base_ddict)
-
-        if read_flag:
-            number = int(df[self.par.HEADER_PANDAS_DATUM_NAME].count())
-            df1    = df.iloc[0]
-            firstdat = int(df1[self.par.HEADER_PANDAS_DATUM_NAME])
-            df1 = df.iloc[-1]
-            lastdat = int(df1[self.par.HEADER_PANDAS_DATUM_NAME])
-        # end if
-
-        return (number,firstdat,lastdat)
-    # end def
 
 
 

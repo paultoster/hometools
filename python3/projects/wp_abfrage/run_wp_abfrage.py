@@ -54,6 +54,7 @@ def run_wp_abfrage():
         elif index == index_ende:
             runflag = False
         elif index == index_basic_info:
+
             print(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
             
             
@@ -66,35 +67,46 @@ def run_wp_abfrage():
                 sgui.anzeige_text(f"Error wp_bearbeiten.edit_basic_info(wp_obj) errtext = {errtext}",textcolor='red')
                 exit(1)
             # end if
+
         elif index == index_price_volume:
+
             print(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
-        
+
+            (status, errtext,isin) = wp_bearbeiten.choose_from_gui_for_one_isin(wp_obj)
             (status, errtext) = wp_bearbeiten.get_last_price_volume(wp_obj)
             
             if status != hdef.OKAY:
                 print(f"Error wp_bearbeiten.get_last_price_volume(wp_obj) \n errtext = {errtext}")
                 exit(1)
             # end if
+
         elif index == index_eurousd_ezb_xml:
+
             print(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
             print("Siehe: https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/eurofxref-graph-usd.de.html")
             print("Download XML unter dem Chart")
 
+            # Abfrage xml-File
             xmlfilename = sgui.abfrage_file(file_types="*.xml",comment=f"Wähle eine xml-Datei von EZB",start_dir=wp_obj.base_ddict["store_path"])
             if len(xmlfilename) > 0 :
-                (status, errtext) = wp_bearbeiten.read_usdeuro_ezb_xml(wp_obj,xmlfilename)
+                # Einlesen xml-File
+                (status, errtext) = wp_obj.process_usdeuro_ezb_xml(xmlfilename)
 
                 if status != hdef.OKAY:
-                    print(f"Error wp_bearbeiten.read_usdeuro_ezb_xml(wp_obj,xmlfilename) \n errtext = {errtext}")
+                    print(f"Error wp_obj.process_usdeuro_ezb_xml(xmlfilename) \n errtext = {errtext}")
+                # end if
+            # end if
 
         elif index == index_eurousd_ezb_yfinance:
+
             print(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
             print("Wird mit yfinace eingelesen")
 
-            (status, errtext) = wp_bearbeiten.read_akt_usdeuro(wp_obj)
+            (status, errtext) = wp_obj.process_akt_usdeuro()
 
             if status != hdef.OKAY:
-                print(f"Error wp_bearbeiten.read_usdeuro_ezb_xml(wp_obj,xmlfilename) \n errtext = {errtext}")
+                print(f"Error wp_obj.process_akt_usdeuro() \n errtext = {errtext}")
+
         else:
             print(f"Auswahl: {index} nicht bekannt")
         # endif

@@ -34,14 +34,18 @@ def get_basic_info(isin,base_ddict):
     # ---------------------------------------------
     if wp_storage.info_storage_eixst(isin, base_ddict):
         print(f"            ... lese File")
-        (status, errtext, info_dict) = wp_storage.read_info_dict(isin, base_ddict)
+        flag_json = base_ddict["use_json"] == 2  # read json
+        (status, errtext, info_dict) = wp_storage.read_dict(isin,
+                                                          flag_json,
+                                                          base_ddict["basic_info_pre_file_name"],
+                                                          base_ddict["store_path"])
         if status != hdef.OKAY:
             return (status,errtext,info_dict)
         # end if
 
         (flag, info_dict) = update_info_dict_with_new_defaults(info_dict)
         if flag:
-            (status, errtext) = wp_storage.save_info_dict(isin, info_dict, base_ddict)
+            (status, errtext) = wp_storage.save_dict(isin, info_dict, base_ddict)
             if status != hdef.OKAY:
                 return (status, errtext, info_dict)
             # end if
@@ -56,7 +60,7 @@ def get_basic_info(isin,base_ddict):
         
         if status == hdef.OKAY:
             
-            (status, errtext) = wp_storage.save_info_dict(isin, info_dict, base_ddict)
+            (status, errtext) = wp_storage.save_dict(isin, info_dict, base_ddict)
             # if status == hdef.OKAY:
             #     if len(info_dict["name"]) > 0:
             #         (status, errtext) = wp_wkn.wp_add_wpname_isin(info_dict["name"],isin, base_ddict)

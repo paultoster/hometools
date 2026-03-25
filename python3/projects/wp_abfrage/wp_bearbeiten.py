@@ -11,8 +11,8 @@ from tools import hfkt_def as hdef
 import tools.hfkt_type as htype
 
 import wp_price_volume
-import wp_storage
-
+import wp_fkt
+import wp_storage as wp_storage
 
 def edit_basic_info(wp_obj):
     '''
@@ -136,30 +136,32 @@ def edit_isin_basic_info(wp_obj,wpname, isin):
     
     return (status, errtext)
 # end def
-def get_last_price_volume(wp_obj):
+def choose_from_gui_for_one_isin(wp_obj):
     """
+
     - Demand: run_wp_abfrage.py
 
     Gibt Liste aller WPs mit ISIN und Name an zur Auswahl.
-    Die Auswahl wird die letzten Tagespreise und Volumen abgefragt
-    - Call: get_last_price_volume_isin(wp_obj,isin)
-    
-    :param wp_obj:            wp_base.WPData Data Objekt
-    :return: (status,errtext) = get_last_price_volume(wp_obj)
+    Auswahl einer isin
+
+    :param wp_obj:
+    :return: (status, errtext,isin) = wp_bearbeiten.choose_from_gui_for_one_isin(wp_obj)
     """
+
     status = hdef.OKAY
     errtext = ""
-    
+    isin = ""
+
     # Hole die dict-Liste mit allen WPs name[isin]
     # ---------------------------------------------
     (status, errtext, wpname_isin_dict) = \
         wp_obj.get_stored_basic_info_wpname_isin_dict()
-    
+
     if status != hdef.OKAY:
         errtext = f"Error wp_obj.get_stored_basic_info_wpname_isin_dict() errtext = {errtext}"
-        return (status, errtext)
+        return (status, errtext,isin)
     # end if
-    
+
     # print(f"wpname_isin_dict = {wpname_isin_dict}")
     isin_wpname_liste = []
     isin_liste = []
@@ -167,15 +169,15 @@ def get_last_price_volume(wp_obj):
         isin_wpname_liste.append(f"{i}:{isin} : {wpname_isin_dict[isin]}")
         isin_liste.append(isin)
     # end for
-    
+
     abfrage_liste = ["get", "ende"]
     i_abfrage_ende = 1
     i_abfrage_get = 0
-    
+
     runflag = True
     while (runflag):
         [index, indexAbfrage] = sgui.abfrage_liste_index_abfrage_index(isin_wpname_liste, abfrage_liste, "WP edit isin")
-        
+
         if indexAbfrage < 0:
             runflag = True
         elif indexAbfrage == i_abfrage_ende:
@@ -185,86 +187,40 @@ def get_last_price_volume(wp_obj):
                 print("Keine isin ausgewählt")
                 runflag = True
             else:
-                
-                # Bearbeite basic infos von isin
                 isin = isin_liste[index]
-                wpname = wpname_isin_dict[isin]
-                print(f"Lese Daten für {wpname = } mit {isin = } ein" )
-                # Hole alle basic-Infos
-                print("Hole basic infos" )
-                (status, errtext, isin_basic_dict) = wp_obj.get_basic_info(isin)
-                if status != hdef.OKAY:
-                    return (status, errtext)
-                # end if
-                (status, errtext) = wp_price_volume.update_last_price_volume_isin(wp_obj,isin_basic_dict,isin)
-                if status != hdef.OKAY:
-                    return (status, errtext)
-                # end if
+                runflag = False
             # end if
-        else:  # if indexAbfrage == i_abfrage_delete:
-            runflag = True
         # end if
     # end while
+
+    return (status, errtext,isin)
+# end def
+
+def get_last_price_volume(wp_obj,isin):
+    """
+    - Demand: run_wp_abfrage.py
+
+    Die ausgewählte isin wird die letzten Tagespreise und Volumen abgefragt
+    - Call: get_last_price_volume_isin(wp_obj,isin)
     
-    return (status, errtext)
-# end def
-def read_usdeuro_ezb_xml(wp_obj,xmlfilename):
+    :param wp_obj:            wp_base.WPData Data Objekt
+    :return: (status,errtext) = get_last_price_volume(wp_obj)
     """
-
-    :param wp_obj:
-    :param xmlfilename:
-    :return: (status, errtext) = read_usdeuro_ezb_xml(wp_obj,xmlfilename)
-    """
+    status = hdef.OKAY
     errtext = ""
 
-    (number, firstdat, lastdat) = wp_obj.get_number_of_data_usdeuro_course()
-
-    firstdatstr = htype.type_transform_direct(firstdat, "dat", "datStrP")
-    lastdatstr = htype.type_transform_direct(lastdat, "dat", "datStrP")
-
-    print(f"start reading {number = }, {firstdatstr = },{lastdatstr = }")
-
-    status = wp_obj.read_ezb_xml(xmlfilename)
-
+    print("Hole basic infos")
+    (status, errtext, isin_basic_dict) = wp_obj.get_basic_info(isin)
     if status != hdef.OKAY:
-        return (status, wp_obj.errtext)
+        return (status, errtext)
+    # end if
+    wpname = isin_basic_dict["name"]
+    print(f"Lese Daten für {wpname = } mit {isin = } ein")
 
-    (number, firstdat, lastdat) = wp_obj.get_number_of_data_usdeuro_course()
-
-    firstdatstr = htype.type_transform_direct(firstdat, "dat", "datStrP")
-    lastdatstr = htype.type_transform_direct(lastdat, "dat", "datStrP")
-
-    print(f"end reading {number = }, {firstdatstr = },{lastdatstr = }")
-
-    return (status,errtext)
-# end def
-def read_akt_usdeuro(wp_obj):
-    """
-
-    :param wp_obj:
-    :return: (status, errtext) = read_akt_usdeuro_yfinace(wp_obj)
-    """
-
-    errtext = ""
-
-    (number, firstdat, lastdat) = wp_obj.get_number_of_data_usdeuro_course()
-
-    firstdatstr = htype.type_transform_direct(firstdat, "dat", "datStrP")
-    lastdatstr = htype.type_transform_direct(lastdat, "dat", "datStrP")
-
-    print(f"start reading {number = }, {firstdatstr = },{lastdatstr = }")
-
-    status = wp_obj.update_usdeuro()
-
+    (status, errtext) = wp_price_volume.update_last_price_volume_isin(wp_obj, isin_basic_dict, isin)
     if status != hdef.OKAY:
-        return (status, wp_obj.errtext)
-
-    (number, firstdat, lastdat) = wp_obj.get_number_of_data_usdeuro_course()
-
-    firstdatstr = htype.type_transform_direct(firstdat, "dat", "datStrP")
-    lastdatstr = htype.type_transform_direct(lastdat, "dat", "datStrP")
-
-    print(f"end reading {number = }, {firstdatstr = },{lastdatstr = }")
+        return (status, errtext)
+    # end if
 
     return (status, errtext)
 # end def

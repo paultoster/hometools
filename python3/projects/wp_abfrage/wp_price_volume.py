@@ -12,88 +12,87 @@ import tools.hfkt_type as htype
 import wp_abfrage.wp_fkt as wp_fkt
 import wp_abfrage.wp_storage as wp_storage
 import wp_abfrage.wp_yahoofinance as wp_yf
-
-class PriceVolumeParam:
-
-    HEADER_PANDAS_DATUM_NAME = "Datum"
-    HEADER_PANDAS_ERSTER_NAME = "Erster"
-    HEADER_PANDAS_HOCH_NAME = "Hoch"
-    HEADER_PANDAS_TIEF_NAME = "Tief"
-    HEADER_PANDAS_SCHLUSS_NAME = "Schlusskurs"
-    HEADER_PANDAS_STUECKE_NAME = "Stuecke"
-    HEADER_PANDAS_VOLUMEN_NAME = "Volumen"
-
-    HEADER_PANDAS_LLISTE = [(HEADER_PANDAS_DATUM_NAME, "datPandas"),
-                           (HEADER_PANDAS_ERSTER_NAME, "float"),
-                           (HEADER_PANDAS_HOCH_NAME, "float"),
-                           (HEADER_PANDAS_TIEF_NAME, "float"),
-                           (HEADER_PANDAS_SCHLUSS_NAME, "float"),
-                           (HEADER_PANDAS_STUECKE_NAME, "float"),
-                           (HEADER_PANDAS_VOLUMEN_NAME, "float"),
-                           ]
-    HEADER_PANDAS_NAME_DICT = {}
-    HEADER_PANDAS_NAME_LIST = []
-    HEADER_PANDAS_TYPE_DICT = {}
-    HEADER_PANDAS_TYPE_LIST = []
-
-    for i,liste in enumerate(HEADER_PANDAS_LLISTE):
-        HEADER_PANDAS_NAME_DICT[i] = liste[0]
-        HEADER_PANDAS_TYPE_DICT[i] = liste[1]
-        HEADER_PANDAS_NAME_LIST.append(liste[0])
-        HEADER_PANDAS_TYPE_LIST.append(liste[1])
-    # end for
-
-    HEADER_YF_DATUM_NAME = "Datum"
-    HEADER_YF_ERSTER_NAME = "Erster"
-    HEADER_YF_HOCH_NAME = "Hoch"
-    HEADER_YF_TIEF_NAME = "Tief"
-    HEADER_YF_SCHLUSS_NAME = "Schlusskurs"
-    HEADER_YF_STUECKE_NAME = "Stuecke"
-    HEADER_YF_VOLUMEN_NAME = "Volumen"
-
-    HEADER_YF_LLISTE = [(HEADER_YF_DATUM_NAME, "datStrP",HEADER_PANDAS_DATUM_NAME),
-                        (HEADER_YF_ERSTER_NAME, "euroStrK",HEADER_PANDAS_ERSTER_NAME),
-                        (HEADER_YF_HOCH_NAME, "euroStrK",HEADER_PANDAS_HOCH_NAME),
-                        (HEADER_YF_TIEF_NAME, "euroStrK",HEADER_PANDAS_TIEF_NAME),
-                        (HEADER_YF_SCHLUSS_NAME, "euroStrK",HEADER_PANDAS_SCHLUSS_NAME),
-                        (HEADER_YF_STUECKE_NAME, "float",HEADER_PANDAS_STUECKE_NAME),
-                        (HEADER_YF_VOLUMEN_NAME, "float",HEADER_PANDAS_VOLUMEN_NAME),
-                        ]
-    HEADER_YF_NAME_DICT = {}
-    HEADER_YF_NAME_LIST = []
-    HEADER_YF_TYPE_DICT = {}
-    HEADER_YF_TYPE_LIST = []
-    HEADER_YF_PANDAS_DICT = {}
-
-    for i,liste in enumerate(HEADER_YF_LLISTE):
-        HEADER_YF_NAME_DICT[i] = liste[0]
-        HEADER_YF_TYPE_DICT[i] = liste[1]
-        HEADER_YF_NAME_LIST.append(liste[0])
-        HEADER_YF_TYPE_LIST.append(liste[1])
-        HEADER_YF_PANDAS_DICT[liste[0]] = liste[2]
-    # end for
-# end class
+#
+# class PriceVolumeParam:
+#
+#     HEADER_PANDAS_DATUM_NAME = "Datum"
+#     HEADER_PANDAS_ERSTER_NAME = "Erster"
+#     HEADER_PANDAS_HOCH_NAME = "Hoch"
+#     HEADER_PANDAS_TIEF_NAME = "Tief"
+#     HEADER_PANDAS_SCHLUSS_NAME = "Schlusskurs"
+#     HEADER_PANDAS_STUECKE_NAME = "Stuecke"
+#     HEADER_PANDAS_VOLUMEN_NAME = "Volumen"
+#
+#     HEADER_PANDAS_LLISTE = [(HEADER_PANDAS_DATUM_NAME, "datPandas"),
+#                            (HEADER_PANDAS_ERSTER_NAME, "float"),
+#                            (HEADER_PANDAS_HOCH_NAME, "float"),
+#                            (HEADER_PANDAS_TIEF_NAME, "float"),
+#                            (HEADER_PANDAS_SCHLUSS_NAME, "float"),
+#                            (HEADER_PANDAS_STUECKE_NAME, "float"),
+#                            (HEADER_PANDAS_VOLUMEN_NAME, "float"),
+#                            ]
+#     HEADER_PANDAS_NAME_DICT = {}
+#     HEADER_PANDAS_NAME_LIST = []
+#     HEADER_PANDAS_TYPE_DICT = {}
+#     HEADER_PANDAS_TYPE_LIST = []
+#
+#     for i,liste in enumerate(HEADER_PANDAS_LLISTE):
+#         HEADER_PANDAS_NAME_DICT[i] = liste[0]
+#         HEADER_PANDAS_TYPE_DICT[i] = liste[1]
+#         HEADER_PANDAS_NAME_LIST.append(liste[0])
+#         HEADER_PANDAS_TYPE_LIST.append(liste[1])
+#     # end for
+#
+#     HEADER_YF_DATUM_NAME = "Datum"
+#     HEADER_YF_ERSTER_NAME = "Erster"
+#     HEADER_YF_HOCH_NAME = "Hoch"
+#     HEADER_YF_TIEF_NAME = "Tief"
+#     HEADER_YF_SCHLUSS_NAME = "Schlusskurs"
+#     HEADER_YF_STUECKE_NAME = "Stuecke"
+#     HEADER_YF_VOLUMEN_NAME = "Volumen"
+#
+#     HEADER_YF_LLISTE = [(HEADER_YF_DATUM_NAME, "datStrP",HEADER_PANDAS_DATUM_NAME),
+#                         (HEADER_YF_ERSTER_NAME, "euroStrK",HEADER_PANDAS_ERSTER_NAME),
+#                         (HEADER_YF_HOCH_NAME, "euroStrK",HEADER_PANDAS_HOCH_NAME),
+#                         (HEADER_YF_TIEF_NAME, "euroStrK",HEADER_PANDAS_TIEF_NAME),
+#                         (HEADER_YF_SCHLUSS_NAME, "euroStrK",HEADER_PANDAS_SCHLUSS_NAME),
+#                         (HEADER_YF_STUECKE_NAME, "float",HEADER_PANDAS_STUECKE_NAME),
+#                         (HEADER_YF_VOLUMEN_NAME, "float",HEADER_PANDAS_VOLUMEN_NAME),
+#                         ]
+#     HEADER_YF_NAME_DICT = {}
+#     HEADER_YF_NAME_LIST = []
+#     HEADER_YF_TYPE_DICT = {}
+#     HEADER_YF_TYPE_LIST = []
+#     HEADER_YF_PANDAS_DICT = {}
+#
+#     for i,liste in enumerate(HEADER_YF_LLISTE):
+#         HEADER_YF_NAME_DICT[i] = liste[0]
+#         HEADER_YF_TYPE_DICT[i] = liste[1]
+#         HEADER_YF_NAME_LIST.append(liste[0])
+#         HEADER_YF_TYPE_LIST.append(liste[1])
+#         HEADER_YF_PANDAS_DICT[liste[0]] = liste[2]
+#     # end for
+# # end class
 def update_last_price_volume_isin(wp_obj, isin_basic_dict, isin):
     """
 
     :param wp_obj:
     :param isin:
-    :return: (status, errtext) = get_last_price_volume_isin(wp_obj, isin)
+    :return: (status, errtext) = get_last_price_volume_isin(wp_obj, isin_basic_dict,isin)
     """
 
     status = hdef.OKAY
     errtext = ""
 
-    par = PriceVolumeParam()
-
     print("Bestimme letzen aktiven Handelstag:")
     last_active_dat_time_list = wp_fkt.letzter_beendeter_handelstag_dat_list(wp_obj.base_ddict["boerse"])
-    (okay,datStrLast) = htype.type_transform(last_active_dat_time_list,"datTimeList","datStrP")
-    if okay == hdef.OKAY:
-        print(f"letzen aktiver Handelstag: {datStrLast}")
-    else:
-        print(f"letzen aktiver Handelstag als Liste: {last_active_dat_time_list}")
-    # end if
+    datStrLast = htype.type_transform_direct(last_active_dat_time_list,"datTimeList","datStrP")
+    print(f"letzen aktiver Handelstag: {datStrLast}")
+    first_active_dat_time_list = wp_obj.basic_dict["price_volumen_first_dat "]
+
+
+    #df_usdeuro =
+
 
     # Prüfe ob Daten vorhanden
     (flag, last_stored_dat_time_list) =  proof_date_in_price_volume_data(wp_obj, isin, last_active_dat_time_list)
@@ -126,7 +125,7 @@ def proof_date_in_price_volume_data(wp_obj, isin, last_active_dat_time_list):
     """
 
     flag = False
-    last_stored_dat_time_list = [31,12,1999,0,0,0]
+    last_stored_dat_time_list = [ 31,12,1999,0,0,0]
 
     # Gibt es bereits eine Datei
     if wp_storage.price_volume_storage_exist(isin, wp_obj.base_ddict):
