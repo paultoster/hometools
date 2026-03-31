@@ -7,7 +7,7 @@ if (tools_path not in sys.path):
 # endif
 
 import tools.hfkt_def as hdef
-import tools.hfkt_dict as hdict
+# import tools.hfkt_dict as hdict
 import tools.hfkt_type as htype
 
 import wp_storage
@@ -92,7 +92,7 @@ def get_number_of_data(wb_obj):
 
 
     (status,errtext,np_obj) = wp_storage.read_np_obj(wp_np_dataclass.NpUsdEuroClass,
-                                                     wb_obj.par.HEADER_PANDAS_USDEURO_NAME,
+                                                     wb_obj.par.HEADER_USDEURO_NAME,
                                                      flag_use_json,
                                                      wb_obj.base_ddict["usdeuro_pre_file_name"],
                                                      wb_obj.base_ddict["store_path"])
@@ -111,7 +111,7 @@ def update_with_np_obj_new(wb_obj,np_obj_new):
     """
 
     :param np_obj_new: dataclass
-    :return:  (status,errtext) = obj.set_usdeuro_course(np_obj_new,HEADER_PANDAS_DATUM_NAME,HEADER_PANDAS_USDEURO_NAME,base_ddict)
+    :return:  (status,errtext) = obj.set_usdeuro_course(np_obj_new,HEADER_DATUM_NAME,HEADER_USDEURO_NAME,base_ddict)
     """
 
     status = hdef.OKAY
@@ -120,7 +120,7 @@ def update_with_np_obj_new(wb_obj,np_obj_new):
     flag_use_json = wb_obj.base_ddict["use_json"] == 2
 
     (status,errtext,np_obj) = wp_storage.read_np_obj(wp_np_dataclass.NpUsdEuroClass,
-                                                     wb_obj.par.HEADER_PANDAS_USDEURO_NAME,
+                                                     wb_obj.par.HEADER_USDEURO_NAME,
                                                      flag_use_json,
                                                      wb_obj.base_ddict["usdeuro_pre_file_name"],
                                                      wb_obj.base_ddict["store_path"])
@@ -138,7 +138,7 @@ def update_with_np_obj_new(wb_obj,np_obj_new):
         return (status,errtext)
 
     wp_storage.save_np_obj(np_obj,
-                           wb_obj.par.HEADER_PANDAS_USDEURO_NAME,
+                           wb_obj.par.HEADER_USDEURO_NAME,
                            flag_use_json,
                            wb_obj.base_ddict["usdeuro_pre_file_name"],
                            wb_obj.base_ddict["store_path"])

@@ -13,28 +13,30 @@ import wp_abfrage.wp_storage as wp_storage
 
 WKN_NOT_FOUND = "wknnotfound"
 
-def wp_search_wkn(wkn,base_ddict):
-    '''
-    
+def wp_search_wkn(wkn,flag_json,wpname_isin_filename,basic_info_pre_file_name,store_path,wkn_isin_n_times,wkn_isin_sleep_time):
+    """
+
     :param wkn:
-    :param base_ddict:
-    :return:  (status, errtext, isin) = wp_wkn.wp_search_wkn(wkn,base_ddict)
-    '''
-    status = hdef.OKAY
-    errtext = ""
-    flag_json = base_ddict["use_json"] == 2
-    (status,errtext,wp_isin_dict) = wp_storage.read_dict(base_ddict["wpname_isin_filename"],
+    :param flag_json:
+    :param wpname_isin_filename:
+    :param basic_info_pre_file_name:
+    :param store_path:
+    :param wkn_isin_n_times:
+    :param wkn_isin_sleep_time:
+    :return: (status,errtext,isin) = wp_search_wkn(wkn,flag_json,wpname_isin_filename,basic_info_pre_file_name,store_path,wkn_isin_n_times,wkn_isin_sleep_time)
+    """
+    (status,errtext,wp_isin_dict) = wp_storage.read_dict(wpname_isin_filename,
                                                          flag_json,
                                                          "",
-                                                         base_ddict["store_path"])
-    
+                                                         store_path)
+
     for isin in wp_isin_dict.keys():
 
-        flag_json = base_ddict["use_json"] == 2  # read json
+
         (status,errtext,info_dict) = wp_storage.read_dict(isin,
                                                           flag_json,
-                                                          base_ddict["basic_info_pre_file_name"],
-                                                          base_ddict["store_path"])
+                                                          basic_info_pre_file_name,
+                                                          store_path)
         
         if status != hdef.OKAY:
             return (status,errtext,None)
@@ -44,33 +46,34 @@ def wp_search_wkn(wkn,base_ddict):
         # end if
     # end for
 
-    (status,errtext,isin) = wp_search_wkn_html(wkn,base_ddict)
+    (status,errtext,isin) = wp_search_wkn_html(wkn,wkn_isin_n_times,wkn_isin_sleep_time)
     
     return (status,errtext,isin)
 # end def
-def wp_search_wkn_html(wkn,base_ddict):
+def wp_search_wkn_html(wkn,wkn_isin_n_times,wkn_isin_sleep_time):
     '''
     
     :param wpn:
-    :param base_ddict:
-    :return: (status,errtext,isin) = wp_search_wkn_html(wkn,base_ddict)
+    :param wkn_isin_n_times:
+    :param wkn_isin_sleep_time:
+    :return: (status,errtext,isin) = wp_search_wkn_html(wkn,wkn_isin_n_times,wkn_isin_sleep_time)
     '''
-    n = base_ddict["wkn_isin_n_times"]
+    n = wkn_isin_n_times
     i = 1
     while i < n:
         try:
             url = f"https://www.ariva.de"
             driver = webdriver.Firefox()
-            driver.implicitly_wait(base_ddict["wkn_isin_sleep_time"])
+            driver.implicitly_wait(wkn_isin_sleep_time)
             driver.get(url)
             print(f"driver.title = {driver.title}")
             
             element = driver.find_element(By.ID, "main-search")
-            WebDriverWait(driver, base_ddict["wkn_isin_sleep_time"]).until(EC.presence_of_element_located((By.ID, "main-search")))
-            time.sleep(base_ddict["wkn_isin_sleep_time"])
+            WebDriverWait(driver, wkn_isin_sleep_time).until(EC.presence_of_element_located((By.ID, "main-search")))
+            time.sleep(wkn_isin_sleep_time)
             element.send_keys(wkn)
             element.send_keys(Keys.RETURN)
-            time.sleep(base_ddict["wkn_isin_sleep_time"])
+            time.sleep(wkn_isin_sleep_time)
             
             get_url = driver.current_url
             print("The current url is:" + str(get_url))
@@ -98,31 +101,31 @@ def wp_search_wkn_html(wkn,base_ddict):
     # end while
     return (status,errtext,isin)
 # end def
-def wp_add_wkn_isin(wkn, isin, base_ddict):
-    '''
-
-    :param wpn:
-    :param base_ddict:
-    :return: (status,errtext,isin) = wp_search_wkn_html(wkn,base_ddict)
-    '''
-    status = hdef.OKAY
-    errtext = ""
-    flag_json = base_ddict["use_json"] == 2
-
-    (status, errtext,wkn_isin_dict) = wp_storage.read_dict(base_ddict["wkn_isin_filename"],
-                                                           flag_json,
-                                                           "",
-                                                           base_ddict["store_path"])
-    
-    wkn_isin_dict[wkn] = isin
-    
-    wp_storage.save_dict_file_pickle(wkn_isin_dict, base_ddict["wkn_isin_filename"], base_ddict)
-    if base_ddict["use_json"] == 1:  # write json
-        wp_storage.save_dict_file_json(wkn_isin_dict, base_ddict["wkn_isin_filename"], base_ddict)
-    # end if
-    
-    return (status, errtext)
-
+# def wp_add_wkn_isin(wkn, isin, base_ddict):
+#     '''
+#
+#     :param wpn:
+#     :param base_ddict:
+#     :return: (status,errtext,isin) = wp_search_wkn_html(wkn,base_ddict)
+#     '''
+#     status = hdef.OKAY
+#     errtext = ""
+#     flag_json = base_ddict["use_json"] == 2
+#
+#     (status, errtext,wkn_isin_dict) = wp_storage.read_dict(base_ddict["wkn_isin_filename"],
+#                                                            flag_json,
+#                                                            "",
+#                                                            base_ddict["store_path"])
+#
+#     wkn_isin_dict[wkn] = isin
+#
+#     wp_storage.save_dict_file_pickle(wkn_isin_dict, base_ddict["wkn_isin_filename"], base_ddict)
+#     if base_ddict["use_json"] == 1:  # write json
+#         wp_storage.save_dict_file_json(wkn_isin_dict, base_ddict["wkn_isin_filename"], base_ddict)
+#     # end if
+#
+#     return (status, errtext)
+#
 def wp_search_wpname(wpname, base_ddict):
     '''
 
@@ -161,23 +164,26 @@ def wp_search_wpname(wpname, base_ddict):
 
 
 # end def
-def wp_search_wpname_in_comment(comment, base_ddict):
+def wp_search_wpname_in_comment(comment, flag_json,wpname_isin_filename,store_path):
     '''
     
     Sucht
     
     :param comment:
-    :param base_ddict:
-    :return: (status, errtext, isin) = wp_wkn.wp_search_wpname_in_comment(comment,base_ddict)
+    :param flag_json:
+    :return: (status, errtext, isin) = wp_wkn.wp_search_wpname_in_comment(comment,flag_json,wpname_isin_filename,store_path)
     '''
     status = hdef.NOT_OKAY
     errtext = f"wp_search_wpname_in_comment: wpname wurde in {comment} nicht gefunden"
     isin = ""
-    flag_json = base_ddict["use_json"] == 2
-    (status, errtext,wpname_isin_dict) = wp_storage.read_dict(base_ddict["wpname_isin_filename"],
-                                                              flag_json,
-                                                              "",
-                                                              base_ddict["store_path"])
+
+    (stat, errt,wpname_isin_dict) = wp_storage.read_dict(wpname_isin_filename,
+                                                         flag_json,
+                                                         "",
+                                                         store_path)
+
+    if stat != hdef.OKAY:
+        return (stat,errt,isin)
     
     for wpname, key in wpname_isin_dict.items():
 
@@ -194,27 +200,28 @@ def wp_search_wpname_in_comment(comment, base_ddict):
     return (status, errtext, isin)
 # end def
 
-def wp_add_wpname_isin(wpname,isin, base_ddict):
-    '''
+def wp_add_wpname_isin(wpname,isin, flag_use_json_read,wpname_isin_filename,store_path,flag_use_json_save):
+    """
 
-    :param wpn:
-    :param base_ddict:
-    :return: (status,errtext,isin) = wp_search_wkn_html(wkn,base_ddict)
-    '''
-    status = hdef.OKAY
-    errtext = ""
-    flag_json = base_ddict["use_json"] == 2
-    (status, errtext,wpname_isin_dict) = wp_storage.read_dict(base_ddict["wpname_isin_filename"],
-                                                              flag_json,
+    :param wpname:
+    :param isin:
+    :param flag_use_json_read:
+    :param wpname_isin_filename:
+    :param store_path:
+    :param flag_use_json_save:
+    :return: (status, errtext) = wp_add_wpname_isin(wpname,isin, flag_use_json_read,wpname_isin_filename,store_path,flag_use_json_save)
+    """
+    (status, errtext,wpname_isin_dict) = wp_storage.read_dict(wpname_isin_filename,
+                                                              flag_use_json_read,
                                                               "",
-                                                              base_ddict["store_path"])
+                                                              store_path)
     
     
     wpname_isin_dict[wpname] = isin
     
-    wp_storage.save_dict_file_pickle(wpname_isin_dict, base_ddict["wpname_isin_filename"], base_ddict)
-    if base_ddict["use_json"] == 1:  # write json
-        wp_storage.save_dict_file_json(wpname_isin_dict, base_ddict["wpname_isin_filename"], base_ddict)
+    wp_storage.save_dict_file_pickle(wpname_isin_dict, wpname_isin_filename, store_path)
+    if flag_use_json_save:  # write json
+        wp_storage.save_dict_file_json(wpname_isin_dict, wpname_isin_filename, store_path)
     # end if
     
 

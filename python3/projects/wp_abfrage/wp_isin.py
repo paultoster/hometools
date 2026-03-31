@@ -20,32 +20,35 @@ else:
 
 
 
-def get_basic_info(isin,base_ddict):
+def get_basic_info(isin,flag_use_json,basic_info_pre_file_name,store_path):
     '''
     
     :param isin:
     :param base_ddict:
-    :return: (status, errtext, info_dict) = wp_isin.get_basic_info(isin,base_ddict)
+    :return: (status, errtext, info_dict) = wp_isin.get_basic_info(isin,flag_use_json,basic_info_pre_file_name,store_path)
     '''
 
 
     # ---------------------------------------------
     # basic info data einlesen wenn vorhanden
     # ---------------------------------------------
-    if wp_storage.info_storage_eixst(isin, base_ddict):
+    if wp_storage.info_storage_eixst(isin, flag_use_json,basic_info_pre_file_name,store_path):
         print(f"            ... lese File")
-        flag_json = base_ddict["use_json"] == 2  # read json
         (status, errtext, info_dict) = wp_storage.read_dict(isin,
-                                                          flag_json,
-                                                          base_ddict["basic_info_pre_file_name"],
-                                                          base_ddict["store_path"])
+                                                          flag_use_json,
+                                                          basic_info_pre_file_name,
+                                                          store_path)
         if status != hdef.OKAY:
             return (status,errtext,info_dict)
         # end if
 
         (flag, info_dict) = update_info_dict_with_new_defaults(info_dict)
         if flag:
-            (status, errtext) = wp_storage.save_dict(isin, info_dict, base_ddict)
+            (status, errtext) = wp_storage.save_dict( info_dict,
+                                                      isin,
+                                                      flag_use_json,
+                                                      basic_info_pre_file_name,
+                                                      store_path)
             if status != hdef.OKAY:
                 return (status, errtext, info_dict)
             # end if
@@ -60,21 +63,11 @@ def get_basic_info(isin,base_ddict):
         
         if status == hdef.OKAY:
             
-            (status, errtext) = wp_storage.save_dict(isin, info_dict, base_ddict)
-            # if status == hdef.OKAY:
-            #     if len(info_dict["name"]) > 0:
-            #         (status, errtext) = wp_wkn.wp_add_wpname_isin(info_dict["name"],isin, base_ddict)
-            #     else:
-            #         status = hdef.NOT_OKAY
-            #         errtext = f"wp_basic_info_with_isin_list: info_dict[name] from isin : {isin} is empty"
-            #     # end if
-            # if status == hdef.OKAY:
-            #     if len(info_dict["wkn"]) > 0:
-            #         (status, errtext) = wp_wkn.wp_add_wkn_isin(info_dict["wkn"],isin, base_ddict)
-            #     else:
-            #         status = hdef.NOT_OKAY
-            #         errtext = f"wp_basic_info_with_isin_list: info_dict[wkn] from isin : {isin} is empty"
-            #     # end if
+            (status, errtext) = wp_storage.save_dict( info_dict,
+                                                      isin,
+                                                      flag_use_json,
+                                                      basic_info_pre_file_name,
+                                                      store_path)
             print(f"info_dict: {info_dict}")
         else:
             print(f"errtext: {errtext}")

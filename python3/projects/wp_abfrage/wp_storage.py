@@ -14,12 +14,13 @@ import tools.hfkt_def as hdef
 import wp_fkt
 import wp_np_dataclass as wp_np_dc
 
-def info_storage_eixst(isin,base_ddict):
-    
-    if base_ddict["use_json"] == 2:
-        file_name = build_file_name_json(base_ddict["basic_info_pre_file_name"] + str(isin),base_ddict)
+def info_storage_eixst(isin,flag_use_json,basic_info_pre_file_name,store_path):
+
+    body = basic_info_pre_file_name + str(isin)
+    if flag_use_json:
+        file_name = build_file_name_json(body,store_path)
     else:
-        file_name = build_file_name_pickle(base_ddict["basic_info_pre_file_name"] + str(isin),base_ddict)
+        file_name = build_file_name_pickle(body,store_path)
     # end if
 
     if os.path.isfile(file_name):
@@ -478,14 +479,14 @@ def save_dict_file_json(dict_dict,filebodyname,ddict):
     # end if
     return
 # end def
-def save_dict_file_pickle(data_ddict, filebodyname, base_ddict):
+def save_dict_file_pickle(data_ddict, filebodyname, store_path):
     '''
 
     :param data_ddict:
-    :param base_ddict:
+    :param store_path:
     :return:
     '''
-    file_name = build_file_name_pickle(filebodyname, base_ddict)
+    file_name = build_file_name_pickle(filebodyname, store_path)
     
     (status, errtext) = save_pickle(data_ddict, file_name)
     if status != hdef.OKAY:
