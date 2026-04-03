@@ -3,6 +3,7 @@ function c_txt = build_csv_uebersicht(s,n,csv_delimter,brutto_monat,erster_monat
   c_txt = {};
 
 
+
   %------------------------------------------------
   t = ['datum start',csv_delimter];
   t = [t,s(erster_monat_frei).monat,' ',s(erster_monat_frei).jahr];
