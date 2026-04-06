@@ -9,7 +9,8 @@
 import os, sys
 from dataclasses import dataclass, field
 
-tools_path = os.getcwd() + "\\.."
+t_path, _ = os.path.split(__file__)
+tools_path = t_path + "\\.."
 if (tools_path not in sys.path):
     sys.path.append(tools_path)
 # endif
@@ -20,10 +21,10 @@ import depot_data_init
 import depot_base
 
 # Hilfsfunktionen
-import tools.hfkt_def as hdef
-import tools.hfkt_log as hlog
+from tools import hfkt_def as hdef
+from tools import hfkt_log as hlog
 # import tools.hfkt_pickle as hpickle
-import tools.sgui_protocol_class as sgui_prot
+from tools import sgui_protocol_class as sgui_prot
 
 # import wp_abfrage.wp_base as wp_base
 
@@ -137,11 +138,11 @@ if __name__ == '__main__':
     # end if
     
     if switch == 1:
-        WORKING_DIRECTORY = "K:/data/orga/Otnok"
+        WORKING_DIRECTORY = "D:/data/orga/Otnok"
         LOG_FILE_NAME = "konto_aufstellung.log"
         INI_FILE_NAME = "konto_aufstellung.ini"
     else:
-        WORKING_DIRECTORY = "K:/data/orga/Toped"
+        WORKING_DIRECTORY = "D:/data/orga/Toped"
         LOG_FILE_NAME = "depot_aufstellung.log"
         INI_FILE_NAME = "depot_aufstellung.ini"
     # end if

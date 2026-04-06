@@ -2,19 +2,22 @@ import os, sys, time
 import tomllib
 import pandas as pd
 
-tools_path = os.getcwd() + "\\.."
+
+t_path, _ = os.path.split(__file__)
+tools_path = t_path + "\\.."
 if (tools_path not in sys.path):
   sys.path.append(tools_path)
 # endif
 
-import wp_abfrage.wp_fkt as wp_fkt
-import wp_abfrage.wp_wkn as wp_wkn
-import wp_abfrage.wp_storage as wp_storage
-import wp_abfrage.wp_isin as wp_isin
-import wp_abfrage.wp_yahoofinance as wp_yfinance
-import wp_abfrage.wp_bearbeiten as wp_bearbeiten
-import wp_abfrage.wp_base_usdeuro as wp_base_usdeuro
-import wp_abfrage.wp_base_basic_info as wp_base_basic_info
+from wp_abfrage import wp_fkt as wp_fkt
+from wp_abfrage import wp_wkn as wp_wkn
+from wp_abfrage import wp_storage as wp_storage
+from wp_abfrage import wp_isin as wp_isin
+from wp_abfrage import wp_yahoofinance as wp_yfinance
+from wp_abfrage import wp_bearbeiten as wp_bearbeiten
+from wp_abfrage import wp_base_usdeuro as wp_base_usdeuro
+from wp_abfrage import wp_base_basic_info as wp_base_basic_info
+from wp_abfrage import wp_base_price_volume
 
 
 import tools.hfkt_def as hdef
@@ -277,78 +280,79 @@ class WPData:
 
         return (self.status, self.errtext)
     # end def
-    def update_usdeuro(self):
+    # def update_usdeuro(self):
+    #     """
+    #
+    #     :return: (status, errtext) = wp_obj.update_usdeuro()
+    #     """
+    #     (self.status, self.errtext) = wp_base_usdeuro.update(self)
+    #     #---------------------------------------------------------------------------------------------------------------
+    #     # Hole die aktuellen Werte von yfinace
+    #     #---------------------------------------------------------------------------------------------------------------
+    #     # Was ist der letzte gespeicherte wert => start datum
+    #     (_, _, start_dat) = self.get_number_of_data_usdeuro_course()
+    #     start_dat_time_list = htype.type_transform_direct(start_dat,"dat","datTimeList")
+    #     # Was ist der letzte aktuelle Handelsdatum
+    #     end_dat_time_list = wp_fkt.letzter_beendeter_handelstag_dat_list(self.base_ddict["boerse"])
+    #     end_dat           = htype.type_transform_direct(end_dat_time_list, "datTimeList", "dat")
+    #
+    #     # ---------------------------------------------------------------------------------------------------------------
+    #     # wennn Daten fehlen: Hole die aktuellen Werte von yfinace
+    #     # ---------------------------------------------------------------------------------------------------------------
+    #     if end_dat > start_dat:
+    #
+    #         (self.status, self.errtext, df_new) = wp_yfinance.get_usdeuro_data(start_dat_time_list,
+    #                                                                            end_dat_time_list,
+    #                                                                            self.par.HEADER_DATUM_NAME,
+    #                                                                            self.par.HEADER_USDEURO_NAME)
+    #
+    #         if self.status != hdef.OKAY:
+    #             return self.status
+    #
+    #         (read_flag,df) = wp_storage.read_parquet(self.par.HEADER_USDEURO_NAME, self.base_ddict)
+    #
+    #         if read_flag:
+    #             (self.status, self.errtext, df) = wp_fkt.merge_usdeuro_dfnew_to_df(df,df_new,
+    #                                                                     self.par.HEADER_DATUM_NAME,
+    #                                                                     self.par.HEADER_USDEURO_NAME)
+    #             if self.status != hdef.OKAY:
+    #                 return self.status
+    #
+    #             wp_storage.save_parquet(df, self.par.HEADER_USDEURO_NAME, self.base_ddict)
+    #         else:
+    #             df = df_new
+    #         # end if
+    #     # end def
+    #     return self.status
+    # # end def
+    def update_price_volume(self, isin):
         """
+        - Demand: run_wp_abfrage.py
 
-        :return: (status, errtext) = wp_obj.update_usdeuro()
+        Für isin werden die letzten Tagespreise und Volumen abgefragt
+
+
+        :param isin:
+        :return: (status,errtext) = wp_obj.update_price_volume(isin)
         """
-        self.status = hdef.OKAY
+        status = hdef.OKAY
+        errtext = ""
 
-        #---------------------------------------------------------------------------------------------------------------
-        # Hole die aktuellen Werte von yfinace
-        #---------------------------------------------------------------------------------------------------------------
-        # Was ist der letzte gespeicherte wert => start datum
-        (_, _, start_dat) = self.get_number_of_data_usdeuro_course()
-        start_dat_time_list = htype.type_transform_direct(start_dat,"dat","datTimeList")
-        # Was ist der letzte aktuelle Handelsdatum
-        end_dat_time_list = wp_fkt.letzter_beendeter_handelstag_dat_list(self.base_ddict["boerse"])
-        end_dat           = htype.type_transform_direct(end_dat_time_list, "datTimeList", "dat")
-
-        # ---------------------------------------------------------------------------------------------------------------
-        # wennn Daten fehlen: Hole die aktuellen Werte von yfinace
-        # ---------------------------------------------------------------------------------------------------------------
-        if end_dat > start_dat:
-
-            (self.status, self.errtext, df_new) = wp_yfinance.get_usdeuro_data(start_dat_time_list,
-                                                                               end_dat_time_list,
-                                                                               self.par.HEADER_DATUM_NAME,
-                                                                               self.par.HEADER_USDEURO_NAME)
-
-            if self.status != hdef.OKAY:
-                return self.status
-
-            (read_flag,df) = wp_storage.read_parquet(self.par.HEADER_USDEURO_NAME, self.base_ddict)
-
-            if read_flag:
-                (self.status, self.errtext, df) = wp_fkt.merge_usdeuro_dfnew_to_df(df,df_new,
-                                                                        self.par.HEADER_DATUM_NAME,
-                                                                        self.par.HEADER_USDEURO_NAME)
-                if self.status != hdef.OKAY:
-                    return self.status
-
-                wp_storage.save_parquet(df, self.par.HEADER_USDEURO_NAME, self.base_ddict)
-            else:
-                df = df_new
-            # end if
-        # end def
-        return self.status
-    # end def
-    def get_usdeuro_df(self,first_dat,last_dat):
-        """
-
-        :param first_dat_time_list:
-        :param last_dat_time_list:
-        :return: df = self.get_usdeuro_df(first_dat_time_list,last_dat_time_list)
-        """
-
-        dfpart = None
-
-        # update data base
-        self.update_usdeuro()
-
-        (read_flag,df) = wp_storage.read_parquet(self.par.HEADER_USDEURO_NAME, self.base_ddict)
-
-        if read_flag:
-            (self.status, self.errtext, dfpart,first_dat,last_dat) = wp_fkt.get_usdeuro_df_with_dat(df,first_dat,last_dat,
-                                                                    self.par.HEADER_DATUM_NAME,
-                                                                    self.par.HEADER_USDEURO_NAME)
-        else:
-            self.status = hdef.NOT_OKAY
-            self.errtext = "USD-Euro-Werte sind nicht gespeichert!!!"
+        (self.status,self.errtext) = wp_base_price_volume.update(self,isin)
+        if self.status != hdef.OKAY:
+            return (self.status, self.errtext)
         # end if
 
 
+        (status, errtext) = wp_price_volume.update_last_price_volume_isin(wp_obj, isin_basic_dict, isin)
+        if status != hdef.OKAY:
+            return (status, errtext)
+        # end if
 
+        return (status, errtext)
+
+
+    # end def
 
 
 if __name__ == '__main__':

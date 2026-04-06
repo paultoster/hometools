@@ -1,19 +1,20 @@
 import os, sys, time
 
-tools_path = os.getcwd() + "\\.."
+t_path, _ = os.path.split(__file__)
+tools_path = t_path + "\\.."
 if (tools_path not in sys.path):
   sys.path.append(tools_path)
 # endif
 
 
-import tools.hfkt_def as hdef
+from tools import hfkt_def as hdef
 # import tools.hfkt_dict as hdict
-import tools.hfkt_type as htype
+from tools import hfkt_type as htype
 
-import wp_storage
-import wp_fkt
-import wp_isin
-import wp_wkn
+from wp_abfrage import wp_storage
+from wp_abfrage import wp_fkt
+from wp_abfrage import wp_isin
+from wp_abfrage import wp_wkn
 
 
 def get_isin_liste(wb_obj) -> (int, str, list):

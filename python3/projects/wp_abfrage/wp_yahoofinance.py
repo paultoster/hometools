@@ -3,9 +3,10 @@ import pandas as pd
 import numpy as np
 import os, sys
 
-tools_path = os.getcwd() + "\\.."
+t_path, _ = os.path.split(__file__)
+tools_path = t_path + "\\.."
 if (tools_path not in sys.path):
-    sys.path.append(tools_path)
+  sys.path.append(tools_path)
 # endif
 
 from tools import hfkt_type as htype
@@ -20,7 +21,51 @@ else:
 
 currencyvalueheaderlist = ["Close", "High", "Low", "Open"]
 
+def get_price_volume_data(ticker,classdef,start_dat,end_dat):
+    """
+    (status, errtext, np_obj) = get_price_volume_data(ticker,classdef,start_dat,end_dat)
+    """
+    status = hdef.OKAY
+    errtext = ""
+    np_obj = classdef()
 
+    # sub einen Tag
+    start_dat_minus = start_dat - 24*60*60
+    # add einen Tag
+    end_dat_pluse = end_dat + 24*60*60
+
+    # Start time
+    (status, start_dat_time_class) = htype.type_transform(start_dat_minus, "dat", "datetimeclass")
+    if status != hdef.OKAY:
+        raise Exception(f"type transform missglückt von {start_dat_minus = } von \"dat\" zu \"dat\" ")
+    # end if
+    # End time
+    (status, end_dat_time_class) = htype.type_transform(end_dat_pluse, "dat", "datetimeclass")
+    if status != hdef.OKAY:
+        raise Exception(f"type transform missglückt von {end_dat_pluse = } von \"dat\" zu \"dat\" ")
+    # end if
+
+    df_data = yf.download(ticker, start_dat_time_class.strftime('%Y-%m-%d'), end_dat_time_class.strftime('%Y-%m-%d'))
+
+    if df_data.empty:
+        status = hdef.NOT_OKAY
+        errtext = f"for Ticker-Symbol \"{ticker}\" no data from yahoofinance"
+        return (status, errtext, np_obj)
+    # end if
+
+    date_str_list = df_data.index.strftime("%d.%m.%Y").tolist()
+
+    dat_np_array = np.array(htype.type_transform_direct(date_str_list, "datStrP", "dat"), copy=True)
+    open_np_array = df_data["Open"].to_numpy()
+    high_np_array = df_data["High"].to_numpy()
+    low_np_array = df_data["Low"].to_numpy()
+    close_np_array = df_data["Close"].to_numpy()
+    volume_np_array = df_data["Volume"].to_numpy()
+
+    np_obj.from_np_array_list([dat_np_array,open_np_array,high_np_array,low_np_array,close_np_array,volume_np_array])
+
+    return (status, errtext, np_obj)
+# end def
 def get_price_volume_data(ticker, waehrung, start_dat_time_list, end_dat_time_list):
     """
 
@@ -40,6 +85,7 @@ def get_price_volume_data(ticker, waehrung, start_dat_time_list, end_dat_time_li
     if status != hdef.OKAY:
         raise Exception(f"type transform missglückt von {start_dat_time_list = } von \"datTimeList\" zu \"dat\" ")
     # end if
+    # End time
     (status, end_dat) = htype.type_transform(end_dat_time_list, "datTimeList", "datetimeclass")
     if status != hdef.OKAY:
         raise Exception(f"type transform missglückt von {end_dat_time_list = } von \"datTimeList\" zu \"dat\" ")

@@ -1,7 +1,8 @@
 import os, sys
 import numpy as np
 
-tools_path = os.getcwd() + "\\.."
+t_path, _ = os.path.split(__file__)
+tools_path = t_path + "\\.."
 if (tools_path not in sys.path):
   sys.path.append(tools_path)
 # endif
@@ -10,12 +11,12 @@ import tools.hfkt_def as hdef
 # import tools.hfkt_dict as hdict
 import tools.hfkt_type as htype
 
-import wp_storage
-import wp_fkt
-import wp_np_dataclass
-import wp_np_dataclass as wp_np_dc
-import wp_base
-import wp_yahoofinance as wp_yfinance
+from wp_abfrage import wp_storage
+from wp_abfrage import wp_fkt
+
+from wp_abfrage import wp_np_dataclass as wp_np_dc
+from wp_abfrage import wp_base
+from wp_abfrage import wp_yahoofinance as wp_yfinance
 
 def process_ezb_xml(wb_obj: wp_base.WPData,xmlfilename: str) -> (int,str):
     """
@@ -91,7 +92,7 @@ def get_number_of_data(wb_obj):
     flag_use_json = wb_obj.base_ddict["use_json"] == 2
 
 
-    (status,errtext,np_obj) = wp_storage.read_np_obj(wp_np_dataclass.NpUsdEuroClass,
+    (status,errtext,np_obj) = wp_storage.read_np_obj(wp_np_dc.NpUsdEuroClass,
                                                      wb_obj.par.HEADER_USDEURO_NAME,
                                                      flag_use_json,
                                                      wb_obj.base_ddict["usdeuro_pre_file_name"],
@@ -119,7 +120,7 @@ def update_with_np_obj_new(wb_obj,np_obj_new):
 
     flag_use_json = wb_obj.base_ddict["use_json"] == 2
 
-    (status,errtext,np_obj) = wp_storage.read_np_obj(wp_np_dataclass.NpUsdEuroClass,
+    (status,errtext,np_obj) = wp_storage.read_np_obj(wp_np_dc.NpUsdEuroClass,
                                                      wb_obj.par.HEADER_USDEURO_NAME,
                                                      flag_use_json,
                                                      wb_obj.base_ddict["usdeuro_pre_file_name"],

@@ -1,6 +1,7 @@
 import os, sys
 
-tools_path = os.getcwd() + "\\.."
+t_path, _ = os.path.split(__file__)
+tools_path = t_path + "\\.."
 if (tools_path not in sys.path):
   sys.path.append(tools_path)
 # endif
@@ -8,11 +9,11 @@ if (tools_path not in sys.path):
 from tools import sgui
 from tools import hfkt_def as hdef
 
-import tools.hfkt_type as htype
+from tools import hfkt_type as htype
 
-import wp_price_volume
-import wp_fkt
-import wp_storage as wp_storage
+from wp_abfrage import wp_price_volume
+from wp_abfrage import wp_fkt
+from wp_abfrage import wp_storage as wp_storage
 
 def edit_basic_info(wp_obj):
     '''
@@ -196,34 +197,6 @@ def choose_from_gui_for_one_isin(wp_obj):
     return (status, errtext,isin)
 # end def
 
-def get_last_price_volume(wp_obj,isin):
-    """
-    - Demand: run_wp_abfrage.py
-
-    Die ausgewählte isin wird die letzten Tagespreise und Volumen abgefragt
-    - Call: get_last_price_volume_isin(wp_obj,isin)
-    
-    :param wp_obj:            wp_base.WPData Data Objekt
-    :return: (status,errtext) = get_last_price_volume(wp_obj)
-    """
-    status = hdef.OKAY
-    errtext = ""
-
-    print("Hole basic infos")
-    (status, errtext, isin_basic_dict) = wp_obj.get_basic_info(isin)
-    if status != hdef.OKAY:
-        return (status, errtext)
-    # end if
-    wpname = isin_basic_dict["name"]
-    print(f"Lese Daten für {wpname = } mit {isin = } ein")
-
-    (status, errtext) = wp_price_volume.update_last_price_volume_isin(wp_obj, isin_basic_dict, isin)
-    if status != hdef.OKAY:
-        return (status, errtext)
-    # end if
-
-    return (status, errtext)
-# end def
 def get_isin_and_wpname_list(wp_obj):
     """
 

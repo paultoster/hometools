@@ -1,18 +1,24 @@
 import os, sys
 
-tools_path = os.getcwd() + "\\.."
+t_path, _ = os.path.split(__file__)
+tools_path = t_path + "\\.."
 if (tools_path not in sys.path):
   sys.path.append(tools_path)
 # endif
 
+t_path, _ = os.path.split(__file__)
+tools_path = t_path + "\\.."
+if (tools_path not in sys.path):
+    sys.path.append(tools_path)
+# endif
 
-import wp_base
-import wp_bearbeiten
+from wp_abfrage import wp_base
+from wp_abfrage import wp_bearbeiten
 
 from tools import sgui
 from tools import hfkt_def as hdef
 
-INT_FILENAME = "K:/data/orga/wp_store/wp_abfrage.ini"
+INT_FILENAME = "D:/data/orga/wp_store/wp_abfrage.ini"
 
 wp_obj = wp_base.WPData(INT_FILENAME)
 
@@ -73,7 +79,7 @@ def run_wp_abfrage():
             print(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
 
             (status, errtext,isin) = wp_bearbeiten.choose_from_gui_for_one_isin(wp_obj)
-            (status, errtext) = wp_bearbeiten.get_last_price_volume(wp_obj)
+            (status, errtext) = wp_obj.update_price_volume(isin)wp_bearbeiten.get_last_price_volume(wp_obj)
             
             if status != hdef.OKAY:
                 print(f"Error wp_bearbeiten.get_last_price_volume(wp_obj) \n errtext = {errtext}")
@@ -110,7 +116,7 @@ def run_wp_abfrage():
         else:
             print(f"Auswahl: {index} nicht bekannt")
         # endif
-    # endwhile
+    # end while
 # end def
 if __name__ == '__main__':
 

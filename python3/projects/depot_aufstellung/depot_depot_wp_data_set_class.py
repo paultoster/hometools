@@ -1,4 +1,12 @@
 
+import os, sys
+
+t_path, _ = os.path.split(__file__)
+tools_path = t_path + "\\.."
+if (tools_path not in sys.path):
+  sys.path.append(tools_path)
+# endif
+
 import tools.hfkt_def as hdef
 import tools.hfkt_type as htype
 import tools.hfkt_list as hlist

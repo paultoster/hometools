@@ -1,4 +1,4 @@
-import os
+import os, sys
 import pickle
 import json
 import zlib
@@ -8,11 +8,17 @@ import numpy as np
 import datetime
 import pandas as pd
 
+t_path, _ = os.path.split(__file__)
+tools_path = t_path + "\\.."
+if (tools_path not in sys.path):
+  sys.path.append(tools_path)
+# endif
+
 import tools.hfkt_def as hdef
 # import tools.hfkt_str as hstr
 
-import wp_fkt
-import wp_np_dataclass as wp_np_dc
+from wp_abfrage import wp_fkt
+from wp_abfrage import wp_np_dataclass as wp_np_dc
 
 def info_storage_eixst(isin,flag_use_json,basic_info_pre_file_name,store_path):
 

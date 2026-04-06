@@ -3,7 +3,8 @@ import os
 import sys
 
 
-tools_path = os.getcwd() + "\\.."
+t_path, _ = os.path.split(__file__)
+tools_path = t_path + "\\.."
 if (tools_path not in sys.path):
     sys.path.append(tools_path)
 # endif

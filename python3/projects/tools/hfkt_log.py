@@ -72,8 +72,8 @@ class log:
 
         self.open()
 
-        if self.log_window:
-            self.build_log_window()
+        # if self.log_window:
+        #    self.build_log_window()
 
     # -----------------------------------------------------------------------------
     def __del__(self):
@@ -104,7 +104,7 @@ class log:
             except IOError:
                 print("IO-error of close log_file <%s>" % self.log_file)
 
-        if self.self.log_window_open:
+        if self.log_window_open:
             self.root.destroy()
             self.log_window_open = False
 

@@ -1,6 +1,7 @@
 import os, sys
 
-tools_path = os.getcwd() + "\\.."
+t_path, _ = os.path.split(__file__)
+tools_path = t_path + "\\.."
 if (tools_path not in sys.path):
   sys.path.append(tools_path)
 # endif
@@ -12,67 +13,7 @@ import tools.hfkt_type as htype
 import wp_abfrage.wp_fkt as wp_fkt
 import wp_abfrage.wp_storage as wp_storage
 import wp_abfrage.wp_yahoofinance as wp_yf
-#
-# class PriceVolumeParam:
-#
-#     HEADER_DATUM_NAME = "Datum"
-#     HEADER_ERSTER_NAME = "Erster"
-#     HEADER_HOCH_NAME = "Hoch"
-#     HEADER_TIEF_NAME = "Tief"
-#     HEADER_SCHLUSS_NAME = "Schlusskurs"
-#     HEADER_STUECKE_NAME = "Stuecke"
-#     HEADER_VOLUMEN_NAME = "Volumen"
-#
-#     HEADER_LLISTE = [(HEADER_DATUM_NAME, "datPandas"),
-#                            (HEADER_ERSTER_NAME, "float"),
-#                            (HEADER_HOCH_NAME, "float"),
-#                            (HEADER_TIEF_NAME, "float"),
-#                            (HEADER_SCHLUSS_NAME, "float"),
-#                            (HEADER_STUECKE_NAME, "float"),
-#                            (HEADER_VOLUMEN_NAME, "float"),
-#                            ]
-#     HEADER_NAME_DICT = {}
-#     HEADER_NAME_LIST = []
-#     HEADER_TYPE_DICT = {}
-#     HEADER_TYPE_LIST = []
-#
-#     for i,liste in enumerate(HEADER_LLISTE):
-#         HEADER_NAME_DICT[i] = liste[0]
-#         HEADER_TYPE_DICT[i] = liste[1]
-#         HEADER_NAME_LIST.append(liste[0])
-#         HEADER_TYPE_LIST.append(liste[1])
-#     # end for
-#
-#     HEADER_YF_DATUM_NAME = "Datum"
-#     HEADER_YF_ERSTER_NAME = "Erster"
-#     HEADER_YF_HOCH_NAME = "Hoch"
-#     HEADER_YF_TIEF_NAME = "Tief"
-#     HEADER_YF_SCHLUSS_NAME = "Schlusskurs"
-#     HEADER_YF_STUECKE_NAME = "Stuecke"
-#     HEADER_YF_VOLUMEN_NAME = "Volumen"
-#
-#     HEADER_YF_LLISTE = [(HEADER_YF_DATUM_NAME, "datStrP",HEADER_DATUM_NAME),
-#                         (HEADER_YF_ERSTER_NAME, "euroStrK",HEADER_ERSTER_NAME),
-#                         (HEADER_YF_HOCH_NAME, "euroStrK",HEADER_HOCH_NAME),
-#                         (HEADER_YF_TIEF_NAME, "euroStrK",HEADER_TIEF_NAME),
-#                         (HEADER_YF_SCHLUSS_NAME, "euroStrK",HEADER_SCHLUSS_NAME),
-#                         (HEADER_YF_STUECKE_NAME, "float",HEADER_STUECKE_NAME),
-#                         (HEADER_YF_VOLUMEN_NAME, "float",HEADER_VOLUMEN_NAME),
-#                         ]
-#     HEADER_YF_NAME_DICT = {}
-#     HEADER_YF_NAME_LIST = []
-#     HEADER_YF_TYPE_DICT = {}
-#     HEADER_YF_TYPE_LIST = []
-#     HEADER_YF_PANDAS_DICT = {}
-#
-#     for i,liste in enumerate(HEADER_YF_LLISTE):
-#         HEADER_YF_NAME_DICT[i] = liste[0]
-#         HEADER_YF_TYPE_DICT[i] = liste[1]
-#         HEADER_YF_NAME_LIST.append(liste[0])
-#         HEADER_YF_TYPE_LIST.append(liste[1])
-#         HEADER_YF_PANDAS_DICT[liste[0]] = liste[2]
-#     # end for
-# # end class
+
 def update_last_price_volume_isin(wp_obj, isin_basic_dict, isin):
     """
 

@@ -12,7 +12,8 @@ import tomllib
 import tomlkit
 
 
-tools_path = os.getcwd() + "\\.."
+t_path, _ = os.path.split(__file__)
+tools_path = t_path + "\\.."
 if tools_path not in sys.path:
     sys.path.append(tools_path)
 # endif
@@ -21,7 +22,7 @@ import depot_gui
 
 # Hilfsfunktionen
 import tools.hfkt_def as hdef
-import hfkt_str as hstr
+import tools.hfkt_str as hstr
 import tools.hfkt_date_time as hdt
 import tools.hfkt_dict as hdict
 import tools.hfkt_tvar as htvar

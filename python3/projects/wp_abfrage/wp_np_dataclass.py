@@ -60,7 +60,21 @@ class NpBaseClass:
             # end if
         # end for
         if count != len(self.np_name_list):
-            raise Exception(f"NpBaseClass init ging schief Anzahl args: {count} ist ungleich anzulegenden n = {len(self.np_name_list)}")
+            raise Exception(f"NpBaseClass from_store_dict() ging schief Anzahl args: {count} ist ungleich anzulegenden n = {len(self.np_name_list)}")
+        return
+    # end def
+    def from_np_array_list(self,np_array_list):
+
+        count = 0
+        for i, np_array in enumerate(np_array_list):
+
+            if i < len(self.np_name_list):
+                self.__setattr__(self.np_name_list[i], np_array)
+                count += 1
+            # end if
+        # end for
+        if count != len(self.np_name_list):
+            raise Exception(f"NpBaseClass from_np_array_list() ging schief Anzahl args: {count} ist ungleich anzulegenden n = {len(self.np_name_list)}")
         return
     # end def
     def __str__(self):
@@ -70,7 +84,14 @@ class NpBaseClass:
 
 class NpUsdEuroClass(NpBaseClass):
     np_name_list: list[str] = ["dat_np_array","usdeuro_np_array"]
-    file_base_name: str = "usdeuro_values"
+    # file_base_name: str = "usdeuro_values"
+    def __init__(self,*args):
+        super().__init__(args,np_name_list=self.np_name_list,class_def = NpUsdEuroClass)
+        return
+    # end def
+class NpPriceVolumeClass(NpBaseClass):
+    np_name_list: list[str] = ["dat_np_array","start_np_array","high_np_array","low_np_array","end_np_array","volume_np_array"]
+    # file_base_name: str = "usdeuro_values"
     def __init__(self,*args):
         super().__init__(args,np_name_list=self.np_name_list,class_def = NpUsdEuroClass)
         return
