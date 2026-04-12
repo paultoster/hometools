@@ -100,18 +100,32 @@ def update_start_to_end_dat(wb_obj,isin,start_dat,end_dat,np_obj):
     if lastdat > start_dat:
         start_dat = lastdat
 
-    (status,errtext,np_obj_new) = process_start_end_dat(wb_obj,isin,start_dat,end_dat)
+    (status,errtext,np_obj_new) = get_price_vol_from_start_dat_to_end_dat(wb_obj,isin,start_dat,end_dat)
+    if status != hdef.OKAY:
+        return (status, errtext)
+
+    (status,errtext,np_obj) = merge_np_data(np_obj,np_obj_new)
+    if status != hdef.OKAY:
+        return (status, errtext)
+
+    flag_use_json = (wb_obj.base_ddict["use_json"] == 1) or (wb_obj.base_ddict["use_json"] == 3)
+
+    wp_storage.save_np_obj(wp_np_dc.NpPriceVolumeClass,
+                           isin,
+                           flag_use_json,
+                           wb_obj.base_ddict["price_volumen_pre_file_name"],
+                           wb_obj.base_ddict["store_path"])
 
     return (status,errtext)
 # end def
-def process_start_end_dat(wb_obj, isin, start_dat,end_dat):
+def get_price_vol_from_start_dat_to_end_dat(wb_obj, isin, start_dat,end_dat):
     """
 
     :param wb_obj:
     :param isin:
     :param start_dat:
     :param end_dat:
-    :return: (status,errtext,np_obj) = process_start_end_dat(wb_obj, isin, start_dat,end_dat)
+    :return: (status,errtext,np_obj) = get_price_vol_from_start_dat_to_end_dat(wb_obj, isin, start_dat,end_dat)
     """
     status = hdef.OKAY
     errtext = ""
@@ -126,13 +140,105 @@ def process_start_end_dat(wb_obj, isin, start_dat,end_dat):
     print(f"Lese Daten für {wpname = } mit {isin = } ein")
 
     if len(ticker) != 0:
-        (status, errtext, np_obj_yf) = wp_yf.get_price_volume_data(ticker,wp_np_dc.NpPriceVolumeClass,start_dat,end_dat)
+        (status, errtext, np_obj_yf) = wp_yf.get_price_volume_data(ticker,
+                                                                   wp_np_dc.NpPriceVolumeClass,
+                                                                   start_dat,
+                                                                   end_dat)
 
         if status != hdef.OKAY:
             return (status, errtext, None)
+        # end if
+    else:
+        status  = hdef.NOT_OKAY
+        errtext = f"get_price_vol_from_start_dat_to_end_dat: Es konnte kein Methode zum Einlesen von Wertpapier {wpname = },{isin = } "
+        return (status, errtext, None)
+    # end if
 
-        # Währungs USDEuro
-        ######
+    # Währungs USDEuro
+    (status,errtext,np_obj_yf) = transfer_price_vol_from_usd_to_euro(wb_obj,np_obj_yf)
 
-    return (status,errtext,np_obj)
+    return (status,errtext,np_obj_yf)
 # end def
+def transfer_price_vol_from_usd_to_euro(wb_obj,np_price_vol):
+    """
+    :param wb_obj:
+    :param np_obj_new:
+    :return: (status,errtext,np_obj_new) = transfer_price_vol_from_usd_to_euro(wb_obj,np_price_vol)
+    """
+
+    start_dat = np_price_vol.dat_np_array[0]
+    end_dat   = np_price_vol.dat_np_array[-1]
+
+    (status,errtext,np_usdeuro) = wb_obj.get_usdeuro_from_start_dat_to_end_dat(start_dat,
+                                                                               end_dat)
+
+    if status == hdef.OKAY:
+        np_price_vol.start_np_array = np.multiply(np_price_vol.start_np_array,np_usdeuro.usdeuro_np_array)
+        np_price_vol.high_np_array = np.multiply(np_price_vol.high_np_array,np_usdeuro.usdeuro_np_array)
+        np_price_vol.low_np_array = np.multiply(np_price_vol.low_np_array,np_usdeuro.usdeuro_np_array)
+        np_price_vol.end_np_array = np.multiply(np_price_vol.end_np_array,np_usdeuro.usdeuro_np_array)
+    # end if
+
+    return (status, errtext, np_price_vol)
+# end def
+def merge_np_data(np_obj,np_obj_new):
+    """
+    :param wb_obj:
+    :param isin:
+    :param np_obj_new:
+    :return: (status,errtext,np_obj) = merge_np_data(np_obj,np_obj_new)
+    """
+
+    status  = hdef.OKAY
+    errtext = ""
+
+    np_dat_akt = np_obj.dat_np_array
+    np_dat_new = np_obj_new.dat_np_array
+
+    half_day_seconds = 12 * 60 * 60
+    sort_index_list = wp_fkt.build_sort_list_of_index(list(np_dat_akt), list(np_dat_new), half_day_seconds)
+
+    if len(sort_index_list):
+        # "dat_np_array", "start_np_array", "high_np_array", "low_np_array", "end_np_array", "volume_np_array"
+
+        np_dat_merge = np.array([], dtype=np.int64)
+        np_start_merge = np.array([], dtype=np.float64)
+        np_high_merge = np.array([], dtype=np.float64)
+        np_low_merge = np.array([], dtype=np.float64)
+        np_end_merge = np.array([], dtype=np.float64)
+        np_volume_merge = np.array([], dtype=np.float64)
+
+
+        for index,val in enumerate(sort_index_list):
+
+            if val[0] == 0:
+                np_dat_merge   = np.append(np_dat_merge,np_obj.dat_np_array[val[1]:val[2]+1])
+                np_start_merge = np.append(np_start_merge,np_obj.start_np_array[val[1]:val[2]+1])
+                np_high_merge = np.append(np_high_merge,np_obj.high_np_array[val[1]:val[2]+1])
+                np_low_merge = np.append(np_low_merge,np_obj.low_np_array[val[1]:val[2]+1])
+                np_end_merge = np.append(np_end_merge,np_obj.end_np_array[val[1]:val[2]+1])
+                np_volume_merge = np.append(np_volume_merge,np_obj.volume_np_array[val[1]:val[2]+1])
+            else:
+                np_dat_merge   = np.append(np_dat_merge,np_obj_new.dat_np_array[val[1]:val[2]+1])
+                np_start_merge = np.append(np_start_merge,np_obj_new.dat_np_array[val[1]:val[2] + 1])
+                np_high_merge = np.append(np_high_merge,np_obj_new.high_np_array[val[1]:val[2]+1])
+                np_low_merge = np.append(np_low_merge,np_obj_new.low_np_array[val[1]:val[2]+1])
+                np_end_merge = np.append(np_end_merge,np_obj_new.end_np_array[val[1]:val[2]+1])
+                np_volume_merge = np.append(np_volume_merge,np_obj_new.volume_np_array[val[1]:val[2]+1])
+
+            # end if
+        # end for
+
+        np_obj = wp_np_dc.NpPriceVolumeClass(np_dat_merge,
+                                             np_start_merge,
+                                             np_high_merge,
+                                             np_low_merge,
+                                             np_end_merge,
+                                             np_volume_merge)
+
+    # end if
+    return (status, errtext, np_obj )
+
+
+
+

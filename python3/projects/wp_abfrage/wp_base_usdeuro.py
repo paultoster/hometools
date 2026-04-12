@@ -138,6 +138,8 @@ def update_with_np_obj_new(wb_obj,np_obj_new):
     if status != hdef.OKAY:
         return (status,errtext)
 
+    flag_use_json = (wb_obj.base_ddict["use_json"] == 1) or (wb_obj.base_ddict["use_json"] == 3)
+
     wp_storage.save_np_obj(np_obj,
                            wb_obj.par.HEADER_USDEURO_NAME,
                            flag_use_json,
@@ -187,4 +189,63 @@ def merge_usdeuro_np_obj_new_to_np_obj(np_obj,np_obj_new):
 
     # end if
     return (status, errtext, np_obj )
+# end def
+def get_from_start_dat_to_end_dat(wb_obj, start_dat, end_dat):
+    """
+    :param wb_obj:
+    :param start_dat:
+    :param end_dat:
+    :return: (status, errtext,np_obj) = wp_base_usdeuro.get_from_start_dat_to_end_dat(wb_obj, start_dat, end_dat)
+    """
+    status = hdef.OKAY
+    errtext = ""
+
+    (status, errtext, number, firstdat, lastdat) = get_number_of_data(wb_obj)
+    if status != hdef.OK:
+        return (status, errtext)
+
+    if start_dat < firstdat:
+        status = hdef.NOT_OKAY
+        firstdatstr = htype.type_transform_direct(firstdat, "dat", "datStrP")
+        startdatstr = htype.type_transform_direct(start_dat, "dat", "datStrP")
+        errtext = f"get_from_start_dat_to_end_dat: Das start_datum: {startdatstr} liegt vor dem ersten gespeichertem Datum {firstdatstr}"
+        return (status, errtext,None)
+    # end def
+
+    if end_dat > lastdat:
+        (status, errtext) = process_akt(wb_obj)
+        if status != hdef.OKAY:
+            return (status, errtext,None)
+        # end if
+    # end def
+
+    flag_use_json = wb_obj.base_ddict["use_json"] == 2
+    (status,errtext,np_obj) = wp_storage.read_np_obj(wp_np_dc.NpUsdEuroClass,
+                                                     wb_obj.par.HEADER_USDEURO_NAME,
+                                                     flag_use_json,
+                                                     wb_obj.base_ddict["usdeuro_pre_file_name"],
+                                                     wb_obj.base_ddict["store_path"])
+    if status != hdef.OKAY:
+        return (status, errtext,None)
+    # end if
+    overlap = 24*60*60
+    (start_index,last_index,start_in_range,last_in_range) = (
+        wp_fkt.find_index_range(list(np_obj.dat_np_array),
+                                start_dat,
+                                end_dat,
+                                overlap))
+
+    if (start_index is None) or (last_index is None):
+        status = hdef.NOT_OKAY
+        file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["usdeuro_pre_file_name"] +
+                                                    wb_obj.par.HEADER_USDEURO_NAME,
+                                                    wb_obj.base_ddict["store_path"])
+
+        errtext = f"Für Aulesen USD-Euro konnte in Datei {file_name} das Datum zwischen {start_dat = } und {end_dat = } konnte nicht gefunden werden."
+    else:
+        np_obj.dat_np_array = np_obj.dat_np_array[start_index:last_index+1]
+        np_obj.usdeuro_np_array = np_obj.usdeuro_np_array[start_index:last_index+1]
+    # end if
+
+    return (status, errtext, np_obj)
 # end def

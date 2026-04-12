@@ -263,6 +263,8 @@ class WPData:
         :return: (status, errtext) = wp_obj.process_akt_usdeuro()
         """
         (status, errtext, number, firstdat, lastdat) = wp_base_usdeuro.get_number_of_data(self)
+        if self.status != hdef.OK:
+            return (self.status, self.errtext)
 
         firstdatstr = htype.type_transform_direct(firstdat, "dat", "datStrP")
         lastdatstr = htype.type_transform_direct(lastdat, "dat", "datStrP")
@@ -270,8 +272,12 @@ class WPData:
         print(f"start reading {number = }, {firstdatstr = },{lastdatstr = }")
 
         (self.status, self.errtext) = wp_base_usdeuro.process_akt(self)
+        if self.status != hdef.OK:
+            return (self.status, self.errtext)
 
         (status, errtext, number, firstdat, lastdat) = wp_base_usdeuro.get_number_of_data(self)
+        if self.status != hdef.OK:
+            return (self.status, self.errtext)
 
         firstdatstr = htype.type_transform_direct(firstdat, "dat", "datStrP")
         lastdatstr = htype.type_transform_direct(lastdat, "dat", "datStrP")
@@ -280,6 +286,16 @@ class WPData:
 
         return (self.status, self.errtext)
     # end def
+    def get_usdeuro_from_start_dat_to_end_dat(self,start_dat:int,end_dat:int):
+        """
+        :param start_dat:
+        :param end_dat:
+        :return: (status,errtext,np_usdeuro) = get_usdeuro_from_start_dat_to_end_dat(self,start_dat:int,end_dat:int)
+        """
+        (self.status, self.errtext,np_obj) = wp_base_usdeuro.get_from_start_dat_to_end_dat(self,start_dat,end_dat)
+        return (self.status, self.errtext,np_obj)
+    # end def
+
     # def update_usdeuro(self):
     #     """
     #

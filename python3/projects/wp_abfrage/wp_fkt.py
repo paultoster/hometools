@@ -307,12 +307,17 @@ def build_sort_list_of_index(list1, list2,overlap):
 # end def
 def find_index_range(liste, start_item,last_item, overlap):
     """
-    Suche in Liste match mit start_item und last_item und gebe die dazugehörigen indizes aus der List zurück
+    Suche in Liste match mit start_item und last_item und gebe die dazugehörigen indizes aus der List
+    zurück
     :param liste:
     :param first_item:
     :param last_item:
     :param overlap:
     :return: (start_index,last_index,start_in_range,last_in_range) = find_index_range(liste, first_item,last_item, overlap)
+    start_index : int
+    last_index : int
+    start_in_range : bool
+    last_in_range : bool
     """
     start_in_range = True
     last_in_range = True

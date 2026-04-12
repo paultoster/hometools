@@ -62,7 +62,12 @@ def get_price_volume_data(ticker,classdef,start_dat,end_dat):
     close_np_array = df_data["Close"].to_numpy()
     volume_np_array = df_data["Volume"].to_numpy()
 
-    np_obj.from_np_array_list([dat_np_array,open_np_array,high_np_array,low_np_array,close_np_array,volume_np_array])
+    np_obj.from_np_array_list([dat_np_array,
+                               open_np_array,
+                               high_np_array,
+                               low_np_array,
+                               close_np_array,
+                               volume_np_array])
 
     return (status, errtext, np_obj)
 # end def

@@ -79,8 +79,12 @@ def run_wp_abfrage():
             print(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
 
             (status, errtext,isin) = wp_bearbeiten.choose_from_gui_for_one_isin(wp_obj)
+            if status != hdef.OKAY:
+                print(f"Error wp_bearbeiten.choose_from_gui_for_one_isin(wp_obj) \n errtext = {errtext}")
+                exit(1)
+            # end if
+
             (status, errtext) = wp_obj.update_price_volume(isin)wp_bearbeiten.get_last_price_volume(wp_obj)
-            
             if status != hdef.OKAY:
                 print(f"Error wp_bearbeiten.get_last_price_volume(wp_obj) \n errtext = {errtext}")
                 exit(1)
