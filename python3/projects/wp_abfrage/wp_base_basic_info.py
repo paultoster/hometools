@@ -82,7 +82,7 @@ def get(wb_obj, isin_input: str|list) -> (int,str,dict|list):
         print(f"Build basic_info from isin: {isin}:")
         start_time = time.time()
 
-        falg_use_json = wb_obj.base_ddict["use_json"] == 2
+        falg_use_json = (wb_obj.base_ddict["use_json"] == 2) or (wb_obj.base_ddict["use_json"] == 3)
         (status, errtext, info_dict) = wp_isin.get_basic_info(isin,
                                                               falg_use_json,
                                                               wb_obj.base_ddict["basic_info_pre_file_name"],
@@ -179,7 +179,7 @@ def process_isin_from_wkn(wb_obj, wkn):
     :return:  (status, errtext, isin) = process_isin_from_wkn(wb_obj,wkn)
     """
 
-    flag_json = wb_obj.base_ddict["use_json"] == 2
+    flag_json = (wb_obj.base_ddict["use_json"] == 2) or (wb_obj.base_ddict["use_json"] == 3)
     (status, errtext, isin) = wp_wkn.wp_search_wkn(wkn,
                                                    flag_json,
                                                    wb_obj.base_ddict["wpname_isin_filename"],
@@ -201,7 +201,7 @@ def find_wpname(wb_obj, comment):
     :return: (status, errtext, isin) = find_wpname(wb_obj, comment)
     """
 
-    flag_json = wb_obj.base_ddict["use_json"] == 2
+    flag_json = (wb_obj.base_ddict["use_json"] == 2) or (wb_obj.base_ddict["use_json"] == 3)
     (status, errtext, isin) = wp_wkn.wp_search_wpname_in_comment(comment,
                                                                 flag_json,
                                                                 wb_obj.base_ddict["wpname_isin_filename"],
@@ -238,7 +238,7 @@ def process_isin_w_wpname_wkn(wb_obj,isin,wpname,wkn):
         info_dict["wkn"] = wkn
 
     if flag:
-        flag_use_json = wb_obj.base_ddict["use_json"] == 2
+        flag_use_json = (wb_obj.base_ddict["use_json"] == 2) or (wb_obj.base_ddict["use_json"] == 3)
         (status, errtext) = wp_storage.save_dict(isin,info_dict,
                                                  flag_use_json,
                                                  wb_obj.base_ddict["basic_info_pre_file_name"],

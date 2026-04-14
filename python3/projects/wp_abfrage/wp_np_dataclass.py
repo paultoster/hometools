@@ -94,6 +94,7 @@ class NpPriceVolumeClass(NpBaseClass):
     # file_base_name: str = "usdeuro_values"
     def __init__(self,*args):
         super().__init__(args,np_name_list=self.np_name_list,class_def = NpUsdEuroClass)
+        self.currency: str = ""
         return
     # end def
 

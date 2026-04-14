@@ -89,7 +89,7 @@ def get_number_of_data(wb_obj):
     firstdat = 0
     lastdat = 0
 
-    flag_use_json = wb_obj.base_ddict["use_json"] == 2
+    flag_use_json = (wb_obj.base_ddict["use_json"] == 2) or (wb_obj.base_ddict["use_json"] == 3)
 
 
     (status,errtext,np_obj) = wp_storage.read_np_obj(wp_np_dc.NpUsdEuroClass,
@@ -118,7 +118,7 @@ def update_with_np_obj_new(wb_obj,np_obj_new):
     status = hdef.OKAY
     errtext = ""
 
-    flag_use_json = wb_obj.base_ddict["use_json"] == 2
+    flag_use_json = (wb_obj.base_ddict["use_json"] == 2) or (wb_obj.base_ddict["use_json"] == 3)
 
     (status,errtext,np_obj) = wp_storage.read_np_obj(wp_np_dc.NpUsdEuroClass,
                                                      wb_obj.par.HEADER_USDEURO_NAME,
@@ -219,7 +219,7 @@ def get_from_start_dat_to_end_dat(wb_obj, start_dat, end_dat):
         # end if
     # end def
 
-    flag_use_json = wb_obj.base_ddict["use_json"] == 2
+    flag_use_json = (wb_obj.base_ddict["use_json"] == 2) or (wb_obj.base_ddict["use_json"] == 3)
     (status,errtext,np_obj) = wp_storage.read_np_obj(wp_np_dc.NpUsdEuroClass,
                                                      wb_obj.par.HEADER_USDEURO_NAME,
                                                      flag_use_json,

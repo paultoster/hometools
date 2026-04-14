@@ -28,7 +28,7 @@ def update(wb_obj,isin):
     """
 
     # Gibt es bereits eine Datei
-    flag_use_json = wb_obj.base_ddict["use_json"] == 2
+    flag_use_json = (wb_obj.base_ddict["use_json"] == 2) or (wb_obj.base_ddict["use_json"] == 3)
     flag = wp_storage.np_obj_storage_exist(isin,
                                            flag_use_json,
                                            wb_obj.base_ddict["price_volumen_pre_file_name"],
@@ -112,7 +112,7 @@ def update_start_to_end_dat(wb_obj,isin,start_dat,end_dat,np_obj):
 
     flag_use_json = (wb_obj.base_ddict["use_json"] == 1) or (wb_obj.base_ddict["use_json"] == 3)
 
-    wp_storage.save_np_obj(wp_np_dc.NpPriceVolumeClass,
+    wp_storage.save_np_obj(np_obj,
                            isin,
                            flag_use_json,
                            wb_obj.base_ddict["price_volumen_pre_file_name"],
@@ -157,7 +157,9 @@ def get_price_vol_from_start_dat_to_end_dat(wb_obj, isin, start_dat,end_dat):
     # end if
 
     # Währungs USDEuro
-    (status,errtext,np_obj_yf) = transfer_price_vol_from_usd_to_euro(wb_obj,np_obj_yf)
+    if  np_obj_yf.currency.find("usd") == 0:
+        (status,errtext,np_obj_yf) = transfer_price_vol_from_usd_to_euro(wb_obj,np_obj_yf)
+    # end if
 
     return (status,errtext,np_obj_yf)
 # end def
@@ -195,6 +197,8 @@ def transfer_price_vol_from_usd_to_euro(wb_obj,np_price_vol):
         np_price_vol.high_np_array = high_np_array
         np_price_vol.low_np_array = low_np_array
         np_price_vol.end_np_array = end_np_array
+
+        np_price_vol.currency = "euro"
     # end if
 
     return (status, errtext, np_price_vol)

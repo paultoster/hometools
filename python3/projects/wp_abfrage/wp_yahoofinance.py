@@ -45,6 +45,8 @@ def get_price_volume_data(ticker,classdef,start_dat,end_dat):
         raise Exception(f"type transform missglückt von {end_dat_pluse = } von \"dat\" zu \"dat\" ")
     # end if
 
+    info = yf.Ticker(ticker)
+
     df_data = yf.download(ticker, start_dat_time_class.strftime('%Y-%m-%d'), end_dat_time_class.strftime('%Y-%m-%d'))
 
     if df_data.empty:
@@ -68,6 +70,17 @@ def get_price_volume_data(ticker,classdef,start_dat,end_dat):
                                low_np_array,
                                close_np_array,
                                volume_np_array])
+
+    # currency
+    if "currency" in info.history_metadata.keys():
+        currency = info.history_metadata["currency"]
+
+        if currency.find("EUR") == 0:
+            np_obj.currency = "euro"
+        elif currency.find("USD") == 0:
+            np_obj.currency = "usd"
+        # end if
+    # end def
 
     return (status, errtext, np_obj)
 # end def
