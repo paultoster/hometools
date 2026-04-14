@@ -12,7 +12,7 @@ if (tools_path not in sys.path):
     sys.path.append(tools_path)
 
 import tools.hfkt_def as hdef
-# import tools.hfkt_str as hstr
+import tools.hfkt_list as hlist
 import tools.hfkt_type as htype
 import tools.hfkt_date_time as hdt
 
@@ -133,7 +133,7 @@ def letzter_beendeter_handelstag_dat_list(boerse):
     else:
         dat_time_list = hdt.verschiebe_dat_list_in_tagen(dat_time_list, -1)
         while ist_kein_handestag(dat_time_list, boerse):
-            dat_time_list = hdt.verschiebe_dat_tup_in_tagen(dat_time_list, -1)
+            dat_time_list = hdt.verschiebe_dat_list_in_tagen(dat_time_list, -1)
     # end if
     return dat_time_list
 # end def
@@ -305,62 +305,65 @@ def build_sort_list_of_index(list1, list2,overlap):
     # end if
     return sort_index_list
 # end def
-def find_index_range(liste, start_item,last_item, overlap):
+def find_index_range(liste, start_item,end_item, distbetween):
     """
-    Suche in Liste match mit start_item und last_item und gebe die dazugehörigen indizes aus der List
+    Suche in Liste match mit start_item und end_item und gebe die dazugehörigen indizes aus der List
     zurück
     :param liste:
     :param first_item:
-    :param last_item:
-    :param overlap:
-    :return: (start_index,last_index,start_in_range,last_in_range) = find_index_range(liste, first_item,last_item, overlap)
+    :param end_item:
+    :param distbetween:
+    :return: (start_index,end_index,start_in_range,end_in_range) = find_index_range(liste, first_item,end_item, distbetween)
     start_index : int
-    last_index : int
+    end_index : int
     start_in_range : bool
-    last_in_range : bool
+    end_in_range : bool
     """
     start_in_range = True
-    last_in_range = True
+    end_in_range  = True
+    distbetweenhalf    = distbetween/2
 
     if start_item is None:
         start_index = 0
-    elif start_item <= liste[0] + overlap:
+    elif start_item <= liste[0] + distbetweenhalf:
         start_index = 0
         start_in_range = False
-    elif start_item > liste[-1] + overlap:
+    elif start_item > liste[-1] + distbetweenhalf:
         start_index = None
         start_in_range = False
     else:
-        for index,item in enumerate(liste):
-            if (start_item > item - overlap) and (start_item <= item + overlap):
-                start_index = index
-                break
-            # end if
-        # end for
+        start_index = hlist.search_nearest_item_in_list(liste,start_item)
+        # for index,item in enumerate(liste):
+        #     if (start_item > item - distbetweenhalf) and (start_item <= item + distbetweenhalf):
+        #         start_index = index
+        #         break
+        #     # end if
+        # # end for
     # end if
 
     if start_index is None:
-        last_index = None
-        last_in_range = False
-    elif last_item is None:
-        last_index = max(start_index,len(liste)-1)
-    elif last_item < liste[0] - overlap:
+        end_index = None
+        end_in_range = False
+    elif end_item is None:
+        end_index = max(start_index,len(liste)-1)
+    elif end_item < liste[0] - distbetweenhalf:
         start_index = None
-        last_index = None
-        last_in_range = False
-    elif last_item >= liste[-1] - overlap:
-        last_index = max(start_index,len(liste)-1)
-        last_in_range = False
+        end_index = None
+        end_in_range = False
+    elif end_item >= liste[-1] - distbetweenhalf:
+        end_index = max(start_index,len(liste)-1)
+        end_in_range = False
     else:
-        for index,item in enumerate(liste):
-            if (last_item > item - overlap) and (last_item <= item + overlap):
-                last_index = max(start_index,index)
-                break
-            # end if
-        # end for
+        end_index = hlist.search_nearest_item_in_list(liste, end_item)
+        # for index,item in enumerate(liste):
+        #     if (end_item > item - distbetweenhalf) and (end_item <= item + distbetweenhalf):
+        #         end_index = max(start_index,index)
+        #         break
+        #     # end if
+        # # end for
     # end if
 
-    return (start_index,last_index,start_in_range,last_in_range)
+    return (start_index,end_index,start_in_range,end_in_range)
 # end def
 def merge_usdeuro_dfnew_to_df(df,df_new, dat_name,usdeuro_name):
     """
@@ -478,11 +481,11 @@ if __name__ == '__main__':
 
     liste1 = [11.0, 12.0, 14.0, 15.0]
     liste2 = [1.0,2.0, 9.0,13.0, 14.0, 15.0, 16.0, 17.0]
-    overlap = 0.5
+    distbetween = 0.5
 
     print(f"{liste1 = }")
     print(f"{liste2 = }")
-    pre_sort_index_list = build_sort_list_of_index(liste1, liste2, overlap)
+    pre_sort_index_list = build_sort_list_of_index(liste1, liste2, distbetween)
 
     for index,val in enumerate(pre_sort_index_list):
         print(f"{index =},{val = }")

@@ -51,7 +51,7 @@ def update(wb_obj,isin):
     # Wenn nein setze erstes Datum aus ini
     else:
         np_obj = None
-        lastdat = htype.type_transform_direct(wb_obj.basic_dict["price_volumen_first_dat "], "datStrP", "dat")
+        lastdat = htype.type_transform_direct(wb_obj.base_ddict["price_volumen_first_dat"], "datStrP", "dat")
     # end if
 
     # Start Datum
@@ -76,11 +76,13 @@ def get_number_of_np_obj(wb_obj,np_obj):
 
     :return: (status,errtext,number,firstdat,lastdat) = get_number_of_np_obj(wb_obj,np_obj)
     """
+    status = hdef.OKAY
+    errtext = ""
     number = 0
     firstdat = 0
     lastdat = 0
 
-    if isinstance(np_obj.dat_np_array, (np.ndarray, np.generic)):
+    if (np_obj is not None) and isinstance(np_obj.dat_np_array, (np.ndarray, np.generic)):
         number   = len(np_obj.dat_np_array)
         firstdat = int(np_obj.dat_np_array[0])
         lastdat  = int(int(np_obj.dat_np_array[-1]))
@@ -173,10 +175,26 @@ def transfer_price_vol_from_usd_to_euro(wb_obj,np_price_vol):
                                                                                end_dat)
 
     if status == hdef.OKAY:
-        np_price_vol.start_np_array = np.multiply(np_price_vol.start_np_array,np_usdeuro.usdeuro_np_array)
-        np_price_vol.high_np_array = np.multiply(np_price_vol.high_np_array,np_usdeuro.usdeuro_np_array)
-        np_price_vol.low_np_array = np.multiply(np_price_vol.low_np_array,np_usdeuro.usdeuro_np_array)
-        np_price_vol.end_np_array = np.multiply(np_price_vol.end_np_array,np_usdeuro.usdeuro_np_array)
+
+        start_np_array = np.array([], dtype=np.float64)
+        high_np_array = np.array([], dtype=np.float64)
+        low_np_array = np.array([], dtype=np.float64)
+        end_np_array = np.array([], dtype=np.float64)
+
+
+        for i,d in enumerate(np_price_vol.dat_np_array):
+            index = np.abs(np_usdeuro.dat_np_array - d).argmin()
+
+            start_np_array = np.append(np_price_vol.start_np_array[i],np_usdeuro.usdeuro_np_array[index])
+            high_np_array = np.append(np_price_vol.high_np_array[i] , np_usdeuro.usdeuro_np_array[index])
+            low_np_array = np.append(np_price_vol.low_np_array[i] , np_usdeuro.usdeuro_np_array[index])
+            end_np_array = np.append(np_price_vol.end_np_array[i] , np_usdeuro.usdeuro_np_array[index])
+        # end for
+
+        np_price_vol.start_np_array = start_np_array
+        np_price_vol.high_np_array = high_np_array
+        np_price_vol.low_np_array = low_np_array
+        np_price_vol.end_np_array = end_np_array
     # end if
 
     return (status, errtext, np_price_vol)
@@ -192,50 +210,53 @@ def merge_np_data(np_obj,np_obj_new):
     status  = hdef.OKAY
     errtext = ""
 
-    np_dat_akt = np_obj.dat_np_array
-    np_dat_new = np_obj_new.dat_np_array
+    if np_obj is None:
+        np_obj = np_obj_new
+    else:
+        np_dat_akt = np_obj.dat_np_array
+        np_dat_new = np_obj_new.dat_np_array
 
-    half_day_seconds = 12 * 60 * 60
-    sort_index_list = wp_fkt.build_sort_list_of_index(list(np_dat_akt), list(np_dat_new), half_day_seconds)
+        half_day_seconds = 12 * 60 * 60
+        sort_index_list = wp_fkt.build_sort_list_of_index(list(np_dat_akt), list(np_dat_new), half_day_seconds)
 
-    if len(sort_index_list):
-        # "dat_np_array", "start_np_array", "high_np_array", "low_np_array", "end_np_array", "volume_np_array"
+        if len(sort_index_list):
+            # "dat_np_array", "start_np_array", "high_np_array", "low_np_array", "end_np_array", "volume_np_array"
 
-        np_dat_merge = np.array([], dtype=np.int64)
-        np_start_merge = np.array([], dtype=np.float64)
-        np_high_merge = np.array([], dtype=np.float64)
-        np_low_merge = np.array([], dtype=np.float64)
-        np_end_merge = np.array([], dtype=np.float64)
-        np_volume_merge = np.array([], dtype=np.float64)
+            np_dat_merge = np.array([], dtype=np.int64)
+            np_start_merge = np.array([], dtype=np.float64)
+            np_high_merge = np.array([], dtype=np.float64)
+            np_low_merge = np.array([], dtype=np.float64)
+            np_end_merge = np.array([], dtype=np.float64)
+            np_volume_merge = np.array([], dtype=np.float64)
 
 
-        for index,val in enumerate(sort_index_list):
+            for index,val in enumerate(sort_index_list):
 
-            if val[0] == 0:
-                np_dat_merge   = np.append(np_dat_merge,np_obj.dat_np_array[val[1]:val[2]+1])
-                np_start_merge = np.append(np_start_merge,np_obj.start_np_array[val[1]:val[2]+1])
-                np_high_merge = np.append(np_high_merge,np_obj.high_np_array[val[1]:val[2]+1])
-                np_low_merge = np.append(np_low_merge,np_obj.low_np_array[val[1]:val[2]+1])
-                np_end_merge = np.append(np_end_merge,np_obj.end_np_array[val[1]:val[2]+1])
-                np_volume_merge = np.append(np_volume_merge,np_obj.volume_np_array[val[1]:val[2]+1])
-            else:
-                np_dat_merge   = np.append(np_dat_merge,np_obj_new.dat_np_array[val[1]:val[2]+1])
-                np_start_merge = np.append(np_start_merge,np_obj_new.dat_np_array[val[1]:val[2] + 1])
-                np_high_merge = np.append(np_high_merge,np_obj_new.high_np_array[val[1]:val[2]+1])
-                np_low_merge = np.append(np_low_merge,np_obj_new.low_np_array[val[1]:val[2]+1])
-                np_end_merge = np.append(np_end_merge,np_obj_new.end_np_array[val[1]:val[2]+1])
-                np_volume_merge = np.append(np_volume_merge,np_obj_new.volume_np_array[val[1]:val[2]+1])
+                if val[0] == 0:
+                    np_dat_merge   = np.append(np_dat_merge,np_obj.dat_np_array[val[1]:val[2]+1])
+                    np_start_merge = np.append(np_start_merge,np_obj.start_np_array[val[1]:val[2]+1])
+                    np_high_merge = np.append(np_high_merge,np_obj.high_np_array[val[1]:val[2]+1])
+                    np_low_merge = np.append(np_low_merge,np_obj.low_np_array[val[1]:val[2]+1])
+                    np_end_merge = np.append(np_end_merge,np_obj.end_np_array[val[1]:val[2]+1])
+                    np_volume_merge = np.append(np_volume_merge,np_obj.volume_np_array[val[1]:val[2]+1])
+                else:
+                    np_dat_merge   = np.append(np_dat_merge,np_obj_new.dat_np_array[val[1]:val[2]+1])
+                    np_start_merge = np.append(np_start_merge,np_obj_new.dat_np_array[val[1]:val[2] + 1])
+                    np_high_merge = np.append(np_high_merge,np_obj_new.high_np_array[val[1]:val[2]+1])
+                    np_low_merge = np.append(np_low_merge,np_obj_new.low_np_array[val[1]:val[2]+1])
+                    np_end_merge = np.append(np_end_merge,np_obj_new.end_np_array[val[1]:val[2]+1])
+                    np_volume_merge = np.append(np_volume_merge,np_obj_new.volume_np_array[val[1]:val[2]+1])
 
-            # end if
-        # end for
+                # end if
+            # end for
 
-        np_obj = wp_np_dc.NpPriceVolumeClass(np_dat_merge,
-                                             np_start_merge,
-                                             np_high_merge,
-                                             np_low_merge,
-                                             np_end_merge,
-                                             np_volume_merge)
-
+            np_obj = wp_np_dc.NpPriceVolumeClass(np_dat_merge,
+                                                 np_start_merge,
+                                                 np_high_merge,
+                                                 np_low_merge,
+                                                 np_end_merge,
+                                                 np_volume_merge)
+        # end if
     # end if
     return (status, errtext, np_obj )
 

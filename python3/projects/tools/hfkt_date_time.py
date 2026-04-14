@@ -67,6 +67,7 @@ str_time_liste = find_str_time(str_text,flag_liste=True), str_text = "17.12.2004
 flag = is_dat_str(str_dat,delim='.') str_dat = "10.03.2005" => flag = True
 flag   = datum_str_is_correct(str_dat,delim=".")
 flag = is_dat_int(int_val)  int_val = jjjjmmtt
+flag = is_dat_secs(secs_val) secs_val = gewandelte Zeit
 flag = is_dat_list(liste)  liste = (12,05,1959) (tt,mm,jjjj)
 flag = is_time_list(liste)  liste = (03,05,10) (hh,mm,ss)
 flag = is_dat_list_a_to_b(a_dat_list, b_dat_list,sign) a_dat_list:  (12,05,1959) (tt,mm,jjjj);
@@ -1011,6 +1012,14 @@ def is_dat_int(int_val):
     # end if
 
     return flag
+# end def
+def is_dat_secs(secs_val):
+
+    if isinstance(secs_val, int) and (secs_val >= 0):
+        return True
+    else:
+        return False
+    # end if
 # end def
 def is_time_int(int_val):
     """

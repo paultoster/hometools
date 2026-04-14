@@ -43,9 +43,9 @@ def get_basic_info(isin):
         info_dict = get_default_info_dict(isin)
         (status, errtext, info_dict) = extraetf_Fond(isin, info_dict)
     if status == hdef.NOT_FOUND:
-        print(f"            versuche ariva_Anleihe")
+        print(f"            versuche ariva_anleihe")
         info_dict = get_default_info_dict(isin)
-        (status, errtext, info_dict) = ariva_Anleihe(isin, info_dict)
+        (status, errtext, info_dict) = ariva_anleihe(isin, info_dict)
 
     return (status, errtext, info_dict)
 # end def
@@ -451,7 +451,7 @@ def extraetf_Fond(isin, info_dict):
 
 # end def
 
-def ariva_Anleihe(isin, info_dict):
+def ariva_anleihe(isin, info_dict):
     status = hdef.OKAY
     errtext = ""
     
@@ -465,10 +465,10 @@ def ariva_Anleihe(isin, info_dict):
         newpage = urllib.request.urlopen(url)
     except urllib.error.HTTPError as e:
         status = hdef.NOT_FOUND
-        errtext = f"ariva_Anleihe isin: {isin} Error code: {e.code}"
+        errtext = f"ariva_anleihe isin: {isin} Error code: {e.code}"
     except urllib.error.URLError as e:
         status = hdef.NOT_FOUND
-        errtext = f"ariva_Anleihe isin: {isin} Reason: {e.reason}"
+        errtext = f"ariva_anleihe isin: {isin} Reason: {e.reason}"
     # end try
     if status != hdef.OKAY:
         return (status, errtext, info_dict)

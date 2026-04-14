@@ -68,6 +68,8 @@ index_liste = search_value_in_list_return_indexlist(liste,value)
 
 index_liste = search_value_in_llist_return_indexlist(lliste,icol,value)
 
+index = search_nearest_item_in_list(lliste,value)
+
 newlist = sort_list_of_dict(lliste, keyname, aufsteigend=1)
 newlist = sort_list(liste,aufsteigend=1)
 (newlist1,newlist2) = sort_two_list(liste1,liste2,aufsteigend=1)
@@ -509,7 +511,24 @@ def search_value_in_llist_return_indexlist(lliste, icol, value):
 
 
 # end def
+def search_nearest_item_in_list(lliste,value):
+    """
+    :param lliste:
+    :param value:
+    return index = search_nearest_item_in_list(lliste,value)
+    """
+    min_dist = math.fabs(value - lliste[0])
+    min_index = 0
+    for i,val in enumerate(lliste):
 
+        dist = math.fabs(value-val)
+        if dist < min_dist:
+            min_index = i
+            min_dist = dist
+        # end def
+    # end for
+    return min_index
+# end def
 def sort_list(liste, aufsteigend=1):
     '''
     

@@ -1,22 +1,21 @@
 import os, sys
 
 t_path, _ = os.path.split(__file__)
-tools_path = t_path + "\\.."
+if len(t_path) > 0 :
+    tools_path = t_path + "\\.."
+else:
+    tools_path = ".."
+# end if
 if (tools_path not in sys.path):
   sys.path.append(tools_path)
 # endif
 
-t_path, _ = os.path.split(__file__)
-tools_path = t_path + "\\.."
-if (tools_path not in sys.path):
-    sys.path.append(tools_path)
-# endif
+from tools import sgui
+from tools import hfkt_def as hdef
 
 from wp_abfrage import wp_base
 from wp_abfrage import wp_bearbeiten
 
-from tools import sgui
-from tools import hfkt_def as hdef
 
 INT_FILENAME = "D:/data/orga/wp_store/wp_abfrage.ini"
 
@@ -84,7 +83,7 @@ def run_wp_abfrage():
                 exit(1)
             # end if
 
-            (status, errtext) = wp_obj.update_price_volume(isin)wp_bearbeiten.get_last_price_volume(wp_obj)
+            (status, errtext) = wp_obj.update_price_volume(isin)
             if status != hdef.OKAY:
                 print(f"Error wp_bearbeiten.get_last_price_volume(wp_obj) \n errtext = {errtext}")
                 exit(1)

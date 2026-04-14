@@ -3,8 +3,9 @@
 # 18.06.23 von hfkt.py
 #############################
 import os.path
-import string
+# import string
 import datetime
+import numpy as np
 
 # ==========================================================================================
 # value = str_to_float_possible(string_val),  if not possible value = None
@@ -697,7 +698,7 @@ def type_proof_dat(wert_in):
         except:
             return (hdef.NOT_OKAY, None)  # endtry
 
-    elif isinstance(wert_in, int) and wert_in >= 0:
+    elif (isinstance(wert_in, int) or isinstance(wert_in, np.int64))  and wert_in >= 0:
         return (hdef.OKAY,wert_in)
     else:
         return (hdef.NOT_OKAY, None)  # endtry  # endif
@@ -922,7 +923,6 @@ def type_proof_datTimeList(wert_in):
     """ return value in integer list [day,month,year]"""
 
     if (isinstance(wert_in, str)):
-
         dat_str = hdate.find_str_dat(wert_in)
         time_str = hdate.find_str_time(wert_in)
         flag = False
@@ -930,7 +930,6 @@ def type_proof_datTimeList(wert_in):
             flag = True
             dat_list = hdate.calc_str_to_dat_list(dat_str)
         #end if
-
         if hdate.is_time_str(time_str):
             time_list = hdate.calc_str_to_time_list(time_str)
             if flag:
@@ -938,30 +937,21 @@ def type_proof_datTimeList(wert_in):
         elif flag:
             return (hdef.OKAY, dat_list + [0,0,0])
         # end if
-
-        return (hdef.NOT_OKAY, None)
-
     elif (isinstance(wert_in, int)):
-
-        if hdate.is_dat_time_int(wert_in):
+        if hdate.is_dat_secs(wert_in):
+            dat_time_list = hdate.calc_secs_to_dat_time_list(wert_in)
+            return (hdef.OKAY, dat_time_list)
+        elif hdate.is_dat_time_int(wert_in):
             dat_time_list = hdate.calc_int_to_dat_time_list(wert_in)
             return (hdef.OKAY, dat_time_list)
-        else:
-            return (hdef.NOT_OKAY, None)
         # end if
-
     elif (isinstance(wert_in, list) or isinstance(wert_in, tuple)):
 
         if hdate.is_dat_time_list(wert_in):
             return (hdef.OKAY, wert_in)
-        else:
-            return (hdef.NOT_OKAY, None)
         # end if
-
     # end if
     return (hdef.NOT_OKAY, None)
-
-
 # end def
 def type_proof_timeList(wert_in):
     """ return value in integer list [day,month,year]"""

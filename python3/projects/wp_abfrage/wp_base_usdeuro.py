@@ -228,12 +228,13 @@ def get_from_start_dat_to_end_dat(wb_obj, start_dat, end_dat):
     if status != hdef.OKAY:
         return (status, errtext,None)
     # end if
-    overlap = 24*60*60
+    range = 24*60*60
     (start_index,last_index,start_in_range,last_in_range) = (
         wp_fkt.find_index_range(list(np_obj.dat_np_array),
                                 start_dat,
                                 end_dat,
-                                overlap))
+                                range))
+
 
     if (start_index is None) or (last_index is None):
         status = hdef.NOT_OKAY
@@ -246,6 +247,12 @@ def get_from_start_dat_to_end_dat(wb_obj, start_dat, end_dat):
         np_obj.dat_np_array = np_obj.dat_np_array[start_index:last_index+1]
         np_obj.usdeuro_np_array = np_obj.usdeuro_np_array[start_index:last_index+1]
     # end if
+
+    print(f"{start_index =},{last_index =},dat_np_array_len = {len(np_obj.dat_np_array)}")
+    print(f"start_dat = {htype.type_transform_direct(start_dat, "dat", "datStrP")}")
+    print(f"end_dat = {htype.type_transform_direct(end_dat, "dat", "datStrP")}")
+    print(f"dat_np_array[0] = {htype.type_transform_direct(np_obj.dat_np_array[0], "dat", "datStrP")}")
+    print(f"dat_np_array[-1] = {htype.type_transform_direct(np_obj.dat_np_array[-1], "dat", "datStrP")}")
 
     return (status, errtext, np_obj)
 # end def
