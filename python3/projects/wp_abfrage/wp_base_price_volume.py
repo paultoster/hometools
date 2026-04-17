@@ -28,18 +28,17 @@ def update(wb_obj,isin):
     """
 
     # Gibt es bereits eine Datei
-    flag_use_json = (wb_obj.base_ddict["use_json"] == 2) or (wb_obj.base_ddict["use_json"] == 3)
-    flag = wp_storage.np_obj_storage_exist(isin,
-                                           flag_use_json,
-                                           wb_obj.base_ddict["price_volumen_pre_file_name"],
-                                           wb_obj.base_ddict["store_path"])
+    file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["price_volumen_pre_file_name"] + isin,
+                                                wb_obj.base_ddict["store_path"])
+
+    formatpj = int(wb_obj.base_ddict["price_volumen_use_format"]/10)
+    flag = wp_storage.np_obj_storage_exist(file_name,formatpj)
+
     # Wenn ja lese Datei ein
     if flag:
         (status, errtext, np_obj) = wp_storage.read_np_obj(wp_np_dc.NpPriceVolumeClass,
-                                                           isin,
-                                                           flag_use_json,
-                                                           wb_obj.base_ddict["price_volumen_pre_file_name"],
-                                                           wb_obj.base_ddict["store_path"])
+                                                           file_name,
+                                                           formatpj)
         if status != hdef.OKAY:
             return (status, errtext)
 
@@ -110,13 +109,10 @@ def update_start_to_end_dat(wb_obj,isin,start_dat,end_dat,np_obj):
     if status != hdef.OKAY:
         return (status, errtext)
 
-    flag_use_json = (wb_obj.base_ddict["use_json"] == 1) or (wb_obj.base_ddict["use_json"] == 3)
-
-    wp_storage.save_np_obj(np_obj,
-                           isin,
-                           flag_use_json,
-                           wb_obj.base_ddict["price_volumen_pre_file_name"],
-                           wb_obj.base_ddict["store_path"])
+    file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["price_volumen_pre_file_name"] + isin,
+                                                wb_obj.base_ddict["store_path"])
+    formatpj = int(wb_obj.base_ddict["price_volumen_use_format"] % 10)
+    wp_storage.save_np_obj(np_obj,file_name,formatpj)
 
     return (status,errtext)
 # end def
@@ -217,6 +213,9 @@ def merge_np_data(np_obj,np_obj_new):
     if np_obj is None:
         np_obj = np_obj_new
     else:
+
+        np_obj.currency = np_obj_new.currency
+
         np_dat_akt = np_obj.dat_np_array
         np_dat_new = np_obj_new.dat_np_array
 

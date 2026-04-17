@@ -55,12 +55,12 @@ ZIP_DEFLATED = 8
 
 # Below are some formats and associated data for reading/writing headers using
 # the struct module.  The names and structures of headers/records are those used
-# in the PKWARE description of the ZIP file format:
+# in the PKWARE description of the ZIP file formatpj:
 #     http://www.pkware.com/documents/casestudies/APPNOTE.TXT
 # (URL valid as of January 2008)
 
 # The "end of central directory" structure, magic number, size, and indices
-# (section V.I in the format document)
+# (section V.I in the formatpj document)
 structEndArchive = "<4s4H2LH"
 stringEndArchive = "PK\005\006"
 sizeEndCentDir = struct.calcsize(structEndArchive)

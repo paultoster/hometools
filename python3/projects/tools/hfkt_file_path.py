@@ -24,6 +24,7 @@
  (path,fbody,ext) = get_pfe(full_file): Gibt Pfad,Filebody und Extension zurück
  fullfilename = set_pfe(path,filebody,ext)
  fullfilename = set_pfe(path,filename)
+ fullfilename = reset_ext(fullfilename_in,ext)
  leaves_path_name = get_path_leaves(full_path_name,root_path_name)
  status = merge_path_leaves(root_path_name,leaves_path_name)   status = hedf.OKAY
 
@@ -455,33 +456,43 @@ def get_pfe(full_file):
             fbody = rest
     
     return path, fbody, ext
-
-
-def set_pfe(p="", b="", e=""):
+# end def
+def reset_ext(fullfilename_in,ext):
     """
+    fullfilename = reset_ext(fullfilename_in,ext)
 
-    :param p: path
-    :param b: bodyname
-    :param e: extention
-    :return: full_file_name
+    fullfilename = reset_ext("d:abcdef/fff.txt","dat")
+    fullfilename = reset_ext("d:abcdef/fff.txt",".dat")
     """
-    if (len(p)):
-        full_file_name = p
-    else:
-        full_file_name = ""
-    
-    i0 = hstr.such(e, ".")
-    
-    if (i0 >= 0):
-        ext = e[i0 + 1:]
-    else:
-        ext = e
-    
-    full_file_name = join(full_file_name, os.sep)
-    
-    full_file_name = os.path.join(full_file_name, b + "." + ext)
-    
-    return full_file_name
+    (path, filebody, ext_in) = get_pfe(fullfilename_in)
+
+    return set_pfe(path, filebody, ext)
+# end def
+# def set_pfe(p="", b="", e=""):
+#     """
+#
+#     :param p: path
+#     :param b: bodyname
+#     :param e: extention
+#     :return: full_file_name
+#     """
+#     if (len(p)):
+#         full_file_name = p
+#     else:
+#         full_file_name = ""
+#
+#     i0 = hstr.such(e, ".")
+#
+#     if (i0 >= 0):
+#         ext = e[i0 + 1:]
+#     else:
+#         ext = e
+#
+#     full_file_name = join(full_file_name, os.sep)
+#
+#     full_file_name = os.path.join(full_file_name, b + "." + ext)
+#
+#     return full_file_name
 
 
 def get_path_leaves(full_path_name, root_path_name):

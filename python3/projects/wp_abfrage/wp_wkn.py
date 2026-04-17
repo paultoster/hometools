@@ -20,30 +20,27 @@ import wp_abfrage.wp_storage as wp_storage
 
 WKN_NOT_FOUND = "wknnotfound"
 
-def wp_search_wkn(wkn,flag_json,wpname_isin_filename,basic_info_pre_file_name,store_path,wkn_isin_n_times,wkn_isin_sleep_time):
+def wp_search_wkn(wkn,wpname_isin_filename,formatpj,basic_info_pre_file_name,store_path,wkn_isin_n_times,wkn_isin_sleep_time):
     """
 
     :param wkn:
-    :param flag_json:
     :param wpname_isin_filename:
+    :param formatpj:
     :param basic_info_pre_file_name:
     :param store_path:
     :param wkn_isin_n_times:
     :param wkn_isin_sleep_time:
-    :return: (status,errtext,isin) = wp_search_wkn(wkn,flag_json,wpname_isin_filename,basic_info_pre_file_name,store_path,wkn_isin_n_times,wkn_isin_sleep_time)
+    :return: (status,errtext,isin) = wp_search_wkn(wkn,wpname_isin_filename,formatpj,basic_info_pre_file_name,store_path,wkn_isin_n_times,wkn_isin_sleep_time)
     """
-    (status,errtext,wp_isin_dict) = wp_storage.read_dict(wpname_isin_filename,
-                                                         flag_json,
-                                                         "",
-                                                         store_path)
+    (status,errtext,wp_isin_dict) = wp_storage.read_dict(wpname_isin_filename,formatpj)
 
     for isin in wp_isin_dict.keys():
 
+        file_name = wp_storage.build_file_name_json(basic_info_pre_file_name + isin,
+                                                    store_path)
 
-        (status,errtext,info_dict) = wp_storage.read_dict(isin,
-                                                          flag_json,
-                                                          basic_info_pre_file_name,
-                                                          store_path)
+        (status,errtext,info_dict) = wp_storage.read_dict(file_name,
+                                                          formatpj)
         
         if status != hdef.OKAY:
             return (status,errtext,None)
@@ -171,7 +168,7 @@ def wp_search_wpname(wpname, base_ddict):
 
 
 # end def
-def wp_search_wpname_in_comment(comment, flag_json,wpname_isin_filename,store_path):
+def wp_search_wpname_in_comment(comment, wpname_isin_filename,formatpj):
     '''
     
     Sucht
@@ -185,9 +182,7 @@ def wp_search_wpname_in_comment(comment, flag_json,wpname_isin_filename,store_pa
     isin = ""
 
     (stat, errt,wpname_isin_dict) = wp_storage.read_dict(wpname_isin_filename,
-                                                         flag_json,
-                                                         "",
-                                                         store_path)
+                                                         formatpj)
 
     if stat != hdef.OKAY:
         return (stat,errt,isin)

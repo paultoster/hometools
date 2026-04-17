@@ -28,14 +28,15 @@ import tools.hfkt_type as htype
 INI_DICT_PROOF_LISTE = [("store_path", "str"),
                         ("basic_info_pre_file_name", "str","str","wp_basic_info_data_"),
                         ("wpname_isin_filename", "str"),
-                        ("use_json", "int", "int",0),
                         ("wkn_isin_sleep_time", "int", "int", 10),
                         ("wkn_isin_n_times", "int", "int", 2),
                         ("ariva_user","str"),
                         ("ariva_pw","str"),
                         ("ariva_timeout_playright","int","int",10000),
                         ("boerse","str","str","xetra"),
+                        ("usdeuro_use_format", "int", "int",0),
                         ("usdeuro_pre_file_name", "str","str","usdeuro_data_"),
+                        ("price_volumen_use_format", "int", "int",0),
                         ("price_volumen_pre_file_name", "str","str","wp_price_volume_data_"),
                         ("price_volumen_first_dat","str","datStrP","01.01.2000")
                         ]
@@ -360,10 +361,10 @@ class WPData:
         # end if
 
 
-        (status, errtext) = wp_price_volume.update_last_price_volume_isin(wp_obj, isin_basic_dict, isin)
-        if status != hdef.OKAY:
-            return (status, errtext)
-        # end if
+        # (status, errtext) = wp_base_price_volume.update_last_price_volume_isin(self, isin_basic_dict, isin)
+        # if status != hdef.OKAY:
+        #     return (status, errtext)
+        # # end if
 
         return (status, errtext)
 

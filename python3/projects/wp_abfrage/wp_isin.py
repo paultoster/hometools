@@ -25,11 +25,12 @@ else:
 
 
 
-def get_basic_info(isin,flag_use_json,basic_info_pre_file_name,store_path):
+def get_basic_info(isin,file_name,formatpj):
     '''
     
     :param isin:
-    :param base_ddict:
+    :param file_name:
+    :param formatpj: 1: pickle, 2: json
     :return: (status, errtext, info_dict) = wp_isin.get_basic_info(isin,flag_use_json,basic_info_pre_file_name,store_path)
     '''
 
@@ -37,12 +38,11 @@ def get_basic_info(isin,flag_use_json,basic_info_pre_file_name,store_path):
     # ---------------------------------------------
     # basic info data einlesen wenn vorhanden
     # ---------------------------------------------
-    if wp_storage.info_storage_eixst(isin, flag_use_json,basic_info_pre_file_name,store_path):
+    if wp_storage.info_storage_eixst(file_name, formatpj):
+
         print(f"            ... lese File")
-        (status, errtext, info_dict) = wp_storage.read_dict(isin,
-                                                          flag_use_json,
-                                                          basic_info_pre_file_name,
-                                                          store_path)
+        (status, errtext, info_dict) = wp_storage.read_dict(file_name,
+                                                            formatpj)
         if status != hdef.OKAY:
             return (status,errtext,info_dict)
         # end if
@@ -50,10 +50,8 @@ def get_basic_info(isin,flag_use_json,basic_info_pre_file_name,store_path):
         (flag, info_dict) = update_info_dict_with_new_defaults(info_dict)
         if flag:
             (status, errtext) = wp_storage.save_dict( info_dict,
-                                                      isin,
-                                                      flag_use_json,
-                                                      basic_info_pre_file_name,
-                                                      store_path)
+                                                      file_name,
+                                                      formatpj)
             if status != hdef.OKAY:
                 return (status, errtext, info_dict)
             # end if
@@ -69,10 +67,8 @@ def get_basic_info(isin,flag_use_json,basic_info_pre_file_name,store_path):
         if status == hdef.OKAY:
             
             (status, errtext) = wp_storage.save_dict( info_dict,
-                                                      isin,
-                                                      flag_use_json,
-                                                      basic_info_pre_file_name,
-                                                      store_path)
+                                                      file_name,
+                                                      formatpj)
             print(f"info_dict: {info_dict}")
         else:
             print(f"errtext: {errtext}")

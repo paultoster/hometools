@@ -89,14 +89,13 @@ def get_number_of_data(wb_obj):
     firstdat = 0
     lastdat = 0
 
-    flag_use_json = (wb_obj.base_ddict["use_json"] == 2) or (wb_obj.base_ddict["use_json"] == 3)
 
+    file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["usdeuro_pre_file_name"] + wb_obj.par.HEADER_USDEURO_NAME,
+                                                wb_obj.base_ddict["store_path"])
 
-    (status,errtext,np_obj) = wp_storage.read_np_obj(wp_np_dc.NpUsdEuroClass,
-                                                     wb_obj.par.HEADER_USDEURO_NAME,
-                                                     flag_use_json,
-                                                     wb_obj.base_ddict["usdeuro_pre_file_name"],
-                                                     wb_obj.base_ddict["store_path"])
+    formatpj = int(wb_obj.base_ddict["usdeuro_use_format"]/10)
+
+    (status,errtext,np_obj) = wp_storage.read_np_obj(wp_np_dc.NpUsdEuroClass,file_name,formatpj)
     if status != hdef.OKAY:
         return (status, errtext, number, firstdat, lastdat)
     # end if
@@ -118,13 +117,14 @@ def update_with_np_obj_new(wb_obj,np_obj_new):
     status = hdef.OKAY
     errtext = ""
 
-    flag_use_json = (wb_obj.base_ddict["use_json"] == 2) or (wb_obj.base_ddict["use_json"] == 3)
+
+    file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["usdeuro_pre_file_name"] + wb_obj.par.HEADER_USDEURO_NAME,
+                                                wb_obj.base_ddict["store_path"])
+    formatpj = int(wb_obj.base_ddict["price_volumen_use_format"] % 10)
 
     (status,errtext,np_obj) = wp_storage.read_np_obj(wp_np_dc.NpUsdEuroClass,
-                                                     wb_obj.par.HEADER_USDEURO_NAME,
-                                                     flag_use_json,
-                                                     wb_obj.base_ddict["usdeuro_pre_file_name"],
-                                                     wb_obj.base_ddict["store_path"])
+                                                     file_name,
+                                                     formatpj)
     if status != hdef.OKAY:
         return (status, errtext)
     # end if
@@ -139,12 +139,11 @@ def update_with_np_obj_new(wb_obj,np_obj_new):
         return (status,errtext)
 
     flag_use_json = (wb_obj.base_ddict["use_json"] == 1) or (wb_obj.base_ddict["use_json"] == 3)
+    file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["usdeuro_pre_file_name"] + wb_obj.par.HEADER_USDEURO_NAME,
+                                                wb_obj.base_ddict["store_path"])
+    formatpj = int(wb_obj.base_ddict["usdeuro_use_format"] % 10)
 
-    wp_storage.save_np_obj(np_obj,
-                           wb_obj.par.HEADER_USDEURO_NAME,
-                           flag_use_json,
-                           wb_obj.base_ddict["usdeuro_pre_file_name"],
-                           wb_obj.base_ddict["store_path"])
+    wp_storage.save_np_obj(np_obj,file_name,formatpj)
 
     return (status,errtext)
 # end def
@@ -219,12 +218,14 @@ def get_from_start_dat_to_end_dat(wb_obj, start_dat, end_dat):
         # end if
     # end def
 
-    flag_use_json = (wb_obj.base_ddict["use_json"] == 2) or (wb_obj.base_ddict["use_json"] == 3)
+    file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["usdeuro_pre_file_name"] + wb_obj.par.HEADER_USDEURO_NAME,
+                                                wb_obj.base_ddict["store_path"])
+
+    formatpj = int(wb_obj.base_ddict["usdeuro_use_format"]/10)
+
     (status,errtext,np_obj) = wp_storage.read_np_obj(wp_np_dc.NpUsdEuroClass,
-                                                     wb_obj.par.HEADER_USDEURO_NAME,
-                                                     flag_use_json,
-                                                     wb_obj.base_ddict["usdeuro_pre_file_name"],
-                                                     wb_obj.base_ddict["store_path"])
+                                                     file_name,
+                                                     formatpj)
     if status != hdef.OKAY:
         return (status, errtext,None)
     # end if
@@ -238,9 +239,15 @@ def get_from_start_dat_to_end_dat(wb_obj, start_dat, end_dat):
 
     if (start_index is None) or (last_index is None):
         status = hdef.NOT_OKAY
-        file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["usdeuro_pre_file_name"] +
-                                                    wb_obj.par.HEADER_USDEURO_NAME,
-                                                    wb_obj.base_ddict["store_path"])
+        formatpj = int(wb_obj.base_ddict["usdeuro_use_format"] % 10)
+        if (formatpj == 1) or (formatpj == 3):
+            file_name = wp_storage.build_file_name_pickle(wb_obj.base_ddict["usdeuro_pre_file_name"] + wb_obj.par.HEADER_USDEURO_NAME,
+                                                        wb_obj.base_ddict["store_path"])
+        else:
+            file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["usdeuro_pre_file_name"] +
+                                                        wb_obj.par.HEADER_USDEURO_NAME,
+                                                        wb_obj.base_ddict["store_path"])
+        # end if
 
         errtext = f"Für Aulesen USD-Euro konnte in Datei {file_name} das Datum zwischen {start_dat = } und {end_dat = } konnte nicht gefunden werden."
     else:

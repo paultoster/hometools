@@ -2664,7 +2664,7 @@ def abfrage_liste_scroll(liste,comment=None,cols=70,rows=20,multi=0):
             ic = ic+1
             nliste.append(["%i"%ic,item])
         liste = nliste
-##        print "abfrage_liste.error: liste hat nicht das korrekte Format"
+##        print "abfrage_liste.error: liste hat nicht das korrekte formatpj"
 ##        print liste
 ##        return None
 

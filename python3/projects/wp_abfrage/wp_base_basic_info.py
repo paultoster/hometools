@@ -23,12 +23,7 @@ def get_isin_liste(wb_obj) -> (int, str, list):
     :param wb_obj:
     :return: (status, errtext, isin_liste) = wp_base_basic_info.get_isin_liste(wb_obj)
     """
-
-    status = hdef.OKAY
-    errtext = ""
-
-    (status ,errtext ,wpname_isin_dict) = wp_storage.read_wpname_isin_dict(wb_obj.base_ddict["wpname_isin_filename"],
-                                                                           wb_obj.base_ddict["store_path"])
+    (status ,errtext ,wpname_isin_dict) = get_wpname_isin_dict(wb_obj)
 
     if status == hdef.OKAY:
         isin_liste = list(wpname_isin_dict.keys())
@@ -45,14 +40,18 @@ def get_wpname_isin_dict(wb_obj) -> (int, str, dict):
 
     :return: (status, errtext, wpname_isin_dict) = get_wpname_isin_dict(wb_obj)
     '''
+    file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["wpname_isin_filename"],
+                                                wb_obj.base_ddict["store_path"])
 
-    (status, errtext, wpname_isin_dict) = wp_storage.read_wpname_isin_dict(wb_obj.base_ddict["wpname_isin_filename"],
-                                                                           wb_obj.base_ddict["store_path"])
+    format = 2  # 1: pickle, 2: json
+    (status, errtext, wpname_isin_dict) = wp_storage.read_dict(file_name, format)
 
     return (status, errtext, wpname_isin_dict)
 # end def
 def get(wb_obj, isin_input: str|list) -> (int,str,dict|list):
     """
+
+    get basic info for each isin
 
     :param wb_obj:
     :param isin_input:
@@ -82,12 +81,15 @@ def get(wb_obj, isin_input: str|list) -> (int,str,dict|list):
         print(f"Build basic_info from isin: {isin}:")
         start_time = time.time()
 
-        falg_use_json = (wb_obj.base_ddict["use_json"] == 2) or (wb_obj.base_ddict["use_json"] == 3)
-        (status, errtext, info_dict) = wp_isin.get_basic_info(isin,
-                                                              falg_use_json,
-                                                              wb_obj.base_ddict["basic_info_pre_file_name"],
-                                                              wb_obj.base_ddict["store_path"])
+        file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["basic_info_pre_file_name"] + isin,
+                                                    wb_obj.base_ddict["store_path"])
 
+        formatpj = 2
+        (status, errtext, info_dict) = wp_isin.get_basic_info(isin,
+                                                              file_name,
+                                                              formatpj)
+
+        # save(wb_obj, isin, info_dict)
         # ---------------------------------------------
         # Einzel dict info_dict in Liste einsortieren
         # ---------------------------------------------
@@ -149,12 +151,13 @@ def save(wb_obj, isin_input, basic_info_dict):
     # end if
 
     for i, isin in enumerate(isin_list):
-        use_jason = wb_obj.base_ddict["use_json"] == 1
 
-        (status, errtext) = wp_storage.save_dict(basic_info_dict_list[i], isin,
-                                                 use_jason,
-                                                 wb_obj.base_ddict["basic_info_pre_file_name"],
-                                                 wb_obj.base_ddict["store_path"])
+        file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["basic_info_pre_file_name"] + isin,
+                                                    wb_obj.base_ddict["store_path"])
+        formatpj = 3
+        (status, errtext) = wp_storage.save_dict(basic_info_dict_list[i],
+                                                 file_name,
+                                                 formatpj)
 
         if status != hdef.OKAY:
             return (status, errtext)
@@ -178,10 +181,13 @@ def process_isin_from_wkn(wb_obj, wkn):
     :param wkn:
     :return:  (status, errtext, isin) = process_isin_from_wkn(wb_obj,wkn)
     """
+    wpname_isin_filename = wp_storage.build_file_name_json( wb_obj.base_ddict["wpname_isin_filename"],
+                                                wb_obj.base_ddict["store_path"])
 
-    flag_json = (wb_obj.base_ddict["use_json"] == 2) or (wb_obj.base_ddict["use_json"] == 3)
+    formatpj = 2
     (status, errtext, isin) = wp_wkn.wp_search_wkn(wkn,
-                                                   flag_json,
+                                                   wpname_isin_filename,
+                                                   formatpj,
                                                    wb_obj.base_ddict["wpname_isin_filename"],
                                                    wb_obj.base_ddict["basic_info_pre_file_name"],
                                                    wb_obj.base_ddict["store_path"],
@@ -200,12 +206,13 @@ def find_wpname(wb_obj, comment):
     :param comment:
     :return: (status, errtext, isin) = find_wpname(wb_obj, comment)
     """
+    wpname_isin_filename = wp_storage.build_file_name_json( wb_obj.base_ddict["wpname_isin_filename"],
+                                                wb_obj.base_ddict["store_path"])
 
-    flag_json = (wb_obj.base_ddict["use_json"] == 2) or (wb_obj.base_ddict["use_json"] == 3)
+    formatpj = 2
     (status, errtext, isin) = wp_wkn.wp_search_wpname_in_comment(comment,
-                                                                flag_json,
-                                                                wb_obj.base_ddict["wpname_isin_filename"],
-                                                                 wb_obj.base_ddict["store_path"])
+                                                                 wpname_isin_filename,
+                                                                 formatpj)
 
     if status != hdef.OKAY:
         print(f"find_wpname_in_comment_get_isin not working errtext: {errtext}")
@@ -232,16 +239,15 @@ def process_isin_w_wpname_wkn(wb_obj,isin,wpname,wkn):
     if len(info_dict["name"]) == 0:
         flag = True
         info_dict["name"] = wpname
-
+    # end if
     if len(wkn) > 0:
         flag = True
         info_dict["wkn"] = wkn
-
+    # end if
     if flag:
-        flag_use_json = (wb_obj.base_ddict["use_json"] == 2) or (wb_obj.base_ddict["use_json"] == 3)
-        (status, errtext) = wp_storage.save_dict(isin,info_dict,
-                                                 flag_use_json,
-                                                 wb_obj.base_ddict["basic_info_pre_file_name"],
-                                                 wb_obj.base_ddict["store_path"])
-
+        file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["basic_info_pre_file_name"] + isin,
+                                                    wb_obj.base_ddict["store_path"])
+        formatpj = 2
+        (status, errtext) = wp_storage.save_dict(info_dict,file_name, formatpj)
+    # end if
     return (status,errtext)

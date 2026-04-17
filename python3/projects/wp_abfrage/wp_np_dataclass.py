@@ -25,11 +25,12 @@ class NpBaseClass:
         # end if
         return
     def to_dict(self):
-        class_vars = vars(self.class_def)  # get any "default" attrs defined at the class level
+        # class_vars = vars(self.class_def)  # get any "default" attrs defined at the class level
         inst_vars = vars(self)  # get any attrs defined on the instance (self)
-        all_vars = dict(class_vars)
-        all_vars.update(inst_vars)
+        # all_vars = dict(class_vars)
+        # all_vars.update(inst_vars)
         # filter out private attributes
+        all_vars = {k: v for k, v in inst_vars.items() if k != "class_def"}
         public_vars = {k: v for k, v in all_vars.items() if not k.startswith('_')}
         return public_vars
     # end def
@@ -37,7 +38,6 @@ class NpBaseClass:
         ddict = self.to_dict()
         ddict_trans = {}
         for key, value in ddict.items():
-
             if key in self.np_name_list:
                 ddict_trans[key] = [ddict[key].tolist(),ddict[key].shape]
             else:
@@ -51,7 +51,9 @@ class NpBaseClass:
         count = 0
         for key, value in ddict.items():
 
-            if key in self.np_name_list:
+            if (key == "np_name_list") or (key == "class_def"):
+                pass
+            elif key in self.np_name_list:
                 np_array = np.array(ddict[key][0]).reshape(ddict[key][1])
                 self.__setattr__(key, np_array)
                 count += 1

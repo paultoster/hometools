@@ -15,18 +15,21 @@ if (tools_path not in sys.path):
 # endif
 
 import tools.hfkt_def as hdef
-# import tools.hfkt_str as hstr
+import tools.hfkt_file_path as hfp
 
 from wp_abfrage import wp_fkt
 from wp_abfrage import wp_np_dataclass as wp_np_dc
 
-def info_storage_eixst(isin,flag_use_json,basic_info_pre_file_name,store_path):
+FORMAT_PICKLE = 1
+FORMAT_JSON   = 2
+FORMAT_BOTH   = 3
 
-    body = basic_info_pre_file_name + str(isin)
-    if flag_use_json:
-        file_name = build_file_name_json(body,store_path)
+def info_storage_eixst(file_name, formatpj):
+
+    if formatpj == FORMAT_PICKLE:
+        file_name = hfp.reset_ext(file_name, "pkl")
     else:
-        file_name = build_file_name_pickle(body,store_path)
+        file_name = hfp.reset_ext(file_name, "json")
     # end if
 
     if os.path.isfile(file_name):
@@ -35,37 +38,38 @@ def info_storage_eixst(isin,flag_use_json,basic_info_pre_file_name,store_path):
         return False
     # end if
 # end def
-def read_dict(name,flag_use_json,pre_file_name,store_path):
+def read_dict(file_name,formatpj):
     '''
     
-    :param name:
-    :param flag_use_json:
-    :param pre_file_name:
-    :param store_path:
-    :return: (status,errtext,ddict) = read_dict(name,flag_use_json,pre_file_name,store_path)
+    :param file_name:  Dateiname mit beliebige extension
+    :param formatpj:    1: pkl, 2: json
+    :return: (status,errtext,ddict) = read_dict(file_name,formatpj)
     '''
+    # (status ,errtext ,wpname_isin_dict) = wp_storage.read_dict(file_name_json,formatpj)
     status = hdef.OKAY
     errtext = ""
 
-    if flag_use_json:  # read json
-        
-        file_name = build_file_name_json(pre_file_name+name, store_path)
-        
+    if formatpj == FORMAT_JSON:  # read json
+
+        file_name = hfp.reset_ext(file_name, "json")
+        # Wenn die Datei vorhanden ist:
         if (os.path.isfile(file_name)):
             (status, errtext, ddict) = read_json(file_name)
         else:
             status = hdef.NOT_OKAY
             errtext = f"File {file_name} does not exist!"
-            return (status, errtext, {})
+            ddict = {}
         # end if
     
     else:  # normal pickle load
-        file_name = build_file_name_pickle(pre_file_name + str(name), store_path)
-        
+
+        file_name = hfp.reset_ext(file_name, "pkl")
         # Wenn die Datei vorhanden ist:
         if (os.path.isfile(file_name)):
             (status, errtext, ddict) = read_pickle(file_name)
         else:
+            status = hdef.NOT_OKAY
+            errtext = f"File {file_name} does not exist!"
             ddict = {}
         # endif
     
@@ -73,48 +77,79 @@ def read_dict(name,flag_use_json,pre_file_name,store_path):
     
     return (status,errtext,ddict)
 # end def
-def save_dict(ddict, name,flag_use_json,pre_file_name,store_path):
+def save_dict(ddict, file_name, format):
     '''
 
-    :param name:
     :param ddict:
-    :param flag_use_json:
-    :param pre_file_name:
-    :param store_path:
+    :param file_name:
+    :param format: 1: pkl, 2: json, 3=1+2
 
-    :return: (status, errtext) = wp_storage.save_dict(ddict, name, flag_use_json,pre_file_name,store_path)
+    :return: (status, errtext) = wp_storage.save_dict(ddict, file_name, format)
     '''
     status = hdef.OKAY
     errtext = ""
 
     # save pckl
-    file_name = build_file_name_pickle(pre_file_name + name,store_path)
+    if (format == FORMAT_PICKLE) or (format == FORMAT_BOTH):
 
-    (status, errtext) = save_pickle(ddict, file_name)
+        file_name = hfp.reset_ext(file_name, "pkl")
+        (status, errtext) = save_pickle(ddict, file_name)
+        if status != hdef.OKAY:
+            return (status, errtext)
+        # end if
+    # end if
 
-    if flag_use_json:  # write json
-        file_name = build_file_name_json(pre_file_name + name, store_path)
+    # save json
+    if (format == FORMAT_JSON) or (format == FORMAT_BOTH):
 
+        file_name = hfp.reset_ext(file_name, "json")
         (status, errtext) = save_json(ddict, file_name)
     # end if
 
     return (status, errtext)
-
-
 # end def
-def np_obj_storage_exist(name,flag_use_json,pre_file_name,store_path):
+def update_isin_name_dict(isin, wpname, file_name, formatpj):
+    '''
+
+    :param isin:
+    :param wpname:
+    :param base_ddict:
+    :return: (status, errtext) = update_isin_name_dict(isin,info_dict["name"],base_ddict)
+    '''
+
+    if info_storage_eixst(file_name, formatpj):
+
+        (status, errtext, wpname_dict) = read_dict(file_name, formatpj)
+        if (status != hdef.OKAY):
+            return (status, errtext)
+        # end if
+    else:
+        wpname_dict = {}
+    # end if
+
+    # set isin and name
+    if isin not in wpname_dict.keys():
+        print(f"add isin: {isin} und wpname: {wpname} zu wpname_dict[isin] = wpname")
+
+    wpname_dict[isin] = wpname
+
+    # Save Dict
+    (status, errtext) = save_dict(wpname_dict, file_name, formatpj)
+
+    return (status, errtext)
+
+
+def np_obj_storage_exist(file_name,formatpj):
     """
 
-    :param name:
-    :param flag_use_json:
-    :param pre_file_name:
-    :param store_path:
-    :return: flag = np_obj_storage_exist(name,flag_use_json,pre_file_name,store_path)
+    :param filename:
+    :param formatpj: 1: pkl, 2: json
+    :return: flag = np_obj_storage_exist(filename,formatpj)
     """
-    if flag_use_json:
-        file_name = build_file_name_json(pre_file_name + name, store_path)
+    if formatpj == FORMAT_PICKLE:
+        file_name = hfp.reset_ext(file_name, "pkl")
     else:
-        file_name = build_file_name_pickle(pre_file_name + name, store_path)
+        file_name = hfp.reset_ext(file_name, "json")
     # end if
 
     if os.path.isfile(file_name):
@@ -123,50 +158,27 @@ def np_obj_storage_exist(name,flag_use_json,pre_file_name,store_path):
         return False
     # end if
 # end def
-def read_np_obj(classdef,name,flag_use_json,pre_file_name,store_path):
+def read_np_obj(classdef,file_name,formatpj):
     """
 
-    :param name:
-    :param flag_use_json:
-    :param pre_file_name:
-    :param store_path:
-    :param classdef
-    :return: (status,errtext,ddict) = read_np_obj(classdef,name,flag_use_json,pre_file_name,store_path)
+    :param file_name:
+    :param formatpj: 1: pkl, 2: json
+    :return: (status,errtext,ddict) = read_np_obj(classdef,file_name,formatpj)
     """
     status = hdef.OKAY
     errtext = ""
 
     # Check ob existieret
-    flag = np_obj_storage_exist(name,
-                                flag_use_json,
-                                pre_file_name,
-                                store_path)
+    flag = np_obj_storage_exist(file_name,formatpj)
 
-    # Wenn es ein json Datei war und nicht gefunden, dann wird nachgeschaut ob pickle vorhanden
-    # Ansonsten bilde leeres objekt
+    # Wenn nicht existiert, dann Fehler
     if not flag:
-        if flag_use_json:
-            flagp = np_obj_storage_exist(name,
-                                         False,
-                                         pre_file_name,
-                                         store_path)
-
-            # wenn bereits ein pickle file besteht, dann Fehler ausgeben, da pickle nicht in json gewandelt wurde
-            if flagp:
-                status = hdef.NOT_OKAY
-                file_name = build_file_name_json(pre_file_name +
-                                                 name,
-                                                 store_path)
-
-                errtext = f"Error read_np_obj: Es besteht ein pickle-File aber das dazugehörige json-File {file_name = } existiert nicht"
-
-                return (status, errtext, None)
-            # end if
-        # end if
-        np_obj = classdef()
+        status = hdef.NOT_OKAY
+        errtext = f"Error read_np_obj: Es besteht kein File {file_name = }"
+        return (status, errtext, None)
     else:
         # lese dict-File
-        (status, errtext, ddict) = read_dict(name, flag_use_json, pre_file_name, store_path)
+        (status, errtext, ddict) = read_dict(file_name,formatpj)
         if (status != hdef.OKAY):
             return (status, errtext,None)
 
@@ -177,92 +189,57 @@ def read_np_obj(classdef,name,flag_use_json,pre_file_name,store_path):
 
     return (status,errtext,np_obj)
 # end def
-def save_np_obj(np_obj,name, flag_use_json, pre_file_name, store_path):
+def save_np_obj(np_obj,file_name,formatpj):
     """
 
-    :param name:
-    :param flag_use_json:
-    :param pre_file_name:
-    :param store_path:
     :param np_obj
-    :return: (status,errtext) = save_np_obj(np_obj,name,flag_use_json,pre_file_name,store_path)
+    :param file_name:
+    :param formatpj: 1: pkl, 2: json, 3=1+2
+    :return: (status,errtext) = save_np_obj(np_obj,file_name,formatpj)
     """
     # wandel zu dict
     ddict = np_obj.to_store_dict()
 
     # ddict speichern
-    (status, errtext) = save_dict(ddict,name, flag_use_json, pre_file_name, store_path)
+    (status, errtext) = save_dict(ddict,file_name,formatpj)
 
     return (status, errtext)
 # end def
-def read_wpname_isin_dict(wpname_isin_filename,store_path):
-    '''
-    
-    :param base_ddict:
-    :return:
-    '''#
-    status = hdef.OKAY
-    errtext = ""
-    
-    # file_name_pckl = build_file_name_pickle(base_ddict["wpname_isin_filename"], base_ddict)
-    file_name_json = build_file_name_json(wpname_isin_filename, store_path)
-
-    # Use always json
-    # if (base_ddict["use_json"] == 2):  # read json
-        
-    if (os.path.isfile(file_name_json)):
-        (status, errtext, wpname_dict) = read_json(file_name_json)
-    else:
-        status = hdef.NOT_OKAY
-        errtext = f"File {file_name_json} does not exist!"
-        return (status, errtext, {})
-    # end if
-    
-    # else:  # normal pickle load
-    #
-    #     # Wenn die Datei vorhanden ist:
-    #     if (os.path.isfile(file_name_pckl)):
-    #         (status, errtext, wpname_dict) = read_pickle(file_name_pckl)
-    #     else:
-    #         wpname_dict = {}
-    #     # endif
-    #
-    # # end if
-    return (status, errtext,wpname_dict)
-# end def
-def update_isin_name_dict(isin,wpname,wpname_isin_filename,store_path):
-    '''
-    
-    :param isin:
-    :param wpname:
-    :param base_ddict:
-    :return: (status, errtext) = update_isin_name_dict(isin,info_dict["name"],base_ddict)
-    '''
-    
-    (status, errtext,wpname_dict) = read_wpname_isin_dict(wpname_isin_filename,store_path)
-    
-    if( status != hdef.OKAY):
-        return (status, errtext)
-    # end if
-    
-    # set isin and name
-    if isin not in wpname_dict.keys():
-        print(f"add isin: {isin} und wpname: {wpname} zu wpname_dict[isin] = wpname")
-        
-    wpname_dict[isin] = wpname
-
-    # save always in json
-    #file_name_pckl = build_file_name_pickle(base_ddict["wpname_isin_filename"], base_ddict)
-    #(status, errtext) = save_pickle(wpname_dict, file_name_pckl)
-    
-    # if (base_ddict["use_json"] == 1):  # write json
-    file_name_json = build_file_name_json(wpname_isin_filename, store_path)
-    (status, errtext) = save_json(wpname_dict, file_name_json)
-    # end if
-    
-    return (status, errtext)
-
-
+# def read_wpname_isin_dict(wpname_isin_filename,store_path):
+#     '''
+#
+#     :param base_ddict:
+#     :return:
+#     '''#
+#     status = hdef.OKAY
+#     errtext = ""
+#
+#     # file_name_pckl = build_file_name_pickle(base_ddict["wpname_isin_filename"], base_ddict)
+#     file_name_json = build_file_name_json(wpname_isin_filename, store_path)
+#
+#     # Use always json
+#     # if (base_ddict["use_json"] == 2):  # read json
+#
+#     if (os.path.isfile(file_name_json)):
+#         (status, errtext, wpname_dict) = read_json(file_name_json)
+#     else:
+#         status = hdef.NOT_OKAY
+#         errtext = f"File {file_name_json} does not exist!"
+#         return (status, errtext, {})
+#     # end if
+#
+#     # else:  # normal pkl load
+#     #
+#     #     # Wenn die Datei vorhanden ist:
+#     #     if (os.path.isfile(file_name_pckl)):
+#     #         (status, errtext, wpname_dict) = read_pickle(file_name_pckl)
+#     #     else:
+#     #         wpname_dict = {}
+#     #     # endif
+#     #
+#     # # end if
+#     return (status, errtext,wpname_dict)
+# # end def
 def build_file_name_pickle(body, store_path):
     '''
 
@@ -312,7 +289,7 @@ def read_pickle(file_name):
         return (status, errtext, {})
     except Exception as e:
         status = hdef.NOT_OKAY
-        errtext = f"An error occurred while reading the file {file_name} with {traceback.format_exc(e)}"
+        errtext = f"An error occurred while reading the file {file_name} with {e}"
         return (status, errtext, {})
     # endtry
     
@@ -436,7 +413,7 @@ def save_json(ddict,file_name):
         return (status, errtext)
     except Exception as e:
         status = hdef.NOT_OKAY
-        errtext = f"An error occurred while reading the file {file_name} with {traceback.format_exc(e)}"
+        errtext = f"An error occurred while reading the file {file_name} with {e}"
         return (status, errtext)
     # end try
     return (status,errtext)
