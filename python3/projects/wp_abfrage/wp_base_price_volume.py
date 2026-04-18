@@ -219,7 +219,7 @@ def merge_np_data(np_obj,np_obj_new):
         np_dat_akt = np_obj.dat_np_array
         np_dat_new = np_obj_new.dat_np_array
 
-        half_day_seconds = 12 * 60 * 60
+        half_day_seconds = 24 * 60 * 60
         sort_index_list = wp_fkt.build_sort_list_of_index(list(np_dat_akt), list(np_dat_new), half_day_seconds)
 
         if len(sort_index_list):

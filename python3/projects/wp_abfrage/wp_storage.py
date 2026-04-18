@@ -174,7 +174,12 @@ def read_np_obj(classdef,file_name,formatpj):
     # Wenn nicht existiert, dann Fehler
     if not flag:
         status = hdef.NOT_OKAY
-        errtext = f"Error read_np_obj: Es besteht kein File {file_name = }"
+        if formatpj == FORMAT_PICKLE:
+            file_name = hfp.reset_ext(file_name, "pkl")
+        else:
+            file_name = hfp.reset_ext(file_name, "json")
+        # end if
+        errtext = f"read_np_obj(): Error read_np_obj: Es besteht kein File {file_name = }"
         return (status, errtext, None)
     else:
         # lese dict-File
@@ -477,12 +482,11 @@ def save_dict_file_pickle(data_ddict, filebodyname, store_path):
     # end if
     return
 # end def
-def read_usdeuro_ezb_xml(xmlfilename):
+def read_usdeuro_ezb_xml(classdef,xmlfilename):
     """
-
+    :param classdef
     :param xmlfilename:
-
-    :return: (status, errtext,np_obj) = read_usdeuro_ezb_xml(xmlfilename)
+    :return: (status, errtext,np_obj) = read_usdeuro_ezb_xml(classdef,xmlfilename)
 
     """
 
@@ -512,7 +516,10 @@ def read_usdeuro_ezb_xml(xmlfilename):
         return (status,errtext,None)
     # end if
 
-    return wp_fkt.build_usdeuro_np_obj_from_list(np_dat_list, np_usdeuro_liste)
 
+    np_dat_arr = np.array(np_dat_list, dtype=np.int64)
+    np_usdeuro_arr = np.array(np_usdeuro_liste, dtype=np.float64)
+
+    return classdef(np_dat_arr,np_usdeuro_arr)
 # end def
 

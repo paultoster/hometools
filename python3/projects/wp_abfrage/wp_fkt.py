@@ -20,12 +20,12 @@ if os.path.isfile('wp_base.py'):
     import wp_storage as wp_storage
     import wp_playwright as wp_pr
     import wp_isin as wp_isin
-    import wp_np_dataclass as wp_np_dc
+
 else:
     import wp_abfrage.wp_storage as wp_storage
     import wp_abfrage.wp_playwright as wp_pr
     import wp_abfrage.wp_isin as wp_isin
-    import wp_abfrage.wp_np_dataclass as wp_np_dc
+
 # end if
 
 FEIERTAGE_XETRA_LLISTE = [
@@ -165,45 +165,45 @@ def ist_kein_handestag(date_tuple,boerse):
     # end if
     return False
 # end def
-def build_overlap_dict_of_index(list1, list2,overlap):
+def build_overlap_dict_of_index(list1, list2,distbetween):
     """
-    Was ist aus Sicht liste1 (key=index1) gleich bzw. im Overlapbereich von liste2 (value=index2)
+    Was ist aus Sicht liste1 (key=index1) gleich bzw. im distbetween Bereich von liste2 (value=index2)
 
     :param list1: erste Liste mit Daten
     :param list2: zweite Liste mit Daten
-    :param overlap: overlap offset
-    :return: overlap_index_dict = build_index_class_of_euro_dict(list1,list2,overlap) => overlap_index_dict[key] = value key: index of liste1 value: index of liste2
+    :param distbetween: distbetween offset
+    :return: distbetween_index_dict = build_index_class_of_euro_dict(list1,list2,distbetween) => overlap_index_dict[key] = value key: index of liste1 value: index of liste2
     """
 
 
-    overlap_ndex_dict = {}
-
+    distbetween_ndex_dict = {}
+    distbetweenhalf = distbetween / 2
     index2 = 0
     n2 = len(list2)
 
     for index1, dat in enumerate(list1):
 
-        while (index2 < (n2-1)) and (dat > (list2[index2] + overlap)):
+        while (index2 < (n2-1)) and (dat > (list2[index2] + distbetweenhalf)):
             index2 += 1
         # end while
 
-        while (index2 > 0) and (dat < (list2[index2] - overlap)):
+        while (index2 > 0) and (dat < (list2[index2] - distbetweenhalf)):
             index2 -= 1
         # end while
 
-        if abs(dat - list2[index2]) < overlap:
-            overlap_ndex_dict[index1] = index2
+        if abs(dat - list2[index2]) < distbetweenhalf:
+            distbetween_ndex_dict[index1] = index2
             index2 += 1
         # end if
     # end for
     # print("overlap_ndex_dict:", overlap_ndex_dict)
-    return overlap_ndex_dict
+    return distbetween_ndex_dict
 # end def
-def build_sort_list_of_index(list1, list2,overlap):
+def build_sort_list_of_index(list1, list2,distbetween):
     """
     In welcher Reihen Folge werden liste1 und liste2 zusammengesetzt. Dabei gilt z.B datum von liste1 zuerst und Datum von liste2, wenn es in liste1 fehlt
     Ausgabe liste [(0 oder 1,index0,index1), ....]
-    z.B. liste1 = [1.0,2.0,4.0,5.0] liste2 = [2.0,3.0,4.0,5.0,6.0,7.0] overlap = 0.5
+    z.B. liste1 = [1.0,2.0,4.0,5.0] liste2 = [2.0,3.0,4.0,5.0,6.0,7.0] distbetween = 1.
     => sort_index_list = [(0,0,1),(1,1,1),(0,2,3),(1,4,5)]
         erster index steht für welche liste 0: liste1, 1:liste2
         zweiter index steht für ersten index aus der entspr. liste
@@ -212,8 +212,8 @@ def build_sort_list_of_index(list1, list2,overlap):
 
     :param list1: erste Liste mit Daten
     :param list2: zweite Liste mit Daten
-    :param overlap: overlap offset
-    :return: sort_index_list = build_sort_list_of_index(list1, list2,overlap)
+    :param distbetween: distance between each item
+    :return: sort_index_list = build_sort_list_of_index(list1, list2,distbetween)
     """
 
 
@@ -228,23 +228,24 @@ def build_sort_list_of_index(list1, list2,overlap):
 
     flag_run_liste1 = True
     flag_run_liste2 = True
+    distbetweenhalf = distbetween / 2
 
     while index1 < n1 and index2 < n2:
 
-        if flag_run_liste2 and (list2[index2]+overlap < list1[index1]):
+        if flag_run_liste2 and (list2[index2]+distbetweenhalf < list1[index1]):
             pre_sort_index_list.append((LIST2,index2))
             index2 += 1
-        elif flag_run_liste1 and (list1[index1]+overlap < list2[index2]):
+        elif flag_run_liste1 and (list1[index1]+distbetweenhalf < list2[index2]):
             pre_sort_index_list.append((LIST1,index1))
             index1 += 1
-        elif abs(list1[index1] - list2[index2]) <= overlap:
+        elif abs(list1[index1] - list2[index2]) <= distbetweenhalf:
             pre_sort_index_list.append((LIST1,index1))
             index1 += 1
             index2 += 1
-        elif flag_run_liste2 and (list2[index2] > list1[index1] + overlap):
+        elif flag_run_liste2 and (list2[index2] > list1[index1] + distbetweenhalf):
             pre_sort_index_list.append((LIST2, index2))
             index2 += 1
-        elif flag_run_liste1 and (list1[index1] > list2[index2]+overlap):
+        elif flag_run_liste1 and (list1[index1] > list2[index2]+distbetweenhalf):
             pre_sort_index_list.append((LIST1,index1))
             index1 += 1
         # end if
@@ -380,7 +381,7 @@ def merge_usdeuro_dfnew_to_df(df,df_new, dat_name,usdeuro_name):
     np_dat_akt = df[dat_name].to_numpy()
     np_dat_new = df_new[dat_name].to_numpy()
 
-    half_day_seconds = 12 * 60 * 60
+    half_day_seconds = 24 * 60 * 60
     sort_index_list = build_sort_list_of_index(list(np_dat_akt), list(np_dat_new), half_day_seconds)
 
     if len(sort_index_list):
@@ -440,36 +441,6 @@ def get_usdeuro_df_with_dat(df,first_dat,last_dat,dat_name,usdeuro_name):
     # end if
     return (status,errtext,dfpart,first_df_dat,last_dat,first_df_dat,last_df_dat)
 # end def
-def build_usdeuro_np_obj_from_list(np_dat_list, np_usdeuro_liste):
-    """
-
-    :param np_dat_list:
-    :param np_usdeuro_liste:
-    :return:
-    """
-    status = hdef.OKAY
-    errtext = ""
-
-    np_dat_arr = np.array(np_dat_list, dtype=np.int64)
-    np_usdeuro_arr = np.array(np_usdeuro_liste, dtype=np.float64)
-
-    return build_usdeuro_np_obj_from_np_array(np_dat_arr, np_usdeuro_arr)
-# end def
-def build_usdeuro_np_obj_from_np_array(np_dat_arr, np_usdeuro_arr):
-    """
-
-    :param np_dat_list:
-    :param np_usdeuro_liste:
-    :return:
-    """
-    status = hdef.OKAY
-    errtext = ""
-
-    np_obj = wp_np_dc.NpUsdEuroClass(np_dat_arr, np_usdeuro_arr)
-
-    return (status,errtext,np_obj)
-# end def
-
 ###########################################################################
 # testen mit main
 ###########################################################################
@@ -481,7 +452,7 @@ if __name__ == '__main__':
 
     liste1 = [11.0, 12.0, 14.0, 15.0]
     liste2 = [1.0,2.0, 9.0,13.0, 14.0, 15.0, 16.0, 17.0]
-    distbetween = 0.5
+    distbetween = 1
 
     print(f"{liste1 = }")
     print(f"{liste2 = }")

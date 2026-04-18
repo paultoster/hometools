@@ -64,6 +64,13 @@ def get_price_volume_data(ticker,classdef,start_dat,end_dat):
     close_np_array = df_data["Close"].to_numpy()
     volume_np_array = df_data["Volume"].to_numpy()
 
+    dat_np_array   = dat_np_array.reshape(np.prod(dat_np_array.shape))
+    open_np_array   = open_np_array.reshape(np.prod(open_np_array.shape))
+    high_np_array   = high_np_array.reshape(np.prod(high_np_array.shape))
+    low_np_array   = low_np_array.reshape(np.prod(low_np_array.shape))
+    close_np_array   = close_np_array.reshape(np.prod(close_np_array.shape))
+    volume_np_array   = volume_np_array.reshape(np.prod(volume_np_array.shape))
+
     np_obj.from_np_array_list([dat_np_array,
                                open_np_array,
                                high_np_array,
@@ -173,12 +180,11 @@ def get_price_volume_data(ticker,classdef,start_dat,end_dat):
 #
 #     return (status, errtext, df_data)
 # # end def
-def get_usdeuro_data(start_dat, end_dat):
+def get_usdeuro_data(classdef,start_dat, end_dat):
     """
-    (status, errtext, np_obj) = wp_yfinance.get_usdeuro_data(lastdat,end_dat)
-    (status, errtext, df_data) = get_usdeuro_data(start_dat_time_list, end_dat_time_list)
+    (status, errtext, np_obj) = wp_yfinance.get_usdeuro_data(classdef,lastdat,end_dat)
     """
-    # status = hdef.OKAY
+    status = hdef.OKAY
     errtext = ""
 
     # Start time
@@ -202,7 +208,10 @@ def get_usdeuro_data(start_dat, end_dat):
     euro_dat_np_array = np.array(htype.type_transform_direct(date_str_list, "datStrP", "dat"), copy=True)
     euro_close_np_array = df_data_eurodol["Close"].to_numpy()
 
-    (status, errtext, np_obj) = wp_fkt.build_usdeuro_np_obj_from_np_array(euro_dat_np_array, euro_close_np_array)
+    euro_dat_np_array   = euro_dat_np_array.reshape(np.prod(euro_dat_np_array.shape))
+    euro_close_np_array = euro_close_np_array.reshape(np.prod(euro_close_np_array.shape))
+
+    np_obj = classdef(euro_dat_np_array,euro_close_np_array)
 
     return (status, errtext, np_obj)
 # end def

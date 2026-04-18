@@ -26,7 +26,7 @@ def process_ezb_xml(wb_obj: wp_base.WPData,xmlfilename: str) -> (int,str):
     :return: (status,errtext) = wp_base_usdeuro.process_ezb_xml(wb_obj ,xmlfilename
     """
 
-    (status, errtext, np_obj_new) = wp_storage.read_usdeuro_ezb_xml(xmlfilename)
+    (status, errtext, np_obj_new) = wp_storage.read_usdeuro_ezb_xml(wp_np_dc.NpUsdEuroClass,xmlfilename)
     if status != hdef.OKAY:
         return (status, errtext)
 
@@ -68,7 +68,7 @@ def process_start_end_dat(wb_obj,lastdat,end_dat):
     """
 
 
-    (status, errtext, np_obj) = wp_yfinance.get_usdeuro_data(lastdat,end_dat)
+    (status, errtext, np_obj) = wp_yfinance.get_usdeuro_data(wp_np_dc.NpUsdEuroClass,lastdat,end_dat)
 
     if status != hdef.OKAY:
         return (status, errtext)
@@ -120,7 +120,7 @@ def update_with_np_obj_new(wb_obj,np_obj_new):
 
     file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["usdeuro_pre_file_name"] + wb_obj.par.HEADER_USDEURO_NAME,
                                                 wb_obj.base_ddict["store_path"])
-    formatpj = int(wb_obj.base_ddict["price_volumen_use_format"] % 10)
+    formatpj = int(wb_obj.base_ddict["usdeuro_use_format"] / 10)
 
     (status,errtext,np_obj) = wp_storage.read_np_obj(wp_np_dc.NpUsdEuroClass,
                                                      file_name,
@@ -138,7 +138,6 @@ def update_with_np_obj_new(wb_obj,np_obj_new):
     if status != hdef.OKAY:
         return (status,errtext)
 
-    flag_use_json = (wb_obj.base_ddict["use_json"] == 1) or (wb_obj.base_ddict["use_json"] == 3)
     file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["usdeuro_pre_file_name"] + wb_obj.par.HEADER_USDEURO_NAME,
                                                 wb_obj.base_ddict["store_path"])
     formatpj = int(wb_obj.base_ddict["usdeuro_use_format"] % 10)
@@ -162,7 +161,7 @@ def merge_usdeuro_np_obj_new_to_np_obj(np_obj,np_obj_new):
     np_dat_akt = np_obj.dat_np_array
     np_dat_new = np_obj_new.dat_np_array
 
-    half_day_seconds = 12 * 60 * 60
+    half_day_seconds = 24 * 60 * 60
     sort_index_list = wp_fkt.build_sort_list_of_index(list(np_dat_akt), list(np_dat_new), half_day_seconds)
 
     if len(sort_index_list):
