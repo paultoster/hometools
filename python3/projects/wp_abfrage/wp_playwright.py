@@ -16,32 +16,49 @@ def get_ariva_url_playwright(isin):
     
     icount = 0
     url = ""
-    TimeoutTime = 1000000000
+    tTime = 10000
+    pTime = 10
+
     while (icount < 2) and (status != hdef.OKAY):
         
         try:
             with sync_playwright() as playwright:
                 
-                browser = playwright.chromium.launch(headless=False)
+                browser = playwright.chromium.launch(headless=False,slow_mo=500)
                 context = browser.new_context()
                 page = context.new_page()
                 page.goto("https://www.ariva.de/")
 
-                page.locator("iframe[title=\"SP Consent Message\"]").content_frame.get_by_role("button",
-                                                                                           name="Akzeptieren und weiter").click()
+                print(f"get_ariva_url_playwright: Akzeptieren und weiter (sleep:{pTime} s)")
+                time.sleep(pTime)
 
-                page.get_by_role("button", name="Suche öffnen").click(timeout=TimeoutTime)
+                try:
+                    page.locator("iframe[title=\"SP Consent Message\"]").content_frame.get_by_role("button",
+                                                                                                   name="Akzeptieren und weiter").click()
+                    print(f"get_ariva_url_playwright: Nach Akzeptieren und weiter (sleep:{pTime} s)")
+                    time.sleep(pTime)
+                except:
+                    print(f"get_ariva_url_playwright: First pass  Akzeptieren und weiter")
+                    pass
+                # end try
+
+                print("get_ariva_url_playwright: Suche öffnen")
+                page.get_by_role("button", name="Suche öffnen").click()
                 page.get_by_test_id("search-dialog-input").fill(isin)
                 page.get_by_test_id("search-dialog-input").press("Enter")
 
-                # ppage = page.locator("div[class=snapshotName]")
-                # page.get_by_role("textbox", name="Name / WKN / ISIN").click()
-                # page.get_by_role("textbox", name="Name / WKN / ISIN").fill(f"{isin}")
-                # page.get_by_role("textbox", name="Name / WKN / ISIN").press("Enter")
-            
-                title = page.title()
-                
-                time.sleep(5)
+                try:
+                    page.locator("iframe[title=\"SP Consent Message\"]").content_frame.get_by_role("button",
+                                                                                                   name="Akzeptieren und weiter").click()
+                    print(f"get_ariva_url_playwright: Nach Akzeptieren und weiter (sleep:{pTime} s)")
+                    time.sleep(pTime)
+                except:
+                    print(f"get_ariva_url_playwright: Second pass  Akzeptieren und weiter")
+                    pass
+                # end try
+
+                print(f"get_ariva_url_playwright: page.url (sleep:{pTime} s)")
+                time.sleep(pTime)
                 url = page.url
                 
                 # ---------------------
@@ -51,7 +68,8 @@ def get_ariva_url_playwright(isin):
             # end with
         except:
             icount += 1
-            time.sleep(5)
+            print(f"get_ariva_url_playwright: while-Schleife (sleep:{pTime} s)")
+            time.sleep(pTime)
         # end try
         
         if icount >= 2:
@@ -66,6 +84,87 @@ def get_ariva_url_playwright(isin):
     # end while
     
     return (status,errtext,url)
+# end def
+def get_onvista_url_playwright(isin):
+    """
+
+
+    """
+    status = hdef.NOT_FOUND
+    errtext = ""
+
+    icount = 0
+    url = ""
+    tTime = 10000
+    pTime = 10
+
+    while (icount < 2) and (status != hdef.OKAY):
+
+        try:
+            with sync_playwright() as playwright:
+
+                browser = playwright.chromium.launch(headless=False, slow_mo=500)
+                context = browser.new_context()
+                page = context.new_page()
+                page.goto("https://www.onvista.de/")
+
+                print(f"get_onvista_url_playwright: Akzeptieren und weiter (sleep:{pTime} s)")
+                time.sleep(pTime)
+
+                try:
+                    page.locator("#sp_message_iframe_1441229").nth(1).content_frame.get_by_role("button",
+                                                                                                name="Akzeptieren").click()
+                    print(f"get_onvista_url_playwright: Nach Akzeptieren und weiter (sleep:{pTime} s)")
+                    time.sleep(pTime)
+                except:
+                    print(f"get_onvista_url_playwright: First pass  Akzeptieren und weiter")
+                    pass
+                # end try
+
+                print("get_onvista_url_playwright: Suche öffnen")
+                page.get_by_role("textbox", name="Suche …").click()
+                page.get_by_role("textbox", name="Suche …").fill(isin)
+                page.get_by_role("textbox", name="Suche …").press("Enter")
+
+                try:
+                    page.locator("#sp_message_iframe_1441229").nth(1).content_frame.get_by_role("button",
+                                                                                                name="Akzeptieren").click()
+                    print(f"get_onvista_url_playwright: Nach Akzeptieren und weiter (sleep:{pTime} s)")
+                    time.sleep(pTime)
+                except:
+                    print(f"get_onvista_url_playwright: Second pass  Akzeptieren und weiter")
+                    pass
+                # end try
+
+                print(f"get_onvista_url_playwright: page.url (sleep:{pTime} s)")
+                time.sleep(pTime)
+                url = page.url
+
+                # ---------------------
+                context.close()
+                browser.close()
+
+            # end with
+        except:
+            icount += 1
+            print(f"get_onvista_url_playwright: while-Schleife (sleep:{pTime} s)")
+            time.sleep(pTime)
+        # end try
+
+        if icount >= 2:
+            status = hdef.NOT_FOUND
+            errtext = f"get_onvista_url_playwright: icount = {icount} playwright hat nicht funktioniert"
+        elif len(url) > 10:
+            status = hdef.OKAY
+        else:
+            status = hdef.NOT_FOUND
+            errtext = f"get_onvista_url_playwright: url = {url} ist kleiner 10 Zeichen"
+        # end if
+    # end while
+
+    return (status, errtext, url)
+
+
 # end def
 def get_price_volume_data(ariva_user,ariva_pw,ariva_timeout_playright,isin,datStrFirst,datStrLast):
     """
@@ -163,18 +262,49 @@ def get_price_volume_data(ariva_user,ariva_pw,ariva_timeout_playright,isin,datSt
 # end def
 
 if __name__ == '__main__':
-    (status,errtext,url) = get_ariva_url_playwright("NO0010844079")
-    if status == hdef.OKAY:
-        print(f"{url = } ")
+
+    itest = 2
+
+    # end with
+
+    isin = "AU3TB0000192"
+    if itest == 1:
+
+        (status,errtext,url) = get_ariva_url_playwright(isin)
+        if status == hdef.OKAY:
+            print(f"{url = } ")
+        else:
+            print(f"{errtext =} ")
+        # end if
+    elif itest == 2:
+
+        from bs4 import BeautifulSoup as bs
+        import urllib.request
+        import codecs
+
+        (status,errtext,url) = get_onvista_url_playwright(isin)
+        if status == hdef.OKAY:
+            print(f"{url = } ")
+        else:
+            print(f"{errtext =} ")
+        # end if
+
+        newpage = urllib.request.urlopen(url)
+        soup = bs(newpage, 'html.parser')
+
+        with codecs.open('output_onvista.txt', 'w', 'utf-8') as f:
+            f.write(soup.__str__())
+
+
     else:
-        print(f"{errtext =} ")
-    (status,errtext,csv_filename) = get_price_volume_data("PaulToster",
-                                                           "RLj+onx,!aJL?|3y:UOE",
-                                                           10000,
-                                                           "NO0010844079",
-                                                           "01.01.2000",
-                                                           "17.02.2026")
-    if status == hdef.OKAY:
-        print(f"{csv_file = } {os.psth.isfile(csv_filename) = } ")
-    else:
-        print(f"{errtext =} ")
+        (status,errtext,csv_filename) = get_price_volume_data("PaulToster",
+                                                               "RLj+onx,!aJL?|3y:UOE",
+                                                               10000,
+                                                               "NO0010844079",
+                                                               "01.01.2000",
+                                                               "17.02.2026")
+        if status == hdef.OKAY:
+            print(f"{csv_file = } {os.psth.isfile(csv_filename) = } ")
+        else:
+            print(f"{errtext =} ")
+    # end if

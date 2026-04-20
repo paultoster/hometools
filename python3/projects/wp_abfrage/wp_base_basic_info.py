@@ -15,6 +15,7 @@ from wp_abfrage import wp_storage
 from wp_abfrage import wp_fkt
 from wp_abfrage import wp_isin
 from wp_abfrage import wp_wkn
+from wp_abfrage import wp_basic_info_internet
 
 
 def get_isin_liste(wb_obj) -> (int, str, list):
@@ -51,7 +52,7 @@ def get_wpname_isin_dict(wb_obj) -> (int, str, dict):
 def get(wb_obj, isin_input: str|list) -> (int,str,dict|list):
     """
 
-    get basic info for each isin
+    get basic info for each isin 1) find if stored 2) search with extraETF, ...
 
     :param wb_obj:
     :param isin_input:
@@ -81,15 +82,24 @@ def get(wb_obj, isin_input: str|list) -> (int,str,dict|list):
         print(f"Build basic_info from isin: {isin}:")
         start_time = time.time()
 
-        file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["basic_info_pre_file_name"] + isin,
-                                                    wb_obj.base_ddict["store_path"])
+        # Lade von Datei
+        (status, errtext, info_dict) = get_from_file(wb_obj,isin)
 
-        formatpj = 2
-        (status, errtext, info_dict) = wp_isin.get_basic_info(isin,
-                                                              file_name,
-                                                              formatpj)
+        if status == hdef.NOT_FOUND:
 
-        # save(wb_obj, isin, info_dict)
+            # Suche im Internet
+            (status, errtext, info_dict) = wp_basic_info_internet.search(isin)
+
+            if status == hdef.OKAY:
+
+                (status, errtext) = save(wb_obj,isin, info_dict)
+                print(f"info_dict: {info_dict}")
+            # end if
+        # end if
+
+        end_time = time.time()
+        print('Execution time: ', end_time - start_time, ' s')
+
         # ---------------------------------------------
         # Einzel dict info_dict in Liste einsortieren
         # ---------------------------------------------
@@ -99,8 +109,6 @@ def get(wb_obj, isin_input: str|list) -> (int,str,dict|list):
             return (status, errtext, None)
         # end if
 
-        end_time = time.time()
-        print('Execution time: ', end_time - start_time, ' s')
     # end for
 
     if isin_input_is_list:
@@ -115,14 +123,49 @@ def get(wb_obj, isin_input: str|list) -> (int,str,dict|list):
 
     return (status, errtext, output)
 # end def
+def  get_from_file(wb_obj,isin):
+    """
+        (status, errtext, info_dict) = get_from_file(wb_obj,isin)
+    """
+    file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["basic_info_pre_file_name"] + isin,
+                                                wb_obj.base_ddict["store_path"])
+
+    formatpj = 2
+
+    if wp_storage.info_storage_eixst(file_name, formatpj):
+
+        print("            ... lese File")
+        (status, errtext, info_dict) = wp_storage.read_dict(file_name,
+                                                            formatpj)
+        if status != hdef.OKAY:
+            return (status,errtext,info_dict)
+        # end if
+
+        (flag, info_dict) = update_info_dict_with_new_defaults(info_dict)
+        if flag:
+            (status, errtext) = wp_storage.save_dict( info_dict,
+                                                      file_name,
+                                                      formatpj)
+            if status != hdef.OKAY:
+                return (status, errtext, info_dict)
+            # end if
+        # end if
+
+    else:
+        status = hdef.NOT_FOUND
+        errtext = ""
+    # end if
+
+    return (status, errtext, info_dict)
+# end def
 def save(wb_obj, isin_input, basic_info_dict):
     """
 
     :param wb_obj:
     :param isin_input:
     :param basic_info_dict:
-    :return: (status, errtext) = save(isin_liste, basic_info_dict_liste)
-             (status, errtext) = save_basic_info(isin, basic_info_dict)
+    :return: (status, errtext) = save(wb_obj,isin_liste, basic_info_dict_liste)
+             (status, errtext) = save(wb_obj,isin, basic_info_dict)
     """
 
     # -----------------------------------------------------------
@@ -251,3 +294,26 @@ def process_isin_w_wpname_wkn(wb_obj,isin,wpname,wkn):
         (status, errtext) = wp_storage.save_dict(info_dict,file_name, formatpj)
     # end if
     return (status,errtext)
+# end def
+def update_info_dict_with_new_defaults(info_dict):
+    '''
+
+    :param info_dict:
+    :return: (flag,info_dict) = update_info_dict_with_new_defaults(info_dict)
+    '''
+    flag = False
+    default_dict = wp_basic_info_internet.get_default_info_dict(info_dict["isin"])
+
+    for key in default_dict.keys():
+        if key not in info_dict.keys():
+            info_dict[key] = default_dict[key]
+            flag = True
+        # end if
+    # end for
+
+    # sortieren
+    for key in default_dict.keys():
+        default_dict[key] = info_dict[key]
+
+    return (flag, default_dict)
+# end def
