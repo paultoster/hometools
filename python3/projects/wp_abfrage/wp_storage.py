@@ -336,7 +336,7 @@ def read_json(file_name):
         return (status, errtext, {})
     except Exception as e:
         status = hdef.NOT_OKAY
-        errtext = f"An error occurred while reading the file {file_name} with {traceback.format_exc(e)}"
+        errtext = f"An error occurred while reading the file {file_name} with {e}"
         return (status, errtext, {})
     # endtry
     

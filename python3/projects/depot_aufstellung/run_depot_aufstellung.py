@@ -30,6 +30,17 @@ from tools import sgui_protocol_class as sgui_prot
 
 @dataclass
 class RootData:
+    """!
+    RootData Klassendefinition
+    gui: Klasse für Gui-Handling
+    par: Parameter
+    log: log-Klasse zum Kommentar/Error/Warning-loggen
+    ini: ini-File einlesen
+    iban: iban handling Klasse
+    konto_dict: dictionary für jedes Konto
+    csv_dict: dictionary für jedes EInlesen für ein Konto
+    depot_dict: dictionary für Depot ausfstellung
+    """
     gui = None
     par: depot_par.Parameter = field(default_factory=depot_par.Parameter)
     log: hlog.log = field(default_factory=hlog.log)
@@ -44,7 +55,15 @@ class RootData:
 
 
 def depot_aufstellung(log_filename,ini_filename):
+    """!
+    Basis-Funktion zum
+    - Erstellen RootData
+    - gui anlegen mit sgui_prot.SguiProtocol()
+    - log anlegen mit hlog.log(log_filename,rd.gui)
+    - par einlesen
+    - ini einlesen und rd.ini.ddict erstellen
 
+    """
     rd = RootData
 
     rd.gui = sgui_prot.SguiProtocol()

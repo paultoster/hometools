@@ -44,17 +44,20 @@ key = find_first_key_dict_value(ddict,value) if not in value = None
 
 """
 import os
+import openpyxl
 
 if os.path.isfile('hfkt_def.py'):
     import hfkt_def as hdef
     import hfkt_type as htype
     import hfkt_dict as hdict
     import hfkt_tvar as htvar
+    import hfkt_file_path as hfp
 else:
     import tools.hfkt_def as hdef
     import tools.hfkt_type as htype
     import tools.hfkt_dict as hdict
     import tools.hfkt_tvar as htvar
+    import tools.hfkt_file_path as hfp
 # end if
 
 
@@ -272,3 +275,37 @@ def add_dict_to_dict(dict_base,dict_add):
     
     return dict_base
 # end def
+def write_dict_list_in_ods_table(dict_list,titlename,filename):
+    """
+    :param dict_list: list aof dictionaries with key and value as string, interger or float
+    :param filename:  Filename
+    :return: (status,errtext) = write_dict_list_in_ods_table(dict_list,filename)
+    """
+
+    status = hdef.OKAY
+    errtext = ""
+
+    # start ods-Output
+    workbook = openpyxl.Workbook()
+
+    worksheet = workbook.active
+
+    worksheet.title = titlename
+
+    row_num = 1
+    for i,header in enumerate(dict_list[0].keys()):
+        col_num = i+1
+        worksheet.cell(row=row_num,column=col_num,value=header)
+    # end if
+    for ddict in dict_list:
+        row_num += 1
+        for i,data in enumerate(ddict.values()):
+            col_num = i + 1
+            worksheet.cell(row=row_num, column=col_num, value=data)
+        # end for
+    # end for
+    file_name = hfp.reset_ext(filename, "excel")
+    workbook.save(file_name)
+
+    return (status,errtext,file_name)
+# ed def

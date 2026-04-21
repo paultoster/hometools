@@ -21,7 +21,7 @@ else:
 # end if
 
 
-def search(isin):
+def search(isin,url_ariva="",url_onvista=""):
     '''
     
     :param isin:
@@ -30,7 +30,8 @@ def search(isin):
 
     info_dict = get_default_info_dict(isin)
 
-    print(f"            versuche extraetf_ETF")
+    print(f"Suche basict_infos für ISIN: {isin}, {url_ariva = }, {url_onvista = }")
+    print("            versuche extraetf_ETF")
     (status, errtext, info_dict) = extraetf_ETF(isin, info_dict)
 
     if status == hdef.NOT_FOUND:
@@ -44,39 +45,53 @@ def search(isin):
         print(f"            versuche extraetf_Fond")
         info_dict = get_default_info_dict(isin)
         (status, errtext, info_dict) = extraetf_Fond(isin, info_dict)
-
-
-    # suche ariva-Webseite
-    (stat, errtext, url) = wp_pr.get_ariva_url_playwright(isin)
-    if stat == hdef.OKAY and status == hdef.OKAY:
-        info_dict["url_ariva"] = url
     # end if
 
-    if stat == hdef.OKAY and status == hdef.NOT_FOUND:
+    # Suche mit playwright die Webseite, wenn noch keine Info da oder
+    # angefordert mit flag ariva-Webseite
+    if len(url_ariva)==0:
+
+        # suche ariva-Webseite
+        (stat, errtext, url_ariva) = wp_pr.get_ariva_url_playwright(isin)
+        if stat == hdef.OKAY:
+            info_dict["url_ariva"] = url_ariva
+        # end if
+    # end if
+    if status == hdef.NOT_FOUND:
 
         print(f"            versuche ariva")
         info_dict = get_default_info_dict(isin)
-        (status, errtext, info_dict) = ariva_anleihe(isin,url, info_dict)
+        (status, errtext, info_dict) = ariva_anleihe(isin,url_ariva, info_dict)
         if status == hdef.OKAY:
-            info_dict["url_ariva"] = url
+            info_dict["url_ariva"] = url_ariva
+        # end if
+    else:
+        info_dict["url_ariva"] = url_ariva
+    # end if
+
+    # Suche mit playwright die Webseite, wenn noch keine Info da oder
+    # angefordert mit flag auf onvista-Webseite
+    if len(url_onvista) == 0:
+
+        # suche onvista-Webseite
+        (stat, errtext, url_onvista) = wp_pr.get_onvista_url_playwright(isin)
+        if stat == hdef.OKAY:
+            info_dict["url_onvista"] = url_onvista
         # end if
     # end if
 
-    (stat, errtext, url) = wp_pr.get_onvista_url_playwright(isin)
-    if stat == hdef.OKAY and status == hdef.OKAY:
-        info_dict["url_onvista"] = url
-    # end if
-
-    if stat == hdef.OKAY and status == hdef.NOT_FOUND:
+    if status == hdef.NOT_FOUND:
 
         print(f"            versuche onvista")
         info_dict = get_default_info_dict(isin)
-        (status, errtext, info_dict) = onvista(isin,url, info_dict)
+        (status, errtext, info_dict) = onvista(isin,url_onvista, info_dict)
         if status == hdef.OKAY:
-            info_dict["url_ariva"] = url
+            info_dict["url_ariva"] = url_ariva
+            info_dict["url_onvista"] = url_onvista
         # end if
+    else:
+        info_dict["url_onvista"] = url_onvista
     # end if
-
 
     return (status, errtext, info_dict)
 # end def
@@ -482,7 +497,7 @@ def extraetf_Fond(isin, info_dict):
 
 # end def
 
-def ariva_anleihe(isin_, url, info_dict):
+def ariva_anleihe(isin, url, info_dict):
     status = hdef.OKAY
     errtext = ""
 
@@ -490,10 +505,10 @@ def ariva_anleihe(isin_, url, info_dict):
         newpage = urllib.request.urlopen(url)
     except urllib.error.HTTPError as e:
         status = hdef.NOT_FOUND
-        errtext = f"ariva_anleihe isin: {isin_} Error code: {e.code}"
+        errtext = f"ariva_anleihe isin: {isin} Error code: {e.code}"
     except urllib.error.URLError as e:
         status = hdef.NOT_FOUND
-        errtext = f"ariva_anleihe isin: {isin_} Reason: {e.reason}"
+        errtext = f"ariva_anleihe isin: {isin} Reason: {e.reason}"
     # end try
 
     if status != hdef.OKAY:
@@ -524,12 +539,17 @@ def ariva_anleihe(isin_, url, info_dict):
     #---------------------------------------------------
     # isin
     #---------------------------------------------------
+    isin_internet  = ""
     if( "ISIN:" in liste):
         index = liste.index("ISIN:")+1
         if index < len(liste):
-            isin_proof = liste[index]
+            isin_internet = liste[index]
         # end if
     # end if
+    if isin_internet != isin:
+        return (hdef.NOT_FOUND, "", info_dict)
+    # end if
+
     #---------------------------------------------------
     # ticker
     #---------------------------------------------------
@@ -543,7 +563,11 @@ def ariva_anleihe(isin_, url, info_dict):
 
     # name from h1
     h_list = soup.find_all("h1",attrs={"itemprop" : "name"})
-    name = h_list[0].get_text(" ", strip=True)
+    if len(h_list) > 0:
+        name = h_list[0].get_text(" ", strip=True)
+    else:
+        return (hdef.NOT_FOUND, "", info_dict)
+    # end if
 
     info_dict["isin"] = isin
     info_dict["wkn"] = wkn

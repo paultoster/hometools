@@ -13,7 +13,6 @@ from tools import hfkt_type as htype
 
 from wp_abfrage import wp_storage
 from wp_abfrage import wp_fkt
-from wp_abfrage import wp_isin
 from wp_abfrage import wp_wkn
 from wp_abfrage import wp_basic_info_internet
 
@@ -127,6 +126,10 @@ def  get_from_file(wb_obj,isin):
     """
         (status, errtext, info_dict) = get_from_file(wb_obj,isin)
     """
+
+    if isin == "IE0003UVYC20":
+        stoppp=0
+    # end if
     file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["basic_info_pre_file_name"] + isin,
                                                 wb_obj.base_ddict["store_path"])
 
@@ -154,6 +157,7 @@ def  get_from_file(wb_obj,isin):
     else:
         status = hdef.NOT_FOUND
         errtext = ""
+        info_dict = None
     # end if
 
     return (status, errtext, info_dict)
@@ -317,3 +321,84 @@ def update_info_dict_with_new_defaults(info_dict):
 
     return (flag, default_dict)
 # end def
+def update_isin(wb_obj,isin, flag_update_all):
+    """
+    :param wb_obj:
+    :param isin:
+    :param flag_update_all:
+    :return: (status, errtext) = wp_base_basic_info.update_isin(wb_obj,isin, flag_update_all)
+    """
+    status = hdef.OKAY
+
+    (status2, errtext, info_dict) = get_from_file(wb_obj, isin)
+    if status2 == hdef.NOT_OKAY:
+        print(f"update_isin not working errtext: {errtext}")
+        return (status2, errtext)
+    # end if
+
+    url_avira = ""
+    url_onvista = ""
+
+    if (not flag_update_all) and (status2 == hdef.OKAY) and ("url_ariva" in info_dict.keys()):
+        if info_dict["url_ariva"] != "":
+            url_avira = info_dict["url_ariva"]
+        # end if
+    # end if
+    if (not flag_update_all) and (status2 == hdef.OKAY) and ("url_onvista" in info_dict.keys()):
+        if info_dict["url_onvista"] != "":
+            url_onvista = info_dict["url_onvista"]
+        # end if
+    # end if
+
+    (status1, errtext, info_dict_search) = wp_basic_info_internet.search(isin,url_avira,url_onvista)
+    if status1 == hdef.NOT_OKAY:
+        print(f"update_isin not working errtext: {errtext}")
+        return (status1, errtext)
+    # end if
+
+
+    flag = False
+    if status2 == hdef.NOT_FOUND:
+        info_dict = info_dict_search
+        flag = True
+    else:
+        for key in info_dict_search.keys():
+
+            if isinstance(info_dict_search[key],str):
+
+                if len(info_dict_search[key]) > 0:
+                    if flag_update_all:
+                        info_dict[key] = info_dict_search[key]
+                        flag = True
+                    else:
+                        if key in info_dict.keys():
+                            if len(info_dict[key]) == 0:
+                                info_dict[key] = info_dict_search[key]
+                                flag = True
+                            # end if
+                        # end if
+                    # end if
+                else:
+                    if key not in info_dict.keys():
+                        info_dict[key] = info_dict_search[key]
+                        flag = True
+                    # end if
+                # end if
+            else:
+                if key not in info_dict.keys():
+                    info_dict[key] = info_dict_search[key]
+                    flag = True
+                # end if
+        # end ofr
+    # end if
+
+    if flag:
+        file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["basic_info_pre_file_name"] + isin,
+                                                    wb_obj.base_ddict["store_path"])
+        formatpj = 2
+        (status, errtext) = wp_storage.save_dict(info_dict, file_name, formatpj)
+    # end if
+
+    return (status, errtext)
+# end def
+

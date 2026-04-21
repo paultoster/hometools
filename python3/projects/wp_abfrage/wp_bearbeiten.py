@@ -8,7 +8,7 @@ if (tools_path not in sys.path):
 
 from tools import sgui
 from tools import hfkt_def as hdef
-
+from tools import hfkt_dict as hdict
 from tools import hfkt_type as htype
 
 from wp_abfrage import wp_price_volume
@@ -37,12 +37,15 @@ def edit_basic_info(wp_obj):
         return (status, errtext,infotext)
     # end if
 
-    abfrage_liste = ["edit", "ende", "neu", "delete"]
+    abfrage_liste = ["edit", "ende", "neu", "delete","update(empty)","update(all)","dump(ods)","proof_url(subsequent)"]
     i_abfrage_ende = 1
     i_abfrage_edit = 0
     i_abfrage_neu = 2
-    # i_abfrage_delete = 3
-    
+    i_abfrage_delete = 3
+    i_abfrage_update_empty = 4
+    i_abfrage_update_all = 5
+    i_abfrage_dump_ods = 6
+    #i_abfrage_proof_url_subsequent = 7
     runflag = True
     while (runflag):
         [index, indexAbfrage] = sgui.abfrage_liste_index_abfrage_index(isin_wpname_liste, abfrage_liste, "WP edit isin")
@@ -93,8 +96,28 @@ def edit_basic_info(wp_obj):
             # end if
 
             runflag = True
-
-        else:  # if indexAbfrage == i_abfrage_delete:
+        elif indexAbfrage == i_abfrage_delete:
+            print("delete ist noch nicht programmiert")
+            runflag = True
+        elif indexAbfrage == i_abfrage_update_empty:
+            (status, errtext) = wp_obj.update_all_basic_infos(False)
+            if status != hdef.OKAY:
+                return (status, errtext, infotext)
+            runflag = True
+        elif indexAbfrage == i_abfrage_update_all:
+            (status, errtext) = wp_obj.update_alla_basic_infos(True)
+            if status != hdef.OKAY:
+                return (status, errtext, infotext)
+            runflag = True
+        elif indexAbfrage == i_abfrage_dump_ods:
+            (status, errtext) = dump_in_ods(wp_obj,isin_liste)
+            if status != hdef.OKAY:
+                return (status, errtext, infotext)
+            runflag = True
+        else:  #if indexAbfrage == i_abfrage_proof_url_subsequent
+            (status, errtext,infotext) = proof_url_subsequent(wp_obj,isin_liste,isin_wpname_liste)
+            if (status != hdef.OKAY) or (len(infotext)>0):
+                return (status, errtext, infotext)
             runflag = True
         # end if
     # end while
@@ -229,3 +252,68 @@ def get_isin_and_wpname_list(wp_obj):
 
     return (status, errtext, isin_liste, isin_wpname_liste)
 # end def
+def dump_in_ods(wp_obj,isin_liste):
+    """!
+    :param wp_obj:
+    :return: (status, errtext) = dump_in_ods(wp_obj)
+    """
+
+    (status, errtext, output_dict_list) = wp_obj.get_basic_info(isin_liste)
+    if status != hdef.OKAY:
+        return (status, errtext)
+    # end if
+
+    (status, errtext,file_name) = hdict.write_dict_list_in_ods_table(output_dict_list,"basic_info_dict", "basic_info_dict")
+
+    os.startfile(file_name)
+
+    return (status, errtext)
+# end dfe
+def proof_url_subsequent(wp_obj,isin_liste,isin_wpname_liste):
+    """
+    (status, errtext) = proof_url_subsequent(wp_obj,isin_liste,isin_wpname_liste)
+    """
+    infotext = ""
+    (status, errtext, output_dict_list) = wp_obj.get_basic_info(isin_liste)
+
+    for i,isin in enumerate(isin_liste):
+
+        okay1 = proof_url_ariva(output_dict_list[i]["url_ariva"])
+
+        okay2 = proof_url_onvista(output_dict_list[i]["url_onvista"])
+
+        if (okay1 != hdef.OKAY) or (okay2 != hdef.OKAY):
+
+            isin = isin_liste[i]
+            wpname = isin_wpname_liste[i] + "no url => none"
+            print(isin_wpname_liste[i])
+            (status, errtext) = edit_isin_basic_info(wp_obj, wpname, isin)
+            return (status, errtext, infotext)
+        # end if
+    # end for
+    infotext = "Alle url_avira und url_onvista scjeinen keinen Fehler zu haben. Wenn keine Adresse vorhanden, dann \"none\""
+    return (status,errtext,infotext)
+
+
+def proof_url_ariva(url_ariva):
+    if url_ariva == "":
+        return hdef.NOT_OKAY
+    elif url_ariva.lower() == "https://www.ariva.de/silber-kurs":
+        return hdef.NOT_OKAY
+    elif url_ariva.lower() == "https://www.ariva.de":
+        return hdef.NOT_OKAY
+    else:
+        return hdef.OKAY
+    # end if
+# end def
+def proof_url_onvista(url_onvista):
+    if url_onvista == "":
+        return hdef.NOT_OKAY
+    elif url_onvista.lower().find("https://www.onvista.de/suche")>-1:
+        return hdef.NOT_OKAY
+    else:
+        return hdef.OKAY
+    # end if
+# end def
+
+

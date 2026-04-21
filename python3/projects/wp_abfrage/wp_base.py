@@ -12,7 +12,6 @@ if (tools_path not in sys.path):
 from wp_abfrage import wp_fkt as wp_fkt
 from wp_abfrage import wp_wkn as wp_wkn
 from wp_abfrage import wp_storage as wp_storage
-from wp_abfrage import wp_isin as wp_isin
 from wp_abfrage import wp_yahoofinance as wp_yfinance
 from wp_abfrage import wp_bearbeiten as wp_bearbeiten
 from wp_abfrage import wp_base_usdeuro as wp_base_usdeuro
@@ -231,6 +230,35 @@ class WPData:
 
         return self.status
     
+    # end def
+    def update_all_basic_infos(self,flag_update_all):
+        """
+             (status, errtext) = self.update_alla_basic_infos(flag_update_all)
+        """
+        (self.status, self.errtext, isin_liste) = wp_base_basic_info.get_isin_liste(self)
+        if self.status != hdef.OK:
+            return (self.status, self.errtext)
+        # endif
+
+        for isin in isin_liste:
+            (self.status, self.errtext) = self.update_basic_info_isin(isin,flag_update_all)
+            if self.status != hdef.OK:
+                return (self.status, self.errtext)
+            # end if
+        # end for
+        return (self.status, self.errtext)
+    # end def
+    def update_basic_info_isin(self, isin,flag_update_all):
+        """
+             (status, errtext) = self.update_basic_info_isin(self, isin,flag_update_all)
+        """
+
+        (self.status, self.errtext) = wp_base_basic_info.update_isin(self,isin, flag_update_all)
+        if self.status != hdef.OK:
+            return (self.status, self.errtext)
+        # end if
+        return (self.status, self.errtext)
+
     # end def
     def process_usdeuro_ezb_xml(self, xmlfilename: str) -> (int,str):
         """
