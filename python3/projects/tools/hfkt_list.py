@@ -8,33 +8,72 @@
 # Listenbearbeitung
 ###################################################################################
 '''
- such_in_liste(liste,muster,regel='n') Suche nach dem string-Muster in der Liste nach der Regel
-                                       Input:
-                                       liste   list    mit strings zu durchsuchen
-                                       muster  string  muster nachdem gesucht wird
-                                       regel   string  Regel nach der gesucht wird:
-                                               e  exakt in den items der liste
-                                               n  nicht exakt, d.h. muß enthalten sein, auch groß/klein
-                                      Output:
-                                       index_list liste(int)   Index Liste mit den Übereinstimmungen
-                                                               wenn keine liste ist leer []
 
- find_first_value_in_list(liste,value) liste   list    mit strings zu durchsuchen
+    txt = join_list(liste, delim=None) Führt liste zusamen in Text mit delim als Trennung
+                                       default delim = os.sep
+    index_list = such_in_liste(liste, muster, regel="")
+
+                                        Suche nach dem string-Muster in der Liste nach der Regel
+
+                                        Input:
+                                        liste   list    mit strings zu durchsuchen
+                                        muster  string  muster nachdem gesucht wird
+                                        regel   string  Regel nach der gesucht wird:
+                                                        e  exakt in den items der liste
+                                                        n  nicht exakt, d.h. muß enthalten sein, auch groß/klein
+
+                                        Output:
+                                        index_list liste[int]   Index Liste mit den Übereinstimmungen
+                                                                wenn keine liste ist leer []
+
+
+    index = find_first_value_in_list(liste,value) liste   list    mit strings zu durchsuchen
                                        value   str     vollständiger wert in Liste
                                        
                                        retunr index/None
                                        
- reduce_double_items_in_liste(liste)  Reduziert doppelte Einträge in Liste
-                                      liste_r = reduce_double_items_in_liste(liste)
 
- string_is_in_liste(tt,liste)  True wenn tt vollständig in einem item der Liste
-                               False wenn nicht
- string_is_not_in_liste(tt,liste)
+    flag = string_is_in_liste(tt,liste)  True wenn tt vollständig in einem item der Liste
+                                       False wenn nicht
+    flag = string_is_not_in_liste(tt,liste)
 
- list_out = erase_from_list(list_in,index/index_list) löscht index oder indexliste von list_in
+    clist = get_clist_from_llist(llist, index)
+                                        get column list from llist
+                                        llist = [[1,2,3,4],[10,20,30,40],[100,200,300,400]]
+                                        index = 1
+                                        return clist = [2,20,200]
 
- llist = erase_from_llist(llist,index_list)
- 
+    col_liste = get_col_list_by_index(lliste, index)
+
+                                        liste = [[10,20,30,40,50],[100,200,300,400,500]}
+                                        index = 1
+                                        return [20,200]
+
+    row_liste = get_row_list_by_index(lliste, index)
+
+        liste = [[10,20,30,40,50],[100,200,300,400,500]}
+        index = 1
+        return [100,200,300,400,500]
+
+    condensed_list = get_condensed_list_by_index_list(liste, index_liste)
+
+                                        liste = [10,20,30,40,50]
+                                        index_liste = [1,3,4]
+                                        return [20,40,50]
+
+    list_in = erase_from_list(list_in, index / index_list) löscht index oder indexliste von list_in
+
+    llist = erase_empty_rows_in_llist(llist,whitespace=True)
+
+    llist = erase_rows_from_llist(llist,index_list)
+
+    llist = erase_from_llist(llist,index_list)
+
+                                        löscht von eine doppellist
+                                        llist = [[84,75,25],[23,59,15]]
+                                        index_list = [0,2]
+                                        llist_out  = [[75],[59]]
+
  liste = erase_from_list(liste,index_list)
  liste = erase_from_list_by_value(list_in,list_cntrl,erase_not_in_search=0)
  
@@ -130,6 +169,8 @@ TCL_ALL_EVENTS = 0
 def join_list(liste, delim=None):
     """
     Fügt list sofern text mit delim zusammen
+
+    txt = join_list(liste, delim=None) default delim = os.sep
     """
     txt = ""
     if delim is None:
@@ -156,6 +197,8 @@ def join_list(liste, delim=None):
 def such_in_liste(liste, muster, regel=""):
     """
     Suche nach dem string-Muster in der Liste nach der Regel
+
+    index_list = such_in_liste(liste, muster, regel="")
     Input:
     liste   list    mit strings zu durchsuchen
     muster  string  muster nachdem gesucht wird
@@ -202,6 +245,7 @@ def find_first_value_in_list(liste, value):
 # end def
 def string_is_in_liste(tt, liste):
     """
+      flag = string_is_in_liste(tt, liste)
       True wenn tt vollständig in einem item der Liste
       False wenn nicht
     """
@@ -223,6 +267,7 @@ def string_is_not_in_liste(tt, liste):
 
 def get_clist_from_llist(llist, index):
     '''
+    clist = get_clist_from_llist(llist, index)
     get column list from llist
     llist = [[1,2,3,4],[10,20,30,40],[100,200,300,400]]
     index = 1
@@ -242,11 +287,20 @@ def get_clist_from_llist(llist, index):
 # end def
 def get_condensed_list_by_index_list(liste, index_liste):
     '''
+    condensed_list = get_condensed_list_by_index_list(liste, index_liste)
+
     liste = [10,20,30,40,50]
     index_liste = [1,3,4]
     return [20,40,50]
     '''
-    
+
+    if (isinstance(index_liste, int)):
+        index_liste = [index_liste]
+    # endif
+    if (isinstance(index_liste, float)):
+        index_liste = [int(index_liste)]
+    # endif
+
     condens_liste = []
     n = len(liste)
     for i in index_liste:
@@ -258,15 +312,49 @@ def get_condensed_list_by_index_list(liste, index_liste):
 
 
 # end def
+def get_col_list_by_index(lliste, index):
+    '''
+    col_liste = get_col_list_by_index(lliste, index)
+
+    liste = [[10,20,30,40,50],[100,200,300,400,500]}
+    index = 1
+    return [20,200]
+    '''
+
+    col_liste = []
+
+    for liste in lliste:
+        if index < len(liste):
+            col_liste.append(liste[index])
+        # end if
+    # end for
+    return col_liste
+# end def
+def get_row_list_by_index(lliste, index):
+    '''
+    row_liste = get_row_list_by_index(lliste, index)
+
+    liste = [[10,20,30,40,50],[100,200,300,400,500]}
+    index = 1
+    return [100,200,300,400,500]
+    '''
+
+    n = len(lliste)
+    if index < n:
+        return lliste[index]
+    else:
+        return []
+# end def
 def erase_from_list(list_in, index_list):
     """
+    list_in = erase_from_list(list_in, index_list)
      löscht index oder indexliste von list_in
     """
     
-    if (isinstance(type(index_list), int)):
+    if (isinstance(index_list, int)):
         index_list = [index_list]
     # endif
-    if (isinstance(type(index_list), float)):
+    if (isinstance(index_list, float)):
         index_list = [int(index_list)]
     # endif
     
@@ -309,9 +397,46 @@ def erase_from_list(list_in, index_list):
 
 
 # end def
+def erase_empty_rows_in_llist(llist,whitespace=True):
+
+    index_liste = []
+    for index,liste in enumerate(llist):
+        for value in liste:
+            if whitespace and isinstance(value,str):
+                value = hstr.elim_ae(value,' ')
+
+            # end if
+            if len(value) == 0:
+                index_liste.append(index)
+                print(f"{index = }, {liste = }")
+                break
+            # end if
+        # end for
+    # end for
+    return erase_rows_from_llist(llist, index_liste)
+# end def
+def erase_rows_from_llist(llist,index_list):
+    """
+    llist = erase_rows_from_llist(llist,index_list)
+    """
+
+    for index in reversed(index_list):
+        if index < len(llist):
+            del llist[index]
+        # end if
+    # end ofr
+    return llist
+# end def
+
 def erase_from_llist(llist, index_list):
     '''
+
+    llist = erase_from_llist(llist, index_list)
     löscht von eine doppellist
+    llist = [[84,75,25],[23,59,15]]
+    index_list = [0,2]
+    llist_out  = [[75],[59]]
+
     :param llist_in:
     :param index_list:
     :return: llist = erase_from_llist(llist,index_list)

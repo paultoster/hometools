@@ -212,16 +212,21 @@ def get_akt_dat_time_str(datdelim=".",timedelim=":"):
 def get_akt_time_str(delim=":"):
     return  str_akt_time(delim)
 # end def
-def str_akt_datum(delim="."):
+def str_akt_datum(delim=".",date_inverse_flag=False):
     """ Das aktuelle Datum wird als string zurückgegeben
           delim = ".": format: tt.mm.jjjj
           delim = "-": format: tt-mm-jjjj
       """
     t = time.localtime()
 
-    st = hstr.get_str_from_int(t.tm_mday, 2) + delim
-    st += hstr.get_str_from_int(t.tm_mon, 2) + delim
-    st += hstr.get_str_from_int(t.tm_year, 4)
+    if date_inverse_flag:
+        st = hstr.get_str_from_int(t.tm_year, 4) + delim
+        st += hstr.get_str_from_int(t.tm_mon, 2) + delim
+        st += hstr.get_str_from_int(t.tm_mday, 2)
+    else:
+        st = hstr.get_str_from_int(t.tm_mday, 2) + delim
+        st += hstr.get_str_from_int(t.tm_mon, 2) + delim
+        st += hstr.get_str_from_int(t.tm_year, 4)
     return st
 # enddef
 def str_akt_time(delim=":"):
@@ -254,7 +259,7 @@ def calc_dat_list_to_int(liste):
     """
     return liste[2]*10000 + liste[1]*100 + liste[0]
 # end def
-def calc_dat_list_to_str(liste,delim="."):
+def calc_dat_list_to_str(liste,delim=".",date_inverse_flag=False):
     """
         liste = (12,05,1959) (tt,mm,jjjj)
         str_dat = calc_dat_list_to_str(liste,delim=".")
@@ -262,7 +267,12 @@ def calc_dat_list_to_str(liste,delim="."):
     :param liste:
     :return: str_dat = calc_date_listele_to_int_dat(liste,delim=".")
     """
-    return f"{liste[0]}{delim}{liste[1]}{delim}{liste[2]}"
+    if date_inverse_flag:
+        s = f"{liste[2]}{delim}{liste[1]}{delim}{liste[0]}"
+    else:
+        s = f"{liste[0]}{delim}{liste[1]}{delim}{liste[2]}"
+
+    return s
 # end def
 def calc_dat_list_to_secs(liste):
     """

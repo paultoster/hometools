@@ -31,7 +31,7 @@ INI_DICT_PROOF_LISTE = [("store_path", "str"),
                         ("wkn_isin_n_times", "int", "int", 2),
                         ("ariva_user","str"),
                         ("ariva_pw","str"),
-                        ("ariva_timeout_playright","int","int",10000),
+                        ("ariva_timeout_s","int","int",10),
                         ("boerse","str","str","xetra"),
                         ("usdeuro_use_format", "int", "int",0),
                         ("usdeuro_pre_file_name", "str","str","usdeuro_data_"),
@@ -370,7 +370,7 @@ class WPData:
     #     # end def
     #     return self.status
     # # end def
-    def update_price_volume(self, isin):
+    def update_price_volume(self, isin=None):
         """
         - Demand: run_wp_abfrage.py
 
@@ -383,11 +383,19 @@ class WPData:
         status = hdef.OKAY
         errtext = ""
 
-        (self.status,self.errtext) = wp_base_price_volume.update(self,isin)
+        if isin == None:
+            (self.status,self.errtext, isin_liste) = self.get_basic_info_isin_liste()
+            if self.status != hdef.OKAY:
+                return (self.status, self.errtext)
+            # end if
+        else:
+            isin_liste = [isin]
+        # end if
+
+        (self.status,self.errtext) = wp_base_price_volume.update(self,isin_liste)
         if self.status != hdef.OKAY:
             return (self.status, self.errtext)
         # end if
-
 
         # (status, errtext) = wp_base_price_volume.update_last_price_volume_isin(self, isin_basic_dict, isin)
         # if status != hdef.OKAY:

@@ -425,6 +425,8 @@ def type_get_default_single(type):
         return ""
     elif type == "datStrP":
         return hdate.str_akt_datum(delim=".")
+    elif type == "datStrBInv":
+        return hdate.str_akt_datum(delim="-",date_inverse_flag=True)
     elif type == "datStrB":
         return hdate.str_akt_datum(delim="-")
     elif type == "yearStr":
@@ -475,7 +477,7 @@ def type_name_proof(type):
     '''
     if type == "str" or type == "float" or type == "int":
         return hdef.OKAY
-    if type == "dat" or type == "datStrP" or type == "datStrB" or type == "yearStr" or type == "monthInt" or type == "datInt" or type == "datIntTime":
+    if type == "dat" or type == "datStrP" or type == "datStrB" or type == "datStrBInv" or type == "yearStr" or type == "monthInt" or type == "datInt" or type == "datIntTime":
         return hdef.OKAY
     if type == "iban" or type == "wkn" or type == "list":
         return hdef.OKAY
@@ -495,6 +497,7 @@ def type_proof(wert_in, type):
     "datetimeclass" Converts into class datetime
     "datStrP": Convert to date string mit Punkt "20.03.2024"
     "datStrB": Convert to date string mit Bindesttrich "20-03-2024"
+    "datStrBInv": Convert to date string mit Bindesttrich "2024-03-20"
     "yearStr": Covert to year string "2024"
     "monthInt": Convert to month as int from 1 ... 12
     "datList": Convert to inger list with [day,month,year]
@@ -531,6 +534,8 @@ def type_proof(wert_in, type):
     elif (type == "datStr") or (type == "datStrP"):
         return type_proof_datStrP(wert_in)
     elif (type == "datStrB"):
+        return type_proof_datStrB(wert_in)
+    elif (type == "datStrBInv"):
         return type_proof_datStrB(wert_in)
     elif type == "yearStr":
         return type_proof_yearStr(wert_in)
@@ -783,6 +788,13 @@ def type_proof_datStrB(wert_in):
         
         for item in wert_in:
             flag = hdate.is_datum_str(item, delim="-")
+
+            if not flag:
+                flag = hdate.is_datum_reverse_str(wert_in, delim="-")
+
+            if (not flag) and (len(item)) == 0:
+                flag = True
+
             if not flag:
                 return (hdef.NOT_OKAY, None)
             # end if
@@ -1090,7 +1102,8 @@ def type_proof_isin(wert_in):
         
         isins = find_ISIN(wert)
         if len(isins) == 0:
-            wert = ""
+            wert = None
+            okay = hdef.NOT_OKAY
         elif len(isins) > 0:
             (okay, errtext, number) = isin_validate(isins[0])
             if okay == hdef.OKAY:
@@ -1594,6 +1607,7 @@ def type_transform(wert_in: any, type_in: str | list, type_out: str | list):
     "datetimeclass" Converts into class datetime
     "datStrP": Convert to date string mit Punkt "20.03.2024"
     "datStrB": Convert to date string mit Bindesttrich "20-03-2024"
+    "datStrBInv": Convert to date string mit Bindesttrich "2024-03-20"
     "yearStr": Convert to year string "2024"
     "monthInt": Convert to month int 1 ... 12
     "datList": Convert to inger list with [day,month,year]
@@ -1619,7 +1633,7 @@ def type_transform(wert_in: any, type_in: str | list, type_out: str | list):
         (okay, wert_out) = type_transform_dat(wert_in,type_out)
     elif type_in == "datetimeclass":
         (okay, wert_out) = type_transform_datetimeclass(wert_in, type_out)
-    elif (type_in == "datStr") or (type_in == "datStrP") or (type_in == "datStrB"):
+    elif (type_in == "datStr") or (type_in == "datStrP") or (type_in == "datStrB") or (type_in == "datStrBInv"):
         (okay, wert_out) = type_transform_datStr(wert_in, type_out)
     elif (type_in == "yearStr"):
         (okay, wert_out) = type_transform_yearStr(wert_in, type_out)
@@ -1676,6 +1690,8 @@ def  type_transform_dat(wert_in,type_out):
             wert_out = hdate.secs_time_epoch_to_str(wert,delim=".")
         elif type_out == "datStrB":
             wert_out = hdate.secs_time_epoch_to_str(wert, delim="-")
+        elif type_out == "datStrBInv":
+            wert_out = hdate.secs_time_epoch_to_str(wert, delim="-",date_inverse_flag=True)
         elif type_out == "monthInt":
             liste = hdate.secs_time_epoch_to_int_list(wert)
             wert_out = int(liste[1])
@@ -1709,6 +1725,8 @@ def  type_transform_datetimeclass(wert_in,type_out):
             wert_out = hdate.secs_time_epoch_to_str(wert,delim=".")
         elif type_out == "datStrB":
             wert_out = hdate.secs_time_epoch_to_str(wert, delim="-")
+        elif type_out == "datStrBInv":
+            wert_out = hdate.secs_time_epoch_to_str(wert, delim="-",date_inverse_flag=True)
         elif type_out == "monthInt":
             liste = hdate.secs_time_epoch_to_int_list(wert)
             wert_out = int(liste[1])
@@ -1743,6 +1761,8 @@ def  type_transform_datStr(wert_in,type_out):
             wert_out = hdate.secs_time_epoch_to_str(wert, delim=".")
         elif type_out == "datStrB":
             wert_out = hdate.secs_time_epoch_to_str(wert, delim="-")
+        elif type_out == "datStrBInv":
+            wert_out = hdate.secs_time_epoch_to_str(wert, delim="-",date_inverse_flag=True)
         else:
             raise Exception(f"In type_transform_datStrP ist type_out: {type_out} nicht möglich")
         # end if
@@ -1770,6 +1790,8 @@ def type_transform_yearStr(wert_in, type_out):
             wert_out = hdate.secs_time_epoch_to_str(epoch_secs, delim=".")
         elif type_out == "datStrB":
             wert_out = hdate.secs_time_epoch_to_str(epoch_secs, delim="-")
+        elif type_out == "datStrBInv":
+            wert_out = hdate.secs_time_epoch_to_str(epoch_secs, delim="-",date_inverse_flag=True)
         elif type_out == "int":
             wert_out = int(epoch_secs)
         else:
@@ -1814,9 +1836,11 @@ def type_transform_datList(wert_in, type_out):
         elif type_out == "dat":
             wert_out = hdate.calc_dat_list_to_secs(wert)
         elif (type_out == "datStr") or (type_out == "datStrP"):
-            wert_out = hdate.calc_dat_list_to_str(wert,".")
+            wert_out = hdate.calc_dat_list_to_str(wert,delim=".")
         elif (type_out == "datStrB"):
-            wert_out = hdate.calc_dat_list_to_str(wert,"-")
+            wert_out = hdate.calc_dat_list_to_str(wert, delim="-")
+        elif (type_out == "datStrBInv"):
+            wert_out = hdate.calc_dat_list_to_str(wert, delim="-",date_inverse_flag=True)
         elif (type_out == "yearStr"):
             wert_out = wert[2]
         elif (type_out == "monthInt"):
@@ -1847,9 +1871,11 @@ def type_transform_datTimeList(wert_in, type_out):
         elif type_out == "dat":
             wert_out = hdate.calc_dat_time_list_to_secs(wert)
         elif (type_out == "datStr") or (type_out == "datStrP"):
-            wert_out = hdate.calc_dat_list_to_str(wert, ".")
+            wert_out = hdate.calc_dat_list_to_str(wert, delim=".")
         elif (type_out == "datStrB"):
-            wert_out = hdate.calc_dat_list_to_str(wert, "-")
+            wert_out = hdate.calc_dat_list_to_str(wert, delim="-")
+        elif (type_out == "datStrBInv"):
+            wert_out = hdate.calc_dat_list_to_str(wert, delim="-",date_inverse_flag=True)
         elif (type_out == "yearStr"):
             wert_out = wert[2]
         elif (type_out == "monthInt"):
@@ -1975,7 +2001,7 @@ def  type_transform_str(wert_in,type_out):
             (okay, wert_out) = type_proof_dat(wert)
         elif type_out == "datStrP":
             (okay, wert_out) = type_proof_datStrP(wert)
-        elif type_out == "datStrB":
+        elif (type_out == "datStrB") or (type_out == "datStrBInv"):
             (okay, wert_out) = type_proof_datStrB(wert)
         elif (type_out == "list") or (type_out == "listStr") or (type_out == "list_str"):
             wert_out = [wert]

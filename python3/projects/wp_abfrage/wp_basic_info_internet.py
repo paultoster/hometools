@@ -16,9 +16,38 @@ import time
 
 if os.path.isfile('wp_base.py'):
     import wp_playwright as wp_pr
+    import wp_yahoofinance as wp_yf
 else:
     import wp_abfrage.wp_playwright as wp_pr
+    import wp_abfrage.wp_yahoofinance as wp_yf
 # end if
+
+INFO_DICT = {
+            "type":"",
+            "name":"",
+            "beschreibung":"",
+            "isin":"",
+            "wkn":"",
+            "ticker":"",
+            "boerse":"",
+            "sektor":""
+            "indexabbildung":"",
+            "ertragsverwendung":"",
+            "ter":"",
+            "volumen":"",
+            "anzahl":"",
+            "zahltdiv": 0,
+            "url":"",
+            "url_ariva":"",
+            "url_onvista":"",
+            "kgv":"",
+            "marktkapitalisierung":"",
+            "dividendenrendite":"",
+            "gewinn":"",
+            "waehrung":"",
+            "preisabfrage":""
+            }
+
 
 
 def search(isin,url_ariva="",url_onvista=""):
@@ -92,6 +121,20 @@ def search(isin,url_ariva="",url_onvista=""):
     else:
         info_dict["url_onvista"] = url_onvista
     # end if
+
+    # Update ticker, boerse, sektor
+    (ticker,boerse,sektor,type) = wp_yf.search_ticker_from_isin(info_dict["isin"])
+
+    if len(ticker):
+        info_dict["ticker"] = ticker
+    if len(boerse):
+        info_dict["boerse"] = boerse
+    if len(sektor):
+        info_dict["sektor"] = sektor
+    if len(type) and (len(info_dict["type"]) == 0):
+        info_dict["type"] = type
+
+
 
     return (status, errtext, info_dict)
 # end def
@@ -670,29 +713,9 @@ def onvista(isin_, url, info_dict):
 # end def
 
 def get_default_info_dict(isin):
-    info_dict = {}
-    info_dict["type"] = ""
-    info_dict["name"] = ""
-    info_dict["beschreibung"] = ""
+    info_dict = INFO_DICT
     info_dict["isin"] = isin
-    info_dict["wkn"]  = ""
-    info_dict["ticker"] = ""
-    info_dict["indexabbildung"] = ""
-    info_dict["ertragsverwendung"] = ""
-    info_dict["ter"] = ""
-    info_dict["volumen"] = ""
-    info_dict["anzahl"] = ""
-    info_dict["zahltdiv"] = 0
-    info_dict["url"] = ""
-    info_dict["url_ariva"] = ""
-    info_dict["url_onvista"] = ""
-    info_dict["kgv"] = ""
-    info_dict["marktkapitalisierung"] = ""
-    info_dict["marktkapitalisierung"] = ""
-    info_dict["dividendenrendite"] = ""
-    info_dict["gewinn"] = ""
     info_dict["waehrung"] = "€"
-    info_dict["preisabfrage"] = ""
     return info_dict
 # end def
 if __name__ == '__main__':

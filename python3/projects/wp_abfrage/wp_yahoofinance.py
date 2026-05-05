@@ -1,5 +1,5 @@
 import yfinance as yf
-import pandas as pd
+# import pandas as pd
 import numpy as np
 import os, sys
 
@@ -21,13 +21,86 @@ else:
 
 currencyvalueheaderlist = ["Close", "High", "Low", "Open"]
 
-def get_price_volume_data(ticker,classdef,start_dat,end_dat):
+
+def search_ticker_from_isin(isin):
     """
-    (status, errtext, np_obj) = get_price_volume_data(ticker,classdef,start_dat,end_dat)
+    (ticker,boerse,sektor,type) = search_ticker_from_isin(isin)
+    """
+
+    ticker = ""
+    boerse = ""
+    sektor = ""
+    type   = ""
+
+    search_results = yf.Search(isin).all
+    if "quotes" not in search_results.keys():
+        print(f" Für isin = {isin} gibt es keine quotes!!")
+        dicct = {}
+    else:
+        if len(search_results["quotes"]):
+            ddict = search_results["quotes"][0]
+        else:
+            ddict = {}
+        # end if
+    # end if
+
+    key = "isYahooFinance"
+    if key in ddict.keys():
+        isvalid = ddict[key]
+    else:
+        isvalid = False
+    # end if
+
+    if isvalid:
+        key = "symbol"
+        if key in ddict.keys():
+            ticker = ddict[key]
+        key = "exchDisp"
+        if key in ddict.keys():
+            boerse = ddict[key]
+        key = "sector"
+        if key in ddict.keys():
+            sektor = ddict[key]
+        key = "typeDisp"
+        if key in ddict.keys():
+            if ddict[key] == "EQUITY":
+                type = "aktie"
+            elif ddict[key] == "ETF":
+                type = "etf"
+            elif ddict[key] == "FOND":
+                type = "etf"
+            else:
+                type = ddict[key]
+            # end if
+        # end if
+    # end if
+
+    return (ticker,boerse,sektor,type)
+
+def is_Ticker_info_available(ticker):
+    """
+    Checks if ticker is available via the Yahoo Finance API.
+    """
+    t = str(ticker)
+    if len(t) == 0:
+        return False
+    # end if
+
+    tinfo = yf.Ticker(t)
+
+    if ('regularMarketPrice' in  tinfo.info) and (tinfo.info['regularMarketPrice'] != None):
+        return True
+    else:
+        return False
+    # end if
+# end def
+def get_price_volume_data(ticker,np_classdef,start_dat,end_dat):
+    """
+    (status, errtext, np_obj) = get_price_volume_data(ticker,np_classdef,start_dat,end_dat)
     """
     status = hdef.OKAY
     errtext = ""
-    np_obj = classdef()
+    np_obj = np_classdef()
 
     # sub einen Tag
     start_dat_minus = start_dat - 24*60*60
@@ -180,9 +253,9 @@ def get_price_volume_data(ticker,classdef,start_dat,end_dat):
 #
 #     return (status, errtext, df_data)
 # # end def
-def get_usdeuro_data(classdef,start_dat, end_dat):
+def get_usdeuro_data(np_classdef,start_dat, end_dat):
     """
-    (status, errtext, np_obj) = wp_yfinance.get_usdeuro_data(classdef,lastdat,end_dat)
+    (status, errtext, np_obj) = wp_yfinance.get_usdeuro_data(np_classdef,lastdat,end_dat)
     """
     status = hdef.OKAY
     errtext = ""
@@ -211,7 +284,37 @@ def get_usdeuro_data(classdef,start_dat, end_dat):
     euro_dat_np_array   = euro_dat_np_array.reshape(np.prod(euro_dat_np_array.shape))
     euro_close_np_array = euro_close_np_array.reshape(np.prod(euro_close_np_array.shape))
 
-    np_obj = classdef(euro_dat_np_array,euro_close_np_array)
+    np_obj = np_classdef(euro_dat_np_array,euro_close_np_array)
 
     return (status, errtext, np_obj)
 # end def
+if __name__ == '__main__':
+
+    ticker = "^GDAXI"
+    flag = is_Ticker_info_available(ticker)
+    print(f"{ticker = }: {flag = }")
+    ticker = "MUV2"
+    flag = is_Ticker_info_available(ticker)
+    print(f"{ticker = }: {flag = }")
+
+    search_results = yf.Search("AU3TB0000192").all
+    if len(search_results["quotes"]):
+        ddict = search_results["quotes"][0]
+        print("--------------------------")
+        for key,value in ddict.items():
+            print(f"{key = } , {value = }")
+    # end if
+    search_results = yf.Search("DE0002635307").all
+    ddict = search_results["quotes"][0]
+    print("--------------------------")
+    for key,value in ddict.items():
+        print(f"{key = } , {value = }")
+    search_results = yf.Search("DE0007314007").all
+    ddict = search_results["quotes"][0]
+    print("--------------------------")
+    for key,value in ddict.items():
+        print(f"{key = } , {value = }")
+
+    data2 = yf.Lookup('DE0007314007').all
+
+    etf = yf.Lookup("DE0002635307").get_etf(count=100)
