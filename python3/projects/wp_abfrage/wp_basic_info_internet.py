@@ -30,7 +30,7 @@ INFO_DICT = {
             "wkn":"",
             "ticker":"",
             "boerse":"",
-            "sektor":""
+            "sektor":"",
             "indexabbildung":"",
             "ertragsverwendung":"",
             "ter":"",

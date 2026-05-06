@@ -162,6 +162,30 @@ def  get_from_file(wb_obj,isin):
 
     return (status, errtext, info_dict)
 # end def
+def get_exist_filenames(wb_obj, isin_input):
+    """
+    (status, errtext, filename_list) = wp_base_basic_info.get_exist_filenames(wb_obj, isin_input)
+    """
+    status = hdef.OKAY
+    errtext = ""
+
+    if isinstance(isin_input, str):
+        isin_input = [isin_input]
+    # end if
+
+    file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["wpname_isin_filename"],
+                                                wb_obj.base_ddict["store_path"])
+
+    filename_list = [file_name]
+    for isin in isin_input:
+        file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["basic_info_pre_file_name"] + isin,
+                                                    wb_obj.base_ddict["store_path"])
+        if os.path.isfile(file_name):
+            filename_list.append(file_name)
+        # end if
+    # end for
+    return (status, errtext, filename_list)
+# end def
 def save(wb_obj, isin_input, basic_info_dict):
     """
 

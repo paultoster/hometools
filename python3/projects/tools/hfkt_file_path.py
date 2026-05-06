@@ -81,6 +81,7 @@ if (t_path == os.getcwd()):
     
     import hfkt_str as hstr
     import hfkt_def as hdef
+    import hfkt_date_time as hdt
 else:
     p_list = os.path.normpath(t_path).split(os.sep)
     if (len(p_list) > 1): p_list = p_list[: -1]
@@ -90,6 +91,7 @@ else:
     
     from tools import hfkt_str as hstr
     from tools import hfkt_def as hdef
+    from tools import hfkt_date_time as hdt
 
 # endif--------------------------------------------------------------------------
 
@@ -794,11 +796,11 @@ def copy(s_path_filename, t_path_filename, silent=1):
         return NOT_OK
 
 
-def make_backup_file(fullfilename, backup_dir):
+def make_backup_file(fullfilename, backup_dir,no_act_date=False):
     """
     builds from fullfilename a backup filename with actual date and copies the file
 
-    return (flag,errtext)
+    return (flag,errtext) = make_backup_file(fullfilename, backup_dir)
     if( flag == OK) => no Text
     if( flag == NOT_OK) => error text
 
@@ -815,8 +817,12 @@ def make_backup_file(fullfilename, backup_dir):
         return (NOT_OK, errtext)
     
     (path, fbody, ext) = get_pfe(fullfilename)
+
+    if not no_act_date:
+        fbody += "_" + str(hdt.int_akt_datum()) + "_" + str(hdt.int_akt_time())
+    # end if
     backup_file_name = os.path.join(backup_dir,
-                                    fbody + "_" + str(int_akt_datum()) + "_" + str(int_akt_time()) + "." + ext)
+                                    fbody +  "." + ext)
     try:
         flag = copy(fullfilename, backup_file_name, silent=1)
     except:

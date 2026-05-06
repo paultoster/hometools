@@ -10,12 +10,15 @@ from tools import sgui
 from tools import hfkt_def as hdef
 from tools import hfkt_dict as hdict
 from tools import hfkt_type as htype
+from tools import hfkt_date_time as hdate
+from tools import hfkt_file_path as hpf
+
 
 from wp_abfrage import wp_price_volume
 from wp_abfrage import wp_fkt
 from wp_abfrage import wp_storage as wp_storage
 
-def edit_basic_info(wp_obj):
+def edit_basic_info(wb_obj):
     '''
     
     - Demand: run_wp_abfrage.py
@@ -23,8 +26,8 @@ def edit_basic_info(wp_obj):
     Die Auswahl wird mit den basic infos bearbeitet
     - Call: edit_isin_basic_info(wpname, isin)
     
-    :param wp_obj:            wp_base.WPData Data Objekt
-    :return: (status,errtext,infotext) = edit_basic_info(wp_obj)
+    :param wb_obj:            wp_base.WPData Data Objekt
+    :return: (status,errtext,infotext) = edit_basic_info(wb_obj)
     '''
     status = hdef.OKAY
     errtext = ""
@@ -32,12 +35,12 @@ def edit_basic_info(wp_obj):
 
     # Hole die dict-Liste mit allen WPs name[isin]
     #---------------------------------------------
-    (status, errtext,isin_liste,isin_wpname_liste)  = get_isin_and_wpname_list(wp_obj)
+    (status, errtext,isin_liste,isin_wpname_liste)  = get_isin_and_wpname_list(wb_obj)
     if status != hdef.OKAY:
         return (status, errtext,infotext)
     # end if
 
-    abfrage_liste = ["edit", "ende", "neu", "delete","update(empty)","update(all)","dump(ods)","proof_url(subsequent)"]
+    abfrage_liste = ["edit", "ende", "neu", "delete","update(empty)","update(all)","dump(ods)","proof_url(subsequent)","backup"]
     i_abfrage_ende = 1
     i_abfrage_edit = 0
     i_abfrage_neu = 2
@@ -45,7 +48,8 @@ def edit_basic_info(wp_obj):
     i_abfrage_update_empty = 4
     i_abfrage_update_all = 5
     i_abfrage_dump_ods = 6
-    #i_abfrage_proof_url_subsequent = 7
+    i_abfrage_proof_url_subsequent = 7
+    #i_backup = 8
     runflag = True
     while (runflag):
         [index, indexAbfrage] = sgui.abfrage_liste_index_abfrage_index(isin_wpname_liste, abfrage_liste, "WP edit isin")
@@ -64,7 +68,7 @@ def edit_basic_info(wp_obj):
                 isin = isin_liste[index]
                 wpname = isin_wpname_liste[index]
                 print(isin_wpname_liste[index])
-                (status, errtext) = edit_isin_basic_info(wp_obj,wpname, isin)
+                (status, errtext) = edit_isin_basic_info(wb_obj,wpname, isin)
                 if status != hdef.OKAY:
                     return (status, errtext,infotext)
                 # end if
@@ -79,17 +83,17 @@ def edit_basic_info(wp_obj):
                     infotext = f"Die isin: {isin} is bereits in der Liste {isin_liste =}"
                     return (hdef.OKAY, errtext,infotext)
 
-                (status, errtext, output_dict) = wp_obj.get_basic_info(isin)
+                (status, errtext, output_dict) = wb_obj.get_basic_info(isin)
                 if status != hdef.OKAY:
                     return (status, errtext,infotext)
                 # end if
-                (status, errtext, isin_liste, isin_wpname_liste) = get_isin_and_wpname_list(wp_obj)
+                (status, errtext, isin_liste, isin_wpname_liste) = get_isin_and_wpname_list(wb_obj)
                 if status != hdef.OKAY:
                     return (status, errtext,infotext)
                 # end if
                 isin = output_dict["isin"]
                 wpname = output_dict["name"]
-                (status, errtext) = edit_isin_basic_info(wp_obj, wpname, isin)
+                (status, errtext) = edit_isin_basic_info(wb_obj, wpname, isin)
                 if status != hdef.OKAY:
                     return (status, errtext,infotext)
                 # end if
@@ -100,25 +104,27 @@ def edit_basic_info(wp_obj):
             print("delete ist noch nicht programmiert")
             runflag = True
         elif indexAbfrage == i_abfrage_update_empty:
-            (status, errtext) = wp_obj.update_all_basic_infos(False)
+            (status, errtext) = wb_obj.update_all_basic_infos(False)
             if status != hdef.OKAY:
                 return (status, errtext, infotext)
             runflag = True
         elif indexAbfrage == i_abfrage_update_all:
-            (status, errtext) = wp_obj.update_alla_basic_infos(True)
+            (status, errtext) = wb_obj.update_alla_basic_infos(True)
             if status != hdef.OKAY:
                 return (status, errtext, infotext)
             runflag = True
         elif indexAbfrage == i_abfrage_dump_ods:
-            (status, errtext) = dump_in_ods(wp_obj,isin_liste)
+            (status, errtext) = dump_in_ods(wb_obj,isin_liste)
             if status != hdef.OKAY:
                 return (status, errtext, infotext)
             runflag = True
-        else:  #if indexAbfrage == i_abfrage_proof_url_subsequent
-            (status, errtext,infotext) = proof_url_subsequent(wp_obj,isin_liste,isin_wpname_liste)
+        elif indexAbfrage == i_abfrage_proof_url_subsequent:
+            (status, errtext,infotext) = proof_url_subsequent(wb_obj,isin_liste,isin_wpname_liste)
             if (status != hdef.OKAY) or (len(infotext)>0):
                 return (status, errtext, infotext)
             runflag = True
+        else: # indexAbfrage == i_backup
+            (status, errtext) = make_backup_basic_infos(wb_obj)
         # end if
     # end while
     
@@ -126,15 +132,15 @@ def edit_basic_info(wp_obj):
 
 
 # end def
-def edit_isin_basic_info(wp_obj,wpname, isin):
+def edit_isin_basic_info(wb_obj,wpname, isin):
     '''
 
     Demand: wp_abfrage.edit_basic_info()
     
     Macht ein Editierfenster der basic Infos von der gewünschten isin
-    Call: wp_obj.get_basic_info(isin)
+    Call: wb_obj.get_basic_info(isin)
     Call: sgui.abfrage_dict(output_dict, title=title)
-    Call: wp_obj.save_basic_info(isin, output_dict)
+    Call: wb_obj.save_basic_info(isin, output_dict)
     
     :param wpname:
     :param isin:
@@ -144,7 +150,7 @@ def edit_isin_basic_info(wp_obj,wpname, isin):
     errtext = ""
     
     # Hole alle basic-Infos
-    (status, errtext, output_dict) = wp_obj.get_basic_info(isin)
+    (status, errtext, output_dict) = wb_obj.get_basic_info(isin)
     if status != hdef.OKAY:
         return (status, errtext)
     # end if
@@ -156,11 +162,11 @@ def edit_isin_basic_info(wp_obj,wpname, isin):
     
     
     if len(changed_key_liste):
-        (status, errtext) = wp_obj.save_basic_info(isin, output_dict)
+        (status, errtext) = wb_obj.save_basic_info(isin, output_dict)
     
     return (status, errtext)
 # end def
-def choose_from_gui_for_one_isin(wp_obj):
+def choose_from_gui_for_one_isin(wb_obj):
     """
 
     - Demand: run_wp_abfrage.py
@@ -168,8 +174,8 @@ def choose_from_gui_for_one_isin(wp_obj):
     Gibt Liste aller WPs mit ISIN und Name an zur Auswahl.
     Auswahl einer isin
 
-    :param wp_obj:
-    :return: (status, errtext,isin) = wp_bearbeiten.choose_from_gui_for_one_isin(wp_obj)
+    :param wb_obj:
+    :return: (status, errtext,isin) = wp_bearbeiten.choose_from_gui_for_one_isin(wb_obj)
     """
 
     status = hdef.OKAY
@@ -179,10 +185,10 @@ def choose_from_gui_for_one_isin(wp_obj):
     # Hole die dict-Liste mit allen WPs name[isin]
     # ---------------------------------------------
     (status, errtext, wpname_isin_dict) = \
-        wp_obj.get_stored_basic_info_wpname_isin_dict()
+        wb_obj.get_stored_basic_info_wpname_isin_dict()
 
     if status != hdef.OKAY:
-        errtext = f"Error wp_obj.get_stored_basic_info_wpname_isin_dict() errtext = {errtext}"
+        errtext = f"Error wb_obj.get_stored_basic_info_wpname_isin_dict() errtext = {errtext}"
         return (status, errtext,isin)
     # end if
 
@@ -220,19 +226,19 @@ def choose_from_gui_for_one_isin(wp_obj):
     return (status, errtext,isin)
 # end def
 
-def get_isin_and_wpname_list(wp_obj):
+def get_isin_and_wpname_list(wb_obj):
     """
 
-    :param wp_obj:
-    :return: (status,errtext,isin_liste,isin_wpname_liste)  = get_isin_and_wpname_list(wp_obj)
+    :param wb_obj:
+    :return: (status,errtext,isin_liste,isin_wpname_liste)  = get_isin_and_wpname_list(wb_obj)
     """
     isin_wpname_liste = []
     isin_liste = []
     (status, errtext, wpname_isin_dict) = \
-        wp_obj.get_stored_basic_info_wpname_isin_dict()
+        wb_obj.get_stored_basic_info_wpname_isin_dict()
 
     if status != hdef.OKAY:
-        errtext = f"Error wp_obj.get_stored_basic_info_wpname_isin_dict() errtext = {errtext}"
+        errtext = f"Error wb_obj.get_stored_basic_info_wpname_isin_dict() errtext = {errtext}"
         return (status, errtext,isin_liste,isin_wpname_liste)
     # end if
 
@@ -241,7 +247,7 @@ def get_isin_and_wpname_list(wp_obj):
     isin_liste = []
     for i, isin in enumerate(wpname_isin_dict.keys()):
 
-        (status, errtext, output_dict) = wp_obj.get_basic_info(isin)
+        (status, errtext, output_dict) = wb_obj.get_basic_info(isin)
         if status != hdef.OKAY:
             return (status, errtext, isin_liste, isin_wpname_liste)
         # end if
@@ -252,9 +258,9 @@ def get_isin_and_wpname_list(wp_obj):
 
     return (status, errtext, isin_liste, isin_wpname_liste)
 # end def
-def dump_in_ods(wp_obj,isin_liste):
+def dump_in_ods(wb_obj,isin_liste):
     """!
-    :param wp_obj:
+    :param wb_obj:
     :return: (status, errtext) = dump_in_ods(wp_obj)
     """
 
@@ -287,7 +293,7 @@ def proof_url_subsequent(wp_obj,isin_liste,isin_wpname_liste):
             isin = isin_liste[i]
             wpname = isin_wpname_liste[i] + "no url => none"
             print(isin_wpname_liste[i])
-            (status, errtext) = edit_isin_basic_info(wp_obj, wpname, isin)
+            (status, errtext) = edit_isin_basic_info(wb_obj, wpname, isin)
             return (status, errtext, infotext)
         # end if
     # end for
@@ -315,5 +321,63 @@ def proof_url_onvista(url_onvista):
         return hdef.OKAY
     # end if
 # end def
+def make_backup_basic_infos(wb_obj):
+    """
+    :param wb_obj:
+    :return: (status, errtext) = make_backup_basic_infos(wb_obj)
+    """
+
+    (status, errtext, isin_liste) = wb_obj.get_basic_info_isin_liste()
+    if status != hdef.OKAY:
+        return (status, errtext)
+    # end if
+
+    (status,errtext,backup_dir) = make_backup_build_new_dir(wb_obj)
+    if status != hdef.OKAY:
+        return (status, errtext)
+    #  end if
+
+    (status, errtext, filename_list) = wb_obj.get_exist_filenames_of_basic_info(isin_liste)
+    if status != hdef.OKAY:
+        return (status, errtext)
+    #  end if
+
+    for file_name in filename_list:
+
+        print(f"copy {file_name = } into {backup_dir = }")
+        (status, errtext) = hpf.make_backup_file(file_name, backup_dir, no_act_date=True)
+
+        if status != hdef.OKAY:
+            return (status, errtext)
+        # end if
+    # end for
+
+    # end for
 
 
+    return (status, errtext)
+# end if
+def make_backup_build_new_dir(wb_obj):
+    """
+    :param wb_obj:
+    :return: (status, errtext,backup_dir) = make_backup_build_new_dir(wb_obj)
+    """
+
+    status = hdef.OKAY
+    errtext = ""
+    backup_dir = os.path.join(wb_obj.base_ddict["store_path"],
+                            hdate.get_name_by_dat_time("backup_basic_infos_", ""))
+
+
+    if not os.path.isdir(backup_dir):
+        try:
+            os.mkdir(backup_dir)
+        except:
+
+            errtext = f"Der BACKUP_store_path: {backup_dir} konnte nicht erstellt werden"
+            status = hdef.NOT_OKAY
+        # end try
+    # end if
+
+    return (status, errtext,backup_dir)
+# end def
