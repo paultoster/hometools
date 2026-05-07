@@ -50,7 +50,7 @@ INFO_DICT = {
 
 
 
-def search(isin,url_ariva="",url_onvista=""):
+def search(isin,url_ariva="",url_onvista="",log=None):
     '''
     
     :param isin:
@@ -59,19 +59,40 @@ def search(isin,url_ariva="",url_onvista=""):
 
     info_dict = get_default_info_dict(isin)
 
-    print(f"Suche basict_infos für ISIN: {isin}, {url_ariva = }, {url_onvista = }")
-    print("            versuche extraetf_ETF")
+    t = f"Suche basict_infos für ISIN: {isin}, {url_ariva = }, {url_onvista = }"
+    if log is not None:
+        log.write_info(t)
+    else:
+        print(t)
+    # end if
+
+    t = "            versuche extraetf_ETF"
+    if log is not None:
+        log.write_info(t)
+    else:
+        print(t)
+    # end if
     (status, errtext, info_dict) = extraetf_ETF(isin, info_dict)
 
     if status == hdef.NOT_FOUND:
 
-        print(f"            versuche extraetf_Aktie")
+        t = "            versuche extraetf_Aktie"
+        if log is not None:
+            log.write_info(t)
+        else:
+            print(t)
+        # end if
         info_dict = get_default_info_dict(isin)
         (status, errtext, info_dict) = extraetf_Aktie(isin, info_dict)
 
     if status == hdef.NOT_FOUND:
 
-        print(f"            versuche extraetf_Fond")
+        t = "            versuche extraetf_Fond"
+        if log is not None:
+            log.write_info(t)
+        else:
+            print(t)
+        # end if
         info_dict = get_default_info_dict(isin)
         (status, errtext, info_dict) = extraetf_Fond(isin, info_dict)
     # end if
@@ -81,14 +102,19 @@ def search(isin,url_ariva="",url_onvista=""):
     if len(url_ariva)==0:
 
         # suche ariva-Webseite
-        (stat, errtext, url_ariva) = wp_pr.get_ariva_url_playwright(isin)
+        (stat, errtext, url_ariva) = wp_pr.get_ariva_url_playwright(isin,log)
         if stat == hdef.OKAY:
             info_dict["url_ariva"] = url_ariva
         # end if
     # end if
     if status == hdef.NOT_FOUND:
 
-        print(f"            versuche ariva")
+        t = "            versuche ariva"
+        if log is not None:
+            log.write_info(t)
+        else:
+            print(t)
+        # end if
         info_dict = get_default_info_dict(isin)
         (status, errtext, info_dict) = ariva_anleihe(isin,url_ariva, info_dict)
         if status == hdef.OKAY:
@@ -103,7 +129,7 @@ def search(isin,url_ariva="",url_onvista=""):
     if len(url_onvista) == 0:
 
         # suche onvista-Webseite
-        (stat, errtext, url_onvista) = wp_pr.get_onvista_url_playwright(isin)
+        (stat, errtext, url_onvista) = wp_pr.get_onvista_url_playwright(isin,log)
         if stat == hdef.OKAY:
             info_dict["url_onvista"] = url_onvista
         # end if
@@ -111,7 +137,12 @@ def search(isin,url_ariva="",url_onvista=""):
 
     if status == hdef.NOT_FOUND:
 
-        print(f"            versuche onvista")
+        t = "            versuche onvista"
+        if log is not None:
+            log.write_info(t)
+        else:
+            print(t)
+        # end if
         info_dict = get_default_info_dict(isin)
         (status, errtext, info_dict) = onvista(isin,url_onvista, info_dict)
         if status == hdef.OKAY:
@@ -616,7 +647,7 @@ def ariva_anleihe(isin, url, info_dict):
     info_dict["wkn"] = wkn
     info_dict["name"] = name
     info_dict["ticker"] = ticker
-    info_dict["type"] = type
+    info_dict["type"] = type.lower()
     info_dict["url"] = url
 
     return (status, errtext, info_dict)
@@ -705,7 +736,7 @@ def onvista(isin_, url, info_dict):
     info_dict["wkn"] = wkn
     info_dict["name"] = name
     info_dict["ticker"] = ticker
-    info_dict["type"] = type
+    info_dict["type"] = type.lower()
 
     return (status, errtext, info_dict)
 

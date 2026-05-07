@@ -1,5 +1,7 @@
 import os, sys
 
+from hfkt_log import log
+
 t_path, _ = os.path.split(__file__)
 if len(t_path) > 0 :
     tools_path = t_path + "\\.."
@@ -61,50 +63,60 @@ def run_wp_abfrage():
             runflag = False
         elif index == index_basic_info:
 
-            print(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
+            wp_obj.log.write_info(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
             
             
             (status,errtext,infotext) = wp_bearbeiten.edit_basic_info(wp_obj)
 
             if len(infotext) > 0 :
-                sgui.anzeige_text(f"Info wp_bearbeiten.edit_basic_info(wp_obj): {infotext}",textcolor='orange')
+                t = f"Info wp_bearbeiten.edit_basic_info(wp_obj): {infotext}"
+                sgui.anzeige_text(t,textcolor='orange')
+                wp_obj.log.write_info(t)
             
             if status != hdef.OKAY:
-                sgui.anzeige_text(f"Error wp_bearbeiten.edit_basic_info(wp_obj) errtext = {errtext}",textcolor='red')
+                t = f"Error wp_bearbeiten.edit_basic_info(wp_obj) errtext = {errtext}"
+                sgui.anzeige_text(t,textcolor='red')
+                wp_obj.log.write_err(t)
                 exit(1)
             # end if
 
         elif index == index_price_volume_isin:
 
-            print(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
+            wp_obj.log.write_info(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
 
             (status, errtext,isin) = wp_bearbeiten.choose_from_gui_for_one_isin(wp_obj)
             if status != hdef.OKAY:
-                print(f"Error wp_bearbeiten.choose_from_gui_for_one_isin(wp_obj) \n errtext = {errtext}")
+                t = f"Error wp_bearbeiten.choose_from_gui_for_one_isin(wp_obj) \n errtext = {errtext}"
+                sgui.anzeige_text(t,textcolor='red')
+                wp_obj.log.write_err(t)
                 exit(1)
             # end if
 
             (status, errtext) = wp_obj.update_price_volume(isin)
             if status != hdef.OKAY:
-                print(f"Error wp_bearbeiten.get_last_price_volume(wp_obj) \n errtext = {errtext}")
+                t = f"Error wp_bearbeiten.get_last_price_volume(wp_obj) \n errtext = {errtext}"
+                sgui.anzeige_text(t,textcolor='red')
+                wp_obj.log.write_err(t)
                 exit(1)
             # end if
 
         elif index == index_price_volume_all:
 
-            print(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
+            wp_obj.log.write_info(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
 
             (status, errtext) = wp_obj.update_price_volume()
             if status != hdef.OKAY:
-                print(f"Error wp_bearbeiten.get_last_price_volume(wp_obj) \n errtext = {errtext}")
+                t = f"Error wp_bearbeiten.get_last_price_volume(wp_obj) \n errtext = {errtext}"
+                sgui.anzeige_text(t,textcolor='red')
+                wp_obj.log.write_err(t)
                 exit(1)
             # end if
 
         elif index == index_eurousd_ezb_xml:
 
-            print(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
-            print("Siehe: https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/eurofxref-graph-usd.de.html")
-            print("Download XML unter dem Chart")
+            wp_obj.log.write_info(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
+            wp_obj.log.write_info("Siehe: https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/eurofxref-graph-usd.de.html")
+            wp_obj.log.write_info("Download XML unter dem Chart")
 
             # Abfrage xml-File
             xmlfilename = sgui.abfrage_file(file_types="*.xml",comment=f"Wähle eine xml-Datei von EZB",start_dir=wp_obj.base_ddict["store_path"])
@@ -113,22 +125,26 @@ def run_wp_abfrage():
                 (status, errtext) = wp_obj.process_usdeuro_ezb_xml(xmlfilename)
 
                 if status != hdef.OKAY:
-                    print(f"Error wp_obj.process_usdeuro_ezb_xml(xmlfilename) \n errtext = {errtext}")
+                    t = f"Error wp_obj.process_usdeuro_ezb_xml(xmlfilename) \n errtext = {errtext}"
+                    sgui.anzeige_text(t, textcolor='red')
+                    wp_obj.log.write_err(t)
                 # end if
             # end if
 
         elif index == index_eurousd_ezb_yfinance:
 
-            print(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
-            print("Wird mit yfinace eingelesen")
+            wp_obj.log.write_info(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
+            wp_obj.log.write_info("Wird mit yfinace eingelesen")
 
             (status, errtext) = wp_obj.process_akt_usdeuro()
 
             if status != hdef.OKAY:
-                print(f"Error wp_obj.process_akt_usdeuro() \n errtext = {errtext}")
+                t = f"Error wp_obj.process_akt_usdeuro() \n errtext = {errtext}"
+                sgui.anzeige_text(t, textcolor='red')
+                wp_obj.log.write_err(t)
 
         else:
-            print(f"Auswahl: {index} nicht bekannt")
+            wp_obj.log.write_info(f"Auswahl: {index} nicht bekannt")
         # endif
     # end while
 # end def

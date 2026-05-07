@@ -1,4 +1,5 @@
 import os, sys, time
+import copy
 
 t_path, _ = os.path.split(__file__)
 tools_path = t_path + "\\.."
@@ -103,7 +104,7 @@ def get(wb_obj, isin_input: str|list) -> (int,str,dict|list):
         # Einzel dict info_dict in Liste einsortieren
         # ---------------------------------------------
         if status == hdef.OKAY:
-            output_list[i] = info_dict
+            output_list[i] = copy.copy(info_dict)
         else:
             return (status, errtext, None)
         # end if
@@ -353,10 +354,10 @@ def update_isin(wb_obj,isin, flag_update_all):
     :return: (status, errtext) = wp_base_basic_info.update_isin(wb_obj,isin, flag_update_all)
     """
     status = hdef.OKAY
-
+    wb_obj.log.write_info(f"Lade lade info-dict")
     (status2, errtext, info_dict) = get_from_file(wb_obj, isin)
     if status2 == hdef.NOT_OKAY:
-        print(f"update_isin not working errtext: {errtext}")
+        wb_obj.log.write_err(f"Lade lade info-dict funcktioniert nicht: {errtext}")
         return (status2, errtext)
     # end if
 
@@ -374,9 +375,10 @@ def update_isin(wb_obj,isin, flag_update_all):
         # end if
     # end if
 
-    (status1, errtext, info_dict_search) = wp_basic_info_internet.search(isin,url_avira,url_onvista)
+    (status1, errtext, info_dict_search) = wp_basic_info_internet.search(isin,url_avira,url_onvista,wb_obj.log)
     if status1 == hdef.NOT_OKAY:
         print(f"update_isin not working errtext: {errtext}")
+        wb_obj.log.write_err(f"Update search {isin = }, {url_avira = }, {url_onvista} funktioniert nicht: {errtext}")
         return (status1, errtext)
     # end if
 

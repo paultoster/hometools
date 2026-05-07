@@ -25,6 +25,8 @@
  fullfilename = set_pfe(path,filebody,ext)
  fullfilename = set_pfe(path,filename)
  fullfilename = reset_ext(fullfilename_in,ext)
+ fullfilename = reset_filename(fullfilename_in,filename,filename_w_ext=True)
+
  leaves_path_name = get_path_leaves(full_path_name,root_path_name)
  status = merge_path_leaves(root_path_name,leaves_path_name)   status = hedf.OKAY
 
@@ -470,6 +472,20 @@ def reset_ext(fullfilename_in,ext):
 
     return set_pfe(path, filebody, ext)
 # end def
+def reset_filename(fullfilename_in,filename,filename_w_ext=True):
+    """
+        fullfilename = reset_filename(fullfilename_in,filename,filename_w_ext=True)
+    """
+    (dir_in, filebody_in, ext_in) = get_pfe(fullfilename_in)
+    (dir, filebody, ext) = get_pfe(filename)
+
+    if filename_w_ext:
+        return set_pfe(dir_in, filebody, ext)
+    else:
+        return set_pfe(dir_in, filebody, ext_in)
+
+
+
 # def set_pfe(p="", b="", e=""):
 #     """
 #

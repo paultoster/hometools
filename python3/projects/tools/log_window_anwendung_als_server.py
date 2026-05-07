@@ -45,7 +45,16 @@ class LogWindow:
 
         self.root = tk.Tk()
         self.root.title("Log-Fenster")
-        self.root.geometry("700x400")
+
+        # Log fenster unten rechts
+        window_width = 700
+        window_height = 400
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+        pos_x = int(screen_width - window_width)
+        pos_y = int(screen_height - window_height)
+        self.root.geometry(f'{window_width}x{window_height}+{pos_x}+{pos_y}')
+        # self.root.geometry("700x400")
 
         self.text = ScrolledText(self.root, state="disabled")
         self.text.pack(fill="both", expand=True)

@@ -17,14 +17,16 @@ import tools.hfkt_type as htype
 
 import wp_abfrage.wp_np_dataclass as wp_np_dc
 
-def get_ariva_url_playwright(isin):
+def get_ariva_url_playwright(isin,log=None):
     status  =  hdef.NOT_FOUND
     errtext = ""
     
     icount = 0
     url = ""
-    tTime = 10000
-    pTime = 10
+    sleepTimeHalf = 2.5/2.
+    #tTime = pTime*1000
+
+
 
     while (icount < 2) and (status != hdef.OKAY):
         
@@ -36,20 +38,40 @@ def get_ariva_url_playwright(isin):
                 page = context.new_page()
                 page.goto("https://www.ariva.de/")
 
-                print(f"get_ariva_url_playwright: Akzeptieren und weiter (sleep:{pTime} s)")
-                time.sleep(pTime)
-
+                t = f"get_ariva_url_playwright: Akzeptieren und weiter (sleep:{sleepTimeHalf*2.} s)"
+                if log is not None:
+                    log.write_info(t)
+                else:
+                    print(t)
+                # end if
+                time.sleep(sleepTimeHalf * (1. + random.random()))
                 try:
                     page.locator("iframe[title=\"SP Consent Message\"]").content_frame.get_by_role("button",
                                                                                                    name="Akzeptieren und weiter").click()
-                    print(f"get_ariva_url_playwright: Nach Akzeptieren und weiter (sleep:{pTime} s)")
-                    time.sleep(pTime)
+                    t = f"get_ariva_url_playwright: Nach Akzeptieren und weiter  (sleep:{sleepTimeHalf * 2.} s)"
+                    if log is not None:
+                        log.write_info(t)
+                    else:
+                        print(t)
+                    # end if
+                    time.sleep(sleepTimeHalf * (1. + random.random()))
                 except:
-                    print(f"get_ariva_url_playwright: First pass  Akzeptieren und weiter")
+
                     pass
                 # end try
+                t = f"get_ariva_url_playwright: First pass  Akzeptieren und weiter"
+                if log is not None:
+                    log.write_info(t)
+                else:
+                    print(t)
+                # end if
 
-                print("get_ariva_url_playwright: Suche öffnen")
+                t = f"get_ariva_url_playwright: Suche öffnen"
+                if log is not None:
+                    log.write_info(t)
+                else:
+                    print(t)
+                # end if
                 page.get_by_role("button", name="Suche öffnen").click()
                 page.get_by_test_id("search-dialog-input").fill(isin)
                 page.get_by_test_id("search-dialog-input").press("Enter")
@@ -57,15 +79,34 @@ def get_ariva_url_playwright(isin):
                 try:
                     page.locator("iframe[title=\"SP Consent Message\"]").content_frame.get_by_role("button",
                                                                                                    name="Akzeptieren und weiter").click()
-                    print(f"get_ariva_url_playwright: Nach Akzeptieren und weiter (sleep:{pTime} s)")
-                    time.sleep(pTime)
+                    t = f"get_ariva_url_playwright: Nach Akzeptieren und weiter  (sleep:{sleepTimeHalf * 2.} s)"
+                    if log is not None:
+                        log.write_info(t)
+                    else:
+                        print(t)
+                    # end if
+                    time.sleep(sleepTimeHalf * (1. + random.random()))
+
                 except:
                     print(f"get_ariva_url_playwright: Second pass  Akzeptieren und weiter")
                     pass
                 # end try
 
-                print(f"get_ariva_url_playwright: page.url (sleep:{pTime} s)")
-                time.sleep(pTime)
+                t = f"get_ariva_url_playwright: First pass  Akzeptieren und weiter"
+                if log is not None:
+                    log.write_info(t)
+                else:
+                    print(t)
+                # end if
+
+                t = f"get_ariva_url_playwright: page.url übergebenr  (sleep:{sleepTimeHalf * 2.} s)"
+                if log is not None:
+                    log.write_info(t)
+                else:
+                    print(t)
+                # end if
+                time.sleep(sleepTimeHalf * (1. + random.random()))
+
                 url = page.url
                 
                 # ---------------------
@@ -75,8 +116,15 @@ def get_ariva_url_playwright(isin):
             # end with
         except:
             icount += 1
-            print(f"get_ariva_url_playwright: while-Schleife (sleep:{pTime} s)")
-            time.sleep(pTime)
+
+            t = f"get_ariva_url_playwright: while-Schleife  (sleep:{sleepTimeHalf * 2.} s)"
+            if log is not None:
+                log.write_info(t)
+            else:
+                print(t)
+            # end if
+            time.sleep(sleepTimeHalf * (1. + random.random()))
+
         # end try
         
         if icount >= 2:
@@ -92,7 +140,7 @@ def get_ariva_url_playwright(isin):
     
     return (status,errtext,url)
 # end def
-def get_onvista_url_playwright(isin):
+def get_onvista_url_playwright(isin,log=None):
     """
 
 
@@ -102,8 +150,8 @@ def get_onvista_url_playwright(isin):
 
     icount = 0
     url = ""
-    tTime = 10000
-    pTime = 10
+    # tTime = 10000
+    sleepTimeHalf = 2.5/2.
 
     while (icount < 2) and (status != hdef.OKAY):
 
@@ -115,20 +163,40 @@ def get_onvista_url_playwright(isin):
                 page = context.new_page()
                 page.goto("https://www.onvista.de/")
 
-                print(f"get_onvista_url_playwright: Akzeptieren und weiter (sleep:{pTime} s)")
-                time.sleep(pTime)
+                t = f"get_onvista_url_playwright: Akzeptieren und weiter (sleep:{sleepTimeHalf*2.} s)"
+                if log is not None:
+                    log.write_info(t)
+                else:
+                    print(t)
+                # end if
 
+                time.sleep(sleepTimeHalf * (1. + random.random()))
                 try:
                     page.locator("#sp_message_iframe_1441229").nth(1).content_frame.get_by_role("button",
                                                                                                 name="Akzeptieren").click()
-                    print(f"get_onvista_url_playwright: Nach Akzeptieren und weiter (sleep:{pTime} s)")
-                    time.sleep(pTime)
+                    t = f"get_onvista_url_playwright: Nach Akzeptieren und weiter (sleep:{sleepTimeHalf * 2.} s)"
+                    if log is not None:
+                        log.write_info(t)
+                    else:
+                        print(t)
+                    # end if
+                    time.sleep(sleepTimeHalf * (1. + random.random()))
                 except:
-                    print(f"get_onvista_url_playwright: First pass  Akzeptieren und weiter")
+                    t = f"get_onvista_url_playwright: First pass  Akzeptieren und weiter"
+                    if log is not None:
+                        log.write_info(t)
+                    else:
+                        print(t)
+                    # end if
                     pass
                 # end try
 
-                print("get_onvista_url_playwright: Suche öffnen")
+                t = f"get_onvista_url_playwright: Suche öffnen"
+                if log is not None:
+                    log.write_info(t)
+                else:
+                    print(t)
+                # end if
                 page.get_by_role("textbox", name="Suche …").click()
                 page.get_by_role("textbox", name="Suche …").fill(isin)
                 page.get_by_role("textbox", name="Suche …").press("Enter")
@@ -136,15 +204,32 @@ def get_onvista_url_playwright(isin):
                 try:
                     page.locator("#sp_message_iframe_1441229").nth(1).content_frame.get_by_role("button",
                                                                                                 name="Akzeptieren").click()
-                    print(f"get_onvista_url_playwright: Nach Akzeptieren und weiter (sleep:{pTime} s)")
-                    time.sleep(pTime)
+
+                    t = f"get_onvista_url_playwright: Nach Akzeptieren und weiter (sleep:{sleepTimeHalf*2.} s)"
+                    if log is not None:
+                        log.write_info(t)
+                    else:
+                        print(t)
+                    # end if
+                    time.sleep(sleepTimeHalf * (1. + random.random()))
                 except:
-                    print(f"get_onvista_url_playwright: Second pass  Akzeptieren und weiter")
+
+                    t = f"get_onvista_url_playwright: Second pass  Akzeptieren und weiter"
+                    if log is not None:
+                        log.write_info(t)
+                    else:
+                        print(t)
+                    # end if
                     pass
                 # end try
 
-                print(f"get_onvista_url_playwright: page.url (sleep:{pTime} s)")
-                time.sleep(pTime)
+                t = f"get_onvista_url_playwright: page.url(sleep:{sleepTimeHalf * 2.} s)"
+                if log is not None:
+                    log.write_info(t)
+                else:
+                    print(t)
+                # end if
+                time.sleep(sleepTimeHalf * (1. + random.random()))
                 url = page.url
 
                 # ---------------------
@@ -154,8 +239,14 @@ def get_onvista_url_playwright(isin):
             # end with
         except:
             icount += 1
-            print(f"get_onvista_url_playwright: while-Schleife (sleep:{pTime} s)")
-            time.sleep(pTime)
+
+            t = f"get_onvista_url_playwright: while-Schleife :{sleepTimeHalf * 2.} s)"
+            if log is not None:
+                log.write_info(t)
+            else:
+                print(t)
+            # end if
+            time.sleep(sleepTimeHalf * (1. + random.random()))
         # end try
 
         if icount >= 2:
@@ -173,7 +264,7 @@ def get_onvista_url_playwright(isin):
 
 
 # end def
-def get_ariva_price_volume_data(wp_dict_liste,np_classdef,ariva_user,ariva_pw,datStrFirst,timeout_s):
+def get_ariva_price_volume_data(wp_dict_liste,np_classdef,ariva_user,ariva_pw,timeout_s,log=None):
     """
     :param wp_dict_liste: see definition in wp_base_price_volume.get_new_price_vol_from_ariva()
     :param np_classdef:
@@ -191,13 +282,20 @@ def get_ariva_price_volume_data(wp_dict_liste,np_classdef,ariva_user,ariva_pw,da
     # mit with die Abfrage starten
     for i in range(3):
 
-        print(f"Step: {i+1}. Versuch Ariva zu öffnen")
+
+        t = f"ariva_playwright: Step: {i+1}. Versuch Ariva zu öffnen"
+        if log is not None:
+            log.write_info(t)
+        else:
+            print(t)
+        # end if
+
         try:
             with sync_playwright() as playwright:
 
                 akzept_flag = False # Ist ein Flag zur Identifizierung, ob die Abnickseite schon abgenickt ist
 
-                (status, errtext, page,context,browser,akzept_flag) = get_ariva_price_volume_start(playwright,ariva_user, ariva_pw, timeout_s,akzept_flag)
+                (status, errtext, page,context,browser,akzept_flag) = get_ariva_price_volume_start(playwright,ariva_user, ariva_pw, timeout_s,akzept_flag,log)
 
                 if status != hdef.OKAY:
                     context.close()
@@ -209,25 +307,37 @@ def get_ariva_price_volume_data(wp_dict_liste,np_classdef,ariva_user,ariva_pw,da
 
                     if (len(wp_dict["url_avira"]) > 0) and (wp_dict["updated"] is False):
 
+
+                        t = f"ariva_playwright: Suche isin: {wp_dict['isin']} url: {wp_dict['url_avira']}"
+                        if log is not None:
+                            log.write_info(t)
+                        else:
+                            print(t)
+                        # end if
+
                         (status, errtext,csv_filename,akzept_flag) = get_ariva_price_volume_isin(page,context,browser,
                                                                                      wp_dict["isin"],
                                                                                      wp_dict["url_avira"],
-                                                                                     datStrFirst,
+                                                                                     wp_dict["start_display_dat"],
                                                                                      timeout_s,
-                                                                                     akzept_flag)
+                                                                                     akzept_flag,
+                                                                                     log)
                         if status != hdef.OKAY:
                             context.close()
                             browser.close()
                             break
                         else:
                             if os.path.exists(csv_filename):
-                                (status, errtext,wp_dict) = read_ariva_csv_file(csv_filename,wp_dict,np_classdef)
+                                (status, errtext,wp_dict) = read_ariva_csv_file(csv_filename,wp_dict,np_classdef,log)
 
                                 if status == hdef.OKAY:
                                     os.remove(csv_filename)
                                     wp_dict["updated"] = True
                                     wp_dict["update_type"] = "ariva"
                                     wp_dict_liste[index] = wp_dict
+                                    log.write_info(f"ariva-playwright: Kurs gefunden ")
+                                else:
+                                    log.write_info(f"ariva-playwright: Kurs nicht gefunden ")
                                 # end if
                             # end if
                         # end if
@@ -254,7 +364,7 @@ def get_ariva_price_volume_data(wp_dict_liste,np_classdef,ariva_user,ariva_pw,da
 
     return (status,errtext,wp_dict_liste)
 # end def
-def get_ariva_price_volume_start(playwright,ariva_user,ariva_pw,timeout_s,akzept_flag):
+def get_ariva_price_volume_start(playwright,ariva_user,ariva_pw,timeout_s,akzept_flag,log=None):
     """
     :param playwright:
     :param ariva_user:
@@ -269,8 +379,13 @@ def get_ariva_price_volume_start(playwright,ariva_user,ariva_pw,timeout_s,akzept
     TimeoutTime = timeout_s*1000
     sleepTimeHalf = timeout_s * 0.5
 
+    t = "ariva_playwright: Step: Open Ariva"
+    if log is not None:
+        log.write_info(t)
+    else:
+        print(t)
+    # end if
 
-    print("Step: Open Ariva")
 
     browser = playwright.chromium.launch(headless=False, slow_mo=500)
     context = browser.new_context()
@@ -279,6 +394,12 @@ def get_ariva_price_volume_start(playwright,ariva_user,ariva_pw,timeout_s,akzept
 
     time.sleep(sleepTimeHalf *(1.+ random.random()))
 
+    t = "ariva_playwright: goto button Akzeptieren"
+    if log is not None:
+        log.write_info(t)
+    else:
+        print(t)
+    # end if
     akzept_flag = wait_for_akzept_ariva(page,akzept_flag)
 
     page.get_by_role("button", name="Login").click(timeout=TimeoutTime)
@@ -290,7 +411,20 @@ def get_ariva_price_volume_start(playwright,ariva_user,ariva_pw,timeout_s,akzept
     page.get_by_role("textbox", name="Passwort").fill(ariva_pw)
     page.get_by_role("button", name="Anmelden").click(timeout=TimeoutTime)
 
+    t = "ariva_playwright: goto button Akzeptieren"
+    if log is not None:
+        log.write_info(t)
+    else:
+        print(t)
+    # end if
     akzept_flag = wait_for_akzept_ariva(page,akzept_flag)
+
+    t = "ariva_playwright: Ariva Open"
+    if log is not None:
+        log.write_info(t)
+    else:
+        print(t)
+    # end if
 
     return (hdef.OKAY, "", page,context,browser,akzept_flag)
 #end if
@@ -300,7 +434,6 @@ def wait_for_akzept_ariva(page,akzept_flag):
     :param akzept_flag:
     :return: akzept_flag = wait_for_akzept_ariva(page,akzept_flag)
     """
-    print("Step: goto button Akzeptieren")
     if not akzept_flag:
         try:
             page.locator("iframe[title=\"SP Consent Message\"]").content_frame.get_by_role("button",
@@ -312,7 +445,7 @@ def wait_for_akzept_ariva(page,akzept_flag):
     # end if
     return akzept_flag
 # end def
-def get_ariva_price_volume_isin(page,context,browser, isin,url_avira,datStrFirst,timeout_s,akzept_flag):
+def get_ariva_price_volume_isin(page,context,browser, isin,url_avira,datStrFirst,timeout_s,akzept_flag,log=None):
     """
     :param page:
     :param context:
@@ -331,6 +464,12 @@ def get_ariva_price_volume_isin(page,context,browser, isin,url_avira,datStrFirst
     try:
         page.goto(url_avira)
         time.sleep(sleepTimeHalf * (1. + random.random()))
+        t = "ariva_playwright: goto button Akzeptieren"
+        if log is not None:
+            log.write_info(t)
+        else:
+            print(t)
+        # end if
         akzept_flag = wait_for_akzept_ariva(page, akzept_flag)
     except:
         pass
@@ -342,8 +481,15 @@ def get_ariva_price_volume_isin(page,context,browser, isin,url_avira,datStrFirst
     # end try
     if len(url) == 0:
         status = hdef.NOT_OKAY
-        errtext = f"url: {url_avira} could not be opened"
-        print(errtext)
+        errtext = f"ariva_playwright: url: {url_avira} could not be opened"
+
+        if log is not None:
+            log.write_err(errtext)
+        else:
+            print(errtext)
+        # end if
+
+
         return (status,errtext,csv_filename)
     # end try
 
@@ -352,8 +498,20 @@ def get_ariva_price_volume_isin(page,context,browser, isin,url_avira,datStrFirst
         page.get_by_role("link", name="Kurse", exact=True).click(timeout=TimeoutTime)
         # kurs_url = url.split("?")[0] + "/kurse"
         # page.goto(kurs_url, timeout=TimeoutTime)
+        t = "ariva_playwright: goto button Akzeptieren"
+        if log is not None:
+            log.write_info(t)
+        else:
+            print(t)
+        # end if
         akzept_flag = wait_for_akzept_ariva(page, akzept_flag)
         page.get_by_role("link", name="Historische Kurse").click(timeout=TimeoutTime)
+        t = "ariva_playwright: goto button Akzeptieren"
+        if log is not None:
+            log.write_info(t)
+        else:
+            print(t)
+        # end if
         akzept_flag = wait_for_akzept_ariva(page, akzept_flag)
         page.get_by_role("textbox", name="Vom").click(timeout=TimeoutTime)
         page.get_by_role("textbox", name="Vom").fill(datStrFirst)
@@ -371,17 +529,27 @@ def get_ariva_price_volume_isin(page,context,browser, isin,url_avira,datStrFirst
         # Wait for the download process to complete and save the downloaded file somewhere
         download.save_as(download.suggested_filename)
         time.sleep(sleepTimeHalf * (1. + random.random()))
-        print(f"Downloaded suggested File {download.suggested_filename}")
+        t= f"ariva-playwright: Downloaded suggested File {download.suggested_filename}"
+        if log is not None:
+            log.write_info(t)
+        else:
+            print(t)
+        # end if
         csv_filename = download.suggested_filename
     else:
 
         status = hdef.NOT_OKAY
-        errtext = f"ISIN: {isin} in ariva not found"
-        print(errtext)
+        errtext = f"ariva-playwright: ISIN: {isin} in ariva not found"
+        if log is not None:
+            log.write_err(errtext)
+        else:
+            print(errtext)
+        # end if
+
     # end if
     return (status,errtext,csv_filename,akzept_flag)
 # end def
-def read_ariva_csv_file(csv_filename,wp_dict,np_classdef):
+def read_ariva_csv_file(csv_filename,wp_dict,np_classdef,log=None):
     """
     :param csv_filename:
     :param wp_dict:
@@ -392,6 +560,13 @@ def read_ariva_csv_file(csv_filename,wp_dict,np_classdef):
     status = hdef.OKAY
     errtext = ""
     np_obj = np_classdef()
+
+    t = f"ariva-playwright: read {csv_filename = }"
+    if log is not None:
+        log.write_info(t)
+    else:
+        print(t)
+    # end if
 
     csv_lliste = hio.read_csv_file(file_name=csv_filename, delim=";")
 
@@ -443,7 +618,7 @@ def read_ariva_csv_file(csv_filename,wp_dict,np_classdef):
 
     return (status,errtext,ariva_data_dict)
 # end def
-def get_onvista_price_volume_data(wp_dict_liste,np_classdef,onvista_user,onvista_pw,datStrFirst,timeout_s):
+def get_onvista_price_volume_data(wp_dict_liste,np_classdef,onvista_user,onvista_pw,timeout_s,log=None):
     """
     :param wp_dict_liste: see definition in wp_base_price_volume.get_new_price_vol_from_onvista()
     :param np_classdef:
@@ -461,13 +636,19 @@ def get_onvista_price_volume_data(wp_dict_liste,np_classdef,onvista_user,onvista
     # mit with die Abfrage starten
     for i in range(3):
 
-        print(f"Step: {i+1}. Versuch onvista zu öffnen")
+
+        t =f"onvista-playwright: Step: {i+1}. Versuch onvista zu öffnen"
+        if log is not None:
+            log.write_info(t)
+        else:
+            print(t)
+        # end if
         try:
             with sync_playwright() as playwright:
 
                 akzept_flag = False # Ist ein Flag zur Identifizierung, ob die Abnickseite schon abgenickt ist
 
-                (status, errtext, page,context,browser,akzept_flag) = get_onvista_price_volume_start(playwright,onvista_user, onvista_pw, timeout_s,akzept_flag)
+                (status, errtext, page,context,browser,akzept_flag) = get_onvista_price_volume_start(playwright,onvista_user, onvista_pw, timeout_s,akzept_flag,log)
 
                 if status != hdef.OKAY:
                     context.close()
@@ -482,22 +663,26 @@ def get_onvista_price_volume_data(wp_dict_liste,np_classdef,onvista_user,onvista
                         (status, errtext,csv_filename,akzept_flag) = get_onvista_price_volume_isin(page,context,browser,
                                                                                      wp_dict["isin"],
                                                                                      wp_dict["url_onvista"],
-                                                                                     datStrFirst,
+                                                                                     wp_dict["start_display_dat"],
                                                                                      timeout_s,
-                                                                                     akzept_flag)
+                                                                                     akzept_flag,
+                                                                                     log)
                         if status != hdef.OKAY:
                             context.close()
                             browser.close()
                             break
                         else:
                             if os.path.exists(csv_filename):
-                                (status, errtext,wp_dict) = read_onvista_csv_file(csv_filename,wp_dict,np_classdef)
+                                (status, errtext,wp_dict) = read_onvista_csv_file(csv_filename,wp_dict,np_classdef,log)
 
                                 if status == hdef.OKAY:
                                     os.remove(csv_filename)
                                     wp_dict["updated"] = True
                                     wp_dict["update_type"] = "onvista"
                                     wp_dict_liste[index] = wp_dict
+                                    log.write_info(f"onvista-playwright: Kurs gefunden ")
+                                else:
+                                    log.write_info(f"onvista-playwright: Kurs nicht gefunden ")
                                 # end if
                             # end if
                         # end if
@@ -524,7 +709,7 @@ def get_onvista_price_volume_data(wp_dict_liste,np_classdef,onvista_user,onvista
 
     return (status,errtext,wp_dict_liste)
 # end def
-def get_onvista_price_volume_start(playwright,onvista_user,onvista_pw,timeout_s,akzept_flag):
+def get_onvista_price_volume_start(playwright,onvista_user,onvista_pw,timeout_s,akzept_flag,log=None):
     """
     :param playwright:
     :param onvista_user:
@@ -539,8 +724,12 @@ def get_onvista_price_volume_start(playwright,onvista_user,onvista_pw,timeout_s,
     TimeoutTime = timeout_s*1000
     sleepTimeHalf = timeout_s * 0.5
 
-
-    print("Step: Open onvista")
+    t = "onvista-playwright: Step: Open onvista"
+    if log is not None:
+        log.write_info(t)
+    else:
+        print(t)
+    # end if
 
     browser = playwright.chromium.launch(headless=False, slow_mo=500)
     context = browser.new_context()
@@ -549,6 +738,12 @@ def get_onvista_price_volume_start(playwright,onvista_user,onvista_pw,timeout_s,
 
     time.sleep(sleepTimeHalf *(1.+ random.random()))
 
+    t = "onvista-playwright: goto button Akzeptieren"
+    if log is not None:
+        log.write_info(t)
+    else:
+        print(t)
+    # end if
     akzept_flag = wait_for_akzept_onvista(page,akzept_flag)
 
     page.get_by_role("button", name="Login").click(timeout=TimeoutTime)
@@ -560,6 +755,12 @@ def get_onvista_price_volume_start(playwright,onvista_user,onvista_pw,timeout_s,
     page.locator("#input-password").fill(onvista_pw)
     page.get_by_role("button", name="Login bei my onvista").click()
 
+    t = "onvista-playwright: goto button Akzeptieren"
+    if log is not None:
+        log.write_info(t)
+    else:
+        print(t)
+    # end if
     akzept_flag = wait_for_akzept_onvista(page,akzept_flag)
 
     return (hdef.OKAY, "", page,context,browser,akzept_flag)
@@ -570,7 +771,7 @@ def wait_for_akzept_onvista(page,akzept_flag):
     :param akzept_flag:
     :return: akzept_flag = wait_for_akzept_ariva(page,akzept_flag)
     """
-    print("Step: goto button Akzeptieren")
+
     if not akzept_flag:
         try:
             page.locator("iframe[title=\"Iframe title\"]").content_frame.get_by_role("button", name="Akzeptieren").click()
@@ -581,7 +782,7 @@ def wait_for_akzept_onvista(page,akzept_flag):
     # end if
     return akzept_flag
 # end def
-def get_onvista_price_volume_isin(page,context,browser, isin,url_onvista,datStrFirst,timeout_s,akzept_flag):
+def get_onvista_price_volume_isin(page,context,browser, isin,url_onvista,datStrFirst,timeout_s,akzept_flag,log=None):
     """
     :param page:
     :param context:
@@ -604,6 +805,12 @@ def get_onvista_price_volume_isin(page,context,browser, isin,url_onvista,datStrF
         try:
             page.goto(url_onvista)
             time.sleep(sleepTimeHalf * (1. + random.random()))
+            t = "onvista-playwright: goto button Akzeptieren"
+            if log is not None:
+                log.write_info(t)
+            else:
+                print(t)
+            # end if
             akzept_flag = wait_for_akzept_onvista(page, akzept_flag)
             success_flag = True
         except:
@@ -614,6 +821,12 @@ def get_onvista_price_volume_isin(page,context,browser, isin,url_onvista,datStrF
         page.get_by_role("textbox", name="Suche …").click(timeout=TimeoutTime)
         page.get_by_role("textbox", name="Suche …").fill(isin)
         page.get_by_role("textbox", name="Suche …").press("Enter")
+        t = "onvista-playwright: goto button Akzeptieren"
+        if log is not None:
+            log.write_info(t)
+        else:
+            print(t)
+        # end if
         akzept_flag = wait_for_akzept_onvista(page, akzept_flag)
     # end if
 
@@ -624,8 +837,13 @@ def get_onvista_price_volume_isin(page,context,browser, isin,url_onvista,datStrF
     # end try
     if len(url) == 0:
         status = hdef.NOT_OKAY
-        errtext = f"url: {url_onvista} or search for {isin = } could not be opened"
-        print(errtext)
+        errtext = f"onvista-playwright: url: {url_onvista} or search for {isin = } could not be opened"
+        if log is not None:
+            log.write_info(errtext)
+        else:
+            print(errtext)
+        # end if
+
         return (status,errtext,csv_filename)
     # end try
 
@@ -652,17 +870,26 @@ def get_onvista_price_volume_isin(page,context,browser, isin,url_onvista,datStrF
         # Wait for the download process to complete and save the downloaded file somewhere
         download.save_as(download.suggested_filename)
         time.sleep(sleepTimeHalf * (1. + random.random()))
-        print(f"Downloaded suggested File {download.suggested_filename}")
+        t = f"onvista-playwright: Downloaded suggested File {download.suggested_filename}"
+        if log is not None:
+            log.write_info(t)
+        else:
+            print(t)
+        # end if
         csv_filename = download.suggested_filename
     else:
 
         status = hdef.NOT_OKAY
-        errtext = f"ISIN: {isin} in onvista not found"
-        print(errtext)
+        errtext = f"onvista-playwright: ISIN: {isin} in onvista not found"
+        if log is not None:
+            log.write_info(errtext)
+        else:
+            print(errtext)
+        # end if
     # end if
     return (status,errtext,csv_filename,akzept_flag)
 # end def
-def read_onvista_csv_file(csv_filename,wp_dict,np_classdef):
+def read_onvista_csv_file(csv_filename,wp_dict,np_classdef,log=None):
     """
     :param csv_filename:
     :param wp_dict:
@@ -673,6 +900,13 @@ def read_onvista_csv_file(csv_filename,wp_dict,np_classdef):
     status = hdef.OKAY
     errtext = ""
     np_obj = np_classdef()
+
+    t = f"onvista-playwright: read {csv_filename = }"
+    if log is not None:
+        log.write_info(t)
+    else:
+        print(t)
+    # end if
 
     csv_lliste = hio.read_csv_file(file_name=csv_filename, delim=";")
 
@@ -885,7 +1119,6 @@ if __name__ == '__main__':
                                                                                wp_np_dc.NpPriceVolumeClass,
                                                                                ariva_user,
                                                                                ariva_pw,
-                                                                               "01.01.2000",
                                                                                sleep_time_s)
 
 

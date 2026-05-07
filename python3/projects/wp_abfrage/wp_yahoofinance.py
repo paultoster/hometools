@@ -63,14 +63,15 @@ def search_ticker_from_isin(isin):
             sektor = ddict[key]
         key = "typeDisp"
         if key in ddict.keys():
-            if ddict[key] == "EQUITY":
+            if ddict[key] == "equity":
                 type = "aktie"
-            elif ddict[key] == "ETF":
+            elif ddict[key] == "etf":
                 type = "etf"
-            elif ddict[key] == "FOND":
-                type = "etf"
+            elif (ddict[key] == "fond") or (ddict[key] == "mutualfond"):
+                type = "fond"
             else:
                 type = ddict[key]
+                print("type = {type} ------------------------------------------------")
             # end if
         # end if
     # end if

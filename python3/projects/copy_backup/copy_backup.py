@@ -297,7 +297,7 @@ class copybackup:
         print("")
 
 
-        self.log = hlog.log(log_window=True)
+        self.log = hlog.log()
 
         return
     # end def

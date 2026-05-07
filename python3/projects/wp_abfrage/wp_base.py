@@ -22,7 +22,7 @@ from wp_abfrage import wp_base_price_volume
 import tools.hfkt_def as hdef
 import tools.hfkt_dict as hdict
 import tools.hfkt_type as htype
-
+import tools.hfkt_log as hlog
 
 INI_DICT_PROOF_LISTE = [("store_path", "str"),
                         ("basic_info_pre_file_name", "str","str","wp_basic_info_data_"),
@@ -32,6 +32,9 @@ INI_DICT_PROOF_LISTE = [("store_path", "str"),
                         ("ariva_user","str"),
                         ("ariva_pw","str"),
                         ("ariva_timeout_s","int","int",10),
+                        ("onvista_user","str"),
+                        ("onvista_pw","str"),
+                        ("onvista_timeout_s","int","int",10),
                         ("boerse","str","str","xetra"),
                         ("usdeuro_use_format", "int", "int",0),
                         ("usdeuro_pre_file_name", "str","str","usdeuro_data_"),
@@ -120,8 +123,11 @@ class WPData:
                 self.errtext = f"tomllib: Bei lesen {ini_filename} gibt Fehler: {e.args[0]}"
                 self.status = hdef.NOT_OKAY
                 return
-        # endtry
+            # endtry
         # endif
+
+        self.log = hlog.log(consol_func=True,log_window=True)
+        self.log_file_name = self.log.get_logfilename()
 
         (self.status, self.errtext, self.base_ddict) = hdict.proof_transform_ddict(ddict,INI_DICT_PROOF_LISTE)
         if self.status != hdef.OK:
@@ -132,6 +138,9 @@ class WPData:
         self.errtext = ""
         
         (self.status,self.errtext) = wp_fkt.check_store_path(self.base_ddict)
+    # end def
+    def __del__(self) -> None:
+        print(f"Siehe logfile: {self.log_file_name}")
     # end def
     def get_basic_info_isin_liste(self) -> (int,str,list):
         '''
@@ -243,17 +252,24 @@ class WPData:
         """
              (status, errtext) = self.update_alla_basic_infos(flag_update_all)
         """
+        self.log.write_info(f"Lade isin-Liste")
         (self.status, self.errtext, isin_liste) = wp_base_basic_info.get_isin_liste(self)
         if self.status != hdef.OK:
             return (self.status, self.errtext)
         # endif
-
-        for isin in isin_liste:
+        start_time = time.time()
+        self.log.write_info(f"Starte update isins mit basic-info {start_time = }")
+        n = len(isin_liste)
+        for i,isin in enumerate(isin_liste):
+            self.log.write_info(f"({i+1}/{n}) Starte update {isin = }  {flag_update_all = }")
             (self.status, self.errtext) = self.update_basic_info_isin(isin,flag_update_all)
             if self.status != hdef.OK:
                 return (self.status, self.errtext)
             # end if
         # end for
+        end_time = time.time()
+        self.log.write_info(f"Ende update isins mit basic-info {end_time = }")
+        self.log.write_info(f"Ausführungszeit: {end_time - start_time } s")
         return (self.status, self.errtext)
     # end def
     def update_basic_info_isin(self, isin,flag_update_all):

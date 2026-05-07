@@ -30,6 +30,7 @@ if (t_path == os.getcwd()):
 
     import hfkt_def as hfkt_def
     import hfkt as h
+    import hfkt_file_path as hfp
 else:
     p_list = os.path.normpath(t_path).split(os.sep)
     if (len(p_list) > 1): p_list = p_list[: -1]
@@ -39,6 +40,7 @@ else:
 
     from tools import hfkt_def as hfkt_def
     from tools import hfkt as h
+    from tools import hfkt_file_path as hfp
 # end if
 
 # endif--------------------------------------------------------------------------
@@ -62,11 +64,14 @@ class log:
 
     def __init__(self, log_file=None, consol_func=None,log_window=None):
         """ Log-Datei oeffnen
+        log(log_file=filename/None,consol_func=True/False,log_window=True/False)
         """
         self.state = hfkt_def.OKAY
         self.errtext = ""
         self.logfile_out_flag = False
         self.log_message = []
+
+        print(__file__)
 
         # Logfile-Name
         # -------------
@@ -137,7 +142,9 @@ class log:
         try:
             if self.log_window != None:
 
-                self.log_process = subprocess.Popen(["python", "log_window_anwendung_als_server.py"])
+                fullfilename = hfp.reset_filename(__file__, "log_window_anwendung_als_server.py")
+
+                self.log_process = subprocess.Popen(["python", fullfilename])
 
                 self.log_window_open = True
 
@@ -258,7 +265,10 @@ class log:
             s.close()
         except:
             pass
-
+        # end try
+    # end def
+    def get_logfilename(self):
+        return self.log_file
 
 ###########################################################################
 # testen mit main

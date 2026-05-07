@@ -1,5 +1,7 @@
 import os, sys
 
+from hfkt_log import log
+
 t_path, _ = os.path.split(__file__)
 tools_path = t_path + "\\.."
 if (tools_path not in sys.path):
@@ -60,14 +62,14 @@ def edit_basic_info(wb_obj):
             runflag = False
         elif indexAbfrage == i_abfrage_edit:
             if index < 0:
-                print("Keine isin ausgewählt")
+                wb_obj.log.write_info("Keine isin ausgewählt")
                 runflag = True
             else:
                 
                 # Bearbeite basic infos von isin
                 isin = isin_liste[index]
                 wpname = isin_wpname_liste[index]
-                print(isin_wpname_liste[index])
+                wb_obj.log.write_info(f"Bearbeiten isin: {isin} Name: {wpname}")
                 (status, errtext) = edit_isin_basic_info(wb_obj,wpname, isin)
                 if status != hdef.OKAY:
                     return (status, errtext,infotext)
@@ -101,7 +103,7 @@ def edit_basic_info(wb_obj):
 
             runflag = True
         elif indexAbfrage == i_abfrage_delete:
-            print("delete ist noch nicht programmiert")
+            wb_obj.log.write_info("delete ist noch nicht programmiert")
             runflag = True
         elif indexAbfrage == i_abfrage_update_empty:
             (status, errtext) = wb_obj.update_all_basic_infos(False)
@@ -109,7 +111,7 @@ def edit_basic_info(wb_obj):
                 return (status, errtext, infotext)
             runflag = True
         elif indexAbfrage == i_abfrage_update_all:
-            (status, errtext) = wb_obj.update_alla_basic_infos(True)
+            (status, errtext) = wb_obj.update_all_basic_infos(True)
             if status != hdef.OKAY:
                 return (status, errtext, infotext)
             runflag = True
@@ -264,7 +266,7 @@ def dump_in_ods(wb_obj,isin_liste):
     :return: (status, errtext) = dump_in_ods(wp_obj)
     """
 
-    (status, errtext, output_dict_list) = wp_obj.get_basic_info(isin_liste)
+    (status, errtext, output_dict_list) = wb_obj.get_basic_info(isin_liste)
     if status != hdef.OKAY:
         return (status, errtext)
     # end if
