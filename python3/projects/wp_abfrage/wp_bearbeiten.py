@@ -42,15 +42,16 @@ def edit_basic_info(wb_obj):
         return (status, errtext,infotext)
     # end if
 
-    abfrage_liste = ["edit", "ende", "neu", "delete","update(empty)","update(all)","dump(ods)","proof_url(subsequent)","backup"]
+    abfrage_liste = ["edit", "ende", "neu", "delete","update(empty)","update(all)","update(one)","dump(ods)","proof_url(subsequent)","backup"]
     i_abfrage_ende = 1
     i_abfrage_edit = 0
     i_abfrage_neu = 2
     i_abfrage_delete = 3
     i_abfrage_update_empty = 4
     i_abfrage_update_all = 5
-    i_abfrage_dump_ods = 6
-    i_abfrage_proof_url_subsequent = 7
+    i_abfrage_update_one = 6
+    i_abfrage_dump_ods = 7
+    i_abfrage_proof_url_subsequent = 8
     #i_backup = 8
     runflag = True
     while (runflag):
@@ -112,6 +113,35 @@ def edit_basic_info(wb_obj):
             runflag = True
         elif indexAbfrage == i_abfrage_update_all:
             (status, errtext) = wb_obj.update_all_basic_infos(True)
+            if status != hdef.OKAY:
+                return (status, errtext, infotext)
+            runflag = True
+        elif indexAbfrage == i_abfrage_update_one:
+            abfrage_liste2 = ["choice","zurück"]
+            [index, indexAbfrage] = sgui.abfrage_liste_index_abfrage_index(isin_wpname_liste, abfrage_liste2,
+                                                                           "WP choose isin")
+
+            if indexAbfrage < 0:
+                runflag = True
+            elif indexAbfrage == 1:
+                runflag = False
+            elif indexAbfrage == 0:
+                if index < 0:
+                    wb_obj.log.write_info("Keine isin ausgewählt")
+                    runflag = True
+                else:
+
+                    # Bearbeite basic infos von isin
+                    isin = isin_liste[index]
+                    wpname = isin_wpname_liste[index]
+                    wb_obj.log.write_info(f"update isin: {isin} Name: {wpname}")
+                    (status, errtext) = wb_obj.update_one_basic_infos(isin,True)
+                    if status != hdef.OKAY:
+                        return (status, errtext, infotext)
+                    # end if
+                # end if
+
+
             if status != hdef.OKAY:
                 return (status, errtext, infotext)
             runflag = True
@@ -369,6 +399,141 @@ def make_backup_build_new_dir(wb_obj):
     errtext = ""
     backup_dir = os.path.join(wb_obj.base_ddict["store_path"],
                             hdate.get_name_by_dat_time("backup_basic_infos_", ""))
+
+
+    if not os.path.isdir(backup_dir):
+        try:
+            os.mkdir(backup_dir)
+        except:
+
+            errtext = f"Der BACKUP_store_path: {backup_dir} konnte nicht erstellt werden"
+            status = hdef.NOT_OKAY
+        # end try
+    # end if
+
+    return (status, errtext,backup_dir)
+# end def
+def edit_price_volume(wp_obj):
+    """
+
+    :param wp_obj:            wp_base.WPData Data Objekt
+    :return: (status,errtext,infotext) = edit_price_volume(wb_obj)
+    """
+    infotext = ""
+    # Hole die dict-Liste mit allen WPs name[isin]
+    #---------------------------------------------
+    (status, errtext,isin_liste,isin_wpname_liste)  = get_isin_and_wpname_list(wp_obj)
+    if status != hdef.OKAY:
+        return (status, errtext,"")
+    # end if
+
+    abfrage_liste = ["update one isin","ende", "update all isins","backup"]
+    i_abfrage_ende = 1
+    i_abfrage_update_isin = 0
+    i_abfrage_update_all = 2
+    #i_backup = 3
+    runflag = True
+
+    while (runflag):
+        [index, indexAbfrage] = sgui.abfrage_liste_index_abfrage_index(isin_wpname_liste, abfrage_liste, "WP update isin")
+
+        if indexAbfrage < 0:
+            runflag = True
+        elif indexAbfrage == i_abfrage_ende:
+            runflag = False
+        elif indexAbfrage == i_abfrage_update_isin:
+            if index < 0:
+                wp_obj.log.write_info("Keine isin ausgewählt")
+                runflag = True
+            else:
+
+                # Bearbeite basic infos von isin
+                isin = isin_liste[index]
+                wpname = isin_wpname_liste[index]
+                wp_obj.log.write_info(f"WP update isin: {isin} Name: {wpname}")
+
+                (status, errtext, infotext) = wp_obj.update_price_volume(isin)
+
+                if len(infotext):
+                    t = f"Info wp_bearbeiten.get_last_price_volume(wp_obj) \n infotext = {infotext}"
+                    sgui.anzeige_text(t, textcolor='green')
+                    wp_obj.log.write_info(t)
+                # end if
+
+                if status != hdef.OKAY:
+                    t = f"Error wp_bearbeiten.edit_price_volume(wp_obj) \n errtext = {errtext}"
+                    sgui.anzeige_text(t, textcolor='red')
+                    wp_obj.log.write_err(t)
+                    runflag = False
+                # end if
+        elif indexAbfrage == i_abfrage_update_all:
+
+            (status, errtext, infotext) = wp_obj.update_price_volume()
+
+            if len(infotext):
+                t = f"Info wp_bearbeiten.get_last_price_volume(wp_obj) \n infotext = {infotext}"
+                sgui.anzeige_text(t, textcolor='green')
+                wp_obj.log.write_info(t)
+            # end if
+
+            if status != hdef.OKAY:
+                t = f"Error wp_bearbeiten.edit_price_volume(wp_obj) \n errtext = {errtext}"
+                sgui.anzeige_text(t, textcolor='red')
+                wp_obj.log.write_err(t)
+                runflag = False
+            # end if
+        else: # indexAbfrage == i_backup = 3
+            (status, errtext) = make_backup_price_volumen(wp_obj)
+        # end if
+    # end while
+    return (status, errtext, infotext)
+# end def
+def make_backup_price_volumen(wb_obj):
+    """
+    :param wb_obj:
+    :return: (status, errtext) = make_backup_basic_infos(wb_obj)
+    """
+
+    (status, errtext, isin_liste) = wb_obj.get_basic_info_isin_liste()
+    if status != hdef.OKAY:
+        return (status, errtext)
+    # end if
+
+    (status,errtext,backup_dir) = make_backup_build_new_dir_price_volume(wb_obj)
+    if status != hdef.OKAY:
+        return (status, errtext)
+    #  end if
+
+    (status, errtext, filename_list) = wb_obj.get_exist_filenames_of_privce_volume(isin_liste)
+    if status != hdef.OKAY:
+        return (status, errtext)
+    #  end if
+
+    for file_name in filename_list:
+
+        wb_obj.log.write_info(f"copy {file_name = } into {backup_dir = }")
+        (status, errtext) = hpf.make_backup_file(file_name, backup_dir, no_act_date=True)
+
+        if status != hdef.OKAY:
+            return (status, errtext)
+        # end if
+    # end for
+
+    # end for
+
+
+    return (status, errtext)
+# end if
+def make_backup_build_new_dir_price_volume(wp_obj):
+    """
+    (status, errtext) = make_backup_build_new_dir_price_volume(wp_obj)
+    """
+
+    status = hdef.OKAY
+    errtext = ""
+
+    backup_dir = os.path.join(wp_obj.base_ddict["store_path"],
+                            hdate.get_name_by_dat_time("price_volume_", ""))
 
 
     if not os.path.isdir(backup_dir):

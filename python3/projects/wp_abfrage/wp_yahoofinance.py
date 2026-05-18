@@ -101,6 +101,7 @@ def get_price_volume_data(ticker,np_classdef,start_dat,end_dat):
     """
     status = hdef.OKAY
     errtext = ""
+    infotext = ""
     np_obj = np_classdef()
 
     # sub einen Tag
@@ -121,12 +122,26 @@ def get_price_volume_data(ticker,np_classdef,start_dat,end_dat):
 
     info = yf.Ticker(ticker)
 
-    df_data = yf.download(ticker, start_dat_time_class.strftime('%Y-%m-%d'), end_dat_time_class.strftime('%Y-%m-%d'))
+    # hist_data = info.history(period="max")
+    #
+    # # date_list = hist_data.index.tolist()
+    #
+    # earliest_date = hist_data.index.min()
+    #
+    # dat_np_array = np.array(htype.type_transform_direct(date_str_list, "datStrP", "dat"), copy=True)
+    # open_np_array = hist_data["Open"].to_numpy()
+    # high_np_array = hist_data["High"].to_numpy()
+    # low_np_array = hist_data["Low"].to_numpy()
+    # close_np_array = hist_data["Close"].to_numpy()
+    # volume_np_array = hist_data["Volume"].to_numpy()
+    #
+    # df_data = yf.download(ticker, start_dat_time_class.strftime('%Y-%m-%d'), end_dat_time_class.strftime('%Y-%m-%d'))
+
+    df_data = yf.download(ticker, period = "max", interval = "1d")
 
     if df_data.empty:
-        status = hdef.NOT_OKAY
-        errtext = f"for Ticker-Symbol \"{ticker}\" no data from yahoofinance"
-        return (status, errtext, np_obj)
+        infotext = f"for Ticker-Symbol \"{ticker}\" no data from yahoofinance"
+        return (status, errtext, infotext, np_obj)
     # end if
 
     date_str_list = df_data.index.strftime("%d.%m.%Y").tolist()
@@ -163,7 +178,7 @@ def get_price_volume_data(ticker,np_classdef,start_dat,end_dat):
         # end if
     # end def
 
-    return (status, errtext, np_obj)
+    return (status, errtext,infotext, np_obj)
 # end def
 # def get_price_volume_data(ticker, waehrung, start_dat_time_list, end_dat_time_list):
 #     """

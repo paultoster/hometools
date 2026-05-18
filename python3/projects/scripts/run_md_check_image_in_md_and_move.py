@@ -34,11 +34,11 @@ def run_md_check_image_in_md_and_move(md_base_path):
             x = 0
         # end if
 
-        fullfilename = hfp.build_path_with_forward_slash(item)
+        fullfilename = hfp.build_pathname_with_forward_slash(item)
 
         (fpath, fbody, fext) = hfp.get_pfe(fullfilename)
 
-        if fbody == "Lichtschalter":
+        if fbody == "AktienETFs":
             print("halt")
         # end if
 
@@ -264,7 +264,7 @@ def find_or_build_bild_path(ddict,imagefilename):
 
     ddict["rel_ebenen"]  = rel_ebenen
     ddict["bilder_path_list"] = bilder_path_list
-    ddict["bilder_path"]      =  hfp.build_path_from_list_with_forward_slash(bilder_path_list)
+    ddict["bilder_path"]      =  hfp.build_pathname_from_list_with_forward_slash(bilder_path_list)
 
     if hfp.build_path(ddict["bilder_path"]) != hdef.OK:
         print(f"Das Zielverzeichnis {ddict["bilder_path"]} kann nicht erstellt werden")
@@ -317,7 +317,7 @@ def proof_and_correct_imagefile(ddict,imagefilename):
                 ddict["log"].write_err(ddict["action_text"], screen=1)
                 ddict["image_found"] = False
             else:
-                fullfilename = hfp.build_path_with_forward_slash(fullfilename)
+                fullfilename = hfp.build_pathname_with_forward_slash(fullfilename)
                 (fpath, fbody, fext) = hfp.get_pfe(fullfilename)
                 ddict["full_image_file"] = fullfilename
                 ddict["image_path"] = fpath
@@ -344,7 +344,7 @@ def bilde_abs_image_path(ddict):
         ddict["abs_image_path_list"] = os.path.normpath(abs_image_path).split(os.sep)
         abs_full_image_file_list     = copy.copy(ddict["abs_image_path_list"])
         abs_full_image_file_list.append( ddict["image_file"])
-        ddict["abs_full_image_file"] = hfp.build_path_from_list_with_forward_slash(abs_full_image_file_list)
+        ddict["abs_full_image_file"] = hfp.build_pathname_from_list_with_forward_slash(abs_full_image_file_list)
     else: # http
         ddict["abs_image_path"]      = copy.copy(ddict["image_path"])
         ddict["abs_image_path_list"] = copy.copy(ddict["image_path_list"])
@@ -368,11 +368,11 @@ def move_or_copy_imagefilename(ddict):
     if ddict["imagefile_type"] == "http":
 
         bilder_path_list = copy.copy(ddict["bilder_path_list"])
-        new_abs_image_path = hfp.build_path_from_list_with_forward_slash(bilder_path_list)
+        new_abs_image_path = hfp.build_pathname_from_list_with_forward_slash(bilder_path_list)
 
         liste = copy.copy(ddict["bilder_path_list"])
         liste.append(ddict["image_file"])
-        ddict["new_full_image_file"] = hfp.build_path_from_list_with_forward_slash(liste)
+        ddict["new_full_image_file"] = hfp.build_pathname_from_list_with_forward_slash(liste)
 
         okay = hio.read_http_file(ddict["abs_full_image_file"], ddict["new_full_image_file"] )
         ddict["action_text"] = f"http_copy: {ddict["abs_full_image_file"]} \n=> {ddict["new_full_image_file"]}"
@@ -385,11 +385,11 @@ def move_or_copy_imagefilename(ddict):
         elif  liste == ddict["md_base_path_list"]:
             # move
             bilder_path_list = copy.copy(ddict["bilder_path_list"])
-            new_abs_image_path      = hfp.build_path_from_list_with_forward_slash(bilder_path_list)
+            new_abs_image_path      = hfp.build_pathname_from_list_with_forward_slash(bilder_path_list)
 
             liste = copy.copy(ddict["bilder_path_list"])
             liste.append(ddict["image_file"])
-            ddict["new_full_image_file"] = hfp.build_path_from_list_with_forward_slash(liste)
+            ddict["new_full_image_file"] = hfp.build_pathname_from_list_with_forward_slash(liste)
 
             okay = hfp.move_file(ddict["abs_full_image_file"], ddict["bilder_path"] )
             ddict["action_text"] = f"move: {ddict["abs_full_image_file"]} \n=> {ddict["bilder_path"]}"
@@ -400,11 +400,11 @@ def move_or_copy_imagefilename(ddict):
             # copy
 
             bilder_path_list = copy.copy(ddict["bilder_path_list"])
-            new_abs_image_path = hfp.build_path_from_list_with_forward_slash(bilder_path_list)
+            new_abs_image_path = hfp.build_pathname_from_list_with_forward_slash(bilder_path_list)
 
             liste = copy.copy(ddict["bilder_path_list"])
             liste.append(ddict["image_file"])
-            ddict["new_full_image_file"] = hfp.build_path_from_list_with_forward_slash(liste)
+            ddict["new_full_image_file"] = hfp.build_pathname_from_list_with_forward_slash(liste)
 
             okay = hfp.copy(ddict["abs_full_image_file"], ddict["new_full_image_file"])
             ddict["action_text"] = f"copy: {ddict["abs_full_image_file"]} \n=> {ddict["new_full_image_file"]}"
@@ -427,7 +427,7 @@ def modify_line_w_new_image_path(line, i0, i1, ddict):
     rel_file_list = hfp.build_list_from_path(rel_dir)
     rel_file_list.append(ddict["image_file"])
 
-    new_image_full_file = hfp.build_path_from_list_with_forward_slash(rel_file_list)
+    new_image_full_file = hfp.build_pathname_from_list_with_forward_slash(rel_file_list)
 
     if i0 == 0:
         mod_line  = ""
@@ -441,6 +441,7 @@ def modify_line_w_new_image_path(line, i0, i1, ddict):
     return mod_line
 
 if __name__ == '__main__':
-    MD_BASE_PATH = "K:/data/md"
+    # MD_BASE_PATH = "K:/data/md"
+    MD_BASE_PATH = "D:/data/md"
     run_md_check_image_in_md_and_move(MD_BASE_PATH)
 

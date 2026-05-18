@@ -136,7 +136,8 @@ class WPData:
 
         self.status = hdef.OKAY
         self.errtext = ""
-        
+        self.infotext = ""
+
         (self.status,self.errtext) = wp_fkt.check_store_path(self.base_ddict)
     # end def
     def __del__(self) -> None:
@@ -269,6 +270,24 @@ class WPData:
         # end for
         end_time = time.time()
         self.log.write_info(f"Ende update isins mit basic-info {end_time = }")
+        self.log.write_info(f"Ausführungszeit: {end_time - start_time } s")
+        return (self.status, self.errtext)
+    # end def
+    def update_one_basic_infos(self, isin, flag_update_all=True):
+        """
+        :param isin:
+        :param flag_update_all:
+        :return:  (status, errtext) = wb_obj.update_one_basic_infos(isin)
+                  (status, errtext) = wb_obj.update_one_basic_infos(isin, True/False)
+        """
+        start_time = time.time()
+        self.log.write_info(f"Starte update {isin = }  {flag_update_all = }")
+        (self.status, self.errtext) = self.update_basic_info_isin(isin,flag_update_all)
+        if self.status != hdef.OK:
+            return (self.status, self.errtext)
+        # end if
+        end_time = time.time()
+        self.log.write_info(f"Ende update {isin = } mit basic-info {end_time = }")
         self.log.write_info(f"Ausführungszeit: {end_time - start_time } s")
         return (self.status, self.errtext)
     # end def
@@ -410,15 +429,15 @@ class WPData:
         if isin == None:
             (self.status,self.errtext, isin_liste) = self.get_basic_info_isin_liste()
             if self.status != hdef.OKAY:
-                return (self.status, self.errtext)
+                return (self.status,self.errtext,self.infotext)
             # end if
         else:
             isin_liste = [isin]
         # end if
 
-        (self.status,self.errtext) = wp_base_price_volume.update(self,isin_liste)
+        (self.status,self.errtext,self.infotext) = wp_base_price_volume.update(self,isin_liste)
         if self.status != hdef.OKAY:
-            return (self.status, self.errtext)
+            return (self.status,self.errtext,self.infotext)
         # end if
 
         # (status, errtext) = wp_base_price_volume.update_last_price_volume_isin(self, isin_basic_dict, isin)
@@ -426,9 +445,17 @@ class WPData:
         #     return (status, errtext)
         # # end if
 
-        return (status, errtext)
+        return (self.status,self.errtext,self.infotext)
 
 
+    # end def
+    def get_exist_filenames_of_privce_volume(self, isin_input: str | list) -> (int, str, list):
+        """
+        :param isin_input:
+        (status, errtext, filename_list) = wp_base.get_exist_filenames_of_basic_info( isin_input)
+        """
+        (self.status, self.errtext, filename_list) = wp_base_price_volume.get_exist_filenames(self, isin_input)
+        return (self.status, self.errtext, filename_list)
     # end def
 
 

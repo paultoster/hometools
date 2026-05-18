@@ -32,13 +32,12 @@ def run_wp_abfrage():
 
     runflag = True
     
-    start_auswahl = ["Ende", "edit basic info","get last price and volume one isin","get last price and volume all","EURUSD-Kurs lese aus EZB-xml-data", "EURUSD-Kurs hole aktuellen aus yfinance"]
+    start_auswahl = ["Ende", "edit basic info","edit price volume","EURUSD-Kurs lese aus EZB-xml-data", "EURUSD-Kurs hole aktuellen aus yfinance"]
     index_ende = 0
     index_basic_info = 1
-    index_price_volume_isin = 2
-    index_price_volume_all = 3
-    index_eurousd_ezb_xml = 4
-    index_eurousd_ezb_yfinance = 5
+    index_price_volume = 2
+    index_eurousd_ezb_xml = 3
+    index_eurousd_ezb_yfinance = 4
     save_flag = True
     abfrage_liste = ["okay", "cancel", "ende"]
     i_abfrage_okay = 0
@@ -80,19 +79,18 @@ def run_wp_abfrage():
                 exit(1)
             # end if
 
-        elif index == index_price_volume_isin:
+        elif index == index_price_volume:
 
             wp_obj.log.write_info(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
 
-            (status, errtext,isin) = wp_bearbeiten.choose_from_gui_for_one_isin(wp_obj)
-            if status != hdef.OKAY:
-                t = f"Error wp_bearbeiten.choose_from_gui_for_one_isin(wp_obj) \n errtext = {errtext}"
-                sgui.anzeige_text(t,textcolor='red')
-                wp_obj.log.write_err(t)
-                exit(1)
+            (status, errtext, infotext) = wp_bearbeiten.edit_price_volume(wp_obj)
+
+            if len(infotext):
+                t = f"Info wp_bearbeiten.get_last_price_volume(wp_obj) \n infotext = {infotext}"
+                sgui.anzeige_text(t,textcolor='green')
+                wp_obj.log.write_info(t)
             # end if
 
-            (status, errtext) = wp_obj.update_price_volume(isin)
             if status != hdef.OKAY:
                 t = f"Error wp_bearbeiten.get_last_price_volume(wp_obj) \n errtext = {errtext}"
                 sgui.anzeige_text(t,textcolor='red')
@@ -104,12 +102,18 @@ def run_wp_abfrage():
 
             wp_obj.log.write_info(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
 
-            (status, errtext) = wp_obj.update_price_volume()
+            (status, errtext,infotext) = wp_obj.update_price_volume()
             if status != hdef.OKAY:
                 t = f"Error wp_bearbeiten.get_last_price_volume(wp_obj) \n errtext = {errtext}"
                 sgui.anzeige_text(t,textcolor='red')
                 wp_obj.log.write_err(t)
                 exit(1)
+            # end if
+
+            if len(infotext):
+                t = f"Info wp_bearbeiten.get_last_price_volume(wp_obj) \n infotext = {infotext}"
+                sgui.anzeige_text(t,textcolor='green')
+                wp_obj.log.write_info(t)
             # end if
 
         elif index == index_eurousd_ezb_xml:

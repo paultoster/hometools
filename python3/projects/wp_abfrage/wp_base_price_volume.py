@@ -2,6 +2,8 @@
 import os, sys
 import numpy as np
 
+from hfkt_log import log
+
 t_path, _ = os.path.split(__file__)
 tools_path = t_path + "\\.."
 if (tools_path not in sys.path):
@@ -24,7 +26,7 @@ from wp_abfrage import wp_yahoofinance as wp_yf
 
 def update(wb_obj,isin_liste):
     """
-        (status,errtext) = wp_base_price_volume.update(wb_obj,isin_liste)
+        (status,errtext,infotext) = wp_base_price_volume.update(wb_obj,isin_liste)
     """
 
     # Get basic_info_dict in a list
@@ -37,9 +39,9 @@ def update(wb_obj,isin_liste):
     # get np_obj, start_dat and end_dat into wp_dict_liste
     (status, errtext, wp_dict_liste) = get_np_obj_liste(wb_obj,wp_dict_liste)
 
-    (status,errtext) = update_start_to_end_dat(wb_obj,wp_dict_liste)
+    (status,errtext,infotext) = update_start_to_end_dat(wb_obj,wp_dict_liste)
 
-    return (status,errtext)
+    return (status,errtext,infotext)
 # end if
 def get_np_obj_liste(wb_obj,wp_dict_liste):
     """
@@ -148,9 +150,9 @@ def get_number_of_np_obj(wb_obj,np_obj):
 # end def
 def update_start_to_end_dat(wb_obj,wp_dict_liste):
     """
-        (status, errtext) = update_start_to_end_dat(wb_obj,wp_dict_liste)
+        (status, errtext,infotext) = update_start_to_end_dat(wb_obj,wp_dict_liste)
     """
-
+    infotext = ""
 
     (status,errtext,wp_dict_liste) = get_new_price_vol_from_start_dat_to_end_dat(wb_obj,wp_dict_liste)
     if status != hdef.OKAY:
@@ -159,20 +161,37 @@ def update_start_to_end_dat(wb_obj,wp_dict_liste):
 
     for wp_dict in wp_dict_liste:
 
-        if wp_dict["updated"] and wp_dict["update_type"] != "file":
+        if wp_dict["updated"]:
 
-            (status,errtext,np_obj) = merge_np_data(wp_dict["np_obj"],wp_dict["np_obj_new"])
-            if status != hdef.OKAY:
-                return (status, errtext)
+            wb_obj.log.write_info(f"Update WP isin: {wp_dict["isin"]} Name: {wp_dict["name"]}")
+            wb_obj.log.write_info(f"Update type: {wp_dict["update_type"]} ")
+
+            if wp_dict["update_type"] != "file":
+
+                (status,errtext,np_obj) = merge_np_data(wp_dict["np_obj"],wp_dict["np_obj_new"])
+                if status != hdef.OKAY:
+                    return (status, errtext)
+                # end if
+
+                file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["price_volumen_pre_file_name"] + wp_dict["isin"],
+                                                            wb_obj.base_ddict["store_path"])
+                formatpj = int(wb_obj.base_ddict["price_volumen_use_format"] % 10)
+                (status, errtext,filename) = wp_storage.save_np_obj(np_obj,file_name,formatpj)
+                wb_obj.log.write_info(f"Updated file: {filename} ")
             # end if
-
-            file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["price_volumen_pre_file_name"] + wp_dict["isin"],
-                                                        wb_obj.base_ddict["store_path"])
-            formatpj = int(wb_obj.base_ddict["price_volumen_use_format"] % 10)
-            wp_storage.save_np_obj(np_obj,file_name,formatpj)
+        else:
+            itext = f"isin: {wp_dict["isin"]} Name: {wp_dict["name"]} Ticker: {wp_dict["ticker"]}"
+            wb_obj.log.write_info(f"No Update found for WP {itext}")
+            if len(infotext) == 0:
+                infotext = "No Update found for WPs:\n"
+            infotext = f"{infotext}{itext}\n"
         # end if
+
     # end for
-    return (status,errtext)
+
+
+
+    return (status,errtext,infotext)
 # end def
 def get_new_price_vol_from_start_dat_to_end_dat(wb_obj,wp_dict_liste):
     """
@@ -186,9 +205,10 @@ def get_new_price_vol_from_start_dat_to_end_dat(wb_obj,wp_dict_liste):
 
     (status, errtext, wp_dict_liste) = get_new_price_vol_from_yf(wb_obj, wp_dict_liste)
 
-    (status, errtext, wp_dict_liste) = get_new_price_vol_from_ariva(wb_obj, wp_dict_liste)
 
-    (status, errtext, wp_dict_liste) = get_new_price_vol_from_onvista(wb_obj, wp_dict_liste)
+ #   (status, errtext, wp_dict_liste) = get_new_price_vol_from_ariva(wb_obj, wp_dict_liste)
+
+ #   (status, errtext, wp_dict_liste) = get_new_price_vol_from_onvista(wb_obj, wp_dict_liste)
 
     return (status,errtext,wp_dict_liste)
 # end def
@@ -203,22 +223,22 @@ def get_new_price_vol_from_yf(wb_obj,  wp_dict_liste):
     errtext = ""
 
     # Build liste mit nicht gefundenen
-
+    n = len(wp_dict_liste)
     for i, wp_dict in enumerate(wp_dict_liste):
 
         if wp_dict["updated"]:
-            pass
+            wb_obj.log.write_info(f"yahoo-finance: {i+1}./{n} Wert Daten sind upgedated für wpname = {wp_dict["name"]} mit isin = {wp_dict["isin"]}")
         else:
             isin = wp_dict["isin"]
             wpname = wp_dict["name"]
             ticker = wp_dict["ticker"]
-            wb_obj.log.write_info(f"yahoo-finance: Lese Daten von yahhoo für {wpname = } mit {isin = } ein")
+            wb_obj.log.write_info(f"yahoo-finance: {i+1}./{n} Wert Versuche Daten von yahhoo für {wpname = } mit {isin = } einzulesen")
 
             np_obj_yf = None
             if wp_yf.is_Ticker_info_available(ticker):
 
-                wb_obj.log.write_info(f"yahoo-finance: versuche  {ticker = }")
-                (status, errtext, np_obj_yf) = wp_yf.get_price_volume_data(ticker,
+                wb_obj.log.write_info(f"yahoo-finance: Ist vorhanden  {ticker = }")
+                (status, errtext, infotext, np_obj_yf) = wp_yf.get_price_volume_data(ticker,
                                                                            wp_np_dc.NpPriceVolumeClass,
                                                                            wp_dict["start_dat"],
                                                                            wp_dict["end_dat"])
@@ -227,14 +247,18 @@ def get_new_price_vol_from_yf(wb_obj,  wp_dict_liste):
                     return (status, errtext, wp_dict_liste)
                 # end if
 
+                if len(infotext) > 0:
+                    wb_obj.log.write_info(f"yahoo-finance: Ist nicht vorhanden")
+                    np_obj_yf = None
+                # end if
             elif len(ticker) > 0:
 
                 ticker = ticker + ".DE"
                 if wp_yf.is_Ticker_info_available(ticker):
 
-                    wb_obj.log.write_info(f"yahoo-finance: versuche  {ticker = }")
+                    wb_obj.log.write_info(f"yahoo-finance: Ist vorhanden  {ticker = }")
 
-                    (status, errtext, np_obj_yf) = wp_yf.get_price_volume_data(ticker,
+                    (status, errtext, infotext,np_obj_yf) = wp_yf.get_price_volume_data(ticker,
                                                                                wp_np_dc.NpPriceVolumeClass,
                                                                                wp_dict["start_dat"],
                                                                                wp_dict["end_dat"])
@@ -242,8 +266,15 @@ def get_new_price_vol_from_yf(wb_obj,  wp_dict_liste):
                     if status != hdef.OKAY:
                         return (status, errtext, wp_dict_liste)
                     # end if
-
+                    if len(infotext) > 0:
+                        wb_obj.log.write_info(f"yahoo-finance: Ist nicht vorhanden")
+                        np_obj_yf = None
+                    # end if
+                else:
+                    wb_obj.log.write_info(f"yahoo-finance: Ist nicht vorhanden")
                 # end if
+            else:
+                wb_obj.log.write_info(f"yahoo-finance: Ist nicht vorhanden")
             # end if
 
             # Währungs USDEuro
@@ -292,7 +323,6 @@ def get_new_price_vol_from_ariva(wb_obj,  wp_dict_liste):
                                                                            wb_obj.base_ddict["ariva_pw"],
                                                                            wb_obj.base_ddict["ariva_timeout_s"],
                                                                            wb_obj.log)
-
         if status != hdef.OKAY:
             return (status, errtext, wp_dict_liste)
         # end if
@@ -466,6 +496,36 @@ def merge_np_data(np_obj,np_obj_new):
         # end if
     # end if
     return (status, errtext, np_obj )
+# end def
+def get_exist_filenames(wp_obj, isin_input):
+    """
+    (status, errtext, filename_list) = wp_base_basic_info.get_exist_filenames(wb_obj, isin_input)
+    """
+    status = hdef.OKAY
+    errtext = ""
+
+    if isinstance(isin_input, str):
+        isin_input = [isin_input]
+    # end if
+
+    filename_list = []
+    for isin in isin_input:
+
+        file_name = wp_storage.build_file_name_json(wp_obj.base_ddict["price_volumen_pre_file_name"] + isin,
+                                                    wp_obj.base_ddict["store_path"])
+        formatpj = int(wp_obj.base_ddict["price_volumen_use_format"] % 10)
+
+        filename = wp_storage.get_filename_formated(file_name, formatpj)
+
+        if isinstance(filename, list):
+            filename_list += filename
+        else:
+            filename_list.append(filename)
+        # end if
+
+    # end for
+    return (status, errtext, filename_list)
+# end def
 
 
 

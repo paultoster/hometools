@@ -106,8 +106,29 @@ def save_dict(ddict, file_name, format):
         (status, errtext) = save_json(ddict, file_name)
     # end if
 
-    return (status, errtext)
+    return (status, errtext,file_name)
 # end def
+def get_filename_formated(file_name, formatpj):
+    """
+        filename = get_filename_formated(file_name, formatpj)
+        filenamelist = get_filename_formated(file_name, formatpj)
+    """
+    status = hdef.OKAY
+    errtext = ""
+    file_name = ""
+
+    if format == FORMAT_BOTH:
+        file_name = [hfp.reset_ext(file_name, "pkl"),hfp.reset_ext(file_name, "json")]
+
+    # save pckl
+    elif format == FORMAT_PICKLE:
+
+        file_name = hfp.reset_ext(file_name, "pkl")
+    else:
+        file_name = hfp.reset_ext(file_name, "json")
+    # end if
+    return (status, errtext, file_name)
+#end def
 def update_isin_name_dict(isin, wpname, file_name, formatpj):
     '''
 
@@ -134,9 +155,9 @@ def update_isin_name_dict(isin, wpname, file_name, formatpj):
     wpname_dict[isin] = wpname
 
     # Save Dict
-    (status, errtext) = save_dict(wpname_dict, file_name, formatpj)
+    (status, errtext,filename) = save_dict(wpname_dict, file_name, formatpj)
 
-    return (status, errtext)
+    return (status, errtext,filename)
 
 
 def np_obj_storage_exist(file_name,formatpj):
@@ -200,15 +221,15 @@ def save_np_obj(np_obj,file_name,formatpj):
     :param np_obj
     :param file_name:
     :param formatpj: 1: pkl, 2: json, 3=1+2
-    :return: (status,errtext) = save_np_obj(np_obj,file_name,formatpj)
+    :return: (status,errtext,filename) = save_np_obj(np_obj,file_name,formatpj)
     """
     # wandel zu dict
     ddict = np_obj.to_store_dict()
 
     # ddict speichern
-    (status, errtext) = save_dict(ddict,file_name,formatpj)
+    (status, errtext,filename) = save_dict(ddict,file_name,formatpj)
 
-    return (status, errtext)
+    return (status, errtext,filename)
 # end def
 # def read_wpname_isin_dict(wpname_isin_filename,store_path):
 #     '''

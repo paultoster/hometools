@@ -22,10 +22,12 @@ if( tools_path not in sys.path ):
 from tools import hfkt_file_path as hfp
 from tools import hfkt_str as hs
 
-md_dir = "K:\\data\\md\\"
+# md_dir = "K:\\data\\md\\"
+md_dir = "D:\\data\\md\\"
 nmd_dir = len(md_dir)
 
-script_dir = "K:\\media\\wort\\mdscripts"
+# script_dir = "K:\\media\\wort\\mdscripts"
+script_dir = "D:\\wort\\mdscripts"
 
 def main(item):
 

@@ -79,8 +79,9 @@ def get(wb_obj, isin_input: str|list) -> (int,str,dict|list):
     # ---------------------------------------------------------------------
     for i, isin in enumerate(isin_list):
 
+
         print(f"Build basic_info from isin: {isin}:")
-        start_time = time.time()
+        # start_time = time.time()
 
         # Lade von Datei
         (status, errtext, info_dict) = get_from_file(wb_obj,isin)
@@ -93,12 +94,12 @@ def get(wb_obj, isin_input: str|list) -> (int,str,dict|list):
             if status == hdef.OKAY:
 
                 (status, errtext) = save(wb_obj,isin, info_dict)
-                print(f"info_dict: {info_dict}")
+                # wb_obj.log.write_info(f"info_dict: {info_dict}")
             # end if
         # end if
 
-        end_time = time.time()
-        print('Execution time: ', end_time - start_time, ' s')
+        # end_time = time.time()
+        # wb_obj.log.write_info('Execution time: ', end_time - start_time, ' s')
 
         # ---------------------------------------------
         # Einzel dict info_dict in Liste einsortieren
@@ -138,7 +139,7 @@ def  get_from_file(wb_obj,isin):
 
     if wp_storage.info_storage_eixst(file_name, formatpj):
 
-        print("            ... lese File")
+        print(f"formatpj: {formatpj}, file_name: {file_name}")
         (status, errtext, info_dict) = wp_storage.read_dict(file_name,
                                                             formatpj)
         if status != hdef.OKAY:

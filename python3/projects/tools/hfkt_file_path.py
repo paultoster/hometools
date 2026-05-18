@@ -1077,7 +1077,7 @@ def build_pathname_with_forward_slash(path_name):
     :return: path_name_mod = build_pathname_with_forward_slash(path_name)
     """
     p_list = os.path.normpath(path_name).split(os.sep)
-    return build_path_from_list_with_forward_slash(p_list)
+    return build_pathname_from_list_with_forward_slash(p_list)
 # end def
 def build_pathname_from_list(p_list):
     """
@@ -1167,7 +1167,7 @@ def get_abs_dir(rel_dir,base_dir):
 
     liste += rel_dir_list
 
-    return build_path_from_list_with_forward_slash(liste)
+    return build_pathname_from_list_with_forward_slash(liste)
 # end def
 def get_rel_dir(target_dir,abs_dir):
     """
@@ -1227,12 +1227,12 @@ def get_rel_dir(target_dir,abs_dir):
             # end if
         # end if
     # end if
-    return build_path_from_list_with_forward_slash(rel_dir_list)
+    return build_pathname_from_list_with_forward_slash(rel_dir_list)
 ###########################################################################
 # testen mit main
 ###########################################################################
 if __name__ == '__main__':
-    # path_name_mod = build_path_with_forward_slash("K:/data/md")
+    # path_name_mod = build_pathname_with_forward_slash("K:/data/md")
     # print(f"{path_name_mod = }")
 
     # p = get_rel_dir("K:/data/md/_bilder/erste",'K:/data/md/Music/Rock',)

@@ -1,6 +1,8 @@
 import os, sys
 import numpy as np
 
+from hfkt_log import log
+
 t_path, _ = os.path.split(__file__)
 tools_path = t_path + "\\.."
 if (tools_path not in sys.path):
@@ -117,6 +119,7 @@ def update_with_np_obj_new(wb_obj,np_obj_new):
     status = hdef.OKAY
     errtext = ""
 
+    wb_obj.log.write_info(f"Update usdeuro course:")
 
     file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["usdeuro_pre_file_name"] + wb_obj.par.HEADER_USDEURO_NAME,
                                                 wb_obj.base_ddict["store_path"])
@@ -142,7 +145,9 @@ def update_with_np_obj_new(wb_obj,np_obj_new):
                                                 wb_obj.base_ddict["store_path"])
     formatpj = int(wb_obj.base_ddict["usdeuro_use_format"] % 10)
 
-    wp_storage.save_np_obj(np_obj,file_name,formatpj)
+    (status, errtext,filename) = wp_storage.save_np_obj(np_obj,file_name,formatpj)
+
+    wb_obj.log.write_info(f"Update of file: {filename}")
 
     return (status,errtext)
 # end def
