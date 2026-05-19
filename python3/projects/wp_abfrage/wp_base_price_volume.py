@@ -21,6 +21,7 @@ from wp_abfrage import wp_np_dataclass as wp_np_dc
 from wp_abfrage import wp_base
 from wp_abfrage import wp_playwright as wp_pw
 from wp_abfrage import wp_yahoofinance as wp_yf
+from wp_abfrage import wp_eodhd
 
 
 
@@ -205,6 +206,10 @@ def get_new_price_vol_from_start_dat_to_end_dat(wb_obj,wp_dict_liste):
 
     (status, errtext, wp_dict_liste) = get_new_price_vol_from_yf(wb_obj, wp_dict_liste)
 
+    (status, errtext, wp_dict_liste) = get_new_price_vol_from_eodhd(wb_obj, wp_dict_liste)
+
+
+
 
  #   (status, errtext, wp_dict_liste) = get_new_price_vol_from_ariva(wb_obj, wp_dict_liste)
 
@@ -289,6 +294,81 @@ def get_new_price_vol_from_yf(wb_obj,  wp_dict_liste):
                 wb_obj.log.write_info(f"yahoo-finance: Kurs gefunden ")
             else:
                 wb_obj.log.write_info(f"yahoo-finance: Kurs nicht gefunden ")
+
+            # end if
+
+            wp_dict_liste[i] = wp_dict
+        # end if
+    # end for
+    return (status, errtext, wp_dict_liste)
+# end def
+def get_new_price_vol_from_eodhd(wb_obj,  wp_dict_liste):
+    """
+    :param wb_obj:
+    :param isin_info_dict_liste:
+    :param wp_dict_liste:
+        (status, errtext, wp_dict_liste) = get_new_price_vol_from_eodhd(wb_obj, wp_dict_liste)
+    """
+    status = hdef.OKAY
+    errtext = ""
+
+    # Build liste mit nicht gefundenen
+    n = len(wp_dict_liste)
+    for i, wp_dict in enumerate(wp_dict_liste):
+
+        if wp_dict["updated"]:
+            wb_obj.log.write_info(f"end-of-day-hd: {i+1}./{n} Wert Daten sind upgedated für wpname = {wp_dict["name"]} mit isin = {wp_dict["isin"]}")
+        else:
+            isin = wp_dict["isin"]
+            wpname = wp_dict["name"]
+            wb_obj.log.write_info(f"end-of-day-hd: {i+1}./{n} Wert Versuche Daten von eodhd für {wpname = } mit {isin = } einzulesen")
+
+            np_obj_yf = None
+
+            (flag_avail, symbol, exchange, currency, infotext) = wp_eodhd.is_info_available(isin, wb_obj.base_ddict["eodhd_key"])
+            if len(infotext) > 0:
+                wb_obj.log.write_info(infotext)
+            # end if
+
+            if flag_avail:
+
+                wb_obj.log.write_info(f"end-of-day-hd: Ist vorhanden  symbol:exchange = {symbol}:{exchange} currency = {currency}")
+                (status, errtext, infotext, np_obj_yf) = wp_eodhd.get_price_volume_data(symbol,
+                                                                                        exchange,
+                                                                                        currency,
+                                                                                        wb_obj.base_ddict["eodhd_key"],
+                                                                                        wp_np_dc.NpPriceVolumeClass)
+
+                if status != hdef.OKAY:
+                    return (status, errtext, wp_dict_liste)
+                # end if
+
+                if len(infotext) > 0:
+                    wb_obj.log.write_info(f"end-of-day-hd: Ist nicht korrekt\n{infotext}")
+                    np_obj_yf = None
+                # end if
+
+            else:
+                wb_obj.log.write_info(f"end-of-day-hd: Ist nicht vorhanden")
+            # end if
+
+            # Währungs USDEuro
+            if np_obj_yf != None:
+
+                if np_obj_yf.currency.find("usd") == 0:
+
+                    wb_obj.log.write_info(f"end-of-day-hd: Suche USD/euro-Kurse ")
+                    (status, errtext, np_obj_yf) = transfer_price_vol_from_usd_to_euro(wb_obj, np_obj_yf)
+
+                # end if
+                wp_dict["np_obj_new"]  = np_obj_yf
+                wp_dict["updated"]     = True
+                wp_dict["update_type"] = "yf"
+                wb_obj.log.write_info(f"end-of-day-hd: Kurs gefunden ")
+
+            else:
+
+                wb_obj.log.write_info(f"end-of-day-hd: Kurs nicht gefunden ")
 
             # end if
 

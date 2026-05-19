@@ -40,7 +40,8 @@ INI_DICT_PROOF_LISTE = [("store_path", "str"),
                         ("usdeuro_pre_file_name", "str","str","usdeuro_data_"),
                         ("price_volumen_use_format", "int", "int",0),
                         ("price_volumen_pre_file_name", "str","str","wp_price_volume_data_"),
-                        ("price_volumen_first_dat","str","datStrP","01.01.2000")
+                        ("price_volumen_first_dat","str","datStrP","01.01.2000"),
+                        ("eodhd_key","str")
                         ]
 
 class WPParam:

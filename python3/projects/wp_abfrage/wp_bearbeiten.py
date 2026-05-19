@@ -442,6 +442,7 @@ def edit_price_volume(wp_obj):
         elif indexAbfrage == i_abfrage_ende:
             runflag = False
         elif indexAbfrage == i_abfrage_update_isin:
+
             if index < 0:
                 wp_obj.log.write_info("Keine isin ausgewählt")
                 runflag = True
@@ -450,6 +451,7 @@ def edit_price_volume(wp_obj):
                 # Bearbeite basic infos von isin
                 isin = isin_liste[index]
                 wpname = isin_wpname_liste[index]
+
                 wp_obj.log.write_info(f"WP update isin: {isin} Name: {wpname}")
 
                 (status, errtext, infotext) = wp_obj.update_price_volume(isin)
@@ -468,12 +470,15 @@ def edit_price_volume(wp_obj):
                 # end if
         elif indexAbfrage == i_abfrage_update_all:
 
+            wp_obj.log.write_info(f"WP update all:")
+
             (status, errtext, infotext) = wp_obj.update_price_volume()
 
             if len(infotext):
                 t = f"Info wp_bearbeiten.get_last_price_volume(wp_obj) \n infotext = {infotext}"
                 sgui.anzeige_text(t, textcolor='green')
                 wp_obj.log.write_info(t)
+                infotext = ""
             # end if
 
             if status != hdef.OKAY:
