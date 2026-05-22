@@ -100,6 +100,7 @@ def get_price_volume_data(symbol,exchange,currency,eodhd_key,np_classdef):
 
         np_obj.currency = currency
 
+        np_obj.sort_by_dat()
     else:
         infotext = f"for Symbol \"{symbol}\" and Exchange \"{exchange}\" no data from eodhd"
         return (status, errtext, infotext, np_obj)

@@ -5,7 +5,7 @@
       <excludeFolder url="file://$MODULE_DIR$/../tools/.venv" />
     </content>
     <content url="file://$MODULE_DIR$" />
-    <orderEntry type="jdk" jdkName="Python 3.14 (.venv)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.14 (wp_abfrage)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PyDocumentationSettings">

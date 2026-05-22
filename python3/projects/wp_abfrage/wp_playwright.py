@@ -677,7 +677,7 @@ def read_ariva_csv_file(csv_filename,wp_dict,np_classdef,log=None):
                                vol_np_array])
     np_obj.currency = wp_dict["waehrung"]
 
-
+    np_obj.sort_by_dat()
 
     wp_dict["np_obj_new"] = np_obj
 
@@ -707,61 +707,6 @@ def get_onvista_price_volume_data(wp_dict_liste,np_classdef,onvista_user,onvista
 
             (status, errtext, wp_dict_liste) = asyncio.run(playwright_onvista(wp_dict_liste,np_classdef,onvista_user,onvista_pw,timeout_s,log))
 
-        #     with sync_playwright() as playwright:
-        #
-        #         akzept_flag = False # Ist ein Flag zur Identifizierung, ob die Abnickseite schon abgenickt ist
-        #
-        #         (status, errtext, page,context,browser,akzept_flag) = get_onvista_price_volume_start(playwright,onvista_user, onvista_pw, timeout_s,akzept_flag,log)
-        #
-        #         if status != hdef.OKAY:
-        #             context.close()
-        #             browser.close()
-        #             break
-        #         # end if
-        #
-        #         for index,wp_dict in enumerate(wp_dict_liste):
-        #
-        #             if (len(wp_dict["isin"]) > 0) and (wp_dict["updated"] is False):
-        #
-        #                 (status, errtext,csv_filename,akzept_flag) = get_onvista_price_volume_isin(page,context,browser,
-        #                                                                              wp_dict["isin"],
-        #                                                                              wp_dict["url_onvista"],
-        #                                                                              wp_dict["start_display_dat"],
-        #                                                                              timeout_s,
-        #                                                                              akzept_flag,
-        #                                                                              log)
-        #                 if status != hdef.OKAY:
-        #                     context.close()
-        #                     browser.close()
-        #                     break
-        #                 else:
-        #                     if os.path.exists(csv_filename):
-        #                         (status, errtext,wp_dict) = read_onvista_csv_file(csv_filename,wp_dict,np_classdef,log)
-        #
-        #                         if status == hdef.OKAY:
-        #                             os.remove(csv_filename)
-        #                             wp_dict["updated"] = True
-        #                             wp_dict["update_type"] = "onvista"
-        #                             wp_dict_liste[index] = wp_dict
-        #                             log.write_info(f"onvista-playwright: Kurs gefunden ")
-        #                         else:
-        #                             log.write_info(f"onvista-playwright: Kurs nicht gefunden ")
-        #                         # end if
-        #                     # end if
-        #                 # end if
-        #             # end if
-        #
-        #         # end for
-        #
-        #         # web-seite schliessen
-        #         context.close()
-        #         browser.close()
-        #
-        #         if status != hdef.OKAY:
-        #             break
-        #         # end if
-        #     # end with
-        # # end try
 
         except:
             pass
@@ -1105,7 +1050,7 @@ def read_onvista_csv_file(csv_filename,wp_dict,np_classdef,log=None):
                                vol_np_array])
     np_obj.currency = wp_dict["waehrung"]
 
-
+    np_obj.sort_by_dat()
 
     wp_dict["np_obj_new"] = np_obj
 

@@ -268,9 +268,16 @@ class DataJson:
     def make_backup(self,path_backup:str="."):
         make_backup(path_backup,self.filename_json)
         return
+    def exist_file(self):
+        if (os.path.isfile(self.filename_json)):
+            return True
+        else:
+            return False
+        # end if
+    # end def
     def read(self):
         
-        if (os.path.isfile(self.filename_json)):
+        if self.exist_file():
             
             try:
                 with open(self.filename_json, "r") as f:

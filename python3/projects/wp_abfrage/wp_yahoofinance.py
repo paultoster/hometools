@@ -178,6 +178,8 @@ def get_price_volume_data(ticker,np_classdef,start_dat,end_dat):
         # end if
     # end def
 
+    np_obj.sort_by_dat()
+
     return (status, errtext,infotext, np_obj)
 # end def
 # def get_price_volume_data(ticker, waehrung, start_dat_time_list, end_dat_time_list):

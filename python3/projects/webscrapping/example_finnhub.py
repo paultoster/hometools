@@ -3,7 +3,7 @@ import datetime as dt
 import pandas as pd
 
 
-isin = "IE00BDGN9Z19"
+isin = 'AAPL' # "IE00BDGN9Z19"
 api_key= 'd144k8hr01qrqeas1ph0d144k8hr01qrqeas1phg'
 fticker = ''
 resolution = 'D'
@@ -27,13 +27,10 @@ if d["count"] > 0:
     try:
         result = finnhub_client.stock_candles(fticker, resolution, start, end)
         flag = True
-    except finnhub.FinnhubAPIException:
+    except finnhub.FinnhubAPIException as e:
 
-        print(finnhub.FinnhubAPIException)
+        print(repr(e))
 
+    df = pd.DataFrame(result)
 
-
-
-        df = pd.DataFrame(result)
-
-        print(df.head())
+    print(df.head())

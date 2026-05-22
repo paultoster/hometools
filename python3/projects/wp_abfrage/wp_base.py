@@ -250,6 +250,17 @@ class WPData:
         return self.status
     
     # end def
+    def updat_first_last_in_basic_info(self,isin:str,first_dat_str:str,last_dat_str:str) -> tuple:
+        """
+        :param isin:
+        :param first_dat_str:
+        :param last_dat_str:
+        :return: (status, errtext) = self.updat_first_last_in_basic_info(isin,first_dat_str,last_dat_str)
+        """
+        self.log.write_info(f"Update basic_info of {isin = } from {first_dat_str = } to {last_dat_str = }")
+        (self.status, self.errtext) = wp_base_basic_info.updat_first_last(self, isin, first_dat_str,last_dat_str)
+        return (self.status, self.errtext)
+    # end def
     def update_all_basic_infos(self,flag_update_all):
         """
              (status, errtext) = self.update_alla_basic_infos(flag_update_all)

@@ -1,6 +1,8 @@
 import os, sys, time
 import copy
 
+from hfkt_log import log
+
 t_path, _ = os.path.split(__file__)
 tools_path = t_path + "\\.."
 if (tools_path not in sys.path):
@@ -80,7 +82,7 @@ def get(wb_obj, isin_input: str|list) -> (int,str,dict|list):
     for i, isin in enumerate(isin_list):
 
 
-        print(f"Build basic_info from isin: {isin}:")
+        # wb_obj.log.write_info(f"get basic_info from isin: {isin}:")
         # start_time = time.time()
 
         # Lade von Datei
@@ -139,7 +141,7 @@ def  get_from_file(wb_obj,isin):
 
     if wp_storage.info_storage_eixst(file_name, formatpj):
 
-        print(f"formatpj: {formatpj}, file_name: {file_name}")
+        # wb_obj.log.write_info(f"formatpj: {formatpj} (1:pckl,2:json), file_name: {file_name}")
         (status, errtext, info_dict) = wp_storage.read_dict(file_name,
                                                             formatpj)
         if status != hdef.OKAY:
@@ -148,7 +150,7 @@ def  get_from_file(wb_obj,isin):
 
         (flag, info_dict) = update_info_dict_with_new_defaults(info_dict)
         if flag:
-            (status, errtext) = wp_storage.save_dict( info_dict,
+            (status, errtext,_) = wp_storage.save_dict( info_dict,
                                                       file_name,
                                                       formatpj)
             if status != hdef.OKAY:
@@ -228,7 +230,7 @@ def save(wb_obj, isin_input, basic_info_dict):
         file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["basic_info_pre_file_name"] + isin,
                                                     wb_obj.base_ddict["store_path"])
         formatpj = 3
-        (status, errtext) = wp_storage.save_dict(basic_info_dict_list[i],
+        (status, errtext,_) = wp_storage.save_dict(basic_info_dict_list[i],
                                                  file_name,
                                                  formatpj)
 
@@ -321,7 +323,7 @@ def process_isin_w_wpname_wkn(wb_obj,isin,wpname,wkn):
         file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["basic_info_pre_file_name"] + isin,
                                                     wb_obj.base_ddict["store_path"])
         formatpj = 2
-        (status, errtext) = wp_storage.save_dict(info_dict,file_name, formatpj)
+        (status, errtext,_) = wp_storage.save_dict(info_dict,file_name, formatpj)
     # end if
     return (status,errtext)
 # end def
@@ -423,9 +425,37 @@ def update_isin(wb_obj,isin, flag_update_all):
         file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["basic_info_pre_file_name"] + isin,
                                                     wb_obj.base_ddict["store_path"])
         formatpj = 2
-        (status, errtext) = wp_storage.save_dict(info_dict, file_name, formatpj)
+        (status, errtext,_) = wp_storage.save_dict(info_dict, file_name, formatpj)
     # end if
 
     return (status, errtext)
+# end def
+def updat_first_last(wp_obj, isin, first_dat_str,last_dat_str):
+    """
+    :param wp_obj:
+    :param isin:
+    :param first_dat_str:
+    :param last_dat_str:
+    :return: (status, errtext) = updat_first_last(wp_obj, isin, first_dat_str,last_dat_str)
+    """
+    status = hdef.OKAY
+    wp_obj.log.write_info(f"Lade lade info-dict")
+    (status2, errtext, info_dict) = get_from_file(wp_obj, isin)
+    if status2 == hdef.NOT_OKAY:
+        wp_obj.log.write_err(f"Lade lade info-dict funcktioniert nicht: {errtext}")
+        return (status2, errtext)
+    # end if
+
+    info_dict["first_dat_str"] = first_dat_str
+    info_dict["last_dat_str"] = last_dat_str
+
+
+    file_name = wp_storage.build_file_name_json(wp_obj.base_ddict["basic_info_pre_file_name"] + isin,
+                                                wp_obj.base_ddict["store_path"])
+    formatpj = 2
+    wp_obj.log.write_info(f"Speichere info-dict")
+    (status, errtext,_) = wp_storage.save_dict(info_dict, file_name, formatpj)
+
+    return (status,errtext)
 # end def
 

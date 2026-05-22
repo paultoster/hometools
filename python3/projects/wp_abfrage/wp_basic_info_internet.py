@@ -45,7 +45,9 @@ INFO_DICT = {
             "dividendenrendite":"",
             "gewinn":"",
             "waehrung":"",
-            "preisabfrage":""
+            "preisabfrage":"",
+            "first_dat_str":"",
+            "last_dat_str":""
             }
 
 

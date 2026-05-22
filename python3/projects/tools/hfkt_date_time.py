@@ -1948,17 +1948,13 @@ def datum_str_to_secs(str_dat, delim="."):
 ########################################################################################################################
 def secs_time_epoch_to_epoch_day_time(secs: int) -> (int, int):
     """
-
+    Berechnet aus secs in ganze Tage eday in secs und den Rest dieses Tages edaysecs
     :param secs:
-    :return: (eday,edaysecs)
+    :return: (eday,edaysecs) = secs_time_epoch_to_epoch_day_time(secs)
     """
     (eday, edaysecs) = divmod(secs+3600, 86400)
     return eday, edaysecs
-
-
 # enddef
-
-
 ########################################################################################################################
 def epoch_day_time_to_secs_time_epoch(eday: int, edaysecs: int) -> int:
     """
@@ -1971,10 +1967,38 @@ def epoch_day_time_to_secs_time_epoch(eday: int, edaysecs: int) -> int:
     return secs  # enddef
 
 # enddef
+########################################################################################################################
+def secs_to_end_of_day(secs: int) -> int:
+    """
+    Berechnet aus secs in ganze Tage plus 23 h und 59 min und 59 sec
+
+    edayend = day + (24*60*60 - 1)
+
+    :param secs:
+    :return: edayend = secs_to_end_of_day(secs)
+    """
+
+    liste = calc_secs_to_dat_time_list(secs)
+    liste_end_day = liste[0:3] + [23,59,59]
+    secs  = calc_dat_time_list_to_secs(liste_end_day)
+
+    return secs
+# enddef
+########################################################################################################################
+
+########################################################################################################################
 ###########################################################################
 # testen mit main
 ###########################################################################
 if __name__ == '__main__':
+
+    secs = calc_dat_time_list_to_secs([12,5,1993,10,20,11])
+    print(f"{secs = }")
+    secs = secs_to_end_of_day(secs)
+    print(f"{secs = }")
+    liste = calc_secs_to_dat_time_list(secs)
+    print(f" {liste =}")
+
 
     flag = is_dat_time_list([12,5,1993,10,20,11])
     flag = is_dat_time_int(19930512102011)

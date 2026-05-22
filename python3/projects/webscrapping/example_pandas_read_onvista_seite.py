@@ -1,3 +1,4 @@
+
 import pandas as pd
 import requests
 import numpy as np
@@ -31,10 +32,11 @@ def uri_exists_stream(uri: str) -> bool:
     # end if
 # end def
 
-# url = "https://www.ariva.de/etf/spdr-s-p-euro-dividend-aristocrats-ucits-etf/kurse/historische-kurse"
-# url = "https://www.ariva.de/etf/spdr-s-p-euro-dividend-aristocrats-ucits-etf/kurse/historische-kurse?currency=EUR"
-url = "https://www.ariva.de/AU3TB0000192/kurse/historische-kurse?currency=EUR"
-# Webseite abrufen
+base_url = "https://www.onvista.de/aktien/Siemens-Aktie-DE0007236101"
+url = "https://www.onvista.de/aktien/historische-kurse/Siemens-Aktie-DE0007236101"
+
+response = requests.get(base_url)
+
 if uri_exists_stream(url):
 
     response = requests.get(url)
@@ -69,6 +71,3 @@ if uri_exists_stream(url):
         low_np_array = df[4][1:].to_numpy()
     if df[6][0] == "Stücke":
         low_np_array = df[6][1:].to_numpy()
-
-
-

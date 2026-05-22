@@ -215,6 +215,7 @@ def get_from_start_dat_to_end_dat(wb_obj, start_dat, end_dat):
         return (status, errtext,None)
     # end def
 
+    # Update auf aktuelles Datum
     if end_dat > lastdat:
         (status, errtext) = process_akt(wb_obj)
         if status != hdef.OKAY:
@@ -253,17 +254,17 @@ def get_from_start_dat_to_end_dat(wb_obj, start_dat, end_dat):
                                                         wb_obj.base_ddict["store_path"])
         # end if
 
-        errtext = f"Für Aulesen USD-Euro konnte in Datei {file_name} das Datum zwischen {start_dat = } und {end_dat = } konnte nicht gefunden werden."
+        errtext = f"Für Auslesen USD-Euro konnte in Datei {file_name} das Datum zwischen {start_dat = } und {end_dat = } konnte nicht gefunden werden."
     else:
         np_obj.dat_np_array = np_obj.dat_np_array[start_index:last_index+1]
         np_obj.usdeuro_np_array = np_obj.usdeuro_np_array[start_index:last_index+1]
     # end if
 
-    print(f"{start_index =},{last_index =},dat_np_array_len = {len(np_obj.dat_np_array)}")
-    print(f"start_dat = {htype.type_transform_direct(start_dat, "dat", "datStrP")}")
-    print(f"end_dat = {htype.type_transform_direct(end_dat, "dat", "datStrP")}")
-    print(f"dat_np_array[0] = {htype.type_transform_direct(np_obj.dat_np_array[0], "dat", "datStrP")}")
-    print(f"dat_np_array[-1] = {htype.type_transform_direct(np_obj.dat_np_array[-1], "dat", "datStrP")}")
+    # print(f"{start_index =},{last_index =},dat_np_array_len = {len(np_obj.dat_np_array)}")
+    # print(f"start_dat = {htype.type_transform_direct(start_dat, "dat", "datStrP")}")
+    # print(f"end_dat = {htype.type_transform_direct(end_dat, "dat", "datStrP")}")
+    # print(f"dat_np_array[0] = {htype.type_transform_direct(np_obj.dat_np_array[0], "dat", "datStrP")}")
+    # print(f"dat_np_array[-1] = {htype.type_transform_direct(np_obj.dat_np_array[-1], "dat", "datStrP")}")
 
     return (status, errtext, np_obj)
 # end def

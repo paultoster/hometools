@@ -1,4 +1,15 @@
 import numpy as np
+import os, sys
+
+t_path, _ = os.path.split(__file__)
+tools_path = t_path + "\\.."
+if (tools_path not in sys.path):
+  sys.path.append(tools_path)
+# endif
+
+import tools.hfkt_type as hfkt_type
+import tools.hfkt_date_time as hfkt_date_time
+
 
 class NpBaseClass:
     def __init__(self,args,np_name_list,class_def) -> None:
@@ -93,13 +104,58 @@ class NpUsdEuroClass(NpBaseClass):
     # end def
 class NpPriceVolumeClass(NpBaseClass):
     np_name_list: list[str] = ["dat_np_array","start_np_array","high_np_array","low_np_array","end_np_array","volume_np_array"]
-    # file_base_name: str = "usdeuro_values"
+    # file_base_name: str = ""
     def __init__(self,*args):
         super().__init__(args,np_name_list=self.np_name_list,class_def = NpUsdEuroClass)
         self.currency: str = ""
         return
     # end def
+    def get_first_last_dat(self,formatstr):
+        """
+            (first_dat_str, last_dat_str) = self.get_first_last_dat(formatstr)
+        """
+        first_dat_str = ""
+        last_dat_str  = ""
+        if hasattr(self, 'dat_np_array'):
+            first_dat = self.dat_np_array[0]
+            last_dat = self.dat_np_array[-1]
 
+            first_dat_str = hfkt_type.type_transform_direct(first_dat,"dat",formatstr)
+            last_dat_str = hfkt_type.type_transform_direct(last_dat,"dat",formatstr)
+        # end if
+        return (first_dat_str,last_dat_str)
+    # end def
+    def sort_by_dat(self):
+
+        if hasattr(self, 'dat_np_array'):
+            index_arr = np.argsort(self.dat_np_array)
+            self.dat_np_array    = np.array(self.dat_np_array)[index_arr]
+            self.start_np_array  = np.array(self.start_np_array)[index_arr]
+            self.high_np_array   = np.array(self.high_np_array)[index_arr]
+            self.low_np_array    = np.array(self.low_np_array)[index_arr]
+            self.end_np_array    = np.array(self.end_np_array)[index_arr]
+            self.volume_np_array = np.array(self.volume_np_array)[index_arr]
+        # end if
+    # end def
+    def reduce_end_dat(self,end_dat):
+
+        if hasattr(self, 'dat_np_array'):
+
+            self.sort_by_dat()
+
+            edayend = hfkt_date_time.secs_to_end_of_day(end_dat)
+
+            while self.dat_np_array[-1] > edayend:
+                self.dat_np_array    = np.delete(self.dat_np_array, -1)
+                self.start_np_array  = np.delete(self.start_np_array, -1)
+                self.high_np_array   = np.delete(self.high_np_array, -1)
+                self.low_np_array    = np.delete(self.low_np_array, -1)
+                self.end_np_array    = np.delete(self.end_np_array, -1)
+                self.volume_np_array = np.delete(self.volume_np_array, -1)
+            # end while
+        # end if
+    # end def
+###############################################################################
 if __name__ == '__main__':
 
     np_dat_array = np.array([0,1,2,3,4,5,6])

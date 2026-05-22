@@ -84,7 +84,7 @@ def save_dict(ddict, file_name, format):
     :param file_name:
     :param format: 1: pkl, 2: json, 3=1+2
 
-    :return: (status, errtext) = wp_storage.save_dict(ddict, file_name, format)
+    :return: (status, errtext,filename) = wp_storage.save_dict(ddict, file_name, format)
     '''
     status = hdef.OKAY
     errtext = ""
@@ -95,7 +95,7 @@ def save_dict(ddict, file_name, format):
         file_name = hfp.reset_ext(file_name, "pkl")
         (status, errtext) = save_pickle(ddict, file_name)
         if status != hdef.OKAY:
-            return (status, errtext)
+            return (status, errtext,file_name)
         # end if
     # end if
 
@@ -111,23 +111,19 @@ def save_dict(ddict, file_name, format):
 def get_filename_formated(file_name, formatpj):
     """
         filename = get_filename_formated(file_name, formatpj)
-        filenamelist = get_filename_formated(file_name, formatpj)
     """
-    status = hdef.OKAY
-    errtext = ""
-    file_name = ""
 
-    if format == FORMAT_BOTH:
+    if formatpj == FORMAT_BOTH:
         file_name = [hfp.reset_ext(file_name, "pkl"),hfp.reset_ext(file_name, "json")]
 
     # save pckl
-    elif format == FORMAT_PICKLE:
+    elif formatpj == FORMAT_PICKLE:
 
         file_name = hfp.reset_ext(file_name, "pkl")
     else:
         file_name = hfp.reset_ext(file_name, "json")
     # end if
-    return (status, errtext, file_name)
+    return file_name
 #end def
 def update_isin_name_dict(isin, wpname, file_name, formatpj):
     '''
