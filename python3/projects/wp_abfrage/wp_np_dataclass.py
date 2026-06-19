@@ -130,7 +130,11 @@ class NpPriceVolumeClass(NpBaseClass):
         if hasattr(self, 'dat_np_array'):
             index_arr = np.argsort(self.dat_np_array)
             self.dat_np_array    = np.array(self.dat_np_array)[index_arr]
-            self.start_np_array  = np.array(self.start_np_array)[index_arr]
+            try:
+                self.start_np_array  = np.array(self.start_np_array)[index_arr]
+            except:
+                a = 0
+            # end try
             self.high_np_array   = np.array(self.high_np_array)[index_arr]
             self.low_np_array    = np.array(self.low_np_array)[index_arr]
             self.end_np_array    = np.array(self.end_np_array)[index_arr]

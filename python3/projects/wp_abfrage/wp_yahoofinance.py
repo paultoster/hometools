@@ -71,7 +71,7 @@ def search_ticker_from_isin(isin):
                 type = "fond"
             else:
                 type = ddict[key]
-                print("type = {type} ------------------------------------------------")
+                print(f"type = {type} ------------------------------------------------")
             # end if
         # end if
     # end if

@@ -167,6 +167,13 @@ class WPData:
         
         return (self.status,self.errtext,wpname_isin_dict)
     # end def
+    def save_basic_info_wpname_isin_dict(self,isin,wpname) -> (int,str):
+        """
+        speichere in file
+        """
+        (self.status, self.errtext) = wp_base_basic_info.save_wpname_isin(self, isin,wpname )
+        return (self.status, self.errtext)
+    # end def
     def get_basic_info(self, isin_input: str|list) -> (int,str,dict|list):
         '''
 

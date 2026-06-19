@@ -5,28 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2f823127-0807-468e-be8b-938aff046b2a" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/example_hist_data_ttingl.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/example_pandas_read_deutsche_boerse_seite.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/example_pandas_read_onvista_seite.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/example_twelvedata.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/get_keys.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../wp_abfrage/wp_requests.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../tools/hfkt_date_time.py" beforeDir="false" afterPath="$PROJECT_DIR$/../tools/hfkt_date_time.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../tools/hfkt_pickle.py" beforeDir="false" afterPath="$PROJECT_DIR$/../tools/hfkt_pickle.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/beispiel_start_datum_extraetf_beautifulsoup.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example_finnhub.py" beforeDir="false" afterPath="$PROJECT_DIR$/example_finnhub.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example_pandas_read_ariva_seite.py" beforeDir="false" afterPath="$PROJECT_DIR$/example_pandas_read_ariva_seite.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../wp_abfrage/.idea/wp_abfrage.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../wp_abfrage/.idea/wp_abfrage.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../wp_abfrage/wp_base.py" beforeDir="false" afterPath="$PROJECT_DIR$/../wp_abfrage/wp_base.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../wp_abfrage/wp_base_basic_info.py" beforeDir="false" afterPath="$PROJECT_DIR$/../wp_abfrage/wp_base_basic_info.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../wp_abfrage/wp_base_price_volume.py" beforeDir="false" afterPath="$PROJECT_DIR$/../wp_abfrage/wp_base_price_volume.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../wp_abfrage/wp_base_usdeuro.py" beforeDir="false" afterPath="$PROJECT_DIR$/../wp_abfrage/wp_base_usdeuro.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../wp_abfrage/wp_basic_info_internet.py" beforeDir="false" afterPath="$PROJECT_DIR$/../wp_abfrage/wp_basic_info_internet.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../wp_abfrage/wp_eodhd.py" beforeDir="false" afterPath="$PROJECT_DIR$/../wp_abfrage/wp_eodhd.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../wp_abfrage/wp_np_dataclass.py" beforeDir="false" afterPath="$PROJECT_DIR$/../wp_abfrage/wp_np_dataclass.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../wp_abfrage/wp_playwright.py" beforeDir="false" afterPath="$PROJECT_DIR$/../wp_abfrage/wp_playwright.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../wp_abfrage/wp_storage.py" beforeDir="false" afterPath="$PROJECT_DIR$/../wp_abfrage/wp_storage.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../wp_abfrage/wp_yahoofinance.py" beforeDir="false" afterPath="$PROJECT_DIR$/../wp_abfrage/wp_yahoofinance.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,23 +26,23 @@
   </component>
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="1.0115177282600867" />
-      <entry key="MS500" value="1.409856510421152" />
-      <entry key="S2" value="1.9355668017286582" />
-      <entry key="S5" value="2.365234796245114" />
-      <entry key="S10" value="2.6790578634826554" />
-      <entry key="S30" value="3.6332227648530746" />
-      <entry key="S60" value="4.458400165655675" />
-      <entry key="M2" value="5.483025297048591" />
-      <entry key="M5" value="10.837024709771494" />
-      <entry key="M10" value="23.57618048808365" />
-      <entry key="M15" value="37.19684964591636" />
-      <entry key="M30" value="70.71343373255067" />
-      <entry key="H1" value="109.68939136212501" />
-      <entry key="H2" value="144.65255074391862" />
-      <entry key="H4" value="170.0011139502661" />
-      <entry key="D1" value="197.56750572044135" />
-      <entry key="W1" value="203.05959776846214" />
+      <entry key="MS100" value="1.9243567125486636" />
+      <entry key="MS500" value="2.3846759025244877" />
+      <entry key="S2" value="2.926865805064835" />
+      <entry key="S5" value="3.3609760497583347" />
+      <entry key="S10" value="3.676644874981423" />
+      <entry key="S30" value="4.63213164021159" />
+      <entry key="S60" value="5.4577306449725365" />
+      <entry key="M2" value="6.482613586958029" />
+      <entry key="M5" value="11.836699209691266" />
+      <entry key="M10" value="24.57582641921" />
+      <entry key="M15" value="38.19647722823743" />
+      <entry key="M30" value="71.71307973753458" />
+      <entry key="H1" value="110.68911680646842" />
+      <entry key="H2" value="145.65236970908742" />
+      <entry key="H4" value="171.0010075707642" />
+      <entry key="D1" value="198.56748511553877" />
+      <entry key="W1" value="204.05959474307784" />
     </decayedCancelled>
     <decayedSelected>
       <entry key="MS100" value="0.0" />
@@ -83,23 +64,23 @@
       <entry key="W1" value="0.0" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="0.021338145248538515" />
-      <entry key="MS500" value="0.8063710656159199" />
-      <entry key="S2" value="1.7103194236827532" />
-      <entry key="S5" value="2.2507083612372165" />
-      <entry key="S10" value="2.6117778266734932" />
-      <entry key="S30" value="3.596099389019132" />
-      <entry key="S60" value="4.432684879206515" />
-      <entry key="M2" value="5.466184723183677" />
-      <entry key="M5" value="10.822624938642523" />
-      <entry key="M10" value="23.558457269499357" />
-      <entry key="M15" value="37.176665645002586" />
-      <entry key="M30" value="70.69230641434613" />
-      <entry key="H1" value="109.67237860860462" />
-      <entry key="H2" value="144.6413141882957" />
-      <entry key="H4" value="169.99456670012512" />
-      <entry key="D1" value="197.5662551699003" />
-      <entry key="W1" value="203.05941472940705" />
+      <entry key="MS100" value="0.9333309184470782" />
+      <entry key="MS500" value="1.7741085472795206" />
+      <entry key="S2" value="2.6981356642577117" />
+      <entry key="S5" value="3.244855266722059" />
+      <entry key="S10" value="3.6085247508502483" />
+      <entry key="S30" value="4.594719094547076" />
+      <entry key="S60" value="5.431869049591304" />
+      <entry key="M2" value="6.465699189494929" />
+      <entry key="M5" value="11.82226983514603" />
+      <entry key="M10" value="24.55808844871821" />
+      <entry key="M15" value="38.17628341733158" />
+      <entry key="M30" value="71.69194751904404" />
+      <entry key="H1" value="110.67210159250308" />
+      <entry key="H2" value="145.64113191601226" />
+      <entry key="H4" value="170.99445969896252" />
+      <entry key="D1" value="198.56623446083518" />
+      <entry key="W1" value="204.05941168912648" />
     </decayedShown>
   </component>
   <component name="ProjectColorInfo">{

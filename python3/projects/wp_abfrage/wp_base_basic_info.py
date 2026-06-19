@@ -51,6 +51,38 @@ def get_wpname_isin_dict(wb_obj) -> (int, str, dict):
 
     return (status, errtext, wpname_isin_dict)
 # end def
+def save_wpname_isin(wb_obj, isin,wpname ):
+    """
+    :param wb_obj:
+    :param isin:
+    :param wpname:
+    :return: (status, errtext) = wp_base_basic_info.save_wpname_isin(self, isin,wpname )
+    """
+
+    file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["wpname_isin_filename"],
+                                                wb_obj.base_ddict["store_path"])
+
+    format = 2  # 1: pickle, 2: json
+    (status, errtext, wpname_isin_dict) = wp_storage.read_dict(file_name, format)
+
+    if status != hdef.OKAY:
+        return (status, errtext)
+
+    save_flag = True
+    if isin in wpname_isin_dict.keys():
+        if wpname == wpname_isin_dict[isin]:
+            save_flag = False
+        # end if
+    # end if
+
+    if save_flag:
+
+        wpname_isin_dict[isin] = wpname
+
+        (status, errtext,_) = wp_storage.save_dict(wpname_isin_dict, file_name, format)
+    # end if
+    return (status, errtext)
+# end def
 def get(wb_obj, isin_input: str|list) -> (int,str,dict|list):
     """
 
@@ -88,6 +120,7 @@ def get(wb_obj, isin_input: str|list) -> (int,str,dict|list):
         # Lade von Datei
         (status, errtext, info_dict) = get_from_file(wb_obj,isin)
 
+        proof_flag = False
         if status == hdef.NOT_FOUND:
 
             # Suche im Internet
@@ -97,6 +130,19 @@ def get(wb_obj, isin_input: str|list) -> (int,str,dict|list):
 
                 (status, errtext) = save(wb_obj,isin, info_dict)
                 # wb_obj.log.write_info(f"info_dict: {info_dict}")
+
+                proof_flag = True
+            # end if
+
+        elif status == hdef.OKAY:
+            proof_flag = True
+        # end if
+
+        if proof_flag:
+            (status, errtext) = wb_obj.save_basic_info_wpname_isin_dict(isin, info_dict["name"])
+
+            if status != hdef.OKAY:
+                return (status, errtext, None)
             # end if
         # end if
 
@@ -240,7 +286,7 @@ def save(wb_obj, isin_input, basic_info_dict):
 
         # update isin wpname liste
         if status == hdef.OKAY:
-            (status, errtext) = wp_storage.update_isin_name_dict(isin,
+            (status, errtext,_) = wp_storage.update_isin_name_dict(isin,
                                                                  basic_info_dict_list[i]["name"],
                                                                  wb_obj.base_ddict["wpname_isin_filename"],
                                                                  wb_obj.base_ddict["store_path"])
@@ -369,12 +415,12 @@ def update_isin(wb_obj,isin, flag_update_all):
 
     if (not flag_update_all) and (status2 == hdef.OKAY) and ("url_ariva" in info_dict.keys()):
         if info_dict["url_ariva"] != "":
-            url_avira = info_dict["url_ariva"]
+            url_avira = copy.copy(info_dict["url_ariva"])
         # end if
     # end if
     if (not flag_update_all) and (status2 == hdef.OKAY) and ("url_onvista" in info_dict.keys()):
         if info_dict["url_onvista"] != "":
-            url_onvista = info_dict["url_onvista"]
+            url_onvista = copy.copy(info_dict["url_onvista"])
         # end if
     # end if
 
@@ -401,7 +447,19 @@ def update_isin(wb_obj,isin, flag_update_all):
                         flag = True
                     else:
                         if key in info_dict.keys():
-                            if len(info_dict[key]) == 0:
+                            if key == "url_ariva":
+                                min_len = len('https://www.ariva.de/')
+                                if len(info_dict[key]) <= min_len:
+                                    info_dict[key] = info_dict_search[key]
+                                    flag = True
+                                # end if
+                            elif key == "url_onvista":
+                                min_len = len('https://www.onvista.de/')
+                                if len(info_dict[key]) <= min_len:
+                                    info_dict[key] = info_dict_search[key]
+                                    flag = True
+                                # end if
+                            elif len(info_dict[key]) == 0:
                                 info_dict[key] = info_dict_search[key]
                                 flag = True
                             # end if

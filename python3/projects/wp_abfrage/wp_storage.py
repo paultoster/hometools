@@ -131,7 +131,7 @@ def update_isin_name_dict(isin, wpname, file_name, formatpj):
     :param isin:
     :param wpname:
     :param base_ddict:
-    :return: (status, errtext) = update_isin_name_dict(isin,info_dict["name"],base_ddict)
+    :return: (status, errtext,filename) = update_isin_name_dict(isin,info_dict["name"],base_ddict)
     '''
 
     if info_storage_eixst(file_name, formatpj):

@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup as bs
 import urllib.request
-import re
+import re, copy
 import os, sys
 
 t_path, _ = os.path.split(__file__)
@@ -46,6 +46,7 @@ INFO_DICT = {
             "gewinn":"",
             "waehrung":"",
             "preisabfrage":"",
+            "start_dat_str":"",                            # Ausgabedatum
             "first_dat_str":"",
             "last_dat_str":""
             }
@@ -101,7 +102,8 @@ def search(isin,url_ariva="",url_onvista="",log=None):
 
     # Suche mit playwright die Webseite, wenn noch keine Info da oder
     # angefordert mit flag ariva-Webseite
-    if len(url_ariva)==0:
+    min_len = len('https://www.ariva.de/')
+    if len(url_ariva) <= min_len:
 
         # suche ariva-Webseite
         (stat, errtext, url_ariva) = wp_pr.get_ariva_url_playwright(isin,log)
@@ -128,7 +130,8 @@ def search(isin,url_ariva="",url_onvista="",log=None):
 
     # Suche mit playwright die Webseite, wenn noch keine Info da oder
     # angefordert mit flag auf onvista-Webseite
-    if len(url_onvista) == 0:
+    min_len = len('https://www.onvista.de/')
+    if len(url_ariva) <= min_len:
 
         # suche onvista-Webseite
         (stat, errtext, url_onvista) = wp_pr.get_onvista_url_playwright(isin,log)
@@ -190,6 +193,8 @@ def extraetf_ETF(isin, info_dict):
     # end if
     
     soup = bs(page, 'html.parser')
+
+    # print(soup)
     
     info_dict["url"] = url
     info_dict["type"] = "etf"
@@ -338,11 +343,46 @@ def extraetf_ETF(isin, info_dict):
             info_dict["zahltdiv"] = 1
         # end if
     # end if
-    
+
+
+    # --------------------------------------------------------
+    # Start Datum aus Stammdaten
+    #---------------------------------------------------------
+    daten = read_stammdaten(soup)
+
+    # print(daten.keys())
+    # 'Gesamtkostenquote (TER)', 'Indexabbildung', 'Abbildungsart', 'Ertragsverwendung', 'Fondsgröße', 'Fondsauflage', 'Fondswährung'
+
+    if "Fondsauflage" in daten.keys():
+        info_dict["start_dat_str"] = daten["Fondsauflage"]
+    # end if
+
     return (status, errtext, info_dict)
-
-
 # end def
+def read_stammdaten(soup):
+
+    daten = {}
+    # Alle Tabellen durchsuchen
+    for table in soup.find_all("table"):
+
+        for row in table.find_all("tr"):
+
+            zellen = row.find_all(["td", "th"])
+
+            if len(zellen) == 2:
+
+                schluessel = zellen[0].get_text(" ", strip=True)
+                wert       = zellen[1].get_text(" ", strip=True)
+
+                schluessel = schluessel.replace("\xad", "")
+                wert       = wert.replace("\xad", "")
+
+                daten[schluessel] = wert
+            # end if
+        # end for
+    # end for
+    return daten
+# end if
 def extraetf_Aktie(isin, info_dict):
     status = hdef.OKAY
     errtext = ""
@@ -452,7 +492,15 @@ def extraetf_Aktie(isin, info_dict):
             info_dict["zahltdiv"] = 1
         # end if
     # end if
-    
+
+    # --------------------------------------------------------
+    # Start Datum aus Stammdaten
+    #---------------------------------------------------------
+    daten = read_stammdaten(soup)
+    if "Fondsauflage" in daten.keys():
+        info_dict["start_dat_str"] = daten["Fondsauflage"]
+    # end if
+
     return (status, errtext, info_dict)
 
 
@@ -567,10 +615,16 @@ def extraetf_Fond(isin, info_dict):
             info_dict["zahltdiv"] = 1
         # end if
     # end if
-    
+
+    # --------------------------------------------------------
+    # Start Datum aus Stammdaten
+    #---------------------------------------------------------
+    daten = read_stammdaten(soup)
+    if "Fondsauflage" in daten.keys():
+        info_dict["start_dat_str"] = daten["Fondsauflage"]
+    # end if
+
     return (status, errtext, info_dict)
-
-
 # end def
 
 def ariva_anleihe(isin, url, info_dict):
@@ -746,7 +800,7 @@ def onvista(isin_, url, info_dict):
 # end def
 
 def get_default_info_dict(isin):
-    info_dict = INFO_DICT
+    info_dict = copy.copy(INFO_DICT)
     info_dict["isin"] = isin
     info_dict["waehrung"] = "€"
     return info_dict

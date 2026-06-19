@@ -90,15 +90,17 @@ def edit_basic_info(wb_obj):
                 if status != hdef.OKAY:
                     return (status, errtext,infotext)
                 # end if
-                (status, errtext, isin_liste, isin_wpname_liste) = get_isin_and_wpname_list(wb_obj)
-                if status != hdef.OKAY:
-                    return (status, errtext,infotext)
-                # end if
+
                 isin = output_dict["isin"]
                 wpname = output_dict["name"]
                 (status, errtext) = edit_isin_basic_info(wb_obj, wpname, isin)
                 if status != hdef.OKAY:
                     return (status, errtext,infotext)
+                # end if
+
+                (status, errtext, isin_liste, isin_wpname_liste) = get_isin_and_wpname_list(wb_obj)
+                if status != hdef.OKAY:
+                    return (status, errtext, infotext)
                 # end if
             # end if
 
