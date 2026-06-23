@@ -95,11 +95,11 @@ def get_price_volume_data(url,np_classdef):
     date_list = df[index_dat][1:].tolist()
     dat_np_array = np.array(htype.type_transform_direct(date_list, "datStrP", "dat"), copy=True)
 
-    open_np_array = df[index_open][1:].to_numpy()
-    high_np_array = df[index_high][1:].to_numpy()
-    low_np_array = df[index_low][1:].to_numpy()
-    close_np_array = df[index_close][1:].to_numpy()
-    volume_np_array = df[index_vol][1:].to_numpy()
+    open_np_array = np.array(wandel_char_liste(df[index_open][1:].to_list()))
+    high_np_array =  np.array(wandel_char_liste(df[index_high][1:].to_list()))
+    low_np_array =  np.array(wandel_char_liste(df[index_low][1:].to_list()))
+    close_np_array =  np.array(wandel_char_liste(df[index_close][1:].to_list()))
+    volume_np_array =  np.array(wandel_char_liste(df[index_vol][1:].to_list()))
 
     dat_np_array   = dat_np_array.reshape(np.prod(dat_np_array.shape))
     open_np_array   = open_np_array.reshape(np.prod(open_np_array.shape))
@@ -121,4 +121,12 @@ def get_price_volume_data(url,np_classdef):
     np_obj.sort_by_dat()
 
     return (status, errtext,infotext, np_obj)
+# end def
+def wandel_char_liste(liste):
+
+
+    liste1 = [x.replace("€","").replace(" ","") for x in liste]
+    liste2 = [htype.type_transform_direct(x, "euroStrK", "euro") for x in liste1]
+
+    return liste2
 # end def

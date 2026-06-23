@@ -1,5 +1,5 @@
 import os, sys
-
+import numpy as np
 from hfkt_log import log
 
 t_path, _ = os.path.split(__file__)
@@ -14,7 +14,8 @@ from tools import hfkt_dict as hdict
 from tools import hfkt_type as htype
 from tools import hfkt_date_time as hdate
 from tools import hfkt_file_path as hpf
-
+from tools import hfkt_io as hio
+from tools import hfkt_list as hlist
 
 from wp_abfrage import wp_price_volume
 from wp_abfrage import wp_fkt
@@ -189,7 +190,7 @@ def edit_isin_basic_info(wb_obj,wpname, isin):
         return (status, errtext)
     # end if
     title = f"Edit values of isin: {isin} name: {wpname}"
-    print(title)
+    wb_obj.log.write_info(title)
     
     # Ändere basic-info dict
     (output_dict, changed_key_liste) = sgui.abfrage_dict(output_dict, title=title)
@@ -327,7 +328,7 @@ def proof_url_subsequent(wp_obj,isin_liste,isin_wpname_liste):
             isin = isin_liste[i]
             wpname = isin_wpname_liste[i] + "no url => none"
             print(isin_wpname_liste[i])
-            (status, errtext) = edit_isin_basic_info(wb_obj, wpname, isin)
+            (status, errtext) = edit_isin_basic_info(wp_obj, wpname, isin)
             return (status, errtext, infotext)
         # end if
     # end for
@@ -429,9 +430,10 @@ def edit_price_volume(wp_obj):
         return (status, errtext,"")
     # end if
 
-    abfrage_liste = ["update one isin","ende", "update all isins","backup"]
+    abfrage_liste = ["update one isin","ende", "update all-isins","update avira-csv","backup"]
     i_abfrage_ende = 1
     i_abfrage_update_isin = 0
+    i_abfrage_update_ariva_csv = 3
     i_abfrage_update_all = 2
     #i_backup = 3
     runflag = True
@@ -485,6 +487,25 @@ def edit_price_volume(wp_obj):
 
             if status != hdef.OKAY:
                 t = f"Error wp_bearbeiten.edit_price_volume(wp_obj) \n errtext = {errtext}"
+                sgui.anzeige_text(t, textcolor='red')
+                wp_obj.log.write_err(t)
+                runflag = False
+            # end if
+        elif indexAbfrage == i_abfrage_update_ariva_csv:
+
+            wp_obj.log.write_info(f"WP update ariva-csv:")
+
+            (status, errtext, infotext) = wp_obj.update_price_volume_csv()
+
+            if len(infotext):
+                t = f"Info wp_obj.wp_bearbeiten.update_ariva_csv() \n infotext = {infotext}"
+                sgui.anzeige_text(t, textcolor='green')
+                wp_obj.log.write_info(t)
+                infotext = ""
+            # end if
+
+            if status != hdef.OKAY:
+                t = f"Error wp_obj.wp_bearbeiten.update_ariva_csv() \n errtext = {errtext}"
                 sgui.anzeige_text(t, textcolor='red')
                 wp_obj.log.write_err(t)
                 runflag = False
@@ -554,4 +575,74 @@ def make_backup_build_new_dir_price_volume(wp_obj):
     # end if
 
     return (status, errtext,backup_dir)
+# end def
+def get_price_volume_data_from_ariva_csv_file(csv_file,delim,np_classdef,currency):
+    """
+    :param csv_file:
+    :param delim:
+    :param np_classdef:
+    :param currency:
+    :return: (status, errtext, infotext, np_obj_csv) = wp_fkt.get_price_volume_data_from_ariva_csv_file(csv_file,delim,np_classdef,currency)
+    """
+
+    status = hdef.OKAY
+    errtext = ""
+    infotext = ""
+    np_obj = np_classdef()
+
+    # read csv-File
+    # ==============
+    csv_lliste = hio.read_csv_file(file_name=csv_file, delim=delim)
+
+    if (len(csv_lliste) == 0):
+        errtext = f"Fehler in read_ing_csv read_csv_file()  filename = {csv_file}"
+        status = hdef.NOT_OKAY
+        return (status, errtext, infotext,np_obj)
+    # end if
+
+    csv_lliste = hlist.erase_empty_rows_in_llist(csv_lliste)
+
+    llist = []
+    for i,csv_list in enumerate(csv_lliste):
+
+        if i > 0:
+
+            liste = [htype.type_transform_direct(csv_list[0], "datStrB", "dat"),
+                     htype.type_transform_direct(csv_list[1], "euroStrK", "float"),
+                     htype.type_transform_direct(csv_list[2], "euroStrK", "float"),
+                     htype.type_transform_direct(csv_list[3], "euroStrK", "float"),
+                     htype.type_transform_direct(csv_list[4], "euroStrK", "float"),
+                     htype.type_transform_direct(csv_list[5], "str", "float")]
+
+            llist.append(liste)
+        # end if
+    # end for
+
+    llist = hlist.sort_list_of_list(llist, 0)
+
+    dat_list = hlist.get_col_list_by_index(llist, 0)
+    start_list = hlist.get_col_list_by_index(llist, 1)
+    high_list = hlist.get_col_list_by_index(llist, 2)
+    low_list = hlist.get_col_list_by_index(llist, 3)
+    end_list = hlist.get_col_list_by_index(llist, 4)
+    vol_list = hlist.get_col_list_by_index(llist, 5)
+
+    dat_np_array  = np.array(dat_list, copy=True)
+    start_np_array = np.array(start_list, copy=True)
+    high_np_array = np.array(high_list, copy=True)
+    low_np_array = np.array(low_list, copy=True)
+    end_np_array = np.array(end_list, copy=True)
+    vol_np_array = np.array(vol_list, copy=True)
+
+    np_obj.from_np_array_list([dat_np_array,
+                               start_np_array,
+                               high_np_array,
+                               low_np_array,
+                               end_np_array,
+                               vol_np_array])
+    np_obj.currency = currency
+
+    np_obj.sort_by_dat()
+
+    return (status, errtext, infotext, np_obj)
 # end def

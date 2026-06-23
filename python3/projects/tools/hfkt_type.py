@@ -1924,6 +1924,7 @@ def  type_transform_str(wert_in,type_out):
     (okay, wert) = type_proof(wert_in, "str")
     if( okay == hdef.OKAY):
         if (type_out == "float"):
+            wert_in = wert_in.replace(".","")
             index = hstr.such(wert_in,",","rs")
             if index >= 0:
                 wert = hstr.change_at_index(wert_in, index, 1, '.')

@@ -41,7 +41,13 @@ INI_DICT_PROOF_LISTE = [("store_path", "str"),
                         ("price_volumen_use_format", "int", "int",0),
                         ("price_volumen_pre_file_name", "str","str","wp_price_volume_data_"),
                         ("price_volumen_first_dat","str","datStrP","01.01.2000"),
-                        ("eodhd_key","str")
+                        ("eodhd_key","str"),
+                        ("avira_price_volume_csv_store_path","str"),
+                        ("avira_price_volume_csv_pre_file_name","str","str","wkn_"),
+                        ("avira_price_volume_csv_post_file_name","str","str","_historic"),
+                        ("avira_price_volume_csv_delete","int","int",1),
+                        ("avira_price_volume_csv_is_master","int","int",1),
+                        ("avira_price_volume_csv_trennzeichen","str","str",";")
                         ]
 
 class WPParam:
@@ -127,7 +133,7 @@ class WPData:
             # endtry
         # endif
 
-        self.log = hlog.log(consol_func=True,log_window=True)
+        self.log = hlog.log(consol_func=True,log_window=False)
         self.log_file_name = self.log.get_logfilename()
 
         (self.status, self.errtext, self.base_ddict) = hdict.proof_transform_ddict(ddict,INI_DICT_PROOF_LISTE)
@@ -139,7 +145,7 @@ class WPData:
         self.errtext = ""
         self.infotext = ""
 
-        (self.status,self.errtext) = wp_fkt.check_store_path(self.base_ddict)
+        (self.status,self.errtext) = wp_fkt.check_store_path(self.base_ddict["store_path"])
     # end def
     def __del__(self) -> None:
         print(f"Siehe logfile: {self.log_file_name}")
@@ -467,6 +473,18 @@ class WPData:
         return (self.status,self.errtext,self.infotext)
 
 
+    # end def
+    def update_price_volume_csv(self):
+        status = hdef.OKAY
+
+        errtext = ""
+
+        (self.status, self.errtext, self.infotext) = wp_base_price_volume.update_csv(self)
+        if self.status != hdef.OKAY:
+            return (self.status, self.errtext, self.infotext)
+        # end if
+
+        return (self.status, self.errtext, self.infotext)
     # end def
     def get_exist_filenames_of_privce_volume(self, isin_input: str | list) -> (int, str, list):
         """

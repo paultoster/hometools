@@ -62,7 +62,7 @@ class log:
     NOT_OKAY = hfkt_def.NOT_OKAY
     OKAY     = hfkt_def.OKAY
 
-    def __init__(self, log_file=None, consol_func=None,log_window=None):
+    def __init__(self, log_file=None, consol_func=False,log_window=False):
         """ Log-Datei oeffnen
         log(log_file=filename/None,consol_func=True/False,log_window=True/False)
         """
@@ -123,7 +123,7 @@ class log:
             file_handler.setFormatter(formatter)
             self.logger.addHandler(file_handler)
 
-            if self.consol_func != None:
+            if self.consol_func:
                 console_handler = logging.StreamHandler()
                 console_handler.setFormatter(formatter)
 
@@ -140,7 +140,7 @@ class log:
             # self.fid = 0
 
         try:
-            if self.log_window != None:
+            if self.log_window:
 
                 fullfilename = hfp.reset_filename(__file__, "log_window_anwendung_als_server.py")
 

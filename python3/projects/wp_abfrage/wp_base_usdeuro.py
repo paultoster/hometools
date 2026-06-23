@@ -157,7 +157,7 @@ def merge_usdeuro_np_obj_new_to_np_obj(np_obj,np_obj_new):
     :param df:
     :param df_new:
     :param dat_name:
-    :param usdeuro_name: (status, errtext, df_merge) = wp_fkt.merge_usdeuro_dfnew_to_df(df,df_new, dat_name,usdeuro_name)
+    :param usdeuro_name: (status, errtext, df_merge) = obj.merge_usdeuro_dfnew_to_df(df,df_new, dat_name,usdeuro_name)
     :return:
     """
     status = hdef.OKAY
@@ -203,10 +203,12 @@ def get_from_start_dat_to_end_dat(wb_obj, start_dat, end_dat):
     status = hdef.OKAY
     errtext = ""
 
+    # Hole first und last aus aktueller Datei auf Platte
     (status, errtext, number, firstdat, lastdat) = get_number_of_data(wb_obj)
     if status != hdef.OK:
         return (status, errtext)
 
+    # Prüfe ob start-Datum, dass gesucht wird vor dem ersten Datum aus Datei => Fehler
     if start_dat < firstdat:
         status = hdef.NOT_OKAY
         firstdatstr = htype.type_transform_direct(firstdat, "dat", "datStrP")
@@ -215,14 +217,17 @@ def get_from_start_dat_to_end_dat(wb_obj, start_dat, end_dat):
         return (status, errtext,None)
     # end def
 
-    # Update auf aktuelles Datum
+    # Update auf aktuelles Datum, wenn gesuchtes Enddatum größer als letztes gespeichertes Datum
     if end_dat > lastdat:
+        # Update der fehlenden Werte bis zum letzten Handelstag einschließlich
         (status, errtext) = process_akt(wb_obj)
+
         if status != hdef.OKAY:
             return (status, errtext,None)
         # end if
     # end def
 
+    # Lade Werte-datei und bekomme ein numpy-Objekt np_obj
     file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["usdeuro_pre_file_name"] + wb_obj.par.HEADER_USDEURO_NAME,
                                                 wb_obj.base_ddict["store_path"])
 
@@ -235,14 +240,15 @@ def get_from_start_dat_to_end_dat(wb_obj, start_dat, end_dat):
         return (status, errtext,None)
     # end if
     range = 24*60*60
-    (start_index,last_index,start_in_range,last_in_range) = (
-        wp_fkt.find_index_range(list(np_obj.dat_np_array),
-                                start_dat,
-                                end_dat,
-                                range))
 
+    # Suche den Indize-Bereich für von start nach end mit dem range von einem Tag
+    (start_index,end_index,_,_) = wp_fkt.find_index_range(list(np_obj.dat_np_array),
+                                                          start_dat,
+                                                          end_dat,
+                                                          range)
 
-    if (start_index is None) or (last_index is None):
+    # Prüfung, ob gefunden
+    if (start_index is None) or (end_index is None):
         status = hdef.NOT_OKAY
         formatpj = int(wb_obj.base_ddict["usdeuro_use_format"] % 10)
         if (formatpj == 1) or (formatpj == 3):
@@ -255,12 +261,13 @@ def get_from_start_dat_to_end_dat(wb_obj, start_dat, end_dat):
         # end if
 
         errtext = f"Für Auslesen USD-Euro konnte in Datei {file_name} das Datum zwischen {start_dat = } und {end_dat = } konnte nicht gefunden werden."
+    # Stutze Vektoren auf den Indize-Bereich ein
     else:
-        np_obj.dat_np_array = np_obj.dat_np_array[start_index:last_index+1]
-        np_obj.usdeuro_np_array = np_obj.usdeuro_np_array[start_index:last_index+1]
+        np_obj.dat_np_array = np_obj.dat_np_array[start_index:end_index+1]
+        np_obj.usdeuro_np_array = np_obj.usdeuro_np_array[start_index:end_index+1]
     # end if
 
-    # print(f"{start_index =},{last_index =},dat_np_array_len = {len(np_obj.dat_np_array)}")
+    # print(f"{start_index =},{end_index =},dat_np_array_len = {len(np_obj.dat_np_array)}")
     # print(f"start_dat = {htype.type_transform_direct(start_dat, "dat", "datStrP")}")
     # print(f"end_dat = {htype.type_transform_direct(end_dat, "dat", "datStrP")}")
     # print(f"dat_np_array[0] = {htype.type_transform_direct(np_obj.dat_np_array[0], "dat", "datStrP")}")

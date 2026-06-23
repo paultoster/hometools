@@ -309,7 +309,6 @@ def process_isin_from_wkn(wb_obj, wkn):
     (status, errtext, isin) = wp_wkn.wp_search_wkn(wkn,
                                                    wpname_isin_filename,
                                                    formatpj,
-                                                   wb_obj.base_ddict["wpname_isin_filename"],
                                                    wb_obj.base_ddict["basic_info_pre_file_name"],
                                                    wb_obj.base_ddict["store_path"],
                                                    wb_obj.base_ddict["wkn_isin_n_times"],

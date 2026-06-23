@@ -408,7 +408,7 @@ def erase_empty_rows_in_llist(llist,whitespace=True):
             # end if
             if len(value) == 0:
                 index_liste.append(index)
-                print(f"{index = }, {liste = }")
+                # print(f"{index = }, {liste = }")
                 break
             # end if
         # end for

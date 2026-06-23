@@ -30,6 +30,7 @@
  leaves_path_name = get_path_leaves(full_path_name,root_path_name)
  status = merge_path_leaves(root_path_name,leaves_path_name)   status = hedf.OKAY
 
+ def remove_file(file_name): Löscht Datei, wenn vorhanden
  def remove_dir_all(dir_name): Löscht den Pfad
  def remove_named_dir(dir_name,delete_name,recursive): Loescht von dir_name die Ordber delete_name rekursiv oder nicht weg
  def is_textfile(filename, blocksize = 512) checks if file is an text-file
@@ -564,6 +565,16 @@ def merge_path_leaves(root_path_name,leaves_path_name):
 
     return pathname
 # end if
+def remove_file(file_name):
+    """
+    def remove_file(file_name): Löscht Datei, wenn vorhanden
+    """
+    if (os.path.isfile(file_name)):
+        os.chmod(file_name, stat.S_IWRITE)
+        os.remove(file_name)
+    # end if
+
+
 def remove_dir_all(dir_name):
     try:
         liste = os.listdir(dir_name)

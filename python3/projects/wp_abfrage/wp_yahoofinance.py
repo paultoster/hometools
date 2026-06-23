@@ -140,18 +140,49 @@ def get_price_volume_data(ticker,np_classdef,start_dat,end_dat):
     df_data = yf.download(ticker, period = "max", interval = "1d")
 
     if df_data.empty:
+        df_data = yf.download(ticker,
+                              start_dat_time_class.strftime('%Y-%m-%d'),
+                              end_dat_time_class.strftime('%Y-%m-%d'))
+    # end if
+    if df_data.empty:
+        periods = ["5d","1d"]
+        for p in periods:
+            df_data = yf.download(ticker,period = p, interval = "1d")
+            if not df_data.empty:
+                break
+            # end if
+        # end for
+    # end if
+
+    if df_data.empty:
         infotext = f"for Ticker-Symbol \"{ticker}\" no data from yahoofinance"
         return (status, errtext, infotext, np_obj)
     # end if
 
     date_str_list = df_data.index.strftime("%d.%m.%Y").tolist()
-
     dat_np_array = np.array(htype.type_transform_direct(date_str_list, "datStrP", "dat"), copy=True)
     open_np_array = df_data["Open"].to_numpy()
     high_np_array = df_data["High"].to_numpy()
     low_np_array = df_data["Low"].to_numpy()
     close_np_array = df_data["Close"].to_numpy()
     volume_np_array = df_data["Volume"].to_numpy()
+
+    range = 24 * 60 * 60
+    (start_index, end_index, _, _) = wp_fkt.find_index_range(list(dat_np_array),
+                                                             start_dat,
+                                                             end_dat,
+                                                             range)
+    if (start_index is None) or (end_index is None):
+        infotext = f"for Ticker-Symbol \"{ticker}\" no data from yahoofinance start_index = None or/and end_index = None "
+        return (status, errtext, infotext, np_obj)
+    # end if
+
+    dat_np_array = dat_np_array[start_index: end_index + 1]
+    open_np_array = open_np_array[start_index: end_index + 1]
+    high_np_array = high_np_array[start_index: end_index + 1]
+    low_np_array = low_np_array[start_index: end_index + 1]
+    close_np_array = close_np_array[start_index: end_index + 1]
+    volume_np_array = volume_np_array[start_index: end_index + 1]
 
     dat_np_array   = dat_np_array.reshape(np.prod(dat_np_array.shape))
     open_np_array   = open_np_array.reshape(np.prod(open_np_array.shape))
