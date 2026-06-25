@@ -370,26 +370,33 @@ def get_new_price_vol_from_yf(wb_obj,  wp_dict_liste):
 
             # Währungs USDEuro
             if np_obj_yf != None:
+                if len(np_obj_yf.dat_np_array) != 0:
+                    # Währung
+                    if np_obj_yf.currency.find("usd") == 0:
+                        wb_obj.log.write_info(f"yahoo-finance: Suche USD/euro-Kurse ")
+                        (status, errtext, np_obj_yf) = transfer_price_vol_from_usd_to_euro(wb_obj, np_obj_yf)
+                    # end if
 
-                # Währung
-                if np_obj_yf.currency.find("usd") == 0:
-                    wb_obj.log.write_info(f"yahoo-finance: Suche USD/euro-Kurse ")
-                    (status, errtext, np_obj_yf) = transfer_price_vol_from_usd_to_euro(wb_obj, np_obj_yf)
-                # end if
+                    # keep end date
 
-                # keep end date
-                np_obj_yf.reduce_end_dat(wp_dict["end_dat"])
+                    np_obj_yf.reduce_end_dat(wp_dict["end_dat"])
+                    if len(np_obj_yf.dat_np_array) != 0:
+                        range = 60*60*24
+                        flag = wp_fkt.is_in_range(np_obj_yf.dat_np_array[-1],wp_dict["end_dat"],range)
 
-                range = 60*60*24
-                flag = wp_fkt.is_in_range(np_obj_yf.dat_np_array[-1],wp_dict["end_dat"],range)
-
-                if flag:
-                    wp_dict["np_obj_new"]  = np_obj_yf
-                    wp_dict["updated"]     = True
-                    wp_dict["update_type"] = "yahoofinance"
-                    wb_obj.log.write_info(f"yahoo-finance: Kurs gefunden ")
+                        if flag:
+                            wp_dict["np_obj_new"]  = np_obj_yf
+                            wp_dict["updated"]     = True
+                            wp_dict["update_type"] = "yahoofinance"
+                            wb_obj.log.write_info(f"yahoo-finance: Kurs gefunden ")
+                        else:
+                            wb_obj.log.write_info(f"yahoo-finance: Kurs gefunden, aber nicht das richtige End-Datum bekommen ")
+                        # end if
+                    else:
+                        wb_obj.log.write_info(f"yahoo-finance: Kurs ist leer durch Reduzierung")
+                    # end if
                 else:
-                    wb_obj.log.write_info(f"yahoo-finance: Kurs gefunden, aber nicht das richtige End-Datum bekommen ")
+                    wb_obj.log.write_info(f"yahoo-finance: Kurs war leer null Werte")
                 # end if
             else:
                 wb_obj.log.write_info(f"yahoo-finance: Kurs nicht gefunden ")

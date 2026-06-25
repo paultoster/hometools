@@ -1627,7 +1627,7 @@ class KontoDataSet:
         :param comment:
         :return: isin = self.search_isin(isin_in, comment)
         '''
-    
+        isin = ""
         # if isin is explicit set use proofed isin
         if isin_in is not None:
             (okay, isin) = htype.type_proof_isin(isin_in)
@@ -1638,13 +1638,15 @@ class KontoDataSet:
         # if not search isin from comment
         if (okay != hdef.OKAY) and (len(comment) > 0):
             (okay, isin) = htype.type_proof_isin(comment)
+            if isin is None:
+                isin = ""
         # end if
     
         # if not search wkn from comment
+
         if (len(isin) == 0) and (len(comment) > 0):
             (okay, wkn,isin) = self.search_wkn_from_comment(comment)
         # end if
-    
         if (okay != hdef.OKAY):
             isin = "isinnotfound"
         # end if
@@ -1859,7 +1861,7 @@ class KontoDataSet:
                 a=0
                 
             value = self.data_set_obj.get_data_item(irow,data_name,data_type)
-            
+            #####
             if self.data_set_obj.status != hdef.OKAY:
                 org_data_type = self.data_set_obj.get_type_of_header(data_name)
                 raise Exception(

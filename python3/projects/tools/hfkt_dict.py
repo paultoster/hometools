@@ -304,6 +304,22 @@ def write_dict_list_in_ods_table(dict_list,titlename,filename):
             worksheet.cell(row=row_num, column=col_num, value=data)
         # end for
     # end for
+
+    # Spaltenbreite anpassen
+    for col in worksheet.columns:
+        max_laenge = 0
+        spalte = openpyxl.utils.get_column_letter(col[0].column)
+
+        for zelle in col:
+            try:
+                if len(str(zelle.value)) > max_laenge:
+                    max_laenge = len(str(zelle.value))
+            except:
+                pass
+
+        worksheet.column_dimensions[spalte].width = max_laenge + 2
+
+
     file_name = hfp.reset_ext(filename, "excel")
     workbook.save(file_name)
 

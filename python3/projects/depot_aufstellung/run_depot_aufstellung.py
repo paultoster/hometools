@@ -156,7 +156,7 @@ if __name__ == '__main__':
         switch = 1
     # end if
 
-    # switch = 0
+    switch = 0
     
     if switch == 1:
         WORKING_DIRECTORY = "D:/data/orga/Otnok"

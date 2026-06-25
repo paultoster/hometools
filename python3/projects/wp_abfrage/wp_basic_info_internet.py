@@ -712,6 +712,9 @@ def onvista(isin_, url, info_dict):
     status = hdef.OKAY
     errtext = ""
 
+    if len(url) == 0:
+        a = 0
+
     try:
         newpage = urllib.request.urlopen(url)
     except urllib.error.HTTPError as e:

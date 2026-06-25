@@ -296,7 +296,7 @@ def get_isin_and_wpname_list(wb_obj):
 def dump_in_ods(wb_obj,isin_liste):
     """!
     :param wb_obj:
-    :return: (status, errtext) = dump_in_ods(wp_obj)
+    :return: (status, errtext) = dump_in_ods(wb_obj)
     """
 
     (status, errtext, output_dict_list) = wb_obj.get_basic_info(isin_liste)
@@ -310,12 +310,12 @@ def dump_in_ods(wb_obj,isin_liste):
 
     return (status, errtext)
 # end dfe
-def proof_url_subsequent(wp_obj,isin_liste,isin_wpname_liste):
+def proof_url_subsequent(wb_obj,isin_liste,isin_wpname_liste):
     """
-    (status, errtext) = proof_url_subsequent(wp_obj,isin_liste,isin_wpname_liste)
+    (status, errtext) = proof_url_subsequent(wb_obj,isin_liste,isin_wpname_liste)
     """
     infotext = ""
-    (status, errtext, output_dict_list) = wp_obj.get_basic_info(isin_liste)
+    (status, errtext, output_dict_list) = wb_obj.get_basic_info(isin_liste)
 
     for i,isin in enumerate(isin_liste):
 
@@ -328,7 +328,7 @@ def proof_url_subsequent(wp_obj,isin_liste,isin_wpname_liste):
             isin = isin_liste[i]
             wpname = isin_wpname_liste[i] + "no url => none"
             print(isin_wpname_liste[i])
-            (status, errtext) = edit_isin_basic_info(wp_obj, wpname, isin)
+            (status, errtext) = edit_isin_basic_info(wb_obj, wpname, isin)
             return (status, errtext, infotext)
         # end if
     # end for
@@ -416,26 +416,27 @@ def make_backup_build_new_dir(wb_obj):
 
     return (status, errtext,backup_dir)
 # end def
-def edit_price_volume(wp_obj):
+def edit_price_volume(wb_obj):
     """
 
-    :param wp_obj:            wp_base.WPData Data Objekt
+    :param wb_obj:            wp_base.WPData Data Objekt
     :return: (status,errtext,infotext) = edit_price_volume(wb_obj)
     """
     infotext = ""
     # Hole die dict-Liste mit allen WPs name[isin]
     #---------------------------------------------
-    (status, errtext,isin_liste,isin_wpname_liste)  = get_isin_and_wpname_list(wp_obj)
+    (status, errtext,isin_liste,isin_wpname_liste)  = get_isin_and_wpname_list(wb_obj)
     if status != hdef.OKAY:
         return (status, errtext,"")
     # end if
 
-    abfrage_liste = ["update one isin","ende", "update all-isins","update avira-csv","backup"]
+    abfrage_liste = ["update one isin","ende", "update all-isins","update avira-csv","backup","dump basic_info(ods)"]
     i_abfrage_ende = 1
     i_abfrage_update_isin = 0
     i_abfrage_update_ariva_csv = 3
     i_abfrage_update_all = 2
-    #i_backup = 3
+    i_backup = 4
+    # i_dump_basic = 5
     runflag = True
 
     while (runflag):
@@ -448,7 +449,7 @@ def edit_price_volume(wp_obj):
         elif indexAbfrage == i_abfrage_update_isin:
 
             if index < 0:
-                wp_obj.log.write_info("Keine isin ausgewählt")
+                wb_obj.log.write_info("Keine isin ausgewählt")
                 runflag = True
             else:
 
@@ -456,62 +457,70 @@ def edit_price_volume(wp_obj):
                 isin = isin_liste[index]
                 wpname = isin_wpname_liste[index]
 
-                wp_obj.log.write_info(f"WP update isin: {isin} Name: {wpname}")
+                wb_obj.log.write_info(f"WP update isin: {isin} Name: {wpname}")
 
-                (status, errtext, infotext) = wp_obj.update_price_volume(isin)
+                (status, errtext, infotext) = wb_obj.update_price_volume(isin)
 
                 if len(infotext):
-                    t = f"Info wp_bearbeiten.get_last_price_volume(wp_obj) \n infotext = {infotext}"
+                    t = f"Info wp_bearbeiten.get_last_price_volume(wb_obj) \n infotext = {infotext}"
                     sgui.anzeige_text(t, textcolor='green')
-                    wp_obj.log.write_info(t)
+                    wb_obj.log.write_info(t)
                 # end if
 
                 if status != hdef.OKAY:
-                    t = f"Error wp_bearbeiten.edit_price_volume(wp_obj) \n errtext = {errtext}"
+                    t = f"Error wp_bearbeiten.edit_price_volume(wb_obj) \n errtext = {errtext}"
                     sgui.anzeige_text(t, textcolor='red')
-                    wp_obj.log.write_err(t)
+                    wb_obj.log.write_err(t)
                     runflag = False
                 # end if
         elif indexAbfrage == i_abfrage_update_all:
 
-            wp_obj.log.write_info(f"WP update all:")
+            wb_obj.log.write_info(f"WP update all:")
 
-            (status, errtext, infotext) = wp_obj.update_price_volume()
+            (status, errtext, infotext) = wb_obj.update_price_volume()
 
             if len(infotext):
-                t = f"Info wp_bearbeiten.get_last_price_volume(wp_obj) \n infotext = {infotext}"
+                t = f"Info wp_bearbeiten.get_last_price_volume(wb_obj) \n infotext = {infotext}"
                 sgui.anzeige_text(t, textcolor='green')
-                wp_obj.log.write_info(t)
+                wb_obj.log.write_info(t)
                 infotext = ""
             # end if
 
             if status != hdef.OKAY:
-                t = f"Error wp_bearbeiten.edit_price_volume(wp_obj) \n errtext = {errtext}"
+                t = f"Error wp_bearbeiten.edit_price_volume(wb_obj) \n errtext = {errtext}"
                 sgui.anzeige_text(t, textcolor='red')
-                wp_obj.log.write_err(t)
+                wb_obj.log.write_err(t)
                 runflag = False
             # end if
         elif indexAbfrage == i_abfrage_update_ariva_csv:
 
-            wp_obj.log.write_info(f"WP update ariva-csv:")
+            wb_obj.log.write_info(f"WP update ariva-csv:")
 
-            (status, errtext, infotext) = wp_obj.update_price_volume_csv()
+            (status, errtext, infotext) = wb_obj.update_price_volume_csv()
 
             if len(infotext):
-                t = f"Info wp_obj.wp_bearbeiten.update_ariva_csv() \n infotext = {infotext}"
+                t = f"Info wb_obj.wp_bearbeiten.update_ariva_csv() \n infotext = {infotext}"
                 sgui.anzeige_text(t, textcolor='green')
-                wp_obj.log.write_info(t)
+                wb_obj.log.write_info(t)
                 infotext = ""
             # end if
 
             if status != hdef.OKAY:
-                t = f"Error wp_obj.wp_bearbeiten.update_ariva_csv() \n errtext = {errtext}"
+                t = f"Error wb_obj.wp_bearbeiten.update_ariva_csv() \n errtext = {errtext}"
                 sgui.anzeige_text(t, textcolor='red')
-                wp_obj.log.write_err(t)
+                wb_obj.log.write_err(t)
                 runflag = False
             # end if
-        else: # indexAbfrage == i_backup = 3
-            (status, errtext) = make_backup_price_volumen(wp_obj)
+        elif indexAbfrage == i_backup:
+            (status, errtext) = make_backup_price_volumen(wb_obj)
+            if status != hdef.OKAY:
+                return (status, errtext, infotext)
+            runflag = True
+        else: # indexAbfrage == i_dumP-basic:
+            (status, errtext) = dump_in_ods(wb_obj,isin_liste)
+            if status != hdef.OKAY:
+                return (status, errtext, infotext)
+            runflag = True
         # end if
     # end while
     return (status, errtext, infotext)
@@ -552,15 +561,15 @@ def make_backup_price_volumen(wb_obj):
 
     return (status, errtext)
 # end if
-def make_backup_build_new_dir_price_volume(wp_obj):
+def make_backup_build_new_dir_price_volume(wb_obj):
     """
-    (status, errtext) = make_backup_build_new_dir_price_volume(wp_obj)
+    (status, errtext) = make_backup_build_new_dir_price_volume(wb_obj)
     """
 
     status = hdef.OKAY
     errtext = ""
 
-    backup_dir = os.path.join(wp_obj.base_ddict["store_path"],
+    backup_dir = os.path.join(wb_obj.base_ddict["store_path"],
                             hdate.get_name_by_dat_time("price_volume_", ""))
 
 

@@ -156,6 +156,8 @@ class NpPriceVolumeClass(NpBaseClass):
                 self.low_np_array    = np.delete(self.low_np_array, -1)
                 self.end_np_array    = np.delete(self.end_np_array, -1)
                 self.volume_np_array = np.delete(self.volume_np_array, -1)
+                if len(self.dat_np_array) == 0:
+                    break
             # end while
         # end if
     # end def

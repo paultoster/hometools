@@ -125,7 +125,7 @@ def get_price_volume_data(url,np_classdef):
 def wandel_char_liste(liste):
 
 
-    liste1 = [x.replace("€","").replace(" ","") for x in liste]
+    liste1 = [x.replace("€","").replace("%","").replace(" ","") for x in liste]
     liste2 = [htype.type_transform_direct(x, "euroStrK", "euro") for x in liste1]
 
     return liste2
