@@ -162,9 +162,15 @@ def anzeige_depot(rd,auswahl,depot_dict,depot_obj,flag_update):
             # end if
         elif sw == i_toggle:
 
-            depot_show_type += 1
-            if depot_show_type > 2:
+            if depot_show_type == 0:
+                depot_show_type = 2
+            elif depot_show_type == 1:
                 depot_show_type = 0
+            else:
+                depot_show_type = 1
+            # depot_show_type += 1
+            # if depot_show_type > 2:
+            #     depot_show_type = 0
             runflag = True
 
         elif sw == i_kategorie:

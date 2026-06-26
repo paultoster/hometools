@@ -194,10 +194,9 @@ def data_read(rd):
     # endfor
     
     for depot_name in rd.ini.ddict[rd.par.INI_DEPOT_DATA_LIST_NAMES_NAME]:
-        print('-=-' * 30)
         konto_name = rd.depot_dict[depot_name].depot_obj.konto_name
-        print(f"depot konto_obj {rd.depot_dict[depot_name].depot_obj.konto_obj = } \n == external set {rd.konto_dict[konto_name].konto_obj =}")
-        print('-=-' * 30)
+        if rd.depot_dict[depot_name].depot_obj.konto_obj != rd.konto_dict[konto_name].konto_obj:
+            raise ValueError('f"depot konto_obj {rd.depot_dict[depot_name].depot_obj.konto_obj = } \n != external set {rd.konto_dict[konto_name].konto_obj =}"')
     # end for
     
     

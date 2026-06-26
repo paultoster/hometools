@@ -1861,7 +1861,7 @@ class KontoDataSet:
                 a=0
                 
             value = self.data_set_obj.get_data_item(irow,data_name,data_type)
-            #####
+
             if self.data_set_obj.status != hdef.OKAY:
                 org_data_type = self.data_set_obj.get_type_of_header(data_name)
                 raise Exception(
