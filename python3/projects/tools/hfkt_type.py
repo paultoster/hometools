@@ -1439,6 +1439,12 @@ def type_proof_euroStrK(wert_in, delim=",", thousandsign="."):
     '''
     (okay,wert_in) = type_proof_string(wert_in)
     if okay == hdef.OKAY:
+
+        match = re.search(r'[\d.]+(?:,\d+)?', wert_in)
+
+        if match:
+            wert_in = match.group()
+
         if delim == ",":
             wert_in = check_euroStrK_witheuroStrP(wert_in, delim=delim, thousandsign=thousandsign)
         (okay, wert_euro) = type_proof_euro(wert_in, delim=delim, thousandsign=thousandsign)

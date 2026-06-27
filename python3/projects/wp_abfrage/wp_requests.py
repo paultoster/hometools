@@ -1,7 +1,7 @@
 import pandas as pd
 import requests
 import numpy as np
-import os, sys
+import os, sys, re
 
 t_path, _ = os.path.split(__file__)
 tools_path = t_path + "\\.."
@@ -126,7 +126,18 @@ def wandel_char_liste(liste):
 
 
     liste1 = [x.replace("€","").replace("%","").replace(" ","") for x in liste]
-    liste2 = [htype.type_transform_direct(x, "euroStrK", "euro") for x in liste1]
+    liste2 = [wandel_mit_re(x) for x in liste1]
+    liste3 = [htype.type_transform_direct(x, "euroStrK", "euro") for x in liste2]
 
-    return liste2
+    return liste3
+# end def
+def wandel_mit_re(value_in):
+    match = re.search(r'[\d.]+(?:,\d+)?', value_in)
+
+    if match:
+        value_out = match.group()
+    else:
+        value_out = value_in
+    # end if
+    return value_out
 # end def

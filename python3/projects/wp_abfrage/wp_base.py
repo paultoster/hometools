@@ -148,7 +148,8 @@ class WPData:
         (self.status,self.errtext) = wp_fkt.check_store_path(self.base_ddict["store_path"])
     # end def
     def __del__(self) -> None:
-        print(f"Siehe logfile: {self.log_file_name}")
+        if hasattr(self, "log_file_name"):
+            print(f"Siehe logfile: {self.log_file_name}")
     # end def
     def get_basic_info_isin_liste(self) -> (int,str,list):
         '''
@@ -502,18 +503,18 @@ if __name__ == '__main__':
     isin = "AU3TB0000192"
     isin = "DE000ETFL482"
     
-    store_path = "K:/data/orga/wp_store"
+    store_path = "D:/data/orga/wp_store/wp_abfrage.ini"
     wp = WPData(store_path)
     if wp.status != hdef.OKAY:
         print(f"WPData: Fehler  errtext = {wp.errtext}")
         exit(1)
     # end if
-    
-    # wkn = "A0S9GB"
-    # (status,isin) = wp.get_isin_from_wkn(wkn)
 
-    # if status == hdef.OKAY:
-    #     print(f"isin = {isin}")
+    wkn = "LS9U3L"
+    (status,isin) = wp.get_isin_from_wkn(wkn)
+
+    if status == hdef.OKAY:
+        print(f"isin = {isin}")
     # end if
 
     (status,errtext,info_dict_list) = wp.get_basic_info(isin)

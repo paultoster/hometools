@@ -572,7 +572,7 @@ class abfrage_tabelle_class:
         # self.current_row = curRow["loc"]
     # -------------------------------------------------------------------------------
     # -------------------------------------------------------------------------------
-    def selectTabGui(self, button_name):
+    def selectTabGui(self, button_name=None):
         ''' eine Gruppe ausw hlen  ber selection, wenn nicht dann weiter
             aktuellen Namen verwenden
             Ergebnis wird in self.actual_group_name gespeichert
@@ -668,7 +668,10 @@ class abfrage_tabelle_class:
         icount = 0
         self.index_abfrage = -1
         for name in self.abfrage_liste:
-            if name == button_name:
+            if button_name is None:
+                self.index_abfrage = 0
+                break
+            elif name == button_name:
                 self.index_abfrage = icount
                 break
             icount += 1
@@ -794,6 +797,8 @@ class abfrage_tabelle_class:
         
         self.entryPopup = EntryPopup(self.root, self.tabGui_TabBox, rowid, int(column[1:]) - 1, text)
         self.entryPopup.place(x=x, y=y + pady, width=width, height=height, anchor='w')
+
+        if self.flag_changed_by_double_click: self.selectTabGui()
     # end def
 # end class
 # -------------------------------------------------------------------------------

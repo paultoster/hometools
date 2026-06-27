@@ -76,11 +76,11 @@ def anzeige(rd,konto_obj):
     '''
     
     status = hdef.OKAY
-    abfrage_liste = ["ende", "update(edit)","scan(isin)", "edit_row","edit_row(isin)","add", "delete_row","set_kat","del_kat","kat_regel_run","kat_regel_build"]
-    i_end = 0
-    i_update = 1
-    i_update_isin = 2
-    i_edit = 3
+    abfrage_liste = ["edit_row","ende", "update(edit)","scan(isin)", "edit_row(isin)","add", "delete_row","set_kat","del_kat","kat_regel_run","kat_regel_build"]
+    i_end = 1
+    i_update = 2
+    i_update_isin = 3
+    i_edit = 0
     i_edit_isin = 4
     i_add = 5
     i_delete = 6

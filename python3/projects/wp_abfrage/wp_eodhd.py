@@ -26,8 +26,16 @@ def is_info_available(isin,eodhd_key):
     flag_avail = False
     infotext = ""
     url = f'https://eodhd.com/api/search/{isin}?api_token={eodhd_key}&fmt=json'
-    data = requests.get(url)
-    d_list = data.json()
+
+
+    try:
+        data = requests.get(url)
+        d_list = data.json()
+    except requests.exceptions.JSONDecodeError as e:
+        infotext = f" data was not okay json-Error:\n{str(e)}"
+        return (flag_avail,symbol,exchange,currency,infotext)
+    # end except
+
     if data.ok and (len(d_list) > 0):
 
         for d in d_list:

@@ -676,7 +676,9 @@ def ariva_anleihe(isin, url, info_dict):
             isin_internet = liste[index]
         # end if
     # end if
-    if isin_internet != isin:
+    if len(isin) == 0:
+        isin = isin_internet
+    elif isin_internet != isin:
         return (hdef.NOT_FOUND, "", info_dict)
     # end if
 

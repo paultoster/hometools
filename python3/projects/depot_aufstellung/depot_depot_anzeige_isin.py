@@ -51,12 +51,12 @@ def anzeige_depot_isin(rd,isin,depot_obj):
         # --------------------------------------
         # (sw, irow, changed_pos_list, ttable_update) = anzeige_isin(rd, ttable, title, row_color_dliste)
 
-        abfrage_liste = ["ende", "zurück", "edit", "delete", "kurs", "update(edit)"]
-        i_end = 0
+        abfrage_liste = ["edit", "zurück",  "delete", "kurs", "update(edit)"]
+        # i_end = 0
         i_zurueck = 1
-        i_edit = 2
-        i_delete = 3
-        i_kurs = 4
+        i_edit = 0
+        i_delete = 2
+        i_kurs = 3
         # i_update = 5
 
 
@@ -66,12 +66,12 @@ def anzeige_depot_isin(rd,isin,depot_obj):
                                                                         title,
                                                                         row_color_dliste)
 
-        if sw <= i_end:
-
-            sw = -1
-            runflag = False
-
-        elif sw == i_zurueck:
+        # if sw <= i_end:
+        #
+        #     sw = -1
+        #     runflag = False
+        #
+        if sw == i_zurueck:
 
             runflag = False
 
@@ -155,6 +155,7 @@ def edit_data(rd,depot_obj,irow,isin):
     :param isin:
     :return: tatus = edit_data(rd,depot_obj,irow,isin)
     """
+    status = hdef.OKAY
 
     # get data
     (tliste, buchungs_type_list, buchtype_index_in_header_liste) \
@@ -204,6 +205,7 @@ def edit_data(rd,depot_obj,irow,isin):
                               screen=rd.par.LOG_SCREEN_OUT)
             depot_obj.reset_infotext()
         # endif
+
     # endif
     return status
 # end def

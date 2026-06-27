@@ -109,9 +109,9 @@ def anzeige_depot(rd,auswahl,depot_dict,depot_obj,flag_update):
         titlename = f"Depot: {depot_obj.get_depot_name()} {addtext}"
         # (sw, isin) = anzeige_overview(rd, ttable, icol_isin, titlename, row_color_dliste)
 
-        abfrage_liste = ["ende", "wp auswahl", "toggle indepot", "edit kategorie", "edit wkn_info"]
-        i_end = 0
-        i_auswahl = 1
+        abfrage_liste = ["wp auswahl","ende",  "toggle indepot", "edit kategorie", "edit wkn_info"]
+        i_end = 1
+        i_auswahl = 0
         i_toggle = 2
         i_kategorie = 3
         # i_wp_info = 4
@@ -129,7 +129,7 @@ def anzeige_depot(rd,auswahl,depot_dict,depot_obj,flag_update):
             sw = i_end
         # end if
 
-        if sw <= i_end:
+        if (sw == i_end) or (sw<0):
 
             sw = -1
             runflag = False

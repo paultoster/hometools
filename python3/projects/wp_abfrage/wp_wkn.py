@@ -17,6 +17,8 @@ import tools.hfkt_def as hdef
 import tools.hfkt_str as hstr
 import tools.hfkt_type as htype
 import wp_abfrage.wp_storage as wp_storage
+import wp_abfrage.wp_playwright as wp_pr
+import wp_basic_info_internet as wp_basic_info_internet
 
 WKN_NOT_FOUND = "wknnotfound"
 
@@ -49,6 +51,19 @@ def wp_search_wkn(wkn,wpname_isin_filename,formatpj,basic_info_pre_file_name,sto
             return (status, errtext, isin)
         # end if
     # end for
+
+    icount = 0
+    while icount < wkn_isin_n_times:
+        (stat, errtext, url_ariva) = wp_pr.get_ariva_url_playwright(wkn)
+        if stat == hdef.OKAY:
+            info_dict = wp_basic_info_internet.get_default_info_dict("")
+            (status, errtext, info_dict) = wp_basic_info_internet.ariva_anleihe("", url_ariva, info_dict)
+            if status == hdef.OKAY:
+                return (status,errtext,info_dict["isin"])
+            # end if
+        # end if
+        icount += 1
+    # end while
 
     (status,errtext,isin) = wp_search_wkn_html(wkn,wkn_isin_n_times,wkn_isin_sleep_time)
     

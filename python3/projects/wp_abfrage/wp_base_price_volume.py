@@ -127,20 +127,34 @@ def get_np_obj_liste(wb_obj,wp_dict_liste):
     """
     status = hdef.OKAY
     errtext = ""
+    halfrange = 12 * 60 * 60
 
     for i,wp_dict in enumerate(wp_dict_liste):
 
         (status, errtext, np_obj) = read_np_obj(wb_obj, wp_dict["isin"])
 
-        # Prüfen
+
+        # erstes Datum zum Suchen aus ini
+        start_dat_ini_file = htype.type_transform_direct(wb_obj.base_ddict["price_volumen_first_dat"], "datStrP","dat")
+        # Erscheinungsdatum des wp
+        if len(wp_dict["start_dat_str"]) == 0:
+            start_dat_wp   = start_dat_ini_file
+        else:
+            start_dat_wp       = htype.type_transform_direct(wp_dict["start_dat_str"], "datStrP","dat")
+
+        if start_dat_wp > start_dat_ini_file:
+            start_dat = start_dat_wp
+        else:
+            start_dat = start_dat_ini_file
+
+        # Prüfen  start_dat_str
         if np_obj is None:
 
-            # Setze erstes Datum aus ini
-            last_dat_for_begin = htype.type_transform_direct(wb_obj.base_ddict["price_volumen_first_dat"], "datStrP",
-                                                             "dat")
+            first_date_in_file = -1
+            last_date_in_file  = -1
         else:
             #lese letztes Datum aus
-            (status, errtext, _, _, last_dat_for_begin) = get_number_of_np_obj(wb_obj, np_obj)
+            (status, errtext, _, first_date_in_file, last_date_in_file) = get_number_of_np_obj(wb_obj, np_obj)
             if status != hdef.OKAY:
                 return (status, errtext,wp_dict_liste)
 
@@ -149,16 +163,18 @@ def get_np_obj_liste(wb_obj,wp_dict_liste):
         wp_dict["np_obj"] = np_obj
 
         # Start Datum
+        if (first_date_in_file != -1) and (first_date_in_file <= start_dat+halfrange):
+            start_dat = last_date_in_file
+        # end if
 
-        start_dat         = last_dat_for_begin
-        # letztes Datum in Datensatz
-        (status, errtext, _, _, lastdat) = get_number_of_np_obj(wb_obj, np_obj)
-        if status != hdef.OKAY:
-            return (status, errtext)
-        # end if
-        if lastdat > start_dat:
-            start_dat = lastdat
-        # end if
+        # # letztes Datum in Datensatz
+        # (status, errtext, _, _, lastdat) = get_number_of_np_obj(wb_obj, np_obj)
+        # if status != hdef.OKAY:
+        #     return (status, errtext)
+        # # end if
+        # if lastdat > start_dat:
+        #     start_dat = lastdat
+        # # end if
         start_display_dat = htype.type_transform_direct(start_dat, "dat", "datStrP")
 
         wp_dict["start_dat"] = start_dat
@@ -173,8 +189,8 @@ def get_np_obj_liste(wb_obj,wp_dict_liste):
         wp_dict["end_dat"] = end_dat
         wp_dict["end_display_dat"] = end_display_dat
 
-        range = 24 * 60 * 60
-        if end_dat >= start_dat+range:
+
+        if end_dat >= start_dat+halfrange:
 
             wp_dict["updated"] = False
             wp_dict["update_type"] = ""
@@ -429,7 +445,7 @@ def get_new_price_vol_from_eodhd(wb_obj,  wp_dict_liste):
             wb_obj.log.write_info(f"end-of-day-hd: -------------------------------------------------------------------------------------------------------")
             wb_obj.log.write_info(f"end-of-day-hd: {i+1}./{n} Wert Versuche Daten von eodhd für {wpname = } mit {isin = } einzulesen")
 
-            np_obj_yf = None
+
 
             (flag_avail, symbol, exchange, currency, infotext) = wp_eodhd.is_info_available(isin, wb_obj.base_ddict["eodhd_key"])
             if len(infotext) > 0:
@@ -759,13 +775,20 @@ def merge_and_update_file(wb_obj, wp_dict_liste):
             wb_obj.log.write_info(f"Update WP isin: {wp_dict["isin"]} Name: {wp_dict["name"]}")
             wb_obj.log.write_info(f"Update type: {wp_dict["update_type"]} ")
 
-            nstart = len(wp_dict["np_obj"].dat_np_array)
+            if wp_dict["np_obj"] is None:
+                nstart = -1
+                np_obj = wp_dict["np_obj_new"]
+            else:
+                nstart = len(wp_dict["np_obj"].dat_np_array)
 
-            (status, errtext, np_obj) = merge_np_data(wp_dict["np_obj"], wp_dict["np_obj_new"])
+                (status, errtext, np_obj) = merge_np_data(wp_dict["np_obj"], wp_dict["np_obj_new"])
 
-            if status != hdef.OKAY:
-                return (status, errtext, wp_dict_liste)
+                if status != hdef.OKAY:
+                    return (status, errtext, wp_dict_liste)
+                # end if
+
             # end if
+
             nmerge = len(np_obj.dat_np_array)
 
             if nstart != nmerge:
@@ -779,6 +802,7 @@ def merge_and_update_file(wb_obj, wp_dict_liste):
             else:
                 wb_obj.log.write_info(f"No Update nmerge == nstart ")
             # end if
+
         # end if
 
     # end for
