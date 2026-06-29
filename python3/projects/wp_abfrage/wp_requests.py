@@ -132,7 +132,7 @@ def wandel_char_liste(liste):
     return liste3
 # end def
 def wandel_mit_re(value_in):
-    match = re.search(r'[\d.]+(?:,\d+)?', value_in)
+    match = re.search(r'-?[\d.]+(?:,\d+)?', value_in)
 
     if match:
         value_out = match.group()

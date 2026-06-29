@@ -184,7 +184,8 @@ class DepotDataSet:
                                    = obj.get_depot_daten_sets_isin_irow(isin,irow)
      immutable_liste               = obj.get_immutable_list_from_header_list(isin,header_liste)
      new_data_set_flag             = obj.set_data_set_isin_irow(tliste, isin, irow)
-     flag                          = obj.delete_in_data_set(isin,irow)
+     status                        = obj.delete_wp_isin(isin)
+     status                        = obj.delete_in_data_set(isin,irow)
      status                        = obj.set_kurs_value(isin,irow)
      status                        = obj.update_data_ttable(isin,changed_pos_list,ttable_update)
     '''
@@ -1090,12 +1091,39 @@ class DepotDataSet:
         
         return new_data_set_flag
     # end def
+    def delete_wp_isin(self,isin):
+        """
+        :param isin:
+        :return: status  = obj.delete_wp_isin(isin)
+        """
+        if isin not in self.isin_liste:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"delete_wp_isin: gewünschte isin = {isin} is nicht in Depot enthalten"
+            return self.status
+        # end if
+        if isin not in self.wp_data_obj_dict.keys():
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"delete_wp_isin: gewünschte isin = {isin} is nicht in wp_data_obj_dict enthalten"
+            return self.status
+        # end if
+
+        index = self.isin_liste.index(isin)
+        self.isin_liste    = hlist.erase_from_list(self.isin_liste, index )
+        self.wp_name_liste = hlist.erase_from_list(self.wp_name_liste, index )
+
+        del self.wp_data_obj_dict[isin]
+        self.n_wp_data_obj -= 1
+
+        del self.wp_color_dict[isin]
+
+        return self.status
+    # end def
     def delete_in_data_set(self,konto_obj,isin,irow):
         '''
         
         :param isin:
         :param irow:
-        :return: flag = self.delete_in_data_set(isin,irow)
+        :return: status = self.delete_in_data_set(isin,irow)
         '''
 
         # print test
@@ -1106,12 +1134,7 @@ class DepotDataSet:
             raise Exception(f"set konto_obj {self.konto_obj = } does not fit with external set {konto_obj =}")
         # end if
 
-        if isin not in self.isin_liste:
-            self.status = hdef.NOT_OKAY
-            self.errtext = f"delete_in_data_set: gewünschte isin = {isin} is nicht in Depot enthalten"
-            return False
-        # end if
-        
+
         # id
         id = self.wp_data_obj_dict[isin].get_id_of_irow(irow)
 
@@ -1130,16 +1153,17 @@ class DepotDataSet:
             return self.status
         # end if
 
-        # finde konto row in konto_data_set
-        irow_konto = konto_obj.get_irow_by_id(id)
-        if irow_konto < 0:
-            self.status = hdef.NOT_OKAY
-            self.errtext = f"In Konto: {konto_obj.konto_name} konnte id = {id} nicht gefunden werden !!!!"
-            return self.status
-        # end if
-
-        # Lösche in Konto
-        (self.status, self.errtext) = konto_obj.delete_data_set(irow_konto)
+        # Im Konto soll nicht gelöscht werden
+        # # finde konto row in konto_data_set
+        # irow_konto = konto_obj.get_irow_by_id(id)
+        # if irow_konto < 0:
+        #     self.status = hdef.NOT_OKAY
+        #     self.errtext = f"In Konto: {konto_obj.konto_name} konnte id = {id} nicht gefunden werden !!!!"
+        #     return self.status
+        # # end if
+        #
+        # # Lösche in Konto
+        # (self.status, self.errtext) = konto_obj.delete_data_set(irow_konto)
         
         return self.status
     def set_kurs_value(self,isin,irow):

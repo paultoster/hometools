@@ -1440,7 +1440,8 @@ def type_proof_euroStrK(wert_in, delim=",", thousandsign="."):
     (okay,wert_in) = type_proof_string(wert_in)
     if okay == hdef.OKAY:
 
-        match = re.search(r'[\d.]+(?:,\d+)?', wert_in)
+        # r'[\d.]+(?:,\d+)?'
+        match = re.search(r'-?[\d.]+(?:,\d+)?', wert_in)
 
         if match:
             wert_in = match.group()

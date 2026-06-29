@@ -714,11 +714,11 @@ class abfrage_tabelle_class:
                     diliste = []
                     if type == self.DATA_STRING:
                         
-                        if tval[0] == '!': # Erkennung, dass nur der folgende str (wenn größer 3)
+                        if tval[0] == '!': # Erkennung, dass nur der folgende str (wenn größer 0)
                                            # als Teil gefunden werden muss
                             ttval = tval[1:]
                             
-                            if len(ttval) > 3:
+                            if len(ttval) > 0:
                                 diliste = hlist.such_in_liste(cliste, ttval, regel="n")
                             # end if
                         else:
@@ -798,7 +798,7 @@ class abfrage_tabelle_class:
         self.entryPopup = EntryPopup(self.root, self.tabGui_TabBox, rowid, int(column[1:]) - 1, text)
         self.entryPopup.place(x=x, y=y + pady, width=width, height=height, anchor='w')
 
-        if self.flag_changed_by_double_click: self.selectTabGui()
+        # if self.flag_changed_by_double_click: self.selectTabGui()
     # end def
 # end class
 # -------------------------------------------------------------------------------

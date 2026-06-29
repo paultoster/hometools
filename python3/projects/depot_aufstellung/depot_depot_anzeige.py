@@ -109,12 +109,13 @@ def anzeige_depot(rd,auswahl,depot_dict,depot_obj,flag_update):
         titlename = f"Depot: {depot_obj.get_depot_name()} {addtext}"
         # (sw, isin) = anzeige_overview(rd, ttable, icol_isin, titlename, row_color_dliste)
 
-        abfrage_liste = ["wp auswahl","ende",  "toggle indepot", "edit kategorie", "edit wkn_info"]
+        abfrage_liste = ["wp auswahl","ende",  "toggle indepot", "edit kategorie", "edit wkn_info","delete wp"]
         i_end = 1
         i_auswahl = 0
         i_toggle = 2
         i_kategorie = 3
-        # i_wp_info = 4
+        i_wp_info = 4
+        # i_wp_delete = 5
 
         n = ttable.ntable
 
@@ -199,7 +200,7 @@ def anzeige_depot(rd,auswahl,depot_dict,depot_obj,flag_update):
                 runflag = True
             # end if
 
-        else:  # sw == i_wp_info:
+        elif sw == i_wp_info:
 
             if irow < 0:
                 rd.log.write_warn("Keine Zeile ausgewählt", screen=rd.par.LOG_SCREEN_OUT)
@@ -216,6 +217,39 @@ def anzeige_depot(rd,auswahl,depot_dict,depot_obj,flag_update):
                 if status == hdef.OKAY:
                     depot_obj.reget_wp_info(isin)
                 runflag = True
+            # end if
+        else: # i_wp_delete
+
+            if irow < 0:
+                rd.log.write_warn("Keine Zeile ausgewählt", screen=rd.par.LOG_SCREEN_OUT)
+                runflag = True
+            elif irow == (n - 1):
+                rd.log.write_warn("Summen-Zeile ausgewählt", screen=rd.par.LOG_SCREEN_OUT)
+                runflag = True
+            else:
+                isin = htvar.get_val_from_table(ttable, irow, icol_isin)
+
+                titlename = depot_obj.get_titlename(isin)
+                flag = depot_gui.janein_abfrage(rd.gui,
+                                                f"Soll wirklich wp mit {isin = } und name {titlename} gelöscht werden",
+                                                "Nicht Löschen ja/nein")
+
+                if flag:
+                    status = depot_obj.delete_wp_isin(isin)
+
+                    if status != hdef.OKAY:
+                        rd.log.write_err("anzeige_mit_depot_wahl edit " + depot_obj.errtext,
+                                         screen=rd.par.LOG_SCREEN_OUT)
+                        depot_obj.reset_status()
+                        runflag = False
+                    else:
+                        runflag = True
+                    # end if
+
+                # end if
+
+
+
             # end if
 
         # end if

@@ -339,6 +339,7 @@ class KontoDataSet:
         # end if
         
         self.check_iban()
+        self.check_wert()
         
         return
     # end def
@@ -384,6 +385,54 @@ class KontoDataSet:
                 self.iban_obj.add(iban,wer)
             # end if
         # end for
+    # end def
+    def check_wert(self):
+
+        print(f"Check Werte von konto: {self.konto_name}:")
+
+        irow_list = list(range(self.data_set_obj.get_n_data()))
+        for irow in irow_list:
+            tlist = self.data_set_obj.get_one_data_set_tlist(irow,
+                                                             self.par.KONTO_DATA_NAME_LIST,
+                                                             self.par.KONTO_DATA_TYPE_LIST)
+
+            buchtype = htvar.get_val_from_list(tlist, self.par.KONTO_DATA_INDEX_BUCHTYPE)
+            wert     = htvar.get_val_from_list(tlist, self.par.KONTO_DATA_INDEX_WERT)
+
+            # Prüfe ob positive werte sind
+            if (buchtype == self.par.KONTO_BUCHTYPE_INDEX_LIST[self.par.KONTO_BUCHTYPE_INDEX_EINZAHLUNG]) or \
+               (buchtype == self.par.KONTO_BUCHTYPE_INDEX_LIST[self.par.KONTO_BUCHTYPE_INDEX_WP_VERKAUF]) or \
+               (buchtype == self.par.KONTO_BUCHTYPE_INDEX_LIST[self.par.KONTO_BUCHTYPE_INDEX_WP_EINNAHMEN]) or \
+               (buchtype == self.par.KONTO_BUCHTYPE_INDEX_LIST[self.par.KONTO_BUCHTYPE_INDEX_EINNAHMEN]):
+
+                if wert < 0:
+                    wert *= -1
+                    flag = self.data_set_obj.set_data_item(wert,
+                                                           self.par.LINE_COLOR_EDIT,
+                                                           irow,
+                                                           self.par.KONTO_DATA_NAME_LIST[self.par.KONTO_DATA_INDEX_WERT],
+                                                           self.par.KONTO_DATA_TYPE_LIST[self.par.KONTO_DATA_INDEX_WERT])
+
+                    print(f"wert mod: {irow = } wert_old = {wert*-1}, {wert = }")
+                    # end for
+                # end if
+            elif (buchtype == self.par.KONTO_BUCHTYPE_INDEX_LIST[self.par.KONTO_BUCHTYPE_INDEX_AUSZAHLUNG]) or \
+                    (buchtype == self.par.KONTO_BUCHTYPE_INDEX_LIST[self.par.KONTO_BUCHTYPE_INDEX_WP_KAUF]) or \
+                    (buchtype == self.par.KONTO_BUCHTYPE_INDEX_LIST[self.par.KONTO_BUCHTYPE_INDEX_KOSTEN]) or \
+                    (buchtype == self.par.KONTO_BUCHTYPE_INDEX_LIST[self.par.KONTO_BUCHTYPE_INDEX_WP_KOSTEN]):
+
+                if wert > 0:
+                    wert *= -1
+                    flag = self.data_set_obj.set_data_item(wert,
+                                                           self.par.LINE_COLOR_EDIT,
+                                                           irow,
+                                                           self.par.KONTO_DATA_NAME_LIST[self.par.KONTO_DATA_INDEX_WERT],
+                                                           self.par.KONTO_DATA_TYPE_LIST[self.par.KONTO_DATA_INDEX_WERT])
+                    print(f"wert mod: {irow = } wert_old = {wert * -1}, {wert = }")
+                # end if
+            # end if
+        # end for
+        self.recalc_sum_data_set()
     # end def
     # def add_tlist_to_data_set(self,data_set: htvar.TList):
     #     '''
@@ -1218,6 +1267,8 @@ class KontoDataSet:
             if self.data_set_obj.status != hdef.OKAY:
                 self.status = self.data_set_obj.status
                 self.errtext = self.data_set_obj.errtext
+            else:
+                self.recalc_sum_data_set()
             # end if
         # end if
         
@@ -1492,11 +1543,11 @@ class KontoDataSet:
 
         '''
 
-        if htvar.check_name_from_table(new_data_table, self.par.KONTO_DATA_NAME_WERT):
+        if not htvar.check_name_from_table(new_data_table, self.par.KONTO_DATA_NAME_WERT):
             raise Exception(f"Fehler proof_buchtype_in_table_mit_wert: In eingelesener Tabelle ist {self.par.KONTO_DATA_NAME_WERT} nicht entahlt !!!")
         # end if
 
-        if htvar.check_name_from_table(new_data_table, self.par.KONTO_DATA_NAME_BUCHTYPE):
+        if not htvar.check_name_from_table(new_data_table, self.par.KONTO_DATA_NAME_BUCHTYPE):
 
             new_data_table = htvar.add_row_liste_to_table(new_data_table,
                                                           self.par.KONTO_DATA_NAME_BUCHTYPE,
