@@ -21,7 +21,7 @@ import tools.hfkt_tvar as htvar
 
 import depot_gui
 import depot_depot_anzeige_isin
-import depot_wp_info_dict
+import depot_wp
 
 
 def anzeige_mit_depot_wahl(rd):
@@ -87,7 +87,7 @@ def anzeige_depot(rd,auswahl,depot_dict,depot_obj,flag_update):
     
     while runflag:
         
-        (ttable, row_color_dliste) = depot_obj.get_depot_daten_sets_overview(depot_show_type)
+        (ttable, row_color_dliste,steuer_flag) = depot_obj.get_depot_daten_sets_overview(depot_show_type)
 
         if depot_obj.status != hdef.OKAY:  # Abbruch
             status = depot_obj.status
@@ -106,6 +106,12 @@ def anzeige_depot(rd,auswahl,depot_dict,depot_obj,flag_update):
         else:
             addtext = "inaktive WPs"
         # end if
+        if steuer_flag:
+            addtext += " (50 % Steuern angenommen)"
+        else:
+            addtext += " (keine Steuern angenommen)"
+        # end if
+
         titlename = f"Depot: {depot_obj.get_depot_name()} {addtext}"
         # (sw, isin) = anzeige_overview(rd, ttable, icol_isin, titlename, row_color_dliste)
 

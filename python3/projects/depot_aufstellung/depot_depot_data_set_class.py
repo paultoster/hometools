@@ -697,44 +697,53 @@ class DepotDataSet:
         hole von jedem WP die Zusammenfassungen
         :param nur_was_im_depot = False alle zeigen
                                 = True nur die nch im Depot sinf (anzahl > 0)
-        :return: (ttable,row_color_dliste) = self.get_depot_daten_sets_overview(nur_was_im_depot)
+        :return: (ttable,row_color_dliste,steuer_flag) = self.get_depot_daten_sets_overview(nur_was_im_depot)
         '''
-        
-        
-        header_liste = [self.par.DEPOT_DATA_NAME_ISIN,
-                        self.par.DEPOT_DATA_NAME_WP_NAME,
-                        self.par.DEPOT_DATA_NAME_ZAHLTDIV,
-                        self.par.DEPOT_DATA_NAME_ANZAHL,
-                        self.par.DEPOT_DATA_NAME_WERT+" (kauf=neg)",
-                        self.par.DEPOT_DATA_NAME_EINNAHME,
-                        self.par.DEPOT_DATA_NAME_KURSWERT,
-                        self.par.DEPOT_DATA_NAME_KATEGORIE]
-        type_liste = ["str",
-                      "str",
-                      "int",
-                      "float",
-                      "euroStrK",
-                      "euroStrK",
-                      "euroStrK",
-                      "str"]
-        
+
+        # Schauen ob in diesem Depot Steuer abgezogen wird
+        steuer_flag = False
+        for isin in self.isin_liste:
+            steuer = self.wp_data_obj_dict[isin].get_sum_Steuer("euro")
+            if abs(steuer) > 0.01:
+                steuer_flag = True
+                break
+            # end if
+        # end for
+
+        # [self.par.DEPOT_DATA_NAME_WP_NAME, "str"],
+
+        lliste        = [[self.par.DEPOT_DATA_NAME_ISIN,"str"],
+                        ["n","int"],
+                        ["nK","int"],
+                        ["Kkurs","float"],
+                        ["Kwert","euroStrK"],
+                        ["nV","int"],
+                        ["Vkurs","float"],
+                        ["Vwert","euroStrK"],
+                        ["Div","euroStrK"],
+                        ["Kosten","euroStrK"],
+                        ["Akurs","float"],
+                        ["Bilanz","euroStrK"]]
+        header_liste = hlist.get_clist_from_llist(lliste, 0)
+        type_liste   = hlist.get_clist_from_llist(lliste, 1)
         
         data_lliste = []
         row_color_dliste = []
         
-        summe_wert = 0.0
-        summe_einnahmen = 0.0
+        summe_bilanz = 0.0
         
         for isin in self.isin_liste:
 
-            # Precalc Anzahl
-            anzahl = self.wp_data_obj_dict[isin].get_summen_anzahl()
+            dataliste = []
+
+            # calc Anzahl
+            anzahl = self.wp_data_obj_dict[isin].get_summen_anzahl("float")
             if anzahl is None:
                 self.status = self.wp_data_obj_dict[isin].status
                 self.errtext = self.wp_data_obj_dict[isin].errtext
-                return ([],[],[],[])
+                return ([],[],steuer_flag)
             # end if
-            
+
             flag = False
             if depot_show_type == self.par.DEPOT_SHOW_TYPE_INDEX_ALL:
                 flag = True
@@ -743,72 +752,98 @@ class DepotDataSet:
             elif (depot_show_type == self.par.DEPOT_SHOW_TYPE_INDEX_INACTIVE) and (anzahl <= 0.01):
                 flag = True
             # end if
+
             if flag:
 
-                dataliste = []
-                
+                # update Kurse
+                self.wp_data_obj_dict[isin].update_kurse()
+
                 # 1. isin
                 #---------
                 dataliste.append(isin)
-                
+
                 # 2. Name
                 #--------
-                name = self.wp_data_obj_dict[isin].get_name()
-                dataliste.append(name)
-                
-                # 3. Zahlt Dividende
-                dataliste.append(self.wp_data_obj_dict[isin].get_zahltdiv())
-    
-                # 4. Anzahl
+                # dataliste.append(self.wp_data_obj_dict[isin].get_name())
+
+                # 3. n = Anzahl
                 dataliste.append(anzahl)
-    
-                # 5. wert
-                sumwert = self.wp_data_obj_dict[isin].get_summen_wert()
-                if sumwert is None:
-                    self.status = self.wp_data_obj_dict[isin].status
-                    self.errtext = self.wp_data_obj_dict[isin].errtext
-                    return ([],[],[],[])
-                # end if
-                summe_wert += sumwert
-                (okay,sumwert) = htype.type_transform(sumwert,'euro',type_liste[4])
-                dataliste.append(sumwert)
-                
-                # 6. einnahmen
-                einnahmen = self.wp_data_obj_dict[isin].get_einnahmen_wert()
-                if einnahmen is None:
-                    self.status = self.wp_data_obj_dict[isin].status
-                    self.errtext = self.wp_data_obj_dict[isin].errtext
-                    return ([],[],[],[])
-                # end if
-                summe_einnahmen += einnahmen
-                (okay,einnahmen) = htype.type_transform(einnahmen,'euro',type_liste[5])
-                dataliste.append(einnahmen)
-                
-                # 7. Kurswert
-                kurs = 0.0  # self.wp_func_obj.get_act_kurs()
-                kurswert = kurs * anzahl
-                (okay,kurswert) = htype.type_transform(kurswert,'euro',type_liste[6])
-                dataliste.append(kurswert)
 
+                # 4. n-Kauf
+                nK = self.wp_data_obj_dict[isin].get_summen_anzahl_gekauft("float")
+                dataliste.append(nK)
 
-                # 8. Kategorie
-                kategorie = self.wp_data_obj_dict[isin].get_kategorie()
-                dataliste.append(kategorie)
-                
+                # 5. Kauf-kurs
+                Kkurs = self.wp_data_obj_dict[isin].get_mittel_Kkurs("float")
+                dataliste.append(Kkurs)
+
+                # 6. Kaufwert
+                Kwert = self.wp_data_obj_dict[isin].get_sum_Kwert("euroStrK")
+                dataliste.append(Kwert)
+
+                # 7. n-Verkauf
+                nV = self.wp_data_obj_dict[isin].get_summen_anzahl_verkauft("float")
+                dataliste.append(nV)
+
+                # 8. Verkauf-kurs
+                Vkurs = self.wp_data_obj_dict[isin].get_mittel_Vkurs("float")
+                dataliste.append(Vkurs)
+
+                # 9. Verkaufwert
+                Vwert = self.wp_data_obj_dict[isin].get_sum_Vwert("euroStrK")
+                dataliste.append(Vwert)
+
+                # 10. Dividenen-Wert
+                Dwert = self.wp_data_obj_dict[isin].get_sum_Dwert("euroStrK")
+                dataliste.append(Dwert)
+
+                # 11. Kosten
+                Kosten = self.wp_data_obj_dict[isin].get_sum_Kosten("euroStrK")
+                dataliste.append(Kosten)
+
+                # 12. Aktueller Kurs
+                if  anzahl <= 0.01: # keine WP mehr im depot
+                    Akurs = 0.
+                else:
+                    # Abfrage
+                    Akurs = 100.
+                # end if
+                dataliste.append(Akurs)
+
+                # 13. Bilanz
+                vwert = htype.type_transform_direct(Vwert, 'euroStrK', "euro")
+                kwert = htype.type_transform_direct(Kwert, 'euroStrK', "euro")
+                dwert = htype.type_transform_direct(Dwert, 'euroStrK', "euro")
+                kostwert = self.wp_data_obj_dict[isin].get_sum_Kostwert("euro")
+
+                bilanz_euro = vwert + dwert - kwert
+                if anzahl <= 0.01: # alles abgewickelt
+                    pass
+                else:
+
+                    Verkauf_schaetzwert = ((nK - nV) * Akurs)
+                    bilanz_euro         += Verkauf_schaetzwert
+                    if steuer_flag: # mit grober Steuerannahme
+
+                        bilanz_euro -= max(0.0,(Verkauf_schaetzwert - kwert)) * 0.5
+                    # end if
+                # end if
+                summe_bilanz += bilanz_euro
+                dataliste.append(htype.type_transform_direct(bilanz_euro, "euro", 'euroStrK'))
+
                 data_lliste.append(dataliste)
                 row_color_dliste.append(self.wp_color_dict[isin])
             # end if
         # end for
         
         # Summenzeile
-        (okay, summe_wert) = htype.type_transform(summe_wert, 'euro', type_liste[4])
-        (okay, summe_einnahmen) = htype.type_transform(summe_einnahmen, 'euro', type_liste[5])
-        
+        index = header_liste.index("Bilanz")
+        (okay, summe_bilanz) = htype.type_transform(summe_bilanz, 'euro', type_liste[index])
+
         end_zeile = htype.type_get_default(type_liste,value_flag=False)
         
-        end_zeile[1] = "Summe:"
-        end_zeile[4] = summe_wert
-        end_zeile[5] = summe_einnahmen
+        end_zeile[0] = "Summe:"
+        end_zeile[index] = summe_bilanz
 
         data_lliste.append(end_zeile)
         
@@ -816,7 +851,7 @@ class DepotDataSet:
         
         # print
         
-        return (ttable,row_color_dliste)
+        return (ttable,row_color_dliste,steuer_flag)
 
         
     # end def

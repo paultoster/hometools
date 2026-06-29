@@ -468,7 +468,7 @@ def edit_price_volume(wb_obj):
                 # end if
 
                 if status != hdef.OKAY:
-                    t = f"Error wp_bearbeiten.edit_price_volume(wb_obj) \n errtext = {errtext}"
+                    t = f"Error wp_bearbeiten.get_last_price_volume(wb_obj) \n errtext = {errtext}"
                     sgui.anzeige_text(t, textcolor='red')
                     wb_obj.log.write_err(t)
                     runflag = False

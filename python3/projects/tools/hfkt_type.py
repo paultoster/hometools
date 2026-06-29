@@ -2069,7 +2069,7 @@ def  type_transform_float(wert_in,type_out):
         if (type_out == "euro"):
             wert_out = wert
         elif  (type_out == "int") or (type_out == "cent"):
-            wert_out = int(wert)
+            wert_out = int((wert*100.)+0.5)
         elif type_out == "str":
             (okay, wert_out) = type_proof(wert, "str")
         elif type_out == "euroStrK":

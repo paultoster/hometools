@@ -66,7 +66,7 @@ def ods_ausgabe_mit_depot_wahl(rd):
     # Übersichtsdaten von allen  WPs
     worksheet.title = depot_obj.depot_name
     
-    (ttable, _ ) = depot_obj.get_depot_daten_sets_overview(0)
+    (ttable, _ , _) = depot_obj.get_depot_daten_sets_overview(0)
     
     if depot_obj.status != hdef.OKAY:
         status = depot_obj.status

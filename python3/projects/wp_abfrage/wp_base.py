@@ -111,7 +111,7 @@ class WPData:
     self.check_isin_input(isin_input)
     ini_filename
     '''
-    def __init__(self,ini_filename:str) -> None:
+    def __init__(self,ini_filename:str,log_obj=None) -> None:
 
         self.par =  WPParam()
 
@@ -132,8 +132,11 @@ class WPData:
                 return
             # endtry
         # endif
-
-        self.log = hlog.log(consol_func=True,log_window=False)
+        if log_obj is None:
+            self.log = hlog.log(consol_func=True, log_window=False)
+        else:
+            self.log = log_obj
+        # end if
         self.log_file_name = self.log.get_logfilename()
 
         (self.status, self.errtext, self.base_ddict) = hdict.proof_transform_ddict(ddict,INI_DICT_PROOF_LISTE)

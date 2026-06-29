@@ -10,7 +10,7 @@ if (tools_path not in sys.path):
 import tools.hfkt_def as hdef
 import tools.hfkt_type as htype
 import tools.hfkt_list as hlist
-import tools.hfkt_dict as hdict
+
 import tools.hfkt_tvar as htvar
 import tools.hfkt_data_set as hdset
 
@@ -155,21 +155,21 @@ class WpDataSet:
         '''
         return self.kategorie
     # end def
-    def get_summen_anzahl(self):
+    def get_summen_anzahl(self,type_out):
         '''
         Summe der Anzahl von Aktien
         :return: anzahl:float = self.get_summen_anzahl()
         '''
         summe = 0.0
         for irow in range(self.data_set_obj.get_n_data()):
-            anzahl = self.data_set_obj.get_data_item(irow,self.par.DEPOT_DATA_NAME_ANZAHL,"float")
+            anzahl = self.data_set_obj.get_data_item(irow, self.par.DEPOT_DATA_NAME_ANZAHL, "float")
             if self.data_set_obj.status != hdef.OKAY:
                 self.status = self.data_set_obj.status
                 self.errtext = self.data_set_obj.errtext
                 self.data_set_obj.reset_status()
                 return None
             # end if
-            buchtype = self.data_set_obj.get_data_item(irow,self.par.DEPOT_DATA_NAME_BUCHTYPE)
+            buchtype = self.data_set_obj.get_data_item(irow, self.par.DEPOT_DATA_NAME_BUCHTYPE)
             if self.data_set_obj.status != hdef.OKAY:
                 self.status = self.data_set_obj.status
                 self.errtext = self.data_set_obj.errtext
@@ -182,8 +182,226 @@ class WpDataSet:
                 summe -= abs(anzahl)
             # end if
         # end for
-        
-        return float(int(summe*1000. + 0.5))/1000.
+        if summe >= 0.:
+            anzahl = float(int(summe * 1000. + 0.5)) / 1000.
+        else:
+            anzahl = float(int(summe * 1000. - 0.5)) / 1000.
+        # end if
+        return htype.type_transform_direct(anzahl, "float", type_out)
+
+    # end def
+    def get_summen_anzahl_gekauft(self,type_out):
+        """
+        Anzahl der gekauften Wps
+        """
+        return self.get_summen_anzahl_intern(type_out,self.par.DEPOT_BUCHTYPE_INDEX_WP_KAUF)
+    # end def
+    def get_summen_anzahl_verkauft(self,type_out):
+        """
+        Anzahl der gekauften Wps
+        """
+        return self.get_summen_anzahl_intern(type_out,self.par.DEPOT_BUCHTYPE_INDEX_WP_VERKAUF)
+    # end def
+    def get_summen_anzahl_intern(self,type_out,buchtype_proof):
+        '''
+        Summe der Anzahl von Aktien
+        :return: anzahl:float = self.get_summen_anzahl()
+        '''
+        summe = 0.0
+        for irow in range(self.data_set_obj.get_n_data()):
+            anzahl = self.data_set_obj.get_data_item(irow, self.par.DEPOT_DATA_NAME_ANZAHL, "float")
+            if self.data_set_obj.status != hdef.OKAY:
+                self.status = self.data_set_obj.status
+                self.errtext = self.data_set_obj.errtext
+                self.data_set_obj.reset_status()
+                return None
+            # end if
+            buchtype = self.data_set_obj.get_data_item(irow, self.par.DEPOT_DATA_NAME_BUCHTYPE)
+            if self.data_set_obj.status != hdef.OKAY:
+                self.status = self.data_set_obj.status
+                self.errtext = self.data_set_obj.errtext
+                self.data_set_obj.reset_status()
+                return None
+            # end if
+            if buchtype == buchtype_proof:
+                summe += abs(anzahl)
+            # end if
+        # end for
+        anzahl = float(int(summe * 1000. + 0.5)) / 1000.
+        return htype.type_transform_direct(anzahl,"float",type_out)
+
+    # end def
+    def get_mittel_Kkurs(self,type_out):
+        """
+        bestimme gemittelten Kaufkurs
+        """
+        return self.get_mittel_kurs_intern(type_out,self.par.DEPOT_BUCHTYPE_INDEX_WP_KAUF)
+    # end def
+    def get_mittel_Vkurs(self,type_out):
+        """
+        bestimme gemittelten Kaufkurs
+        """
+        return self.get_mittel_kurs_intern(type_out,self.par.DEPOT_BUCHTYPE_INDEX_WP_VERKAUF)
+    # end def
+    def get_mittel_kurs_intern(self,type_out,buchtype_proof):
+        """
+        bestimme gemittelten Kaufkurs/Verkaufkurs
+        """
+        sum_anzahl = 0.
+        sum_kurs = 0.
+        for irow in range(self.data_set_obj.get_n_data()):
+
+            anzahl = self.data_set_obj.get_data_item(irow, self.par.DEPOT_DATA_NAME_ANZAHL, "float")
+            if self.data_set_obj.status != hdef.OKAY:
+                self.status = self.data_set_obj.status
+                self.errtext = self.data_set_obj.errtext
+                self.data_set_obj.reset_status()
+                return None
+            # end if DEPOT_DATA_NAME_KURS
+            kurs = self.data_set_obj.get_data_item(irow, self.par.DEPOT_DATA_NAME_KURS, "euro")
+            if self.data_set_obj.status != hdef.OKAY:
+                self.status = self.data_set_obj.status
+                self.errtext = self.data_set_obj.errtext
+                self.data_set_obj.reset_status()
+                return None
+            # end if
+            buchtype = self.data_set_obj.get_data_item(irow, self.par.DEPOT_DATA_NAME_BUCHTYPE)
+            if self.data_set_obj.status != hdef.OKAY:
+                self.status = self.data_set_obj.status
+                self.errtext = self.data_set_obj.errtext
+                self.data_set_obj.reset_status()
+                return None
+            # end if
+            if buchtype == buchtype_proof:
+                sum_anzahl += anzahl
+                sum_kurs += (kurs * anzahl)
+            # end if
+        # end for
+        if abs(sum_anzahl) > 0.001:
+            mkurs = sum_kurs/sum_anzahl
+        else:
+            mkurs = 0.
+        # end if
+
+        mkurs = float(int(mkurs * 1000. + 0.5)) / 1000.
+
+        return htype.type_transform_direct(mkurs,"float",type_out)
+    # end def
+    def get_sum_Kwert(self,type_out):
+        """
+        bestimme Summe Kaufwerte
+        """
+        return self.get_sum_wert_intern(type_out, self.par.DEPOT_BUCHTYPE_INDEX_WP_KAUF )
+    # end def
+    def get_sum_Vwert(self,type_out):
+        """
+        bestimme Summe Verkaufwerte
+        """
+        return self.get_sum_wert_intern(type_out, self.par.DEPOT_BUCHTYPE_INDEX_WP_VERKAUF )
+    # end def
+    def get_sum_Dwert(self,type_out):
+        """
+        bestimme Summe Dividende/Einnahmen
+        """
+        return self.get_sum_wert_intern(type_out, self.par.DEPOT_BUCHTYPE_INDEX_WP_EINNAHMEN )
+    # end def
+    def get_sum_Kostwert(self,type_out):
+        """
+        bestimme Summe Kostenwert
+        """
+        return self.get_sum_wert_intern(type_out, self.par.DEPOT_BUCHTYPE_INDEX_WP_KOSTEN)
+    # end def
+    def get_sum_wert_intern(self,type_out,buchtype_proof):
+        """
+        bestimme Summe Kaufwerte/Verkaufwerte
+        """
+        sum_wert = 0.
+        for irow in range(self.data_set_obj.get_n_data()):
+
+            wert = self.data_set_obj.get_data_item(irow, self.par.DEPOT_DATA_NAME_WERT, "euro")
+            if self.data_set_obj.status != hdef.OKAY:
+                self.status = self.data_set_obj.status
+                self.errtext = self.data_set_obj.errtext
+                self.data_set_obj.reset_status()
+                return None
+            # end if
+            buchtype = self.data_set_obj.get_data_item(irow, self.par.DEPOT_DATA_NAME_BUCHTYPE)
+            if self.data_set_obj.status != hdef.OKAY:
+                self.status = self.data_set_obj.status
+                self.errtext = self.data_set_obj.errtext
+                self.data_set_obj.reset_status()
+                return None
+            # end if
+            if buchtype == buchtype_proof:
+                sum_wert += wert
+            # end if
+        # end for
+        return htype.type_transform_direct(sum_wert, "euro", type_out)
+    # end def
+    def get_sum_Kosten(self,type_out):
+        """
+        bestimme Kosten
+        """
+        sum_kosten = 0.
+        for irow in range(self.data_set_obj.get_n_data()):
+
+            wert = self.data_set_obj.get_data_item(irow, self.par.DEPOT_DATA_NAME_WERT, "euro")
+            if self.data_set_obj.status != hdef.OKAY:
+                self.status = self.data_set_obj.status
+                self.errtext = self.data_set_obj.errtext
+                self.data_set_obj.reset_status()
+                return None
+            # end if
+            kosten = self.data_set_obj.get_data_item(irow, self.par.DEPOT_DATA_NAME_KOSTEN, "euro")
+            if self.data_set_obj.status != hdef.OKAY:
+                self.status = self.data_set_obj.status
+                self.errtext = self.data_set_obj.errtext
+                self.data_set_obj.reset_status()
+                return None
+            # end if
+            steuer = self.data_set_obj.get_data_item(irow, self.par.DEPOT_DATA_NAME_STEUER, "euro")
+            if self.data_set_obj.status != hdef.OKAY:
+                self.status = self.data_set_obj.status
+                self.errtext = self.data_set_obj.errtext
+                self.data_set_obj.reset_status()
+                return None
+            # end if
+
+            buchtype = self.data_set_obj.get_data_item(irow, self.par.DEPOT_DATA_NAME_BUCHTYPE)
+            if self.data_set_obj.status != hdef.OKAY:
+                self.status = self.data_set_obj.status
+                self.errtext = self.data_set_obj.errtext
+                self.data_set_obj.reset_status()
+                return None
+            # end if
+
+            if (buchtype == self.par.DEPOT_BUCHTYPE_INDEX_WP_KAUF) or \
+               (buchtype == self.par.DEPOT_BUCHTYPE_INDEX_WP_VERKAUF) or \
+               (buchtype == self.par.DEPOT_BUCHTYPE_INDEX_WP_EINNAHMEN):
+                sum_kosten += (kosten + steuer)
+            elif buchtype == self.par.DEPOT_BUCHTYPE_INDEX_WP_KOSTEN:
+                sum_kosten += wert
+            # end if
+        # end for
+        return htype.type_transform_direct(sum_kosten,"euro",type_out)
+    # end def
+    def get_sum_Steuer(self,type_out):
+        """
+        bestimme Steuer
+        """
+        sum_steuer = 0.
+        for irow in range(self.data_set_obj.get_n_data()):
+
+            steuer = self.data_set_obj.get_data_item(irow, self.par.DEPOT_DATA_NAME_STEUER, "euro")
+            if self.data_set_obj.status != hdef.OKAY:
+                self.status = self.data_set_obj.status
+                self.errtext = self.data_set_obj.errtext
+                self.data_set_obj.reset_status()
+                return None
+            # end if
+            sum_steuer += steuer
+        # end for
+        return htype.type_transform_direct(sum_steuer, "euro", type_out)
     # end def
     def get_summen_wert(self):
         '''
@@ -223,6 +441,68 @@ class WpDataSet:
         (okay, summe) = htype.type_proof(summe, "euro")
         
         return summe
+    # end def
+    def update_kurse(self):
+        """
+        Update alle kurse
+        """
+        for irow in range(self.data_set_obj.get_n_data()):
+
+            anzahl = self.data_set_obj.get_data_item(irow, self.par.DEPOT_DATA_NAME_ANZAHL, "float")
+            if self.data_set_obj.status != hdef.OKAY:
+                self.status = self.data_set_obj.status
+                self.errtext = self.data_set_obj.errtext
+                self.data_set_obj.reset_status()
+                return None
+            # end if
+            if abs(anzahl) > 0.001: # nur wenn Anzahl vorgegeben
+                wert = self.data_set_obj.get_data_item(irow, self.par.DEPOT_DATA_NAME_WERT, "euro")
+                if self.data_set_obj.status != hdef.OKAY:
+                    self.status = self.data_set_obj.status
+                    self.errtext = self.data_set_obj.errtext
+                    self.data_set_obj.reset_status()
+                    return None
+                # end if
+                kosten = self.data_set_obj.get_data_item(irow, self.par.DEPOT_DATA_NAME_KOSTEN, "euro")
+                if self.data_set_obj.status != hdef.OKAY:
+                    self.status = self.data_set_obj.status
+                    self.errtext = self.data_set_obj.errtext
+                    self.data_set_obj.reset_status()
+                    return None
+                # end if
+                steuer = self.data_set_obj.get_data_item(irow, self.par.DEPOT_DATA_NAME_STEUER, "euro")
+                if self.data_set_obj.status != hdef.OKAY:
+                    self.status = self.data_set_obj.status
+                    self.errtext = self.data_set_obj.errtext
+                    self.data_set_obj.reset_status()
+                    return None
+                # end if
+
+                buchtype = self.data_set_obj.get_data_item(irow, self.par.DEPOT_DATA_NAME_BUCHTYPE)
+                if self.data_set_obj.status != hdef.OKAY:
+                    self.status = self.data_set_obj.status
+                    self.errtext = self.data_set_obj.errtext
+                    self.data_set_obj.reset_status()
+                    return None
+                # end if
+                if buchtype == self.par.DEPOT_BUCHTYPE_INDEX_WP_KAUF:
+                    kurs = (wert - kosten - steuer) / anzahl
+                elif buchtype == self.par.DEPOT_BUCHTYPE_INDEX_WP_VERKAUF:
+                    kurs = (wert + kosten + steuer) / anzahl
+                else:
+                    kurs = None
+                # end if
+
+                if kurs is not None:
+                    self.set_item_in_irow(kurs,
+                                          self.par.DEPOT_DATA_NAME_KURS,
+                                          "float",
+                                          irow,
+                                          self.par.LINE_COLOR_EDIT)
+                # end if
+            # end if
+        # end for
+        return
     # end def
     def get_einnahmen_wert(self):
         '''

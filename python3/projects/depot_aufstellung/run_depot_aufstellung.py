@@ -69,7 +69,7 @@ def depot_aufstellung(log_filename,ini_filename):
     rd.gui = sgui_prot.SguiProtocol()
 
     # Log-File start ---------------
-    rd.log = hlog.log(log_filename,rd.gui)
+    rd.log = hlog.log(log_file=log_filename,consol_func=True, log_window=False)
     if (rd.log.state != hdef.OK):
         print("Logfile not working !!!!")
         return

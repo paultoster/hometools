@@ -18,7 +18,7 @@ import depot_konto_bearbeiten as kb
 import depot_iban_bearbeiten as ib
 import depot_depot_bearbeiten as db
 # import depot_konto_data_set_class as dkonto
-import depot_wp_info_dict
+import depot_wp
 
 def first_question_loop(rd):
     '''
@@ -35,7 +35,7 @@ def first_question_loop(rd):
         start_auswahl = ["Cancel (no save)", "Ende", "Save", "Ini edit (and save)", "Iban", "Konto"]
     else:
         start_auswahl = ["Cancel (no save)", "Ende", "Save", "Ini edit and save", "Iban", "Konto", "Depot",
-                         "edit wp_info"]  # ["Cancel (no save)","Ende","Iban","Save","Konto","Depot"]
+                         "wp"]  # ["Cancel (no save)","Ende","Iban","Save","Konto","Depot"]
     # end if
     index_cancel_no_save = 0
     index_ende = 1
@@ -44,7 +44,7 @@ def first_question_loop(rd):
     index_iban = 4
     index_konto = 5
     index_depot = 6
-    index_wp_edit = 7
+    index_wp = 7
     
     
     abfrage_liste = ["okay", "cancel", "ende"]
@@ -107,10 +107,10 @@ def first_question_loop(rd):
             rd.log.write(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
             status = db.bearbeiten(rd)
         
-        elif index == index_wp_edit:
+        elif index == index_wp:
             
             rd.log.write(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
-            status = depot_wp_info_dict.wp_info_dict_bearbeiten(rd)
+            status = depot_wp.wp_bearbeiten(rd)
         
         else:
             errtext = f"Auswahl: {index} nicht bekannt"

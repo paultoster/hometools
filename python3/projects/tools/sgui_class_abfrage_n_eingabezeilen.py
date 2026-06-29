@@ -267,6 +267,14 @@ class abfrage_n_eingabezeilen_class:
                 self.combo_tk_list.append(combo_a)
             # end if
         # endfor
+
+        frame.update_idletasks()
+        self.listGui_Canvas.config(scrollregion=scroll_canvas.bbox("all"))
+
+        def mousewheel(event):
+            self.listGui_Canvas.yview_scroll(int(-event.delta / 120), "units")
+
+        self.listGui_Canvas.bind_all("<MouseWheel>", mousewheel)
         
         gr_buts = Tk.Frame(gr_canvas, relief=Tk.GROOVE, bd=2)
         gr_buts.pack(fill=Tk.X, pady=5)

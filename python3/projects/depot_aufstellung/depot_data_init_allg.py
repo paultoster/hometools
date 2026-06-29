@@ -88,7 +88,8 @@ def read(rd):
     # function wp-data anlgene
     # -------------------------
     # wp funktion wert papier rd.ini.ddict["wp_abfrage"]["store_path"]
-    allg.wpfunc = wp_base.WPData(rd.ini.ddict[rd.par.INI_WP_FUNC_INI_FILE_NAME])
+    allg.wpfunc = wp_base.WPData(ini_filename=rd.ini.ddict[rd.par.INI_WP_FUNC_INI_FILE_NAME],
+                                 log_obj= rd.log)
     
     if (allg.wpfunc.status != hdef.OK):
         status = hdef.NOT_OKAY
