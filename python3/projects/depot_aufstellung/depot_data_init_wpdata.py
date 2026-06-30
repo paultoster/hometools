@@ -129,7 +129,7 @@ def save(rd,depot_data_obj,wp_list_name,isin):
 
     wp_data_obj.data_dict[rd.par.ISIN]         = wp_data_obj.wp_obj.get_isin()
     wp_data_obj.data_dict[rd.par.WP_NAME]      = wp_data_obj.wp_obj.get_depot_wp_name()
-    wp_data_obj.data_dict[rd.par.WP_KATEGORIE] = wp_data_obj.wp_obj.get_kategorie()
+    wp_data_obj.data_dict[rd.par.WP_KATALOG]  = wp_data_obj.wp_obj.get_katalog()
     
     ttable = wp_data_obj.wp_obj.get_wp_data_set_ttable_to_store()
     wp_data_obj.data_dict_tvar[rd.par.WP_DATA_SET_TABLE_NAME] = ttable
@@ -153,8 +153,12 @@ def umbau_wp_data_dict_filter(par, data_dict):
     data_dict_out[par.ISIN] = data_dict[par.ISIN]
     
     data_dict_out[par.WP_NAME] = data_dict[par.WP_NAME]
-    
-    data_dict_out[par.WP_KATEGORIE] = data_dict[par.WP_KATEGORIE]
+
+    # Wegen alter Beschreibung mit kategorie
+    if par.WP_KATALOG not in data_dict.keys():
+        data_dict_out[par.WP_KATALOG] = data_dict["wp_kategorie"]
+    else:
+        data_dict_out[par.WP_KATALOG] = data_dict[par.WP_KATALOG]
     
     data_dict_out[par.WP_DATA_SET_DICT_LIST] = data_dict[par.WP_DATA_SET_DICT_LIST]
     
@@ -198,8 +202,8 @@ def build_wp_transform_data_dict(par, data_dict):
     name = par.WP_NAME
     data_dict_tvar[name] = htvar.build_val(name, data_dict[name], 'str')
     
-    # WP_KATEGORIE
-    name = par.WP_KATEGORIE
+    # WP_KATALOG
+    name = par.WP_KATALOG
     data_dict_tvar[name] = htvar.build_val(name, data_dict[name], 'str')
     
     # WP_DATA_SET_DICT_LIST

@@ -75,7 +75,7 @@ def anzeige_depot(rd,auswahl,depot_dict,depot_obj,flag_update):
     # choice = 0 Zusammenfassung
     #        = 1 Auswahl isin
     #        = 2 toggle
-    #        = 3 kategorie
+    #        = 3 katalog
     #        = 4 wp_info
     #        = -1 Ende
 
@@ -115,11 +115,11 @@ def anzeige_depot(rd,auswahl,depot_dict,depot_obj,flag_update):
         titlename = f"Depot: {depot_obj.get_depot_name()} {addtext}"
         # (sw, isin) = anzeige_overview(rd, ttable, icol_isin, titlename, row_color_dliste)
 
-        abfrage_liste = ["wp auswahl","ende",  "toggle indepot", "edit kategorie", "edit wkn_info","delete wp"]
+        abfrage_liste = ["wp auswahl","ende",  "toggle indepot", "edit katalog", "edit wkn_info","delete wp"]
         i_end = 1
         i_auswahl = 0
         i_toggle = 2
-        i_kategorie = 3
+        i_katalog = 3
         i_wp_info = 4
         # i_wp_delete = 5
 
@@ -180,7 +180,7 @@ def anzeige_depot(rd,auswahl,depot_dict,depot_obj,flag_update):
             #     depot_show_type = 0
             runflag = True
 
-        elif sw == i_kategorie:
+        elif sw == i_katalog:
 
             if irow < 0:
                 rd.log.write_warn("Keine Zeile ausgewählt", screen=rd.par.LOG_SCREEN_OUT)
@@ -191,16 +191,16 @@ def anzeige_depot(rd,auswahl,depot_dict,depot_obj,flag_update):
             else:
                 isin = htvar.get_val_from_table(ttable, irow, icol_isin)
 
-                kategorie = depot_obj.get_kategorie(isin)
+                katalog = depot_obj.get_katalog(isin)
                 titlename = depot_obj.get_titlename(isin)
 
-                print(f"{titlename =}\n{kategorie =}/{isin =}")
+                print(f"{titlename =}\n{katalog =}/{isin =}")
 
-                # edit kateorie
-                kategorie_liste = depot_gui.depot_kategorie(rd.gui, kategorie, titlename)
+                # edit katalog
+                katalog_liste = depot_gui.depot_katalog(rd.gui, katalog, titlename)
 
-                if len(kategorie_liste):
-                    depot_obj.set_kategorie(isin, kategorie_liste[0])
+                if len(katalog_liste):
+                    depot_obj.set_katalog(isin, katalog_liste[0])
 
                 choice = 0
                 runflag = True
@@ -276,11 +276,11 @@ def anzeige_overview(rd,ttable, icol_isin,titlename,row_color_dliste):
        = 2  toggle die Zusammenfassung
        = -1 Ende
     '''
-    abfrage_liste = ["ende", "wp auswahl","toggle indepot","edit kategorie","edit wkn_info"]
+    abfrage_liste = ["ende", "wp auswahl","toggle indepot","edit katalog","edit wkn_info"]
     i_end = 0
     i_auswahl = 1
     i_toggle = 2
-    i_kategorie = 3
+    i_katalog = 3
     # i_wp_info = 4
     runflag = True
     isin    = None
@@ -313,7 +313,7 @@ def anzeige_overview(rd,ttable, icol_isin,titlename,row_color_dliste):
         elif sw == i_toggle:
             sw = 2
             runflag = False
-        elif sw == i_kategorie:
+        elif sw == i_katalog:
             
             if irow < 0:
                 rd.log.write_warn("Keine Zeile ausgewählt",screen=rd.par.LOG_SCREEN_OUT)

@@ -50,6 +50,8 @@
 
 import tkinter as Tk
 from tkinter import ttk
+from tkinter import font as tkfont
+
 import os
 import sys
 
@@ -354,6 +356,7 @@ class abfrage_tabelle_class:
         # --------------
         # self.createMenu()
         self.makeTabGui()
+        self.autofitTabGui()
         self.flag_mainloop = True
         
         self.root.mainloop()
@@ -557,7 +560,23 @@ class abfrage_tabelle_class:
         # endif
         
         self.frame.pack(expand=1, fill=Tk.BOTH)
-    
+        return
+    # end def
+    def autofitTabGui(self):
+
+        f = tkfont.nametofont("TkDefaultFont")
+
+        for col in self.tabGui_TabBox["columns"]:
+            max_width = f.measure(self.tabGui_TabBox.heading(col)["text"])
+
+            for item in self.tabGui_TabBox.get_children():
+                text = str(self.tabGui_TabBox.set(item, col))
+                max_width = max(max_width, f.measure(text))
+            # end for
+            self.tabGui_TabBox.column(col, width=max_width + 20)
+        # end for
+        return
+    # end def
     # -------------------------------------------------------------------------------
     # -------------------------------------------------------------------------------
     def selectItem(self, a):

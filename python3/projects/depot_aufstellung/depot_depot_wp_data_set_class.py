@@ -21,7 +21,7 @@ class WpDataSet:
     n:int                      = self.get_n_data()
     i:int                      = self.get_zahltdiv()
     isin:str                   = self.get_isin()
-    kategorie:str              = self.get_kategorie()
+    katalog:str                = self.get_katalog()
     depot_wp_name:str          = self.get_depot_wp_name()
     anzahl:float               = self.get_summen_anzahl()
     summ:euro                  = self.get_summen_wert()
@@ -34,7 +34,7 @@ class WpDataSet:
     ttable: TTable             = self.get_data_set_ttable(header_liste,type_liste)
     line_color_liste:list[str] = self.get_line_color_set_liste()
     flag: bool                 = self.exist_id_in_table(id)
-                                 self.set_kategorie(kategorie)
+                                 self.set_katalog(katalog)
     status:int                 = self.set_stored_wp_data_set_ttable(wp_data_set_ttable,line_color)
     flag_update:bool           = self.update_item_if_different(id, tvals,line_color)
     flag:bool                  = self.set_edit_data_set_in_irow(new_data_list, header_liste, type_liste,irow)
@@ -65,7 +65,7 @@ class WpDataSet:
         '''
         self.isin = isin
         self.depot_wp_name = depot_wp_name
-        self.kategorie = ""
+        self.katalog = ""
         self.par  = par
 
         self.status = hdef.OK
@@ -148,12 +148,12 @@ class WpDataSet:
         '''
         return self.wp_info_dict["zahltdiv"]
     # end def
-    def get_kategorie(self):
+    def get_katalog(self):
         '''
         
-        :return: kategorie = self.get_kategorie()
+        :return: katalog = self.get_katalog()
         '''
-        return self.kategorie
+        return self.katalog
     # end def
     def get_summen_anzahl(self,type_out):
         '''
@@ -550,13 +550,13 @@ class WpDataSet:
         self.data_set_obj.reset_status()
         return id
     # end def
-    def set_kategorie(self,kategorie):
+    def set_katalog(self,katalog):
         '''
         
-        :param kategorie:
-        :return: self.set_kategorie(kategorie)
+        :param katalog:
+        :return: self.set_katalog(katalog)
         '''
-        self.kategorie = kategorie
+        self.katalog = katalog
     def reget_wp_info(self):
         self.get_wp_info(self.isin)
         return

@@ -111,12 +111,71 @@ def update_csv(wb_obj):
     # end for
 
     return (status, errtext, infotext)
+def get_act(wb_obj,isin_liste,pricetype,dattype):
+    """
+    (status,errtext,price,dat) = wp_base_price_volume.get_act(wb_obj,isin,pricetype,dattype)
+    (status,errtext,price_liste,dat_liste) = wp_base_price_volume.get_act(wb_obj,isin_liste,pricetype,dattype)
+    """
+
+    if isinstance(isin_liste,list):
+        flag_liste = True
+    else:
+        flag_liste = False
+        isin_liste = [isin_liste]
+
+    price_liste = [None for i in isin_liste]
+    dat_liste   = [None for i in isin_liste]
+
+    # Get basic_info_dict in a list
+    (status, errtext, isin_info_dict_liste) = wb_obj.get_basic_info(isin_liste)
+    if status != hdef.OKAY:
+        if flag_liste:
+            return (status, errtext,price_liste,dat_liste)
+        else:
+            return (status, errtext,price_liste[0],dat_liste[0])
+        # end if
+    # end if
+
+    for i,isin_info_dict in enumerate(isin_info_dict_liste):
+
+        wp_dict = copy.copy(isin_info_dict)
+
+        (status, errtext, wp_dict) = get_np_obj(wb_obj, wp_dict)
+
+        if status != hdef.OKAY:
+            if flag_liste:
+                return (status, errtext, price_liste, dat_liste)
+            else:
+                return (status, errtext, price_liste[0], dat_liste[0])
+            # end if
+        # end if
+
+        price = 0.
+        dat   = 0
+        if (wp_dict["np_obj"] is not None):
+            if len(wp_dict["np_obj"].dat_np_array) > 0:
+                price = wp_dict["np_obj"].end_np_array[-1]
+                dat = wp_dict["np_obj"].dat_np_array[-1]
+            # end if
+        # end if
+
+        price_liste[i] = htype.type_transform_direct(price,"euro",pricetype)
+        dat_liste[i] = htype.type_transform_direct(dat,"dat",dattype)
+    # end for
+    if flag_liste:
+        return (status, errtext,price_liste,dat_liste)
+    else:
+        return (status, errtext,price_liste[0],dat_liste[0])
+    # end if
+# end def
 def get_np_obj_liste(wb_obj,wp_dict_liste):
     """
         (status, errtext, wp_dict_liste) = get_np_obj_liste(wb_obj,wp_dict_liste)
 
         build  wp_dict_liste mit:
             wp_dict_liste[i]["np_obj"]
+            wp_dict_liste[i]["first_dat"]
+            wp_dict_liste[i]["last_dat"]
             wp_dict_liste[i]["start_dat"]
             wp_dict_liste[i]["start_display_dat"]
             wp_dict_liste[i]["end_dat"]
@@ -127,83 +186,129 @@ def get_np_obj_liste(wb_obj,wp_dict_liste):
     """
     status = hdef.OKAY
     errtext = ""
-    halfrange = 12 * 60 * 60
 
     for i,wp_dict in enumerate(wp_dict_liste):
 
-        (status, errtext, np_obj) = read_np_obj(wb_obj, wp_dict["isin"])
+        (status, errtext, wp_dict) = get_np_obj(wb_obj, wp_dict)
 
+        if status != hdef.OKAY:
+            return (status, errtext, wp_dict_liste)
 
-        # erstes Datum zum Suchen aus ini
-        start_dat_ini_file = htype.type_transform_direct(wb_obj.base_ddict["price_volumen_first_dat"], "datStrP","dat")
-        # Erscheinungsdatum des wp
-        if len(wp_dict["start_dat_str"]) == 0:
-            start_dat_wp   = start_dat_ini_file
-        else:
-            start_dat_wp       = htype.type_transform_direct(wp_dict["start_dat_str"], "datStrP","dat")
+        (status, errtext, wp_dict) = get_update_dict_values(wb_obj, wp_dict)
 
-        if start_dat_wp > start_dat_ini_file:
-            start_dat = start_dat_wp
-        else:
-            start_dat = start_dat_ini_file
-
-        # Prüfen  start_dat_str
-        if np_obj is None:
-
-            first_date_in_file = -1
-            last_date_in_file  = -1
-        else:
-            #lese letztes Datum aus
-            (status, errtext, _, first_date_in_file, last_date_in_file) = get_number_of_np_obj(wb_obj, np_obj)
-            if status != hdef.OKAY:
-                return (status, errtext,wp_dict_liste)
-
-        # end if
-
-        wp_dict["np_obj"] = np_obj
-
-        # Start Datum
-        if (first_date_in_file != -1) and (first_date_in_file <= start_dat+halfrange):
-            start_dat = last_date_in_file
-        # end if
-
-        # # letztes Datum in Datensatz
-        # (status, errtext, _, _, lastdat) = get_number_of_np_obj(wb_obj, np_obj)
-        # if status != hdef.OKAY:
-        #     return (status, errtext)
-        # # end if
-        # if lastdat > start_dat:
-        #     start_dat = lastdat
-        # # end if
-        start_display_dat = htype.type_transform_direct(start_dat, "dat", "datStrP")
-
-        wp_dict["start_dat"] = start_dat
-        wp_dict["start_display_dat"] = start_display_dat
-
-
-        # Was ist der letzte aktuelle Handelsdatum
-        end_dat_time_list = wp_fkt.letzter_beendeter_handelstag_dat_list(wb_obj.base_ddict["boerse"])
-        end_display_dat = htype.type_transform_direct(end_dat_time_list, "datTimeList", "datStrP")
-        end_dat = htype.type_transform_direct(end_display_dat, "datStrP", "dat")
-
-        wp_dict["end_dat"] = end_dat
-        wp_dict["end_display_dat"] = end_display_dat
-
-
-        if end_dat >= start_dat+halfrange:
-
-            wp_dict["updated"] = False
-            wp_dict["update_type"] = ""
-            wp_dict["np_obj_new"] = None
-        else:
-            wp_dict["updated"] = True
-            wp_dict["update_type"] = "file"
-            wp_dict["np_obj_new"] = wp_dict["np_obj"]
-        #end if
+        if status != hdef.OKAY:
+            return (status, errtext, wp_dict_liste)
 
         wp_dict_liste[i] = wp_dict
     # end for
     return (status, errtext, wp_dict_liste)
+# end def
+def get_np_obj(wb_obj,wp_dict):
+    """
+        (status, errtext, wp_dict) = get_np_obj(wb_obj,wp_dict)
+
+        build  wp_dict mit:
+            wp_dict["np_obj"]
+            wp_dict["first_dat"]
+            wp_dict["last_dat"]
+    """
+
+
+    (status, errtext, np_obj) = read_np_obj(wb_obj, wp_dict["isin"])
+    if status != hdef.OKAY:
+        return (status, errtext, wp_dict)
+
+    if np_obj is None:
+
+        first_date_in_file = -1
+        last_date_in_file = -1
+    else:
+        # lese letztes Datum aus
+        (status, errtext, _, first_date_in_file, last_date_in_file) = get_number_of_np_obj(wb_obj, np_obj)
+        if status != hdef.OKAY:
+            return (status, errtext, wp_dict)
+
+    # end if
+
+    wp_dict["np_obj"] = np_obj
+    wp_dict["first_dat"] = first_date_in_file
+    wp_dict["last_dat"] = last_date_in_file
+
+    return (status, errtext, wp_dict)
+# end def
+def get_update_dict_values(wb_obj, wp_dict):
+    """
+        build  wp_dict mit:
+            wp_dict["start_dat"]
+            wp_dict["start_display_dat"]
+            wp_dict["end_dat"]
+            wp_dict["end_display_dat"]
+            wp_dict["updated"] = False
+            wp_dict["update_type"] = "file"
+            wp_dict["np_obj_new"] = None
+
+
+        (status, errtext, wp_dict) = get_update_dict_values(wb_obj, wp_dict)
+    """
+    status = hdef.OKAY
+    errtext = ""
+    halfrange = 12 * 60 * 60
+
+    # erstes Datum zum Suchen aus ini
+    start_dat_ini_file = htype.type_transform_direct(wb_obj.base_ddict["price_volumen_first_dat"], "datStrP", "dat")
+    # Erscheinungsdatum des wp
+    if len(wp_dict["start_dat_str"]) == 0:
+        start_dat_wp = start_dat_ini_file
+    else:
+        start_dat_wp = htype.type_transform_direct(wp_dict["start_dat_str"], "datStrP", "dat")
+
+    if start_dat_wp > start_dat_ini_file:
+        start_dat = start_dat_wp
+    else:
+        start_dat = start_dat_ini_file
+
+    # Prüfen  start_dat_str
+
+    # Start Datum
+    if (wp_dict["first_dat"] != -1) and (wp_dict["first_dat"] <= start_dat + halfrange):
+        start_dat = wp_dict["last_dat"]
+    # end if
+
+    # # letztes Datum in Datensatz
+    # (status, errtext, _, _, lastdat) = get_number_of_np_obj(wb_obj, np_obj)
+    # if status != hdef.OKAY:
+    #     return (status, errtext)
+    # # end if
+    # if lastdat > start_dat:
+    #     start_dat = lastdat
+    # # end if
+    start_display_dat = htype.type_transform_direct(start_dat, "dat", "datStrP")
+
+    wp_dict["start_dat"] = start_dat
+    wp_dict["start_display_dat"] = start_display_dat
+
+    # Was ist der letzte aktuelle Handelsdatum
+    end_dat_time_list = wp_fkt.letzter_beendeter_handelstag_dat_list(wb_obj.base_ddict["boerse"])
+    end_display_dat = htype.type_transform_direct(end_dat_time_list, "datTimeList", "datStrP")
+    end_dat = htype.type_transform_direct(end_display_dat, "datStrP", "dat")
+
+    wp_dict["end_dat"] = end_dat
+    wp_dict["end_display_dat"] = end_display_dat
+
+    if end_dat >= start_dat + halfrange:
+
+        wp_dict["updated"] = False
+        wp_dict["update_type"] = ""
+        wp_dict["np_obj_new"] = None
+    else:
+        wp_dict["updated"] = True
+        wp_dict["update_type"] = "file"
+        wp_dict["np_obj_new"] = wp_dict["np_obj"]
+
+
+    # end if
+
+    return (status, errtext, wp_dict)
 # end def
 def read_np_obj(wb_obj,isin):
     """

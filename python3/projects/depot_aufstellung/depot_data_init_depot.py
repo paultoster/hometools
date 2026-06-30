@@ -108,7 +108,7 @@ def read(rd,depot_name):
             return (depot_data_obj, status, errtext)
         
         depot_data_obj.depot_obj.set_stored_wp_data_set_ttable(wp_data_obj.data_dict[rd.par.ISIN],
-                                                               wp_data_obj.data_dict[rd.par.WP_KATEGORIE],
+                                                               wp_data_obj.data_dict[rd.par.WP_KATALOG],
                                                                wp_data_obj.data_dict_tvar[rd.par.WP_DATA_SET_TABLE_NAME])
 
         
@@ -126,7 +126,12 @@ def save(rd,depot_data_obj,depot_name):
     """
     status = hdef.OKAY
     errtext = ""
-    
+
+    (status, errtext) = depot_data_obj.depot_obj.save_katalog_from_active_isin_in_wp_store()
+    if status != hdef.OKAY:
+        return (status,errtext)
+    # endif
+
     depot_data_obj.data_dict[rd.par.DEPOT_DATA_ISIN_LIST_NAME] \
         = depot_data_obj.depot_obj.get_isin_liste()
     

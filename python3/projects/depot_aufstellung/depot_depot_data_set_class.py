@@ -101,7 +101,7 @@ class DepotParam:
     # index += 1
     # DEPOT_DATA_INDEX_SUMWERT = index
     # index += 1
-    # DEPOT_DATA_INDEX_KATEGORIE = index
+    # DEPOT_DATA_INDEX_KATALOG = index
     
     # Diese Daten kommen vom Konto
     DEPOT_KONTO_DATA_INDEX_LIST = [DEPOT_DATA_INDEX_KONTO_ID,
@@ -135,7 +135,7 @@ class DepotParam:
     
     # end for
     
-    DEPOT_DATA_NAME_KATEGORIE = "kategorie"
+    DEPOT_DATA_NAME_KATALOG = "katalog"
     DEPOT_DATA_NAME_WP_NAME = "wp_name"
     DEPOT_DATA_NAME_ZAHLTDIV = "zahltdiv"
     DEPOT_DATA_NAME_EINNAHME = "einnahme"
@@ -153,7 +153,7 @@ class DepotParam:
     DEPOT_SHOW_TYPE_INDEX_ACTIVE = 1
     DEPOT_SHOW_TYPE_INDEX_INACTIVE = 2
     
-    DEPOT_KKATEGORIE_LEER = "leer"
+    DEPOT_KATALOG_LEER = "leer"
 
 
 class DepotDataSet:
@@ -162,12 +162,12 @@ class DepotDataSet:
                                      obj.reset_status()
                                      obj.reset_infotext()
                                      obj.delete_infotext()
-    kategorie:str                  = obj.get_kategorie(isin)
-    kategorie_liste:liste[str]     = obj.get_kategorie_liste()
-                                     obj.set_kategorie(isin,kategorie)
+    katalog:str                  = obj.get_katalog(isin)
+    katalog_liste:liste[str]     = obj.get_katalog_liste()
+                                     obj.set_katalog(isin,katalog)
     isin_liste:list[str]           = obj.get_isin_liste()
     depot_name:str                 = obj.get_depot_name()
-                                     obj.self.set_stored_wp_data_set_ttable(isin,kategorie,wp_data_set_table)
+                                     obj.self.set_stored_wp_data_set_ttable(isin,katalog,wp_data_set_table)
     data_set_ttable: TTable        = obj.get_wp_data_set_dict_to_store(isin)
     isin_list: list[str]           = obj.get_to_store_isin_list()
     depot_wp_name_list: list[str]  = obj.get_to_store_depot_wp_name_list()
@@ -178,7 +178,7 @@ class DepotDataSet:
     wp_obj: class                  = obj.build_wp_data_obj(isin)
      titlename:str                 = obj.get_titlename(isin)
      (ttable,row_color_dliste)     = obj.get_depot_daten_sets_overview(nur_was_im_depot)
-     (ttable,row_color_dliste)     = obj.get_depot_daten_sets_overview_kategorie(kategorie)
+     (ttable,row_color_dliste)     = obj.get_depot_daten_sets_overview_katalog(katalog)
      (ttable,titlename)            = obj.get_depot_daten_sets_isin(isin)
      (tliste,buchungs_type_list, buchtype_index_in_header_liste)
                                    = obj.get_depot_daten_sets_isin_irow(isin,irow)
@@ -243,43 +243,43 @@ class DepotDataSet:
     # end def
     def get_konto_name(self):
         return self.konto_name
-    def get_kategorie(self,isin):
+    def get_katalog(self,isin):
         if isin in self.isin_liste:
-            kategorie = self.wp_data_obj_dict[isin].get_kategorie()
+            katalog = self.wp_data_obj_dict[isin].get_katalog()
         else:
-            raise Exception(f"get_kategorie: isin = {isin} nicht vorhanden")
+            raise Exception(f"get_katalog: isin = {isin} nicht vorhanden")
         # end if
         # print
-        return kategorie
+        return katalog
     # end def
-    def get_kategorie_liste(self):
+    def get_katalog_liste(self):
         '''
 
-        :return: kategorie_liste = self.get_kategorie_liste()
+        :return: katalog_liste = self.get_katalog_liste()
         '''
-        kategorie_liste = []
+        katalog_liste = []
         for isin in self.isin_liste:
-            kategorie = self.wp_data_obj_dict[isin].get_kategorie()
-            kategorie_liste.append(kategorie)
+            katalog = self.wp_data_obj_dict[isin].get_katalog()
+            katalog_liste.append(katalog)
         # end for
         
-        kategorie_liste = list(set(kategorie_liste))
+        katalog_liste = list(set(katalog_liste))
         # print
-        return kategorie_liste
+        return katalog_liste
     
     # end def
-    def set_kategorie(self,isin,kategorie):
+    def set_katalog(self,isin,katalog):
         '''
         
         :param isin:
-        :param kategorie:
-        :return: self.set_kategorie(isin,kategorie)
+        :param katalog:
+        :return: self.set_katalog(isin,katalog)
         '''
         if isin in self.isin_liste:
-            self.wp_data_obj_dict[isin].set_kategorie(kategorie)
+            self.wp_data_obj_dict[isin].set_katalog(katalog)
             self.wp_color_dict[isin] = self.par.LINE_COLOR_EDIT
         else:
-            raise Exception(f"set_kategorie: isin = {isin} nicht vorhanden")
+            raise Exception(f"set_katalog: isin = {isin} nicht vorhanden")
         # end if
         # print
         return
@@ -289,7 +289,7 @@ class DepotDataSet:
         if isin in self.isin_liste:
             self.wp_data_obj_dict[isin].reget_wp_info()
         else:
-            raise Exception(f"set_kategorie: isin = {isin} nicht vorhanden")
+            raise Exception(f"set_katalog: isin = {isin} nicht vorhanden")
         # end if
         # print
         return
@@ -318,7 +318,7 @@ class DepotDataSet:
         # print
         return self.depot_name
     # end def
-    def set_stored_wp_data_set_ttable(self,isin: str,kategorie: str,wp_data_set_table: htvar.TTable):
+    def set_stored_wp_data_set_ttable(self,isin: str,katalog: str,wp_data_set_table: htvar.TTable):
         '''
         
         Die gespeicherten Daten aus pickle werden an interne Datenbank übergeben
@@ -327,7 +327,7 @@ class DepotDataSet:
         :param isin:
         :param depot_wp_name:
         :param wp_data_set_dict:
-        :return: self.set_stored_wp_data_set_ttable(self,isin,kategorie,wp_data_set_table)
+        :return: self.set_stored_wp_data_set_ttable(self,isin,katalog,wp_data_set_table)
         '''
         
         if isin not in self.isin_liste:
@@ -346,8 +346,8 @@ class DepotDataSet:
             # set color
             self.wp_color_dict[isin] = self.par.LINE_COLOR_BASE
 
-            # set kategorie
-            wp_obj.set_kategorie(kategorie)
+            # set katalog
+            wp_obj.set_katalog(katalog)
         # end
         # print
     # end def
@@ -710,20 +710,23 @@ class DepotDataSet:
             # end if
         # end for
 
-        # [self.par.DEPOT_DATA_NAME_WP_NAME, "str"],
+        #
 
         lliste        = [[self.par.DEPOT_DATA_NAME_ISIN,"str"],
-                        ["n","int"],
-                        ["nK","int"],
-                        ["Kkurs","float"],
-                        ["Kwert","euroStrK"],
-                        ["nV","int"],
-                        ["Vkurs","float"],
-                        ["Vwert","euroStrK"],
-                        ["Div","euroStrK"],
-                        ["Kosten","euroStrK"],
-                        ["Akurs","float"],
-                        ["Bilanz","euroStrK"]]
+                         [self.par.DEPOT_DATA_NAME_WP_NAME, "str"],
+                         ["n","int"],
+                         ["nK","int"],
+                         ["nV","int"],
+                         ["Kkurs","float"],
+                         ["Vkurs/Akurs","float"],
+                         ["Verhältnis","float"],
+                         ["Kwert","euroStrK"],
+                         ["Vwert","euroStrK"],
+                         ["Div","euroStrK"],
+                         ["Kosten","euroStrK"],
+                         ["Bilanz","euroStrK"],
+                         ["Katalog","str"]]
+
         header_liste = hlist.get_clist_from_llist(lliste, 0)
         type_liste   = hlist.get_clist_from_llist(lliste, 1)
         
@@ -764,7 +767,7 @@ class DepotDataSet:
 
                 # 2. Name
                 #--------
-                # dataliste.append(self.wp_data_obj_dict[isin].get_name())
+                dataliste.append(self.wp_data_obj_dict[isin].get_name())
 
                 # 3. n = Anzahl
                 dataliste.append(anzahl)
@@ -773,48 +776,62 @@ class DepotDataSet:
                 nK = self.wp_data_obj_dict[isin].get_summen_anzahl_gekauft("float")
                 dataliste.append(nK)
 
-                # 5. Kauf-kurs
-                Kkurs = self.wp_data_obj_dict[isin].get_mittel_Kkurs("float")
-                dataliste.append(Kkurs)
-
-                # 6. Kaufwert
-                Kwert = self.wp_data_obj_dict[isin].get_sum_Kwert("euroStrK")
-                dataliste.append(Kwert)
-
-                # 7. n-Verkauf
+                # 5. n-Verkauf
                 nV = self.wp_data_obj_dict[isin].get_summen_anzahl_verkauft("float")
                 dataliste.append(nV)
 
-                # 8. Verkauf-kurs
-                Vkurs = self.wp_data_obj_dict[isin].get_mittel_Vkurs("float")
-                dataliste.append(Vkurs)
+                # 6. Kauf-kurs
+                Kkurs = self.wp_data_obj_dict[isin].get_mittel_Kkurs("float")
+                dataliste.append(Kkurs)
 
-                # 9. Verkaufwert
+                # 7. Verkauf-kurs
+                Verhaeltnis = 0.
+                if  anzahl <= 0.01: # keine WP mehr im depot
+                    Vkurs = self.wp_data_obj_dict[isin].get_mittel_Vkurs("float")
+                    dataliste.append(Vkurs)
+                    if abs(Kkurs) >= 0.000001:
+                        Verhaeltnis = Vkurs/Kkurs
+                    # end if
+                else:
+                # Abfrage
+                    (self.status, self.errtext, Akurs, Adatum) = \
+                        self.wp_func_obj.get_act_price_volume(isin=isin,
+                                                              pricetype="float",
+                                                              dattype="datStrP")
+                    if self.status != hdef.OKAY:
+                        return ([], [], steuer_flag)
+
+                    if abs(Kkurs) >= 0.000001:
+                        Verhaeltnis = Akurs/Kkurs
+                    # end if
+
+                    dataliste.append(Akurs)
+                # end if
+
+                # 8. Verhaeltnis
+                dataliste.append(float(int(Verhaeltnis * 1000. + 0.5)) / 1000.)
+
+                # 9. Kaufwert
+                Kwert = self.wp_data_obj_dict[isin].get_sum_Kwert("euroStrK")
+                dataliste.append(Kwert)
+
+                # 10. Verkaufwert
                 Vwert = self.wp_data_obj_dict[isin].get_sum_Vwert("euroStrK")
                 dataliste.append(Vwert)
 
-                # 10. Dividenen-Wert
+                # 11. Dividenen-Wert
                 Dwert = self.wp_data_obj_dict[isin].get_sum_Dwert("euroStrK")
                 dataliste.append(Dwert)
 
-                # 11. Kosten
+                # 12. Kosten
                 Kosten = self.wp_data_obj_dict[isin].get_sum_Kosten("euroStrK")
                 dataliste.append(Kosten)
-
-                # 12. Aktueller Kurs
-                if  anzahl <= 0.01: # keine WP mehr im depot
-                    Akurs = 0.
-                else:
-                    # Abfrage
-                    Akurs = 100.
-                # end if
-                dataliste.append(Akurs)
 
                 # 13. Bilanz
                 vwert = htype.type_transform_direct(Vwert, 'euroStrK', "euro")
                 kwert = htype.type_transform_direct(Kwert, 'euroStrK', "euro")
                 dwert = htype.type_transform_direct(Dwert, 'euroStrK', "euro")
-                kostwert = self.wp_data_obj_dict[isin].get_sum_Kostwert("euro")
+                # kostwert = self.wp_data_obj_dict[isin].get_sum_Kostwert("euro")
 
                 bilanz_euro = vwert + dwert - kwert
                 if anzahl <= 0.01: # alles abgewickelt
@@ -831,6 +848,10 @@ class DepotDataSet:
                 summe_bilanz += bilanz_euro
                 dataliste.append(htype.type_transform_direct(bilanz_euro, "euro", 'euroStrK'))
 
+                # 14 Katalg
+                katalog = self.wp_data_obj_dict[isin].get_katalog()
+                dataliste.append(katalog)
+
                 data_lliste.append(dataliste)
                 row_color_dliste.append(self.wp_color_dict[isin])
             # end if
@@ -842,7 +863,7 @@ class DepotDataSet:
 
         end_zeile = htype.type_get_default(type_liste,value_flag=False)
         
-        end_zeile[0] = "Summe:"
+        end_zeile[1] = "Summe:"
         end_zeile[index] = summe_bilanz
 
         data_lliste.append(end_zeile)
@@ -855,12 +876,12 @@ class DepotDataSet:
 
         
     # end def
-    def get_depot_daten_sets_overview_kategorie(self,kategorie):
+    def get_depot_daten_sets_overview_katalog(self,katalog):
         '''
-                hole von jedem WP die Zusammenfassungen wenn es die gewünschte Kategorie hat
+                hole von jedem WP die Zusammenfassungen wenn es die gewünschte Katalog hat
 
-        :param kategorie:
-        :return: (ttable,row_color_dliste) = self.get_depot_daten_sets_overview_kategorie(kategorie)
+        :param katalog:
+        :return: (ttable,row_color_dliste) = self.get_depot_daten_sets_overview_katalog(katalog)
         '''
         
         header_liste = [self.par.DEPOT_DATA_NAME_ISIN,
@@ -889,10 +910,10 @@ class DepotDataSet:
         for isin in self.isin_liste:
             
             # get aktegorie
-            kat = self.wp_data_obj_dict[isin].get_kategorie()
+            kat = self.wp_data_obj_dict[isin].get_katalog()
             
             flag = False
-            if kat == kategorie:
+            if kat == katalog:
                 flag = True
 
             if flag:
@@ -916,7 +937,7 @@ class DepotDataSet:
                 dataliste.append(self.wp_data_obj_dict[isin].get_zahltdiv())
                 
                 # 5. Anzahl
-                anzahl = self.wp_data_obj_dict[isin].get_summen_anzahl()
+                anzahl = self.wp_data_obj_dict[isin].get_summen_anzahl("float")
                 if anzahl is None:
                     self.status = self.wp_data_obj_dict[isin].status
                     self.errtext = self.wp_data_obj_dict[isin].errtext
@@ -1297,8 +1318,14 @@ class DepotDataSet:
             header = ttable_update.names[icol]
             type   = ttable_update.types[icol]
             value = ttable_update.table[irow][icol]
-            
-            if header == self.par.DEPOT_DATA_NAME_KOSTEN:
+
+            if header == self.par.DEPOT_DATA_NAME_ANZAHL:
+                kurs = self.verify_value_anzahl(isin, irow, value, type)
+                if kurs is not None:
+                    self.wp_data_obj_dict[isin].set_item_in_irow(kurs, self.par.DEPOT_DATA_NAME_KURS, type, irow,
+                                                                 self.par.LINE_COLOR_EDIT)
+                # endif
+            elif header == self.par.DEPOT_DATA_NAME_KOSTEN:
                 
                 (value,kurs,_,steuer) = self.verify_value_kosten(isin,irow,value,type)
                 if self.status != hdef.OKAY:
@@ -1333,6 +1360,55 @@ class DepotDataSet:
         # print
         return (self.status,new_flag)
     # end def
+    def verify_value_anzahl(self,isin, irow, value, type):
+        """
+        :param isin:
+        :param irow:
+        :param value:
+        :param type:
+        :return: kurs = self.verify_value_anzahl(isin, irow, value, type)
+        """
+        kurs = None
+        if isin not in self.isin_liste:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"update_data_llist: gewünschte isin = {isin} is nicht in Depot enthalten"
+            return kurs
+        # end if
+        # convert in float
+        (okay, anzahl) = htype.type_transform(value, type, 'float')
+        if okay != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"verify_value:  Fehler transform data_item = <{value}> von type: <{type}> in type {'cent'} wandeln !!!!!!"
+            return kurs
+        # end if
+        buchtype_index = self.wp_data_obj_dict[isin].get_one_data_item(irow, self.par.DEPOT_DATA_NAME_BUCHTYPE, 'int')
+        if self.wp_data_obj_dict[isin].status != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = self.wp_data_obj_dict[isin].errtext
+            return kurs
+        # end if
+
+        wert = self.wp_data_obj_dict[isin].get_one_data_item(irow, self.par.DEPOT_DATA_NAME_WERT, 'euro')
+        kosten = self.wp_data_obj_dict[isin].get_one_data_item(irow, self.par.DEPOT_DATA_NAME_KOSTEN, 'euro')
+        steuer = self.wp_data_obj_dict[isin].get_one_data_item(irow, self.par.DEPOT_DATA_NAME_STEUER, 'euro')
+        if self.wp_data_obj_dict[isin].status != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = self.wp_data_obj_dict[isin].errtext
+            return kurs
+        # end if
+
+        if buchtype_index == self.par.DEPOT_BUCHTYPE_INDEX_WP_KAUF:
+            if abs(anzahl) >= 1e-6:
+                kurs = (wert - kosten - steuer) / anzahl
+            # end if
+        elif buchtype_index == self.par.DEPOT_BUCHTYPE_INDEX_WP_VERKAUF:
+            if abs(anzahl) >= 1e-6:
+                kurs = (wert + kosten + steuer) / anzahl
+            # end if
+        # end if
+
+        return kurs
+    # end if
     def verify_value_kosten(self,isin,irow,value,type):
         # print
         return self.verify_value(isin,irow,'kosten',value,type)
@@ -1477,4 +1553,34 @@ class DepotDataSet:
         for isin in self.isin_liste:
             self.wp_data_obj_dict[isin].reset_line_color()
             self.wp_color_dict[isin] = self.par.LINE_COLOR_BASE
+        # end for
+    # end def
+    def save_katalog_from_active_isin_in_wp_store(self):
+
+        (status, errtext) = self.wp_func_obj.erase_active_isin_katalog_for_depot(self.depot_name)
+        if status != hdef.OKAY:
+            return (status, errtext)
+
+        # isin_dict_katalog = {'isin1': 'katalogx', 'isin2': 'katalogy', ...}
+        isin_dict_katalog = {}
+        change_flag = False
+        for isin in self.isin_liste:
+
+            anzahl = self.wp_data_obj_dict[isin].get_summen_anzahl("float")
+
+            if anzahl > 0.01:
+                katalog = self.wp_data_obj_dict[isin].get_katalog()
+
+                if len(katalog) != 0:
+                    isin_dict_katalog[isin] = katalog
+                    change_flag = True
+                # end if
+            # end if
+        # end for
+        if change_flag:
+            (status, errtext) = self.wp_func_obj.set_active_isin_katalog_for_depot(self.depot_name,isin_dict_katalog)
+        # end if
+
+        return (status, errtext)
+    # end def
 # end class

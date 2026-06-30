@@ -227,7 +227,7 @@ class Parameter:
     # Parameter wp_data_set
     ISIN: str = "isin"
     WP_NAME: str = "wp_name"
-    WP_KATEGORIE: str = "wp_kategorie"
+    WP_KATALOG: str = "wp_katalog"
     WP_DATA_SET_DICT_LIST: str = "wp_data_set_dict_list"
     WP_DATA_SET_NAME_DICT: str = "wp_data_set_name_dict"
     WP_DATA_SET_TYPE_DICT: str = "wp_data_set_type_dict"

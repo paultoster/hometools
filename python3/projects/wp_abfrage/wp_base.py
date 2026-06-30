@@ -17,6 +17,7 @@ from wp_abfrage import wp_bearbeiten as wp_bearbeiten
 from wp_abfrage import wp_base_usdeuro as wp_base_usdeuro
 from wp_abfrage import wp_base_basic_info as wp_base_basic_info
 from wp_abfrage import wp_base_price_volume
+from wp_abfrage import wp_base_active_katalog
 
 
 import tools.hfkt_def as hdef
@@ -47,7 +48,8 @@ INI_DICT_PROOF_LISTE = [("store_path", "str"),
                         ("avira_price_volume_csv_post_file_name","str","str","_historic"),
                         ("avira_price_volume_csv_delete","int","int",1),
                         ("avira_price_volume_csv_is_master","int","int",1),
-                        ("avira_price_volume_csv_trennzeichen","str","str",";")
+                        ("avira_price_volume_csv_trennzeichen","str","str",";"),
+                        ("active_katalog_filename","str","str","active_katalog_data")
                         ]
 
 class WPParam:
@@ -497,6 +499,44 @@ class WPData:
         """
         (self.status, self.errtext, filename_list) = wp_base_price_volume.get_exist_filenames(self, isin_input)
         return (self.status, self.errtext, filename_list)
+    # end def
+    def get_act_price_volume(self, isin=None,pricetype="euro",dattype="dat"):
+        """
+
+        Für isin wird der letzte Tagespreise und Datum zurückgegeben
+
+
+        :param isin:
+        :return: (status,errtext,price,dat) = wp_obj.get_act_price_volume(isin,pricetype,dattype)
+                 (status,errtext,price_liste,dat_liste) = wp_obj.get_act_price_volume(isin_liste,pricetype,dattype)
+        """
+
+        (self.status,self.errtext,price,dat) = wp_base_price_volume.get_act(self,isin,pricetype,dattype)
+
+        return (self.status,self.errtext,price,dat)
+    # end def
+    def set_active_isin_katalog_for_depot(self,depot_name,isin_dict_katalog):
+        """
+        :param depot_name:                Name des Depots
+        :param isin_dict_katalog_liste:   dictionary mit key = isin und value = katalog
+
+        (status,errtext) = self.set_active_isin_katalog_for_depot(depot_name,isin_dict_katalog)
+        """
+        (self.status, self.errtext) = wp_base_active_katalog.set_for_depot(self, depot_name, isin_dict_katalog)
+
+        return (self.status, self.errtext)
+    # end def
+
+    def erase_active_isin_katalog_for_depot(self,depot_name):
+        """
+        :param depot_name:                Name des Depots
+
+        (status, errtext) = self.erase_active_isin_katalog_for_depot(depot_name)
+
+        """
+        (self.status, self.errtext) = wp_base_active_katalog.erase_depot(self,depot_name)
+
+        return (self.status, self.errtext)
     # end def
 
 

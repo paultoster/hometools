@@ -330,21 +330,21 @@ def konto_depot_data_set_eingabe(gui,tlist,buchtype_index_in_header_liste,buchun
 
     return (tlist_new,change_flag)
 # end def
-def depot_kategorie(gui,kategorie, titlename):
+def depot_katalog(gui,katalog, titlename):
     '''
     
-    :param kategorie:
+    :param katalog:
     :param titlename:
-    :return: kategorie = depot_gui.depot_kategorie(gui,kategorie, titlename)
+    :return: katalog = depot_gui.depot_katalog(gui,katalog, titlename)
     '''
     ddict = {}
-    ddict["liste_abfrage"] = ["kategorie"]
-    ddict["liste_vorgabe"] = [kategorie]
+    ddict["liste_abfrage"] = ["katalog"]
+    ddict["liste_vorgabe"] = [katalog]
     ddict["title"]         = titlename
     
     
-    kategorie_liste = gui.abfrage_n_eingabezeilen_dict(ddict)
-    return kategorie_liste
+    katalog_liste = gui.abfrage_n_eingabezeilen_dict(ddict)
+    return katalog_liste
 # end dfe
 def  depot_overview(gui,ttable, abfrage_liste,titlename,row_color_dliste):
     '''
@@ -396,7 +396,7 @@ def auswahl_liste(gui,auswahl_liste,titlename):
     '''
     
     :param auswahl_liste:
-    :return: (index,choice) = auswahl_depot_kategorie_liste(gui,auswahl_liste)
+    :return: (index,choice) = auswahl_liste(gui,auswahl_liste)
     '''
     
     
@@ -443,7 +443,7 @@ def konto_ini_dict_abfrage(gui, ddict,comment_dict):
 
     :param gui:
     :param hkat_list:
-    :return: ddict = konto_kategorie_dict_abfrage(gui, ddict)
+    :return: ddict = konto_ini_dict_abfrage(gui, ddict)
     '''
     title = "Kategorie editieren"
     ddict_mod = gui.modify_variable(ddict, title,comment_dict)
