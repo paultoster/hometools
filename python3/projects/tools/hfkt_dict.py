@@ -41,6 +41,9 @@ key = find_first_key_dict_value(ddict,value) if not in value = None
      dict_tvar["name"] = TVal("name","Berthold","str")
      dict_tvar["datum"] = TVal("datum",2787388348,"dat")
     
+    (state,errtext,dict_list) = transform_llist_and_header_in_dictlist(header,data)
+
+    transform lliste mit Header in liste mit dict
 
 """
 import os
@@ -49,13 +52,13 @@ import openpyxl
 if os.path.isfile('hfkt_def.py'):
     import hfkt_def as hdef
     import hfkt_type as htype
-    import hfkt_dict as hdict
+    import hfkt_list as hlist
     import hfkt_tvar as htvar
     import hfkt_file_path as hfp
 else:
     import tools.hfkt_def as hdef
     import tools.hfkt_type as htype
-    import tools.hfkt_dict as hdict
+    import tools.hfkt_list as hlist
     import tools.hfkt_tvar as htvar
     import tools.hfkt_file_path as hfp
 # end if
@@ -325,3 +328,31 @@ def write_dict_list_in_ods_table(dict_list,titlename,filename):
 
     return (status,errtext,file_name)
 # ed def
+def transform_llist_and_header_in_dictlist(header,data):
+    """
+    :param header:
+    :param data:
+    :return: (state,errtext,dict_list) = transform_llist_and_header_in_dictlist(header,data)
+    """
+    status = hdef.OKAY
+    errtext = ""
+
+    nheader = len(header)
+    (ndata,mdata) = hlist.size_of_llist(data)
+
+    if nheader > mdata:
+        nheader = mdata
+    elif nheader < mdata:
+        mdata = nheader
+    # end if
+
+    dict_list = []
+    for d in data:
+        ddict = {}
+        for i,h in enumerate(header):
+            ddict[h] = d[i]
+        # end for
+        dict_list.append(ddict)
+    # end for
+    return (status,errtext,dict_list)
+

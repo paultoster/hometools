@@ -23,7 +23,7 @@ import depot_base
 # Hilfsfunktionen
 from tools import hfkt_def as hdef
 from tools import hfkt_log as hlog
-# import tools.hfkt_pickle as hpickle
+import tools.sgui as sgui
 from tools import sgui_protocol_class as sgui_prot
 
 # import wp_abfrage.wp_base as wp_base
@@ -153,10 +153,14 @@ if __name__ == '__main__':
             switch = 1
         # end if
     else:
-        switch = 1
+        auswahl_liste = ["depot","konto"]
+        index = sgui.radiobutton_dialog(auswahl_liste,title="Welche Auswertung soll laufen")
+        if index == -1:
+            exit(1)
+        else:
+            switch = index
+        # ed if
     # end if
-
-    switch = 0
     
     if switch == 1:
         WORKING_DIRECTORY = "D:/data/orga/Otnok"

@@ -115,6 +115,8 @@ newlist = sort_list(liste,aufsteigend=1)
 
 liste = split_str_into_list(textstr,delim='\n',remove_empty=True)
 
+(n,m) = size_of_llist(llist)
+
 
 '''
 
@@ -728,6 +730,19 @@ def split_str_into_list(textstr,delim='\n',remove_empty=True):
     else:
         return hstr.split_text(textstr, delim, flagmulti=0)
 # end def
+def size_of_llist(llist):
+    """
+    :param llist:
+    :return: (n,m) = size_of_llist(llist)
+    """
+
+    n = len(llist)
+    m = len(llist[0])
+    for liste in llist:
+        m = min(m,len(liste))
+    #end for
+    return (n,m)
+# enddef
 ###########################################################################
 # testen mit main
 ###########################################################################

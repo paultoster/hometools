@@ -17,6 +17,8 @@
 # ddict_inp["row_color_dliste"] = ['','black','','red',...]
 # ddict_inp["abfrage_liste"] = ["okay","cancel","end","edit",...]
 # ddict_inp["auswahl_filter_col_liste"] = ["headername1","headername3"] oder [0,2]
+# ddict_inp["auswahl_dat_filter"] = "Datum" oder 0
+# ddict_inp["default_dat_filter"] = "Datum" oder 0
 # ddict_inp["GUI_GEOMETRY_WIDTH"] = 1000
 # ddict_inp["GUI_GEOMETRY_HEIGHT"] = 600
 # ddict_inp["GUI_GEOMETRY_POSX"] = 100
@@ -208,7 +210,32 @@ class abfrage_tabelle_class:
         else:
             self.abfrage_liste = ddict_inp[key]
         # end if
-        
+
+        # ddict_inp["auswahl_dat_filter"]
+        # ddict_inp["default_dat_filter"]
+        self.auswahl_dat_filter = ""
+        self.icol_dat_filter = -1
+        if "auswahl_dat_filter" in ddict_inp.keys():
+            item = ddict_inp["auswahl_dat_filter"]
+            if isinstance(item, str):
+
+                self.auswahl_dat_filter = item
+                if item in self.header_liste:
+                    self.icol_dat_filter = self.header_liste.index(item)
+
+            elif isinstance(item, int):
+                self.auswahl_dat_filter = self.header_liste[item]
+                self.icol_dat_filter = item
+            elif isinstance(item, float):
+                self.auswahl_dat_filter = self.header_liste[int(item)]
+                self.icol_dat_filter = int(item)
+            # end if
+        # end if
+
+        self.default_dat_filter = ""
+        if "default_dat_filter" in ddict_inp.keys():
+            self.default_dat_filter = ddict_inp["default_dat_filter"]
+
         # ddict_inp["auswahl_filter_col_liste"] = ["headername1", "headername3"] oder [0, 2]
         # ---------------------------------------------------------------
         self.auswahl_filter_liste = []
@@ -347,11 +374,19 @@ class abfrage_tabelle_class:
         # Gui anlegen
         # --------------
         self.createFrame()
+        if self.icol_dat_filter >= 0:
+            self.createFilterDat()
+
         if len(self.combo_input_liste) :
             self.createFilter()
+
+
         self.createTabellenGui()
         self.createButtonGui()
         
+        if len(self.default_dat_filter) > 0:
+            self.runDoFilter()
+
         # Menue anlegen
         # --------------
         # self.createMenu()
@@ -360,7 +395,8 @@ class abfrage_tabelle_class:
         self.flag_mainloop = True
         
         self.root.mainloop()
-    
+
+
     def __del__(self):
         if (self.flag_mainloop):
             self.GUI_GEOMETRY_HEIGHT = self.root.winfo_height()
@@ -391,8 +427,27 @@ class abfrage_tabelle_class:
         self.frame = Tk.LabelFrame(self.root, bd=2, text=self.title, font=('Verdana', 10, 'bold'))
         gr_entry = Tk.Frame(self.frame, relief=Tk.GROOVE, bd=2)
         gr_entry.pack(pady=5)
-    
+
+    def createFilterDat(self):
+
+        gr_entry = Tk.Frame(self.frame, relief=Tk.GROOVE, bd=2)
+        gr_entry.pack(fill=Tk.X, pady=5)
+
+        # label links oben mit text Filter
+        label_a = Tk.Label(gr_entry, text=f"DatFilter: {self.auswahl_dat_filter}", font=('Verdana', 10, 'bold'))
+        label_a.pack(side=Tk.LEFT, pady=1, padx=1)
+
+        # entry StringVar fuer die Eingabe
+        self.StringVarDatFiltText = Tk.StringVar()
+        self.StringVarDatFiltText.set(self.default_dat_filter)
+        self.StringVarDatFiltText.trace("w", self.runDoFilter)
+
+        # entry Aufruf
+        entry_a = Tk.Entry(gr_entry, width=(100), textvariable=self.StringVarDatFiltText)
+        entry_a.pack(side=Tk.LEFT, pady=1, padx=1)
+
     def createFilter(self):
+
         gr_entry = Tk.Frame(self.frame, relief=Tk.GROOVE, bd=2)
         gr_entry.pack(fill=Tk.X, pady=5)
         
@@ -702,14 +757,82 @@ class abfrage_tabelle_class:
     # -------------------------------------------------------------------------------
     # -------------------------------------------------------------------------------
     def runDoFilter(self, *dummy):
-        
+
+        # 1. DatFilter
+        #-------------
+
+        if self.icol_dat_filter >= 0:
+
+            tt = self.StringVarDatFiltText.get()
+            valliste = tt.split(';')
+
+            if (len(valliste) == 1) and len(valliste[0]) == 0:
+
+                self.index_liste_dat = self.index_liste_hold
+                self.data_set_dat = self.data_set_hold
+                self.ndata_dat = len(self.data_set_dat)
+            else:
+
+                type = self.type_liste[self.icol_dat_filter]
+                cliste = hlist.get_clist_from_llist(self.data_set_hold, self.icol_dat_filter)
+
+                iliste = []
+                exceptflag = False
+                for tval in valliste:
+                    try:
+                        diliste = []
+                        if type == self.DATA_STRING:
+
+                            if len(tval) > 0:
+                                diliste = hlist.such_in_liste(cliste, tval, regel="n")
+                            # end if
+
+                        elif type == self.DATA_FLOAT:
+                            fval = float(tval)
+                            if fval in cliste:
+                                diliste = hlist.such_in_liste(cliste, fval, regel="e")
+                            # end if
+                        else:  # if type == self.DATA_FLOAT:
+                            ival = int(tval)
+                            if ival in cliste:
+                                diliste = hlist.such_in_liste(cliste, ival, regel="e")
+                            # end if
+                        # end if
+                        iliste += diliste
+                    except:
+                        exceptflag = True
+                        break
+                    # end try
+                # end for
+                iliste = sorted(list(set(iliste)))
+
+                if exceptflag or(len(iliste) == 0):
+                    self.index_liste_dat = self.index_liste_hold
+                    self.data_set_dat = self.data_set_hold
+                    self.ndata_dat = len(self.data_set_dat)
+                else:
+
+                    self.index_liste_dat = hlist.get_condensed_list_by_index_list(self.index_liste_hold, iliste)
+                    self.data_set_dat = hlist.get_condensed_list_by_index_list(self.data_set_hold, iliste)
+                    self.ndata_dat = len(self.data_set_dat)
+                    # end if
+            # end if
+        else:
+            self.index_liste_dat = self.index_liste_hold
+            self.data_set_dat = self.data_set_hold
+            self.ndata_dat = len(self.data_set_dat)
+        # end if
+
+        # 2. Filter
+        #----------
+
         tt = self.StringVarFiltText.get()
         valliste = tt.split(';')
         
         if (len(valliste) == 1) and len(valliste[0]) == 0:
             
-            self.index_liste = self.index_liste_hold
-            self.data_set    = self.data_set_hold
+            self.index_liste = self.index_liste_dat
+            self.data_set    = self.data_set_dat
             self.ndata = len(self.data_set)
         else:
             
@@ -721,7 +844,7 @@ class abfrage_tabelle_class:
             # end if
             
             icol = self.header_liste.index(header)
-            cliste = hlist.get_clist_from_llist(self.data_set_hold, icol)
+            cliste = hlist.get_clist_from_llist(self.data_set_dat, icol)
             # cliste = list(set(cliste))
             
             type = self.type_liste[icol]
@@ -767,8 +890,8 @@ class abfrage_tabelle_class:
                 return
             # end if
             
-            self.index_liste = hlist.get_condensed_list_by_index_list(self.index_liste_hold, iliste)
-            self.data_set    = hlist.get_condensed_list_by_index_list(self.data_set_hold, iliste)
+            self.index_liste = hlist.get_condensed_list_by_index_list(self.index_liste_dat, iliste)
+            self.data_set    = hlist.get_condensed_list_by_index_list(self.data_set_dat, iliste)
             self.ndata       = len(self.data_set)
         # end if
         

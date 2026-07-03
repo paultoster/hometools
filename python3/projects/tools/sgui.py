@@ -155,7 +155,10 @@
 # ------------------------------------------------------------------------------------------------------
 # filename = abfrage_file(file_types="*.*",comment=None,start_dir=None):
 # ------------------------------------------------------------------------------------------------------
-
+# index = radiobutton_dialog(auswahl_liste,title="Auswahl")
+#
+# Auswahl is auswahl_liste[index], wenn index != -1 Cancel)
+# ------------------------------------------------------------------------------------------------------
 import tkinter as Tk
 # import tkinter.filedialog
 from tkinter.filedialog import askopenfilename
@@ -1671,7 +1674,39 @@ def abfrage_file(file_types="*.*", comment=None, start_dir=None, default_extensi
 
 
 # enddef
+def radiobutton_dialog(auswahl_liste,title="Auswahl"):
+    """
+    Auswahl is auswahl_liste[index], wenn index != -1 Cancel)
+    """
+    root = tkinter.Tk()
+    root.title(title)
 
+    auswahl = tkinter.StringVar(value="")
+
+    tkinter.Label(root, text="Bitte auswählen:").pack(padx=10, pady=10)
+
+    for i, wert in enumerate(auswahl_liste):
+        tkinter.Radiobutton(
+            root,
+            text=str(wert),
+            variable=auswahl,
+            value=i,
+        ).pack(anchor="w", padx=20)
+
+    auswahl.set(0)
+
+    def ok():
+        root.quit()
+
+    tkinter.Button(root, text="OK", command=ok).pack(pady=10)
+
+    root.mainloop()
+
+    index = auswahl.get()
+    root.destroy()
+
+    return int(index)
+#end if
 if __name__ == '__main__':
     
     

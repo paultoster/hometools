@@ -50,6 +50,8 @@ def run_md_check_image_in_md_and_move(md_base_path):
             lines_changed = False
             for i,list in enumerate(list_of_images_pos):
 
+                print(f"Starte mit imagefile: {lines[list[1]]} in \n md: {fullfilename} \npath: {fpath}")
+
                 (modflag,line_mod,ddict) = proof_and_mod_imagefile(log,fullfilename,md_base_path,fpath,list[0],lines[list[1]],list[2],list[3])
 
                 if modflag:
