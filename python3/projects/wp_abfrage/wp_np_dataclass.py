@@ -106,7 +106,7 @@ class NpPriceVolumeClass(NpBaseClass):
     np_name_list: list[str] = ["dat_np_array","start_np_array","high_np_array","low_np_array","end_np_array","volume_np_array"]
     # file_base_name: str = ""
     def __init__(self,*args):
-        super().__init__(args,np_name_list=self.np_name_list,class_def = NpUsdEuroClass)
+        super().__init__(args,np_name_list=self.np_name_list,class_def = NpPriceVolumeClass)
         self.currency: str = ""
         return
     # end def
