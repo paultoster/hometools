@@ -24,8 +24,12 @@
 #
 #       proof obj.status and obj.errtext
 #
+#        obj.get_status()
+#        obj.get_errtext()
+#        obj.get_logtext()
 #        obj.read()
 # data = obj.get_data():  get read dictionary
+#        obj.read_and_get_data()
 #        obj.set_data(data)
 #        obj.save()
 #        obj.save(data)
@@ -262,6 +266,22 @@ class DataJson:
         self.name = ""
         self.data = None
         self.filename_json = filename_json
+
+    def get_status(self):
+        return self.status
+
+    def get_errtext(self):
+        return self.errtext
+
+    def get_logtext(self):
+        return self.logtext
+
+    def reset_status(self):
+        self.status = hdef.OKAY
+        self.errtext = ""
+        self.logtext = ""
+
+    # end def
     def get_filename(self):
         return self.filename_json
     # end def
@@ -274,6 +294,12 @@ class DataJson:
         else:
             return False
         # end if
+    # end def
+    def read_and_get_data(self):
+        self.read()
+        if self.status != hdef.OK:
+            return
+        return self.get_data()
     # end def
     def read(self):
         
@@ -298,7 +324,7 @@ class DataJson:
                 return
             # endtry
         else:
-            self.status = hdef.NOT_OKAY
+            self.status = hdef.NOT_FOUND
             self.errtext = f"File {self.filename_json} does not exist!"
             return
         

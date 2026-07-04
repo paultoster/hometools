@@ -30,3 +30,24 @@ def listen_abfrage(gui, auswahl_liste, auswahl_title, abfrage_liste=None):
     # end if
     return (index, indexAbfrage)
 # enddef
+def listen_abfrage(gui, auswahl_liste, auswahl_title, abfrage_liste=None):
+    if abfrage_liste == None:
+        index = gui.abfrage_liste_index(auswahl_liste, auswahl_title)
+        indexAbfrage = 0
+    else:
+        [index, indexAbfrage] = gui.abfrage_liste_index_abfrage_index(auswahl_liste, abfrage_liste, auswahl_title)
+    # end if
+    return (index, indexAbfrage)
+# enddef
+def katalog_liste_edit_abfrage(gui, katalog_liste):
+    '''
+
+    :param gui:
+    :param katalog_liste:
+    :return: reg_list_mod = konto_regel_edit_abfrage(gui, reg_list)
+    '''
+    title = "Katalog-Liste editieren"
+    katalog_liste_mod = gui.modify_variable(katalog_liste, title)
+
+    return katalog_liste
+# end def

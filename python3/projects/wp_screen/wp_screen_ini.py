@@ -18,7 +18,7 @@ INFOTEXT = ""
 INI_FILE_NAME = ""
 
 def get_status():
-    return STATUS
+    return 1
 def get_errtext():
     return ERRTEXT
 def get_infotext():

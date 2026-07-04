@@ -2,6 +2,7 @@
 import os, sys
 from dataclasses import dataclass, field
 
+
 t_path, _ = os.path.split(__file__)
 tools_path = t_path + "\\.."
 if (tools_path not in sys.path):
@@ -15,8 +16,8 @@ import wp_katalog
 
 import tools.hfkt_def as hdef
 import tools.hfkt_log as hlog
-import sgui as sgui
-import sgui_protocol_class as sgui_prot
+import tools.sgui as sgui
+import tools.sgui_protocol_class as sgui_prot
 
 @dataclass
 class RootData:
@@ -24,7 +25,9 @@ class RootData:
     par = None
     log:  hlog.log = field(default_factory=hlog.log)
     ini = None
-    kat = None # Katalog
+    kat: dict = field(default_factory=lambda: {
+                        "katalog_liste": [],
+                        "katalog_dict_liste": []})
 # end class
 
 
@@ -52,11 +55,17 @@ def wp_screener(log_filename,ini_filename):
 
     # ini
     rd.ini = wp_screen_ini.get_ini_dict(ini_filename,rd.par.INI_DICT_PROOF_LISTE)
+
     if wp_screen_ini.get_status() != hdef.OK:
         rd.log.write_e(wp_screen_ini.get_errtext(), screen=1)
+        wp_screen_ini.reset_status()
         return
     # end if
 
+    # run Command
+    wp_screener_command(rd)
+
+    return
 
 def wp_screener_command(rd):
     runflag = True
@@ -89,10 +98,10 @@ def wp_screener_command(rd):
             index = index_ende
 
         if (index < 0) or (index == index_ende):  # cancel button
-            runflag = True
+            runflag = False
         elif index == index_katalog:
 
-            wp_katalog.katalog(rd)
+            wp_katalog.katalog_start(rd)
 
             if len(wp_katalog.get_infotext()) > 0:
                 t = f"Info wp_katalog.katalog(rd): {wp_katalog.get_infotext()}"
@@ -105,6 +114,8 @@ def wp_screener_command(rd):
                 rd.log.write_err(t)
                 runflag = False
             # end if
+
+            wp_katalog.reset_status()
 
         elif index == index_signale:
 
@@ -123,7 +134,7 @@ def wp_screener_command(rd):
         # endif
     # end while
 
-
+    return
 # end def
 if __name__ == '__main__':
     log_filename = "D:/data/orga/wp_screen/wp_screen.log"
