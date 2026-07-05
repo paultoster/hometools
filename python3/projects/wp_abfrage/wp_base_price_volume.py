@@ -930,29 +930,42 @@ def merge_ariva_csv_and_update_file(wb_obj, wp_dict):
         wb_obj.log.write_info(f"Update WP isin: {wp_dict["isin"]} Name: {wp_dict["name"]}")
         wb_obj.log.write_info(f"Update type: {wp_dict["update_type"]} ")
 
-        nstart = len(wp_dict["np_obj"].dat_np_array)
+        save_flag = False
+        if wp_dict["np_obj"] is None:
 
-        if wb_obj.base_ddict["avira_price_volume_csv_is_master"] > 0:
-            (status, errtext, np_obj) = merge_np_data( wp_dict["np_obj_new"],wp_dict["np_obj"])
+            np_obj = wp_dict["np_obj_new"]
+
+            if np_obj is not None:
+                save_flag = True
         else:
-            (status, errtext, np_obj) = merge_np_data(wp_dict["np_obj"], wp_dict["np_obj_new"])
+            nstart = len(wp_dict["np_obj"].dat_np_array)
 
-        if status != hdef.OKAY:
-            return (status, errtext, wp_dict)
+            if wb_obj.base_ddict["avira_price_volume_csv_is_master"] > 0:
+                (status, errtext, np_obj) = merge_np_data( wp_dict["np_obj_new"],wp_dict["np_obj"])
+            else:
+                (status, errtext, np_obj) = merge_np_data(wp_dict["np_obj"], wp_dict["np_obj_new"])
+
+            if status != hdef.OKAY:
+                return (status, errtext, wp_dict)
+            # end if
+            nmerge = len(np_obj.dat_np_array)
+
+            if nstart != nmerge:
+                save_flag = True
+            # end if
         # end if
-        nmerge = len(np_obj.dat_np_array)
+        if save_flag:
 
-        if nstart != nmerge:
+
             (status, errtext, filename) = save_np_data(wb_obj, wp_dict, np_obj)
 
             if status != hdef.OKAY:
                 return (status, errtext, wp_dict)
             # end if
-
             wb_obj.log.write_info(f"Updated file: {filename} ")
-        else:
-            wb_obj.log.write_info(f"No Update nmerge == nstart ")
         # end if
+    else:
+        wb_obj.log.write_info(f"No Update  ")
     # end if
     return (status,errtext,wp_dict)
 # end def

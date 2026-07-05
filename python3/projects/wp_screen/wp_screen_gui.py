@@ -14,6 +14,23 @@ import tools.hfkt_tvar as htvar
 import tools.hfkt_type as htype
 import tools.hfkt_def as hdef
 
+STATUS   = hdef.OKAY
+ERRTEXT  = ""
+INFOTEXT = ""
+
+
+def get_status():
+    return STATUS
+def get_errtext():
+    return ERRTEXT
+def get_infotext():
+    return INFOTEXT
+def reset_status():
+    STATUS = hdef.OKAY
+    ERRTEXT = ""
+    INFOTEXT = ""
+# end def
+
 
 def janein_abfrage(gui, ausgabe_text, ausgabe_title):
     flag = gui.abfrage_janein(text=ausgabe_text, title=ausgabe_title)
@@ -50,4 +67,77 @@ def katalog_liste_edit_abfrage(gui, katalog_liste):
     katalog_liste_mod = gui.modify_variable(katalog_liste, title)
 
     return katalog_liste
+# end def
+def eingabe_n_zeilen(gui, liste_abfrage,
+                          liste_vorgabe=None, title=None):
+    '''
+
+
+    :param liste_abfrage:
+    :param liste_vorgabe:
+    :oaram title
+    :return: (liste_ergebnis,status) = eingabe_n_zeilen(gui,liste_abfrage,liste_vorgabe,title)
+    '''
+
+    if title is None:
+        title = "Eingabe"
+    # end if
+
+    ddict = {}
+    ddict["liste_abfrage"] = liste_abfrage
+    ddict["title"] = title
+    # dict["liste_immutable"] = immutable_liste
+
+    ddict["liste_vorgabe"] = liste_vorgabe
+
+    new_data_list = gui.abfrage_n_eingabezeilen_dict(ddict)
+
+    if len(new_data_list) == 0:
+        return ([], hdef.NOT_OK)
+    # end if
+
+    return (new_data_list, hdef.OKAY)
+
+# end def
+def katalog_isin_abfrage(gui, ttable, abfrage_liste,title = None):
+    """
+
+    :param gui:
+    :param ttable:
+    :param abfrage_liste:
+    :return:
+    """
+    dict_inp = {}
+    dict_inp["ttable"] = ttable
+    dict_inp["abfrage_liste"] = abfrage_liste
+    dict_inp["auswahl_filter_col_liste"] = ttable.names
+    if title:
+        dict_inp["title"] = title
+    # end if
+
+    dict_out = gui.abfrage_tabelle(dict_inp)
+
+    if dict_out["status"] != hdef.OKAY:
+        STATUS = dict_out["status"]
+        ERRTEXT = dict_out["errtext"]
+        return
+    # end if
+
+    return ( dict_out["ttable"],
+             dict_out["index_abfrage"],
+             dict_out["irow_select"],
+             dict_out["data_change_irow_icol_liste"])
+# end def
+def katalog_isin_liste_modify(gui, katalog, isin_liste):
+    '''
+
+    :param gui:
+    :param katalog:
+    :param isin_liste:
+    :return: isin_list_mod = katalog_isin_liste_modify(gui, katalog, isin_liste)
+    '''
+    title = f"Von Katalog {katalog} isin-Liste editieren"
+    isin_list_mod = gui.modify_variable(isin_liste, title)
+
+    return isin_list_mod
 # end def

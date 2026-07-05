@@ -270,43 +270,55 @@ def build_sort_list_of_index(list1, list2,distbetween):
     flag_run_liste2 = True
     distbetweenhalf = distbetween / 2
 
-    while index1 < n1 and index2 < n2:
-
-        if flag_run_liste2 and (list2[index2]+distbetweenhalf < list1[index1]):
-            pre_sort_index_list.append((LIST2,index2))
-            index2 += 1
-        elif flag_run_liste1 and (list1[index1]+distbetweenhalf < list2[index2]):
-            pre_sort_index_list.append((LIST1,index1))
-            index1 += 1
-        elif abs(list1[index1] - list2[index2]) <= distbetweenhalf:
-            pre_sort_index_list.append((LIST1,index1))
-            index1 += 1
-            index2 += 1
-        elif flag_run_liste2 and (list2[index2] > list1[index1] + distbetweenhalf):
-            pre_sort_index_list.append((LIST2, index2))
-            index2 += 1
-        elif flag_run_liste1 and (list1[index1] > list2[index2]+distbetweenhalf):
-            pre_sort_index_list.append((LIST1,index1))
-            index1 += 1
+    if n1 == 0:
+        for i in range(n2):
+            pre_sort_index_list.append((LIST2, i))
         # end if
+    elif n2 == 0:
+        for i in range(n1):
+            pre_sort_index_list.append((LIST1, i))
+        # end if
+    else:
 
-        if flag_run_liste1:
-            if index1 == n1:
-                flag_run_liste1 = False
-                index1 = n1 -1
+        while index1 < n1 and index2 < n2:
+
+            if flag_run_liste2 and (list2[index2]+distbetweenhalf < list1[index1]):
+                pre_sort_index_list.append((LIST2,index2))
+                index2 += 1
+            elif flag_run_liste1 and (list1[index1]+distbetweenhalf < list2[index2]):
+                pre_sort_index_list.append((LIST1,index1))
+                index1 += 1
+            elif abs(list1[index1] - list2[index2]) <= distbetweenhalf:
+                pre_sort_index_list.append((LIST1,index1))
+                index1 += 1
+                index2 += 1
+            elif flag_run_liste2 and (list2[index2] > list1[index1] + distbetweenhalf):
+                pre_sort_index_list.append((LIST2, index2))
+                index2 += 1
+            elif flag_run_liste1 and (list1[index1] > list2[index2]+distbetweenhalf):
+                pre_sort_index_list.append((LIST1,index1))
+                index1 += 1
             # end if
-        # end if
-        if flag_run_liste2:
-            if index2 == n2:
-                flag_run_liste2 = False
-                index2 = n2 -1
-            # end if
-        # end if
-        if not flag_run_liste1 and not flag_run_liste2:
-            break
-        # end if
 
-    # end while
+            if flag_run_liste1:
+                if index1 == n1:
+                    flag_run_liste1 = False
+                    index1 = n1 -1
+                # end if
+            # end if
+            if flag_run_liste2:
+                if index2 == n2:
+                    flag_run_liste2 = False
+                    index2 = n2 -1
+                # end if
+            # end if
+            if not flag_run_liste1 and not flag_run_liste2:
+                break
+            # end if
+
+        # end while
+    # end if
+
     sort_index_list = []
     n = len(pre_sort_index_list)
     if n > 0:

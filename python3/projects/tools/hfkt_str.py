@@ -1572,10 +1572,10 @@ def elim_py_comment(text):
     """
 
     # Find quot
-    i = such(text,'"')
-    if  such(text,'"') >= 0:
+    # i = such(text,'"')
+    if  such(text,'"') < 0:
         quot = '"'
-    elif such(text,"'") >= 0:
+    elif such(text,"'") < 0:
         quot = "'"
     else:
         quot = ""

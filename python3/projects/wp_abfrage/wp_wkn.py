@@ -18,7 +18,7 @@ import tools.hfkt_str as hstr
 import tools.hfkt_type as htype
 import wp_abfrage.wp_storage as wp_storage
 import wp_abfrage.wp_playwright as wp_pr
-import wp_basic_info_internet as wp_basic_info_internet
+import wp_abfrage.wp_basic_info_internet as wp_basic_info_internet
 
 WKN_NOT_FOUND = "wknnotfound"
 

@@ -16,6 +16,7 @@ from tools import hfkt_date_time as hdate
 from tools import hfkt_file_path as hpf
 from tools import hfkt_io as hio
 from tools import hfkt_list as hlist
+from tools import hfkt_str as hstr
 
 from wp_abfrage import wp_price_volume
 from wp_abfrage import wp_fkt
@@ -613,6 +614,9 @@ def get_price_volume_data_from_ariva_csv_file(csv_file,delim,np_classdef,currenc
 
     llist = []
     for i,csv_list in enumerate(csv_lliste):
+
+        # erase from volume dots
+        csv_list[5] = hstr.change_max(csv_list[5],".","")
 
         if i > 0:
 

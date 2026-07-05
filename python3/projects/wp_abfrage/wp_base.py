@@ -206,6 +206,16 @@ class WPData:
         (self.status, self.errtext, filename_list) = wp_base_basic_info.get_exist_filenames(self, isin_input)
         return (self.status, self.errtext, filename_list)
     # end def
+    def set_value_in_basic_info(self,isin,key,wert):
+        """
+        :param isin:
+        :param key
+        :param wert:
+        :return:
+        """
+        (self.status, self.errtext) = wp_base_basic_info.set_value(self, isin,key,wert)
+        return (self.status, self.errtext)
+    # end def
     def save_basic_info(self, isin_input: str|list, basic_info_dict: list|dict) -> (int,str):
         '''
 

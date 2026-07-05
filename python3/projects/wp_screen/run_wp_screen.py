@@ -12,7 +12,9 @@ if (tools_path not in sys.path):
 import wp_screen_param
 import wp_screen_ini
 import wp_screen_gui
-import wp_katalog
+import wp_screen_katalog
+
+import wp_abfrage.wp_base as wp_base
 
 import tools.hfkt_def as hdef
 import tools.hfkt_log as hlog
@@ -25,9 +27,16 @@ class RootData:
     par = None
     log:  hlog.log = field(default_factory=hlog.log)
     ini = None
+    wpfunc = None
     kat: dict = field(default_factory=lambda: {
                         "katalog_liste": [],
-                        "katalog_dict_liste": []})
+                        "katalog_liste_filename":"",
+                        "katalog_liste_jsonobj": None,
+                        "katalog": "",
+                        "isin_liste":[],
+                        "isin_liste_filename": "",
+                        "isin_liste_jsonobj":None
+                        })
 # end class
 
 
@@ -61,6 +70,10 @@ def wp_screener(log_filename,ini_filename):
         wp_screen_ini.reset_status()
         return
     # end if
+
+    # wp_abfrage
+    rd.wpfunc = wp_base.WPData(ini_filename=rd.ini["wp_func_ini_file_name"],
+                                 log_obj=rd.log)
 
     # run Command
     wp_screener_command(rd)
@@ -101,21 +114,21 @@ def wp_screener_command(rd):
             runflag = False
         elif index == index_katalog:
 
-            wp_katalog.katalog_start(rd)
+            wp_screen_katalog.katalog_start(rd)
 
-            if len(wp_katalog.get_infotext()) > 0:
-                t = f"Info wp_katalog.katalog(rd): {wp_katalog.get_infotext()}"
+            if len(wp_screen_katalog.get_infotext()) > 0:
+                t = f"Info wp_katalog.katalog(rd): {wp_screen_katalog.get_infotext()}"
                 sgui.anzeige_text(t, textcolor='orange')
-                rd.log.write_info(t)
+                rd.log.write_info(t, screen=rd.par.LOG_SCREEN_OUT)
 
-            if wp_katalog.get_status() != hdef.OKAY:
-                t = f"Error wp_bearbeiten.edit_basic_info(wp_obj) errtext = {wp_katalog.get_errtext()}"
+            if wp_screen_katalog.get_status() != hdef.OKAY:
+                t = f"Error wp_bearbeiten.edit_basic_info(wp_obj) errtext = {wp_screen_katalog.get_errtext()}"
                 sgui.anzeige_text(t, textcolor='red')
-                rd.log.write_err(t)
+                rd.log.write_err(t, screen=rd.par.LOG_SCREEN_OUT)
                 runflag = False
             # end if
 
-            wp_katalog.reset_status()
+            wp_screen_katalog.reset_status()
 
         elif index == index_signale:
 

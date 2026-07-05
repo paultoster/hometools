@@ -639,7 +639,10 @@ def abfrage_eingabezeile(anzeigename, vorgabe=None, title=None):
 # ========================== modify_variable ============================
 def modify_variable(var,title="Editiere in der Syntax variable",geometry_list=None,comment_dict=None):
     '''
-    
+
+    Hiermit kann eine Variable dict oder liste und auch nested im text modifiziert werden
+
+
     :param ddict:
     :param key:
     :return:

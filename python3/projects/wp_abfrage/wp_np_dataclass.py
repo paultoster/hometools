@@ -145,20 +145,23 @@ class NpPriceVolumeClass(NpBaseClass):
 
         if hasattr(self, 'dat_np_array'):
 
-            self.sort_by_dat()
+            if len(self.dat_np_array) > 0:
 
-            edayend = hfkt_date_time.secs_to_end_of_day(end_dat)
+                self.sort_by_dat()
 
-            while self.dat_np_array[-1] > edayend:
-                self.dat_np_array    = np.delete(self.dat_np_array, -1)
-                self.start_np_array  = np.delete(self.start_np_array, -1)
-                self.high_np_array   = np.delete(self.high_np_array, -1)
-                self.low_np_array    = np.delete(self.low_np_array, -1)
-                self.end_np_array    = np.delete(self.end_np_array, -1)
-                self.volume_np_array = np.delete(self.volume_np_array, -1)
-                if len(self.dat_np_array) == 0:
-                    break
-            # end while
+                edayend = hfkt_date_time.secs_to_end_of_day(end_dat)
+
+                while self.dat_np_array[-1] > edayend:
+                    self.dat_np_array    = np.delete(self.dat_np_array, -1)
+                    self.start_np_array  = np.delete(self.start_np_array, -1)
+                    self.high_np_array   = np.delete(self.high_np_array, -1)
+                    self.low_np_array    = np.delete(self.low_np_array, -1)
+                    self.end_np_array    = np.delete(self.end_np_array, -1)
+                    self.volume_np_array = np.delete(self.volume_np_array, -1)
+                    if len(self.dat_np_array) == 0:
+                        break
+                # end while
+            # end if
         # end if
     # end def
 ###############################################################################

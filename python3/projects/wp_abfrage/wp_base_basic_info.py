@@ -236,6 +236,23 @@ def get_exist_filenames(wb_obj, isin_input):
     # end for
     return (status, errtext, filename_list)
 # end def
+def set_value(wb_obj, isin,key,wert):
+    """
+    (status, errtext) = set_value(wb_obj,isin,key,wert)
+    """
+    (status, errtext, wp_dict) = get(wb_obj, isin)
+    if status != hdef.OKAY:
+        return (status, errtext)
+    # end if
+
+    if key in wp_dict.keys():
+        wp_dict[key] = wert
+    # end if
+
+    (status, errtext) = save(wb_obj, isin, wp_dict)
+
+    return (status, errtext)
+# end def
 def save(wb_obj, isin_input, basic_info_dict):
     """
 
