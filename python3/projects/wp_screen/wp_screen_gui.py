@@ -141,3 +141,31 @@ def katalog_isin_liste_modify(gui, katalog, isin_liste):
 
     return isin_list_mod
 # end def
+def signalset_dict_abfrage(gui, ddict, title = None,abfrage_liste=None):
+    """
+
+    :param gui:
+    :param ddict:
+    :return: (ddict,changed_key_liste) = signalset_dict_abfrage(gui, ddict, title = None)
+    """
+
+    (ddict,changed_key_liste,index_abfrage) = gui.abfrage_dict2(ddict,title=title,abfrage_liste=abfrage_liste)
+
+    return (ddict,changed_key_liste,index_abfrage)
+
+# end def
+def signalset_dict_modify(gui, signalset, ddict):
+    '''
+
+    :param gui:
+    :param katalog:
+    :param isin_liste:
+    :return: isin_list_mod = katalog_isin_liste_modify(gui, katalog, isin_liste)
+    '''
+    title = f"Von Signalset: {signalset} signal-dict editieren"
+    sigset_dict_mod = gui.modify_variable(ddict, title)
+
+    return sigset_dict_mod
+# end def
+
+

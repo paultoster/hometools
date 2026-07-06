@@ -450,7 +450,7 @@ class SguiProtocol:
             
             geometry_list = self.set_geometry_list()
             
-            (ddict,changed_key_liste) = sgui.abfrage_dict(ddict,geometry_list=geometry_list)
+            (ddict,changed_key_liste) = sgui.abfrage_dict(ddict,title=title,geometry_list=geometry_list)
             
             self.get_geometry_list(geometry_list)
             
@@ -462,6 +462,44 @@ class SguiProtocol:
         
         return (ddict,changed_key_liste)
     
+    # end def
+    def abfrage_dict2(self, ddict, title=None,abfrage_liste = None):
+        '''
+
+        :param title:
+        :return: (ddict, changed_key_liste) = self.abfrage_dict(ddict, title=None)
+        '''
+
+        if self.run_protocol_data:
+            ddict_out = {}
+            (s1, ddict) = self.get_next_protocol_data("ddict")
+            (s2, changed_key_liste) = self.get_act_protocol_data("changed_key_liste")
+            (s2, index_abfrage) = self.get_act_protocol_data("index_abfrage")
+
+            if s1 and s2:
+
+                return (ddict, changed_key_liste,index_abfrage)
+            else:
+                self.run_protocol_data = False
+            # end if
+        # end if
+
+        if not self.run_protocol_data:
+
+            geometry_list = self.set_geometry_list()
+
+            (ddict, changed_key_liste,index_abfrage) = sgui.abfrage_dict2(ddict,title=title, geometry_list=geometry_list,abfrage_liste=abfrage_liste)
+
+            self.get_geometry_list(geometry_list)
+
+            if self.save_protocol_data:
+                self.set_next_protocol_data("ddict", ddict)
+                self.set_act_protocol_data("changed_key_liste", changed_key_liste)
+                self.set_act_protocol_data("index_abfrage", index_abfrage)
+            # end if
+        # end if
+
+        return (ddict, changed_key_liste,index_abfrage)
     # end def
     def abfrage_n_eingabezeilen_dict(self, dict_inp):
         '''

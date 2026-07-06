@@ -51,7 +51,7 @@ class abfrage_n_eingabezeilen_class:
     
     # -------------------------------------------------------------------------------
     # -------------------------------------------------------------------------------
-    def __init__(self, liste, vorgabe_liste=None, title=None,liste_immutable=None,geometry_list=None):
+    def __init__(self, liste, vorgabe_liste=None, title=None,liste_immutable=None,geometry_list=None,abfrage_liste = None):
         """
         """
         self.status = hdef.OKAY
@@ -67,7 +67,9 @@ class abfrage_n_eingabezeilen_class:
         self.GUI_GEOMETRY_HEIGHT = sdef.GUI_GEOMETRY_HEIGHT_BASE
         self.GUI_GEOMETRY_POSX = 0
         self.GUI_GEOMETRY_POSY = 0
-        
+        self.abfrage_liste = []
+        self.index_abfrage = -1
+
         # liste in string-liste wandeln
         for item in liste:
             
@@ -148,6 +150,9 @@ class abfrage_n_eingabezeilen_class:
             if len(geometry_list) > 3:
                 self.GUI_GEOMETRY_POSY = geometry_list[3]
 
+        if isinstance(abfrage_liste,list):
+            self.abfrage_liste = abfrage_liste
+
         
         # TK-Grafik anlegen
         # ------------------
@@ -201,6 +206,7 @@ class abfrage_n_eingabezeilen_class:
         ''' Cancel der Gui
         '''
         self.eingabeListe = []
+        self.index_abfrage = -1
         self.exitMenu()
     
     # -------------------------------------------------------------------------------
@@ -278,13 +284,21 @@ class abfrage_n_eingabezeilen_class:
         
         gr_buts = Tk.Frame(gr_canvas, relief=Tk.GROOVE, bd=2)
         gr_buts.pack(fill=Tk.X, pady=5)
-        
+
         b_back = Tk.Button(gr_buts, text='Okay', command=self.getEntry)
         b_back.pack(side=Tk.LEFT, pady=4, padx=2)
-        
+
         b_edit = Tk.Button(gr_buts, text='Cancel', command=self.cancelMenu)
         b_edit.pack(side=Tk.LEFT, pady=4, padx=2)
-    
+
+        for item in self.abfrage_liste:
+
+            but_add = Tk.Button(gr_buts,
+                                text=item,
+                                command=lambda m=item: self.getEntry(m))
+
+            but_add.pack(side=Tk.LEFT, pady=4, padx=2)
+        # end for
     def myfunction(self, event):
         self.listGui_Canvas.configure(scrollregion=self.listGui_Canvas.bbox("all"))
     
@@ -298,7 +312,7 @@ class abfrage_n_eingabezeilen_class:
     
     # -------------------------------------------------------------------------------
     # -------------------------------------------------------------------------------
-    def getEntry(self):
+    def getEntry(self,button_name=None):
         ''' eine Gruppe ausw�hlen �ber selection, wenn nicht dann weiter
             aktuellen Namen verwenden
             Ergebnis wird in self.actual_group_name gespeichert
@@ -317,7 +331,19 @@ class abfrage_n_eingabezeilen_class:
             # endif
             self.eingabeListe.append(tt)
         # endfor
-        
+
+        if button_name is None:
+            self.index_abfrage = -2
+        else:
+            self.index_abfrage = -1
+            for i,name in enumerate(self.abfrage_liste):
+                if name == button_name:
+                    self.index_abfrage = i
+                    break
+                # endif
+            # endfor
+        # end if
+
         self.exitMenu()
     
     # -------------------------------------------------------------------------------

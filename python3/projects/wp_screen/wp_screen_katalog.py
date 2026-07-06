@@ -1,8 +1,5 @@
 
 import os, sys
-import tomllib
-
-from hfkt_log import log
 
 t_path, _ = os.path.split(__file__)
 tools_path = t_path + "\\.."
@@ -33,8 +30,7 @@ def reset_status():
     ERRTEXT = ""
     INFOTEXT = ""
 # end def
-def katalog_start(rd):
-
+def katalog_set(rd):
     # Katalog Json-Liste einladen
     if rd.kat["katalog_liste_jsonobj"] is None:
 
@@ -50,6 +46,13 @@ def katalog_start(rd):
         rd.kat["katalog_liste"] = []
     elif rd.kat["katalog_liste_jsonobj"].get_status() != hdef.OKAY:
         rd.log.write_err(rd.kat["katalog_liste_jsonobj"].get_errtext(), screen=rd.par.LOG_SCREEN_OUT)
+        return
+    # end if
+    return
+def katalog_start(rd):
+
+    katalog_set(rd)
+    if get_status() != hdef.OKAY:
         return
     # end if
 
@@ -214,9 +217,13 @@ def katalog_del(rd,index):
     :param index:
     :return: return
     """
+    flag = wp_screen_gui.janein_abfrage(rd.gui, f"Soll wirklich das Element {index = } name = \"{rd.sig["katalog_liste"][index]}\" gelöscht werden?",
+                                    "Löschen ja/nein")
+    if flag:
+        del rd.kat["katalog_liste"][index]
+        rd.kat["katalog_liste_jsonobj"].save(rd.kat["katalog_liste"])
+    # end if
 
-    del rd.kat["katalog_liste"][index]
-    rd.kat["katalog_liste_jsonobj"].save(rd.kat["katalog_liste"])
 
     return
 # end def
@@ -261,6 +268,9 @@ def katalog_isin_liste_read(rd):
         rd.kat["isin_liste"] = []
     elif rd.kat["isin_liste_jsonobj"].get_status() != hdef.OKAY:
         rd.log.write_err(rd.kat["isin_liste_jsonobj"].get_errtext(), screen=rd.par.LOG_SCREEN_OUT)
+        STATUS = rd.kat["isin_liste_jsonobj"].get_status()
+        ERRTEXT = rd.kat["isin_liste_jsonobj"].get_errtext()
+        rd.kat["isin_liste_jsonobj"].reset_status()
     # end if
     return
 # end def

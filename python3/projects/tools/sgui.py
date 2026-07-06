@@ -220,6 +220,7 @@ GUI_GEOMETRY_HEIGHT_BASE = 600
 GUI_ICON_FILE_BASE = "SGUI.ico"
 
 
+ABFRAGE_DICT_INDEX = -1
 # ===============================================================================
 # ========================== abfrage_liste ======================================
 # ===============================================================================
@@ -364,7 +365,11 @@ def abfrage_tabelle(ddict_inp):
 
 # ===============================================================================
 # ========================== abfrage_dict =======================================
-def abfrage_dict(ddict,title=None,geometry_list=None):
+def abfrage_dict2(ddict,title=None,geometry_list=None,abfrage_liste = None):
+    (ddict, changed_key_liste) = abfrage_dict(ddict,title=title,geometry_list=geometry_list,abfrage_liste = abfrage_liste)
+    return (ddict,changed_key_liste,ABFRAGE_DICT_INDEX)
+# end def
+def abfrage_dict(ddict,title=None,geometry_list=None,abfrage_liste = None):
     DATA_FLOAT = 0
     DATA_INTEGER = 1
     DATA_STRING = 2
@@ -435,8 +440,10 @@ def abfrage_dict(ddict,title=None,geometry_list=None):
         # end if
     # end for
     if len(liste) > 0:
-        obj = sclass_ane.abfrage_n_eingabezeilen_class(liste=liste, vorgabe_liste=vorgabe_liste, title=title,geometry_list=geometry_list)
+        obj = sclass_ane.abfrage_n_eingabezeilen_class(liste=liste, vorgabe_liste=vorgabe_liste, title=title,geometry_list=geometry_list,abfrage_liste = abfrage_liste)
         liste_ausgabe = obj.eingabeListe
+        global ABFRAGE_DICT_INDEX
+        ABFRAGE_DICT_INDEX = obj.index_abfrage
         del obj
 
         if len(liste_ausgabe) == len(liste):
