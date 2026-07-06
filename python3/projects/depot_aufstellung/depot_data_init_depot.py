@@ -60,6 +60,14 @@ def read(rd,depot_name):
         depot_data_obj.data_dict = depot_data_obj.pickle_obj.get_ddict()
         
     # endif
+
+    # kurzname
+    bank_kurz_name = rd.ini.ddict[depot_name][rd.par.INI_BANK_KURZ_NAME]
+    if rd.par.INI_BANK_KURZ_NAME not in depot_data_obj.data_dict:
+        depot_data_obj.data_dict[rd.par.INI_BANK_KURZ_NAME] = bank_kurz_name
+    elif bank_kurz_name != depot_data_obj.data_dict[rd.par.INI_BANK_KURZ_NAME]:
+        depot_data_obj.data_dict[rd.par.INI_BANK_KURZ_NAME] = bank_kurz_name
+    # end if
     
     # type
     depot_data_obj.data_dict[rd.par.DDICT_TYPE_NAME] = rd.par.DEPOT_DATA_TYPE_NAME
@@ -81,6 +89,7 @@ def read(rd,depot_name):
     # depot obj
     depot_data_obj.depot_obj = depot_depot_data_set_class.DepotDataSet(
         depot_name,
+        depot_data_obj.data_dict[rd.par.INI_BANK_KURZ_NAME],
         depot_data_obj.data_dict[rd.par.DEPOT_DATA_ISIN_LIST_NAME],
         depot_data_obj.data_dict[rd.par.DEPOT_DATA_DEPOT_WP_LIST_NAME],
         rd.allg.wpfunc,

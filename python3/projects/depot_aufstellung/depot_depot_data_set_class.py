@@ -189,9 +189,10 @@ class DepotDataSet:
      status                        = obj.set_kurs_value(isin,irow)
      status                        = obj.update_data_ttable(isin,changed_pos_list,ttable_update)
     '''
-    def __init__(self,depot_name,isin_liste,wp_name_liste,wp_func_obj,konto_obj):
+    def __init__(self,depot_name,depot_kurz_name, isin_liste,wp_name_liste,wp_func_obj,konto_obj):
     
         self.depot_name = depot_name
+        self.depot_kurz_name = depot_kurz_name
         self.konto_obj  = konto_obj
         self.konto_name = konto_obj.get_konto_name()
         self.par = DepotParam()
@@ -317,6 +318,10 @@ class DepotDataSet:
     def get_depot_name(self):
         # print
         return self.depot_name
+    # end def
+    def get_depot_kurz_name(self):
+        # print
+        return self.depot_kurz_name
     # end def
     def set_stored_wp_data_set_ttable(self,isin: str,katalog: str,wp_data_set_table: htvar.TTable):
         '''
@@ -1557,7 +1562,7 @@ class DepotDataSet:
     # end def
     def save_katalog_from_active_isin_in_wp_store(self):
 
-        (status, errtext) = self.wp_func_obj.erase_active_isin_katalog_for_depot(self.depot_name)
+        (status, errtext) = self.wp_func_obj.erase_active_isin_katalog_for_depot(self.depot_kurz_name)
         if status != hdef.OKAY:
             return (status, errtext)
 
@@ -1578,7 +1583,7 @@ class DepotDataSet:
             # end if
         # end for
         if change_flag:
-            (status, errtext) = self.wp_func_obj.set_active_isin_katalog_for_depot(self.depot_name,isin_dict_katalog)
+            (status, errtext) = self.wp_func_obj.set_active_isin_katalog_for_depot(self.depot_kurz_name,isin_dict_katalog)
         # end if
 
         return (status, errtext)

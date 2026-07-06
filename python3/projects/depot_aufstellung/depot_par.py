@@ -93,6 +93,7 @@ class Parameter:
 
     INI_IBAN_NAME: str = "iban"
     INI_BANK_NAME: str = "bank"
+    INI_BANK_KURZ_NAME: str = "kurz"
     INI_WER_NAME: str = "wer"
     INI_START_WERT_NAME: str = "start_wert"
     INI_START_TAG_NAME: str = "start_tag"
@@ -114,6 +115,7 @@ class Parameter:
     # Liste der zu checkenden Daten von DEPOT
     # ---------------------------------------
     INI_DEPOT_PROOF_LISTE = [ (INI_BANK_NAME, "str")
+                            , (INI_BANK_KURZ_NAME,"str")
                             , (INI_WER_NAME, "str")
                             , (INI_DEPOT_KONTO_NAME,"str")]
     
