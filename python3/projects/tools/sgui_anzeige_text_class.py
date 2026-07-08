@@ -62,7 +62,7 @@ class anzeige_text_class:
     
     # -------------------------------------------------------------------------------
     # -------------------------------------------------------------------------------
-    def __init__(self, text_liste, title=None, textcolor='black',use_cancel_button=False,geometry_list=None):
+    def __init__(self, text_liste, title=None, textcolor='black',use_cancel_button=False,geometry_list=None,font="Verdana"):
         """
         """
         self.status = hdef.OKAY
@@ -76,6 +76,8 @@ class anzeige_text_class:
         self.act_frame_id = 0
         self.title = u"Anzeigee"
         self.textcolor = textcolor
+        self.textfont = ('Verdana', 10, 'bold')
+
         if use_cancel_button:
             self.abfrage_liste = [u'okay',u'cancel']
         else:
@@ -114,6 +116,11 @@ class anzeige_text_class:
                 self.GUI_GEOMETRY_POSX = geometry_list[2]
             if len(geometry_list) > 3:
                 self.GUI_GEOMETRY_POSY = geometry_list[3]
+
+        if font == "Verdana":
+            self.textfont = ('Verdana', 12, 'bold')
+        else:
+            self.textfont = (font, 10)
 
         # TK-Grafik anlegen
         # ------------------
@@ -190,7 +197,7 @@ class anzeige_text_class:
         scroll_text.pack(side=Tk.RIGHT, fill=Tk.Y)
         
         # Textfeld
-        self.listGui_Anzeige = Tk.Text(gr_anzeige, padx=4, pady=4, font=('Verdana', 12, 'bold'),
+        self.listGui_Anzeige = Tk.Text(gr_anzeige, padx=4, pady=4, font=self.textfont,
                                        yscrollcommand=scroll_text.set, fg=self.textcolor)
         self.listGui_Anzeige.pack(side=Tk.TOP, expand=1, fill=Tk.BOTH)
         

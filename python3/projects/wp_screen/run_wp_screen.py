@@ -13,7 +13,7 @@ import wp_screen_param
 import wp_screen_ini
 import wp_screen_gui
 import wp_screen_katalog
-import wp_screen_signalset
+import wp_screen_sigset
 
 import wp_abfrage.wp_base as wp_base
 
@@ -39,13 +39,14 @@ class RootData:
                         "isin_liste_jsonobj":None
                         })
     sig: dict = field(default_factory=lambda: {
-        "signalset_liste": [],
-        "signalset_liste_filename": "",
-        "signalset_liste_jsonobj": None,
-        "signalset": "",
-        "signalset_dict": [],
-        "signalset_dict_filename": "",
-        "signalset_dict_jsonobj": None
+        "sigset_liste": [],
+        "sigset_liste_filename": "",
+        "sigset_liste_jsonobj": None,
+        "sigset": "",
+        "sigset_dict": {},
+        "sigset_dict_filename": "",
+        "sigset_dict_jsonobj": None,
+        "sigset_werte_dict_liste": {}
     })
 
 
@@ -96,10 +97,10 @@ def wp_screener(log_filename,ini_filename):
         exit(1)
     # end if
 
-    # setup signalset
-    wp_screen_signalset.signalset_set(rd)
-    if wp_screen_signalset.get_status() != hdef.OKAY:
-        t = f"Error wp_screen_signalset.signalset_set(wp_obj) errtext = {wp_screen_signalset.get_errtext()}"
+    # setup sigset
+    wp_screen_sigset.sigset_set(rd)
+    if wp_screen_sigset.get_status() != hdef.OKAY:
+        t = f"Error wp_screen_sigset.sigset_set(wp_obj) errtext = {wp_screen_sigset.get_errtext()}"
         sgui.anzeige_text(t, textcolor='red')
         rd.log.write_err(t, screen=rd.par.LOG_SCREEN_OUT)
         exit(1)
@@ -119,11 +120,11 @@ def wp_screener(log_filename,ini_filename):
 def wp_screener_command(rd):
     runflag = True
 
-    start_auswahl = ["Ende", "katalog", "signalset", "tabelle","screener"]
+    start_auswahl = ["Ende", "katalog", "sigset", "tabelle","screener"]
 
     index_ende = 0
     index_katalog = 1
-    index_signalset = 2
+    index_sigset = 2
     index_tabelle = 3
     index_screener = 4
 
@@ -166,17 +167,17 @@ def wp_screener_command(rd):
 
             wp_screen_katalog.reset_status()
 
-        elif index == index_signalset:  #
+        elif index == index_sigset:  #
 
-            wp_screen_signalset.signalset_start(rd)
+            wp_screen_sigset.sigset_start(rd)
 
-            if len(wp_screen_signalset.get_infotext()) > 0:
-                t = f"Info wp_signalset.signalset_start(rd): {wp_screen_signalset.get_infotext()}"
+            if len(wp_screen_sigset.get_infotext()) > 0:
+                t = f"Info wp_sigset.sigset_start(rd): {wp_screen_sigset.get_infotext()}"
                 sgui.anzeige_text(t, textcolor='orange')
                 rd.log.write_info(t, screen=rd.par.LOG_SCREEN_OUT)
 
-            if wp_screen_signalset.get_status() != hdef.OKAY:
-                t = f"Error wp_signalset.signalset_start(rd) errtext = {wp_screen_signalset.get_errtext()}"
+            if wp_screen_sigset.get_status() != hdef.OKAY:
+                t = f"Error wp_sigset.sigset_start(rd) errtext = {wp_screen_sigset.get_errtext()}"
                 sgui.anzeige_text(t, textcolor='red')
                 rd.log.write_err(t, screen=rd.par.LOG_SCREEN_OUT)
                 runflag = False

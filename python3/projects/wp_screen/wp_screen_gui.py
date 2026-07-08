@@ -47,6 +47,10 @@ def listen_abfrage(gui, auswahl_liste, auswahl_title, abfrage_liste=None):
     # end if
     return (index, indexAbfrage)
 # enddef
+def anzeige_text(gui,texteingabe, title=None,textcolor='black'):
+    gui.anzeige_text(texteingabe, title=title, textcolor=textcolor,textfont="Consolas")
+    return
+# end def
 def listen_abfrage(gui, auswahl_liste, auswahl_title, abfrage_liste=None):
     if abfrage_liste == None:
         index = gui.abfrage_liste_index(auswahl_liste, auswahl_title)
@@ -141,12 +145,12 @@ def katalog_isin_liste_modify(gui, katalog, isin_liste):
 
     return isin_list_mod
 # end def
-def signalset_dict_abfrage(gui, ddict, title = None,abfrage_liste=None):
+def sigset_dict_abfrage(gui, ddict, title = None,abfrage_liste=None):
     """
 
     :param gui:
     :param ddict:
-    :return: (ddict,changed_key_liste) = signalset_dict_abfrage(gui, ddict, title = None)
+    :return: (ddict,changed_key_liste) = sigset_dict_abfrage(gui, ddict, title = None)
     """
 
     (ddict,changed_key_liste,index_abfrage) = gui.abfrage_dict2(ddict,title=title,abfrage_liste=abfrage_liste)
@@ -154,7 +158,7 @@ def signalset_dict_abfrage(gui, ddict, title = None,abfrage_liste=None):
     return (ddict,changed_key_liste,index_abfrage)
 
 # end def
-def signalset_dict_modify(gui, signalset, ddict):
+def sigset_dict_modify(gui, sigset, ddict):
     '''
 
     :param gui:
@@ -162,7 +166,7 @@ def signalset_dict_modify(gui, signalset, ddict):
     :param isin_liste:
     :return: isin_list_mod = katalog_isin_liste_modify(gui, katalog, isin_liste)
     '''
-    title = f"Von Signalset: {signalset} signal-dict editieren"
+    title = f"Von Signalset: {sigset} signal-dict editieren"
     sigset_dict_mod = gui.modify_variable(ddict, title)
 
     return sigset_dict_mod

@@ -598,7 +598,7 @@ class SguiProtocol:
         
         return flag
     # end def
-    def anzeige_text(self,texteingabe,title=None,textcolor='black'):
+    def anzeige_text(self,texteingabe,title=None,textcolor='black',textfont="Verdana"):
         '''
         
         :param texteingabe:
@@ -615,7 +615,7 @@ class SguiProtocol:
             
             geometry_list = self.set_geometry_list()
             
-            sgui.anzeige_text(texteingabe, title,textcolor,geometry_list=geometry_list)
+            sgui.anzeige_text(texteingabe, title,textcolor,geometry_list=geometry_list,font=textfont)
             
             self.get_geometry_list(geometry_list)
             
@@ -624,6 +624,7 @@ class SguiProtocol:
                 self.set_next_protocol_data("texteingabe", texteingabe)
                 self.set_act_protocol_data("title", title)
                 self.set_act_protocol_data("textcolor", textcolor)
+                self.set_act_protocol_data("textfont", textfont)
             # end if
         # end if
     # end def

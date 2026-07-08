@@ -367,6 +367,7 @@ def abfrage_tabelle(ddict_inp):
 # ========================== abfrage_dict =======================================
 def abfrage_dict2(ddict,title=None,geometry_list=None,abfrage_liste = None):
     (ddict, changed_key_liste) = abfrage_dict(ddict,title=title,geometry_list=geometry_list,abfrage_liste = abfrage_liste)
+    global ABFRAGE_DICT_INDEX
     return (ddict,changed_key_liste,ABFRAGE_DICT_INDEX)
 # end def
 def abfrage_dict(ddict,title=None,geometry_list=None,abfrage_liste = None):
@@ -716,7 +717,7 @@ def abfrage_janein(text=None, title=None):
 
 # ========================== anzeige_text ========================================
 # ===============================================================================
-def anzeige_text(texteingabe, title=None, textcolor='black',geometry_list=None):
+def anzeige_text(texteingabe, title=None, textcolor='black',geometry_list=None,font="Verdana"):
     text_liste = []
     
     if (isinstance(texteingabe, str)):
@@ -724,7 +725,7 @@ def anzeige_text(texteingabe, title=None, textcolor='black',geometry_list=None):
     elif (isinstance(texteingabe, list)):
         text_liste = texteingabe
     
-    obj = stext_class.anzeige_text_class(text_liste, title, textcolor,geometry_list=geometry_list)
+    obj = stext_class.anzeige_text_class(text_liste, title, textcolor,geometry_list=geometry_list,font=font)
     
     del obj
 

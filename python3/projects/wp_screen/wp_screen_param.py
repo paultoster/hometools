@@ -4,13 +4,38 @@ class Param:
                             ("katalog_liste_file_name", "str", "str", "katalog_liste"),
                             ("wp_func_ini_file_name","str"),
                             ("katalog_isin_liste_pre_file_name", "str", "str", "katalog_isin_liste_"),
-                            ("signalset_liste_file_name", "str", "str", "signalset_liste"),
-                            ("signalset_dict_pre_file_name", "str", "str", "signalset_dict_")
+                            ("sigset_liste_file_name", "str", "str", "sigset_liste"),
+                            ("sigset_dict_pre_file_name", "str", "str", "sigset_dict_")
                             ]
 
     LOG_SCREEN_OUT = 1
 
     SIG_NULL    = "0"
     SIG_COMMENT = "#"
+    SIG_KURS    = "kurs"
+    SIG_CLOSE   = "close"
+    SIG_OPEN    = "open"
+    SIG_HIGH    = "high"
+    SIG_LOW     = "low"
+    SIG_VOLUME  = "volume"
+    SIG_2PAR_NP_OBJ  = "np_obj"
+    SIG_2PAR_LINGRAD = "lingrad"
+    SIG_2PAR_SMA = "sma"
+    SIG_2PAR_EMA = "ema"
+    SIG_3PAR_VERGLEICH = "vergleich"
+
+    SIG_TYPE_NULL    = 0
+    SIG_TYPE_COMMENT = 1
+    SIG_TYPE_KURS    = 2
+    SIG_TYPE_CLOSE   = 3
+    SIG_TYPE_OPEN    = 4
+    SIG_TYPE_HIGH    = 5
+    SIG_TYPE_LOW     = 6
+    SIG_TYPE_VOLUME  = 7
+    SIG_TYPE_2PAR_NP_OBJ  = 8
+    SIG_TYPE_2PAR_LINGRAD = 9
+    SIG_TYPE_2PAR_SMA = 10
+    SIG_TYPE_2PAR_EMA = 11
+    SIG_TYPE_3PAR_VERGLEICH = 12
 
 #end def
