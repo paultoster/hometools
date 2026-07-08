@@ -172,6 +172,12 @@ def get(wb_obj, isin_input: str|list) -> (int,str,dict|list):
 
     return (status, errtext, output)
 # end def
+def get_key_list(wb_obj):
+    """
+        key_list = wp_base_basic_info.get_key_list(self)
+    """
+    return wp_basic_info_internet.INFO_DICT.keys()
+# end if
 def  get_from_file(wb_obj,isin):
     """
         (status, errtext, info_dict) = get_from_file(wb_obj,isin)

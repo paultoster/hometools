@@ -185,7 +185,8 @@ class WPData:
         """
         (self.status, self.errtext) = wp_base_basic_info.save_wpname_isin(self, isin,wpname )
         return (self.status, self.errtext)
-    # end def
+
+    get_basic_info_key_list    # end def
     def get_basic_info(self, isin_input: str|list) -> (int,str,dict|list):
         '''
 
@@ -197,6 +198,16 @@ class WPData:
         (self.status, self.errtext, output) = wp_base_basic_info.get(self,isin_input)
 
         return (self.status, self.errtext, output)
+    # end def
+    def (self) -> (int,list):
+        '''
+
+        :return: key_list = self.get_basic_info_key_list()
+        '''
+
+        key_list = wp_base_basic_info.get_key_list(self)
+
+        return key_list
     # end def
     def get_exist_filenames_of_basic_info(self, isin_input: str | list) -> (int, str, list):
         """

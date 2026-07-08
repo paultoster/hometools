@@ -14,6 +14,7 @@ import wp_screen_ini
 import wp_screen_gui
 import wp_screen_katalog
 import wp_screen_sigset
+import wp_screen_tab
 
 import wp_abfrage.wp_base as wp_base
 
@@ -47,6 +48,16 @@ class RootData:
         "sigset_dict_filename": "",
         "sigset_dict_jsonobj": None,
         "sigset_werte_dict_liste": {}
+    })
+    tab: dict = field(default_factory=lambda: {
+        "tab_liste": [],
+        "tab_liste_filename": "",
+        "tab_liste_jsonobj": None,
+        "tab": "",
+        "tab_dict": {},
+        "tab_dict_filename": "",
+        "tab_dict_jsonobj": None,
+        "tab_werte_dict_liste": {}
     })
 
 
@@ -101,6 +112,15 @@ def wp_screener(log_filename,ini_filename):
     wp_screen_sigset.sigset_set(rd)
     if wp_screen_sigset.get_status() != hdef.OKAY:
         t = f"Error wp_screen_sigset.sigset_set(wp_obj) errtext = {wp_screen_sigset.get_errtext()}"
+        sgui.anzeige_text(t, textcolor='red')
+        rd.log.write_err(t, screen=rd.par.LOG_SCREEN_OUT)
+        exit(1)
+    # end if
+
+    # setup tab
+    wp_screen_tab.tab_set(rd)
+    if wp_screen_tab.get_status() != hdef.OKAY:
+        t = f"Error wp_screen_tab.tab_set(wp_obj) errtext = {wp_screen_tab.get_errtext()}"
         sgui.anzeige_text(t, textcolor='red')
         rd.log.write_err(t, screen=rd.par.LOG_SCREEN_OUT)
         exit(1)
@@ -185,7 +205,19 @@ def wp_screener_command(rd):
 
         elif index == index_tabelle:
 
-            pass
+            wp_screen_tab.tab_start(rd)
+
+            if len(wp_screen_tab.get_infotext()) > 0:
+                t = f"Info wp_tab.tab_start(rd): {wp_screen_tab.get_infotext()}"
+                sgui.anzeige_text(t, textcolor='orange')
+                rd.log.write_info(t, screen=rd.par.LOG_SCREEN_OUT)
+
+            if wp_screen_tab.get_status() != hdef.OKAY:
+                t = f"Error wp_tab.tab_start(rd) errtext = {wp_screen_tab.get_errtext()}"
+                sgui.anzeige_text(t, textcolor='red')
+                rd.log.write_err(t, screen=rd.par.LOG_SCREEN_OUT)
+                runflag = False
+            # end if
 
         elif index == index_screener:
 

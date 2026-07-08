@@ -5,7 +5,9 @@ class Param:
                             ("wp_func_ini_file_name","str"),
                             ("katalog_isin_liste_pre_file_name", "str", "str", "katalog_isin_liste_"),
                             ("sigset_liste_file_name", "str", "str", "sigset_liste"),
-                            ("sigset_dict_pre_file_name", "str", "str", "sigset_dict_")
+                            ("sigset_dict_pre_file_name", "str", "str", "sigset_dict_"),
+                            ("tab_liste_file_name", "str", "str", "tab_liste"),
+                            ("tab_dict_pre_file_name", "str", "str", "tab_dict_")
                             ]
 
     LOG_SCREEN_OUT = 1
@@ -37,5 +39,51 @@ class Param:
     SIG_TYPE_2PAR_SMA = 10
     SIG_TYPE_2PAR_EMA = 11
     SIG_TYPE_3PAR_VERGLEICH = 12
+
+    TAB_SPEZ_GT = ">"
+    TAB_SPEZ_LT = "<"
+    TAB_SPEZ_GE = ">="
+    TAB_SPEZ_LE = ">="
+    TAB_SPEZ_EQ = "=="
+
+    TAB_SEC_BI = "bi"  # basict info
+    TAB_SEC_SIG = "sig" # signal von sigset
+    TAB_FMT_STR = "str"
+    TAB_FMT_INT = "int"
+    TAB_FMT_FLOAT = "float"
+    TAB_FMT_SPEZ = "spez"
+    TAB_FMT_FLOAT_SEP = "."
+    TAB_FMT_SPEZ_BRACKET_OPEN = "["
+    TAB_FMT_SPEZ_BRACKET_CLOSE = "]"
+    TAB_FMT_SPEZ_SEP = ";"
+    TAB_FMT_SPEZ_COMMAND_SEP = ":"
+
+    TAB_COLOR_WHITE = "white"
+    TAB_COLOR_BLACK = "black"
+    TAB_COLOR_RED = "red"
+    TAB_COLOR_GREEN = "green"
+    TAB_COLOR_YELLOW = "yellow"
+    TAB_COLOR_BLUE = "blue"
+    TAB_COLOR_MAGENTA = "magenta"
+    TAB_COLOR_CYAN = "cyan"
+    TAB_COLOR_GRAY = "gray"
+
+    TAB_COLOR_LISTE = [TAB_COLOR_WHITE,
+                       TAB_COLOR_BLACK,
+                       TAB_COLOR_RED,
+                       TAB_COLOR_GREEN,
+                       TAB_COLOR_YELLOW,
+                       TAB_COLOR_BLUE,
+                       TAB_COLOR_MAGENTA,
+                       TAB_COLOR_CYAN,
+                       TAB_COLOR_GRAY]
+
+    TAB_COLOR_SPEZ = "spez"
+    TAB_COLOR_SPEZ_BRACKET_OPEN = "["
+    TAB_COLOR_SPEZ_BRACKET_CLOSE = "]"
+    TAB_COLOR_SPEZ_SEP = ";"
+    TAB_COLOR_SPEZ_COMMAND_SEP = ":"
+
+
 
 #end def
