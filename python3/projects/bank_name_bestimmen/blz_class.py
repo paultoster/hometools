@@ -7,6 +7,7 @@ if (tools_path not in sys.path):
   sys.path.append(tools_path)
 # endif
 from tools import hfkt_def as hdef
+from tools import hfkt_type as htype
 
 class Bankdaten:
     """
@@ -82,6 +83,14 @@ class Bankdaten:
     def _iban_validieren(self, iban: str) -> bool:
         """Prüft eine IBAN gemäß ISO 7064 Mod-97."""
         iban = iban.replace(" ", "").upper()
+
+        (status,wert) = htype.type_proof_iban(iban)
+        if status != hdef.OKAY:
+            return False
+        else:
+            iban = wert
+        # end if
+
 
         if len(iban) < 15 or len(iban) > 34:
             return False

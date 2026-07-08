@@ -1045,6 +1045,11 @@ country_iban_dic = {"AL": [28, "Albania"], "AD": [24, "Andorra"], "AT": [20, "Au
 def eval_iban(input):
     # Evaluates how many IBAN's are found in the input string
     # return (hits, iban_liste)
+
+
+
+
+
     try:
         if input:
             hits = 0
@@ -1053,6 +1058,8 @@ def eval_iban(input):
                 iban = word.replace(" ", "")
                 if iban[:2] in country_iban_dic.keys():
                     correct_length = country_iban_dic[iban[:2]]
+
+                    iban = eval_iban_extract(iban,correct_length[0])
                     if len(iban) == correct_length[0]:
                         flag = True
                         for d in iban[2:]:
@@ -1091,7 +1098,23 @@ def eval_iban(input):
 
 
 # enddef
+def eval_iban_extract(iban,correct_length):
+    digit_part = iban[2:]
+    l = correct_length-2
+    muster = r"\b\d{" + rf"{l}" + r"}\b"
 
+    match = re.search(muster, digit_part)
+
+    if match:
+        digit_out = match.group()
+    else:
+        digit_out = digit_part
+    # end if
+
+    iban_out = iban[:2]+digit_out
+
+    return iban_out
+# edn def
 def type_proof_isin(wert_in):
     """ return value str
     """

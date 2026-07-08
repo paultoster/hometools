@@ -51,6 +51,7 @@ def bearbeiten(rd):
             
             if (rd.iban.iban_obj.status != hdef.OK):
                 rd.log.write_err(rd.iban.iban_obj.errtext, screen=rd.par.LOG_SCREEN_OUT)
+                rd.iban.iban_obj.reset_status()
                 return rd.iban.iban_obj.status
             # end fi
             
@@ -74,6 +75,7 @@ def bearbeiten(rd):
                 
                 if status != hdef.OKAY:
                     rd.log.write_err("konto__anzeige add " + errtext, screen=rd.par.LOG_SCREEN_OUT)
+                    rd.iban.iban_obj.reset_status()
                     return status
                 # endif
             # endif
@@ -86,6 +88,7 @@ def bearbeiten(rd):
                 (status, errtext) = rd.iban.iban_obj.delete_data_set(irow_select)
                 if status != hdef.OK:
                     rd.log.write_err(errtext, screen=rd.par.LOG_SCREEN_OUT)
+                    rd.iban.iban_obj.reset_status()
                     return status
                 # end if
             else:

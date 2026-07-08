@@ -186,7 +186,7 @@ class WPData:
         (self.status, self.errtext) = wp_base_basic_info.save_wpname_isin(self, isin,wpname )
         return (self.status, self.errtext)
 
-    get_basic_info_key_list    # end def
+    # end def
     def get_basic_info(self, isin_input: str|list) -> (int,str,dict|list):
         '''
 
@@ -199,7 +199,7 @@ class WPData:
 
         return (self.status, self.errtext, output)
     # end def
-    def (self) -> (int,list):
+    def get_basic_info_key_list(self) -> list:
         '''
 
         :return: key_list = self.get_basic_info_key_list()

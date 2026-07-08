@@ -283,6 +283,7 @@ class IbanDataSet:
                 if self.banknamefunc.status != hdef.OKAY:
                     self.status  = self.banknamefunc.status
                     self.errtext =  self.banknamefunc.errtext
+                    self.banknamefunc.reset_status()
                     return (self.status, self.errtext)
                 # end if
                 # try:
@@ -317,6 +318,7 @@ class IbanDataSet:
                     if self.banknamefunc.status != hdef.OKAY:
                         self.status = self.banknamefunc.status
                         self.errtext = self.banknamefunc.errtext
+                        self.banknamefunc.reset_status()
                         return (self.status, self.errtext)
                     # end if
                 # end if
@@ -342,6 +344,7 @@ class IbanDataSet:
                     if self.banknamefunc.status != hdef.OKAY:
                         self.status = self.banknamefunc.status
                         self.errtext = self.banknamefunc.errtext
+                        self.banknamefunc.reset_status()
                         return (self.status, self.errtext)
                     # end if
                 # end if

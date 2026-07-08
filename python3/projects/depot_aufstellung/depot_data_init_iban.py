@@ -78,6 +78,7 @@ def read(rd):
     if (iban.iban_obj.status != hdef.OK):
         status = hdef.NOT_OKAY
         errtext = iban.iban_obj.errtext
+        iban.iban_obj.reset_status()
         return (iban,status, errtext)
     # endif
     
