@@ -706,8 +706,10 @@ class WpDataSet:
         for index,name in enumerate(data_set_tlist.names):
             
             if data_set_tlist.vals[index] != tlist_update.vals[index]:
-                
-                flag_update =self.data_set_obj.set_data_item(tlist_update[index], line_color,irow, name, tlist_update.types[index])
+                try:
+                    flag_update =self.data_set_obj.set_data_item(tlist_update.vals[index], line_color,irow, name, tlist_update.types[index])
+                except:
+                    flag_update = False
 
                 if self.data_set_obj.status != hdef.OKAY:
                     self.status = self.data_set_obj.status

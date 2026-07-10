@@ -50,6 +50,10 @@ def update(wb_obj,isin_liste):
     # Schreibe alle bereits upgedaten Wps ins log
     log_write_uptodate(wb_obj, wp_dict_liste)
 
+    wp_dict_liste = sortiere_upgedated_aus(wp_dict_liste)
+
+
+
     (status,errtext,infotext) = update_start_to_end_dat_yahoo(wb_obj,wp_dict_liste)
     if status != hdef.OKAY:
         return (status, errtext,infotext)
@@ -63,6 +67,8 @@ def update(wb_obj,isin_liste):
         return (status, errtext,infotext)
     # end if
 
+    wp_dict_liste = sortiere_upgedated_aus(wp_dict_liste)
+
     (status,errtext,infotext) = update_start_to_end_dat_eodhd(wb_obj,wp_dict_liste)
     if status != hdef.OKAY:
         return (status, errtext,infotext)
@@ -75,6 +81,8 @@ def update(wb_obj,isin_liste):
     if status != hdef.OKAY:
         return (status, errtext,infotext)
     # end if
+
+    wp_dict_liste = sortiere_upgedated_aus(wp_dict_liste)
 
     (status,errtext,infotext) = update_start_to_end_dat_ariva_requests(wb_obj,wp_dict_liste)
     if status != hdef.OKAY:
@@ -168,6 +176,25 @@ def get_act(wb_obj,isin_liste,pricetype,dattype):
         return (status, errtext,price_liste[0],dat_liste[0])
     # end if
 # end def
+def get_act_np_obj(wb_obj, isin):
+    """
+    lade die no_obj-Datei und übergebe eine Kopie
+
+    (status, errtext, np_obj) = get_act_np_obj(wb_obj, isin)
+    """
+    (status, errtext, wp_dict) = wb_obj.get_basic_info(isin)
+    if status != hdef.OKAY:
+        return (status, errtext,None)
+    # end if
+
+    (status, errtext, wp_dict) = get_np_obj(wb_obj, wp_dict)
+    if status != hdef.OKAY:
+        return (status, errtext,None)
+    # end if
+
+    np_obj = copy.copy(wp_dict["np_obj"])
+    return (status, errtext,np_obj)
+# end def
 def get_np_obj_liste(wb_obj,wp_dict_liste):
     """
         (status, errtext, wp_dict_liste) = get_np_obj_liste(wb_obj,wp_dict_liste)
@@ -254,25 +281,30 @@ def get_update_dict_values(wb_obj, wp_dict):
     errtext = ""
     halfrange = 12 * 60 * 60
 
-    # erstes Datum zum Suchen aus ini
-    start_dat_ini_file = htype.type_transform_direct(wb_obj.base_ddict["price_volumen_first_dat"], "datStrP", "dat")
-    # Erscheinungsdatum des wp
-    if len(wp_dict["start_dat_str"]) == 0:
-        start_dat_wp = start_dat_ini_file
+    # # erstes Datum zum Suchen aus ini
+    # start_dat_ini_file = htype.type_transform_direct(wb_obj.base_ddict["price_volumen_first_dat"], "datStrP", "dat")
+    # # Erscheinungsdatum des wp
+    # if len(wp_dict["start_dat_str"]) == 0:
+    #     start_dat_wp = start_dat_ini_file
+    # else:
+    #     start_dat_wp = htype.type_transform_direct(wp_dict["start_dat_str"], "datStrP", "dat")
+    #
+    # if start_dat_wp > start_dat_ini_file:
+    #     start_dat = start_dat_wp
+    # else:
+    #     start_dat = start_dat_ini_file
+    #
+    # # Prüfen  start_dat_str
+    #
+    # # Start Datum
+    # if (wp_dict["first_dat"] != -1) and (wp_dict["first_dat"] <= start_dat + halfrange):
+    #     start_dat = wp_dict["last_dat"]
+    # # end if
+
+    if wp_dict["last_dat"] < 0:
+        start_dat = htype.type_transform_direct(wb_obj.base_ddict["price_volumen_first_dat"], "datStrP", "dat")
     else:
-        start_dat_wp = htype.type_transform_direct(wp_dict["start_dat_str"], "datStrP", "dat")
-
-    if start_dat_wp > start_dat_ini_file:
-        start_dat = start_dat_wp
-    else:
-        start_dat = start_dat_ini_file
-
-    # Prüfen  start_dat_str
-
-    # Start Datum
-    if (wp_dict["first_dat"] != -1) and (wp_dict["first_dat"] <= start_dat + halfrange):
         start_dat = wp_dict["last_dat"]
-    # end if
 
     # # letztes Datum in Datensatz
     # (status, errtext, _, _, lastdat) = get_number_of_np_obj(wb_obj, np_obj)
@@ -282,7 +314,10 @@ def get_update_dict_values(wb_obj, wp_dict):
     # if lastdat > start_dat:
     #     start_dat = lastdat
     # # end if
-    start_display_dat = htype.type_transform_direct(start_dat, "dat", "datStrP")
+    try:
+        start_display_dat = htype.type_transform_direct(start_dat, "dat", "datStrP")
+    except:
+        start_display_dat = ""
 
     wp_dict["start_dat"] = start_dat
     wp_dict["start_display_dat"] = start_display_dat
@@ -370,6 +405,16 @@ def log_write_uptodate(wb_obj,wp_dict_liste):
         # end if
     # end for
     wb_obj.log.write_info(f"Ende   updated =============================================================================")
+# end def
+def sortiere_upgedated_aus(wp_dict_liste):
+
+    wp_dict_liste_out = []
+    for wp_dict in wp_dict_liste:
+        if wp_dict["updated"] == False:
+            wp_dict_liste_out.append(wp_dict)
+        # end if
+    # end for
+    return wp_dict_liste_out
 # end def
 def update_start_to_end_dat_yahoo(wb_obj,wp_dict_liste):
     """

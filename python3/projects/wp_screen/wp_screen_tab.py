@@ -21,12 +21,18 @@ INFOTEXT = ""
 
 
 def get_status():
+    global STATUS
     return STATUS
 def get_errtext():
+    global ERRTEXT
     return ERRTEXT
 def get_infotext():
+    global INFOTEXT
     return INFOTEXT
 def reset_status():
+    global STATUS
+    global ERRTEXT
+    global INFOTEXT
     STATUS = hdef.OKAY
     ERRTEXT = ""
     INFOTEXT = ""
@@ -213,6 +219,7 @@ def tab_edit_command(rd, index):
                                                                               title=title,
                                                                               abfrage_liste=abfrage_liste)
         if (wp_screen_gui.get_status() != hdef.OK):
+            global STATUS, ERRTEXT
             STATUS = wp_screen_gui.get_status()
             ERRTEXT = wp_screen_gui.get_errtext()
             wp_screen_gui.reset_status()
@@ -278,6 +285,7 @@ def tab_dict_read(rd):
         rd.tab["tab_dict"] = {}
     elif rd.tab["tab_dict_jsonobj"].get_status() != hdef.OKAY:
         rd.log.write_err(rd.tab["tab_dict_jsonobj"].get_errtext(), screen=rd.par.LOG_SCREEN_OUT)
+        global STATUS, ERRTEXT
         STATUS = rd.tab["tab_dict_jsonobj"].get_status()
         ERRTEXT = rd.tab["tab_dict_jsonobj"].get_errtext()
         rd.tab["tab_dict_jsonobj"].reset_status()
@@ -285,10 +293,14 @@ def tab_dict_read(rd):
     return
 # end def
 def tab_edit_update(rd, ddict_mod,changed_key_liste):
+    global STATUS, ERRTEXT
+    rd.tab["tab_dict"] = ddict_mod
 
     # Check modified dictionary
+    # rd.sig["tab_werte_dict_liste"] wird erstellt
     (okay,infotext) = wp_screen_tab_check.check(rd,ddict_mod)
     if wp_screen_tab_check.get_status() != hdef.OKAY:
+
         STATUS = wp_screen_tab_check.get_status()
         ERRTEXT = wp_screen_tab_check.get_errtext()
         wp_screen_tab_check.reset_status()
@@ -296,13 +308,14 @@ def tab_edit_update(rd, ddict_mod,changed_key_liste):
     # end if
 
     if okay != hdef.OKAY:
-        wp_screen_gui.janein_abfrage(rd.gui,f"Fehler in tabelle {infotext = }","")
+        wp_screen_gui.anzeige_text(rd.gui,f"Fehler in tabelle {infotext = }","")
         return
     else:
 
-        rd.tab["tab_dict"] = ddict_mod
+
         rd.tab["tab_dict_jsonobj"].save(rd.tab["tab_dict"])
         if rd.tab["tab_dict_jsonobj"].get_status() != hdef.OKAY:
+
             STATUS = rd.tab["tab_dict_jsonobj"].get_status()
             ERRTEXT = rd.tab["tab_dict_jsonobj"].get_errtext()
             rd.tab["tab_dict_jsonobj"].reset_status()
@@ -320,19 +333,24 @@ def tab_edit_modify(rd):
     """
     dict_mod = wp_screen_gui.tab_dict_modify(rd.gui,
                                                    rd.tab["tab"],
-                                                   rd.tab["tab_dict"],)
+                                                   rd.tab["tab_dict"])
+
+    rd.tab["tab_dict"] = dict_mod
 
     # Check modified dictionary
+    # rd.sig["tab_werte_dict_liste"] wird erstellt
     (okay,infotext) = wp_screen_tab_check.check(rd,dict_mod)
 
+
     if okay != hdef.OKAY:
-        wp_screen_gui.janein_abfrage(rd.gui,f"Fehler in tab {infotext = }","")
+        wp_screen_gui.anzeige_text(rd.gui,f"Fehler in tab {infotext = }","")
         return
     else:
 
-        rd.tab["tab_dict"] = dict_mod
+
         rd.tab["tab_dict_jsonobj"].save(rd.tab["tab_dict"])
         if rd.tab["tab_dict_jsonobj"].get_status() != hdef.OKAY:
+            global STATUS, ERRTEXT
             STATUS = rd.tab["tab_dict_jsonobj"].get_status()
             ERRTEXT = rd.tab["tab_dict_jsonobj"].get_errtext()
             rd.tab["tab_dict_jsonobj"].reset_status()
@@ -359,10 +377,11 @@ def tab_edit_add(rd):
     # entfernt Leerzeichen, Tabulator (\t), Zeilenumbrüche (\n), geschützte Leerzeichen (\xa0)
     signalname = "".join(text.split()).replace(" ", "")
 
-    rd.tab["tab_dict"][signalname] = "0"
+    rd.tab["tab_dict"][signalname] = ""
 
     rd.tab["tab_dict_jsonobj"].save(rd.tab["tab_dict"])
     if rd.tab["tab_dict_jsonobj"].get_status() != hdef.OKAY:
+        global STATUS, ERRTEXT
         STATUS = rd.tab["tab_dict_jsonobj"].get_status()
         ERRTEXT = rd.tab["tab_dict_jsonobj"].get_errtext()
         rd.tab["tab_dict_jsonobj"].reset_status()
@@ -401,6 +420,7 @@ def tab_edit_delete(rd):
             rd.tab["tab_dict"] = dict_mod
             rd.tab["tab_dict_jsonobj"].save(rd.tab["tab_dict"])
             if rd.tab["tab_dict_jsonobj"].get_status() != hdef.OKAY:
+                global STATUS, ERRTEXT
                 STATUS = rd.tab["tab_dict_jsonobj"].get_status()
                 ERRTEXT = rd.tab["tab_dict_jsonobj"].get_errtext()
                 rd.tab["tab_dict_jsonobj"].reset_status()
@@ -421,3 +441,28 @@ def tab_edit_hilfe(rd):
 
     wp_screen_gui.anzeige_text(rd.gui, f"Hilfe für tab tabbelenSpaltenName = Kontext, für Kontext kann stehe:\n{infotext}", "Hilfe syntax tab")
     return
+#-----------------------------------------------------------
+# Externe Funktionen
+#------------------------------------------------------------
+def get_tab_auswahl(rd):
+
+    tab_set(rd)
+
+    (index, _) = wp_screen_gui.listen_abfrage(rd.gui, rd.tab["tab_liste"], auswahl_title="Auswahl Tabellen-Set")
+
+    if index >= 0:
+        tab = rd.tab["tab_liste"][index]
+
+    else:
+        tab = None
+    # end if
+
+    return tab
+# end def
+def exist_tab(rd,tab):
+    if tab in rd.tab["tab_liste"]:
+        return True
+    else:
+        return False
+    # end if
+# end def

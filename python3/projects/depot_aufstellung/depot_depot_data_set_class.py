@@ -457,7 +457,7 @@ class DepotDataSet:
                     return
                 # end if
                 
-                anzahl = self.wp_data_obj_dict[isin].get_summen_anzahl()
+                anzahl = self.wp_data_obj_dict[isin].get_summen_anzahl("float")
                 
                 
                 if flag_read:

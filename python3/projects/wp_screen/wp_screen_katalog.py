@@ -20,12 +20,18 @@ INFOTEXT = ""
 
 
 def get_status():
+    global STATUS
     return STATUS
 def get_errtext():
+    global ERRTEXT
     return ERRTEXT
 def get_infotext():
+    global INFOTEXT
     return INFOTEXT
 def reset_status():
+    global STATUS
+    global ERRTEXT
+    global INFOTEXT
     STATUS = hdef.OKAY
     ERRTEXT = ""
     INFOTEXT = ""
@@ -143,6 +149,7 @@ def katalog_isin_edit_command(rd, index):
             wp_screen_gui.katalog_isin_abfrage(rd.gui, ttable, abfrage_liste)
 
         if (wp_screen_gui.get_status() != hdef.OK):
+            global STATUS, ERRTEXT
             STATUS = wp_screen_gui.get_status()
             ERRTEXT = wp_screen_gui.get_errtext()
             wp_screen_gui.reset_status()
@@ -268,12 +275,13 @@ def katalog_isin_liste_read(rd):
         rd.kat["isin_liste"] = []
     elif rd.kat["isin_liste_jsonobj"].get_status() != hdef.OKAY:
         rd.log.write_err(rd.kat["isin_liste_jsonobj"].get_errtext(), screen=rd.par.LOG_SCREEN_OUT)
+        global STATUS, ERRTEXT
         STATUS = rd.kat["isin_liste_jsonobj"].get_status()
         ERRTEXT = rd.kat["isin_liste_jsonobj"].get_errtext()
         rd.kat["isin_liste_jsonobj"].reset_status()
     # end if
     return
-# end def
+# end
 def katalog_isin_set_tabelle(rd):
     """
 
@@ -289,6 +297,7 @@ def katalog_isin_set_tabelle(rd):
         (status, errtext, wp_dict) = rd.wpfunc.get_basic_info(isin)
 
         if status != hdef.OKAY:
+            global STATUS, ERRTEXT
             STATUS = status
             ERRTEXT = errtext
             return
@@ -418,4 +427,38 @@ def katalog_isin_edit_delete(rd,index):
     rd.kat["isin_liste_jsonobj"].save(rd.kat["isin_liste"])
 
     return
+# end def
+#-----------------------------------------------------------
+# Externe Funktionen
+#------------------------------------------------------------
+def get_katalog_auswahl(rd):
+    katalog_set(rd)
+
+    (index, _) = wp_screen_gui.listen_abfrage(rd.gui, rd.kat["katalog_liste"], auswahl_title="Auswahl Katalog")
+
+    if index >= 0:
+        katalog = rd.kat["katalog_liste"][index]
+
+    else:
+        katalog = None
+    # end if
+
+    return katalog
+# end def
+def exist_katalog(rd,katalog):
+    if katalog in rd.kat["katalog_liste"]:
+        return True
+    else:
+        return False
+    # end if
+# end def
+def get_katalog_isin_liste(rd,katalog):
+    if katalog in rd.kat["katalog_liste"]:
+
+        rd.kat["katalog"] = katalog
+        katalog_isin_liste_read(rd)
+    else:
+        rd.kat["isin_liste"] = []
+    # end if
+    return rd.kat["isin_liste"]
 # end def

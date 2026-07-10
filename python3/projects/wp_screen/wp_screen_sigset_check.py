@@ -18,12 +18,18 @@ INFOTEXT = ""
 ZEILE    = 0
 
 def get_status():
+    global STATUS
     return STATUS
 def get_errtext():
+    global ERRTEXT
     return ERRTEXT
 def get_infotext():
+    global INFOTEXT
     return INFOTEXT
 def reset_status():
+    global STATUS
+    global ERRTEXT
+    global INFOTEXT
     STATUS = hdef.OKAY
     ERRTEXT = ""
     INFOTEXT = ""

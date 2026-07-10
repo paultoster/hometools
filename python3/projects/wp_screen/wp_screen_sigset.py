@@ -21,12 +21,18 @@ INFOTEXT = ""
 
 
 def get_status():
+    global STATUS
     return STATUS
 def get_errtext():
+    global ERRTEXT
     return ERRTEXT
 def get_infotext():
+    global INFOTEXT
     return INFOTEXT
 def reset_status():
+    global STATUS
+    global ERRTEXT
+    global INFOTEXT
     STATUS = hdef.OKAY
     ERRTEXT = ""
     INFOTEXT = ""
@@ -213,6 +219,7 @@ def sigset_edit_command(rd, index):
                                                                               title=title,
                                                                               abfrage_liste=abfrage_liste)
         if (wp_screen_gui.get_status() != hdef.OK):
+            global STATUS, ERRTEXT
             STATUS = wp_screen_gui.get_status()
             ERRTEXT = wp_screen_gui.get_errtext()
             wp_screen_gui.reset_status()
@@ -278,6 +285,7 @@ def sigset_dict_read(rd):
         rd.sig["sigset_dict"] = {}
     elif rd.sig["sigset_dict_jsonobj"].get_status() != hdef.OKAY:
         rd.log.write_err(rd.sig["sigset_dict_jsonobj"].get_errtext(), screen=rd.par.LOG_SCREEN_OUT)
+        global STATUS, ERRTEXT
         STATUS = rd.sig["sigset_dict_jsonobj"].get_status()
         ERRTEXT = rd.sig["sigset_dict_jsonobj"].get_errtext()
         rd.sig["sigset_dict_jsonobj"].reset_status()
@@ -285,10 +293,11 @@ def sigset_dict_read(rd):
     return
 # end def
 def sigset_edit_update(rd, ddict_mod,changed_key_liste):
-
+    global STATUS, ERRTEXT
     # Check modified dictionary
     (okay,infotext) = wp_screen_sigset_check.check(rd,ddict_mod)
     if wp_screen_sigset_check.get_status() != hdef.OKAY:
+
         STATUS = wp_screen_sigset_check.get_status()
         ERRTEXT = wp_screen_sigset_check.get_errtext()
         wp_screen_sigset_check.reset_status()
@@ -333,6 +342,7 @@ def sigset_edit_modify(rd):
         rd.sig["sigset_dict"] = dict_mod
         rd.sig["sigset_dict_jsonobj"].save(rd.sig["sigset_dict"])
         if rd.sig["sigset_dict_jsonobj"].get_status() != hdef.OKAY:
+            global STATUS, ERRTEXT
             STATUS = rd.sig["sigset_dict_jsonobj"].get_status()
             ERRTEXT = rd.sig["sigset_dict_jsonobj"].get_errtext()
             rd.sig["sigset_dict_jsonobj"].reset_status()
@@ -363,6 +373,7 @@ def sigset_edit_add(rd):
 
     rd.sig["sigset_dict_jsonobj"].save(rd.sig["sigset_dict"])
     if rd.sig["sigset_dict_jsonobj"].get_status() != hdef.OKAY:
+        global STATUS, ERRTEXT
         STATUS = rd.sig["sigset_dict_jsonobj"].get_status()
         ERRTEXT = rd.sig["sigset_dict_jsonobj"].get_errtext()
         rd.sig["sigset_dict_jsonobj"].reset_status()
@@ -401,6 +412,7 @@ def sigset_edit_delete(rd):
             rd.sig["sigset_dict"] = dict_mod
             rd.sig["sigset_dict_jsonobj"].save(rd.sig["sigset_dict"])
             if rd.sig["sigset_dict_jsonobj"].get_status() != hdef.OKAY:
+                global STATUS, ERRTEXT
                 STATUS = rd.sig["sigset_dict_jsonobj"].get_status()
                 ERRTEXT = rd.sig["sigset_dict_jsonobj"].get_errtext()
                 rd.sig["sigset_dict_jsonobj"].reset_status()
@@ -421,3 +433,47 @@ def sigset_edit_hilfe(rd):
 
     wp_screen_gui.anzeige_text(rd.gui, f"Hilfe für sigalset signalxy = Kontext, für Kontext kann stehe:\n{infotext}", "Hilfe syntax sigset")
     return
+#-----------------------------------------------------------
+# Externe Funktionen
+#------------------------------------------------------------
+def get_sigset_auswahl(rd):
+    sigset_set(rd)
+
+    (index, _) = wp_screen_gui.listen_abfrage(rd.gui, rd.sig["sigset_liste"], auswahl_title="Auswahl Siganl-Set")
+
+    if index >= 0:
+        sigset = rd.sig["sigset_liste"][index]
+
+    else:
+        sigset = None
+    # end if
+
+    return sigset
+# end def
+def exist_sigset(rd,sigset):
+    if sigset in rd.sig["sigset_liste"]:
+        return True
+    else:
+        return False
+    # end if
+# end def
+def get_sigset_dict(rd, sigset):
+    if sigset in rd.sig["sigset_liste"]:
+
+        rd.sig["sigset"] = sigset
+        sigset_dict_read(rd)
+    else:
+        rd.sig["sigset_dict"] = {}
+    # end if
+    return rd.sig["sigset_dict"]
+# end def
+def get_sigset_werte_dict_liste(rd,sigset_dict):
+    """
+    :param rd:
+    :param sigset_dict:
+    :return: (okay,infotext,sigset_werte_dict_liste) = get_sigset_werte_dict_liste(rd,sigset_dict)
+    """
+    (okay,infotext) = wp_screen_sigset_check.check(rd,sigset_dict)
+
+    return (okay,infotext,rd.sig["sigset_werte_dict_liste"])
+# end def

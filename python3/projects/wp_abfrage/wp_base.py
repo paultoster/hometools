@@ -536,6 +536,16 @@ class WPData:
 
         return (self.status,self.errtext,price,dat)
     # end def
+    def get_act_np_obj(self,isin):
+        """
+        lade die no_obj-Datei und übergebe ein eKopie
+
+        :param isin:
+        :return: (status,errtext) = wp_obj.get_act_np_obj(isin)
+        """
+        (self.status, self.errtext, np_obj) = wp_base_price_volume.get_act_np_obj(self, isin)
+        return (self.status, self.errtext, np_obj)
+    # end def
     def set_active_isin_katalog_for_depot(self,depot_name,isin_dict_katalog):
         """
         :param depot_name:                Name des Depots

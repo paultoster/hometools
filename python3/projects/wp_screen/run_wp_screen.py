@@ -15,6 +15,7 @@ import wp_screen_gui
 import wp_screen_katalog
 import wp_screen_sigset
 import wp_screen_tab
+import wp_screen_scre
 
 import wp_abfrage.wp_base as wp_base
 
@@ -58,6 +59,16 @@ class RootData:
         "tab_dict_filename": "",
         "tab_dict_jsonobj": None,
         "tab_werte_dict_liste": {}
+    })
+    scre: dict = field(default_factory=lambda: {
+        "scre_liste": [],
+        "scre_liste_filename": "",
+        "scre_liste_jsonobj": None,
+        "scre_dict": {},
+        "scre_dict_filename": "",
+        "scre_dict_jsonobj": None,
+        "scre_werte_dict_liste": {},
+        "scre_isin_dataclass_dict": {}
     })
 
 
@@ -121,6 +132,15 @@ def wp_screener(log_filename,ini_filename):
     wp_screen_tab.tab_set(rd)
     if wp_screen_tab.get_status() != hdef.OKAY:
         t = f"Error wp_screen_tab.tab_set(wp_obj) errtext = {wp_screen_tab.get_errtext()}"
+        sgui.anzeige_text(t, textcolor='red')
+        rd.log.write_err(t, screen=rd.par.LOG_SCREEN_OUT)
+        exit(1)
+    # end if
+
+    # setup scre
+    wp_screen_scre.scre_set(rd)
+    if wp_screen_scre.get_status() != hdef.OKAY:
+        t = f"Error wp_screen_tab.tab_set(wp_obj) errtext = {wp_screen_scre.get_errtext()}"
         sgui.anzeige_text(t, textcolor='red')
         rd.log.write_err(t, screen=rd.par.LOG_SCREEN_OUT)
         exit(1)
@@ -221,7 +241,19 @@ def wp_screener_command(rd):
 
         elif index == index_screener:
 
-            pass
+            wp_screen_scre.scre_start(rd)
+
+            if len(wp_screen_scre.get_infotext()) > 0:
+                t = f"Info wp_scre.scre_start(rd): {wp_screen_scre.get_infotext()}"
+                sgui.anzeige_text(t, textcolor='orange')
+                rd.log.write_info(t, screen=rd.par.LOG_SCREEN_OUT)
+
+            if wp_screen_scre.get_status() != hdef.OKAY:
+                t = f"Error wp_scre.scre_start(rd) errtext = {wp_screen_scre.get_errtext()}"
+                sgui.anzeige_text(t, textcolor='red')
+                rd.log.write_err(t, screen=rd.par.LOG_SCREEN_OUT)
+                runflag = False
+            # end if
 
         else:
             pass

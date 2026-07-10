@@ -7,7 +7,10 @@ class Param:
                             ("sigset_liste_file_name", "str", "str", "sigset_liste"),
                             ("sigset_dict_pre_file_name", "str", "str", "sigset_dict_"),
                             ("tab_liste_file_name", "str", "str", "tab_liste"),
-                            ("tab_dict_pre_file_name", "str", "str", "tab_dict_")
+                            ("tab_dict_pre_file_name", "str", "str", "tab_dict_"),
+                            ("scre_liste_file_name", "str", "str", "scre_liste"),
+                            ("scre_dict_pre_file_name", "str", "str", "scre_dict_"),
+                            ("scre_dataclass_pre_file_name", "str", "str", "scre_dataclass_")
                             ]
 
     LOG_SCREEN_OUT = 1
@@ -83,6 +86,10 @@ class Param:
     TAB_COLOR_SPEZ_BRACKET_CLOSE = "]"
     TAB_COLOR_SPEZ_SEP = ";"
     TAB_COLOR_SPEZ_COMMAND_SEP = ":"
+
+    SCRE_KATALOG = "katalog"
+    SCRE_SIGSET  = "sigset"
+    SCRE_TAB     = "tab"
 
 
 

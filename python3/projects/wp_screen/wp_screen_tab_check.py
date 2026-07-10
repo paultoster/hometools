@@ -18,12 +18,18 @@ INFOTEXT = ""
 ZEILE    = 0
 
 def get_status():
+    global STATUS
     return STATUS
 def get_errtext():
+    global ERRTEXT
     return ERRTEXT
 def get_infotext():
+    global INFOTEXT
     return INFOTEXT
 def reset_status():
+    global STATUS
+    global ERRTEXT
+    global INFOTEXT
     STATUS = hdef.OKAY
     ERRTEXT = ""
     INFOTEXT = ""
@@ -65,8 +71,8 @@ def check_content(rd,content,werte_dict):
     else:
 
         # section
-        if (section != rd.par.TAB_SEC_BI) or (section != rd.par.TAB_SEC_SIG):
-            INFOTEXT = f"Im tab zeile:{ZEILE}, (section: \"={section})\") ist nicht \"{rd.par.TAB_SEC_BI}\" oder \"{rd.par.TAB_SEC_SIG}\" "
+        if (section != rd.par.TAB_SEC_BI) and (section != rd.par.TAB_SEC_SIG):
+            INFOTEXT = f"Im tab zeile:{ZEILE}, (section: \"{section})\") ist nicht \"{rd.par.TAB_SEC_BI}\" oder \"{rd.par.TAB_SEC_SIG}\" "
             return hdef.NOT_OKAY
         # end if
         werte_dict["section"] = section
@@ -74,7 +80,7 @@ def check_content(rd,content,werte_dict):
         # name
         if section == rd.par.TAB_SEC_BI:
             key_list = rd.wpfunc.get_basic_info_key_list()
-            if section not in key_list:
+            if name not in key_list:
                 INFOTEXT = f"Im tab zeile:{ZEILE}, name : \"{name}\" (section: \"{section}\") ist nicht in basic_info zu finden "
                 return hdef.NOT_OKAY
             # end if

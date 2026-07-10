@@ -20,12 +20,18 @@ INFOTEXT = ""
 
 
 def get_status():
+    global STATUS
     return STATUS
 def get_errtext():
+    global ERRTEXT
     return ERRTEXT
 def get_infotext():
+    global INFOTEXT
     return INFOTEXT
 def reset_status():
+    global STATUS
+    global ERRTEXT
+    global INFOTEXT
     STATUS = hdef.OKAY
     ERRTEXT = ""
     INFOTEXT = ""
@@ -196,6 +202,19 @@ def tab_dict_modify(gui, tab, ddict):
     sigset_dict_mod = gui.modify_variable(ddict, title)
 
     return sigset_dict_mod
+# end def
+def scre_dict_abfrage(gui, ddict, title = None,abfrage_liste=None):
+    """
+
+    :param gui:
+    :param ddict:
+    :return: (ddict,changed_key_liste) = tab_dict_abfrage(gui, ddict, title = None)
+    """
+
+    (ddict,changed_key_liste,index_abfrage) = gui.abfrage_dict2(ddict,title=title,abfrage_liste=abfrage_liste)
+
+    return (ddict,changed_key_liste,index_abfrage)
+
 # end def
 
 
