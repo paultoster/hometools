@@ -43,6 +43,8 @@ class Param:
     SIG_TYPE_2PAR_EMA = 11
     SIG_TYPE_3PAR_VERGLEICH = 12
 
+    SIG_STORE_DATUM = "datum_array"
+
     TAB_SPEZ_GT = ">"
     TAB_SPEZ_LT = "<"
     TAB_SPEZ_GE = ">="
@@ -90,6 +92,8 @@ class Param:
     SCRE_KATALOG = "katalog"
     SCRE_SIGSET  = "sigset"
     SCRE_TAB     = "tab"
+
+
 
 
 

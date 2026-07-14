@@ -650,7 +650,7 @@ def read_csv_file(file_name,delim=";"):
             except:
                 f.close()
             if flag == 1:
-                while len(line_liste[-1]) == 0:
+                while (len(line_liste)>0) and (len(line_liste[-1]) == 0):
                     del line_liste[-1]
                 # end if
                 n = len(line_liste)

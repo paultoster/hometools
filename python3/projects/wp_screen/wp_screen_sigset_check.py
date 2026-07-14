@@ -1,6 +1,8 @@
 
 import os, sys, copy, re
 
+import wp_screen_param
+
 t_path, _ = os.path.split(__file__)
 tools_path = t_path + "\\.."
 if (tools_path not in sys.path):
@@ -49,6 +51,13 @@ def check(rd,ddict):
 
     for i,key in enumerate(ddict.keys()):
         ZEILE = i+1
+
+        # check signalname
+        if key == rd.par.SIG_STORE_DATUM:
+            INFOTEXT = f"Als Signalname darf signame={ wp_screen_param.SIG_STORE_DATUM} nicht benutzt werden !!"
+            return (hdef.NOT_OKAY, INFOTEXT)
+        # end if
+
         werte_dict = {"signal":key}
         if check_content(rd.par,ddict[key],signaldef_liste,werte_dict) != hdef.OKAY:
             return  (hdef.NOT_OKAY,INFOTEXT)
@@ -90,7 +99,7 @@ def check_content_0par(par,content):
     type = 0
     fkt = ""
     status = hdef.OKAY
-    if content == par.SIG_NULL:
+    if content[0] == par.SIG_NULL:
         type=par.SIG_TYPE_NULL
         fkt=par.SIG_NULL
     elif content == par.SIG_KURS:
@@ -254,6 +263,16 @@ def  check_content_3par_tuple(par,fkt,par1,par2,par3,signaldef_liste, werte_dict
 # end def
 def hilfe(rd):
     """
+
+    SignalName0 = 0                                     Signal wird ignoriert
+    SignalName1 = kurs                                  Kurs=Close-Signal
+    SignalName2 = close/open/high/low/volume            Chart-Werte
+    SignalName3 = np_obj(isin,kurs)                     Kurswerte von einer anderen isin
+                                                        gespeichrt wird:
+                                                        "SignalName3_dat_array" und "SignalName3"
+    SignalName4 = lingrad(SignalName1,20)               Linearer Gerade aus SignalName1 mit 20 Punkten
+                                                        gespeichert wird:
+                                                        "SignalName4_dat_array" und "SignalName4" sowie "SignalName4_grad" (Einzelwert)
 
     :param rd:
     :return: infotext = hilfe(rd)

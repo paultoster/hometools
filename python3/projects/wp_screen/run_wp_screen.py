@@ -88,7 +88,7 @@ def wp_screener(log_filename,ini_filename):
     rd.gui = sgui_prot.SguiProtocol()
 
     # Log-File start ---------------
-    rd.log = hlog.log(log_file=log_filename,consol_func=True, log_window=False)
+    rd.log = hlog.log(consol_func=True, log_window=False)
     if (rd.log.state != hdef.OK):
         print("Logfile not working !!!!")
         return

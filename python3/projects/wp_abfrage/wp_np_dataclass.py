@@ -110,6 +110,16 @@ class NpPriceVolumeClass(NpBaseClass):
         self.currency: str = ""
         return
     # end def
+    def is_empty(self):
+        if hasattr(self, 'dat_np_array'):
+            if self.dat_np_array is None:
+                return True
+            elif len(self.dat_np_array) == 0:
+                return True
+            # end if
+        # end if
+        return False
+    # end def
     def get_first_last_dat(self,formatstr):
         """
             (first_dat_str, last_dat_str) = self.get_first_last_dat(formatstr)

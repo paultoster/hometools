@@ -15,6 +15,8 @@ import tools.hfkt_def as hdef
 import tools.hfkt_file_path as hfp
 import tools.hfkt_type as htype
 import tools.hfkt_str as hstr
+import tools.hfkt_io as hio
+
 
 from wp_abfrage import wp_storage
 from wp_abfrage import wp_fkt
@@ -91,7 +93,75 @@ def update(wb_obj,isin_liste):
 
     return (status,errtext,infotext)
 # end if
-def update_csv(wb_obj):
+def build_ariva_isin_csv(wb_obj):
+    """
+        build isin-Liste für Power Act als csv-Datei
+
+        Schreibt in wb_obj.base_ddict["avira_price_isin_liste_csv_filebasename"} mit dem Pfad wb_obj.base_ddict["avira_price_volume_csv_store_path"]
+
+    """
+    infotext =  ""
+    # Get basic_info_dict in a list
+    (status, errtext, isin_liste) = wb_obj.get_basic_info_isin_liste()
+    if status != hdef.OKAY:
+        return (status, errtext,infotext)
+    (status, errtext, isin_info_dict_liste) = wb_obj.get_basic_info(isin_liste)
+    if status != hdef.OKAY:
+        return (status, errtext,infotext)
+
+    isin_ariva_llist = []
+    for isin_info_dict in isin_info_dict_liste:
+
+        wp_dict = copy.copy(isin_info_dict)
+
+        (status, errtext, wp_dict) = get_np_obj(wb_obj, wp_dict)
+        if status != hdef.OKAY:
+            return (status, errtext, infotext)
+        # end if
+
+        # erstes Datum zum Suchen aus ini
+        start_dat_ini_file = htype.type_transform_direct(wb_obj.base_ddict["price_volumen_first_dat"], "datStrP", "dat")
+        # Erscheinungsdatum des wp
+        if len(wp_dict["start_dat_str"]) == 0:
+            start_dat_wp = start_dat_ini_file
+        else:
+            start_dat_wp = htype.type_transform_direct(wp_dict["start_dat_str"], "datStrP", "dat")
+        # end if
+
+        # Wenn wp_dict["start_ariva_dat_str"] nehme dieses Datum
+        if len(wp_dict["start_ariva_dat_str"]) > 0:
+            start_dat_wp = htype.type_transform_direct(wp_dict["start_ariva_dat_str"], "datStrP", "dat")
+        # end if
+
+
+
+            # Start Datum
+        halfrange = 12 * 60 * 60
+        if wp_dict["first_dat"] == -1:
+            isin_ariva_llist.append([wp_dict["isin"]])
+        elif wp_dict["first_dat"] > start_dat_wp + halfrange:
+            isin_ariva_llist.append([wp_dict["isin"]])
+        # end if
+    # end for
+
+    if len(isin_ariva_llist) > 0:
+
+        filename = os.path.join(wb_obj.base_ddict["avira_price_volume_csv_store_path"],
+                                wb_obj.base_ddict["avira_price_isin_liste_csv_filebasename"]+".csv")
+
+
+        status = hio.write_csv_file_header_data(filename, ["isin"], isin_ariva_llist, delim=";")
+        if status != hdef.OKAY:
+            errtext = f"write_csv_file_header_data: File {filename} konnte nicht geschrieben werden"
+            return (status, errtext, infotext)
+        # end if
+    else:
+        wb_obj.log.write_info("No update necessary len(isin_ariva_llist) == 0")
+    # end if
+
+    return (status, errtext, infotext)
+# end def
+def update_ariva_csv(wb_obj):
     """
         updated prive-volumen aus csv-Daten
         a) ariva-Daten  csv-Datei ist aufgevaut:  wb_obj.base_ddict["avira_price_volume_csv_pre_fie_name"]
@@ -109,6 +179,8 @@ def update_csv(wb_obj):
         return (status, errtext, infotext)
 
     for csv_file,wkn in csv_lliste:
+
+        wb_obj.log.write_info(f"Start read file {csv_file}")
 
         (status, errtext, infotext) = read_csv_ariva_file(wb_obj,csv_file,wkn)
 
@@ -843,6 +915,12 @@ def get_new_price_vol_from_ariva_csv_file(wb_obj,  wp_dict, csv_file):
 
 
     if status != hdef.OKAY:
+        if np_obj_csv.is_empty():
+            wb_obj.log.write_info(f"ariva-csv: {csv_file = } mit {isin = } ist leer {errtext = }")
+            status = hdef.OKAY
+            errtext = ""
+            wp_dict["updated"] = False
+        # end if
         return (status, errtext, wp_dict)
     # end if
 
@@ -968,6 +1046,8 @@ def merge_ariva_csv_and_update_file(wb_obj, wp_dict):
     errtext = ""
 
 
+
+
     if wp_dict["updated"]:
 
         wb_obj.log.write_info(
@@ -975,15 +1055,30 @@ def merge_ariva_csv_and_update_file(wb_obj, wp_dict):
         wb_obj.log.write_info(f"Update WP isin: {wp_dict["isin"]} Name: {wp_dict["name"]}")
         wb_obj.log.write_info(f"Update type: {wp_dict["update_type"]} ")
 
+        np_obj_new = wp_dict["np_obj_new"]
+        first_new_dat = None
+        if np_obj_new is not None:
+            if len(np_obj_new.dat_np_array) > 0:
+                (first_new_dat, _) = np_obj_new.get_first_last_dat("dat")
+            # end if
+        # end if
+
+
+
         save_flag = False
         if wp_dict["np_obj"] is None:
 
             np_obj = wp_dict["np_obj_new"]
 
             if np_obj is not None:
+                (first_dat_before_merge, _) = np_obj.get_first_last_dat("dat")
                 save_flag = True
+            else:
+                first_dat_before_merge = None
         else:
             nstart = len(wp_dict["np_obj"].dat_np_array)
+
+            (first_dat_before_merge, _) = wp_dict["np_obj"].get_first_last_dat("dat")
 
             if wb_obj.base_ddict["avira_price_volume_csv_is_master"] > 0:
                 (status, errtext, np_obj) = merge_np_data( wp_dict["np_obj_new"],wp_dict["np_obj"])
@@ -1007,12 +1102,67 @@ def merge_ariva_csv_and_update_file(wb_obj, wp_dict):
             if status != hdef.OKAY:
                 return (status, errtext, wp_dict)
             # end if
+
+
             wb_obj.log.write_info(f"Updated file: {filename} ")
         # end if
     else:
         wb_obj.log.write_info(f"No Update  ")
     # end if
+
+    if save_flag or (wp_dict["np_obj_new"].is_empty == False):
+        # basic_info_dict["start_ariva_dat_str"] bearbeiten
+        (status, errtext) = save_start_ariva_dat_str(wb_obj, wp_dict, first_new_dat, first_dat_before_merge)
+        if status != hdef.OKAY:
+            return (status, errtext, wp_dict)
+
     return (status,errtext,wp_dict)
+# end def
+def save_start_ariva_dat_str(wb_obj, wp_dict,first_new_dat,first_dat_before_merge):
+    """
+    :param wb_obj:
+    :param wp_dict:
+    :param first_new_dat:           aus ariva-csv-Datei
+    :param first_dat_before_merge:  aus bestehenden Datensatz
+    :return: (status,errtext) = save_start_ariva_dat_str(wb_obj, wp_dict,first_new_dat,first_dat_before_merge)
+    """
+
+
+    # Trage Anfangsdatum, was Ariva hergegeben hat ein
+    if first_new_dat is not None:
+
+        save_flag = False
+
+        if first_dat_before_merge is not None:
+            first_new_dat = min(first_new_dat, first_dat_before_merge)
+        # end if
+
+        # Lade basic info
+        (status, errtext, basic_info_dict) = wb_obj.get_basic_info(wp_dict["isin"])
+        if status != hdef.OKAY:
+            return (status, errtext)
+
+        # schreibe basic_info_dict["start_ariva_dat_str"]
+        if len(basic_info_dict["start_ariva_dat_str"]) > 0:
+            old_dat = htype.type_transform_direct(basic_info_dict["start_ariva_dat_str"],"datStrP","dat")
+
+            if first_new_dat < old_dat:
+                save_flag = True
+                basic_info_dict["start_ariva_dat_str"] = htype.type_transform_direct(first_new_dat, "dat", "datStrP")
+        else:
+            save_flag = True
+            basic_info_dict["start_ariva_dat_str"] = htype.type_transform_direct(first_new_dat, "dat", "datStrP")
+        # end if
+
+        if save_flag:
+            (status, errtext) = wb_obj.save_basic_info(wp_dict["isin"], basic_info_dict)
+            if status != hdef.OKAY:
+                return (status, errtext)
+            # end if
+        # end if
+    # end if
+
+    return (status, errtext)
 # end def
 def merge_np_data(np_obj,np_obj_new):
     """

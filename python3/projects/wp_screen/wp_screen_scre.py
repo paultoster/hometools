@@ -139,6 +139,11 @@ def scre_command(rd):
                     return
 
                 wp_screen_scre_build.scre_build(rd,rd.scre["scre_dict"])
+                if wp_screen_scre_build.get_status() != hdef.OKAY:
+                    t = f"scre_command build: Error in scre_build \n errtext = {wp_screen_scre_build.get_errtext()}"
+                    rd.log.write_err(t, screen=rd.par.LOG_SCREEN_OUT)
+                    sgui.anzeige_text(t, textcolor='red')
+                # end if
                 runflag = False
     # end while
     return

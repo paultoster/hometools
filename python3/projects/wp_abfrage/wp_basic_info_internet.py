@@ -48,7 +48,8 @@ INFO_DICT = {
             "preisabfrage":"",
             "start_dat_str":"",                            # Ausgabedatum
             "first_dat_str":"",
-            "last_dat_str":""
+            "last_dat_str":"",
+            "start_ariva_dat_str":""
             }
 
 

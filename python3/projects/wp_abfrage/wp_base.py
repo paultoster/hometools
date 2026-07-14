@@ -44,6 +44,7 @@ INI_DICT_PROOF_LISTE = [("store_path", "str"),
                         ("price_volumen_first_dat","str","datStrP","01.01.2000"),
                         ("eodhd_key","str"),
                         ("avira_price_volume_csv_store_path","str"),
+                        ("avira_price_isin_liste_csv_filebasename","str"),
                         ("avira_price_volume_csv_pre_file_name","str","str","wkn_"),
                         ("avira_price_volume_csv_post_file_name","str","str","_historic"),
                         ("avira_price_volume_csv_delete","int","int",1),
@@ -501,12 +502,24 @@ class WPData:
 
 
     # end def
-    def update_price_volume_csv(self):
+    def build_ariva_isin_csv(self):
         status = hdef.OKAY
 
         errtext = ""
 
-        (self.status, self.errtext, self.infotext) = wp_base_price_volume.update_csv(self)
+        (self.status, self.errtext, self.infotext) = wp_base_price_volume.build_ariva_isin_csv(self)
+        if self.status != hdef.OKAY:
+            return (self.status, self.errtext, self.infotext)
+        # end if
+
+        return (self.status, self.errtext, self.infotext)
+    # end def
+    def update_price_volume_ariva_csv(self):
+        status = hdef.OKAY
+
+        errtext = ""
+
+        (self.status, self.errtext, self.infotext) = wp_base_price_volume.update_ariva_csv(self)
         if self.status != hdef.OKAY:
             return (self.status, self.errtext, self.infotext)
         # end if
@@ -541,7 +554,7 @@ class WPData:
         lade die no_obj-Datei und übergebe ein eKopie
 
         :param isin:
-        :return: (status,errtext) = wp_obj.get_act_np_obj(isin)
+        :return: (status,errtext,np_obj) = wp_obj.get_act_np_obj(isin)
         """
         (self.status, self.errtext, np_obj) = wp_base_price_volume.get_act_np_obj(self, isin)
         return (self.status, self.errtext, np_obj)

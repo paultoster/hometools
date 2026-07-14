@@ -57,7 +57,7 @@ def edit_basic_info(wb_obj):
     #i_backup = 8
     runflag = True
     while (runflag):
-        [index, indexAbfrage] = sgui.abfrage_liste_index_abfrage_index(isin_wpname_liste, abfrage_liste, "WP edit isin")
+        [index, indexAbfrage] = sgui.abfrage_liste_index_abfrage_index(isin_wpname_liste, abfrage_liste, "WP edit basic info")
         
         if indexAbfrage < 0:
             runflag = True
@@ -431,17 +431,18 @@ def edit_price_volume(wb_obj):
         return (status, errtext,"")
     # end if
 
-    abfrage_liste = ["update one isin","ende", "update all-isins","update avira-csv","backup","dump basic_info(ods)"]
+    abfrage_liste = ["update one isin","ende", "update all-isins","ariva-isin-csv-liste","update avira-csv","backup","dump basic_info(ods)"]
     i_abfrage_ende = 1
     i_abfrage_update_isin = 0
-    i_abfrage_update_ariva_csv = 3
+    i_abfrage_build_ariva_csv = 3
+    i_abfrage_update_ariva_csv = 4
     i_abfrage_update_all = 2
-    i_backup = 4
-    # i_dump_basic = 5
+    i_backup = 5
+    # i_dump_basic = 6
     runflag = True
 
     while (runflag):
-        [index, indexAbfrage] = sgui.abfrage_liste_index_abfrage_index(isin_wpname_liste, abfrage_liste, "WP update isin")
+        [index, indexAbfrage] = sgui.abfrage_liste_index_abfrage_index(isin_wpname_liste, abfrage_liste, "WP edit price volume")
 
         if indexAbfrage < 0:
             runflag = True
@@ -493,11 +494,30 @@ def edit_price_volume(wb_obj):
                 wb_obj.log.write_err(t)
                 runflag = False
             # end if
+        elif indexAbfrage == i_abfrage_build_ariva_csv:
+
+            wb_obj.log.write_info(f"WP build ariva-csv:")
+
+            (status, errtext, infotext) = wb_obj.build_ariva_isin_csv()
+
+            if len(infotext):
+                t = f"Info wb_obj.wp_bearbeiten.build_ariva_isin_csv() \n infotext = {infotext}"
+                sgui.anzeige_text(t, textcolor='green')
+                wb_obj.log.write_info(t)
+                infotext = ""
+            # end if
+
+            if status != hdef.OKAY:
+                t = f"Error wb_obj.wp_bearbeiten.build_ariva_isin_csv() \n errtext = {errtext}"
+                sgui.anzeige_text(t, textcolor='red')
+                wb_obj.log.write_err(t)
+                runflag = False
+            # end if
         elif indexAbfrage == i_abfrage_update_ariva_csv:
 
             wb_obj.log.write_info(f"WP update ariva-csv:")
 
-            (status, errtext, infotext) = wb_obj.update_price_volume_csv()
+            (status, errtext, infotext) = wb_obj.update_price_volume_ariva_csv()
 
             if len(infotext):
                 t = f"Info wb_obj.wp_bearbeiten.update_ariva_csv() \n infotext = {infotext}"
@@ -610,7 +630,7 @@ def get_price_volume_data_from_ariva_csv_file(csv_file,delim,np_classdef,currenc
         return (status, errtext, infotext,np_obj)
     # end if
 
-    csv_lliste = hlist.erase_empty_rows_in_llist(csv_lliste)
+    csv_lliste = erase_and_modify_empty_rows_in_llist(csv_lliste)
 
     llist = []
     for i,csv_list in enumerate(csv_lliste):
@@ -658,4 +678,57 @@ def get_price_volume_data_from_ariva_csv_file(csv_file,delim,np_classdef,currenc
     np_obj.sort_by_dat()
 
     return (status, errtext, infotext, np_obj)
+# end def
+def erase_and_modify_empty_rows_in_llist(llist,whitespace=True):
+
+    index_liste = []
+    i_schlusskurs = -1
+    header_liste = []
+    for index,liste in enumerate(llist):
+        if index == 0:
+            header_liste = liste
+            if "Schlusskurs" in header_liste:
+                i_schlusskurs = header_liste.index("Schlusskurs")
+        # end if
+        for i,value in enumerate(liste):
+            if whitespace and isinstance(value,str):
+                value = hstr.elim_ae(value,' ')
+
+            # end if
+            if len(value) == 0:
+
+
+                flag = True
+                if (index > 0) and (i < len(header_liste)) and (i_schlusskurs >= 0):
+
+                    if header_liste[i] =="Volumen":
+                        liste[i] = "0"
+                        flag = False
+                    elif header_liste[i] == "Stuecke":
+                            liste[i] = "0"
+                            flag = False
+                    elif i_schlusskurs >= 0:
+                        if (header_liste[i] == 'Erster') and (len(liste[i_schlusskurs]) > 0):
+                            liste[i] = liste[i_schlusskurs]
+                            flag = False
+                        elif (header_liste[i] == 'Hoch') and (len(liste[i_schlusskurs]) > 0):
+                            liste[i] = liste[i_schlusskurs]
+                            flag = False
+                        elif (header_liste[i] == 'Tief') and (len(liste[i_schlusskurs]) > 0):
+                            liste[i] = liste[i_schlusskurs]
+                            flag = False
+                        # end if
+                    # end if
+                # end if
+
+                if flag:
+                    index_liste.append(index)
+                    # print(f"{index = }, {liste = }")
+                    break
+                else:
+                    llist[index] = liste
+            # end if
+        # end for
+    # end for
+    return hlist.erase_rows_from_llist(llist, index_liste)
 # end def
