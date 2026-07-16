@@ -79,7 +79,7 @@ class NpDataHandlingClass:
         self.__setattr__(signal_name, copy.copy(signal))
 
         self.signal_list.append(signal_name)
-        self.signal_type.append(TYPE_NDARRAY)
+        self.signal_type.append(type)
         self.nsignal += 1
 
         return
@@ -87,7 +87,7 @@ class NpDataHandlingClass:
     def del_signal(self,signal_name):
 
         if signal_name in self.signal_list:
-            delattr(self.signal_obj, signal_name)
+            delattr(self, signal_name)
             index = self.signal_list.index(signal_name)
             del self.signal_list[index]
         # end if
@@ -96,7 +96,7 @@ class NpDataHandlingClass:
     def save(self):
         if self.file_flag:
             try:
-                joblib.dump(self.signal_obj,self.file_name)
+                joblib.dump(self,self.file_name)
             except Exception as e:
                 self.errtext = f"Fehler beim Speichern der Datei: {self.file_name} \nFehler: {e}"
                 self.status = hdef.NOT_OKAY
@@ -107,7 +107,7 @@ class NpDataHandlingClass:
     def read(self):
         if self.file_flag:
             try:
-                self.signal_obj = joblib.load(self.file_name)
+                signal_obj = joblib.load(self.file_name)
             except FileNotFoundError:
                 self.errtext = f"Datei: {self.file_name} wurde nicht gefunden."
                 self.status = hdef.NOT_OKAY
@@ -121,4 +121,38 @@ class NpDataHandlingClass:
                 self.errtext = f"Anderer Fehler  Datei: {self.file_name}: {e}"
                 self.status = hdef.NOT_OKAY
             # end try
+
+            if self.status == hdef.OKAY:
+
+                if hasattr(signal_obj,"signal_list"):
+                    self.signal_list = signal_obj.signal_list
+                else:
+                    self.errtext = f"read Datei: {self.file_name}: eingelesenes signal_obj hat kein \"signal_list\""
+                    self.status = hdef.NOT_OKAY
+                    return
+                # end if
+                if hasattr(signal_obj,"signal_type"):
+                    self.signal_type = signal_obj.signal_type
+                else:
+                    self.errtext = f"read Datei: {self.file_name}: eingelesenes signal_obj hat kein \"signal_type\""
+                    self.status = hdef.NOT_OKAY
+                    return
+                # end if
+
+
+                self.nsignal = len(self.signal_list)
+
+                for signalname in self.signal_list:
+                    if hasattr(signal_obj, signalname):
+                        self.__setattr__(signalname, getattr(signal_obj, signalname))
+                    else:
+                        self.errtext = f"read Datei: {self.file_name}: eingelsenes signal_obj hat kein attribut \"{signalname}\""
+                        self.status = hdef.NOT_OKAY
+                        return
+                    # end if
+                # end for
+            # end if
+        # end if
+        return
     # end def
+

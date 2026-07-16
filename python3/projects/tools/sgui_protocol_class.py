@@ -426,6 +426,79 @@ class SguiProtocol:
         return ddict_out
     
     # end def
+    def abfrage_sheet(self, dict_inp):
+        '''
+
+        :param dict_inp:
+        :return: ddict_out = self.abfrage_tabelle(dict_inp)
+        '''
+        if self.run_protocol_data:
+            ddict_out = {}
+            (s1, ddict_out["status"]) = self.get_next_protocol_data("status")
+            (s2, ddict_out["errtext"]) = self.get_act_protocol_data("errtext")
+            (s3, ddict_out["index_abfrage"]) = self.get_act_protocol_data("index_abfrage")
+            (s4, ddict_out["irow_select"]) = self.get_act_protocol_data("irow_select")
+            (s5, ddict_out["data_change_irow_icol_liste"]) = self.get_act_protocol_data("data_change_irow_icol_liste")
+            (s6, ddict_out["row_col_color_cell_dict_liste"]) = self.get_act_protocol_data("row_col_color_cell_dict_liste")
+            (s7, ddict_out["data_change_flag"]) = self.get_act_protocol_data("data_change_flag")
+
+            (sa, ttable_names) = self.get_act_protocol_data("ttable_names")
+            (sb, ttable_table) = self.get_act_protocol_data("ttable_table")
+            (sc, ttable_types) = self.get_act_protocol_data("ttable_types")
+
+            if sa and sb and sc:
+                ddict_out["ttable"] = hfkt_tvar.build_table(ttable_names, ttable_table, ttable_types)
+                s8 = True
+            else:
+                s8 = False
+            # end if
+
+            (s9, ddict_out["data_set"]) = self.get_act_protocol_data("data_set")
+
+            if s1 and s2 and s3 and s4 and s5 and s6 and s7 and (s8 or s9):
+
+                return ddict_out
+            else:
+                self.run_protocol_data = False
+            # end if
+        # end if
+
+        if not self.run_protocol_data:
+
+            dict_inp = self.set_geometry(dict_inp)
+
+            ddict_out = sgui.abfrage_sheet(dict_inp)
+
+            self.get_geometry(ddict_out)
+
+            if self.save_protocol_data:
+                self.set_next_protocol_data("status", ddict_out["status"])
+                self.set_act_protocol_data("errtext", ddict_out["errtext"])
+
+                if "ttable" in ddict_out.keys():
+                    self.set_act_protocol_data("ttable_names", ddict_out["ttable"].names)
+                    self.set_act_protocol_data("ttable_table", ddict_out["ttable"].table)
+                    self.set_act_protocol_data("ttable_types", ddict_out["ttable"].types)
+                # end if
+                if "data_set" in ddict_out.keys():
+                    self.set_act_protocol_data("data_set", ddict_out["data_set"])
+                # end if
+
+                if "abfrage_liste" in dict_inp.keys():
+                    self.set_act_protocol_data("index_abfrage", ddict_out["index_abfrage"], dict_inp["abfrage_liste"])
+                else:
+                    self.set_act_protocol_data("index_abfrage", ddict_out["index_abfrage"])
+                # end if
+                self.set_act_protocol_data("irow_select", ddict_out["irow_select"])
+                self.set_act_protocol_data("data_change_irow_icol_liste", ddict_out["data_change_irow_icol_liste"])
+                self.set_act_protocol_data("row_col_color_cell_dict_liste", ddict_out["row_col_color_cell_dict_liste"])
+                self.set_act_protocol_data("data_change_flag", ddict_out["data_change_flag"])
+            # end if
+        # end if
+
+        return ddict_out
+
+    # end def
     def abfrage_dict(self,ddict,title=None):
         '''
         

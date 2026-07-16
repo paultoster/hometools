@@ -273,6 +273,16 @@ def hilfe(rd):
     SignalName4 = lingrad(SignalName1,20)               Linearer Gerade aus SignalName1 mit 20 Punkten
                                                         gespeichert wird:
                                                         "SignalName4_dat_array" und "SignalName4" sowie "SignalName4_grad" (Einzelwert)
+    SignalName5 = sma(SignalName1,200)                  simple moving avarage  aus SignalName1 mit 200 Punkten
+                                                        gespeichert wird:
+                                                        "SignalName5_dat_array" (wenn aus fremd-signal) und "SignalName5"
+    SignalName6 = ema(SignalName1,20)                   exponential moving avarage  aus SignalName1 mit 20 Punkten
+                                                        gespeichert wird:
+                                                        "SignalName6_dat_array" (wenn aus fremd-signal) und "SignalName6"
+    SignalName7 = vergleich(SignalName1,<,SignalName2)  vergleich  SignalName1 und SignalName2 hier SignalName1 < SignalName2
+                                                        wahr wird = 1 gesetzt und unwahr = 0
+                                                        gespeichert wird:
+                                                        "SignalName7_dat_array" (wenn aus fremd-signal) und "SignalName7"
 
     :param rd:
     :return: infotext = hilfe(rd)

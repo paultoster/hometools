@@ -65,6 +65,48 @@
 #
 # ------------------------------------------------------------------------------------------------------
 #
+# ddict_out = sgui.abfrage_sheet(ddict_inp):  default   listeAbfrage = ["okay"]
+#
+# gibt den geänderten data_set zurück
+# Input:
+#
+# must be set
+# ddict_inp["ttable"] = ttable
+# or
+# ddict_inp["header_liste"] = header_liste
+# ddict_inp["data_set_lliste"] = data_set = [a0,a1,a2,..., an],[b0,b1,b2,...,bn], ...  [z0,z1,z2,...,zn]]
+#
+# optional
+# ddict_inp["title"] = 'Tabelle'
+# ddict_inp["row_color_dliste"] = ['','black','','red',...]
+#
+# oder optional
+# ddict_inp["row_col_color_cell_dict_liste"] = [{'row':i,'col':j,'fg':'black','bg':'red'},{'row':i,'col':j,'fg':'','bg':'red'},...]
+# fg default is 'black' und bg default is 'white'
+#
+# ddict_inp["abfrage_liste"] = ["okay","cancel","end","edit",...]
+# ddict_inp["auswahl_filter_col_liste"] = ["headername1","headername3"] oder [0,2]
+# ddict_inp["GUI_GEOMETRY_WIDTH"] = 1000
+# ddict_inp["GUI_GEOMETRY_HEIGHT"] = 600
+# ddict_inp["GUI_ICON_FILE"] = file.icon
+# ddict_inp["GUI_TITLE"] = text
+#
+# Ouput:
+#
+# return ddict_out
+# mit
+# ddict_out["data_set"]                     return modified data set
+# dindex of ddict_inp["abfrage_liste"] if clicked otherwise -1
+# ddict_out["irow_select"]                  selcted row if click otherwise -1
+# ddict_out["status"]                       status
+# ddict_out["errtext"]                      errtext
+# ddict_out["data_change_irow_icol_liste"]  list of (irow,icol) from data whih were changed
+# ddict_out["data_change_flag"]             are dates changed
+#
+#
+#
+# ------------------------------------------------------------------------------------------------------
+#
 # (ddict,changed_key_liste) = sgui.abfrage_dict(ddict,title=None)
 #  Ein dictionary ändern
 #
@@ -186,6 +228,7 @@ if (t_path == os.getcwd()):
     
     import sgui_class_abfrage_n_eingabezeilen as sclass_ane
     import sgui_abfrage_tabelle_class as stabelle_class
+    import sgui_abfrage_sheet_class as ssheet_class
     import sgui_abfrage_janein_class as sjanein_class
     import sgui_abfrage_liste_class as sliste_class
     import sgui_anzeige_text_class as stext_class
@@ -205,6 +248,7 @@ else:
     from tools import hfkt_tvar as htvar
     from tools import sgui_class_abfrage_n_eingabezeilen as sclass_ane
     from tools import sgui_abfrage_tabelle_class as stabelle_class
+    from tools import sgui_abfrage_sheet_class as ssheet_class
     from tools import sgui_abfrage_janein_class as sjanein_class
     from tools import sgui_abfrage_liste_class as sliste_class
     from tools import sgui_anzeige_text_class as stext_class
@@ -362,7 +406,89 @@ def abfrage_tabelle(ddict_inp):
 # end def
 # ========================== abfrage_tabelle ======================================
 # ===============================================================================
+# ========================== abfrage_sheet =====================================
+#
 
+
+def abfrage_sheet(ddict_inp):
+    '''
+    # gibt den geänderten data_set zurück
+# Input:
+#
+# must be set
+# ddict_inp["ttable"] = ttable
+# or
+# ddict_inp["header_liste"] = header_liste
+# ddict_inp["data_set_lliste"] = data_set = [a0,a1,a2,..., an],[b0,b1,b2,...,bn], ...  [z0,z1,z2,...,zn]]
+#
+# optional
+# ddict_inp["title"] = 'Tabelle'
+# ddict_inp["row_color_dliste"] = ['','black','','red',...]
+#
+# oder optional
+# ddict_inp["row_col_color_cell_dict_liste"] = [{'row':i,'col':j,'fg':'black','bg':'red'},{'row':i,'col':j,'fg':'','bg':'red'},...]
+# fg default is 'black' und bg default is 'white'
+#
+
+# ddict_inp["abfrage_liste"] = ["okay","cancel","end","edit",...]
+# ddict_inp["auswahl_filter_col_liste"] = ["headername1","headername3"] oder [0,2]
+# ddict_inp["GUI_GEOMETRY_WIDTH"] = 1000
+# ddict_inp["GUI_GEOMETRY_HEIGHT"] = 600
+# ddict_inp["GUI_GEOMETRY_POSX"] = 100
+# ddict_inp["GUI_GEOMETRY_POSY"] = 100
+# ddict_inp["GUI_ICON_FILE"] = file.icon
+# ddict_inp["GUI_TITLE"] = text
+#
+# Ouput:
+#
+# return ddict_out
+# mit
+# ddict_out["data_set"]                     return modified data set
+# dindex of ddict_inp["abfrage_liste"] if clicked otherwise -1
+# ddict_out["irow_select"]                  selcted row if click otherwise -1
+# ddict_out["status"]                       status
+# ddict_out["errtext"]                      errtext
+# ddict_out["data_change_irow_icol_liste"]  list of (irow,icol) from data whih were changed
+# ddict_out["data_change_flag"]             are dates changed
+# ddict_out["GUI_GEOMETRY_WIDTH"]
+# ddict_out["GUI_GEOMETRY_HEIGHT"]
+# ddict_out["GUI_GEOMETRY_POSX"]
+# ddict_out["GUI_GEOMETRY_POSY"]
+
+    :param ddict_inp:
+    :return:
+    '''
+
+    obj = ssheet_class.abfrage_sheet_class(ddict_inp)
+
+    ddict_out = {}
+    ddict_out["status"] = obj.status
+    ddict_out["errtext"] = obj.errtext
+
+    if obj.status == hdef.OKAY:
+
+        if obj.use_ttable:
+            ddict_out["ttable"] = htvar.build_table(obj.header_liste, obj.data_set, obj.ttable_type_liste)
+        else:
+            ddict_out["data_set"] = obj.data_set
+        # end if
+        ddict_out["index_abfrage"] = obj.index_abfrage
+        ddict_out["irow_select"] = obj.current_row
+        ddict_out["data_change_irow_icol_liste"] = obj.data_change_irow_icol_liste
+        ddict_out["row_col_color_cell_dict_liste"] = obj.row_col_color_cell_dict_liste
+        ddict_out["data_change_flag"] = obj.data_change_flag
+
+        ddict_out["GUI_GEOMETRY_WIDTH"] = obj.GUI_GEOMETRY_WIDTH
+        ddict_out["GUI_GEOMETRY_HEIGHT"] = obj.GUI_GEOMETRY_HEIGHT
+        ddict_out["GUI_GEOMETRY_POSX"] = obj.GUI_GEOMETRY_POSX
+        ddict_out["GUI_GEOMETRY_POSY"] = obj.GUI_GEOMETRY_POSY
+    # end if
+    del obj
+    return ddict_out
+
+
+# end def
+# ========================== abfrage_sheet ======================================
 # ===============================================================================
 # ========================== abfrage_dict =======================================
 def abfrage_dict2(ddict,title=None,geometry_list=None,abfrage_liste = None):

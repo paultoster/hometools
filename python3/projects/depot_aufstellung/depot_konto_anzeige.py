@@ -116,7 +116,7 @@ def anzeige(rd,konto_obj):
         
         # Beenden
         # ----------------------------
-        if (index_abfrage == i_end):
+        if (index_abfrage < 0) or (index_abfrage == i_end):
             runflag = False
         
         # Updaten

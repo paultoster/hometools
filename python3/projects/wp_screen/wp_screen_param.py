@@ -44,6 +44,7 @@ class Param:
     SIG_TYPE_3PAR_VERGLEICH = 12
 
     SIG_STORE_DATUM = "datum_array"
+    SIG_STORE_GRAD  = "grad"
 
     TAB_SPEZ_GT = ">"
     TAB_SPEZ_LT = "<"

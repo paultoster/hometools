@@ -165,8 +165,9 @@ def konto_abfrage(gui, ttable, abfrage_liste,color_list,title=None):
         dict_inp["title"] = title
     # end if
     
-    dict_out = gui.abfrage_tabelle(dict_inp)
-    
+    dict_out = gui.abfrage_sheet(dict_inp)
+    # dict_out = gui.abfrage_tabelle(dict_inp)
+
     if dict_out["status"] != hdef.OKAY:
         
         return (dict_out["status"],dict_out["errtext"],[],-1,-1,[])
