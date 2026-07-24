@@ -215,6 +215,24 @@ def scre_dict_abfrage(gui, ddict, title = None,abfrage_liste=None):
 
     return (ddict,changed_key_liste,index_abfrage)
 
+# end
+def scre_sheet_show(gui, ttable, abfrage_liste,color_dict_liste,title=None):
+
+
+    dict_inp = {}
+    dict_inp["ttable"] = ttable
+    dict_inp["row_col_color_cell_dict_liste"] = color_dict_liste
+    dict_inp["abfrage_liste"] = abfrage_liste
+
+    if title:
+        dict_inp["title"] = title
+    # end if
+
+    dict_out = gui.abfrage_sheet(dict_inp)
+
+    if dict_out["status"] != hdef.OKAY:
+        return (dict_out["status"], dict_out["errtext"], [], -1, -1)
+    # end if
+
+    return (dict_out["status"], dict_out["errtext"], dict_out["index_abfrage"], dict_out["irow_select"])
 # end def
-
-

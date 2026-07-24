@@ -65,6 +65,23 @@ class NpBaseClass:
             if (key == "np_name_list") or (key == "class_def"):
                 pass
             elif key in self.np_name_list:
+
+                if (key == "start_np_array") \
+                        or (key == "end_np_array") \
+                        or (key == "high_np_array") \
+                        or (key == "low_np_array") \
+                        or (key == "volume_np_array"):
+
+                    liste = ddict[key][0]
+
+                    if len(liste) != 0:
+                        if isinstance(liste[0],str):
+                            ddict[key][0] = [float(i) for i in liste]
+                        # end if
+                    # end if
+                # end if
+
+
                 np_array = np.array(ddict[key][0]).reshape(ddict[key][1])
                 self.__setattr__(key, np_array)
                 count += 1
@@ -108,8 +125,11 @@ class NpPriceVolumeClass(NpBaseClass):
     def __init__(self,*args):
         super().__init__(args,np_name_list=self.np_name_list,class_def = NpPriceVolumeClass)
         self.currency: str = ""
+        self.filename: str = ""
         return
     # end def
+    def add_filename(self,filename):
+        self.filename = filename
     def is_empty(self):
         if hasattr(self, 'dat_np_array'):
             if self.dat_np_array is None:
@@ -174,6 +194,48 @@ class NpPriceVolumeClass(NpBaseClass):
             # end if
         # end if
     # end def
+    def delete_nan_items(self):
+        index_list = []
+        if hasattr(self, 'dat_np_array') and (len(self.dat_np_array) > 0):
+
+            for i,val in enumerate(self.dat_np_array):
+
+                try:
+                    if np.isnan(val):
+                        index_list.append(i)
+                    elif np.isnan(self.start_np_array[i]):
+                        index_list.append(i)
+                    elif np.isnan(self.high_np_array[i]):
+                        index_list.append(i)
+                    elif np.isnan(self.low_np_array[i]):
+                        index_list.append(i)
+                    elif np.isnan(self.end_np_array[i]):
+                        index_list.append(i)
+                    elif np.isnan(self.volume_np_array[i]):
+                        index_list.append(i)
+                    # end if
+                except:
+                    a = 0
+
+            # end for
+
+            for i in reversed(index_list):
+                self.dat_np_array = np.delete(self.dat_np_array, i)
+                self.start_np_array = np.delete(self.start_np_array, i)
+                self.high_np_array = np.delete(self.high_np_array, i)
+                self.low_np_array = np.delete(self.low_np_array, i)
+                self.end_np_array = np.delete(self.end_np_array, i)
+                self.volume_np_array = np.delete(self.volume_np_array, i)
+                if len(self.dat_np_array) == 0:
+                    break
+                # end if
+            # end for
+        # end if
+
+        return index_list
+    # end def
+
+
 ###############################################################################
 if __name__ == '__main__':
 

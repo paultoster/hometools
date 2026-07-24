@@ -2073,6 +2073,10 @@ def  type_transform_int(wert_in,type_out):
             wert_out = [wert]
         elif (type_out == "listStr") or (type_out == "list_str") :
             wert_out = [str(wert)]
+        elif (type_out == "datStr") or (type_out == "datStrP"):
+            wert_out = hdate.secs_time_epoch_to_str(wert, delim=".")
+        elif type_out == "datStrB":
+            wert_out = hdate.secs_time_epoch_to_str(wert, delim="-")
         else:
             raise Exception(f"In type_transform_int ist type_out: {type_out} nicht möglich")
         # end if
@@ -2098,7 +2102,7 @@ def  type_transform_float(wert_in,type_out):
         elif type_out == "euroStrK":
             (okay, wert_out) = type_proof(wert, "euro")
             if okay == hdef.OKAY:
-                wert_out = num_cent_in_euroStr(wert_out)
+                wert_out = num_euro_in_euroStr(wert_out)
             # end if
         elif type_out == "list":
             wert_out = [wert]

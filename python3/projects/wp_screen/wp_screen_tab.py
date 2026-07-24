@@ -439,7 +439,7 @@ def tab_edit_hilfe(rd):
     infotext = wp_screen_tab_check.hilfe(rd)
 
 
-    wp_screen_gui.anzeige_text(rd.gui, f"Hilfe für tab tabbelenSpaltenName = Kontext, für Kontext kann stehe:\n{infotext}", "Hilfe syntax tab")
+    wp_screen_gui.anzeige_text(rd.gui, infotext, "Hilfe syntax tab")
     return
 #-----------------------------------------------------------
 # Externe Funktionen
@@ -466,3 +466,24 @@ def exist_tab(rd,tab):
         return False
     # end if
 # end def
+def get_tab_dict(rd, tab):
+    if tab in rd.tab["tab_liste"]:
+
+        rd.tab["tab"] = tab
+        tab_dict_read(rd)
+    else:
+        rd.tab["tab_dict"] = {}
+    # end if
+    return rd.tab["tab_dict"]
+# end def
+def get_tab_werte_dict_liste(rd,tab_dict):
+    """
+    :param rd:
+    :param sigset_dict:
+    :return: (okay,infotext,sigset_werte_dict_liste) = get_sigset_werte_dict_liste(rd,sigset_dict)
+    """
+    (okay,infotext) = wp_screen_tab_check.check(rd,tab_dict)
+
+    return (okay,infotext,rd.tab["tab_werte_dict_liste"])
+# end def
+

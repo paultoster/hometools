@@ -208,7 +208,17 @@ class WPData:
 
         key_list = wp_base_basic_info.get_key_list(self)
 
-        return key_list
+        return list(key_list)
+    # end def
+    def get_basic_info_key_value(self,isin: str,key: str) -> (int,str,any):
+        '''
+
+        :return: (status,errtext,value) = self.get_basic_info_key_value(isin,key)
+        '''
+
+        (self.status, self.errtext,value) = wp_base_basic_info.get_basic_info_key_value(self,isin,key)
+
+        return (self.status, self.errtext,value)
     # end def
     def get_exist_filenames_of_basic_info(self, isin_input: str | list) -> (int, str, list):
         """
@@ -497,6 +507,36 @@ class WPData:
         # if status != hdef.OKAY:
         #     return (status, errtext)
         # # end if
+
+        return (self.status,self.errtext,self.infotext)
+
+
+    # end def
+    def proof_price_volume(self, isin=None):
+        """
+        - Demand: run_wp_abfrage.py
+
+        Für isin wird die Datei überprüft
+
+        :param isin:
+        :return: (status,errtext) = wp_obj.update_price_volume(isin)
+        """
+        status = hdef.OKAY
+        errtext = ""
+
+        if isin == None:
+            (self.status,self.errtext, isin_liste) = self.get_basic_info_isin_liste()
+            if self.status != hdef.OKAY:
+                return (self.status,self.errtext,self.infotext)
+            # end if
+        else:
+            isin_liste = [isin]
+        # end if
+
+        (self.status,self.errtext,self.infotext) = wp_base_price_volume.proof(self,isin_liste)
+        if self.status != hdef.OKAY:
+            return (self.status,self.errtext,self.infotext)
+        # end if
 
         return (self.status,self.errtext,self.infotext)
 

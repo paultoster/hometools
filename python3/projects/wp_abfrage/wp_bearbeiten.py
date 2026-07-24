@@ -431,14 +431,16 @@ def edit_price_volume(wb_obj):
         return (status, errtext,"")
     # end if
 
-    abfrage_liste = ["update one isin","ende", "update all-isins","ariva-isin-csv-liste","update avira-csv","backup","dump basic_info(ods)"]
+    abfrage_liste = ["update one-isin","ende", "update all-isin","ariva-isin-csv-liste","update avira-csv","backup","proof one-isin","proof all-isin","dump basic_info(ods)"]
     i_abfrage_ende = 1
     i_abfrage_update_isin = 0
     i_abfrage_build_ariva_csv = 3
     i_abfrage_update_ariva_csv = 4
     i_abfrage_update_all = 2
     i_backup = 5
-    # i_dump_basic = 6
+    i_abfrage_proof_one_isin = 6
+    i_abfrage_proof_all_isin = 7
+    # i_dump_basic = 8
     runflag = True
 
     while (runflag):
@@ -537,7 +539,56 @@ def edit_price_volume(wb_obj):
             if status != hdef.OKAY:
                 return (status, errtext, infotext)
             runflag = True
+
+        elif indexAbfrage == i_abfrage_proof_one_isin:
+
+            if index < 0:
+                wb_obj.log.write_info("Keine isin ausgewählt")
+                runflag = True
+            else:
+
+                # Bearbeite basic infos von isin
+                isin = isin_liste[index]
+                wpname = isin_wpname_liste[index]
+
+                wb_obj.log.write_info(f"WP proof isin: {isin} Name: {wpname}")
+
+                (status, errtext, infotext) = wb_obj.proof_price_volume(isin)
+
+                if len(infotext):
+                    t = f"Info wp_bearbeiten.proof_price_volume({isin}) \n infotext = {infotext}"
+                    sgui.anzeige_text(t, textcolor='green')
+                    wb_obj.log.write_info(t)
+                # end if
+
+                if status != hdef.OKAY:
+                    t = f"Error wp_bearbeiten.proof_price_volume({isin}) \n errtext = {errtext}"
+                    sgui.anzeige_text(t, textcolor='red')
+                    wb_obj.log.write_err(t)
+                    runflag = False
+                # end if
+        elif indexAbfrage == i_abfrage_proof_all_isin:
+
+            wb_obj.log.write_info(f"WP proof all:")
+
+            (status, errtext, infotext) = wb_obj.proof_price_volume()
+
+            if len(infotext):
+                t = f"Info wp_bearbeiten.proof_price_volume() \n infotext = {infotext}"
+                sgui.anzeige_text(t, textcolor='green')
+                wb_obj.log.write_info(t)
+                infotext = ""
+            # end if
+
+            if status != hdef.OKAY:
+                t = f"Error wp_bearbeiten.proof_price_volume() \n errtext = {errtext}"
+                sgui.anzeige_text(t, textcolor='red')
+                wb_obj.log.write_err(t)
+                runflag = False
+            # end if
+
         else: # indexAbfrage == i_dumP-basic:
+
             (status, errtext) = dump_in_ods(wb_obj,isin_liste)
             if status != hdef.OKAY:
                 return (status, errtext, infotext)

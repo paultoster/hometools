@@ -431,7 +431,7 @@ def sigset_edit_hilfe(rd):
     infotext = wp_screen_sigset_check.hilfe(rd)
 
 
-    wp_screen_gui.anzeige_text(rd.gui, f"Hilfe für sigalset signalxy = Kontext, für Kontext kann stehe:\n{infotext}", "Hilfe syntax sigset")
+    wp_screen_gui.anzeige_text(rd.gui, infotext, "Hilfe syntax sigset")
     return
 #-----------------------------------------------------------
 # Externe Funktionen

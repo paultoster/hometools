@@ -90,8 +90,8 @@ def get(wb_obj, isin_input: str|list) -> (int,str,dict|list):
 
     :param wb_obj:
     :param isin_input:
-    :return: (status, errtext, output_dict_liste) = self.get(isin_liste)
-             (status, errtext, output_dict) = self.get(isin)
+    :return: (status, errtext, output_dict_liste) = get(wb_obj,isin_liste)
+             (status, errtext, output_dict) = get(wb_obj,isin)
     """
     status = hdef.OKAY
     errtext = ""
@@ -178,6 +178,23 @@ def get_key_list(wb_obj):
     """
     return wp_basic_info_internet.INFO_DICT.keys()
 # end if
+def get_basic_info_key_value(wb_obj, isin,key):
+    """
+    (self.status, self.errtext, value) = wp_base_basic_info.get_basic_info_key_value(self, isin,key)
+    """
+
+    (status, errtext, output_dict) = get(wb_obj,isin)
+
+    if status != hdef.OKAY:
+        return (status, errtext, None)
+    # end if
+    if key not in output_dict.keys():
+        status = hdef.NOT_OKAY
+        errtext = f"get_basic_info_key_value: For {isin = } ist der {key = } nicht vorhanden"
+        return (status, errtext, None)
+    # end if
+    return (status, errtext, output_dict[key])
+# end def
 def  get_from_file(wb_obj,isin):
     """
         (status, errtext, info_dict) = get_from_file(wb_obj,isin)

@@ -86,7 +86,7 @@ def check_content(par,content,signaldef_liste,werte_dict):
         werte_dict["type"] = type
         werte_dict["fkt"] = fkt
     else:
-        return check_content_2par(par,content,signaldef_liste,werte_dict)
+        return check_content_1par(par,content,signaldef_liste,werte_dict)
     # end if
     return hdef.OKAY
 # end def
@@ -126,16 +126,49 @@ def check_content_0par(par,content):
 
     return (status,type,fkt)
 # end def
-def check_content_2par(par,content,signaldef_liste,werte_dict):
+def check_content_1par(par,content,signaldef_liste,werte_dict):
 
     t = copy.copy(content)
     # muster = r"(\w+)\((\w+),(\w+)\)"
-    muster = r"(\w+)\(([^,)]+),([^,)]+)\)"
+    muster = r"(\w+)\(([^,)]+)\)"
 
     tupel_liste = re.findall(muster, t.replace(" ",""))
 
     if len(tupel_liste) > 0:
-        return check_content_2par_tuple(par,tupel_liste[0][0],tupel_liste[0][1],tupel_liste[0][2],signaldef_liste,werte_dict)
+        return check_content_1par_tuple(par,tupel_liste[0][0],tupel_liste[0][1],signaldef_liste,werte_dict)
+    else:
+        return check_content_2par(par, content, signaldef_liste,werte_dict)
+    # end if
+# end for
+def check_content_1par_tuple(par,fkt,par1,signaldef_liste,werte_dict):
+
+    global INFOTEXT
+    global ZEILE
+    if fkt == par.SIG_1PAR_DATUM:
+
+        # par1: signal
+        if par1 not in signaldef_liste:
+            INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({par1})\") ist Parameter signal = {par1} nicht davor definiert worden "
+            return hdef.NOT_OKAY
+        # end if
+
+        werte_dict["type"]=par.SIG_TYPE_1PAR_DATUM
+        werte_dict["fkt"]=par.SIG_1PAR_DATUM
+        werte_dict["par1"]=par1
+
+    # end if
+    return hdef.OKAY
+# end def
+def check_content_2par(par,content,signaldef_liste,werte_dict):
+
+    t = copy.copy(content)
+    # muster = r"(\w+)\((\w+),(\w+)\)"
+    muster1 = r"(\w+)\(([^,)]+),([^,)]+)\)"
+
+    tupel_liste1 = re.findall(muster1, t.replace(" ",""))
+
+    if len(tupel_liste1) > 0:
+        return check_content_2par_tuple(par,tupel_liste1[0][0],tupel_liste1[0][1],tupel_liste1[0][2],signaldef_liste,werte_dict)
     else:
         return check_content_3par(par, content, signaldef_liste,werte_dict)
     # end if
@@ -267,19 +300,20 @@ def hilfe(rd):
     SignalName0 = 0                                     Signal wird ignoriert
     SignalName1 = kurs                                  Kurs=Close-Signal
     SignalName2 = close/open/high/low/volume            Chart-Werte
-    SignalName3 = np_obj(isin,kurs)                     Kurswerte von einer anderen isin
+    SignalName3 = datum(SignalName1)                    Datum von einem bestimmten Signal
+    SignalName4 = np_obj(isin,kurs)                     Kurswerte von einer anderen isin
                                                         gespeichrt wird:
                                                         "SignalName3_dat_array" und "SignalName3"
-    SignalName4 = lingrad(SignalName1,20)               Linearer Gerade aus SignalName1 mit 20 Punkten
+    SignalName5 = lingrad(SignalName1,20)               Linearer Gerade aus SignalName1 mit 20 Punkten
                                                         gespeichert wird:
                                                         "SignalName4_dat_array" und "SignalName4" sowie "SignalName4_grad" (Einzelwert)
-    SignalName5 = sma(SignalName1,200)                  simple moving avarage  aus SignalName1 mit 200 Punkten
+    SignalName6 = sma(SignalName1,200)                  simple moving avarage  aus SignalName1 mit 200 Punkten
                                                         gespeichert wird:
                                                         "SignalName5_dat_array" (wenn aus fremd-signal) und "SignalName5"
-    SignalName6 = ema(SignalName1,20)                   exponential moving avarage  aus SignalName1 mit 20 Punkten
+    SignalName7 = ema(SignalName1,20)                   exponential moving avarage  aus SignalName1 mit 20 Punkten
                                                         gespeichert wird:
                                                         "SignalName6_dat_array" (wenn aus fremd-signal) und "SignalName6"
-    SignalName7 = vergleich(SignalName1,<,SignalName2)  vergleich  SignalName1 und SignalName2 hier SignalName1 < SignalName2
+    SignalName8 = vergleich(SignalName1,<,SignalName4)  vergleich  SignalName1 und SignalName2 hier SignalName1 < SignalName2
                                                         wahr wird = 1 gesetzt und unwahr = 0
                                                         gespeichert wird:
                                                         "SignalName7_dat_array" (wenn aus fremd-signal) und "SignalName7"
@@ -287,7 +321,7 @@ def hilfe(rd):
     :param rd:
     :return: infotext = hilfe(rd)
     """
-    infotext = ""
+    infotext = f"Hilfe für signalset\n\nSyntax: SignalName = Kontext, für Kontext kann stehen:\n\n"
 
     for i in range(10):
         match i:
@@ -301,18 +335,21 @@ def hilfe(rd):
                 val1 = rd.par.SIG_VOLUME
                 val2 = "Volumenabfrage"
             case 3:
+                val1 = f"{rd.par.SIG_1PAR_DATUM}({rd.par.SIG_KURS})"
+                val2 = f"Datum dem SignalName (z.B. Kurs) SignalName muss vorher definiert sein!!!"
+            case 4:
                 val1 = f"{rd.par.SIG_2PAR_NP_OBJ}(isin,{rd.par.SIG_KURS})"
                 val2 = f"Kurs von einer bestimmten isin, {rd.par.SIG_KURS} = {rd.par.SIG_CLOSE}"
-            case 4:
+            case 5:
                 val1 = f"{rd.par.SIG_2PAR_LINGRAD}(signal,Anzahl/Tage)"
                 val2 = f"linearer Gradient für Signal (muss definiert sein) und Anzahl von Punkten/Tage"
-            case 5:
+            case 6:
                 val1 = f"{rd.par.SIG_2PAR_SMA}(signal,Anzahl/Tage)"
                 val2 = f"simple moving avarage für Signal (muss definiert sein) und Anzahl von Punkten/Tage"
-            case 6:
+            case 7:
                 val1 = f"{rd.par.SIG_2PAR_EMA}(signal,Anzahl/Tage)"
                 val2 = f"exponential moving avarage für Signal (muss definiert sein) und Anzahl von Punkten/Tage"
-            case 7:
+            case 8:
                 val1 = f"{rd.par.SIG_3PAR_VERGLEICH}(signal1,>,signal2)"
                 val2 = f"Vergleich zweier Signale (müssen definiert sein) und Vorschrif >,<,>=,<="
             case _:

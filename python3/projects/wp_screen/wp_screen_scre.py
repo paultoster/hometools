@@ -1,6 +1,8 @@
 
 import os, sys, copy
 
+import hfkt_tvar
+
 t_path, _ = os.path.split(__file__)
 tools_path = t_path + "\\.."
 if (tools_path not in sys.path):
@@ -12,6 +14,7 @@ import wp_screen_katalog
 import wp_screen_sigset
 import wp_screen_tab
 import wp_screen_scre_build
+import wp_screen_scre_tab
 
 import tools.hfkt_def as hdef
 import tools.hfkt_pickle as hfkt_pickle
@@ -133,18 +136,17 @@ def scre_command(rd):
                 sgui.anzeige_text(t, textcolor='orange')
             else:
 
-                rd.scre["scre"] = rd.scre["scre_liste"][index]
-                scre_dict_read(rd)
-                if get_status() != hdef.OKAY:
-                    return
+                scre_show_screen(rd,index)
 
-                wp_screen_scre_build.scre_build(rd,rd.scre["scre_dict"])
-                if wp_screen_scre_build.get_status() != hdef.OKAY:
-                    t = f"scre_command build: Error in scre_build \n errtext = {wp_screen_scre_build.get_errtext()}"
+                if STATUS != hdef.OKAY:
+                    t = f"scre_command build: Error in scre_show_screen \n errtext = {ERRTEXT}"
                     rd.log.write_err(t, screen=rd.par.LOG_SCREEN_OUT)
                     sgui.anzeige_text(t, textcolor='red')
+                    runflag = True
+                else:
+                    runflag = False
                 # end if
-                runflag = False
+
     # end while
     return
 # end def
@@ -380,3 +382,123 @@ def scre_dict_save(rd):
         return
     return
 # end def
+def scre_show_screen(rd,index):
+    """
+    :param rd:
+    :param index:
+    :return: scre_show_screen(rd,index)
+    """
+    global STATUS, ERRTEXT
+
+
+    rd.scre["scre"] = rd.scre["scre_liste"][index]
+    scre_dict_read(rd)
+    if get_status() != hdef.OKAY:
+        return
+
+    scre_build(rd, rd.scre["scre_dict"])
+
+    if STATUS != hdef.OKAY:
+        ERRTEXT = f"scre_command build: Error in scre_build \n errtext = {ERRTEXT}"
+        return
+    # end if
+
+    abfrage_liste = ["plot","ende"]
+    index_plot = 0
+    index_ende = 1
+
+    runflag = True
+    while runflag:
+
+        (status,errtext,index, indexAbfrage) = wp_screen_gui.scre_sheet_show(rd.gui,
+                                                              rd.scre["ttable"],
+                                                              abfrage_liste,
+                                                              rd.scre["color_dict_liste"],
+                                                              f"Screen Gruppe: {rd.scre["scre"]}")
+
+        if status != hdef.OKAY:
+            STATUS = status
+            ERRTEXT = errtext
+            return
+        # end if
+
+        if (indexAbfrage < 0) or (indexAbfrage == index_ende):
+            runflag = False
+        else: # indexAbfrage == index_plot
+            print( "plot")
+            rundflag = True
+        # end if
+    # end while
+    return
+# end def
+def scre_build(rd,scre_dict):
+
+    global STATUS, ERRTEXT
+
+    katalog = scre_dict[rd.par.SCRE_KATALOG]
+    sigset = scre_dict[rd.par.SCRE_SIGSET]
+    tab = scre_dict[rd.par.SCRE_TAB]
+
+    isin_liste = wp_screen_katalog.get_katalog_isin_liste(rd,katalog)
+    sigset_dict = wp_screen_sigset.get_sigset_dict(rd,sigset)
+    tab_dict = wp_screen_tab.get_tab_dict(rd,tab)
+
+    (status, infotext, sigset_werte_dict_liste) = wp_screen_sigset.get_sigset_werte_dict_liste(rd, sigset_dict)
+    if status != hdef.OKAY:
+        STATUS = hdef.NOT_OKAY
+        ERRTEXT = infotext
+        return
+    # end if
+
+    # 1. Signale aus sigset bilden:
+    #------------------------------
+    # reset isin-dataclass dict (vielleicht richtig löschen, einzeln)
+    rd.scre["scre_isin_dataclass_filename_dict"] = {}
+
+    for isin in isin_liste:
+        wp_screen_scre_build.scre_build_signal(rd,isin,sigset_dict,sigset_werte_dict_liste)
+        if wp_screen_scre_build.get_status() != hdef.OKAY:
+            STATUS = hdef.NOT_OKAY
+            ERRTEXT = wp_screen_scre_build.get_errtext()
+            return
+        # end if
+    # end for
+
+    # 2. Tabelle bilden:
+    #------------------------------
+    #
+    rd.scre["ttable"] = None
+    rd.scre["color_dict_liste"] = []
+
+    (status, infotext, tab_werte_dict_liste) = wp_screen_tab.get_tab_werte_dict_liste(rd, tab_dict)
+    if status != hdef.OKAY:
+        STATUS = hdef.NOT_OKAY
+        ERRTEXT = infotext
+        return
+    # end if
+
+    (heade_list,type_list) = wp_screen_scre_tab.build_header_list_type_list(tab_dict,tab_werte_dict_liste)
+
+    ttable = hfkt_tvar.build_table(heade_list, [], type_list)
+
+    color_dict_liste = []
+    for irow,isin in enumerate(isin_liste):
+
+        (data_liste,color_dict) = wp_screen_scre_tab.scre_build_data(rd,irow,isin,tab_dict,tab_werte_dict_liste,type_list)
+        if wp_screen_scre_tab.get_status() != hdef.OKAY:
+            STATUS = hdef.NOT_OKAY
+            ERRTEXT = wp_screen_scre_tab.get_errtext()
+            return
+        # end if
+
+        ttable = hfkt_tvar.add_date_set_to_table(ttable,data_liste)
+        if color_dict is not None:
+            color_dict_liste.append(color_dict)
+        # end if
+    # end for
+
+    rd.scre["ttable"] = ttable
+    rd.scre["color_dict_liste"] = color_dict_liste
+    return
+# end def
+

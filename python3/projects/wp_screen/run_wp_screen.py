@@ -68,7 +68,9 @@ class RootData:
         "scre_dict_filename": "",
         "scre_dict_jsonobj": None,
         "scre_werte_dict_liste": {},
-        "scre_isin_dataclass_dict": {}
+        "scre_isin_dataclass_filename_dict": {},
+        "ttable":None,
+        "color_dict_liste":[]
     })
 
 

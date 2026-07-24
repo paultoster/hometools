@@ -93,6 +93,40 @@ def update(wb_obj,isin_liste):
 
     return (status,errtext,infotext)
 # end if
+def proof(wb_obj,isin_liste):
+    """
+        (status,errtext,infotext) = wp_base_price_volume.update(wb_obj,isin_liste)
+    """
+    infotext = ""
+
+    # Get basic_info_dict in a list
+    (status, errtext, isin_info_dict_liste) = wb_obj.get_basic_info(isin_liste)
+    if status != hdef.OKAY:
+        return (status, errtext,infotext)
+
+    # get np_obj_liste
+    wp_dict_liste = copy.copy(isin_info_dict_liste)
+    (status, errtext, wp_dict_liste) = get_np_obj_liste(wb_obj,wp_dict_liste)
+    if status != hdef.OKAY:
+        return (status, errtext,infotext)
+    # end if
+
+    # proof no_obj_data
+    (status, errtext, infotext,wp_dict_liste) = proof_np_obj_liste_data(wb_obj,wp_dict_liste)
+
+    for wp_dict in wp_dict_liste:
+
+        if wp_dict["changed"]:
+
+            (status, errtext, filename) = save_np_data(wb_obj, wp_dict, wp_dict["np_obj"])
+
+            if status != hdef.OKAY:
+                return (status, errtext, infotext)
+            # end if
+        # end for
+    # end for
+    return (status,errtext,infotext)
+# end if
 def build_ariva_isin_csv(wb_obj):
     """
         build isin-Liste für Power Act als csv-Datei
@@ -1353,4 +1387,37 @@ def read_csv_ariva_file(wb_obj,csv_file,wkn):
     # end if
 
     return (status, errtext, infotext)
+# end def
+def proof_np_obj_liste_data(wb_obj,wp_dict_liste):
+    """
+    :param wb_obj:
+    :param wp_dict_liste:
+         (status, errtext, infotext,wp_dict_liste) = proof_np_obj_liste_data(wb_obj,wp_dict_liste)
+    """
+
+    status = hdef.OKAY
+    errtext = ""
+    infotext = ""
+
+    for i,wp_dict in enumerate(wp_dict_liste):
+
+        wp_dict["changed"] = False
+
+        if wp_dict["np_obj"] is None:
+
+            infotext = f"{infotext}\nisin={wp_dict['isin']}: np_obj ist None => d.h. nicht vorhanden"
+        else:
+
+            index_liste = wp_dict["np_obj"].delete_nan_items()
+
+            if len(index_liste) > 0:
+                infotext = f"{infotext}\nisin={wp_dict['isin']}: np_obj wurden nans gelöscht => [{index_liste}]"
+                wp_dict["changed"] = True
+            # end if
+
+        # end if
+        wp_dict_liste[i] = wp_dict
+
+    # end for
+    return (status, errtext, infotext,wp_dict_liste)
 # end def

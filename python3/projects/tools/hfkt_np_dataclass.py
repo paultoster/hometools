@@ -35,6 +35,11 @@ class NpDataHandlingClass:
         self.errtext = ""
         self.infotext = ""
 
+        self.TYPE_NDARRAY = TYPE_NDARRAY
+        self.TYPE_STR = TYPE_STR
+        self.TYPE_FLOAT = TYPE_FLOAT
+        self.TYPE_INT = TYPE_INT
+
         if (filename != None):
             self.file_flag = True
             (store_path,fbody,extension) = hfile_path.get_pfe(filename)
@@ -83,6 +88,20 @@ class NpDataHandlingClass:
         self.nsignal += 1
 
         return
+    # end def
+    def get_signame_list(self):
+        return self.signal_list
+    # end def
+    def get_signal_type(self):
+        return self.signal_type
+    # end def
+    def get_data(self,signal_name):
+        if signal_name in self.signal_list:
+
+            return self.__getattribute__(signal_name)
+        else:
+            return None
+        # end if
     # end def
     def del_signal(self,signal_name):
 

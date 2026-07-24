@@ -40,11 +40,11 @@ def check(rd,ddict):
     check dicctionary signal definition set
     :param rd:
     :param ddict:
-    :return: okay = check(rd,ddict)
+    :return: (status,infotext) = check(rd,ddict)
     """
     global INFOTEXT
     global ZEILE
-    rd.sig["tab_werte_dict_liste"] = []
+    rd.tab["tab_werte_dict_liste"] = []
 
     for i,key in enumerate(ddict.keys()):
         ZEILE = i+1
@@ -52,7 +52,7 @@ def check(rd,ddict):
         if check_content(rd,ddict[key],werte_dict) != hdef.OKAY:
             return  (hdef.NOT_OKAY,INFOTEXT)
         else:
-            rd.sig["tab_werte_dict_liste"].append(werte_dict)
+            rd.tab["tab_werte_dict_liste"].append(werte_dict)
         # end if
     # end for
     return (hdef.OKAY,"")
@@ -63,6 +63,9 @@ def check_content(rd,content,werte_dict):
     global ZEILE
     content = hstr.elim_ae(content, [" ", "\t"])
 
+    if ZEILE == 4:
+        a = 0
+
     (status,section,name,fmt,color) =  check_content_base(rd.par,content)
     if status == hdef.NOT_OKAY:
 
@@ -70,11 +73,18 @@ def check_content(rd,content,werte_dict):
         return status
     else:
 
+        if len(section) == 0:
+            section = rd.par.TAB_SEC_SIG
+        # end if
+
         # section
-        if (section != rd.par.TAB_SEC_BI) and (section != rd.par.TAB_SEC_SIG):
+        if not (  (section == rd.par.TAB_SEC_BI) or
+                  (section == rd.par.TAB_SEC_SIG)
+               ):
             INFOTEXT = f"Im tab zeile:{ZEILE}, (section: \"{section})\") ist nicht \"{rd.par.TAB_SEC_BI}\" oder \"{rd.par.TAB_SEC_SIG}\" "
             return hdef.NOT_OKAY
         # end if
+
         werte_dict["section"] = section
 
         # name
@@ -117,13 +127,39 @@ def check_content_base(par,content):
 
     t = copy.copy(content)
     muster = r"([^:)]+):([^:)]+)\(([^,)]+),([^,)]+)\)"
+    muster2 = r"([^:)]+):([^:)]+)\(([^,)]+),\)"
+    muster3 = r"([^:)]+)\(([^,)]+),([^,)]+)\)"
+    muster4 = r"([^:)]+)\(([^,)]+),\)"
+
     tupel_liste = re.findall(muster, t.replace(" ", ""))
+    tupel_liste2 = re.findall(muster2, t.replace(" ", ""))
+    tupel_liste3 = re.findall(muster3, t.replace(" ", ""))
+    tupel_liste4 = re.findall(muster4, t.replace(" ", ""))
+
     if len(tupel_liste) > 0:
         status = hdef.OKAY
         section = tupel_liste[0][0]
         name = tupel_liste[0][1]
         fmt = tupel_liste[0][2]
         color = tupel_liste[0][3]
+    elif len(tupel_liste2) > 0:
+        status = hdef.OKAY
+        section = tupel_liste2[0][0]
+        name = tupel_liste2[0][1]
+        fmt = tupel_liste2[0][2]
+        color = ""
+    elif len(tupel_liste3) > 0:
+        status = hdef.OKAY
+        section = ""
+        name = tupel_liste3[0][0]
+        fmt = tupel_liste3[0][1]
+        color = tupel_liste3[0][2]
+    elif len(tupel_liste4) > 0:
+        status = hdef.OKAY
+        section = ""
+        name = tupel_liste4[0][0]
+        fmt = tupel_liste4[0][1]
+        color = ""
     # end if
 
     return (status,section,name,fmt,color)
@@ -142,7 +178,7 @@ def check_content_fmt(par,fmt):
     nachkomma = -1
     special_dict_liste = []
 
-    if (fmt == par.TAB_FMT_STR) or (fmt == par.TAB_FMT_INT):
+    if (fmt == par.TAB_FMT_STR) or (fmt == par.TAB_FMT_INT) or (fmt == par.TAB_FMT_EUROSTRK) or (fmt == par.TAB_FMT_DATSTRP):
 
         base_fmt = fmt
         status = hdef.OKAY
@@ -170,7 +206,7 @@ def check_content_fmt(par,fmt):
             (status,special_dict_liste) = check_content_fmt_special_dict_liste(par,fmt[i0+1:i1])
         else:
             status = hdef.NOT_OKAY
-            INFOTEXT = f"Im tab zeile:{ZEILE}, fmt : \"{fmt}\"  kann nicht mit brackest \"{par.TAB_FMT_SPEZ_BRACKET_OPEN}\" und \"{par.TAB_FMT_SPEZ_BRACKET_CLOSE}\" gewandelt werden "
+            INFOTEXT = f"Im tab zeile:{ZEILE}, fmt : \"{fmt}\"  kann nicht mit brackets \"{par.TAB_FMT_SPEZ_BRACKET_OPEN}\" und \"{par.TAB_FMT_SPEZ_BRACKET_CLOSE}\" gewandelt werden "
         # end if
     # end if
 
@@ -218,8 +254,10 @@ def check_content_fmt_special_dict_liste(par,fmt):
         (status, wert) = htype.type_proof_float(rest)
         if status == hdef.NOT_OKAY: # Ist ein Signal
             ddict["vergleichssignal"] = par.TAB_FMT_SPEZ_GT
+            ddict["vergleichswert"]   = None
         else:
-            ddict["vergleichswert"] = wert
+            ddict["vergleichssignal"] = None
+            ddict["vergleichswert"]   = wert
         # end if
 
         special_dict_liste.append(ddict)
@@ -240,6 +278,10 @@ def check_content_color(par, color):
     base_color = ""
     special_dict_liste = []
 
+    if len(color) == 0:
+        color = par.TAB_COLOR_WHITE
+    # end if
+
     if color in par.TAB_COLOR_LISTE:
 
         base_color = color
@@ -254,7 +296,7 @@ def check_content_color(par, color):
             (status, special_dict_liste) = check_content_color_special_dict_liste(par, color[i0 + 1:i1])
         else:
             status = hdef.NOT_OKAY
-            INFOTEXT = f"Im tab zeile:{ZEILE}, color : \"{color}\"  kann nicht mit brackest \"{par.TAB_COLOR_SPEZ_BRACKET_OPEN}\" und \"{par.TAB_COLOR_SPEZ_BRACKET_CLOSE}\" gewandelt werden "
+            INFOTEXT = f"Im tab zeile:{ZEILE}, color : \"{color}\"  kann nicht mit brackets \"{par.TAB_COLOR_SPEZ_BRACKET_OPEN}\" und \"{par.TAB_COLOR_SPEZ_BRACKET_CLOSE}\" gewandelt werden "
         # end if
     # end if
 
@@ -322,10 +364,23 @@ def check_content_color_special_dict_liste(par,color):
 def hilfe(rd):
     """
 
+    TabName  = section:name(fmt,color)
+    TabName1 = bi:name(str,black)            Name aus Basis Information
+    TabName2 = Kurs(euroStrK,)               Darstellung in euroStr mit Komma Farbe default
+    TabName3 = datum(datStrP,)               Darstellung in datStr mit Punkt Farbe default
+
+    TabName4 = sig:Kurs(float.3,green:>100.0;red:<20.0)   in Format float mit 3 Nachkommastellen
+                                                            Farbe grün wenn wert > 100 und rot wenn kleiner 20
+    TabName5 = Vergleich1(x:==1,green:>100.0;red:<20.0)"  zeigt ein Vergleichsignal (Vergleich1) mit dem Zeichen x, wenn
+                                                            der wert 1 ist ( int 1)
+
+
     :param rd:
     :return: infotext = hilfe(rd)
     """
     infotext = "\n"
+
+    infotext = f"Hilfe für Tabellendefinition:\n\nSyntax: TabelenSpaltenName = Kontext, für Kontext kann stehe:\n\n"
 
     for i in range(12):
         match i:

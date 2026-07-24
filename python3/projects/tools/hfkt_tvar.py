@@ -955,9 +955,26 @@ def insert_list_to_table(ttable: TTable,tlist: TList,irow: int):
         return ttable
     # end if
 # end def
+def add_date_set_to_table(ttable: TTable, data_set: list):
+    '''
+
+    :param ttable:
+    :param data_set:
+    :return: ttable = add_date_set_to_table(ttable,data_set)
+    '''
+
+    if ttable.n != len(data_set):
+        raise Exception(f"add_date_set_to_table: ttable hat n = {ttable.n} Spalten, und data_set hat n = {len(data_set)}  ungleich Daten-länge")
+    else:
+        ttable.table.append(data_set)
+        ttable.ntable += 1
+    # end if
+    return ttable
+# end def
 def add_row_liste_to_table(ttable, name,add_row_listeraw,type):
     '''
-    
+
+     Hier wird eine Spalte hinzugefügt
     :param ttable:
     :param name:
     :param liste:

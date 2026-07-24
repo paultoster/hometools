@@ -23,6 +23,7 @@ class Param:
     SIG_HIGH    = "high"
     SIG_LOW     = "low"
     SIG_VOLUME  = "volume"
+    SIG_1PAR_DATUM = "datum"
     SIG_2PAR_NP_OBJ  = "np_obj"
     SIG_2PAR_LINGRAD = "lingrad"
     SIG_2PAR_SMA = "sma"
@@ -37,11 +38,12 @@ class Param:
     SIG_TYPE_HIGH    = 5
     SIG_TYPE_LOW     = 6
     SIG_TYPE_VOLUME  = 7
-    SIG_TYPE_2PAR_NP_OBJ  = 8
-    SIG_TYPE_2PAR_LINGRAD = 9
-    SIG_TYPE_2PAR_SMA = 10
-    SIG_TYPE_2PAR_EMA = 11
-    SIG_TYPE_3PAR_VERGLEICH = 12
+    SIG_TYPE_1PAR_DATUM = 8
+    SIG_TYPE_2PAR_NP_OBJ  = 9
+    SIG_TYPE_2PAR_LINGRAD = 10
+    SIG_TYPE_2PAR_SMA = 11
+    SIG_TYPE_2PAR_EMA = 12
+    SIG_TYPE_3PAR_VERGLEICH = 13
 
     SIG_STORE_DATUM = "datum_array"
     SIG_STORE_GRAD  = "grad"
@@ -57,6 +59,8 @@ class Param:
     TAB_FMT_STR = "str"
     TAB_FMT_INT = "int"
     TAB_FMT_FLOAT = "float"
+    TAB_FMT_EUROSTRK = "euroStrK"
+    TAB_FMT_DATSTRP = "datStrP"
     TAB_FMT_SPEZ = "spez"
     TAB_FMT_FLOAT_SEP = "."
     TAB_FMT_SPEZ_BRACKET_OPEN = "["

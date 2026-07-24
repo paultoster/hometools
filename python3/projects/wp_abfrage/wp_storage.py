@@ -188,14 +188,15 @@ def read_np_obj(classdef,file_name,formatpj):
     # Check ob existieret
     flag = np_obj_storage_exist(file_name,formatpj)
 
+    if formatpj == FORMAT_PICKLE:
+        file_name = hfp.reset_ext(file_name, "pkl")
+    else:
+        file_name = hfp.reset_ext(file_name, "json")
+    # end if
+
     # Wenn nicht existiert, dann Fehler
     if not flag:
         status = hdef.NOT_OKAY
-        if formatpj == FORMAT_PICKLE:
-            file_name = hfp.reset_ext(file_name, "pkl")
-        else:
-            file_name = hfp.reset_ext(file_name, "json")
-        # end if
         errtext = f"read_np_obj(): Error read_np_obj: Es besteht kein File {file_name = }"
         return (status, errtext, None)
     else:
@@ -207,6 +208,7 @@ def read_np_obj(classdef,file_name,formatpj):
         # bilde leeres Objekt und wandele ddict
         np_obj = classdef()
         np_obj.from_store_dict(ddict)
+        np_obj.add_filename(file_name)
     # end if
 
     return (status,errtext,np_obj)

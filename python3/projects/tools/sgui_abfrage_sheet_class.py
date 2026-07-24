@@ -192,30 +192,6 @@ class abfrage_sheet_class:
             self.title = ddict_inp[key]
         # end if
 
-        # ddict_inp["row_col_color_cell_dict_liste"] = [{'row':i,'col':j,'fg':'black','bg':'red'},{'row':i,'col':j,'fg':'','bg':'red'},...]
-        key = "row_col_color_cell_dict_liste"
-        if (key not in ddict_inp.keys()) or (not isinstance(ddict_inp[key], list)):
-            row_col_color_cell_dict_liste = []
-        else:
-            row_col_color_cell_dict_liste = ddict_inp[key]
-        # end if
-        self.row_col_color_cell_dict_liste = []
-        for ddict in row_col_color_cell_dict_liste:
-
-            if ("row" in ddict.keys()) and ("col" in ddict.keys()):
-
-                if "fg" not in ddict.keys():
-                    ddict["fg"] = ""
-                # end if
-
-                if "bg" not in ddict.keys():
-                    ddict["bg"] = ""
-                # end if
-
-                self.row_col_color_cell_dict_liste.append(ddict)
-            # end if
-        # end for
-
         # ddict_inp["row_color_dliste"]
         # ---------------------------------------------------------------
         key = "row_color_dliste"
@@ -233,25 +209,27 @@ class abfrage_sheet_class:
             self.row_color_list = self.row_color_list[0:self.ndata]
         # end if
 
-        # self.row_color_list  in self.row_col_color_cell_dict_liste überführen
-        irow_jcol_lliste = []
-        for ddict in self.row_col_color_cell_dict_liste:
-            item =(ddict["row"],ddict["col"])
-            irow_jcol_lliste.append(item)
-        # end for
+        # ddict_inp["row_col_color_cell_dict_liste"] = [{'row':i,'col':j,'fg':'black','bg':'red'},{'row':i,'col':j,'fg':'','bg':'red'},...]
+        key = "row_col_color_cell_dict_liste"
+        if (key not in ddict_inp.keys()) or (not isinstance(ddict_inp[key], list)):
+            row_col_color_cell_dict_liste = []
+        else:
+            row_col_color_cell_dict_liste = ddict_inp[key]
+        # end if
+        self.row_col_color_cell_dict_liste = []
+        for ddict in row_col_color_cell_dict_liste:
 
-        for irow,row_color in enumerate(self.row_color_list):
-            if (len(row_color) > 0) and (irow < self.ndata):
-                for jcol in range(self.nheader):
-                    item = (irow,jcol)
-                    if item in irow_jcol_lliste:
-                        index = irow_jcol_lliste.index(item)
-                        self.row_col_color_cell_dict_liste[index]['bg'] = row_color
-                    else:
-                        ddict = {"row":irow,"col":jcol,"fg":"","bg":row_color}
-                        self.row_col_color_cell_dict_liste.append(ddict)
-                    # end if
-                # end for
+            if ("row" in ddict.keys()) and ("col" in ddict.keys()):
+
+                if "fg" not in ddict.keys():
+                    ddict["fg"] = "black"
+                # end if
+
+                if "bg" not in ddict.keys():
+                    ddict["bg"] = "white"
+                # end if
+
+                self.row_col_color_cell_dict_liste.append(ddict)
             # end if
         # end for
 
@@ -437,8 +415,6 @@ class abfrage_sheet_class:
 
         self.addDataSheetGui()
 
-
-
         if len(self.default_dat_filter) > 0:
             self.runFilter()
 
@@ -586,10 +562,44 @@ class abfrage_sheet_class:
             self.flag_make_tab_gui = True
        # endfor
 
+        self.tabGui_SheetBox.set_all_column_widths()
+
 
 
         self.tabGui_SheetBox.set_index_data(self.index_liste)
 
+        self.setSheetColors()
+
+    def setSheetColors(self):
+
+        for row in range(len(self.index_liste)):
+            self.tabGui_SheetBox.highlight_rows(rows=row,
+                                                bg="white",
+                                                fg="black")
+        # end for
+
+        for i,color in enumerate(self.row_color_list):
+            if (i in self.index_liste) and (len(color)> 0):
+                index = self.index_liste.index(i)
+
+                self.tabGui_SheetBox.highlight_rows(rows=[index],
+                                                    bg=color,
+                                                    fg="black")
+            # end if
+        # end for
+
+        for i,ddict in enumerate(self.row_col_color_cell_dict_liste):
+
+            row = ddict["row"]
+            if row in self.index_liste:
+                index = self.index_liste.index(i)
+
+                self.tabGui_SheetBox.highlight_cells(row=row,
+                                                     column=ddict["col"],
+                                                     bg=ddict["bg"],
+                                                     fg=ddict["fg"])
+            # end if
+        # end if
 
     def createButtonGui(self):
         self.Button_Frame = Tk.Frame(self.root, relief=Tk.GROOVE, bd=2)
@@ -667,9 +677,13 @@ class abfrage_sheet_class:
 
         currently_selected = self.tabGui_SheetBox.get_currently_selected()
         if currently_selected:
-            self.current_row = currently_selected.row
-            self.current_col = currently_selected.column
-
+            irow = currently_selected.row
+            if irow < len(self.index_liste):
+                self.current_row = self.index_liste[irow]
+                self.current_col = currently_selected.column
+            # end if
+        # end if
+    # end def
     # -------------------------------------------------------------------------------
     # -------------------------------------------------------------------------------
     def Button_Fkt(self, button_name=None):
