@@ -53,6 +53,7 @@ class Param:
     TAB_SPEZ_GE = ">="
     TAB_SPEZ_LE = ">="
     TAB_SPEZ_EQ = "=="
+    TAB_SPEZ_NEQ = "!="
 
     TAB_SEC_BI = "bi"  # basict info
     TAB_SEC_SIG = "sig" # signal von sigset

@@ -245,6 +245,8 @@ def check_content_fmt_special_dict_liste(par,fmt):
             ddict["vergleich"] = par.TAB_SPEZ_LE
         elif val.find(par.TAB_SPEZ_EQ) == 0:
             ddict["vergleich"] = par.TAB_SPEZ_EQ
+        elif val.find(par.TAB_SPEZ_NEQ) == 0:
+            ddict["vergleich"] = par.TAB_SPEZ_NEQ
         else:
             INFOTEXT = f"Im tab zeile:{ZEILE}, fmt : \"{fmt}\" kann im {i+1}te command: \"{item}\") der Vergleich nicht gefunden werden"
             return (hdef.NOT_OKAY,special_dict_liste)
@@ -343,6 +345,8 @@ def check_content_color_special_dict_liste(par,color):
             ddict["vergleich"] = par.TAB_SPEZ_LE
         elif val.find(par.TAB_SPEZ_EQ) == 0:
             ddict["vergleich"] = par.TAB_SPEZ_EQ
+        elif val.find(par.TAB_SPEZ_NEQ) == 0:
+            ddict["vergleich"] = par.TAB_SPEZ_NEQ
         else:
             INFOTEXT = f"Im tab zeile:{ZEILE}, spez : \"{color}\" kann im {i+1}te command: \"{item}\") der Vergleich nicht gefunden werden"
             return (hdef.NOT_OKAY,special_dict_liste)

@@ -107,9 +107,23 @@ def vergleich(np_dat1_array,np1_array,vergleich,np_dat2_array,np2_array):
                 np_array[i] = 1
             # end if
         # end for
+    elif vergleich == "==":
+        for i, val in enumerate(np1_array):
+
+            if val == np2_array[i]:
+                np_array[i] = 1
+            # end if
+        # end for
+    elif vergleich == "!=":
+        for i, val in enumerate(np1_array):
+
+            if val != np2_array[i]:
+                np_array[i] = 1
+            # end if
+        # end for
     else:
         status = hdef.NOT_OKAY
-        errtext = f"Das Vergleichszeichen {vergleich} ist nicht >,<,>=,<= ???"
+        errtext = f"Das Vergleichszeichen {vergleich} ist nicht >,<,>=,<=,==,!= ???"
     # end if
     return (status,errtext,np_dat_array,np_array)
 # end def

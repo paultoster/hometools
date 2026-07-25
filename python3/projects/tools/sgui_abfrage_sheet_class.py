@@ -592,7 +592,7 @@ class abfrage_sheet_class:
 
             row = ddict["row"]
             if row in self.index_liste:
-                index = self.index_liste.index(i)
+                # index = self.index_liste.index(i)
 
                 self.tabGui_SheetBox.highlight_cells(row=row,
                                                      column=ddict["col"],

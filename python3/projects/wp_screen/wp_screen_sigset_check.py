@@ -278,7 +278,7 @@ def  check_content_3par_tuple(par,fkt,par1,par2,par3,signaldef_liste, werte_dict
             INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({par1},{par2},{par3})\") ist erster Parameter signal = {par1} nicht davor definiert worden "
             return hdef.NOT_OKAY
         # end if
-        if par2 not in [">","<",">=","<="]:
+        if par2 not in [">","<",">=","<=","==","!="]:
             INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({par1},{par2},{par3})\") ist zweite Parameter Vergleichsvorschrift = {par2} nicht richtig definiert (>,<,>=,<=) "
             return hdef.NOT_OKAY
         # end if
@@ -351,7 +351,7 @@ def hilfe(rd):
                 val2 = f"exponential moving avarage für Signal (muss definiert sein) und Anzahl von Punkten/Tage"
             case 8:
                 val1 = f"{rd.par.SIG_3PAR_VERGLEICH}(signal1,>,signal2)"
-                val2 = f"Vergleich zweier Signale (müssen definiert sein) und Vorschrif >,<,>=,<="
+                val2 = f"Vergleich zweier Signale (müssen definiert sein) und Vorschrif >,<,>=,<=,==,!="
             case _:
                 break
         # end match

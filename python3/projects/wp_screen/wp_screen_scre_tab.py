@@ -99,6 +99,7 @@ def scre_build_data(rd,irow ,isin,tab_dict,tab_werte_dict_liste,type_list):
         return None
     # end if
     data_list = []
+    color_dict_list = []
     for icol,werte_dict in enumerate(tab_werte_dict_liste):
 
         werte_dict["isin"] = isin
@@ -116,13 +117,11 @@ def scre_build_data(rd,irow ,isin,tab_dict,tab_werte_dict_liste,type_list):
         data_list.append(valout)
 
         if (len(color) > 0) and (color != rd.par.TAB_COLOR_WHITE):
-            color_dict = {'row':irow,'col':icol,'bg':color}
-        else:
-            color_dict = None
+            color_dict_list.append({'row':irow,'col':icol,'bg':color})
         # end if
     # end for
 
-    return (data_list,color_dict)
+    return (data_list,color_dict_list)
 # end def
 def scre_build_data_get_value(rd,werte_dict,np_data_obj):
     """
@@ -189,18 +188,20 @@ def scre_build_data_format_value(rd, werte_dict, value, type,np_data_obj):
 
     global STATUS, ERRTEXT, INFOTEXT
 
+    val_out= copy.copy(value)
+
     if isinstance(value, int):
-        value = htype.type_transform_direct(value, "int", type)
+        val_out= htype.type_transform_direct(val_out, "int", type)
     elif isinstance(value, float):
-        value = htype.type_transform_direct(value, "float", type)
+        val_out = htype.type_transform_direct(val_out, "float", type)
     else:
-        value = htype.type_transform_direct(value, "str", type)
+        val_out = htype.type_transform_direct(val_out, "str", type)
     # end if
 
     # Nachkommastellen
     if (werte_dict["fmt_nachkomma"] > -1) and (isinstance(value, int) or isinstance(value, float)):
         t = f"{value:.{werte_dict["fmt_nachkomma"]}f}"
-        value = htype.type_transform_direct(t, "str", type)
+        val_out = htype.type_transform_direct(t, "str", type)
     # end if
 
 
@@ -255,6 +256,10 @@ def scre_build_data_format_value(rd, werte_dict, value, type,np_data_obj):
                 if value == vergleichswert:
                     ersatzwert = fmt_spez_dict["ausgabe"]
                 # end if
+            elif fmt_spez_dict["vergleich"] == rd.par.TAB_SPEZ_NEQ:
+                    if value != vergleichswert:
+                        ersatzwert = fmt_spez_dict["ausgabe"]
+                    # end if
             else:
                 STATUS = hdef.NOT_OKAY
                 ERRTEXT = f"scre_build_data_format_value: Die Vergleichsanwesiung  : \"{fmt_spez_dict["vergleich"]}\" stimmt nicht"
@@ -262,10 +267,10 @@ def scre_build_data_format_value(rd, werte_dict, value, type,np_data_obj):
             # end if
         # end for
         if len(ersatzwert) > 0:
-            value = ersatzwert
+            val_out = ersatzwert
         # end if
 
-    return value
+    return val_out
 # end def
 def scre_build_data_color_value(rd, werte_dict, value, np_data_obj):
     """
@@ -326,6 +331,10 @@ def scre_build_data_color_value(rd, werte_dict, value, np_data_obj):
                     # end if
                 elif color_spez_dict["vergleich"] == rd.par.TAB_SPEZ_EQ:
                     if value == vergleichswert:
+                        colorersatzwert = color_spez_dict["color"]
+                    # end if
+                elif color_spez_dict["vergleich"] == rd.par.TAB_SPEZ_NEQ:
+                    if value != vergleichswert:
                         colorersatzwert = color_spez_dict["color"]
                     # end if
                 else:

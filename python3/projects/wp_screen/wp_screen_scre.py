@@ -484,7 +484,7 @@ def scre_build(rd,scre_dict):
     color_dict_liste = []
     for irow,isin in enumerate(isin_liste):
 
-        (data_liste,color_dict) = wp_screen_scre_tab.scre_build_data(rd,irow,isin,tab_dict,tab_werte_dict_liste,type_list)
+        (data_liste,color_dict_list0) = wp_screen_scre_tab.scre_build_data(rd,irow,isin,tab_dict,tab_werte_dict_liste,type_list)
         if wp_screen_scre_tab.get_status() != hdef.OKAY:
             STATUS = hdef.NOT_OKAY
             ERRTEXT = wp_screen_scre_tab.get_errtext()
@@ -492,9 +492,8 @@ def scre_build(rd,scre_dict):
         # end if
 
         ttable = hfkt_tvar.add_date_set_to_table(ttable,data_liste)
-        if color_dict is not None:
-            color_dict_liste.append(color_dict)
-        # end if
+        color_dict_liste += color_dict_list0
+
     # end for
 
     rd.scre["ttable"] = ttable
