@@ -113,11 +113,66 @@ class NpBaseClass:
 # end class
 
 class NpUsdEuroClass(NpBaseClass):
-    np_name_list: list[str] = ["dat_np_array","usdeuro_np_array"]
+    np_name_list: list[str] = ["dat_np_array","indice_np_array"]
     # file_base_name: str = "usdeuro_values"
     def __init__(self,*args):
         super().__init__(args,np_name_list=self.np_name_list,class_def = NpUsdEuroClass)
+        self.filename: str = ""
         return
+    # end def
+    def get_last_data(self):
+        if hasattr(self, 'dat_np_array'):
+            if self.dat_np_array is not None:
+                dat_act = self.dat_np_array[-1]
+                array_act = self.indice_np_array[-1]
+                return (dat_act,array_act)
+            # end if
+        # end if
+        return (None,None)
+    # end def
+    def get_first_data(self):
+        if hasattr(self, 'dat_np_array'):
+            if self.dat_np_array is not None:
+                dat_0 = self.dat_np_array[0]
+                array_0 = self.indice_np_array[0]
+                return (dat_0,array_0)
+            # end if
+        # end if
+        return (None,None)
+    def add_filename(self,filename):
+        self.filename = filename
+    # end def
+    def sort_by_dat(self):
+        if hasattr(self, 'dat_np_array'):
+            index_arr = np.argsort(self.dat_np_array)
+            self.dat_np_array = np.array(self.dat_np_array)[index_arr]
+            try:
+                self.indice_np_array = np.array(self.indice_np_array)[index_arr]
+            except:
+                a = 0
+            # end try
+        # end if
+    def reduce_end_dat(self,end_dat):
+
+        if hasattr(self, 'dat_np_array'):
+
+            if len(self.dat_np_array) > 0:
+
+                self.sort_by_dat()
+
+                edayend = hfkt_date_time.secs_to_end_of_day(end_dat)
+
+                while self.dat_np_array[-1] > edayend:
+                    self.dat_np_array    = np.delete(self.dat_np_array, -1)
+                    self.indice_np_array  = np.delete(self.indice_np_array, -1)
+                    if len(self.dat_np_array) == 0:
+                        break
+                # end while
+            # end if
+        # end if
+    # end def
+
+
     # end def
 class NpPriceVolumeClass(NpBaseClass):
     np_name_list: list[str] = ["dat_np_array","start_np_array","high_np_array","low_np_array","end_np_array","volume_np_array"]
@@ -250,4 +305,4 @@ if __name__ == '__main__':
     obj1.from_store_dict(ddict_trans)
 
     print(obj1.dat_np_array)
-    print(obj1.usdeuro_np_array)
+    print(obj1.indice_np_array)

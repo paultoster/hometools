@@ -1,0 +1,375 @@
+import os, sys
+import numpy as np
+
+from hfkt_log import log
+
+t_path, _ = os.path.split(__file__)
+tools_path = t_path + "\\.."
+if (tools_path not in sys.path):
+  sys.path.append(tools_path)
+# endif
+
+import tools.hfkt_def as hdef
+# import tools.hfkt_dict as hdict
+import tools.hfkt_type as htype
+
+from wp_abfrage import wp_storage
+from wp_abfrage import wp_fkt
+
+from wp_abfrage import wp_np_dataclass as wp_np_dc
+from wp_abfrage import wp_yahoofinance as wp_yfinance
+from wp_abfrage import wp_ezbleitzins_requests as wp_ezbleitzins_requests
+
+def process_akt(wb_obj):
+    """
+
+    :param wb_obj:
+    :return: (status, errtext) = process_akt(wp_obj)
+    """
+
+    (status,errtext,n, _, lastdat) = get_number_of_data(wb_obj)
+
+    if n == 0:
+        lastdat = htype.type_transform_direct(wb_obj.base_ddict["price_volumen_first_dat"],"datStrP","dat")
+
+
+    if status != hdef.OKAY:
+        return (status, errtext)
+
+    # Was ist der letzte aktuelle Handelsdatum
+    end_dat_time_list = wp_fkt.letzter_beendeter_handelstag_dat_list(wb_obj.base_ddict["boerse"])
+    end_dat = htype.type_transform_direct(end_dat_time_list, "datTimeList", "dat")
+
+    (status,errtext) = process_start_end_dat(wb_obj,lastdat,end_dat)
+
+    return (status, errtext)
+# end def
+def process_start_end_dat(wb_obj,lastdat,end_dat):
+    """
+
+    :param wb_obj:
+    :param lastdat:
+    :param end_dat:
+    :return:  (status, errtext) = process_start_end_dat(wp_obj,lastdat,end_dat)
+    """
+
+    (status, errtext,dat_np_array) = get_datums_reihe_von_usdeuro(wb_obj,end_dat)
+    if status != hdef.OKAY:
+        return (status, errtext)
+
+
+    # Holle EZB-Leitzins und erweitere auf datums-reihe
+    (status, errtext, np_obj_zins) = wp_ezbleitzins_requests.get_data(wp_np_dc.NpUsdEuroClass, lastdat, end_dat)
+
+    np_obj_zins = erweitere_auf_dat_np_array(wp_np_dc.NpUsdEuroClass,np_obj_zins,dat_np_array)
+
+    if status != hdef.OKAY:
+        return (status, errtext)
+
+    (status, errtext) = update_with_np_obj_new(wb_obj,np_obj_zins)
+
+    return (status, errtext)
+# end def
+def get_datums_reihe_von_usdeuro(wb_obj,end_dat):
+    """
+        (status, errtext,dat_np_array) = get_datums_reihe_von_usdeuro(wb_obj,end_dat)
+    """
+    #
+    # Hole korrekte Datumsreihe:
+    file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["indices_pre_file_name"] + wb_obj.par.INDICES_USDEURO_NAME,
+                                                wb_obj.base_ddict["store_path"])
+
+    formatpj = int(wb_obj.base_ddict["usdeuro_use_format"]/10)
+
+    flag = wp_storage.np_obj_storage_exist(file_name, formatpj)
+
+    if flag:
+
+        (status,errtext,np_obj) = wp_storage.read_np_obj(wp_np_dc.NpUsdEuroClass,file_name,formatpj)
+        if status != hdef.OKAY:
+            return (status, errtext, None)
+        # end if
+    else:
+        (status, errtext, np_obj) = wp_yfinance.get_usdeuro_data(wp_np_dc.NpUsdEuroClass, lastdat, end_dat)
+
+        if status != hdef.OKAY:
+            return (status, errtext)
+    # end if
+
+    np_obj.reduce_end_dat(end_dat)
+
+    dat_np_array = np_obj.dat_np_array
+
+    return (status, errtext,dat_np_array)
+# end def
+def erweitere_auf_dat_np_array(np_classdef,np_obj_zins,dat_np_array):
+    """
+        Erweitert auf dat_np_array dat_np_array in np_obj_zins unregelmässig nach Leitzinsänderung steht
+
+    :param np_obj_zins: dataclass
+    :param dat_np_array: dataclass
+        np_obj_zins = erweitere_auf_dat_np_array(np_obj_zins,dat_np_array)
+    """
+
+
+
+
+    zins_array = np.empty(len(dat_np_array), dtype=float)
+
+    nj = len(np_obj_zins.dat_np_array)
+
+    j = 0
+    zins_old = np_obj_zins.indice_np_array[j]
+    dat_old  = np_obj_zins.dat_np_array[j]
+    j += 1
+    for i,datval in enumerate(dat_np_array):
+
+        if datval >= np_obj_zins.dat_np_array[j]:
+            while (datval >= np_obj_zins.dat_np_array[j]):
+                zins_old = np_obj_zins.indice_np_array[j]
+                dat_old = np_obj_zins.dat_np_array[j]
+                j += 1
+                if j >= nj:
+                    j -= 1
+                    break
+            # end while
+        # end if
+
+        zins_array[i] = zins_old
+    # end for
+
+    np_obj = np_classdef(dat_np_array, zins_array)
+
+    return np_obj
+# end def
+def get_number_of_data(wb_obj):
+    """
+
+    :return: (status,errtext,number,firstdat,lastdat) = get_number_of_data_usdeuro_course()
+    """
+    status = hdef.OKAY
+    errtext = ""
+    number = 0
+    firstdat = 0
+    lastdat = 0
+
+
+    file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["indices_pre_file_name"] + wb_obj.par.INDICES_EZB_LEITZINS_NAME,
+                                                wb_obj.base_ddict["store_path"])
+
+    formatpj = int(wb_obj.base_ddict["ezbleitzins_use_format"]/10)
+
+    flag = wp_storage.np_obj_storage_exist(file_name, formatpj)
+
+    if flag:
+        (status,errtext,np_obj) = wp_storage.read_np_obj(wp_np_dc.NpUsdEuroClass,file_name,formatpj)
+        if status != hdef.OKAY:
+            return (status, errtext, number, firstdat, lastdat)
+        # end if
+
+        if isinstance(np_obj.dat_np_array, (np.ndarray, np.generic)):
+            number   = len(np_obj.dat_np_array)
+            firstdat = int(np_obj.dat_np_array[0])
+            lastdat  = int(int(np_obj.dat_np_array[-1]))
+        # end fi
+    # end if
+    return (status, errtext,number,firstdat,lastdat)
+# end def
+def update_with_np_obj_new(wb_obj,np_obj_new):
+    """
+
+    :param np_obj_new: dataclass
+    :return:  (status,errtext) = obj.set_usdeuro_course(np_obj_new,HEADER_DATUM_NAME,HEADER_USDEURO_NAME,base_ddict)
+    """
+
+    status = hdef.OKAY
+    errtext = ""
+
+    wb_obj.log.write_info(f"Update ezb zins course:")
+
+    file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["indices_pre_file_name"] + wb_obj.par.INDICES_EZB_LEITZINS_NAME,
+                                                wb_obj.base_ddict["store_path"])
+    formatpj = int(wb_obj.base_ddict["ezbleitzins_use_format"] / 10)
+
+    flag = wp_storage.np_obj_storage_exist(file_name, formatpj)
+    if flag:
+
+        (status,errtext,np_obj) = wp_storage.read_np_obj(wp_np_dc.NpUsdEuroClass,
+                                                         file_name,
+                                                         formatpj)
+        if status != hdef.OKAY:
+            return (status, errtext)
+        # end if
+
+        if isinstance(np_obj.dat_np_array, (np.ndarray, np.generic)):
+            (status, errtext, np_obj) = merge_usdeuro_np_obj_new_to_np_obj(np_obj,np_obj_new)
+        else:
+            np_obj = np_obj_new
+        # end if
+    else:
+        np_obj = np_obj_new
+    # end if
+
+    if status != hdef.OKAY:
+        return (status,errtext)
+
+    file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["indices_pre_file_name"] + wb_obj.par.INDICES_EZB_LEITZINS_NAME,
+                                                wb_obj.base_ddict["store_path"])
+    formatpj = int(wb_obj.base_ddict["ezbleitzins_use_format"] % 10)
+
+    (status, errtext,filename) = wp_storage.save_np_obj(np_obj,file_name,formatpj)
+
+    wb_obj.log.write_info(f"Update of file: {filename}")
+
+    return (status,errtext)
+# end def
+def merge_usdeuro_np_obj_new_to_np_obj(np_obj,np_obj_new):
+    """
+
+    :param df:
+    :param df_new:
+    :param dat_name:
+    :param usdeuro_name: (status, errtext, df_merge) = obj.merge_usdeuro_dfnew_to_df(df,df_new, dat_name,usdeuro_name)
+    :return:
+    """
+    status = hdef.OKAY
+    errtext = ""
+
+    np_dat_akt = np_obj.dat_np_array
+    np_dat_new = np_obj_new.dat_np_array
+
+    half_day_seconds = 24 * 60 * 60
+    sort_index_list = wp_fkt.build_sort_list_of_index(list(np_dat_akt), list(np_dat_new), half_day_seconds)
+
+    if len(sort_index_list):
+        np_usdeuro_akt = np_obj.indice_np_array
+        np_usdeuro_new = np_obj_new.indice_np_array
+
+        np_dat_merge = np.array([], dtype=np.int64)
+        np_usdeuro_merge = np.array([], dtype=np.float64)
+
+
+        for index,val in enumerate(sort_index_list):
+
+            if val[0] == 0:
+                np_dat_merge = np.append(np_dat_merge,np_dat_akt[val[1]:val[2]+1])
+                np_usdeuro_merge = np.append(np_usdeuro_merge,np_usdeuro_akt[val[1]:val[2]+1])
+            else:
+                np_dat_merge = np.append(np_dat_merge,np_dat_new[val[1]:val[2]+1])
+                np_usdeuro_merge = np.append(np_usdeuro_merge,np_usdeuro_new[val[1]:val[2] + 1])
+            # end if
+        # end for
+
+        np_obj = wp_np_dc.NpUsdEuroClass(np_dat_merge, np_usdeuro_merge)
+
+    # end if
+    return (status, errtext, np_obj )
+# end def
+def get_from_start_dat_to_end_dat(wb_obj, start_dat, end_dat):
+    """
+    :param wb_obj:
+    :param start_dat:
+    :param end_dat:
+    :return: (status, errtext,np_obj) = wp_base_usdeuro.get_from_start_dat_to_end_dat(wb_obj, start_dat, end_dat)
+    """
+    status = hdef.OKAY
+    errtext = ""
+
+    # Hole first und last aus aktueller Datei auf Platte
+    (status, errtext, number, firstdat, lastdat) = get_number_of_data(wb_obj)
+    if status != hdef.OK:
+        return (status, errtext)
+
+    # Prüfe ob start-Datum, dass gesucht wird vor dem ersten Datum aus Datei => Fehler
+    if start_dat < firstdat:
+        status = hdef.NOT_OKAY
+        firstdatstr = htype.type_transform_direct(firstdat, "dat", "datStrP")
+        startdatstr = htype.type_transform_direct(start_dat, "dat", "datStrP")
+        errtext = f"get_from_start_dat_to_end_dat: Das start_datum: {startdatstr} liegt vor dem ersten gespeichertem Datum {firstdatstr}"
+        return (status, errtext,None)
+    # end def
+
+    # Update auf aktuelles Datum, wenn gesuchtes Enddatum größer als letztes gespeichertes Datum
+    if end_dat > lastdat:
+        # Update der fehlenden Werte bis zum letzten Handelstag einschließlich
+        (status, errtext) = process_akt(wb_obj)
+
+        if status != hdef.OKAY:
+            return (status, errtext,None)
+        # end if
+    # end def
+
+    # Lade Werte-datei und bekomme ein numpy-Objekt np_obj
+    file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["indices_pre_file_name"] + wb_obj.par.INDICES_EZB_LEITZINS_NAME,
+                                                wb_obj.base_ddict["store_path"])
+
+    formatpj = int(wb_obj.base_ddict["ezbleitzins_use_format"]/10)
+
+    (status,errtext,np_obj) = wp_storage.read_np_obj(wp_np_dc.NpUsdEuroClass,
+                                                     file_name,
+                                                     formatpj)
+    if status != hdef.OKAY:
+        return (status, errtext,None)
+    # end if
+    range = 24*60*60
+
+    # Suche den Indize-Bereich für von start nach end mit dem range von einem Tag
+    (start_index,end_index,_,_) = wp_fkt.find_index_range(list(np_obj.dat_np_array),
+                                                          start_dat,
+                                                          end_dat,
+                                                          range)
+
+    # Prüfung, ob gefunden
+    if (start_index is None) or (end_index is None):
+        status = hdef.NOT_OKAY
+        formatpj = int(wb_obj.base_ddict["ezbleitzins_use_format"] % 10)
+        if (formatpj == 1) or (formatpj == 3):
+            file_name = wp_storage.build_file_name_pickle(wb_obj.base_ddict["indices_pre_file_name"] + wb_obj.par.INDICES_EZB_LEITZINS_NAME,
+                                                        wb_obj.base_ddict["store_path"])
+        else:
+            file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["indices_pre_file_name"] +
+                                                        wb_obj.par.INDICES_EZB_LEITZINS_NAME,
+                                                        wb_obj.base_ddict["store_path"])
+        # end if
+
+        errtext = f"Für Auslesen USD-Euro konnte in Datei {file_name} das Datum zwischen {start_dat = } und {end_dat = } konnte nicht gefunden werden."
+    # Stutze Vektoren auf den Indize-Bereich ein
+    else:
+        np_obj.dat_np_array = np_obj.dat_np_array[start_index:end_index+1]
+        np_obj.indice_np_array = np_obj.indice_np_array[start_index:end_index+1]
+    # end if
+
+    # print(f"{start_index =},{end_index =},dat_np_array_len = {len(np_obj.dat_np_array)}")
+    # print(f"start_dat = {htype.type_transform_direct(start_dat, "dat", "datStrP")}")
+    # print(f"end_dat = {htype.type_transform_direct(end_dat, "dat", "datStrP")}")
+    # print(f"dat_np_array[0] = {htype.type_transform_direct(np_obj.dat_np_array[0], "dat", "datStrP")}")
+    # print(f"dat_np_array[-1] = {htype.type_transform_direct(np_obj.dat_np_array[-1], "dat", "datStrP")}")
+
+    return (status, errtext, np_obj)
+# end def
+def get_act(wb_obj):
+    # Lade Werte-datei und bekomme ein numpy-Objekt
+
+    status = hdef.OKAY
+    errtext = ""
+
+    file_name = wp_storage.build_file_name_json(
+        wb_obj.base_ddict["indices_pre_file_name"] + wb_obj.par.INDICES_EZB_LEITZINS_NAME,
+        wb_obj.base_ddict["store_path"])
+
+    formatpj = int(wb_obj.base_ddict["ezbleitzins_use_format"] / 10)
+
+    flag = wp_storage.np_obj_storage_exist(file_name, formatpj)
+    if flag:
+        (status, errtext, np_obj) = wp_storage.read_np_obj(wp_np_dc.NpUsdEuroClass,
+                                                           file_name,
+                                                           formatpj)
+        if status != hdef.OKAY:
+            return (status, errtext, None)
+        # end if
+    else:
+        np_obj = None
+    # end if
+
+    return (status, errtext, np_obj)
+# end def

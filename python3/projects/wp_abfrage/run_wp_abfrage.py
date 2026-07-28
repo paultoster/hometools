@@ -32,12 +32,11 @@ def run_wp_abfrage():
 
     runflag = True
     
-    start_auswahl = ["Ende", "edit basic info","edit price volume","EURUSD-Kurs lese aus EZB-xml-data", "EURUSD-Kurs hole aktuellen aus yfinance"]
+    start_auswahl = ["Ende", "edit basic info","edit price volume","edit indices"]
     index_ende = 0
     index_basic_info = 1
     index_price_volume = 2
-    index_eurousd_ezb_xml = 3
-    index_eurousd_ezb_yfinance = 4
+    index_indices = 3
     save_flag = True
     abfrage_liste = ["okay", "cancel", "ende"]
     i_abfrage_okay = 0
@@ -98,54 +97,23 @@ def run_wp_abfrage():
                 exit(1)
             # end if
 
-        elif index == index_price_volume_all:
+        elif index == index_indices:
 
             wp_obj.log.write_info(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
 
-            (status, errtext,infotext) = wp_obj.update_price_volume()
+            (status, errtext,infotext) = wp_bearbeiten.edit_indices(wp_obj)
             if status != hdef.OKAY:
-                t = f"Error wp_bearbeiten.get_last_price_volume(wp_obj) \n errtext = {errtext}"
+                t = f"Error wp_bearbeiten.edit_indices(wp_obj) \n errtext = {errtext}"
                 sgui.anzeige_text(t,textcolor='red')
                 wp_obj.log.write_err(t)
                 exit(1)
             # end if
 
             if len(infotext):
-                t = f"Info wp_bearbeiten.get_last_price_volume(wp_obj) \n infotext = {infotext}"
+                t = f"Info wp_bearbeiten.edit_indices(wp_obj) \n infotext = {infotext}"
                 sgui.anzeige_text(t,textcolor='green')
                 wp_obj.log.write_info(t)
             # end if
-
-        elif index == index_eurousd_ezb_xml:
-
-            wp_obj.log.write_info(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
-            wp_obj.log.write_info("Siehe: https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/eurofxref-graph-usd.de.html")
-            wp_obj.log.write_info("Download XML unter dem Chart")
-
-            # Abfrage xml-File
-            xmlfilename = sgui.abfrage_file(file_types="*.xml",comment=f"Wähle eine xml-Datei von EZB",start_dir=wp_obj.base_ddict["store_path"])
-            if len(xmlfilename) > 0 :
-                # Einlesen xml-File
-                (status, errtext) = wp_obj.process_usdeuro_ezb_xml(xmlfilename)
-
-                if status != hdef.OKAY:
-                    t = f"Error wp_obj.process_usdeuro_ezb_xml(xmlfilename) \n errtext = {errtext}"
-                    sgui.anzeige_text(t, textcolor='red')
-                    wp_obj.log.write_err(t)
-                # end if
-            # end if
-
-        elif index == index_eurousd_ezb_yfinance:
-
-            wp_obj.log.write_info(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
-            wp_obj.log.write_info("Wird mit yfinace eingelesen")
-
-            (status, errtext) = wp_obj.process_akt_usdeuro()
-
-            if status != hdef.OKAY:
-                t = f"Error wp_obj.process_akt_usdeuro() \n errtext = {errtext}"
-                sgui.anzeige_text(t, textcolor='red')
-                wp_obj.log.write_err(t)
 
         else:
             wp_obj.log.write_info(f"Auswahl: {index} nicht bekannt")

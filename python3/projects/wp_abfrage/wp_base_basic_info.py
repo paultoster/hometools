@@ -26,7 +26,7 @@ def get_isin_liste(wb_obj) -> (int, str, list):
     :param wb_obj:
     :return: (status, errtext, isin_liste) = wp_base_basic_info.get_isin_liste(wb_obj)
     """
-    (status ,errtext ,wpname_isin_dict) = get_wpname_isin_dict(wb_obj)
+    (status ,errtext ,wpname_isin_dict) = get_isin_wpname_dict(wb_obj)
 
     if status == hdef.OKAY:
         isin_liste = list(wpname_isin_dict.keys())
@@ -36,12 +36,12 @@ def get_isin_liste(wb_obj) -> (int, str, list):
 
     return (status, errtext, isin_liste)
 # end def
-def get_wpname_isin_dict(wb_obj) -> (int, str, dict):
+def get_isin_wpname_dict(wb_obj) -> (int, str, dict):
     '''
 
     Lese wpname_isin_dict ein und gebe sie zurück
 
-    :return: (status, errtext, wpname_isin_dict) = get_wpname_isin_dict(wb_obj)
+    :return: (status, errtext, wpname_isin_dict) = get_isin_wpname_dict(wb_obj)
     '''
     file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["wpname_isin_filename"],
                                                 wb_obj.base_ddict["store_path"])
@@ -51,12 +51,12 @@ def get_wpname_isin_dict(wb_obj) -> (int, str, dict):
 
     return (status, errtext, wpname_isin_dict)
 # end def
-def save_wpname_isin(wb_obj, isin,wpname ):
+def save_isin_wpname(wb_obj, isin,wpname ):
     """
     :param wb_obj:
     :param isin:
     :param wpname:
-    :return: (status, errtext) = wp_base_basic_info.save_wpname_isin(self, isin,wpname )
+    :return: (status, errtext) = wp_base_basic_info.save_isin_wpname(self, isin,wpname )
     """
 
     file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["wpname_isin_filename"],
@@ -139,7 +139,7 @@ def get(wb_obj, isin_input: str|list) -> (int,str,dict|list):
         # end if
 
         if proof_flag:
-            (status, errtext) = wb_obj.save_basic_info_wpname_isin_dict(isin, info_dict["name"])
+            (status, errtext) = wb_obj.save_basic_info_isin_wpname_dict(isin, info_dict["name"])
 
             if status != hdef.OKAY:
                 return (status, errtext, None)

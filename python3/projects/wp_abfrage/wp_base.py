@@ -14,7 +14,7 @@ from wp_abfrage import wp_wkn as wp_wkn
 from wp_abfrage import wp_storage as wp_storage
 from wp_abfrage import wp_yahoofinance as wp_yfinance
 from wp_abfrage import wp_bearbeiten as wp_bearbeiten
-from wp_abfrage import wp_base_usdeuro as wp_base_usdeuro
+from wp_abfrage import wp_base_indices as wp_base_indices
 from wp_abfrage import wp_base_basic_info as wp_base_basic_info
 from wp_abfrage import wp_base_price_volume
 from wp_abfrage import wp_base_active_katalog
@@ -22,7 +22,7 @@ from wp_abfrage import wp_base_active_katalog
 
 import tools.hfkt_def as hdef
 import tools.hfkt_dict as hdict
-import tools.hfkt_type as htype
+# import tools.hfkt_type as htype
 import tools.hfkt_log as hlog
 
 INI_DICT_PROOF_LISTE = [("store_path", "str"),
@@ -37,8 +37,9 @@ INI_DICT_PROOF_LISTE = [("store_path", "str"),
                         ("onvista_pw","str"),
                         ("onvista_timeout_s","int","int",10),
                         ("boerse","str","str","xetra"),
+                        ("indices_pre_file_name", "str","str","indices_data_"),
                         ("usdeuro_use_format", "int", "int",0),
-                        ("usdeuro_pre_file_name", "str","str","usdeuro_data_"),
+                        ("ezbleitzins_use_format", "int", "int",0),
                         ("price_volumen_use_format", "int", "int",0),
                         ("price_volumen_pre_file_name", "str","str","wp_price_volume_data_"),
                         ("price_volumen_first_dat","str","datStrP","01.01.2000"),
@@ -91,8 +92,12 @@ class WPParam:
         HEADER_TYPE_LIST.append(liste[1])
     # end for
 
-    HEADER_USDEURO_NAME = "USDEURO"
-    HEADER_USDEURO_TYPE = "float"
+    # HEADER_USDEURO_NAME = "USDEURO"
+    # HEADER_USDEURO_TYPE = "float"
+
+    INDICES_EZB_LEITZINS_NAME = "ecbleitzins"
+    INDICES_USDEURO_NAME = "usdeuro"
+
 
 # end class
 class WPData:
@@ -102,7 +107,7 @@ class WPData:
     obj                                  = WPData(ini_filename)
     (status, errtext, output_dict)       = obj.get_basic_info(isin)
     (status, errtext, output_dict_liste) = obj.get_basic_info(isin_liste)
-    (status, errtext, wpname_isin_dict)  = obj.get_stored_basic_info_wpname_isin_dict()
+    (status, errtext, wpname_isin_dict)  = obj.get_stored_basic_info_isin_wpname_dict()
     (status,errtext, isin_liste)         = obj.get_basic_info_isin_liste()
     (status, errtext)                    = obj.save_basic_info(isin_liste, output_dict_liste)
     (status, errtext)                    = obj.save_basic_info(isin, output_dict)
@@ -168,23 +173,23 @@ class WPData:
         (self.status, self.errtext, isin_liste) = wp_base_basic_info.get_isin_liste(self)
 
         return (self.status, self.errtext, isin_liste)
-    def get_stored_basic_info_wpname_isin_dict(self) -> (int,str,dict):
+    def get_stored_basic_info_isin_wpname_dict(self) -> (int,str,dict):
         '''
         
         Lese wpname_isin_dict ein und gebe sie zurück
         
-        :return: (status, errtext, wpname_isin_dict) = self.get_stored_basic_info_wpname_isin_dict()
+        :return: (status, errtext, wpname_isin_dict) = self.get_stored_basic_info_isin_wpname_dict()
         '''
         
-        (self.status,self.errtext,wpname_isin_dict) = wp_base_basic_info.get_wpname_isin_dict(self)
+        (self.status,self.errtext,wpname_isin_dict) = wp_base_basic_info.get_isin_wpname_dict(self)
         
         return (self.status,self.errtext,wpname_isin_dict)
     # end def
-    def save_basic_info_wpname_isin_dict(self,isin,wpname) -> (int,str):
+    def save_basic_info_isin_wpname_dict(self,isin,wpname) -> (int,str):
         """
         speichere in file
         """
-        (self.status, self.errtext) = wp_base_basic_info.save_wpname_isin(self, isin,wpname )
+        (self.status, self.errtext) = wp_base_basic_info.save_isin_wpname(self, isin,wpname )
         return (self.status, self.errtext)
 
     # end def
@@ -366,116 +371,73 @@ class WPData:
         return (self.status, self.errtext)
 
     # end def
-    def process_usdeuro_ezb_xml(self, xmlfilename: str) -> (int,str):
-        """
+    # def process_usdeuro_ezb_xml(self, xmlfilename: str) -> (int,str):
+    #     """
+    #
+    #     :param wp_obj:
+    #     :param xmlfilename:
+    #     :return: (status, errtext) = wp_obj.process_usdeuro_ezb_xml(xmlfilename)
+    #     """
+    #
+    #     (status, errtext, number, firstdat, lastdat) = wp_base_usdeuro.get_number_of_data(self)
+    #
+    #     firstdatstr = htype.type_transform_direct(firstdat, "dat", "datStrP")
+    #     lastdatstr = htype.type_transform_direct(lastdat, "dat", "datStrP")
+    #
+    #     print(f"start reading {number = }, {firstdatstr = },{lastdatstr = }")
+    #
+    #
+    #     (self.status,self.errtext) = wp_base_usdeuro.process_ezb_xml(self,xmlfilename)
+    #
+    #
+    #     firstdatstr = htype.type_transform_direct(firstdat, "dat", "datStrP")
+    #     lastdatstr = htype.type_transform_direct(lastdat, "dat", "datStrP")
+    #
+    #     print(f"end reading {number = }, {firstdatstr = },{lastdatstr = }")
+    #
+    #     return (self.status,self.errtext)
+    # # end def
+    def get_indices_liste(self):
 
-        :param wp_obj:
-        :param xmlfilename:
-        :return: (status, errtext) = wp_obj.process_usdeuro_ezb_xml(xmlfilename)
-        """
+        indices_liste = wp_base_indices.get_indices_liste(self)
 
-        (status, errtext, number, firstdat, lastdat) = wp_base_usdeuro.get_number_of_data(self)
-
-        firstdatstr = htype.type_transform_direct(firstdat, "dat", "datStrP")
-        lastdatstr = htype.type_transform_direct(lastdat, "dat", "datStrP")
-
-        print(f"start reading {number = }, {firstdatstr = },{lastdatstr = }")
-
-
-        (self.status,self.errtext) = wp_base_usdeuro.process_ezb_xml(self,xmlfilename)
-
-
-        firstdatstr = htype.type_transform_direct(firstdat, "dat", "datStrP")
-        lastdatstr = htype.type_transform_direct(lastdat, "dat", "datStrP")
-
-        print(f"end reading {number = }, {firstdatstr = },{lastdatstr = }")
-
-        return (self.status,self.errtext)
+        return (self.status, self.errtext,indices_liste)
     # end def
-    def process_akt_usdeuro(self) -> (int,str):
+    def update_indices(self,indice=None) -> (int,str):
         """
 
-        :return: (status, errtext) = wp_obj.process_akt_usdeuro()
+        :return: (status, errtext,infotext) = wp_obj.update_indices()
         """
-        (status, errtext, number, firstdat, lastdat) = wp_base_usdeuro.get_number_of_data(self)
+
+        (self.status, self.errtext) = wp_base_indices.update_indices(self,indice)
         if self.status != hdef.OK:
-            return (self.status, self.errtext)
+            return (self.status, self.errtext,self.infotext)
 
-        firstdatstr = htype.type_transform_direct(firstdat, "dat", "datStrP")
-        lastdatstr = htype.type_transform_direct(lastdat, "dat", "datStrP")
 
-        print(f"start reading {number = }, {firstdatstr = },{lastdatstr = }")
-
-        (self.status, self.errtext) = wp_base_usdeuro.process_akt(self)
-        if self.status != hdef.OK:
-            return (self.status, self.errtext)
-
-        (status, errtext, number, firstdat, lastdat) = wp_base_usdeuro.get_number_of_data(self)
-        if self.status != hdef.OK:
-            return (self.status, self.errtext)
-
-        firstdatstr = htype.type_transform_direct(firstdat, "dat", "datStrP")
-        lastdatstr = htype.type_transform_direct(lastdat, "dat", "datStrP")
-
-        print(f"end reading {number = }, {firstdatstr = },{lastdatstr = }")
-
-        return (self.status, self.errtext)
+        return (self.status, self.errtext,self.infotext)
     # end def
-    def get_usdeuro_from_start_dat_to_end_dat(self,start_dat:int,end_dat:int):
+    def get_dict_indice_from_act(self, indice=None):
+        """
+        (status, errtext, np_obj_dict) = self.get_dict_indice_from_act()
+        (status, errtext, np_obj_dict) = self.get_dict_indice_from_act(indece)
+        (status, errtext, np_obj_dict) = self.get_dict_indice_from_act([indeice1,indece2])
+
+        """
+        (self.status, self.errtext, np_obj_dict) = wp_base_indices.get_dict_from_act(self, indice)
+
+        return (self.status, self.errtext, np_obj_dict)
+    # end def
+    def get_dict_indice_from_start_dat_to_end_dat(self,indice,start_dat:int,end_dat:int):
         """
         :param start_dat:
         :param end_dat:
-        :return: (status,errtext,np_usdeuro) = get_usdeuro_from_start_dat_to_end_dat(self,start_dat:int,end_dat:int)
+        :return: (status,errtext,np_obj_dict) = get_usdeuro_from_start_dat_to_end_dat(self,start_dat:int,end_dat:int)
         """
-        (self.status, self.errtext,np_obj) = wp_base_usdeuro.get_from_start_dat_to_end_dat(self,start_dat,end_dat)
-        return (self.status, self.errtext,np_obj)
+        (self.status, self.errtext,np_obj_dict) = wp_base_indices.get_dict_from_start_dat_to_end_dat(self,indice,start_dat,end_dat)
+
+        return (self.status, self.errtext,np_obj_dict)
     # end def
 
-    # def update_usdeuro(self):
-    #     """
-    #
-    #     :return: (status, errtext) = wp_obj.update_usdeuro()
-    #     """
-    #     (self.status, self.errtext) = wp_base_usdeuro.update(self)
-    #     #---------------------------------------------------------------------------------------------------------------
-    #     # Hole die aktuellen Werte von yfinace
-    #     #---------------------------------------------------------------------------------------------------------------
-    #     # Was ist der letzte gespeicherte wert => start datum
-    #     (_, _, start_dat) = self.get_number_of_data_usdeuro_course()
-    #     start_dat_time_list = htype.type_transform_direct(start_dat,"dat","datTimeList")
-    #     # Was ist der letzte aktuelle Handelsdatum
-    #     end_dat_time_list = wp_fkt.letzter_beendeter_handelstag_dat_list(self.base_ddict["boerse"])
-    #     end_dat           = htype.type_transform_direct(end_dat_time_list, "datTimeList", "dat")
-    #
-    #     # ---------------------------------------------------------------------------------------------------------------
-    #     # wennn Daten fehlen: Hole die aktuellen Werte von yfinace
-    #     # ---------------------------------------------------------------------------------------------------------------
-    #     if end_dat > start_dat:
-    #
-    #         (self.status, self.errtext, df_new) = wp_yfinance.get_usdeuro_data(start_dat_time_list,
-    #                                                                            end_dat_time_list,
-    #                                                                            self.par.HEADER_DATUM_NAME,
-    #                                                                            self.par.HEADER_USDEURO_NAME)
-    #
-    #         if self.status != hdef.OKAY:
-    #             return self.status
-    #
-    #         (read_flag,df) = wp_storage.read_parquet(self.par.HEADER_USDEURO_NAME, self.base_ddict)
-    #
-    #         if read_flag:
-    #             (self.status, self.errtext, df) = wp_fkt.merge_usdeuro_dfnew_to_df(df,df_new,
-    #                                                                     self.par.HEADER_DATUM_NAME,
-    #                                                                     self.par.HEADER_USDEURO_NAME)
-    #             if self.status != hdef.OKAY:
-    #                 return self.status
-    #
-    #             wp_storage.save_parquet(df, self.par.HEADER_USDEURO_NAME, self.base_ddict)
-    #         else:
-    #             df = df_new
-    #         # end if
-    #     # end def
-    #     return self.status
-    # # end def
     def update_price_volume(self, isin=None):
         """
         - Demand: run_wp_abfrage.py
@@ -589,7 +551,7 @@ class WPData:
 
         return (self.status,self.errtext,price,dat)
     # end def
-    def get_act_np_obj(self,isin):
+    def get_act_price_volume_np_obj(self,isin):
         """
         lade die no_obj-Datei und übergebe ein eKopie
 

@@ -10,36 +10,34 @@ if (tools_path not in sys.path):
 # endif
 
 import tools.hfkt_def as hdef
-# import tools.hfkt_dict as hdict
 import tools.hfkt_type as htype
 
 from wp_abfrage import wp_storage
 from wp_abfrage import wp_fkt
 
 from wp_abfrage import wp_np_dataclass as wp_np_dc
-from wp_abfrage import wp_base
 from wp_abfrage import wp_yahoofinance as wp_yfinance
 
-def process_ezb_xml(wb_obj: wp_base.WPData,xmlfilename: str) -> (int,str):
-    """
-
-    :param wb_obj:
-    :param xmlfilename:
-    :return: (status,errtext) = wp_base_usdeuro.process_ezb_xml(wb_obj ,xmlfilename
-    """
-
-    (status, errtext, np_obj_new) = wp_storage.read_usdeuro_ezb_xml(wp_np_dc.NpUsdEuroClass,xmlfilename)
-    if status != hdef.OKAY:
-        return (status, errtext)
-
-
-    (status, errtext) = update_with_np_obj_new(wb_obj,np_obj_new)
-
-    if status != hdef.OKAY:
-        return (status, errtext)
-
-    return (status, errtext)
-# end  def
+# def process_ezb_xml(wb_obj: wp_base.WPData,xmlfilename: str) -> (int,str):
+#     """
+#
+#     :param wb_obj:
+#     :param xmlfilename:
+#     :return: (status,errtext) = wp_base_usdeuro.process_ezb_xml(wb_obj ,xmlfilename
+#     """
+#
+#     (status, errtext, np_obj_new) = wp_storage.read_usdeuro_ezb_xml(wp_np_dc.NpUsdEuroClass,xmlfilename)
+#     if status != hdef.OKAY:
+#         return (status, errtext)
+#
+#
+#     (status, errtext) = update_with_np_obj_new(wb_obj,np_obj_new)
+#
+#     if status != hdef.OKAY:
+#         return (status, errtext)
+#
+#     return (status, errtext)
+# # end  def
 def process_akt(wb_obj):
     """
 
@@ -92,7 +90,7 @@ def get_number_of_data(wb_obj):
     lastdat = 0
 
 
-    file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["usdeuro_pre_file_name"] + wb_obj.par.HEADER_USDEURO_NAME,
+    file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["indices_pre_file_name"] + wb_obj.par.INDICES_USDEURO_NAME,
                                                 wb_obj.base_ddict["store_path"])
 
     formatpj = int(wb_obj.base_ddict["usdeuro_use_format"]/10)
@@ -121,7 +119,7 @@ def update_with_np_obj_new(wb_obj,np_obj_new):
 
     wb_obj.log.write_info(f"Update usdeuro course:")
 
-    file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["usdeuro_pre_file_name"] + wb_obj.par.HEADER_USDEURO_NAME,
+    file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["indices_pre_file_name"] + wb_obj.par.INDICES_USDEURO_NAME,
                                                 wb_obj.base_ddict["store_path"])
     formatpj = int(wb_obj.base_ddict["usdeuro_use_format"] / 10)
 
@@ -141,7 +139,7 @@ def update_with_np_obj_new(wb_obj,np_obj_new):
     if status != hdef.OKAY:
         return (status,errtext)
 
-    file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["usdeuro_pre_file_name"] + wb_obj.par.HEADER_USDEURO_NAME,
+    file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["indices_pre_file_name"] + wb_obj.par.INDICES_USDEURO_NAME,
                                                 wb_obj.base_ddict["store_path"])
     formatpj = int(wb_obj.base_ddict["usdeuro_use_format"] % 10)
 
@@ -170,8 +168,8 @@ def merge_usdeuro_np_obj_new_to_np_obj(np_obj,np_obj_new):
     sort_index_list = wp_fkt.build_sort_list_of_index(list(np_dat_akt), list(np_dat_new), half_day_seconds)
 
     if len(sort_index_list):
-        np_usdeuro_akt = np_obj.usdeuro_np_array
-        np_usdeuro_new = np_obj_new.usdeuro_np_array
+        np_usdeuro_akt = np_obj.indice_np_array
+        np_usdeuro_new = np_obj_new.indice_np_array
 
         np_dat_merge = np.array([], dtype=np.int64)
         np_usdeuro_merge = np.array([], dtype=np.float64)
@@ -228,7 +226,7 @@ def get_from_start_dat_to_end_dat(wb_obj, start_dat, end_dat):
     # end def
 
     # Lade Werte-datei und bekomme ein numpy-Objekt np_obj
-    file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["usdeuro_pre_file_name"] + wb_obj.par.HEADER_USDEURO_NAME,
+    file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["indices_pre_file_name"] + wb_obj.par.INDICES_USDEURO_NAME,
                                                 wb_obj.base_ddict["store_path"])
 
     formatpj = int(wb_obj.base_ddict["usdeuro_use_format"]/10)
@@ -252,11 +250,11 @@ def get_from_start_dat_to_end_dat(wb_obj, start_dat, end_dat):
         status = hdef.NOT_OKAY
         formatpj = int(wb_obj.base_ddict["usdeuro_use_format"] % 10)
         if (formatpj == 1) or (formatpj == 3):
-            file_name = wp_storage.build_file_name_pickle(wb_obj.base_ddict["usdeuro_pre_file_name"] + wb_obj.par.HEADER_USDEURO_NAME,
+            file_name = wp_storage.build_file_name_pickle(wb_obj.base_ddict["indices_pre_file_name"] + wb_obj.par.INDICES_USDEURO_NAME,
                                                         wb_obj.base_ddict["store_path"])
         else:
-            file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["usdeuro_pre_file_name"] +
-                                                        wb_obj.par.HEADER_USDEURO_NAME,
+            file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["indices_pre_file_name"] +
+                                                        wb_obj.par.INDICES_USDEURO_NAME,
                                                         wb_obj.base_ddict["store_path"])
         # end if
 
@@ -264,7 +262,7 @@ def get_from_start_dat_to_end_dat(wb_obj, start_dat, end_dat):
     # Stutze Vektoren auf den Indize-Bereich ein
     else:
         np_obj.dat_np_array = np_obj.dat_np_array[start_index:end_index+1]
-        np_obj.usdeuro_np_array = np_obj.usdeuro_np_array[start_index:end_index+1]
+        np_obj.indice_np_array = np_obj.indice_np_array[start_index:end_index+1]
     # end if
 
     # print(f"{start_index =},{end_index =},dat_np_array_len = {len(np_obj.dat_np_array)}")
@@ -274,4 +272,21 @@ def get_from_start_dat_to_end_dat(wb_obj, start_dat, end_dat):
     # print(f"dat_np_array[-1] = {htype.type_transform_direct(np_obj.dat_np_array[-1], "dat", "datStrP")}")
 
     return (status, errtext, np_obj)
+# end def
+def get_act(wb_obj):
+
+    # Lade Werte-datei und bekomme ein numpy-Objekt np_obj
+    file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["indices_pre_file_name"] + wb_obj.par.INDICES_USDEURO_NAME,
+                                                wb_obj.base_ddict["store_path"])
+
+    formatpj = int(wb_obj.base_ddict["usdeuro_use_format"]/10)
+
+    (status,errtext,np_obj) = wp_storage.read_np_obj(wp_np_dc.NpUsdEuroClass,
+                                                     file_name,
+                                                     formatpj)
+    if status != hdef.OKAY:
+        return (status, errtext,None)
+    # end if
+
+    return (status,errtext,np_obj)
 # end def

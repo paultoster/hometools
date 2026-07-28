@@ -990,10 +990,10 @@ def transfer_price_vol_from_usd_to_euro(wb_obj,np_price_vol):
     start_dat = np_price_vol.dat_np_array[0]
     end_dat   = np_price_vol.dat_np_array[-1]
 
-    (status,errtext,np_usdeuro) = wb_obj.get_usdeuro_from_start_dat_to_end_dat(start_dat,
-                                                                               end_dat)
-
+    (status,errtext,np_dict_usdeuro) = wb_obj.get_dict_indice_from_start_dat_to_end_dat(wb_obj.par.INDICES_USDEURO_NAME,start_dat,end_dat)
     if status == hdef.OKAY:
+
+        np_usdeuro = np_dict_usdeuro[wb_obj.par.INDICES_USDEURO_NAME]
 
         istart = 0
         float_array_dat_usdeuro = np.array(np_usdeuro.dat_np_array, dtype=np.float64)
@@ -1005,8 +1005,8 @@ def transfer_price_vol_from_usd_to_euro(wb_obj,np_price_vol):
 
             (i0, i1, fact, istart) = wp_fkt.find_linear_interpol_index(float_array_dat_usdeuro, d, istart)
 
-            usdeuro = (np_usdeuro.usdeuro_np_array[i0] +
-                       (np_usdeuro.usdeuro_np_array[i1] - np_usdeuro.usdeuro_np_array[i0]) * fact)
+            usdeuro = (np_usdeuro.indice_np_array[i0] +
+                       (np_usdeuro.indice_np_array[i1] - np_usdeuro.indice_np_array[i0]) * fact)
 
             np_price_vol.start_np_array[i] = np_price_vol.start_np_array[i] * usdeuro
             np_price_vol.high_np_array[i] = np_price_vol.start_np_array[i] * usdeuro

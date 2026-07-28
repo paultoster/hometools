@@ -221,10 +221,10 @@ def choose_from_gui_for_one_isin(wb_obj):
     # Hole die dict-Liste mit allen WPs name[isin]
     # ---------------------------------------------
     (status, errtext, wpname_isin_dict) = \
-        wb_obj.get_stored_basic_info_wpname_isin_dict()
+        wb_obj.get_stored_basic_info_isin_wpname_dict()
 
     if status != hdef.OKAY:
-        errtext = f"Error wb_obj.get_stored_basic_info_wpname_isin_dict() errtext = {errtext}"
+        errtext = f"Error wb_obj.get_stored_basic_info_isin_wpname_dict() errtext = {errtext}"
         return (status, errtext,isin)
     # end if
 
@@ -271,10 +271,10 @@ def get_isin_and_wpname_list(wb_obj):
     isin_wpname_liste = []
     isin_liste = []
     (status, errtext, wpname_isin_dict) = \
-        wb_obj.get_stored_basic_info_wpname_isin_dict()
+        wb_obj.get_stored_basic_info_isin_wpname_dict()
 
     if status != hdef.OKAY:
-        errtext = f"Error wb_obj.get_stored_basic_info_wpname_isin_dict() errtext = {errtext}"
+        errtext = f"Error wb_obj.get_stored_basic_info_isin_wpname_dict() errtext = {errtext}"
         return (status, errtext,isin_liste,isin_wpname_liste)
     # end if
 
@@ -783,3 +783,127 @@ def erase_and_modify_empty_rows_in_llist(llist,whitespace=True):
     # end for
     return hlist.erase_rows_from_llist(llist, index_liste)
 # end def
+def edit_indices(wb_obj):
+    """
+
+    :param wb_obj:            wp_base.WPData Data Objekt
+    :return: (status,errtext,infotext) = edit_indices(wb_obj)
+    """
+    infotext = ""
+    # Hole die Liste mit allen indice name[isin]
+    #---------------------------------------------
+    (status, errtext,indices_liste)  = wb_obj.get_indices_liste()
+    if status != hdef.OKAY:
+        return (status, errtext,"")
+    # end if
+
+
+
+
+    abfrage_liste = ["update one-inidce","ende", "update all-indices"]
+    i_abfrage_ende = 1
+    i_abfrage_update_indice = 0
+    i_abfrage_update_all = 2
+    runflag = True
+
+    while (runflag):
+
+        (status, errtext, indices_value_liste) = get_indice_and_value_list(wb_obj, indices_liste)
+        if status != hdef.OKAY:
+            return (status, errtext, "")
+        # end if
+
+        [index, indexAbfrage] = sgui.abfrage_liste_index_abfrage_index(indices_value_liste, abfrage_liste, "WP edit indices")
+
+        if indexAbfrage < 0:
+            runflag = True
+        elif indexAbfrage == i_abfrage_ende:
+            runflag = False
+        elif indexAbfrage == i_abfrage_update_indice:
+
+            if index < 0:
+                wb_obj.log.write_info("Keine isin ausgewählt")
+                runflag = True
+            else:
+
+                # Bearbeite basic infos von isin
+                indice = indices_liste[index]
+
+                wb_obj.log.write_info(f"Indice update: {indice}")
+
+                (status, errtext, infotext) = wb_obj.update_indices(indice)
+
+                if len(infotext):
+                    t = f"Info wp_bearbeiten.edit_indices(wb_obj) \n infotext = {infotext}"
+                    sgui.anzeige_text(t, textcolor='green')
+                    wb_obj.log.write_info(t)
+                # end if
+
+                if status != hdef.OKAY:
+                    t = f"Error wp_bearbeiten.edit_indices(wb_obj) \n errtext = {errtext}"
+                    sgui.anzeige_text(t, textcolor='red')
+                    wb_obj.log.write_err(t)
+                    runflag = False
+                # end if
+
+        elif indexAbfrage == i_abfrage_update_all:
+
+            wb_obj.log.write_info(f"WP update all:")
+
+            (status, errtext, infotext) = wb_obj.update_indices()
+
+            if len(infotext):
+                t = f"Info wp_bearbeiten.edit_indices(wb_obj) \n infotext = {infotext}"
+                sgui.anzeige_text(t, textcolor='green')
+                wb_obj.log.write_info(t)
+                infotext = ""
+            # end if
+
+            if status != hdef.OKAY:
+                t = f"Error wp_bearbeiten.edit_indices(wb_obj) \n errtext = {errtext}"
+                sgui.anzeige_text(t, textcolor='red')
+                wb_obj.log.write_err(t)
+                runflag = False
+            # end if
+        else: # indexAbfrage == i_dumP-basic:
+
+            runflag = True
+        # end if
+    # end while
+    return (status, errtext, infotext)
+# end def
+def get_indice_and_value_list(wb_obj,indices_liste):
+
+
+    (status, errtext, np_obj_dict) = wb_obj.get_dict_indice_from_act(indices_liste)
+    if status != hdef.OKAY:
+        return (status, errtext, [])
+
+    indices_value_liste = []
+
+    for i,key in enumerate(indices_liste):
+
+        if np_obj_dict[key] is None:
+            dat_str = ""
+            val_str = ""
+            dat_first_str = ""
+        else:
+            (dat,val) = np_obj_dict[key].get_last_data()
+            (dat_first,_) = np_obj_dict[key].get_first_data()
+
+            if dat is not None:
+
+                dat_str = htype.type_transform_direct(dat, "dat","datStrP")
+                val_str = htype.type_transform_direct(val, "float","str")
+                dat_first_str = htype.type_transform_direct(dat_first, "dat","datStrP")
+            else:
+
+                dat_str = ""
+                val_str = ""
+                dat_first_str = ""
+            # end if
+        # end if
+        indices_value_liste.append(f"{i}:{key} : {dat_first_str}/{dat_str} : {val_str}")
+    # end for
+
+    return (status, errtext,indices_value_liste)
