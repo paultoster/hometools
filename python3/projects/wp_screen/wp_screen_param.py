@@ -24,11 +24,15 @@ class Param:
     SIG_LOW     = "low"
     SIG_VOLUME  = "volume"
     SIG_1PAR_DATUM = "datum"
+    SIG_1PAR_RANKING = "ranking"
     SIG_2PAR_NP_OBJ  = "np_obj"
     SIG_2PAR_LINGRAD = "lingrad"
     SIG_2PAR_SMA = "sma"
     SIG_2PAR_EMA = "ema"
+    SIG_2PAR_MAX = "max"
+    SIG_2PAR_MIN = "min"
     SIG_3PAR_VERGLEICH = "vergleich"
+    SIG_NPAR_BEDINGUNG = "bedingung"
 
     SIG_TYPE_NULL    = 0
     SIG_TYPE_COMMENT = 1

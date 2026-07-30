@@ -313,17 +313,26 @@ def hilfe(rd):
     SignalName7 = ema(SignalName1,20)                   exponential moving avarage  aus SignalName1 mit 20 Punkten
                                                         gespeichert wird:
                                                         "SignalName6_dat_array" (wenn aus fremd-signal) und "SignalName6"
+    SignalName10 = max(SignalName1,0.0)                 Nimmt signal1 und führt max(signal1,0.0) aus
+    SignalName11 = min(SignalName1,0.0)                 Nimmt signal1 und führt min(signal1,0.0) aus
+
     SignalName8 = vergleich(SignalName1,<,SignalName4)  vergleich  SignalName1 und SignalName2 hier SignalName1 < SignalName2
                                                         wahr wird = 1 gesetzt und unwahr = 0
                                                         gespeichert wird:
                                                         "SignalName7_dat_array" (wenn aus fremd-signal) und "SignalName7"
+    SignalName9 = bedingung(SignalName8,SignalName5,...)  Berechnet auf den signalen (bis zu 5) ob 1 (int) oder 0 (int) ist
+                                                          Jedes Signal wird auf null geprüft.
+                                                          Wenn Signal int ist (SignalName8)  True(1) : signal > 0, False(0) : signal <= 0
+                                                          Wenn Signal float ist (SignalName5) True(1) : signal > 0.0, False(0) : signal <= 0.0
+
+                                                          alle signale werden verundet True(1) = signal1 > 0 and signal2 > 0 ...
 
     :param rd:
     :return: infotext = hilfe(rd)
     """
     infotext = f"Hilfe für signalset\n\nSyntax: SignalName = Kontext, für Kontext kann stehen:\n\n"
 
-    for i in range(10):
+    for i in range(15):
         match i:
             case 0:
                 val1 = rd.par.SIG_NULL
@@ -350,23 +359,35 @@ def hilfe(rd):
                 val1 = f"{rd.par.SIG_2PAR_EMA}(signal,Anzahl/Tage)"
                 val2 = f"exponential moving avarage für Signal (muss definiert sein) und Anzahl von Punkten/Tage"
             case 8:
+                val1 = f"{rd.par.SIG_2PAR_MAX}(signal,Zahl)"
+                val2 = f"Max-Fkt für Signal (muss definiert sein) und Zahl"
+            case 9:
+                val1 = f"{rd.par.SIG_2PAR_MIN}(signal,Zahl)"
+                val2 = f"Min-Fkt für Signal (muss definiert sein) und Zahl"
+            case 10:
                 val1 = f"{rd.par.SIG_3PAR_VERGLEICH}(signal1,>,signal2)"
-                val2 = f"Vergleich zweier Signale (müssen definiert sein) und Vorschrif >,<,>=,<=,==,!="
+                val2 = f"Vergleich zweier Signale (müssen definiert sein) und Vorschrift (>,<,>=,<=,==,!=) Ergebnis: 0/1 pro Punkt"
+            case 11:
+                val1 = f"{rd.par.SIG_NPAR_BEDINGUNG}(signal1,signal2, ...)"
+                val2 = f"Vergleicht jedes Signal auf > null (müssen definiert sein und max 5) und verundet alle Ergebnisse, Ergebnis: 0/1 pro Punkt"
+            case 12:
+                val1 = f"{rd.par.SIG_1PAR_RANKING}(signal)"
+                val2 = f"Bildet für die gesamte Tabelle ein Ranking, dass als Einzelwert je wp gespeichert wird signalname = 1,2,3,..."
             case _:
                 break
         # end match
 
         if i == 0:
-            infotext += format_text(val1,val2,rd.par.SIG_COMMENT)
+            infotext += format_text(val1,val2,rd.par.SIG_COMMENT,i)
         else:
-            infotext += "\n" + format_text(val1,val2,rd.par.SIG_COMMENT)
+            infotext += "\n" + format_text(val1,val2,rd.par.SIG_COMMENT,i)
 
     # end for
     return infotext
 # end def
-def format_text(val1,val2,comment):
+def format_text(val1,val2,comment,i):
     n1 = 35
     n2 = 20
-    text = f"= {val1:<{n1}}{comment} {val2:<{n2}}"
+    text = f"SignalName{i+1:02d} = {val1:<{n1}}{comment} {val2:<{n2}}"
     return text
 # end def

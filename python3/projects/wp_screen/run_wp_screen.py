@@ -12,6 +12,7 @@ import wp_screen_gui
 import wp_screen_katalog
 import wp_screen_katalog_command
 import wp_screen_sigset
+import wp_screen_sigset_command
 import wp_screen_tab
 import wp_screen_scre
 import wp_screen_base
@@ -79,7 +80,12 @@ def wp_screener_command(rd):
 
         elif index == index_sigset:  #
 
-            wp_screen_sigset.sigset_start(rd)
+            wp_screen_sigset.sigset_set(rd)
+            if wp_screen_sigset.get_status() != hdef.OKAY:
+                return
+            # end if
+
+            wp_screen_sigset_command.sigset_command(rd)
 
             if len(wp_screen_sigset.get_infotext()) > 0:
                 t = f"Info wp_sigset.sigset_start(rd): {wp_screen_sigset.get_infotext()}"
