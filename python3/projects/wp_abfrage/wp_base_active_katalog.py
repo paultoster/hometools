@@ -1,7 +1,4 @@
-import os, sys, time
-import copy
-
-from hfkt_log import log
+import os, sys
 
 t_path, _ = os.path.split(__file__)
 tools_path = t_path + "\\.."

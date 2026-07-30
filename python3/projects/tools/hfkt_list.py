@@ -32,7 +32,8 @@
                                        
                                        retunr index/None
                                        
-
+    n = count_item_from_list(liste,value)   Anzahl von value in liste
+    mehrfach_liste =  find_multiple_items_list(liste):    Sucht Mehrfachwerte in Liste
     flag = string_is_in_liste(tt,liste)  True wenn tt vollständig in einem item der Liste
                                        False wenn nicht
     flag = string_is_not_in_liste(tt,liste)
@@ -142,6 +143,7 @@ import math
 # import ftfy
 # import fnmatch
 from operator import itemgetter
+from collections import Counter
 
 # -------------------------------------------------------------------------------
 t_path, _ = os.path.split(__file__)
@@ -244,6 +246,25 @@ def find_first_value_in_list(liste, value):
     # end if
 
 
+# end def
+def count_item_from_list(liste,value):
+    """
+    liste
+    value
+    n = count_item_from_list(liste,value)   Anzahl von value in liste
+    """
+
+    index_list = such_in_liste(liste, value, regel="e")
+    return len(index_list)
+# end def
+def find_multiple_items_list(liste):
+    """
+    liste
+    double_liste = hlist.find_double_items_list(liste)
+    """
+    mehrfach_liste = [item for item, anzahl in Counter(liste).items() if anzahl > 1]
+
+    return mehrfach_liste
 # end def
 def string_is_in_liste(tt, liste):
     """

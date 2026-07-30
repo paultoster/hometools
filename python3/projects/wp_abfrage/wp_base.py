@@ -403,6 +403,17 @@ class WPData:
 
         return (self.status, self.errtext,indices_liste)
     # end def
+    def is_an_indice(self,wp):
+        """
+        (status, errtext) = self.is_rom_indes_liste(wp)
+        """
+        indices_liste = wp_base_indices.get_indices_liste(self)
+        if wp in indices_liste:
+            return True
+        else:
+            return False
+        # end if
+    # end def
     def update_indices(self,indice=None) -> (int,str):
         """
 

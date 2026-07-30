@@ -1,5 +1,3 @@
-import pandas as pd
-import requests
 import numpy as np
 import os, sys, re
 from ecbdata import ecbdata

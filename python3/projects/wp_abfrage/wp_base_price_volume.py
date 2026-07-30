@@ -2,8 +2,7 @@
 import os, sys
 import numpy as np
 import copy
-import hfkt_str
-from hfkt_log import log
+
 
 t_path, _ = os.path.split(__file__)
 tools_path = t_path + "\\.."
@@ -778,7 +777,7 @@ def get_new_price_vol_from_ariva_requests(wb_obj,  wp_dict_liste):
         else:
             isin = wp_dict["isin"]
             wpname = wp_dict["name"]
-            base_url = hfkt_str.elim_e(wp_dict["url_ariva"],"/")
+            base_url = hstr.elim_e(wp_dict["url_ariva"],"/")
             url = f"{base_url}/kurse/historische-kurse?currency=EUR"
 
             wb_obj.log.write_info(f"ariva-requests: {i+1}./{n} Wert Versuche Daten von ariva für {wpname = } mit {isin = } einzulesen")

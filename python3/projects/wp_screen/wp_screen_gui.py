@@ -109,7 +109,7 @@ def eingabe_n_zeilen(gui, liste_abfrage,
     return (new_data_list, hdef.OKAY)
 
 # end def
-def katalog_isin_abfrage(gui, ttable, abfrage_liste,title = None):
+def katalog_dict_table_abfrage(gui, ttable, abfrage_liste,title = None):
     """
 
     :param gui:
@@ -138,7 +138,7 @@ def katalog_isin_abfrage(gui, ttable, abfrage_liste,title = None):
              dict_out["irow_select"],
              dict_out["data_change_irow_icol_liste"])
 # end def
-def katalog_isin_liste_modify(gui, katalog, isin_liste):
+def katalog_gruppe_isin_dict_modify(gui, katalog, isin_liste):
     '''
 
     :param gui:

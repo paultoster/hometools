@@ -21,10 +21,10 @@ from wp_abfrage import wp_bearbeiten
 
 INT_FILENAME = "D:/data/orga/wp_store/wp_abfrage.ini"
 
-wp_obj = wp_base.WPData(INT_FILENAME)
+wb_obj = wp_base.WPData(INT_FILENAME)
 
-if wp_obj.status != hdef.OKAY:
-    print(f"Error build wp_base.WPData({INT_FILENAME}) errtext = {wp_obj.errtext}")
+if wb_obj.status != hdef.OKAY:
+    print(f"Error build wp_base.WPData({INT_FILENAME}) errtext = {wb_obj.errtext}")
     exit(1)
 # end if
 
@@ -32,11 +32,12 @@ def run_wp_abfrage():
 
     runflag = True
     
-    start_auswahl = ["Ende", "edit basic info","edit price volume","edit indices"]
+    start_auswahl = ["Ende", "edit basic info","edit price volume","edit indices","update wps"]
     index_ende = 0
     index_basic_info = 1
     index_price_volume = 2
     index_indices = 3
+    index_update_wps = 4
     save_flag = True
     abfrage_liste = ["okay", "cancel", "ende"]
     i_abfrage_okay = 0
@@ -61,62 +62,97 @@ def run_wp_abfrage():
             runflag = False
         elif index == index_basic_info:
 
-            wp_obj.log.write_info(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
+            wb_obj.log.write_info(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
             
             
-            (status,errtext,infotext) = wp_bearbeiten.edit_basic_info(wp_obj)
+            (status,errtext,infotext) = wp_bearbeiten.edit_basic_info(wb_obj)
 
             if len(infotext) > 0 :
-                t = f"Info wp_bearbeiten.edit_basic_info(wp_obj): {infotext}"
+                t = f"Info wp_bearbeiten.edit_basic_info(wb_obj): {infotext}"
                 sgui.anzeige_text(t,textcolor='orange')
-                wp_obj.log.write_info(t)
+                wb_obj.log.write_info(t)
             
             if status != hdef.OKAY:
-                t = f"Error wp_bearbeiten.edit_basic_info(wp_obj) errtext = {errtext}"
+                t = f"Error wp_bearbeiten.edit_basic_info(wb_obj) errtext = {errtext}"
                 sgui.anzeige_text(t,textcolor='red')
-                wp_obj.log.write_err(t)
+                wb_obj.log.write_err(t)
                 exit(1)
             # end if
 
         elif index == index_price_volume:
 
-            wp_obj.log.write_info(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
+            wb_obj.log.write_info(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
 
-            (status, errtext, infotext) = wp_bearbeiten.edit_price_volume(wp_obj)
+            (status, errtext, infotext) = wp_bearbeiten.edit_price_volume(wb_obj)
 
             if len(infotext):
-                t = f"Info wp_bearbeiten.get_last_price_volume(wp_obj) \n infotext = {infotext}"
+                t = f"Info wp_bearbeiten.get_last_price_volume(wb_obj) \n infotext = {infotext}"
                 sgui.anzeige_text(t,textcolor='green')
-                wp_obj.log.write_info(t)
+                wb_obj.log.write_info(t)
             # end if
 
             if status != hdef.OKAY:
-                t = f"Error wp_bearbeiten.get_last_price_volume(wp_obj) \n errtext = {errtext}"
+                t = f"Error wp_bearbeiten.get_last_price_volume(wb_obj) \n errtext = {errtext}"
                 sgui.anzeige_text(t,textcolor='red')
-                wp_obj.log.write_err(t)
+                wb_obj.log.write_err(t)
                 exit(1)
             # end if
 
         elif index == index_indices:
 
-            wp_obj.log.write_info(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
+            wb_obj.log.write_info(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
 
-            (status, errtext,infotext) = wp_bearbeiten.edit_indices(wp_obj)
+            (status, errtext,infotext) = wp_bearbeiten.edit_indices(wb_obj)
             if status != hdef.OKAY:
-                t = f"Error wp_bearbeiten.edit_indices(wp_obj) \n errtext = {errtext}"
+                t = f"Error wp_bearbeiten.edit_indices(wb_obj) \n errtext = {errtext}"
                 sgui.anzeige_text(t,textcolor='red')
-                wp_obj.log.write_err(t)
+                wb_obj.log.write_err(t)
                 exit(1)
             # end if
 
             if len(infotext):
-                t = f"Info wp_bearbeiten.edit_indices(wp_obj) \n infotext = {infotext}"
+                t = f"Info wp_bearbeiten.edit_indices(wb_obj) \n infotext = {infotext}"
                 sgui.anzeige_text(t,textcolor='green')
-                wp_obj.log.write_info(t)
+                wb_obj.log.write_info(t)
+            # end if
+
+
+        elif index == index_update_wps:
+
+            (status, errtext, infotext) = wb_obj.update_price_volume()
+
+            if len(infotext):
+                t = f"Info wb_obj.update_price_volume() \n infotext = {infotext}"
+                sgui.anzeige_text(t, textcolor='green')
+                wb_obj.log.write_info(t)
+                infotext = ""
+            # end if
+
+            if status != hdef.OKAY:
+                t = f"Error wb_obj.update_price_volume() \n errtext = {errtext}"
+                sgui.anzeige_text(t, textcolor='red')
+                wb_obj.log.write_err(t)
+                runflag = False
+            # end if
+
+            (status, errtext, infotext) = wb_obj.update_indices()
+
+            if len(infotext):
+                t = f"Info wb_obj.update_indices() \n infotext = {infotext}"
+                sgui.anzeige_text(t, textcolor='green')
+                wb_obj.log.write_info(t)
+                infotext = ""
+            # end if
+
+            if status != hdef.OKAY:
+                t = f"Error wb_obj.update_indices() \n errtext = {errtext}"
+                sgui.anzeige_text(t, textcolor='red')
+                wb_obj.log.write_err(t)
+                runflag = False
             # end if
 
         else:
-            wp_obj.log.write_info(f"Auswahl: {index} nicht bekannt")
+            wb_obj.log.write_info(f"Auswahl: {index} nicht bekannt")
         # endif
     # end while
 # end def

@@ -1,7 +1,6 @@
 
 import os, sys, copy
 
-import hfkt_tvar
 
 t_path, _ = os.path.split(__file__)
 tools_path = t_path + "\\.."
@@ -19,8 +18,9 @@ import wp_screen_scre_tab
 import tools.hfkt_def as hdef
 import tools.hfkt_pickle as hfkt_pickle
 import tools.sgui as sgui
-# import tools.hfkt_tvar as htvar
+import tools.hfkt_tvar as htvar
 # import tools.hfkt_type as htype
+
 
 STATUS   = hdef.OKAY
 ERRTEXT  = ""
@@ -479,7 +479,7 @@ def scre_build(rd,scre_dict):
 
     (heade_list,type_list) = wp_screen_scre_tab.build_header_list_type_list(tab_dict,tab_werte_dict_liste)
 
-    ttable = hfkt_tvar.build_table(heade_list, [], type_list)
+    ttable = htvar.build_table(heade_list, [], type_list)
 
     color_dict_liste = []
     for irow,isin in enumerate(isin_liste):
@@ -491,7 +491,7 @@ def scre_build(rd,scre_dict):
             return
         # end if
 
-        ttable = hfkt_tvar.add_date_set_to_table(ttable,data_liste)
+        ttable = htvar.add_date_set_to_table(ttable,data_liste)
         color_dict_liste += color_dict_list0
 
     # end for

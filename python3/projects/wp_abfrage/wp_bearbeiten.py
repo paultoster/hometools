@@ -1,6 +1,6 @@
 import os, sys
 import numpy as np
-from hfkt_log import log
+# from hfkt_log import log
 
 t_path, _ = os.path.split(__file__)
 tools_path = t_path + "\\.."
