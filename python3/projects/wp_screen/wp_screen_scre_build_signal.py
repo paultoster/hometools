@@ -10,12 +10,6 @@ if (tools_path not in sys.path):
     sys.path.append(tools_path)
 # endif
 
-import wp_screen_gui
-import wp_screen_katalog
-import wp_screen_sigset
-import wp_screen_tab
-
-
 import tools.hfkt_def as hdef
 import tools.hfkt_np_dataclass as hnp_dataclass
 import tools.hfkt_np_fkt as hnpfkt
@@ -47,7 +41,7 @@ def reset_status():
     INFOTEXT = ""
 # end def
 
-def scre_build_signal(rd,isin,sigset_dict,sigset_werte_dict_liste):
+def scre_build_signal(rd,isin,sigset_werte_dict_liste):
 
     global STATUS,ERRTEXT
 
@@ -55,18 +49,20 @@ def scre_build_signal(rd,isin,sigset_dict,sigset_werte_dict_liste):
     #------------------
     filename = get_dataclass_filename(rd, isin)
     np_data_obj = hnp_dataclass.NpDataHandlingClass(filename)
+
+
     rd.scre["scre_isin_dataclass_filename_dict"][isin] = filename
 
-    # Kursdaten für bestimmte isin holen
-    (status, errtext, np_wp_obj) = rd.wpfunc.get_act_np_obj(isin)
-    if (status != hdef.OKAY) or (np_wp_obj == None):
+    # Kursdaten für vorggegbene isin holen
+    (status, errtext, np_isin_obj) = rd.wpfunc.get_act_np_obj(isin)
+    if (status != hdef.OKAY) or (np_isin_obj == None):
         STATUS = hdef.NOT_OKAY
-        ERRTEXT = f"scre_build_signal: Für {isin = } konnte kein np_wp_obj erstellt werden \n{errtext = }"
+        ERRTEXT = f"scre_build_signal: Für {isin = } konnte kein np_isin_obj erstellt werden \n{errtext = }"
         return
     # end if
 
     # Datum in np_data_obj schreiben
-    np_data_obj.add_signal(np_wp_obj.dat_np_array, rd.par.SIG_STORE_DATUM)
+    np_data_obj.add_signal(np_isin_obj.dat_np_array, rd.par.SIG_STORE_DATUM)
     if np_data_obj.get_status() != hdef.OKAY:
         STATUS = hdef.NOT_OKAY
         ERRTEXT = f"scre_build_signal: Für {isin = } konnte Signal {rd.par.SIG_STORE_DATUM} nicht zu np_data_obj hinzugefügt werden \n{np_data_obj.get_errtext()}"
@@ -85,7 +81,7 @@ def scre_build_signal(rd,isin,sigset_dict,sigset_werte_dict_liste):
             pass
         else:
 
-            (success,np_data_obj) = get_0par_signal(rd,werte_dict,np_data_obj,np_wp_obj)
+            (success, np_data_obj) = get_0par_signal(rd, werte_dict, np_data_obj, np_isin_obj)
 
             if not success:
                 (success, np_data_obj) = get_1par_signal(rd, werte_dict, np_data_obj)
@@ -97,9 +93,12 @@ def scre_build_signal(rd,isin,sigset_dict,sigset_werte_dict_liste):
                         (success, np_data_obj) = get_3par_signal(rd, werte_dict, np_data_obj)
 
                         if not success:
-                            STATUS = hdef.NOT_OKAY
-                            ERRTEXT = f"scre_build_signal: Für {isin = } konnte sigset werte_dict = {werte_dict} nicht ausgeführt werden"
-                            return
+                            (success, np_data_obj) = get_npar_signal(rd, werte_dict, np_data_obj)
+
+                            if not success:
+                                STATUS = hdef.NOT_OKAY
+                                ERRTEXT = f"scre_build_signal: Für {isin = } konnte sigset werte_dict = {werte_dict} nicht ausgeführt werden"
+                                return
 
                 # end if
             # end if
@@ -120,9 +119,9 @@ def scre_build_signal(rd,isin,sigset_dict,sigset_werte_dict_liste):
 
     return
 # end def
-def get_0par_signal(rd,werte_dict,np_data_obj,np_wp_obj):
+def get_0par_signal(rd,werte_dict,np_data_obj,np_isin_obj):
     """
-    (success,np_data_obj) = get_0par_signal(rd,werte_dict,np_data_obj,np_wp_obj)
+    (success,np_data_obj) = get_0par_signal(rd,werte_dict,np_data_obj,np_isin_obj)
     """
     global STATUS, ERRTEXT
     success = False
@@ -130,19 +129,45 @@ def get_0par_signal(rd,werte_dict,np_data_obj,np_wp_obj):
     # Kurs/Close
     match werte_dict["type"]:
         case rd.par.SIG_TYPE_KURS | rd.par.SIG_TYPE_CLOSE:
-            np_data_obj.add_signal(np_wp_obj.end_np_array, werte_dict["signal"])
+            np_data_obj.add_signal(np_isin_obj.end_np_array, werte_dict["signal"])
             success = True
         case rd.par.SIG_TYPE_OPEN:
-            np_data_obj.add_signal(np_wp_obj.start_np_array, werte_dict["signal"])
+            np_data_obj.add_signal(np_isin_obj.start_np_array, werte_dict["signal"])
             success = True
         case rd.par.SIG_TYPE_HIGH:
-            np_data_obj.add_signal(np_wp_obj.high_np_array, werte_dict["signal"])
+            np_data_obj.add_signal(np_isin_obj.high_np_array, werte_dict["signal"])
             success = True
         case rd.par.SIG_TYPE_LOW:
-            np_data_obj.add_signal(np_wp_obj.low_np_array, werte_dict["signal"])
+            np_data_obj.add_signal(np_isin_obj.low_np_array, werte_dict["signal"])
             success = True
         case rd.par.SIG_TYPE_VOLUME:
-            np_data_obj.add_signal(np_wp_obj.volume_np_array, werte_dict["signal"])
+            np_data_obj.add_signal(np_isin_obj.volume_np_array, werte_dict["signal"])
+            success = True
+        case rd.par.SIG_TYPE_INIDiCE:
+
+            (status, errtext, np_obj_dict) = rd.wpfunc.get_dict_indice_from_act(werte_dict["fkt"])
+            if status != hdef.OKAY:
+                STATUS = hdef.NOT_OKAY
+                ERRTEXT = f"get_0par_signal Fehler indice: {werte_dict["fkt"]} ist nicht bereit getsellt worden"
+                return (False, None)
+            else:
+                np_obj_indice = np_obj_dict[werte_dict["fkt"]]
+            # end if
+
+            flag_build_dat = False
+            if hasattr(np_data_obj, rd.par.SIG_STORE_DATUM):
+                np_dat_obj_array = getattr(np_data_obj, rd.par.SIG_STORE_DATUM).copy()
+
+                if np_obj_indice.dat_np_array != np_dat_obj_array:
+                    flag_build_dat = True
+            else:
+                flag_build_dat = True
+            # end if
+
+            if flag_build_dat:
+                np_data_obj.add_signal(np_obj_indice.dat_np_array, werte_dict["signal"] + "_" + rd.par.SIG_STORE_DATUM)
+            # end if
+            np_data_obj.add_signal(np_obj_indice.indice_np_array, werte_dict["signal"])
             success = True
     # end match
 
@@ -170,7 +195,7 @@ def get_1par_signal(rd, werte_dict, np_data_obj):
 
             (success_sub, np_dat_array, np_array) = build_signal_datum(rd, kurssignal,np_data_obj)
             if STATUS != hdef.OKAY:
-                return
+                return (False, None)
 
             if success_sub:
                 np_data_obj.add_signal(np_dat_array, werte_dict["signal"]+"_"+rd.par.SIG_STORE_DATUM)
@@ -179,8 +204,12 @@ def get_1par_signal(rd, werte_dict, np_data_obj):
             else:
                 STATUS = hdef.NOT_OKAY
                 ERRTEXT = f"Fehler fkt: {rd.par.SIG_1PAR_DATUM}({kurssignal}) ist nicht bekannt"
-                return
+                return (False, None)
             # end if
+        case rd.par.SIG_TYPE_1PAR_RANKMIN|rd.par.SIG_TYPE_1PAR_RANKMAX:
+            rank = 0 # erstmal Platzhalter, da noch untereinander verglichen werden muss
+            np_data_obj.add_signal(rank, werte_dict["signal"])
+
     # end match
     if success:
         if np_data_obj.get_status() != hdef.OKAY:
@@ -282,7 +311,47 @@ def get_2par_signal(rd, werte_dict, np_data_obj):
                 ERRTEXT = f"Der 2. Parameter von fkt: {rd.par.SIG_2PAR_EMA}({signame},{points}) ist nicht bekannt"
                 return
             # end if
+        case rd.par.SIG_TYPE_2PAR_MIN:
 
+            signame = werte_dict["par1"]
+            value = werte_dict["par2"]
+
+            (success_sub, np_dat_array, np_sma_array) = build_signal_minmax(rd, signame, value, np_data_obj,True)
+            if STATUS != hdef.OKAY:
+                return
+
+            if success_sub:
+                if np_dat_array is not None:
+                    np_data_obj.add_signal(np_dat_array, werte_dict["signal"] + "_" + rd.par.SIG_STORE_DATUM)
+                # end  if
+                np_data_obj.add_signal(np_sma_array, werte_dict["signal"])
+                success = True
+            else:
+                STATUS = hdef.NOT_OKAY
+                ERRTEXT = f"Der 2. Parameter von fkt: {rd.par.SIG_2PAR_MIN}({signame},{value}) ist nicht bekannt"
+                return
+            # end if
+
+        case rd.par.SIG_TYPE_2PAR_MAX:
+
+            signame = werte_dict["par1"]
+            value = werte_dict["par2"]
+
+            (success_sub, np_dat_array, np_sma_array) = build_signal_minmax(rd, signame, value, np_data_obj, False)
+            if STATUS != hdef.OKAY:
+                return
+
+            if success_sub:
+                if np_dat_array is not None:
+                    np_data_obj.add_signal(np_dat_array, werte_dict["signal"] + "_" + rd.par.SIG_STORE_DATUM)
+                # end  if
+                np_data_obj.add_signal(np_sma_array, werte_dict["signal"])
+                success = True
+            else:
+                STATUS = hdef.NOT_OKAY
+                ERRTEXT = f"Der 2. Parameter von fkt: {rd.par.SIG_2PAR_MAX}({signame},{value}) ist nicht bekannt"
+                return
+            # end if
     # end match
 
     if success:
@@ -338,6 +407,57 @@ def get_3par_signal(rd, werte_dict, np_data_obj):
 
 
 # end def
+def get_npar_signal(rd, werte_dict, np_data_obj):
+    """
+    (success,np_data_obj) = get_npar_signal(rd, werte_dict, np_data_obj)
+    """
+    global STATUS, ERRTEXT
+    success = False
+    match werte_dict["type"]:
+        #
+        # SignalName3 = np_obj(isin,kurs)                     Kurswerte von einer anderen isin
+        #                                                     gespeichrt wird:
+        #                                                     "SignalName3_dat_array" und "SignalName3"
+        case rd.par.SIG_TYPE_NPAR_BEDINGUNG:
+            signal_liste = []
+            for name in ["par1", "par2", "par3", "par4", "par5"]:
+            if len(werte_dict[name]):
+                signal_liste.append(werte_dict[name])
+
+
+            (success_sub, np_dat_array, np_bedingnung_array) = build_signal_bedingung(rd, signal_liste,np_data_obj)
+            if STATUS != hdef.OKAY:
+                return
+
+            if success_sub:
+                if np_dat_array is not None:
+                    np_data_obj.add_signal(np_dat_array, werte_dict["signal"] + "_" + rd.par.SIG_STORE_DATUM)
+                # end  if
+                np_data_obj.add_signal(np_bedingnung_array, werte_dict["signal"])
+                success = True
+            else:
+                STATUS = hdef.NOT_OKAY
+                content = ""
+                for name in ["par1", "par2", "par3", "par4", "par5"]:
+                    if len(werte_dict[name]):
+                        content += werte_dict[name]+ ","
+
+                ERRTEXT = f"Der 2. Parameter von fkt: {rd.par.SIG_NPAR_BEDINGUNG}({content[0:-1]}) ist nicht bekannt"
+                return
+            # end if
+    # end match
+
+    if success:
+        if np_data_obj.get_status() != hdef.OKAY:
+            STATUS = hdef.NOT_OKAY
+            ERRTEXT = f"scre_build_signal.get_3par_signal: \n{np_data_obj.get_errtext()}"
+        # end if
+    # end if
+
+    return (success, np_data_obj)
+
+
+# end def
 def build_signal_datum(rd, signame,np_data_obj):
     """
     (success, np_dat_array, np_array) = build_signal_datum(rd, signame,np_data_obj)
@@ -374,10 +494,10 @@ def get_signal_fremd_isin(rd,fremd_isin,kurssignal):
     """
     global STATUS, ERRTEXT
     # Kursdaten für bestimmte fremd_isin holen
-    (status, errtext, np_wp_obj) = rd.wpfunc.get_act_np_obj(fremd_isin)
-    if (status != hdef.OKAY) or (np_wp_obj == None):
+    (status, errtext, np_isin_obj) = rd.wpfunc.get_act_np_obj(fremd_isin)
+    if (status != hdef.OKAY) or (np_isin_obj == None):
         STATUS = hdef.NOT_OKAY
-        ERRTEXT = f"scre_build_signal: Für {fremd_isin = } konnte kein np_wp_obj erstellt werden \n{errtext = }"
+        ERRTEXT = f"scre_build_signal: Für {fremd_isin = } konnte kein np_isin_obj erstellt werden \n{errtext = }"
         return (None,None)
     # end if
 
@@ -387,24 +507,24 @@ def get_signal_fremd_isin(rd,fremd_isin,kurssignal):
     # Kurs/Close
     match kurssignal:
         case rd.par.SIG_KURS | rd.par.SIG_CLOSE:
-            np_array =  np_wp_obj.end_np_arra
+            np_array =  np_isin_obj.end_np_arra
             success = True
         case rd.par.SIG_OPEN:
-            np_array =  np_wp_obj.start_np_array
+            np_array =  np_isin_obj.start_np_array
             success = True
         case rd.par.SIG_HIGH:
-            np_array =  np_wp_obj.high_np_array
+            np_array =  np_isin_obj.high_np_array
             success = True
         case rd.par.SIG_LOW:
-            np_array =  np_wp_obj.low_np_array
+            np_array =  np_isin_obj.low_np_array
             success = True
         case rd.par.SIG_VOLUME:
-            np_array =  np_wp_obj.volume_np_array
+            np_array =  np_isin_obj.volume_np_array
             success = True
     # end match
 
     if success:
-        np_dat_array =  np_wp_obj.dat_np_array
+        np_dat_array =  np_isin_obj.dat_np_array
 
     return (success, np_dat_array, np_array)
 #end def
@@ -508,6 +628,41 @@ def build_signal_ema(rd, signame, points, np_data_obj):
     # end if
     return (success, np_dat_array, np_ema_array)
 # end def
+def build_signal_minmax(rd, signame, value, np_data_obj,flagmin):
+    """
+    (success_sub, np_dat_array,np_array) = build_signal_minmax(rd, signame, value, np_data_obj,flagmin)
+    """
+    global STATUS, ERRTEXT
+
+    success = False
+    np_minmax_array = None
+    np_dat_array = None
+
+    if hasattr(np_data_obj, signame):
+
+        dat_signame = signame + "_" + rd.par.SIG_STORE_DATUM
+        if hasattr(np_data_obj, dat_signame ):
+            np_dat_array = getattr(np_data_obj, dat_signame).copy()
+        else:
+            np_dat_array = None
+            # np_dat_array = getattr(np_data_obj, rd.par.SIG_STORE_DATUM).copy() # np_data_obj.dat_np_array.copy()
+        # end if
+
+        np_array     = getattr(np_data_obj, signame).copy()
+
+        if flagmin:
+            np_minmax_array  = hnpfkt.min(np_array,value)
+        else:
+            np_minmax_array = hnpfkt.max(np_array,value)
+        # end if
+        success = True
+    else:
+        STATUS = hdef.NOT_OKAY
+        ERRTEXT = f"Signal {signame} nicht bekannt im erstellten Datensatz !!"
+        return (success, np_dat_array, np_minmax_array)
+    # end if
+    return (success, np_dat_array, np_minmax_array)
+# end def
 def build_signal_vergleich(rd, signal1, vergleich,signal2,np_data_obj):
     """
     (success_sub, np_dat_array, np_vergl_array) = build_signal_vergleich(rd, signal1, vergleich, signal2, np_data_obj)
@@ -561,8 +716,82 @@ def build_signal_vergleich(rd, signal1, vergleich,signal2,np_data_obj):
 
     return (success, np_dat_array, np_vergl_array)
 # end def
+def build_signal_bedingung(rd, signal_liste,np_data_obj):
+    """
+    (success_sub, np_dat_array, np_vergl_array) = build_signal_vergleich(rd, signal1, vergleich, signal2, np_data_obj)
+    """
+    global STATUS, ERRTEXT
+
+    success = False
+    np_bedignung_array = None
+    np_dat_array = None
+
+
+    np_dat_array_liste = []
+    np_array_liste = []
+    for signal in signal_liste:
+
+        if not hasattr(np_data_obj, signal):
+            STATUS = hdef.NOT_OKAY
+            ERRTEXT = f"Signal {signal} nicht bekannt im erstellten Datensatz !!"
+            return (success, np_dat_array, np_bedignung_array)
+        else:
+            dat_signame = signal + "_" + rd.par.SIG_STORE_DATUM
+            if hasattr(np_data_obj, dat_signame ):
+                np_dat_array = getattr(np_data_obj, dat_signame).copy()
+            else:
+                np_dat_array = getattr(np_data_obj, rd.par.SIG_STORE_DATUM).copy()  # np_data_obj.dat_np_array.copy()
+            # end if
+        # end if
+        np_array     = getattr(np_data_obj, signal).copy()
+
+        np_dat_array_liste.append(np_dat_array)
+        np_array_liste.append(np_array)
+    # end if
+
+    (status,errtext,np_dat_array,np_bedignung_array) = hnpfkt.bedigung(np_dat_array_liste,np_array_liste)
+
+    if status == hdef.NOT_OKAY:
+        STATUS = hdef.NOT_OKAY
+        ERRTEXT = errtext
+        return (success, np_dat_array, np_bedignung_array)
+    else:
+        success = True
+
+    if np.array_equal(np_dat_array, getattr(np_data_obj, rd.par.SIG_STORE_DATUM)):
+        np_dat_array = None
+    # end if
+
+    return (success, np_dat_array, np_bedignung_array)
+# end def
 def get_dataclass_filename(rd,isin):
 
     filename = os.path.join(rd.ini["store_path"],rd.ini["scre_dataclass_pre_file_name"] + isin + ".joblib")
     return filename
 # end def
+def  scre_build_vergleichende_werte(rd,isin_liste,sigset_werte_dict_liste):
+    """
+     wp_screen_scre_build_signal.scre_build_vergleichende_werte(rd,isin_liste,sigset_werte_dict_liste)
+    """
+
+    for werte_dict in sigset_werte_dict_liste:
+
+        if werte_dict["type"] == rd.par.SIG_TYPE_1PAR_RANKMAX:
+            scre_build_rankmax(rd,isin_liste,werte_dict)
+
+
+# def scre_build_rankmax(rd,isin_liste,werte_dict):
+#
+#
+#     signalname = werte_dict["par1"]
+#
+#     sigval_liste = []
+#     for isin in isin_liste:
+#
+#         sigval = get_single_data_value_np_data(rd,isin,-1) #####
+#         sigval_liste.append(sival)
+#
+#         filename = rd.scre["scre_isin_dataclass_filename_dict"][isin]
+#         np_data_obj = hnp_dataclass.NpDataHandlingClass(filename)
+#         np_data_obj.read()
+

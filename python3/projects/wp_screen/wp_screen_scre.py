@@ -12,8 +12,9 @@ import wp_screen_gui
 import wp_screen_katalog
 import wp_screen_sigset
 import wp_screen_tab
-import wp_screen_scre_build
+import wp_screen_scre_build_signal
 import wp_screen_scre_tab
+import wp_screen_scre_build_rawtab
 
 import tools.hfkt_def as hdef
 import tools.hfkt_pickle as hfkt_pickle
@@ -396,6 +397,22 @@ def scre_show_screen(rd,index):
     if get_status() != hdef.OKAY:
         return
 
+    # 1. build alll signals
+    scre_build_sigset(rd, rd.scre["scre_dict"])
+    if STATUS != hdef.OKAY:
+        ERRTEXT = f"scre_show_screen build: Error in scre_build_sigset \n errtext = {ERRTEXT}"
+        return
+    # end if
+
+    # 2. build rawtable
+    rawtable = scre_build_rawtable(rd, rd.scre["scre_dict"])
+    if STATUS != hdef.OKAY:
+        ERRTEXT = f"scre_show_screen build: Error in scre_build_rawtable \n errtext = {ERRTEXT}"
+        return
+    # end if
+
+
+
     scre_build(rd, rd.scre["scre_dict"])
 
     if STATUS != hdef.OKAY:
@@ -431,7 +448,7 @@ def scre_show_screen(rd,index):
     # end while
     return
 # end def
-def scre_build(rd,scre_dict):
+def scre_build_sigset(rd,scre_dict):
 
     global STATUS, ERRTEXT
 
@@ -456,19 +473,84 @@ def scre_build(rd,scre_dict):
     rd.scre["scre_isin_dataclass_filename_dict"] = {}
 
     for isin in isin_liste:
-        wp_screen_scre_build.scre_build_signal(rd,isin,sigset_dict,sigset_werte_dict_liste)
-        if wp_screen_scre_build.get_status() != hdef.OKAY:
+        wp_screen_scre_build_signal.scre_build_signal(rd, isin, sigset_werte_dict_liste)
+        if wp_screen_scre_build_signal.get_status() != hdef.OKAY:
             STATUS = hdef.NOT_OKAY
-            ERRTEXT = wp_screen_scre_build.get_errtext()
+            ERRTEXT = wp_screen_scre_build_signal.get_errtext()
             return
         # end if
     # end for
 
-    # 2. Tabelle bilden:
-    #------------------------------
-    #
-    rd.scre["ttable"] = None
-    rd.scre["color_dict_liste"] = []
+    return
+# end if
+def scre_build_rawtable(rd, scre_dict):
+    """
+    rawtable = scre_build_rawtable(rd, scre_dict)
+    """
+    global STATUS, ERRTEXT
+
+    katalog = scre_dict[rd.par.SCRE_KATALOG]
+    tab = scre_dict[rd.par.SCRE_TAB]
+
+    isin_liste = wp_screen_katalog.get_katalog_isin_liste(rd, katalog)
+    tab_dict = wp_screen_tab.get_tab_dict(rd,tab)
+
+    (status, infotext, tab_werte_dict_liste) = wp_screen_tab.get_tab_werte_dict_liste(rd, tab_dict)
+    if status != hdef.OKAY:
+        STATUS = hdef.NOT_OKAY
+        ERRTEXT = infotext
+        return None
+    # end if
+
+    # 2. Raw-Tabelle bilden:
+    #----------------------
+    header_list = wp_screen_scre_tab.build_header_list(tab_werte_dict_liste)
+
+    for i,isin in enumerate(isin_liste):
+        (data_liste,type_list) = wp_screen_scre_build_rawtab.scre_build_rawtab(rd, isin, tab_werte_dict_liste)
+        if wp_screen_scre_build_rawtab.get_status() != hdef.OKAY:
+            STATUS = hdef.NOT_OKAY
+            ERRTEXT = wp_screen_scre_build_signal.get_errtext()
+            return None
+        # end if
+
+        if i == 0:
+            ttable = htvar.build_table(header_list, [], type_list)
+        # end if
+        ttable = htvar.add_data_set_to_table(ttable, data_liste)
+
+    # end for
+    rd.scre["ttable_raw"] = ttable
+
+    # 2. Vergleichende Werte in Tabelle bilden:
+    #----------------------
+    ttable = wp_screen_scre_build_rawtab.scre_build_values_over_rawtab(rd,ttable,tab_werte_dict_liste)
+    if wp_screen_scre_build_rawtab.get_status() != hdef.OKAY:
+        STATUS = hdef.NOT_OKAY
+        ERRTEXT = wp_screen_scre_build_signal.get_errtext()
+        return ttable
+    # end if
+
+    return ttable
+# end def
+def scre_build(rd,scre_dict):
+
+    global STATUS, ERRTEXT
+
+    katalog = scre_dict[rd.par.SCRE_KATALOG]
+    sigset = scre_dict[rd.par.SCRE_SIGSET]
+    tab = scre_dict[rd.par.SCRE_TAB]
+
+    isin_liste = wp_screen_katalog.get_katalog_isin_liste(rd,katalog)
+    sigset_dict = wp_screen_sigset.get_sigset_dict(rd,sigset)
+    tab_dict = wp_screen_tab.get_tab_dict(rd,tab)
+
+    (status, infotext, sigset_werte_dict_liste) = wp_screen_sigset.get_sigset_werte_dict_liste(rd, sigset_dict)
+    if status != hdef.OKAY:
+        STATUS = hdef.NOT_OKAY
+        ERRTEXT = infotext
+        return
+    # end if
 
     (status, infotext, tab_werte_dict_liste) = wp_screen_tab.get_tab_werte_dict_liste(rd, tab_dict)
     if status != hdef.OKAY:
@@ -477,9 +559,61 @@ def scre_build(rd,scre_dict):
         return
     # end if
 
-    (heade_list,type_list) = wp_screen_scre_tab.build_header_list_type_list(tab_dict,tab_werte_dict_liste)
 
-    ttable = htvar.build_table(heade_list, [], type_list)
+
+    # 1. Signale aus sigset bilden:
+    #------------------------------
+    # reset isin-dataclass dict (vielleicht richtig löschen, einzeln)
+    rd.scre["scre_isin_dataclass_filename_dict"] = {}
+
+    for isin in isin_liste:
+        wp_screen_scre_build_signal.scre_build_signal(rd, isin, sigset_werte_dict_liste)
+        if wp_screen_scre_build_signal.get_status() != hdef.OKAY:
+            STATUS = hdef.NOT_OKAY
+            ERRTEXT = wp_screen_scre_build_signal.get_errtext()
+            return
+        # end if
+    # end for
+
+    # 2. Raw-Tabelle bilden:
+    #----------------------
+    header_list = wp_screen_scre_tab.build_header_list(tab_werte_dict_liste)
+
+    for i,isin in enumerate(isin_liste):
+        (data_liste,type_list) = wp_screen_scre_build_rawtab.scre_build_rawtab(rd, isin, tab_werte_dict_liste)
+        if wp_screen_scre_build_rawtab.get_status() != hdef.OKAY:
+            STATUS = hdef.NOT_OKAY
+            ERRTEXT = wp_screen_scre_build_signal.get_errtext()
+            return
+        # end if
+
+        if i == 0:
+            ttable = htvar.build_table(header_list, [], type_list)
+        # end if
+        ttable = htvar.add_data_set_to_table(ttable, data_liste)
+
+    # end for
+    rd.scre["ttable_raw"] = ttable
+
+    # 2. Vergleichende Werte in Tabelle bilden:
+    #----------------------
+    ttable = wp_screen_scre_build_rawtab.scre_build_values_over_rawtab(rd,ttable,tab_werte_dict_liste)
+    if wp_screen_scre_build_rawtab.get_status() != hdef.OKAY:
+        STATUS = hdef.NOT_OKAY
+        ERRTEXT = wp_screen_scre_build_signal.get_errtext()
+        return
+    # end if
+
+
+    # 2. Tabelle bilden:
+    #------------------------------
+    #
+    rd.scre["ttable"] = None
+    rd.scre["color_dict_liste"] = []
+
+    type_list = wp_screen_scre_tab.build_type_list(tab_werte_dict_liste)
+
+    ttable = htvar.build_table(header_list, [], type_list)
 
     color_dict_liste = []
     for irow,isin in enumerate(isin_liste):
@@ -498,6 +632,25 @@ def scre_build(rd,scre_dict):
 
     rd.scre["ttable"] = ttable
     rd.scre["color_dict_liste"] = color_dict_liste
+    return
+# end def
+def setup_scre_name(rd,scre_name):
+    global STATUS, ERRTEXT
+
+    if scre_name not in rd.scre["scre_liste"]:
+        STATUS = hdef.NOT_OKAY
+        ERRTEXT = f"Error wp_screen_base.build_scre_sigset({scre_name}) screen name nicht in Liste gefunden liste: {rd.scre["scre_liste"]}"
+        return
+    # end if
+
+    index = rd.scre["scre_liste"].index(scre_name)
+
+    rd.scre["scre"] = rd.scre["scre_liste"][index]
+    scre_dict_read(rd)
+
+    if get_status() != hdef.OKAY:
+        return
+    # end if
     return
 # end def
 

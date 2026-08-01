@@ -141,7 +141,48 @@ def get_katalog_gruppe_isin_dict(rd,katalog):
         rd.kat["katalog"] = katalog
         katalog_gruppe_isin_dict_read(rd)
     else:
-        rd.kat["isin_liste"] = []
+        rd.kat["katalog_gruppe_isin_dict"] = {}
     # end if
-    return rd.kat["isin_liste"]
+    return rd.kat["katalog_gruppe_isin_dict"]
 # end def
+def get_katalog_isin_liste(rd,katalog):
+    """
+    :param rd:
+    :param katalog:
+    :return: isin_liste = wp_screen_katalog.get_katalog_isin_liste(rd,katalog)
+    """
+
+    ddict = get_katalog_gruppe_isin_dict(rd,katalog)
+
+    isin_liste = []
+    for gruppe in rd.kat["katalog_gruppe_isin_dict"].keys():
+        for wert in rd.kat["katalog_gruppe_isin_dict"][gruppe]:
+            (status, isin) = htype.type_proof_isin(wert)
+            if status == hdef.OKAY:
+                isin_liste.append(isin)
+            # end if
+        # end for
+    # end ofr
+    return list(set(isin_liste))
+# end def
+def get_katalog_indice_liste(rd,katalog):
+    """
+    :param rd:
+    :param katalog:
+    :return: isin_liste = wp_screen_katalog.get_katalog_isin_liste(rd,katalog)
+    """
+
+    ddict = get_katalog_gruppe_isin_dict(rd,katalog)
+
+    indice_liste = []
+    for gruppe in rd.kat["katalog_gruppe_isin_dict"].keys():
+        for wert in rd.kat["katalog_gruppe_isin_dict"][gruppe]:
+
+            if rd.wpfunc.is_an_indice(wert):
+                indice_liste.append(wert)
+            # end if
+        # end for
+    # end ofr
+    return list(set(indice_liste))
+# end def
+

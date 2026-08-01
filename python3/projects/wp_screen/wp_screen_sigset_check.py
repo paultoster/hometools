@@ -59,7 +59,7 @@ def check(rd,ddict):
         # end if
 
         werte_dict = {"signal":key}
-        if check_content(rd.par,ddict[key],signaldef_liste,werte_dict) != hdef.OKAY:
+        if check_content(rd,ddict[key],signaldef_liste,werte_dict) != hdef.OKAY:
             return  (hdef.NOT_OKAY,INFOTEXT)
         else:
             if key in signaldef_liste:
@@ -77,73 +77,162 @@ def check(rd,ddict):
 
     return (hdef.OKAY,"")
 # end def
-def check_content(par,content,signaldef_liste,werte_dict):
+def check_content(rd,content,signaldef_liste,werte_dict):
 
     content = hstr.elim_ae_liste(content, [" ", "\t"])
 
-    (status,type,fkt) =  check_content_0par(par,content)
+    status = check_content_npar(rd.par, content, signaldef_liste, werte_dict)
+
+    if status == hdef.OKAY:
+        return status
+
+    (status,type,fkt) =  check_content_0par(rd,content)
+
     if status == hdef.OKAY:
         werte_dict["type"] = type
-        werte_dict["fkt"] = fkt
-    else:
-        return check_content_1par(par,content,signaldef_liste,werte_dict)
+        werte_dict["fkt"]  = fkt
+        return status
     # end if
-    return hdef.OKAY
+
+    status = check_content_1par(rd.par,content,signaldef_liste,werte_dict)
+
+    if status == hdef.OKAY:
+        return status
+
+    status = check_content_2par(rd.par, content, signaldef_liste, werte_dict)
+
+    if status == hdef.OKAY:
+        return status
+
+    status = check_content_3par(rd.par, content, signaldef_liste,werte_dict)
+
+    return status
 # end def
-def check_content_0par(par,content):
+def check_content_0par(rd,content):
     """
     :param par:
     :param content:
-    :return: (status,type,fkt) =  check_content_0par(content)
+    :return: (status,type,fkt) =  check_content_0par(par,content)
     """
     type = 0
     fkt = ""
     status = hdef.OKAY
-    if content[0] == par.SIG_NULL:
-        type=par.SIG_TYPE_NULL
-        fkt=par.SIG_NULL
-    elif content == par.SIG_KURS:
-        type=par.SIG_TYPE_KURS
-        fkt=par.SIG_KURS
-    elif content == par.SIG_CLOSE:
-        type=par.SIG_TYPE_CLOSE
-        fkt=par.SIG_CLOSE
-    elif content == par.SIG_OPEN:
-        type=par.SIG_TYPE_OPEN
-        fkt=par.SIG_OPEN
-    elif content == par.SIG_HIGH:
-        type=par.SIG_TYPE_HIGH
-        fkt=par.SIG_HIGH
-    elif content == par.SIG_LOW:
-        type=par.SIG_TYPE_LOW
-        fkt=par.SIG_LOW
-    elif content == par.SIG_VOLUME:
-        type=par.SIG_TYPE_VOLUME
-        fkt=par.SIG_VOLUME
+    if content[0] == rd.par.SIG_NULL:
+        type=rd.par.SIG_TYPE_NULL
+        fkt=rd.par.SIG_NULL
+    elif content == rd.par.SIG_KURS:
+        type=rd.par.SIG_TYPE_KURS
+        fkt=rd.par.SIG_KURS
+    elif content == rd.par.SIG_CLOSE:
+        type=rd.par.SIG_TYPE_CLOSE
+        fkt=rd.par.SIG_CLOSE
+    elif content == rd.par.SIG_OPEN:
+        type=rd.par.SIG_TYPE_OPEN
+        fkt=rd.par.SIG_OPEN
+    elif content == rd.par.SIG_HIGH:
+        type=rd.par.SIG_TYPE_HIGH
+        fkt=rd.par.SIG_HIGH
+    elif content == rd.par.SIG_LOW:
+        type=rd.par.SIG_TYPE_LOW
+        fkt=rd.par.SIG_LOW
+    elif content == rd.par.SIG_VOLUME:
+        type=rd.par.SIG_TYPE_VOLUME
+        fkt=rd.par.SIG_VOLUME
+    elif rd.wpfunc.is_an_indice(content):
+        type = rd.par.SIG_TYPE_INIDiCE
+        fkt = content
     else:
         status = hdef.NOT_OKAY
     # end if
 
     return (status,type,fkt)
 # end def
+def check_content_npar(par,content,signaldef_liste,werte_dict):
+
+    index1 = content.find(par.SIG_NPAR_BEDINGUNG)
+
+    if index1 == 0:
+
+        t = copy.copy(content)
+        muster = r"\((.*?)\)"
+        tupel_liste = re.findall(muster, t.replace(" ", ""))
+
+        if len(tupel_liste) > 0:
+            return check_content_npar_tuple(par,par.SIG_NPAR_BEDINGUNG,tupel_liste[0][0],signaldef_liste,werte_dict)
+    # end if
+
+    return hdef.NOT_OKAY
+# end def
+def check_content_npar_tuple(par,fkt,content,signaldef_liste,werte_dict):
+
+    global INFOTEXT
+    global ZEILE
+
+    if fkt == par.SIG_NPAR_BEDINGUNG:
+
+        sig_list = content.split(',')
+
+        if len(sig_list) > 5:
+            INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({content})\") sind mehr als 5 Parameter gefunden worden!!!"
+            return hdef.NOT_OKAY
+        elif len(sig_list) == 0:
+            INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({content})\") sind kein Parameter gefunden worden!!!"
+            return hdef.NOT_OKAY
+        else:
+            werte_dict["par1"] = ""
+            werte_dict["par2"] = ""
+            werte_dict["par3"] = ""
+            werte_dict["par4"] = ""
+            werte_dict["par5"] = ""
+            for i,sig in enumerate(sig_list):
+
+                sig = hstr.elim_ae_liste(sig, [" ", "\t"])
+
+                if sig not in signaldef_liste:
+                    INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({content})\") ist erster Parameter signal = {sig} nicht davor definiert worden "
+                    return hdef.NOT_OKAY
+                # end if
+
+                if i == 0:
+                    werte_dict["par1"] = sig
+                elif i == 1:
+                    werte_dict["par2"] = sig
+                elif i == 2:
+                    werte_dict["par3"] = sig
+                elif i == 3:
+                    werte_dict["par4"] = sig
+                elif i == 4:
+                    werte_dict["par5"] = sig
+                # end if
+            # end for
+            werte_dict["type"] = par.SIG_TYPE_NPAR_BEDINGUNG
+            werte_dict["fkt"] = par.SIG_NPAR_BEDINGUNG
+        # end if
+    else:
+
+        INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({content})\") ist Parameter Funktion:{fkt} nicht definiert"
+        return hdef.NOT_OKAY
+    # end if
+    return hdef.OKAY
+# end def
 def check_content_1par(par,content,signaldef_liste,werte_dict):
 
     t = copy.copy(content)
-    # muster = r"(\w+)\((\w+),(\w+)\)"
+
     muster = r"(\w+)\(([^,)]+)\)"
 
     tupel_liste = re.findall(muster, t.replace(" ",""))
 
     if len(tupel_liste) > 0:
         return check_content_1par_tuple(par,tupel_liste[0][0],tupel_liste[0][1],signaldef_liste,werte_dict)
-    else:
-        return check_content_2par(par, content, signaldef_liste,werte_dict)
     # end if
-# end for
+    return hdef.NOT_OKAY
+# end def
 def check_content_1par_tuple(par,fkt,par1,signaldef_liste,werte_dict):
 
     global INFOTEXT
     global ZEILE
+
     if fkt == par.SIG_1PAR_DATUM:
 
         # par1: signal
@@ -156,6 +245,36 @@ def check_content_1par_tuple(par,fkt,par1,signaldef_liste,werte_dict):
         werte_dict["fkt"]=par.SIG_1PAR_DATUM
         werte_dict["par1"]=par1
 
+    elif fkt == par.SIG_1PAR_RANKMIN:
+
+        # par1: signal
+        if par1 not in signaldef_liste:
+            INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({par1})\") ist Parameter signal = {par1} nicht davor definiert worden "
+
+            return hdef.NOT_OKAY
+
+        # end if
+
+
+        werte_dict["type"] = par.SIG_TYPE_1PAR_RANKMIN
+
+        werte_dict["fkt"] = par.SIG_1PAR_RANKMIN
+
+        werte_dict["par1"] = par1
+    elif fkt == par.SIG_1PAR_RANKMAX:
+        # par1: signal
+        if par1 not in signaldef_liste:
+            INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({par1})\") ist Parameter signal = {par1} nicht davor definiert worden "
+            return hdef.NOT_OKAY
+        # end if
+
+        werte_dict["type"] = par.SIG_TYPE_1PAR_RANKMAX
+        werte_dict["fkt"] = par.SIG_1PAR_RANKMAX
+        werte_dict["par1"] = par1
+    else:
+
+        INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({par1})\") ist Parameter Funktion:{fkt} nicht definiert"
+        return hdef.NOT_OKAY
     # end if
     return hdef.OKAY
 # end def
@@ -169,10 +288,10 @@ def check_content_2par(par,content,signaldef_liste,werte_dict):
 
     if len(tupel_liste1) > 0:
         return check_content_2par_tuple(par,tupel_liste1[0][0],tupel_liste1[0][1],tupel_liste1[0][2],signaldef_liste,werte_dict)
-    else:
-        return check_content_3par(par, content, signaldef_liste,werte_dict)
     # end if
-# end ofr
+
+    return hdef.NOT_OKAY
+# end def
 def check_content_2par_tuple(par,fkt,par1,par2,signaldef_liste,werte_dict):
 
     global INFOTEXT
@@ -246,6 +365,43 @@ def check_content_2par_tuple(par,fkt,par1,par2,signaldef_liste,werte_dict):
         werte_dict["fkt"] = par.SIG_2PAR_EMA
         werte_dict["par1"] = par1
         werte_dict["par2"] = abs(nint)
+
+    elif fkt == par.SIG_2PAR_MAX:
+
+        # par1: signal, par2: n
+        if par1 not in signaldef_liste:
+            INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({par1},{par2})\") ist erster Parameter signal = {par1} nicht davor definiert worden "
+            return hdef.NOT_OKAY
+        # end if
+        (status, val) = htype.type_proof_float(par2)
+        if status != hdef.OKAY:
+            INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({par1},{par2})\") ist zweiter Parameter n = {par2} nicht in float wandelbar "
+            return status
+        # end if
+        werte_dict["type"] = par.SIG_TYPE_2PAR_MAX
+        werte_dict["fkt"] = par.SIG_2PAR_MAX
+        werte_dict["par1"] = par1
+        werte_dict["par2"] = val
+    elif fkt == par.SIG_2PAR_MIN:
+
+        # par1: signal, par2: n
+        if par1 not in signaldef_liste:
+            INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({par1},{par2})\") ist erster Parameter signal = {par1} nicht davor definiert worden "
+            return hdef.NOT_OKAY
+        # end if
+        (status, val) = htype.type_proof_float(par2)
+        if status != hdef.OKAY:
+            INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({par1},{par2})\") ist zweiter Parameter n = {par2} nicht in float wandelbar "
+            return status
+        # end if
+        werte_dict["type"] = par.SIG_TYPE_2PAR_MIN
+        werte_dict["fkt"] = par.SIG_2PAR_MIN
+        werte_dict["par1"] = par1
+        werte_dict["par2"] = val
+    else:
+
+        INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({par1},{par2})\") ist Parameter Funktion:{fkt} nicht definiert"
+        return hdef.NOT_OKAY
     # end if
     return hdef.OKAY
 # end def
@@ -300,7 +456,10 @@ def hilfe(rd):
     SignalName0 = 0                                     Signal wird ignoriert
     SignalName1 = kurs                                  Kurs=Close-Signal
     SignalName2 = close/open/high/low/volume            Chart-Werte
+    SignalName2 = ecbleitzins,usdeuro                   Bisherige Indizes
     SignalName3 = datum(SignalName1)                    Datum von einem bestimmten Signal
+    SignalName4 = rankmin(SignalName1)                  erstellt ein Ranking minimum am besten 1, 2, ...
+    SignalName4 = rankmax(SignalName1)                  erstellt ein Ranking maximum am besten 1, 2, ...
     SignalName4 = np_obj(isin,kurs)                     Kurswerte von einer anderen isin
                                                         gespeichrt wird:
                                                         "SignalName3_dat_array" und "SignalName3"
@@ -332,7 +491,7 @@ def hilfe(rd):
     """
     infotext = f"Hilfe für signalset\n\nSyntax: SignalName = Kontext, für Kontext kann stehen:\n\n"
 
-    for i in range(15):
+    for i in range(20):
         match i:
             case 0:
                 val1 = rd.par.SIG_NULL
@@ -344,35 +503,41 @@ def hilfe(rd):
                 val1 = rd.par.SIG_VOLUME
                 val2 = "Volumenabfrage"
             case 3:
+                val1 = "indice"
+                val2 = "Indicesabfrage wie ecbleitzins, usdeuro"
+            case 4:
                 val1 = f"{rd.par.SIG_1PAR_DATUM}({rd.par.SIG_KURS})"
                 val2 = f"Datum dem SignalName (z.B. Kurs) SignalName muss vorher definiert sein!!!"
-            case 4:
+            case 5:
+                val1 = f"{rd.par.SIG_1PAR_RANKMIN}(SignameX)"
+                val2 = f"Damit ein Minimumsranking von SignalX; SignalName muss vorher definiert sein!!!"
+            case 6:
+                val1 = f"{rd.par.SIG_1PAR_RANKMAX}(SignameX)"
+                val2 = f"Damit ein Maximumsraking von SignalX; SignalName muss vorher definiert sein!!!"
+            case 7:
                 val1 = f"{rd.par.SIG_2PAR_NP_OBJ}(isin,{rd.par.SIG_KURS})"
                 val2 = f"Kurs von einer bestimmten isin, {rd.par.SIG_KURS} = {rd.par.SIG_CLOSE}"
-            case 5:
+            case 8:
                 val1 = f"{rd.par.SIG_2PAR_LINGRAD}(signal,Anzahl/Tage)"
                 val2 = f"linearer Gradient für Signal (muss definiert sein) und Anzahl von Punkten/Tage"
-            case 6:
+            case 9:
                 val1 = f"{rd.par.SIG_2PAR_SMA}(signal,Anzahl/Tage)"
                 val2 = f"simple moving avarage für Signal (muss definiert sein) und Anzahl von Punkten/Tage"
-            case 7:
+            case 10:
                 val1 = f"{rd.par.SIG_2PAR_EMA}(signal,Anzahl/Tage)"
                 val2 = f"exponential moving avarage für Signal (muss definiert sein) und Anzahl von Punkten/Tage"
-            case 8:
+            case 11:
                 val1 = f"{rd.par.SIG_2PAR_MAX}(signal,Zahl)"
                 val2 = f"Max-Fkt für Signal (muss definiert sein) und Zahl"
-            case 9:
+            case 12:
                 val1 = f"{rd.par.SIG_2PAR_MIN}(signal,Zahl)"
                 val2 = f"Min-Fkt für Signal (muss definiert sein) und Zahl"
-            case 10:
+            case 13:
                 val1 = f"{rd.par.SIG_3PAR_VERGLEICH}(signal1,>,signal2)"
                 val2 = f"Vergleich zweier Signale (müssen definiert sein) und Vorschrift (>,<,>=,<=,==,!=) Ergebnis: 0/1 pro Punkt"
-            case 11:
+            case 14:
                 val1 = f"{rd.par.SIG_NPAR_BEDINGUNG}(signal1,signal2, ...)"
                 val2 = f"Vergleicht jedes Signal auf > null (müssen definiert sein und max 5) und verundet alle Ergebnisse, Ergebnis: 0/1 pro Punkt"
-            case 12:
-                val1 = f"{rd.par.SIG_1PAR_RANKING}(signal)"
-                val2 = f"Bildet für die gesamte Tabelle ein Ranking, dass als Einzelwert je wp gespeichert wird signalname = 1,2,3,..."
             case _:
                 break
         # end match

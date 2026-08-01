@@ -22,7 +22,7 @@ from wp_abfrage import wp_base_active_katalog
 
 import tools.hfkt_def as hdef
 import tools.hfkt_dict as hdict
-# import tools.hfkt_type as htype
+import tools.hfkt_type as htype
 import tools.hfkt_log as hlog
 
 INI_DICT_PROOF_LISTE = [("store_path", "str"),
@@ -448,7 +448,14 @@ class WPData:
 
         return (self.status, self.errtext,np_obj_dict)
     # end def
-
+    def is_an_isin(self,isin):
+        (status, wert) = htype.type_proof_isin(isin)
+        if status == hdef.OKAY:
+            return True
+        else:
+            return False
+        # end if
+    # end def
     def update_price_volume(self, isin=None):
         """
         - Demand: run_wp_abfrage.py
@@ -572,6 +579,19 @@ class WPData:
         (self.status, self.errtext, np_obj) = wp_base_price_volume.get_act_np_obj(self, isin)
         return (self.status, self.errtext, np_obj)
     # end def
+    def is_wp(self,wp):
+        """
+        Gibt es dieses wertpapier a) als gültige isin oder als abgelegter indice
+
+        :param wp: Wert Papier
+        """
+
+        if self.is_an_indice(wp):
+            return True
+        # end if
+
+        return self.is_an_isin(wp)
+    # end if
     def set_active_isin_katalog_for_depot(self,depot_name,isin_dict_katalog):
         """
         :param depot_name:                Name des Depots

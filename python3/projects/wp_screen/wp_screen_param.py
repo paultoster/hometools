@@ -24,7 +24,8 @@ class Param:
     SIG_LOW     = "low"
     SIG_VOLUME  = "volume"
     SIG_1PAR_DATUM = "datum"
-    SIG_1PAR_RANKING = "ranking"
+    SIG_1PAR_RANKMIN = "rankmin"
+    SIG_1PAR_RANKMAX = "rankmax"
     SIG_2PAR_NP_OBJ  = "np_obj"
     SIG_2PAR_LINGRAD = "lingrad"
     SIG_2PAR_SMA = "sma"
@@ -42,12 +43,18 @@ class Param:
     SIG_TYPE_HIGH    = 5
     SIG_TYPE_LOW     = 6
     SIG_TYPE_VOLUME  = 7
-    SIG_TYPE_1PAR_DATUM = 8
-    SIG_TYPE_2PAR_NP_OBJ  = 9
-    SIG_TYPE_2PAR_LINGRAD = 10
-    SIG_TYPE_2PAR_SMA = 11
-    SIG_TYPE_2PAR_EMA = 12
-    SIG_TYPE_3PAR_VERGLEICH = 13
+    SIG_TYPE_INIDiCE  = 8
+    SIG_TYPE_1PAR_DATUM = 9
+    SIG_TYPE_1PAR_RANKMIN = 10
+    SIG_TYPE_1PAR_RANKMAX = 11
+    SIG_TYPE_2PAR_NP_OBJ  = 12
+    SIG_TYPE_2PAR_LINGRAD = 13
+    SIG_TYPE_2PAR_SMA = 14
+    SIG_TYPE_2PAR_EMA = 15
+    SIG_TYPE_2PAR_MAX = 16
+    SIG_TYPE_2PAR_MIN = 17
+    SIG_TYPE_3PAR_VERGLEICH = 18
+    SIG_TYPE_NPAR_BEDINGUNG = 19
 
     SIG_STORE_DATUM = "datum_array"
     SIG_STORE_GRAD  = "grad"

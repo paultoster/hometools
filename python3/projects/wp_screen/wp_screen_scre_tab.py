@@ -46,17 +46,21 @@ def reset_status():
     ERRTEXT = ""
     INFOTEXT = ""
 # end def
-def build_header_list_type_list(tab_dict,tab_werte_dict_liste):
+def build_header_list(tab_werte_dict_liste):
+    header_list = []
+    for werte_dict in tab_werte_dict_liste:
+        header_list.append(werte_dict["spalte"])
+    # end for
+    return header_list
+# end def
+def build_type_list(tab_werte_dict_liste):
 
     global STATUS
     global ERRTEXT
     global INFOTEXT
 
-    header_list = []
     type_list = []
     for werte_dict in tab_werte_dict_liste:
-
-        header_list.append(werte_dict["spalte"])
 
         # types
         if len(werte_dict["fmt_spez_dict_liste"]) > 0:
@@ -84,7 +88,7 @@ def build_header_list_type_list(tab_dict,tab_werte_dict_liste):
             raise Exception("Format type not supported")
         # end if
     # end for
-    return (header_list,type_list)
+    return type_list
 # end def
 def scre_build_data(rd,irow ,isin,tab_dict,tab_werte_dict_liste,type_list):
 
@@ -123,60 +127,6 @@ def scre_build_data(rd,irow ,isin,tab_dict,tab_werte_dict_liste,type_list):
 
     return (data_list,color_dict_list)
 # end def
-def scre_build_data_get_value(rd,werte_dict,np_data_obj):
-    """
-    :param rd:
-    :param werte_dict:
-    :param np_data_obj:
-    :param type:
-    :return: value = scre_build_data_get_value(rd,werte_dict,np_data_obj,type)
-
-    werte_dict["section"] = "bi", "sig"
-    werte_dict["name"] = name
-    werte_dict["fmt"] = base_fmt
-    werte_dict["fmt_nachkomma"] = nachkomma
-    werte_dict["fmt_spez_dict_liste"] = special_dict_liste
-    werte_dict["color"] = base_color
-    werte_dict["color_spez_dict_liste"] = special_dict_liste
-
-    """
-    global STATUS, ERRTEXT, INFOTEXT
-
-    if werte_dict["section"] == rd.par.TAB_SEC_BI:
-
-        (status, errtext,value) = rd.wpfunc.get_basic_info_key_value(werte_dict["isin"],werte_dict["name"])
-
-        if status != hdef.OKAY:
-            STATUS = status
-            ERRTEXT = errtext
-            return None
-        # end if
-    else: # werte_dict["section"] == rd.par.TAB_SEC_SIG
-
-        np_array = np_data_obj.get_data(werte_dict["name"])
-
-        if np_array is None:
-            STATUS = hdef.NOT_OKAY
-            ERRTEXT = f"Von isin: {werte_dict['isin']} kann im np_data_obj nicht der {werte_dict['name']} gefunden werden!"
-            return None
-        # end if
-
-        value = np_array[-1]
-
-        if np.isnan(value):
-            STATUS = hdef.NOT_OKAY
-            ERRTEXT = f"Von isin: {werte_dict['isin']} ist das Signal {werte_dict['name']} == np.nan !"
-            return None
-        # end if
-
-        if isinstance(value,np.int64):
-            value = int(value)
-        elif isinstance(value,np.float64):
-            value = float(value)
-        # end if
-    # end if
-    return value
-# end if
 def scre_build_data_format_value(rd, werte_dict, value, type,np_data_obj):
     """
     :param rd:

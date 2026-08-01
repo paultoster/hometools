@@ -49,6 +49,7 @@ types =  get_types(tlist)
 (val_dict,type_dict) = get_dict_list_from_list(ttable)
 ttable = add_list_to_table(ttable,tlist)
 ttable = insert_list_to_table(ttable,tlist,irow)
+ttable = add_data_set_to_table(ttable,data_list)
 ttable = add_row_liste_to_table(ttable, name,add_row_liste,type)
 ttable = set_val_in_table(ttable,val,irow,name,type)
 ttable = set_val_in_table(ttable,val,irow,name)
@@ -955,16 +956,16 @@ def insert_list_to_table(ttable: TTable,tlist: TList,irow: int):
         return ttable
     # end if
 # end def
-def add_date_set_to_table(ttable: TTable, data_set: list):
+def add_data_set_to_table(ttable: TTable, data_set: list):
     '''
 
     :param ttable:
     :param data_set:
-    :return: ttable = add_date_set_to_table(ttable,data_set)
+    :return: ttable = add_data_set_to_table(ttable,data_set)
     '''
 
     if ttable.n != len(data_set):
-        raise Exception(f"add_date_set_to_table: ttable hat n = {ttable.n} Spalten, und data_set hat n = {len(data_set)}  ungleich Daten-länge")
+        raise Exception(f"add_data_set_to_table: ttable hat n = {ttable.n} Spalten, und data_set hat n = {len(data_set)}  ungleich Daten-länge")
     else:
         ttable.table.append(data_set)
         ttable.ntable += 1

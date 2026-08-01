@@ -400,6 +400,12 @@ def hilfe(rd):
             case 3:
                 val1 = ""
                 val2 = f""
+            case 2:
+                val1 = "name"
+                val2 = "name aus \"bi\": basic_info isin oder \"sig\": sigset"
+            case 3:
+                val1 = ""
+                val2 = f""
             case 4:
                 val1 = "fmt"
                 val2 = "\"str\", \"float.X\" (anzahl der Nachkomma-Stellen), \"int\""

@@ -617,8 +617,6 @@ def search_double_value_in_list_return_indexllist(liste):
         # end for
     # end if
     return indexllist
-
-
 # end def
 
 def search_value_in_list_return_indexlist(liste, value):
@@ -764,6 +762,20 @@ def size_of_llist(llist):
     #end for
     return (n,m)
 # enddef
+def erase_double_value_in_list(liste):
+    indexllist = []
+    set_liste = set(liste)
+    if (len(set_liste) != len(liste)):
+        for val in set_liste:
+            liste1 = search_double_value_in_list_return_indexlist(liste, val)
+            if len(liste1) > 1:
+                indexllist.append(liste1)
+            # end if
+        # end for
+    # end if
+    return indexllist
+# end def
+
 ###########################################################################
 # testen mit main
 ###########################################################################

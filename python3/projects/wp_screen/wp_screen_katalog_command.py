@@ -212,7 +212,7 @@ def katalog_gruppe_isin_dict_edit_command(rd, index):
             return
         # end if
 
-        title = f"Zeigt den Katalog: {rd.kat["katalog"]} ( wennn vergleich gemacht werden soll, dannn Gruppe \"vergleich\" anlegen"
+        title = f"Zeigt den Katalog: {rd.kat["katalog"]} ( die Gruppe ist der key und value eine liste mit wks)"
 
         (ttable_mod,index_abfrage,irow,data_change_irow_icol_liste) = wp_screen_gui.katalog_dict_table_abfrage(rd.gui,ttable, abfrage_liste, title)
 
@@ -380,20 +380,17 @@ def katalog_gruppe_isin_dict_modify(rd):
                 ddict_mod[gruppe] = liste
             # end if
 
-            # proof isin
-            if gruppe != "vergleich":
 
-                for isin in ddict_mod[gruppe]:
-                    (status, wert) = htype.type_proof_isin(isin)
-                    if status != hdef.OKAY:
-                        rd.log.write_info(f"katalog_gruppe_isin_dict_modify: In Gruppe = {gruppe} isin = {isin} ist keine isin", screen=rd.par.LOG_SCREEN_OUT)
-                        flag_change = False
-                        break
-                    else:
-                        flag_change = True
-                    # end if
-                # end for
-            # end if
+            for wp in ddict_mod[gruppe]:
+
+                if not rd.wpfunc.is_wp(wp):
+                    rd.log.write_info(f"katalog_gruppe_isin_dict_modify: In Gruppe = {gruppe} Wertpapier = {wp} ist keine gültiges wertpapier (isin oder indice)", screen=rd.par.LOG_SCREEN_OUT)
+                    flag_change = False
+                    break
+                else:
+                    flag_change = True
+                # end if
+            # end for
         # end for
 
 

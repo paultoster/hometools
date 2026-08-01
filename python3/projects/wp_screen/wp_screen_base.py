@@ -72,6 +72,7 @@ class WPScreen:
                     "scre_dict_jsonobj": None,
                     "scre_werte_dict_liste": {},
                     "scre_isin_dataclass_filename_dict": {},
+                    "ttable_raw": None,
                     "ttable": None,
                     "color_dict_liste": []}
 
@@ -225,4 +226,52 @@ class WPScreen:
             self.log.write_err(self.errtext, screen=self.par.LOG_SCREEN_OUT)
         # end if
         return
+    # end def
+    def build_scre_sigset(self,scre_name):
+        """
+
+        """
+        wp_screen_scre.setup_scre_name(self,scre_name)
+
+        if wp_screen_scre.get_status() != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"Error wp_screen_base.setup_scre_name({scre_name}) errtext = {wp_screen_scre.get_errtext()}"
+            self.log.write_err(self.errtext, screen=self.par.LOG_SCREEN_OUT)
+            wp_screen_scre.reset_status()
+            return
+        # end if
+
+        wp_screen_scre.scre_build_sigset(self, self.scre["scre_dict"])
+        if wp_screen_scre.get_status() != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"Error wp_screen_base.build_scre_sigset({scre_name}) errtext = {wp_screen_scre.get_errtext()}"
+            self.log.write_err(self.errtext, screen=self.par.LOG_SCREEN_OUT)
+            wp_screen_scre.reset_status()
+            return
+        # end if
+
+        return
+    # end def
+    def build_scre_rawtable(self,scre_name):
+
+        wp_screen_scre.setup_scre_name(self,scre_name)
+
+        if wp_screen_scre.get_status() != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"Error wp_screen_base.setup_scre_name({scre_name}) errtext = {wp_screen_scre.get_errtext()}"
+            self.log.write_err(self.errtext, screen=self.par.LOG_SCREEN_OUT)
+            wp_screen_scre.reset_status()
+            return
+        # end if
+
+        rawtable = wp_screen_scre.scre_build_rawtable(self, self.scre["scre_dict"])
+
+        if wp_screen_scre.get_status() != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"Error wp_screen_base.scre_build_rawtable({scre_name}) errtext = {wp_screen_scre.get_errtext()}"
+            self.log.write_err(self.errtext, screen=self.par.LOG_SCREEN_OUT)
+            wp_screen_scre.reset_status()
+            return
+        # end if
+        return rawtable
     # end def
