@@ -23,9 +23,6 @@ class Param:
     SIG_HIGH    = "high"
     SIG_LOW     = "low"
     SIG_VOLUME  = "volume"
-    SIG_1PAR_DATUM = "datum"
-    SIG_1PAR_RANKMIN = "rankmin"
-    SIG_1PAR_RANKMAX = "rankmax"
     SIG_2PAR_NP_OBJ  = "np_obj"
     SIG_2PAR_LINGRAD = "lingrad"
     SIG_2PAR_SMA = "sma"
@@ -44,20 +41,23 @@ class Param:
     SIG_TYPE_LOW     = 6
     SIG_TYPE_VOLUME  = 7
     SIG_TYPE_INIDiCE  = 8
-    SIG_TYPE_1PAR_DATUM = 9
-    SIG_TYPE_1PAR_RANKMIN = 10
-    SIG_TYPE_1PAR_RANKMAX = 11
-    SIG_TYPE_2PAR_NP_OBJ  = 12
-    SIG_TYPE_2PAR_LINGRAD = 13
-    SIG_TYPE_2PAR_SMA = 14
-    SIG_TYPE_2PAR_EMA = 15
-    SIG_TYPE_2PAR_MAX = 16
-    SIG_TYPE_2PAR_MIN = 17
-    SIG_TYPE_3PAR_VERGLEICH = 18
-    SIG_TYPE_NPAR_BEDINGUNG = 19
+    SIG_TYPE_2PAR_NP_OBJ  = 11
+    SIG_TYPE_2PAR_LINGRAD = 12
+    SIG_TYPE_2PAR_SMA = 13
+    SIG_TYPE_2PAR_EMA = 14
+    SIG_TYPE_2PAR_MAX = 15
+    SIG_TYPE_2PAR_MIN = 16
+    SIG_TYPE_3PAR_VERGLEICH = 17
+    SIG_TYPE_NPAR_BEDINGUNG = 18
 
-    SIG_STORE_DATUM = "datum_array"
+    SIG_STORE_DATUM = "datum_np_array"
     SIG_STORE_GRAD  = "grad"
+
+    SIG_ANZAHL_HANDELSTAGE_PRO_JAHR = 252
+
+    SIG_STORE_LINGRAD_N = "n"
+    SIG_STORE_LINGRAD_Y0 = "y0"
+    SIG_STORE_LINGRAD_Y1 = "y1"
 
     TAB_SPEZ_GT = ">"
     TAB_SPEZ_LT = "<"
@@ -68,13 +68,17 @@ class Param:
 
     TAB_SEC_BI = "bi"  # basict info
     TAB_SEC_SIG = "sig" # signal von sigset
+    TAB_SEC_TABRANKMIN = "tabrankmin"
+    TAB_SEC_TABRANKMAX = "tabrankmax"
     TAB_FMT_STR = "str"
     TAB_FMT_INT = "int"
     TAB_FMT_FLOAT = "float"
+    TAB_FMT_PERCENT = "%"
     TAB_FMT_EUROSTRK = "euroStrK"
     TAB_FMT_DATSTRP = "datStrP"
     TAB_FMT_SPEZ = "spez"
     TAB_FMT_FLOAT_SEP = "."
+    TAB_FMT_PERCENT_SEP = "."
     TAB_FMT_SPEZ_BRACKET_OPEN = "["
     TAB_FMT_SPEZ_BRACKET_CLOSE = "]"
     TAB_FMT_SPEZ_SEP = ";"

@@ -84,16 +84,22 @@ def update_indices(wb_obj,indice = None):
     return (status,errtext)
 # end def
 def get_dict_from_act(wb_obj,indice=None):
+    """
+    (status,errtext,np_obj_dict) = get_dict_from_act(wb_obj):
+    (status,errtext,np_obj_dict) = get_dict_from_act(wb_obj,[indece1,indice2,...]):
+    (status,errtext,np_obj)      = get_dict_from_act(wb_obj,indece1):
+    """
+
 
     status = hdef.OKAY
     errtext = ""
 
-    if indice is None:
-        indices = get_indices_liste(wb_obj)
-    elif isinstance(indice, list) and (len(indice) == 0):
+    list_type = True
+    if (indice is None) or (isinstance(indice, list) and (len(indice) == 0)):
         indices = get_indices_liste(wb_obj)
     elif not isinstance(indice, list):
         indices = [indice]
+        list_type = False
     else:
         indices = indice
     # end if
@@ -121,11 +127,11 @@ def get_dict_from_act(wb_obj,indice=None):
         # end if
     # end for
 
-    return (status, errtext, np_obj_dict)
-
-
+    if list_type:
+        return (status,errtext,np_obj_dict[indices[0]])
+    else:
+        return (status, errtext, np_obj_dict)
 # end def
-
 def get_dict_from_start_dat_to_end_dat(wb_obj,indice,start_dat,end_dat):
 
     status = hdef.OKAY

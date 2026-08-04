@@ -13,7 +13,7 @@ if (tools_path not in sys.path):
 import wp_screen_gui
 import wp_screen_katalog
 import wp_screen_sigset
-import wp_screen_tab
+import wp_screen_scre
 
 
 import tools.hfkt_def as hdef
@@ -80,6 +80,8 @@ def build_type_list(tab_werte_dict_liste):
             type_list.append("int")
         elif werte_dict["fmt"] == "float":
             type_list.append("float")
+        elif werte_dict["fmt"] == "%":
+            type_list.append("str")
         elif werte_dict["fmt"] == "euroStrK":
             type_list.append("euroStrK")
         elif werte_dict["fmt"] == "datStrP":
@@ -90,31 +92,18 @@ def build_type_list(tab_werte_dict_liste):
     # end for
     return type_list
 # end def
-def scre_build_data(rd,irow ,isin,tab_dict,tab_werte_dict_liste,type_list):
+def scre_build_fmttable_data(rd,irow ,data_set_raw,header_list,tab_werte_dict_liste,type_list):
 
     global STATUS, ERRTEXT, INFOTEXT
 
-    filename = rd.scre["scre_isin_dataclass_filename_dict"][isin]
-    np_data_obj = hnp_dataclass.NpDataHandlingClass(filename)
-    np_data_obj.read()
-    if np_data_obj.get_status() != hdef.OKAY:
-        STATUS = np_data_obj.get_status()
-        ERRTEXT = np_data_obj.get_errtext()
-        return None
-    # end if
     data_list = []
     color_dict_list = []
     for icol,werte_dict in enumerate(tab_werte_dict_liste):
 
-        werte_dict["isin"] = isin
-
-        value  = scre_build_data_get_value(rd, werte_dict, np_data_obj)
-        if value is None:
-            return (None,None)
-        valout = scre_build_data_format_value(rd, werte_dict, value, type_list[icol],np_data_obj)
+        valout = scre_build_data_format_value(rd, werte_dict, data_set_raw[icol], type_list[icol],data_set_raw,header_list)
         if valout is None:
             return (None,None)
-        color  = scre_build_data_color_value(rd, werte_dict, value, np_data_obj)
+        color  = scre_build_data_color_value(rd, werte_dict, data_set_raw[icol],data_set_raw,header_list)
         if color is None:
             return (None,None)
 
@@ -127,7 +116,7 @@ def scre_build_data(rd,irow ,isin,tab_dict,tab_werte_dict_liste,type_list):
 
     return (data_list,color_dict_list)
 # end def
-def scre_build_data_format_value(rd, werte_dict, value, type,np_data_obj):
+def scre_build_data_format_value(rd, werte_dict, value, type,data_set,header_list):
     """
     :param rd:
     :param werte_dict:
@@ -148,42 +137,73 @@ def scre_build_data_format_value(rd, werte_dict, value, type,np_data_obj):
         val_out = htype.type_transform_direct(val_out, "str", type)
     # end if
 
-    # Nachkommastellen
-    if (werte_dict["fmt_nachkomma"] > -1) and (isinstance(value, int) or isinstance(value, float)):
-        t = f"{value:.{werte_dict["fmt_nachkomma"]}f}"
-        val_out = htype.type_transform_direct(t, "str", type)
-    # end if
+    if werte_dict["fmt"] == "float":
+        (status,wert) = htype.type_proof(val_out,"float")
+        if status != hdef.OKAY:
+            STATUS = hdef.NOT_OKAY
+            ERRTEXT = f"scre_build_data_format_value: In Tabelle kann der Wert: {val_out} mit Namen {werte_dict['name']} nicht in float gewandelt werden!"
+            return None
+        # end if
 
+        # Nachkommastellen
+        if werte_dict["fmt_nachkomma"] > -1:
+            text = f"{wert:.{werte_dict["fmt_nachkomma"]}f}"
+            val_out = htype.type_transform_direct(text, "str", type)
+        else:
+            val_out = htype.type_transform_direct(wert, "float", type)
+        # end if
+    elif werte_dict["fmt"] == "%":
+
+        (status, wert) = htype.type_proof(val_out, "float")
+        if status != hdef.OKAY:
+            STATUS = hdef.NOT_OKAY
+            ERRTEXT = f"scre_build_data_format_value: In Tabelle kann der Wert: {val_out} mit Namen {werte_dict['name']} nicht in float gewandelt werden!"
+            return None
+        # end if
+
+        val_out = wert*100.
+
+        # Nachkommastellen
+        if werte_dict["fmt_nachkomma"] > -1:
+            text = f"{val_out:.{werte_dict["fmt_nachkomma"]}f}"
+            val_out = htype.type_transform_direct(text, "str", type)
+        else:
+            val_out = htype.type_transform_direct(val_out, "float", type)
+        # end if
 
     # spez-fmt
-    fmt_spez_dict_liste = werte_dict["fmt_spez_dict_liste"]
-    if len(fmt_spez_dict_liste) > 0:
+    elif len(werte_dict["fmt_spez_dict_liste"]) > 0:
+
+        fmt_spez_dict_liste = werte_dict["fmt_spez_dict_liste"]
         ersatzwert = ""
         for fmt_spez_dict in fmt_spez_dict_liste:
 
             # Vergleichswert
-            vergleichswert = 0
-            if fmt_spez_dict["vergleichswert"] != None:
+            if ("vergleichswert" in fmt_spez_dict.keys()) and  (fmt_spez_dict["vergleichswert"] != None):
 
                 if isinstance(value, int) :
                     vergleichswert = int(fmt_spez_dict["vergleichswert"])
                 else:
                     vergleichswert = float(fmt_spez_dict["vergleichswert"])
                 # end if
-            else:
-                np_array = np_data_obj.get_data(fmt_spez_dict["vergleichssignal"])
+            elif ("vergleichstabellenwert" in fmt_spez_dict.keys()) and  (fmt_spez_dict["vergleichstabellenwert"] != None):
 
-                if np_array == None:
+                if fmt_spez_dict["vergleichstabellenwert"] not in header_list:
                     STATUS = hdef.NOT_OKAY
-                    ERRTEXT = f"scre_build_data_format_value: Von isin: {werte_dict['isin']} kann im np_data_obj nicht der {werte_dict['name']} gefunden werden!"
+                    ERRTEXT = f"scre_build_data_format_value:  der Vergleichstabellenwert: {fmt_spez_dict["vergleichstabellenwert"]} konnte nicht in header_list: {header_list}  gefunden werden!!"
                     return None
                 # end if
 
+                index = header_list.index(fmt_spez_dict["vergleichswert"])
+
                 if isinstance(value, int) :
-                    vergleichswert = int(np_array[-1])
+                    vergleichswert = int(data_set[index])
                 else:
-                    vergleichswert = float(np_array[-1])
+                    vergleichswert = float(data_set[index])
                 # end if
+
+            else:
+                raise   Exception("fmt_spez_dict Problem")
             # end if
 
             if fmt_spez_dict["vergleich"] == rd.par.TAB_SPEZ_GT:
@@ -219,10 +239,11 @@ def scre_build_data_format_value(rd, werte_dict, value, type,np_data_obj):
         if len(ersatzwert) > 0:
             val_out = ersatzwert
         # end if
+    # end if
 
     return val_out
 # end def
-def scre_build_data_color_value(rd, werte_dict, value, np_data_obj):
+def scre_build_data_color_value(rd, werte_dict, value, data_set,header_list):
     """
         color = scre_build_data_color_value(rd, werte_dict, value)
     """
@@ -235,32 +256,36 @@ def scre_build_data_color_value(rd, werte_dict, value, np_data_obj):
 
         color_spez_dict_liste = werte_dict["color_spez_dict_liste"]
         if len(color_spez_dict_liste) > 0:
+
             colorersatzwert = ""
             for color_spez_dict in color_spez_dict_liste:
 
                 # Vergleichswert
                 vergleichswert = 0
-                if color_spez_dict["vergleichswert"] != None:
+                if ("vergleichswert" in color_spez_dict.keys()) and (color_spez_dict["vergleichswert"] != None):
 
                     if isinstance(value, int):
                         vergleichswert = int(color_spez_dict["vergleichswert"])
                     else:
                         vergleichswert = float(color_spez_dict["vergleichswert"])
                     # end if
-                else:
-                    np_array = np_data_obj.get_data(color_spez_dict["vergleichssignal"])
+                elif ("vergleichstabellenwert" in color_spez_dict.keys()) and (color_spez_dict["vergleichstabellenwert"] != None):
 
-                    if np_array == None:
+                    if color_spez_dict["vergleichstabellenwert"] not in header_list:
                         STATUS = hdef.NOT_OKAY
-                        ERRTEXT = f"scre_build_data_color_value: Von isin: {werte_dict['isin']} kann im np_data_obj nicht der {werte_dict['name']} gefunden werden!"
+                        ERRTEXT = f"scre_build_data_format_value:  der Vergleichstabellenwert: {color_spez_dict["vergleichstabellenwert"]} konnte nicht in header_list: {header_list}  gefunden werden!!"
                         return None
                     # end if
 
+                    index = header_list.index(color_spez_dict["vergleichswert"])
+
                     if isinstance(value, int):
-                        vergleichswert = int(np_array[-1])
+                        vergleichswert = int(data_set[index])
                     else:
-                        vergleichswert = float(np_array[-1])
+                        vergleichswert = float(data_set[index])
                     # end if
+                else:
+                    raise Exception("color_spez_dict Problem")
                 # end if
 
                 if color_spez_dict["vergleich"] == rd.par.TAB_SPEZ_GT:

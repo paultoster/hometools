@@ -174,4 +174,58 @@ class NpDataHandlingClass:
         # end if
         return
     # end def
+    def sort_by_signal(self,signame):
+        if hasattr(self,signame):
+
+            index_arr = np.argsort(self.__getattribute__(signame))
+
+            for signal in self.signal_list:
+                if hasattr(self, signal):
+                    if isinstance(self.__getattribute__(signal), np.ndarray):
+
+                        try:
+                            np_arr = np.array(self.__getattribute__(signal))[index_arr]
+                            self.__setattr__(np_arr,self)
+                        except:
+                            raise Exception(f"mit {signame} kann signal: {signal} nicht sortiert werden")
+                        # end if
+                    # end if
+                # end if
+            # end ofr
+        # end if
+        return
+    # end def
+    def reduce_to_endvalue(self,signame,endvalue):
+
+        if hasattr(self, signame):
+
+            np_reduce_array = self.__getattribute__(signame)
+
+            flag = False
+            while (np_reduce_array[-1] > endvalue):
+
+                for signal in self.signal_list:
+                    if hasattr(self, signal):
+                        if isinstance(self.__getattribute__(signal), np.ndarray):
+
+                            try:
+                                np_arr = self.__getattribute__(signal)
+                                if len(np_arr) <= 1:
+                                    flag = True
+                                else:
+                                    np_arr = np.delete(np_arr,-1)
+                                    self.__setattr__(np_arr, self)
+                            except:
+                                raise Exception(f"mit {signame} kann signal: {signal} nicht sortiert werden")
+                            # end if
+                        # end if
+                    # end if
+                # end for
+                if flag:
+                    break
+                #end if
+                np_reduce_array = self.__getattribute__(signame)
+        # end if
+        return
+    # end def
 

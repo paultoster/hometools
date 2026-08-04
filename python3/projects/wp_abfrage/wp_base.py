@@ -430,7 +430,7 @@ class WPData:
     def get_dict_indice_from_act(self, indice=None):
         """
         (status, errtext, np_obj_dict) = self.get_dict_indice_from_act()
-        (status, errtext, np_obj_dict) = self.get_dict_indice_from_act(indece)
+        (status, errtext, np_obj) = self.get_dict_indice_from_act(indece)
         (status, errtext, np_obj_dict) = self.get_dict_indice_from_act([indeice1,indece2])
 
         """

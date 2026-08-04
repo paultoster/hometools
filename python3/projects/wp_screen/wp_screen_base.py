@@ -252,7 +252,13 @@ class WPScreen:
 
         return
     # end def
-    def build_scre_rawtable(self,scre_name):
+    def build_scre_rawtable(self,scre_name, dat):
+        """
+        scre_name:  Name des ausgewählten sreens, muss hier angelegt sein
+        dat: Datum für Tabelle erstellen in secs
+        return raytable = self.build_scre_rawtable(scre_name, dat)
+
+        """
 
         wp_screen_scre.setup_scre_name(self,scre_name)
 
@@ -264,7 +270,7 @@ class WPScreen:
             return
         # end if
 
-        rawtable = wp_screen_scre.scre_build_rawtable(self, self.scre["scre_dict"])
+        rawtable = wp_screen_scre.scre_build_rawtable(self, self.scre["scre_dict"],dat)
 
         if wp_screen_scre.get_status() != hdef.OKAY:
             self.status = hdef.NOT_OKAY

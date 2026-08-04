@@ -79,9 +79,11 @@ def check_content(rd,content,werte_dict):
 
         # section
         if not (  (section == rd.par.TAB_SEC_BI) or
-                  (section == rd.par.TAB_SEC_SIG)
-               ):
-            INFOTEXT = f"Im tab zeile:{ZEILE}, (section: \"{section})\") ist nicht \"{rd.par.TAB_SEC_BI}\" oder \"{rd.par.TAB_SEC_SIG}\" "
+                  (section == rd.par.TAB_SEC_SIG) or
+                  (section == rd.par.TAB_SEC_TABRANKMIN) or
+                  (section == rd.par.TAB_SEC_TABRANKMAX)
+        ):
+            INFOTEXT = f"Im tab zeile:{ZEILE}, (section: \"{section})\") ist nicht \"{rd.par.TAB_SEC_BI}\" oder \"{rd.par.TAB_SEC_SIG}\" oder \"{rd.par.TAB_SEC_TABRANKMIN}\" oder \"{rd.par.TAB_SEC_TABRANKMAX}\" "
             return hdef.NOT_OKAY
         # end if
 
@@ -197,6 +199,20 @@ def check_content_fmt(par,fmt):
                 nachkomma = wert
             # end if
         # end if
+    elif fmt.find(par.TAB_FMT_PERCENT) != -1:
+
+        status = hdef.OKAY
+        base_fmt = par.TAB_FMT_PERCENT
+        index = fmt.find(par.TAB_FMT_PERCENT_SEP)
+        if index != -1:
+            value = fmt[index + 1:]
+            (status, wert) = htype.type_proof_int(value)
+            if status == hdef.NOT_OKAY:
+                INFOTEXT = f"Im tab zeile:{ZEILE}, fmt : \"{fmt}\" nachkomma: \"{value}\") kann nicht in int gewandelt werden "
+            else:
+                nachkomma = wert
+            # end if
+        # end if
     else:
         i0 = fmt.find(par.TAB_FMT_SPEZ_BRACKET_OPEN)
         i1 = fmt.find(par.TAB_FMT_SPEZ_BRACKET_CLOSE)
@@ -255,10 +271,10 @@ def check_content_fmt_special_dict_liste(par,fmt):
         rest = hstr.elim_ae(val[len(ddict["vergleich"]):]," ")
         (status, wert) = htype.type_proof_float(rest)
         if status == hdef.NOT_OKAY: # Ist ein Signal
-            ddict["vergleichssignal"] = par.TAB_FMT_SPEZ_GT
+            ddict["vergleichstabellenwert"] = rest
             ddict["vergleichswert"]   = None
         else:
-            ddict["vergleichssignal"] = None
+            ddict["vergleichstabellenwert"] = None
             ddict["vergleichswert"]   = wert
         # end if
 
@@ -355,7 +371,7 @@ def check_content_color_special_dict_liste(par,color):
         rest = hstr.elim_ae(val[len(ddict["vergleich"]):]," ")
         (status, wert) = htype.type_proof_float(rest)
         if status == hdef.NOT_OKAY: # Ist ein Signal
-            ddict["vergleichssignal"] = par.TAB_FMT_SPEZ_GT
+            ddict["vergleichstabellenwert"] = rest
         else:
             ddict["vergleichswert"] = wert
         # end if
@@ -386,7 +402,7 @@ def hilfe(rd):
 
     infotext = f"Hilfe für Tabellendefinition:\n\nSyntax: TabelenSpaltenName = Kontext, für Kontext kann stehe:\n\n"
 
-    for i in range(12):
+    for i in range(20):
         match i:
             case 0:
                 val1 = "section:name(fmt,color)"
@@ -396,40 +412,43 @@ def hilfe(rd):
                 val2 = f""
             case 2:
                 val1 = "section"
-                val2 = "\"bi\": basic_info isin oder \"sig\": Signal aus sigset"
+                val2 = "\"bi\": basic_info isin oder \"sig\": Signal aus sigset "
             case 3:
+                val1 = "section"
+                val2 = "\"tabrankmin\": Ranking über Tabbelle min ist best Signal aus sigset oder oder \"tabrankmax\": Ranking über Tabbelle max ist best"
+            case 4:
                 val1 = ""
                 val2 = f""
-            case 2:
+            case 5:
                 val1 = "name"
                 val2 = "name aus \"bi\": basic_info isin oder \"sig\": sigset"
-            case 3:
+            case 6:
                 val1 = ""
                 val2 = f""
-            case 4:
-                val1 = "fmt"
-                val2 = "\"str\", \"float.X\" (anzahl der Nachkomma-Stellen), \"int\""
-            case 5:
-                val1 = "fmt"
-                val2 = "\"[\"x\":>0.1;\"y\":<-0.1]\" druckt x oder y unter den Bedingungen"
-            case 6:
-                val1 = "fmt"
-                val2 = "\"[\"x\":==1]\" druckt x unter den Bedingungen"
             case 7:
                 val1 = "fmt"
-                val2 = "\"[\"x\":==Signaly]\" druckt x unter den Bedingungen im Vergleich mit weiterem Signal"
+                val2 = "\"str\", \"float.X\" (anzahl der Nachkomma-Stellen), \"int\", \"%.X\" "
             case 8:
+                val1 = "fmt"
+                val2 = "\"[\"x\":>0.1;\"y\":<-0.1]\" druckt x oder y unter den Bedingungen"
+            case 9:
+                val1 = "fmt"
+                val2 = "\"[\"x\":==1]\" druckt x unter den Bedingungen"
+            case 10:
+                val1 = "fmt"
+                val2 = "\"[\"x\":==Signaly]\" druckt x unter den Bedingungen im Vergleich mit weiterem Signal aus der Tabelle (Tabellenname)"
+            case 11:
                 val1 = ""
                 val2 = f""
-            case 9:
+            case 12:
                 val1 = "color"
                 val2 = "white, red, green, blue (Hintergrund aller Zellen in Spalte mit Vorgabe)"
-            case 10:
+            case 13:
                 val1 = "color"
                 val2 = "\"[green:>0.0; red<=0.0 ]\" (Hintergrund aller Zellen in Spalte mit Vorgabe und Bedignung)"
-            case 11:
+            case 14:
                 val1 = "color"
-                val2 = "\"[green:>Signal2; red<=Signal2 ]\" (Hintergrund aller Zellen in Spalte mit Vorgabe und Bedignung)"
+                val2 = "\"[green:>Signal2; red<=Signal2 ]\" (Hintergrund aller Zellen in Spalte mit Vorgabe und Bedignung weiteres Signal aus der Tabelle (Tabellenname))"
             case _:
                 break
         # end match

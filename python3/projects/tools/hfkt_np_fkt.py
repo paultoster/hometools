@@ -62,6 +62,50 @@ def ema(np_array: np.ndarray, k:int):
     # end for
     return np_ema_array
 # end def
+def lingrad(np_array: np.ndarray, npoints:int, grad_faktor:float ):
+    """
+    Bilde ein lineare Funktion über npoints erstelle y0_np_array,y1_np_array die Eckpunkte der gerade über
+    n_np_arry Punkten. Bilde den relativen Anstieg bezogen auf den Mittelwert von y0 und y1 multipliziert mit grad_faktor
+    damit wird es auf einen anderen Zeitraum gerechnet (Tageschart, grad_faktor = 252 => Jahres Anstieg relativ )
+
+    (n_np_array,y0_np_array,y1_np_array,rel_anstieg_np_array) = hfkt.lingrad(np_array,npoints,grad_faktor)
+    """
+
+    n = len(np_array)
+    n_np_array = np.zeros((n,), dtype=np.int_)
+    y0_np_array = np.zeros(np_array.shape)
+    y1_np_array = np.zeros(np_array.shape)
+    rel_anstieg_np_array = np.zeros(np_array.shape)
+
+    for i in  range(n):
+
+        if i == 0:
+
+            y0 = y1 = np_array[i]
+            ny = 1
+            rel_anstieg = 0.0
+        else:
+
+            ny = min(npoints,i+1)
+
+            x_np_array = np.arange(ny).astype(float)
+            y_np_array = np_array[i-ny+1:i]
+            A = np.vstack([x_np_array, np.ones(ny).astype(float)]).T
+            grad, c = np.linalg.lstsq(A, y_np_array)[0]
+
+            y0 = c
+            y1 = c + grad * (ny-1)
+            rel_anstieg = grad * grad_faktor * 2. / (y0+y1)
+        # end if
+
+        n_np_array[i] = ny
+        y0_np_array[i] = y0
+        y1_np_array[i] = y1
+        rel_anstieg_np_array[i] = rel_anstieg
+    # end for
+
+    return (n_np_array, y0_np_array, y1_np_array, rel_anstieg_np_array)
+# end def
 def min(np_array: np.ndarray, minvalue:int|float):
     """
     minimum value
@@ -516,7 +560,91 @@ def suche_ueberlappung(np1_array,np2_array,overlap):
 
     return (np1_i0,np1_i1,np2_i0,np2_i1)
 # end def
+def is_monoton_steigend(x_np_array):  # Monoton  steigend
+    if np.all(np.diff(x_np_array) > 0):
+        return True
+    else:
+        return False
+# end if
 
+def interpoliere(x,x_np_array,y_np_array,type='lin'):
+    """
+        x  Interpoliere für x, kann single oder np_array sein
+        x_np_array x-Werte Array
+        y_np_array y-Werte Array
+        type = 'lin' linear oder 'const'
+
+        retunr y = interpoliere(x,x_np_array,y_np_array,type)
+    """
+
+    if isinstance(x,np.ndarray) or isinstance(x,list):
+
+        index_liste = []
+        d_liste = []
+        for i in range(len(x)):
+            (index,d) = find_index_d(x_np_array,x[i])
+            index_liste.append(index)
+            d_liste.append(d)
+        # end for
+    else:
+        (index, d) = find_index_d(x_np_array, x)
+        index_liste = [index]
+        d_liste = [d]
+    # end if
+
+    f_liste = []
+    for (index,d) in zip(index_liste,d_liste):
+        if type == 'lin':
+            f = (y_np_array[index+1]-y_np_array[index]) * d
+        else:
+            f = y_np_array[index]
+        #end if
+        if (d < 0.0) or (d > 1.0):
+            f = 0.0
+        # end if
+
+        f_liste.append(f)
+    # end ofr
+    if isinstance(x, np.ndarray):
+        y = np.array(f_liste)
+    elif isinstance(x, list):
+        y = f_liste
+    else:
+        y = f_liste[0]
+    # end if
+
+    return y
+# end if
+
+def find_index_d(x_np_array,x):
+
+
+    n = len(x_np_array)
+
+    if x < x_np_array[0]:
+        index = 0
+        d     = 0.0
+        if n > 1:
+            d = (x - x_np_array[0])/(x_np_array[1]-x_np_array[0])
+        # end if
+    elif x >= x_np_array[n-1]:
+        index = n-2
+        d     = 0.0
+        if n > 1:
+            d = (x - x_np_array[n-1])/(x_np_array[n-2]-x_np_array[n-1])
+        # end if
+    else:
+        for i in range(n-1):
+
+            if (x >= x_np_array[i]) and (x < x_np_array[i+1]):
+                idex = i
+                d = (x - x_np_array[i])/(x_np_array[i+1]-x_np_array[i])
+                break
+            # end if
+        # end for
+    # end if
+    return (index,d)
+# end def
 if __name__ == '__main__':
 
 

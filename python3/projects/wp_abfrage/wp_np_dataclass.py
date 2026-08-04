@@ -218,7 +218,7 @@ class NpPriceVolumeClass(NpBaseClass):
             try:
                 self.start_np_array  = np.array(self.start_np_array)[index_arr]
             except:
-                a = 0
+                raise Exception(f"start_np_array kann nicht sortiert werden")
             # end try
             self.high_np_array   = np.array(self.high_np_array)[index_arr]
             self.low_np_array    = np.array(self.low_np_array)[index_arr]

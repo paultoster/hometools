@@ -12,10 +12,10 @@ if (tools_path not in sys.path):
 
 import tools.hfkt_def as hdef
 import tools.hfkt_np_dataclass as hnp_dataclass
-import tools.hfkt_np_fkt as hnpfkt
+import tools.hfkt_list as hlist
 
 # import tools.sgui as sgui
-# import tools.hfkt_tvar as htvar
+import tools.hfkt_tvar as htvar
 # import tools.hfkt_type as htype
 
 STATUS   = hdef.OKAY
@@ -41,19 +41,12 @@ def reset_status():
     INFOTEXT = ""
 # end def
 
-def scre_build_rawtab(rd, isin, tab_werte_dict_liste):
+def scre_build_rawtab(rd, isin, tab_werte_dict_liste, dat):
 
     global STATUS,ERRTEXT
 
+    np_data_obj = get_np_data_obj(rd,isin,dat)
 
-    filename = rd.scre["scre_isin_dataclass_filename_dict"][isin]
-    np_data_obj = hnp_dataclass.NpDataHandlingClass(filename)
-    np_data_obj.read()
-    if np_data_obj.get_status() != hdef.OKAY:
-        STATUS = np_data_obj.get_status()
-        ERRTEXT = np_data_obj.get_errtext()
-        return None
-    # end if
     data_list = []
     type_list = []
     for icol,werte_dict in enumerate(tab_werte_dict_liste):
@@ -108,7 +101,7 @@ def scre_build_data_get_value(rd,werte_dict,np_data_obj):
             ERRTEXT = errtext
             return (None,None)
         # end if
-    else: # werte_dict["section"] == rd.par.TAB_SEC_SIG
+    elif werte_dict["section"] == rd.par.TAB_SEC_SIG:
 
         np_array = np_data_obj.get_data(werte_dict["name"])
 
@@ -135,6 +128,10 @@ def scre_build_data_get_value(rd,werte_dict,np_data_obj):
         else:
             type = None
         # end if
+    else # if (werte_dict["section"] == rd.par.TAB_SEC_TABRANKMIN) or (werte_dict["section"] == rd.par.TAB_SEC_TABRANKMAX):
+
+        value = 0  # Vorbelegung in der Tabelle
+        type = "int"
     # end if
 
     if type is None:
@@ -145,13 +142,109 @@ def scre_build_data_get_value(rd,werte_dict,np_data_obj):
 
     return (value,type)
 # end if
-def scre_build_values_over_rawtab(rd,ttable,tab_werte_dict_liste):
+def scre_build_values_over_rawtab(rd,ttable,tab_werte_dict_liste,isin_liste,dat):
     """
     :param rd:
     :param ttable:
     :param tab_werte_dict_liste:
-    :return: ttable = wp_screen_scre_build_rawtab.scre_build_values_over_rawtab(rd,ttable,tab_werte_dict_liste)
+    :param dat
+    :return: ttable = wp_screen_scre_build_rawtab.scre_build_values_over_rawtab(rd,ttable,tab_werte_dict_liste,isin_liste,dat)
     """
 
     for icol, werte_dict in enumerate(tab_werte_dict_liste):
 
+        if werte_dict["section"] == rd.par.TAB_SEC_TABRANKMIN:
+
+            rank_liste = build_rank_liste(rd,werte_dict["name"],isin_liste,dat,True)
+
+            for i,rank in enumerate(rank_liste):
+                ttable.vals[i][icol] = rank
+            # end for
+
+            ttable = htvar.sort_col_in_table(ttable, icol, aufsteigend=0)
+
+        elif werte_dict["section"] == rd.par.TAB_SEC_TABRANKMAX:
+
+            rank_liste = build_rank_liste(rd,werte_dict["name"],isin_liste,dat,False)
+
+            for i,rank in enumerate(rank_liste):
+                ttable.vals[i][icol] = rank
+            # end for
+
+            ttable = htvar.sort_col_in_table(ttable, icol, aufsteigend=0)
+
+        # end if
+    # end for
+    return ttable
+# end def
+def build_rank_liste(rd,signame,isin_liste,dat,flagmin):
+    """
+    :param rd:
+    :param signame:
+    :param isin_liste:
+    :param flagmin:
+    :return: rank_liste = build_rank_liste(rd,signame,isin_liste,flagmin)
+    """
+    global STATUS, ERRTEXT, INFOTEXT
+
+    value_liste = []
+    for isin in isin_liste:
+
+        np_data_obj = get_np_data_obj(rd, isin, dat)
+        if get_status() != hdef.OKAY:
+            return []
+        # end if
+
+        np_array = np_data_obj.get_data(signame)
+        if np_array is None:
+            STATUS = hdef.NOT_OKAY
+            ERRTEXT = f"Von isin: {isin} kann im np_data_obj nicht der {signame} gefunden werden!"
+            return []
+        # end if
+
+        if len(np_array) > 0:
+            value_liste.append(np_array[-1])
+        elif flagmin:
+            value_liste.append(10000000000.)
+        else:
+            value_liste.append(-10000000000.)
+        # end if
+    # end if
+
+    index_liste = list(range(len(value_liste)))
+
+    if flagmin:
+        (value_liste,index_liste) = hlist.sort_two_list(value_liste, index_liste, aufsteigend=0)
+    else:
+        (value_liste, index_liste) = hlist.sort_two_list(value_liste, index_liste, aufsteigend=1)
+    # end if
+
+    rank_liste = [None] * len(index_liste)
+    for i,index in enumerate(index_liste):
+        rank_liste[index] = i+1
+
+    return rank_liste
+# end def
+def get_np_data_obj(rd,isin,dat):
+    """
+    :param rd:
+    :param isin:
+    :param dat:
+    :return: np_data_obj = get_np_data_obj(rd,isin,dat)
+    """
+    global STATUS, ERRTEXT, INFOTEXT
+
+    filename = rd.scre["scre_isin_dataclass_filename_dict"][isin]
+    np_data_obj = hnp_dataclass.NpDataHandlingClass(filename)
+    np_data_obj.read()
+    if np_data_obj.get_status() != hdef.OKAY:
+        STATUS = np_data_obj.get_status()
+        ERRTEXT = np_data_obj.get_errtext()
+        return None
+    # end if
+    np_data_obj.sort_by_signal(rd.par.SIG_STORE_DATUM)
+    if dat > 0:
+        np_data_obj.reduce_to_endvalue(rd.par.SIG_STORE_DATUM,dat)
+    # end if
+    return np_data_obj
+# end def

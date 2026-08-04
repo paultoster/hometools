@@ -13,7 +13,7 @@ import wp_screen_katalog
 import wp_screen_sigset
 import wp_screen_tab
 import wp_screen_scre_build_signal
-import wp_screen_scre_tab
+import wp_screen_scre_build_fmttab
 import wp_screen_scre_build_rawtab
 
 import tools.hfkt_def as hdef
@@ -405,7 +405,7 @@ def scre_show_screen(rd,index):
     # end if
 
     # 2. build rawtable
-    rawtable = scre_build_rawtable(rd, rd.scre["scre_dict"])
+    scre_build_rawtable(rd, rd.scre["scre_dict"],-1)
     if STATUS != hdef.OKAY:
         ERRTEXT = f"scre_show_screen build: Error in scre_build_rawtable \n errtext = {ERRTEXT}"
         return
@@ -413,8 +413,7 @@ def scre_show_screen(rd,index):
 
 
 
-    scre_build(rd, rd.scre["scre_dict"])
-
+    scre_build_fmttable(rd, rd.scre["scre_dict"])
     if STATUS != hdef.OKAY:
         ERRTEXT = f"scre_command build: Error in scre_build \n errtext = {ERRTEXT}"
         return
@@ -483,7 +482,7 @@ def scre_build_sigset(rd,scre_dict):
 
     return
 # end if
-def scre_build_rawtable(rd, scre_dict):
+def scre_build_rawtable(rd, scre_dict, dat):
     """
     rawtable = scre_build_rawtable(rd, scre_dict)
     """
@@ -504,10 +503,11 @@ def scre_build_rawtable(rd, scre_dict):
 
     # 2. Raw-Tabelle bilden:
     #----------------------
-    header_list = wp_screen_scre_tab.build_header_list(tab_werte_dict_liste)
+    header_list = wp_screen_scre_build_fmttab.build_header_list(tab_werte_dict_liste)
 
     for i,isin in enumerate(isin_liste):
-        (data_liste,type_list) = wp_screen_scre_build_rawtab.scre_build_rawtab(rd, isin, tab_werte_dict_liste)
+
+        (data_liste,type_list) = wp_screen_scre_build_rawtab.scre_build_rawtab(rd, isin, tab_werte_dict_liste,dat)
         if wp_screen_scre_build_rawtab.get_status() != hdef.OKAY:
             STATUS = hdef.NOT_OKAY
             ERRTEXT = wp_screen_scre_build_signal.get_errtext()
@@ -520,20 +520,21 @@ def scre_build_rawtable(rd, scre_dict):
         ttable = htvar.add_data_set_to_table(ttable, data_liste)
 
     # end for
-    rd.scre["ttable_raw"] = ttable
 
     # 2. Vergleichende Werte in Tabelle bilden:
     #----------------------
-    ttable = wp_screen_scre_build_rawtab.scre_build_values_over_rawtab(rd,ttable,tab_werte_dict_liste)
+    ttable = wp_screen_scre_build_rawtab.scre_build_values_over_rawtab(rd,ttable,tab_werte_dict_liste,isin_liste,dat)
     if wp_screen_scre_build_rawtab.get_status() != hdef.OKAY:
         STATUS = hdef.NOT_OKAY
         ERRTEXT = wp_screen_scre_build_signal.get_errtext()
         return ttable
     # end if
 
+    rd.scre["ttable_raw"] = ttable
+
     return ttable
 # end def
-def scre_build(rd,scre_dict):
+def scre_build_fmttable(rd,scre_dict):
 
     global STATUS, ERRTEXT
 
@@ -559,69 +560,40 @@ def scre_build(rd,scre_dict):
         return
     # end if
 
-
-
-    # 1. Signale aus sigset bilden:
-    #------------------------------
-    # reset isin-dataclass dict (vielleicht richtig löschen, einzeln)
-    rd.scre["scre_isin_dataclass_filename_dict"] = {}
-
-    for isin in isin_liste:
-        wp_screen_scre_build_signal.scre_build_signal(rd, isin, sigset_werte_dict_liste)
-        if wp_screen_scre_build_signal.get_status() != hdef.OKAY:
-            STATUS = hdef.NOT_OKAY
-            ERRTEXT = wp_screen_scre_build_signal.get_errtext()
-            return
-        # end if
-    # end for
-
-    # 2. Raw-Tabelle bilden:
-    #----------------------
-    header_list = wp_screen_scre_tab.build_header_list(tab_werte_dict_liste)
-
-    for i,isin in enumerate(isin_liste):
-        (data_liste,type_list) = wp_screen_scre_build_rawtab.scre_build_rawtab(rd, isin, tab_werte_dict_liste)
-        if wp_screen_scre_build_rawtab.get_status() != hdef.OKAY:
-            STATUS = hdef.NOT_OKAY
-            ERRTEXT = wp_screen_scre_build_signal.get_errtext()
-            return
-        # end if
-
-        if i == 0:
-            ttable = htvar.build_table(header_list, [], type_list)
-        # end if
-        ttable = htvar.add_data_set_to_table(ttable, data_liste)
-
-    # end for
-    rd.scre["ttable_raw"] = ttable
-
-    # 2. Vergleichende Werte in Tabelle bilden:
-    #----------------------
-    ttable = wp_screen_scre_build_rawtab.scre_build_values_over_rawtab(rd,ttable,tab_werte_dict_liste)
-    if wp_screen_scre_build_rawtab.get_status() != hdef.OKAY:
-        STATUS = hdef.NOT_OKAY
-        ERRTEXT = wp_screen_scre_build_signal.get_errtext()
-        return
-    # end if
-
-
-    # 2. Tabelle bilden:
+    # formatierte Tabelle bilden:
     #------------------------------
     #
     rd.scre["ttable"] = None
     rd.scre["color_dict_liste"] = []
 
-    type_list = wp_screen_scre_tab.build_type_list(tab_werte_dict_liste)
+    type_list = wp_screen_scre_build_fmttab.build_type_list(tab_werte_dict_liste)
 
+    status = hdef.OKAY
+    if "ttable_raw" in rd.scre.keys():
+        if rd.scre["ttable_raw"] is None:
+            status = hdef.NOT_OKAY
+        # end if
+    else:
+        status = hdef.NOT_OKAY
+    # end if
+    if status != hdef.OKAY:
+        STATUS = hdef.NOT_OKAY
+        ERRTEXT = f"scre_build_fmttable: rd.scre[\"ttable_raw\"] ist nicht vorhanden oder None"
+        return
+    # end if
+
+    ttable_raw = rd.scre["ttable_raw"]
+    header_list = ttable_raw.names
     ttable = htvar.build_table(header_list, [], type_list)
 
-    color_dict_liste = []
-    for irow,isin in enumerate(isin_liste):
 
-        (data_liste,color_dict_list0) = wp_screen_scre_tab.scre_build_data(rd,irow,isin,tab_dict,tab_werte_dict_liste,type_list)
-        if wp_screen_scre_tab.get_status() != hdef.OKAY:
+    color_dict_liste = []
+    for irow,data_set in enumerate(ttable_raw):
+
+        (data_liste,color_dict_list0) = wp_screen_scre_build_fmttab.scre_build_fmttable_data(rd, irow, data_set, header_list, tab_werte_dict_liste, type_list)
+        if wp_screen_scre_build_fmttab.get_status() != hdef.OKAY:
             STATUS = hdef.NOT_OKAY
-            ERRTEXT = wp_screen_scre_tab.get_errtext()
+            ERRTEXT = wp_screen_scre_build_fmttab.get_errtext()
             return
         # end if
 
@@ -653,4 +625,3 @@ def setup_scre_name(rd,scre_name):
     # end if
     return
 # end def
-

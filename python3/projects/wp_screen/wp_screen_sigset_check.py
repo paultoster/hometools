@@ -233,50 +233,9 @@ def check_content_1par_tuple(par,fkt,par1,signaldef_liste,werte_dict):
     global INFOTEXT
     global ZEILE
 
-    if fkt == par.SIG_1PAR_DATUM:
 
-        # par1: signal
-        if par1 not in signaldef_liste:
-            INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({par1})\") ist Parameter signal = {par1} nicht davor definiert worden "
-            return hdef.NOT_OKAY
-        # end if
-
-        werte_dict["type"]=par.SIG_TYPE_1PAR_DATUM
-        werte_dict["fkt"]=par.SIG_1PAR_DATUM
-        werte_dict["par1"]=par1
-
-    elif fkt == par.SIG_1PAR_RANKMIN:
-
-        # par1: signal
-        if par1 not in signaldef_liste:
-            INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({par1})\") ist Parameter signal = {par1} nicht davor definiert worden "
-
-            return hdef.NOT_OKAY
-
-        # end if
-
-
-        werte_dict["type"] = par.SIG_TYPE_1PAR_RANKMIN
-
-        werte_dict["fkt"] = par.SIG_1PAR_RANKMIN
-
-        werte_dict["par1"] = par1
-    elif fkt == par.SIG_1PAR_RANKMAX:
-        # par1: signal
-        if par1 not in signaldef_liste:
-            INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({par1})\") ist Parameter signal = {par1} nicht davor definiert worden "
-            return hdef.NOT_OKAY
-        # end if
-
-        werte_dict["type"] = par.SIG_TYPE_1PAR_RANKMAX
-        werte_dict["fkt"] = par.SIG_1PAR_RANKMAX
-        werte_dict["par1"] = par1
-    else:
-
-        INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({par1})\") ist Parameter Funktion:{fkt} nicht definiert"
-        return hdef.NOT_OKAY
-    # end if
-    return hdef.OKAY
+    INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({par1})\") ist Parameter Funktion:{fkt} nicht definiert"
+    return hdef.NOT_OKAY
 # end def
 def check_content_2par(par,content,signaldef_liste,werte_dict):
 
@@ -505,15 +464,6 @@ def hilfe(rd):
             case 3:
                 val1 = "indice"
                 val2 = "Indicesabfrage wie ecbleitzins, usdeuro"
-            case 4:
-                val1 = f"{rd.par.SIG_1PAR_DATUM}({rd.par.SIG_KURS})"
-                val2 = f"Datum dem SignalName (z.B. Kurs) SignalName muss vorher definiert sein!!!"
-            case 5:
-                val1 = f"{rd.par.SIG_1PAR_RANKMIN}(SignameX)"
-                val2 = f"Damit ein Minimumsranking von SignalX; SignalName muss vorher definiert sein!!!"
-            case 6:
-                val1 = f"{rd.par.SIG_1PAR_RANKMAX}(SignameX)"
-                val2 = f"Damit ein Maximumsraking von SignalX; SignalName muss vorher definiert sein!!!"
             case 7:
                 val1 = f"{rd.par.SIG_2PAR_NP_OBJ}(isin,{rd.par.SIG_KURS})"
                 val2 = f"Kurs von einer bestimmten isin, {rd.par.SIG_KURS} = {rd.par.SIG_CLOSE}"
