@@ -106,7 +106,7 @@ def lingrad(np_array: np.ndarray, npoints:int, grad_faktor:float ):
 
     return (n_np_array, y0_np_array, y1_np_array, rel_anstieg_np_array)
 # end def
-def min(np_array: np.ndarray, minvalue:int|float):
+def minvalue(np_array: np.ndarray, minvalue:int|float):
     """
     minimum value
     :param np_array:
@@ -126,7 +126,7 @@ def min(np_array: np.ndarray, minvalue:int|float):
     # end for
     return np_min_array
 # end def
-def max(np_array: np.ndarray, maxvalue:int|float):
+def maxvalue(np_array: np.ndarray, maxvalue:int|float):
     """
     maximum value
     :param np_array:
@@ -283,7 +283,7 @@ def bedingung(np_dat_array_liste,np_array_liste):
 #     # end if
 #     return (status, errtext, np_dat_array, np_array_1, np_array_2)
 # # end def
-def bilde_gleiche_basis(np_dat_array_liste,np_array_liste):
+def bilde_gleiche_basis(np_dat_array_liste,np_array_liste_in):
     """
     Bilde die gemeinsame Datumsbasis
 
@@ -293,7 +293,7 @@ def bilde_gleiche_basis(np_dat_array_liste,np_array_liste):
     (status, errtext, np_dat_array, np_array_liste) = bilde_gleiche_basis(np_dat_array_liste,np_array_liste)
     """
 
-    n = min(len(np_dat_array_liste),len(np_array_liste))
+    n = min(len(np_dat_array_liste),len(np_array_liste_in))
 
     status = hdef.OKAY
     errtext = ""
@@ -306,7 +306,7 @@ def bilde_gleiche_basis(np_dat_array_liste,np_array_liste):
     for i in range(n):
         sort_index_list = build_sort_list_of_index(np_dat_array, np_dat_array_liste[i], overlap)
         if len(sort_index_list):
-            np_old_array = np_array_liste[i]
+            np_old_array = np_array_liste_in[i]
             np_array = np.array([], dtype=np_old_array.dtype)
             for index, val in enumerate(sort_index_list):
 
@@ -483,6 +483,7 @@ def find_nearest_value(val,np_array):
         idval = 0
         for i in range(1,len(np_array)):
             if abs(val-np_array[i]) < dval:
+                dval = abs(val-np_array[i])
                 idval = i
             # end if
         # end for

@@ -23,6 +23,7 @@ class Param:
     SIG_HIGH    = "high"
     SIG_LOW     = "low"
     SIG_VOLUME  = "volume"
+    SIG_DATUM = "datum"
     SIG_2PAR_NP_OBJ  = "np_obj"
     SIG_2PAR_LINGRAD = "lingrad"
     SIG_2PAR_SMA = "sma"
@@ -40,17 +41,18 @@ class Param:
     SIG_TYPE_HIGH    = 5
     SIG_TYPE_LOW     = 6
     SIG_TYPE_VOLUME  = 7
-    SIG_TYPE_INIDiCE  = 8
-    SIG_TYPE_2PAR_NP_OBJ  = 11
-    SIG_TYPE_2PAR_LINGRAD = 12
-    SIG_TYPE_2PAR_SMA = 13
-    SIG_TYPE_2PAR_EMA = 14
-    SIG_TYPE_2PAR_MAX = 15
-    SIG_TYPE_2PAR_MIN = 16
-    SIG_TYPE_3PAR_VERGLEICH = 17
-    SIG_TYPE_NPAR_BEDINGUNG = 18
+    SIG_TYPE_DATUM = 8
+    SIG_TYPE_INIDICE  = 9
+    SIG_TYPE_2PAR_NP_OBJ  = 10
+    SIG_TYPE_2PAR_LINGRAD = 1^1
+    SIG_TYPE_2PAR_SMA = 12
+    SIG_TYPE_2PAR_EMA = 13
+    SIG_TYPE_2PAR_MAX = 14
+    SIG_TYPE_2PAR_MIN = 15
+    SIG_TYPE_3PAR_VERGLEICH = 16
+    SIG_TYPE_NPAR_BEDINGUNG = 17
 
-    SIG_STORE_DATUM = "datum_np_array"
+    SIG_STORE_DATUM = "dat_np_array"
     SIG_STORE_GRAD  = "grad"
 
     SIG_ANZAHL_HANDELSTAGE_PRO_JAHR = 252

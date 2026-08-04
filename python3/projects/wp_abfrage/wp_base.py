@@ -574,7 +574,7 @@ class WPData:
         lade die no_obj-Datei und übergebe ein eKopie
 
         :param isin:
-        :return: (status,errtext,np_obj) = wp_obj.get_act_np_obj(isin)
+        :return: (status,errtext,np_obj) = wp_obj.get_act_price_volume_np_obj(isin)
         """
         (self.status, self.errtext, np_obj) = wp_base_price_volume.get_act_np_obj(self, isin)
         return (self.status, self.errtext, np_obj)

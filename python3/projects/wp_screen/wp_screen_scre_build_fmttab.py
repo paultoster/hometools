@@ -129,13 +129,6 @@ def scre_build_data_format_value(rd, werte_dict, value, type,data_set,header_lis
 
     val_out= copy.copy(value)
 
-    if isinstance(value, int):
-        val_out= htype.type_transform_direct(val_out, "int", type)
-    elif isinstance(value, float):
-        val_out = htype.type_transform_direct(val_out, "float", type)
-    else:
-        val_out = htype.type_transform_direct(val_out, "str", type)
-    # end if
 
     if werte_dict["fmt"] == "float":
         (status,wert) = htype.type_proof(val_out,"float")
@@ -239,6 +232,14 @@ def scre_build_data_format_value(rd, werte_dict, value, type,data_set,header_lis
         if len(ersatzwert) > 0:
             val_out = ersatzwert
         # end if
+    # end if
+
+    if isinstance(val_out, int):
+        val_out= htype.type_transform_direct(val_out, "int", type)
+    elif isinstance(val_out, float):
+        val_out = htype.type_transform_direct(val_out, "float", type)
+    else:
+        val_out = htype.type_transform_direct(val_out, "str", type)
     # end if
 
     return val_out

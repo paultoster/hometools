@@ -14,7 +14,7 @@ import wp_screen_katalog_command
 import wp_screen_sigset
 import wp_screen_sigset_command
 import wp_screen_tab
-import wp_screen_scre
+import wp_screen_scre_command
 import wp_screen_base
 
 
@@ -26,13 +26,14 @@ import tools.sgui as sgui
 def wp_screener_command(rd):
     runflag = True
 
-    start_auswahl = ["Ende", "katalog", "sigset", "tabelle","screener"]
+    start_auswahl = ["Ende", "katalog", "sigset", "tabelle","screener","update wps"]
 
     index_ende = 0
     index_katalog = 1
     index_sigset = 2
     index_tabelle = 3
     index_screener = 4
+    index_update_wps = 5
 
     abfrage_liste = ["okay", "cancel", "ende"]
     #i_abfrage_okay = 0
@@ -117,20 +118,52 @@ def wp_screener_command(rd):
 
         elif index == index_screener:
 
-            wp_screen_scre.scre_start(rd)
+            wp_screen_scre_command.scre_command(rd)
 
-            if len(wp_screen_scre.get_infotext()) > 0:
-                t = f"Info wp_scre.scre_start(rd): {wp_screen_scre.get_infotext()}"
+            if len(wp_screen_scre_command.get_infotext()) > 0:
+                t = f"Info wp_scre.scre_start(rd): {wp_screen_scre_command.get_infotext()}"
                 sgui.anzeige_text(t, textcolor='orange')
                 rd.log.write_info(t, screen=rd.par.LOG_SCREEN_OUT)
 
-            if wp_screen_scre.get_status() != hdef.OKAY:
-                t = f"Error wp_scre.scre_start(rd) errtext = {wp_screen_scre.get_errtext()}"
+            if wp_screen_scre_command.get_status() != hdef.OKAY:
+                t = f"Error wp_scre.scre_start(rd) errtext = {wp_screen_scre_command.get_errtext()}"
                 sgui.anzeige_text(t, textcolor='red')
                 rd.log.write_err(t, screen=rd.par.LOG_SCREEN_OUT)
                 runflag = False
             # end if
+        elif index == index_update_wps:
 
+            (status, errtext, infotext) = rd.wpfunc.update_price_volume()
+
+            if len(infotext):
+                t = f"Info wb_obj.update_price_volume() \n infotext = {infotext}"
+                sgui.anzeige_text(t, textcolor='green')
+                rd.log.write_info(t)
+                infotext = ""
+            # end if
+
+            if status != hdef.OKAY:
+                t = f"Error wb_obj.update_price_volume() \n errtext = {errtext}"
+                sgui.anzeige_text(t, textcolor='red')
+                rd.log.write_err(t)
+                runflag = False
+            # end if
+
+            (status, errtext, infotext) = rd.wpfunc.update_indices()
+
+            if len(infotext):
+                t = f"Info wb_obj.update_indices() \n infotext = {infotext}"
+                sgui.anzeige_text(t, textcolor='green')
+                rd.log.write_info(t)
+                infotext = ""
+            # end if
+
+            if status != hdef.OKAY:
+                t = f"Error wb_obj.update_indices() \n errtext = {errtext}"
+                sgui.anzeige_text(t, textcolor='red')
+                rd.log.write_err(t)
+                runflag = False
+            # end if
         else:
             pass
         # endif

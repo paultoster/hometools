@@ -123,6 +123,14 @@ class NpDataHandlingClass:
             # end try
         # end if
     # end def
+    def exist_file(self):
+        if self.file_flag:
+            if os.path.isfile(self.file_name):
+                return True
+            # end if
+        # end if
+        return False
+    # end def
     def read(self):
         if self.file_flag:
             try:
@@ -177,15 +185,15 @@ class NpDataHandlingClass:
     def sort_by_signal(self,signame):
         if hasattr(self,signame):
 
-            index_arr = np.argsort(self.__getattribute__(signame))
+            index_arr = np.argsort(getattr(self,signame))
 
             for signal in self.signal_list:
                 if hasattr(self, signal):
-                    if isinstance(self.__getattribute__(signal), np.ndarray):
+                    if isinstance(getattr(self,signal), np.ndarray):
 
                         try:
-                            np_arr = np.array(self.__getattribute__(signal))[index_arr]
-                            self.__setattr__(np_arr,self)
+                            np_arr = np.array(getattr(self,signal))[index_arr]
+                            setattr(self,signal,np_arr)
                         except:
                             raise Exception(f"mit {signame} kann signal: {signal} nicht sortiert werden")
                         # end if

@@ -128,7 +128,7 @@ def scre_build_data_get_value(rd,werte_dict,np_data_obj):
         else:
             type = None
         # end if
-    else # if (werte_dict["section"] == rd.par.TAB_SEC_TABRANKMIN) or (werte_dict["section"] == rd.par.TAB_SEC_TABRANKMAX):
+    else: # if (werte_dict["section"] == rd.par.TAB_SEC_TABRANKMIN) or (werte_dict["section"] == rd.par.TAB_SEC_TABRANKMAX):
 
         value = 0  # Vorbelegung in der Tabelle
         type = "int"

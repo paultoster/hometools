@@ -136,10 +136,13 @@ def check_content_0par(rd,content):
         type=rd.par.SIG_TYPE_LOW
         fkt=rd.par.SIG_LOW
     elif content == rd.par.SIG_VOLUME:
-        type=rd.par.SIG_TYPE_VOLUME
-        fkt=rd.par.SIG_VOLUME
+        type = rd.par.SIG_TYPE_VOLUME
+        fkt = rd.par.SIG_VOLUME
+    elif content == rd.par.SIG_DATUM:
+        type = rd.par.SIG_TYPE_DATUM
+        fkt = rd.par.SIG_DATUM
     elif rd.wpfunc.is_an_indice(content):
-        type = rd.par.SIG_TYPE_INIDiCE
+        type = rd.par.SIG_TYPE_INIDICE
         fkt = content
     else:
         status = hdef.NOT_OKAY
@@ -461,6 +464,9 @@ def hilfe(rd):
             case 2:
                 val1 = rd.par.SIG_VOLUME
                 val2 = "Volumenabfrage"
+            case 3:
+                val1 = rd.par.SIG_DATUM
+                val2 = "Datumsabfrage"
             case 3:
                 val1 = "indice"
                 val2 = "Indicesabfrage wie ecbleitzins, usdeuro"
