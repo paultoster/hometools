@@ -89,7 +89,7 @@ def lingrad(np_array: np.ndarray, npoints:int, grad_faktor:float ):
             ny = min(npoints,i+1)
 
             x_np_array = np.arange(ny).astype(float)
-            y_np_array = np_array[i-ny+1:i]
+            y_np_array = np_array[i-ny+1:i+1]
             A = np.vstack([x_np_array, np.ones(ny).astype(float)]).T
             grad, c = np.linalg.lstsq(A, y_np_array)[0]
 

@@ -53,7 +53,8 @@ class WPScreen:
                     "sigset_dict": {},
                     "sigset_dict_filename": "",
                     "sigset_dict_jsonobj": None,
-                    "sigset_werte_dict_liste": {} }
+                    "sigset_werte_dict_liste": {},
+                    "sigset_signaldef_liste": {}   }
         self.tab: dict = {
                     "tab_liste": [],
                     "tab_liste_filename": "",

@@ -152,18 +152,29 @@ def scre_build_sigset(rd,scre_dict):
     #------------------------------
     # reset isin-dataclass dict (vielleicht richtig löschen, einzeln)
     rd.scre["scre_isin_dataclass_filename_dict"] = {}
-
-    for isin in isin_liste:
+    n = len(isin_liste)
+    for i,isin in enumerate(isin_liste):
 
         rd.scre["scre_isin_dataclass_filename_dict"][isin] = wp_screen_scre_build_signal.get_dataclass_filename(rd, isin)
 
         if not wp_screen_scre_build_signal.proof_if_data_uptodate(rd,isin):
+
+
             wp_screen_scre_build_signal.scre_build_signal(rd, isin, sigset_werte_dict_liste)
+
+            rd.log.write_info(f"{i+1}/{n}: Update sigset for isin = {isin}, {wp_screen_scre_build_signal.get_infotext()}",
+                              screen=rd.par.LOG_SCREEN_OUT)
+
             if wp_screen_scre_build_signal.get_status() != hdef.OKAY:
                 STATUS = hdef.NOT_OKAY
                 ERRTEXT = wp_screen_scre_build_signal.get_errtext()
+                wp_screen_scre_build_signal.reset_status()
                 return
             # end if
+            wp_screen_scre_build_signal.reset_status()
+        else:
+            rd.log.write_info(f"{i+1}/{n}: No Update sigset for isin = {isin}",screen=rd.par.LOG_SCREEN_OUT)
+        # end if
     # end for
 
     return
@@ -196,7 +207,8 @@ def scre_build_rawtable(rd, scre_dict, dat):
         (data_liste,type_list) = wp_screen_scre_build_rawtab.scre_build_rawtab(rd, isin, tab_werte_dict_liste,dat)
         if wp_screen_scre_build_rawtab.get_status() != hdef.OKAY:
             STATUS = hdef.NOT_OKAY
-            ERRTEXT = wp_screen_scre_build_signal.get_errtext()
+            ERRTEXT = wp_screen_scre_build_rawtab.get_errtext()
+            wp_screen_scre_build_rawtab.reset_status()
             return None
         # end if
 

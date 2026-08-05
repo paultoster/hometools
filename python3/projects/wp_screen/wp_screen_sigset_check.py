@@ -73,7 +73,7 @@ def check(rd,ddict):
             rd.sig["sigset_werte_dict_liste"].append(werte_dict)
         # end if
     # end for
-
+    rd.sig["sigset_signaldef_liste"] = signaldef_liste
 
     return (hdef.OKAY,"")
 # end def
@@ -467,35 +467,35 @@ def hilfe(rd):
             case 3:
                 val1 = rd.par.SIG_DATUM
                 val2 = "Datumsabfrage"
-            case 3:
+            case 4:
                 val1 = "indice"
                 val2 = "Indicesabfrage wie ecbleitzins, usdeuro"
-            case 7:
+            case 5:
                 val1 = f"{rd.par.SIG_2PAR_NP_OBJ}(isin,{rd.par.SIG_KURS})"
                 val2 = f"Kurs von einer bestimmten isin, {rd.par.SIG_KURS} = {rd.par.SIG_CLOSE}"
-            case 8:
+            case 6:
                 val1 = f"{rd.par.SIG_2PAR_LINGRAD}(signal,Anzahl/Tage)"
                 val2 = f"linearer Gradient für Signal (muss definiert sein) und Anzahl von Punkten/Tage"
-            case 9:
+            case 7:
                 val1 = f"{rd.par.SIG_2PAR_SMA}(signal,Anzahl/Tage)"
                 val2 = f"simple moving avarage für Signal (muss definiert sein) und Anzahl von Punkten/Tage"
-            case 10:
+            case 8:
                 val1 = f"{rd.par.SIG_2PAR_EMA}(signal,Anzahl/Tage)"
                 val2 = f"exponential moving avarage für Signal (muss definiert sein) und Anzahl von Punkten/Tage"
-            case 11:
+            case 9:
                 val1 = f"{rd.par.SIG_2PAR_MAX}(signal,Zahl)"
                 val2 = f"Max-Fkt für Signal (muss definiert sein) und Zahl"
-            case 12:
+            case 10:
                 val1 = f"{rd.par.SIG_2PAR_MIN}(signal,Zahl)"
                 val2 = f"Min-Fkt für Signal (muss definiert sein) und Zahl"
-            case 13:
+            case 11:
                 val1 = f"{rd.par.SIG_3PAR_VERGLEICH}(signal1,>,signal2)"
                 val2 = f"Vergleich zweier Signale (müssen definiert sein) und Vorschrift (>,<,>=,<=,==,!=) Ergebnis: 0/1 pro Punkt"
-            case 14:
+            case 12:
                 val1 = f"{rd.par.SIG_NPAR_BEDINGUNG}(signal1,signal2, ...)"
                 val2 = f"Vergleicht jedes Signal auf > null (müssen definiert sein und max 5) und verundet alle Ergebnisse, Ergebnis: 0/1 pro Punkt"
             case _:
-                break
+                pass
         # end match
 
         if i == 0:

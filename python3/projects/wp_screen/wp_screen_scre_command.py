@@ -115,6 +115,7 @@ def scre_command(rd):
                     t = f"scre_command build: Error in scre_show_screen \n errtext = {ERRTEXT}"
                     rd.log.write_err(t, screen=rd.par.LOG_SCREEN_OUT)
                     sgui.anzeige_text(t, textcolor='red')
+                    reset_status()
                     runflag = True
                 else:
                     runflag = False

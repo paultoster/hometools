@@ -158,7 +158,7 @@ def scre_build_values_over_rawtab(rd,ttable,tab_werte_dict_liste,isin_liste,dat)
             rank_liste = build_rank_liste(rd,werte_dict["name"],isin_liste,dat,True)
 
             for i,rank in enumerate(rank_liste):
-                ttable.vals[i][icol] = rank
+                ttable.table[i][icol] = rank
             # end for
 
             ttable = htvar.sort_col_in_table(ttable, icol, aufsteigend=0)
@@ -168,7 +168,7 @@ def scre_build_values_over_rawtab(rd,ttable,tab_werte_dict_liste,isin_liste,dat)
             rank_liste = build_rank_liste(rd,werte_dict["name"],isin_liste,dat,False)
 
             for i,rank in enumerate(rank_liste):
-                ttable.vals[i][icol] = rank
+                ttable.table[i][icol] = rank
             # end for
 
             ttable = htvar.sort_col_in_table(ttable, icol, aufsteigend=0)

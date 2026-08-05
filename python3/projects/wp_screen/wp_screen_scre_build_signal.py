@@ -16,7 +16,7 @@ import tools.hfkt_np_fkt as hnpfkt
 
 # import tools.sgui as sgui
 # import tools.hfkt_tvar as htvar
-# import tools.hfkt_type as htype
+import tools.hfkt_type as htype
 
 STATUS   = hdef.OKAY
 ERRTEXT  = ""
@@ -43,7 +43,7 @@ def reset_status():
 
 def scre_build_signal(rd,isin,sigset_werte_dict_liste):
 
-    global STATUS,ERRTEXT
+    global STATUS,ERRTEXT, INFOTEXT
 
     # dataclass anlegen
     #------------------
@@ -74,7 +74,11 @@ def scre_build_signal(rd,isin,sigset_werte_dict_liste):
         ERRTEXT = f"scre_build_signal: Für {isin = } konnte Signal {rd.par.SIG_STORE_DATUM} nicht zu np_data_obj hinzugefügt werden \n{np_data_obj.get_errtext()}"
         return
     # end if
-    rd.log.write_info(f"isin = {isin}, n = {len(getattr(np_data_obj, rd.par.SIG_STORE_DATUM))}",screen=rd.par.LOG_SCREEN_OUT)
+
+    datStrP = htype.type_transform_direct(getattr(np_data_obj, rd.par.SIG_STORE_DATUM)[-1],"dat","datStrP")
+
+    INFOTEXT = f" letztes Datum = {datStrP}, n = {len(getattr(np_data_obj, rd.par.SIG_STORE_DATUM))}"
+
     # print(f"isin = {isin}, n = {len(np_data_obj.datum_array)}")
     
 
@@ -511,7 +515,7 @@ def build_signal_lingrad(rd, signame, points,np_data_obj):
 
         np_array = getattr(np_data_obj, signame)
         (n_np_array, y0_np_array, y1_np_array, rel_anstieg_np_array) = hnpfkt.lingrad(np_array, points, float(rd.par.SIG_ANZAHL_HANDELSTAGE_PRO_JAHR))
-
+        success = True
     else:
         STATUS = hdef.NOT_OKAY
         ERRTEXT = f"Signal {signame} nicht bekannt im erstellten Datensatz !!"
@@ -717,6 +721,12 @@ def proof_if_data_uptodate(rd, isin):
     if (np_isin_obj.dat_np_array[-1] - np_dat_obj_array[-1]) > half_day:
         return False
     # end if
+
+    for signal in rd.sig["sigset_signaldef_liste"]:
+        if signal not in np_data_obj.signal_list:
+            return False
+        # end if
+    # end for
 
     return True
 # end def
