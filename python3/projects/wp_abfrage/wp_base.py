@@ -95,7 +95,7 @@ class WPParam:
     # HEADER_USDEURO_NAME = "USDEURO"
     # HEADER_USDEURO_TYPE = "float"
 
-    INDICES_EZB_LEITZINS_NAME = "ecbleitzins"
+    INDICES_EZB_LEITZINS_NAME = "ezbleitzins"
     INDICES_USDEURO_NAME = "usdeuro"
 
 
@@ -614,6 +614,16 @@ class WPData:
         (self.status, self.errtext) = wp_base_active_katalog.erase_depot(self,depot_name)
 
         return (self.status, self.errtext)
+    # end def
+    def get_active_depot_isin_scre(self,isin,scre):
+        """
+        :param isin:
+        :param scre:
+        return (status,errtext,active_depot) = wp_base.get_active_depot_isin_scre(isin,scre)
+        """
+        (self.status, self.errtext,active_depot) = wp_base_active_katalog.get_w_isin_scr(self, isin,scre)
+
+        return (self.status, self.errtext,active_depot)
     # end def
 
 

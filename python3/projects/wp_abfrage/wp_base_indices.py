@@ -111,9 +111,13 @@ def get_dict_from_act(wb_obj,indice=None):
 
                 (status, errtext, np_obj) = wp_ezbleitzins.get_act(wb_obj)
 
+                np_obj.set_currency("%")
+
             case wb_obj.par.INDICES_USDEURO_NAME:
 
                 (status, errtext, np_obj) = wp_usdeuro.get_act(wb_obj)
+
+                np_obj.set_currency("-")
 
             case _:
 
@@ -128,9 +132,11 @@ def get_dict_from_act(wb_obj,indice=None):
     # end for
 
     if list_type:
-        return (status,errtext,np_obj_dict[indices[0]])
-    else:
         return (status, errtext, np_obj_dict)
+    else:
+        return (status, errtext, np_obj_dict[indices[0]])
+    # end if
+
 # end def
 def get_dict_from_start_dat_to_end_dat(wb_obj,indice,start_dat,end_dat):
 

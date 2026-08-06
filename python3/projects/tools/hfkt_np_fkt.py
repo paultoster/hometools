@@ -595,10 +595,9 @@ def interpoliere(x,x_np_array,y_np_array,type='lin'):
 
     f_liste = []
     for (index,d) in zip(index_liste,d_liste):
+        f = y_np_array[index]
         if type == 'lin':
-            f = (y_np_array[index+1]-y_np_array[index]) * d
-        else:
-            f = y_np_array[index]
+            f += (y_np_array[index+1]-y_np_array[index]) * d
         #end if
         if (d < 0.0) or (d > 1.0):
             f = 0.0
@@ -638,7 +637,7 @@ def find_index_d(x_np_array,x):
         for i in range(n-1):
 
             if (x >= x_np_array[i]) and (x < x_np_array[i+1]):
-                idex = i
+                index = i
                 d = (x - x_np_array[i])/(x_np_array[i+1]-x_np_array[i])
                 break
             # end if

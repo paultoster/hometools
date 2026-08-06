@@ -79,6 +79,7 @@ def katalog_gruppe_isin_dict_read(rd):
         STATUS = rd.kat["katalog_gruppe_isin_dict_jsonobj"].get_status()
         ERRTEXT = rd.kat["katalog_gruppe_isin_dict_jsonobj"].get_errtext()
         rd.kat["katalog_gruppe_isin_dict_jsonobj"].reset_status()
+        return
     # end if
 
     # Proof

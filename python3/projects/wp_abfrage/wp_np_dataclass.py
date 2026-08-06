@@ -117,6 +117,7 @@ class NpUsdEuroClass(NpBaseClass):
     # file_base_name: str = "usdeuro_values"
     def __init__(self,*args):
         super().__init__(args,np_name_list=self.np_name_list,class_def = NpUsdEuroClass)
+        self.currency: str = ""
         self.filename: str = ""
         return
     # end def
@@ -141,6 +142,9 @@ class NpUsdEuroClass(NpBaseClass):
         return (None,None)
     def add_filename(self,filename):
         self.filename = filename
+    # end def
+    def set_currency(self,currency):
+        self.currency = currency
     # end def
     def sort_by_dat(self):
         if hasattr(self, 'dat_np_array'):

@@ -110,7 +110,11 @@ def scre_build_fmttable_data(rd,irow ,data_set_raw,header_list,tab_werte_dict_li
         data_list.append(valout)
 
         if (len(color) > 0) and (color != rd.par.TAB_COLOR_WHITE):
-            color_dict_list.append({'row':irow,'col':icol,'bg':color})
+
+            if (color == rd.par.TAB_COLOR_BLACK) or (color == rd.par.TAB_COLOR_BLUE):
+                color_dict_list.append({'row': irow, 'col': icol, 'bg': color, 'fg': "white"})
+            else:
+                color_dict_list.append({'row':irow,'col':icol,'bg':color,'fg':"black"})
         # end if
     # end for
 
@@ -164,6 +168,19 @@ def scre_build_data_format_value(rd, werte_dict, value, type,data_set,header_lis
             val_out = htype.type_transform_direct(val_out, "float", type)
         # end if
 
+        if isinstance(val_out,str):
+            val_out += " %"
+        # end if
+    elif werte_dict["fmt"] == "euroStrK":
+        if isinstance(val_out, float):
+            val_out = htype.type_transform_direct(val_out, "float", "euroStrK")
+        elif isinstance(val_out, int):
+            val_out = htype.type_transform_direct(val_out, "int", "euroStrK")
+        # end if
+        if isinstance(val_out,str):
+            val_out += " €"
+            type = "str"
+        # end if
     # spez-fmt
     elif len(werte_dict["fmt_spez_dict_liste"]) > 0:
 
@@ -265,7 +282,9 @@ def scre_build_data_color_value(rd, werte_dict, value, data_set,header_list):
                 vergleichswert = 0
                 if ("vergleichswert" in color_spez_dict.keys()) and (color_spez_dict["vergleichswert"] != None):
 
-                    if isinstance(value, int):
+                    if isinstance(value, str):
+                        vergleichswert = str(color_spez_dict["vergleichswert"])
+                    elif isinstance(value, int):
                         vergleichswert = int(color_spez_dict["vergleichswert"])
                     else:
                         vergleichswert = float(color_spez_dict["vergleichswert"])
@@ -278,7 +297,7 @@ def scre_build_data_color_value(rd, werte_dict, value, data_set,header_list):
                         return None
                     # end if
 
-                    index = header_list.index(color_spez_dict["vergleichswert"])
+                    index = header_list.index(color_spez_dict["vergleichstabellenwert"])
 
                     if isinstance(value, int):
                         vergleichswert = int(data_set[index])

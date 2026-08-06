@@ -79,11 +79,12 @@ def check_content(rd,content,werte_dict):
 
         # section
         if not (  (section == rd.par.TAB_SEC_BI) or
+                  (section == rd.par.TAB_SEC_SONDER) or
                   (section == rd.par.TAB_SEC_SIG) or
                   (section == rd.par.TAB_SEC_TABRANKMIN) or
                   (section == rd.par.TAB_SEC_TABRANKMAX)
         ):
-            INFOTEXT = f"Im tab zeile:{ZEILE}, (section: \"{section})\") ist nicht \"{rd.par.TAB_SEC_BI}\" oder \"{rd.par.TAB_SEC_SIG}\" oder \"{rd.par.TAB_SEC_TABRANKMIN}\" oder \"{rd.par.TAB_SEC_TABRANKMAX}\" "
+            INFOTEXT = f"Im tab zeile:{ZEILE}, (section: \"{section})\") ist nicht \"{rd.par.TAB_SEC_BI}\" oder \"{rd.par.TAB_SEC_SONDER}\"oder \"{rd.par.TAB_SEC_SIG}\" oder \"{rd.par.TAB_SEC_TABRANKMIN}\" oder \"{rd.par.TAB_SEC_TABRANKMAX}\" "
             return hdef.NOT_OKAY
         # end if
 
@@ -96,7 +97,14 @@ def check_content(rd,content,werte_dict):
                 INFOTEXT = f"Im tab zeile:{ZEILE}, name : \"{name}\" (section: \"{section}\") ist nicht in basic_info zu finden "
                 return hdef.NOT_OKAY
             # end if
+        elif section == rd.par.TAB_SEC_SONDER:
+            if (name != rd.par.TAB_NAME_GRUPPE) and (name != rd.par.TAB_NAME_ACTIVE_DEPOT):
+                INFOTEXT = f"Im tab zeile:{ZEILE}, name : \"{name}\" (section: \"{section}\") ist nicht in der section zu finden "
+                return hdef.NOT_OKAY
+            # end if
+
         # end if
+
         werte_dict["name"] = name
 
         (status,base_fmt,nachkomma,special_dict_liste) = check_content_fmt(rd.par,fmt)
@@ -269,19 +277,43 @@ def check_content_fmt_special_dict_liste(par,fmt):
         # end if
 
         rest = hstr.elim_ae(val[len(ddict["vergleich"]):]," ")
-        (status, wert) = htype.type_proof_float(rest)
-        if status == hdef.NOT_OKAY: # Ist ein Signal
-            ddict["vergleichstabellenwert"] = rest
+
+        (found,value) = find_table_value(rest)
+        if found:
+            ddict["vergleichstabellenwert"] = value
             ddict["vergleichswert"]   = None
         else:
             ddict["vergleichstabellenwert"] = None
-            ddict["vergleichswert"]   = wert
+            (status, wert) = htype.type_proof_float(rest)
+            if status == hdef.NOT_OKAY: # Ist ein Signal
+                ddict["vergleichswert"]   = rest
+            else:
+                ddict["vergleichswert"]   = wert
+            # end if
         # end if
 
         special_dict_liste.append(ddict)
     # end for
 
     return (hdef.OKAY,special_dict_liste)
+# end def
+def find_table_value(rest):
+    """
+    (found,value) = find_table_value(rest)
+    """
+    index = rest.find("tab")
+    if index == 0:
+
+        i0 = rest.find("{")
+        i1 = rest.find("}")
+
+        if (i0 > -1) and (i1 > i0):
+
+            value = rest[i0+1:i1]
+            return (True,value)
+        # end
+    # end if
+    return (False,"")
 # end def
 def check_content_color(par, color):
     """
@@ -351,29 +383,37 @@ def check_content_color_special_dict_liste(par,color):
         ddict["color"] = c
         val  = hstr.elim_ae(sliste[1], " ")
 
-        if val.find(par.TAB_SPEZ_GT) == 0:
-            ddict["vergleich"] = par.TAB_SPEZ_GT
-        elif val.find(par.TAB_SPEZ_LT) == 0:
-            ddict["vergleich"] = par.TAB_SPEZ_LT
-        elif val.find(par.TAB_SPEZ_GE) == 0:
+        if val.find(par.TAB_SPEZ_GE) == 0:
             ddict["vergleich"] = par.TAB_SPEZ_GE
+        elif val.find(par.TAB_SPEZ_GT) == 0:
+            ddict["vergleich"] = par.TAB_SPEZ_GT
         elif val.find(par.TAB_SPEZ_LE) == 0:
             ddict["vergleich"] = par.TAB_SPEZ_LE
-        elif val.find(par.TAB_SPEZ_EQ) == 0:
-            ddict["vergleich"] = par.TAB_SPEZ_EQ
+        elif val.find(par.TAB_SPEZ_LT) == 0:
+            ddict["vergleich"] = par.TAB_SPEZ_LT
         elif val.find(par.TAB_SPEZ_NEQ) == 0:
             ddict["vergleich"] = par.TAB_SPEZ_NEQ
+        elif val.find(par.TAB_SPEZ_EQ) == 0:
+            ddict["vergleich"] = par.TAB_SPEZ_EQ
         else:
             INFOTEXT = f"Im tab zeile:{ZEILE}, spez : \"{color}\" kann im {i+1}te command: \"{item}\") der Vergleich nicht gefunden werden"
             return (hdef.NOT_OKAY,special_dict_liste)
         # end if
 
         rest = hstr.elim_ae(val[len(ddict["vergleich"]):]," ")
-        (status, wert) = htype.type_proof_float(rest)
-        if status == hdef.NOT_OKAY: # Ist ein Signal
-            ddict["vergleichstabellenwert"] = rest
+
+        (found,value) = find_table_value(rest)
+        if found:
+            ddict["vergleichstabellenwert"] = value
+            ddict["vergleichswert"]   = None
         else:
-            ddict["vergleichswert"] = wert
+            ddict["vergleichstabellenwert"] = None
+            (status, wert) = htype.type_proof_float(rest)
+            if status == hdef.NOT_OKAY: # Ist ein Signal
+                ddict["vergleichswert"]   = rest
+            else:
+                ddict["vergleichswert"]   = wert
+            # end if
         # end if
 
         special_dict_liste.append(ddict)
@@ -412,22 +452,28 @@ def hilfe(rd):
                 val2 = f""
             case 2:
                 val1 = "section"
-                val2 = "\"bi\": basic_info isin oder \"sig\": Signal aus sigset "
+                val2 = "\"bi\": basic_info wie name: name,isin,wkn,type,first_dat_str, active_depot"
+            case 2:
+                val1 = "section"
+                val2 = "\"bi\": basic_info wie name: gruppe (aus katalog), active_depot (aus wp_base_active_depot)"
+            case 2:
+                val1 = "section"
+                val2 = "\"sig\": Signal aus sigset "
             case 3:
                 val1 = "section"
-                val2 = "\"tabrankmin\": Ranking über Tabbelle min ist best Signal aus sigset oder oder \"tabrankmax\": Ranking über Tabbelle max ist best"
+                val2 = "\"tabrankmin\": Ranking über Tabbelle min ist bestimmten Signal aus sigset oder oder \"tabrankmax\": Ranking über Tabbelle max ist best"
             case 4:
                 val1 = ""
                 val2 = f""
             case 5:
                 val1 = "name"
-                val2 = "name aus \"bi\": basic_info isin oder \"sig\": sigset"
+                val2 = "name aus \"bi\": basic_info z.B. isin, \"sig\",\"tabrankmin\",\"tabrankmax\": sigset name"
             case 6:
                 val1 = ""
                 val2 = f""
             case 7:
                 val1 = "fmt"
-                val2 = "\"str\", \"float.X\" (anzahl der Nachkomma-Stellen), \"int\", \"%.X\" "
+                val2 = "\"str\", \"float.X\" (anzahl der Nachkomma-Stellen), \"int\", \"%.X\", \"datStrP\", \"euroStrK\" "
             case 8:
                 val1 = "fmt"
                 val2 = "\"[\"x\":>0.1;\"y\":<-0.1]\" druckt x oder y unter den Bedingungen"

@@ -64,14 +64,17 @@ class Param:
     TAB_SPEZ_GT = ">"
     TAB_SPEZ_LT = "<"
     TAB_SPEZ_GE = ">="
-    TAB_SPEZ_LE = ">="
+    TAB_SPEZ_LE = "<="
     TAB_SPEZ_EQ = "=="
     TAB_SPEZ_NEQ = "!="
 
     TAB_SEC_BI = "bi"  # basict info
     TAB_SEC_SIG = "sig" # signal von sigset
+    TAB_SEC_SONDER = "sonder"
     TAB_SEC_TABRANKMIN = "tabrankmin"
     TAB_SEC_TABRANKMAX = "tabrankmax"
+    TAB_NAME_GRUPPE = "gruppe"
+    TAB_NAME_ACTIVE_DEPOT = "active_depot"
     TAB_FMT_STR = "str"
     TAB_FMT_INT = "int"
     TAB_FMT_FLOAT = "float"
@@ -95,6 +98,11 @@ class Param:
     TAB_COLOR_MAGENTA = "magenta"
     TAB_COLOR_CYAN = "cyan"
     TAB_COLOR_GRAY = "gray"
+    TAB_COLOR_BROWN = "brown"
+    TAB_COLOR_ORANGE = "orange"
+    TAB_COLOR_AZURE = "azure"
+    TAB_COLOR_GREENYELLOW = "greenyellow"
+    TAB_COLOR_GOLD = "gold"
 
     TAB_COLOR_LISTE = [TAB_COLOR_WHITE,
                        TAB_COLOR_BLACK,
@@ -104,7 +112,13 @@ class Param:
                        TAB_COLOR_BLUE,
                        TAB_COLOR_MAGENTA,
                        TAB_COLOR_CYAN,
-                       TAB_COLOR_GRAY]
+                       TAB_COLOR_GRAY,
+                       TAB_COLOR_BROWN,
+                       TAB_COLOR_ORANGE,
+                       TAB_COLOR_AZURE,
+                       TAB_COLOR_GREENYELLOW,
+                       TAB_COLOR_GOLD,
+                       ]
 
     TAB_COLOR_SPEZ = "spez"
     TAB_COLOR_SPEZ_BRACKET_OPEN = "["

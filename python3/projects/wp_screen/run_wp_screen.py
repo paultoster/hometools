@@ -65,19 +65,19 @@ def wp_screener_command(rd):
 
             wp_screen_katalog_command.katalog_command(rd)
 
-            if len(wp_screen_katalog.get_infotext()) > 0:
-                t = f"Info wp_katalog.katalog(rd): {wp_screen_katalog.get_infotext()}"
+            if len(wp_screen_katalog_command.get_infotext()) > 0:
+                t = f"Info wp_katalog.katalog(rd): {wp_screen_katalog_command.get_infotext()}"
                 sgui.anzeige_text(t, textcolor='orange')
                 rd.log.write_info(t, screen=rd.par.LOG_SCREEN_OUT)
 
-            if wp_screen_katalog.get_status() != hdef.OKAY:
-                t = f"Error wp_katalog.katalog(rd) errtext = {wp_screen_katalog.get_errtext()}"
+            if wp_screen_katalog_command.get_status() != hdef.OKAY:
+                t = f"Error wp_katalog.katalog(rd) errtext = {wp_screen_katalog_command.get_errtext()}"
                 sgui.anzeige_text(t, textcolor='red')
                 rd.log.write_err(t, screen=rd.par.LOG_SCREEN_OUT)
                 runflag = False
             # end if
 
-            wp_screen_katalog.reset_status()
+            wp_screen_katalog_command.reset_status()
 
         elif index == index_sigset:  #
 

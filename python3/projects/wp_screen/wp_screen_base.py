@@ -68,6 +68,7 @@ class WPScreen:
                     "scre_liste": [],
                     "scre_liste_filename": "",
                     "scre_liste_jsonobj": None,
+                    "scre":"",
                     "scre_dict": {},
                     "scre_dict_filename": "",
                     "scre_dict_jsonobj": None,

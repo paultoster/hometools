@@ -190,7 +190,7 @@ def katalog_gruppe_isin_dict_edit_command(rd, index):
 
     if wp_screen_katalog.get_status() != hdef.OKAY:
         STATUS = hdef.NOT_OKAY
-        ERTEXT = wp_screen_katalog.get_errtext()
+        ERRTEXT = wp_screen_katalog.get_errtext()
         wp_screen_katalog.reset_status()
         return
     # end if

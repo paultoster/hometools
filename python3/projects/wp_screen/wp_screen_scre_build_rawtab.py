@@ -101,6 +101,53 @@ def scre_build_data_get_value(rd,werte_dict,np_data_obj):
             ERRTEXT = errtext
             return (None,None)
         # end if
+    elif werte_dict["section"] == rd.par.TAB_SEC_SONDER:
+
+        if werte_dict["name"] == rd.par.TAB_NAME_GRUPPE:
+            status = hdef.OKAY
+            value = ""
+            for gruppe, isin_list in rd.kat["katalog_gruppe_isin_dict"].items():
+                if werte_dict["isin"] in isin_list:
+                    value = gruppe
+                    break
+                # end if
+            # end for
+            if isinstance(value, str):
+                type = "str"
+            elif isinstance(value, float):
+                type = "float"
+            elif isinstance(value, int):
+                type = "int"
+            else:
+                type = None
+            # end if
+
+            if status != hdef.OKAY:
+                STATUS = status
+                ERRTEXT = ""
+                return (None, None)
+            # end if
+        elif werte_dict["name"] == rd.par.TAB_NAME_ACTIVE_DEPOT:
+
+            (status,errtext,value) = rd.wpfunc.get_active_depot_isin_scre(werte_dict["isin"],rd.kat["katalog"])
+            if status != hdef.OKAY:
+                STATUS = hdef.NOT_OKAY
+                ERRTEXT = f"get_active_depot_isin_scre: isin: {werte_dict['isin']} kann  nicht von wpfunc abgerufen werden errtext = {errtext}!"
+                return (None,None)
+            # end if
+
+            if isinstance(value, str):
+                type = "str"
+            elif isinstance(value, float):
+                type = "float"
+            elif isinstance(value, int):
+                type = "int"
+            else:
+                type = None
+            # end if
+
+        # end if
+
     elif werte_dict["section"] == rd.par.TAB_SEC_SIG:
 
         np_array = np_data_obj.get_data(werte_dict["name"])
@@ -161,7 +208,7 @@ def scre_build_values_over_rawtab(rd,ttable,tab_werte_dict_liste,isin_liste,dat)
                 ttable.table[i][icol] = rank
             # end for
 
-            ttable = htvar.sort_col_in_table(ttable, icol, aufsteigend=0)
+            ttable = htvar.sort_col_in_table(ttable, icol, aufsteigend=1)
 
         elif werte_dict["section"] == rd.par.TAB_SEC_TABRANKMAX:
 
@@ -171,7 +218,7 @@ def scre_build_values_over_rawtab(rd,ttable,tab_werte_dict_liste,isin_liste,dat)
                 ttable.table[i][icol] = rank
             # end for
 
-            ttable = htvar.sort_col_in_table(ttable, icol, aufsteigend=0)
+            ttable = htvar.sort_col_in_table(ttable, icol, aufsteigend=1)
 
         # end if
     # end for
@@ -214,9 +261,9 @@ def build_rank_liste(rd,signame,isin_liste,dat,flagmin):
     index_liste = list(range(len(value_liste)))
 
     if flagmin:
-        (value_liste,index_liste) = hlist.sort_two_list(value_liste, index_liste, aufsteigend=0)
+        (value_liste,index_liste) = hlist.sort_two_list(value_liste, index_liste, aufsteigend=1)
     else:
-        (value_liste, index_liste) = hlist.sort_two_list(value_liste, index_liste, aufsteigend=1)
+        (value_liste, index_liste) = hlist.sort_two_list(value_liste, index_liste, aufsteigend=0)
     # end if
 
     rank_liste = [None] * len(index_liste)

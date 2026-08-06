@@ -148,3 +148,36 @@ def save_active_katalog_dict(wb_obj, active_katalog_dict ):
 
     return (status, errtext)
 # end def
+def get_w_isin_scr(wb_obj, isin,scre):
+    """
+    :param wb_obj:
+    :param isin:
+    :param scre:
+    :return: (status, errtext,active_depot) = get_w_isin_scr(wb_obj, isin,scre)
+    """
+
+    active_depot = ""
+    (status, errtext, active_katalog_dict) = get_active_katalog_dict(wb_obj)
+    if status != hdef.OKAY:
+        return (status, errtext,active_depot)
+
+    for katalog in active_katalog_dict.keys():
+
+        if katalog == scre:
+
+            for key in active_katalog_dict[katalog].keys():
+
+                if key == isin:
+                    for depot in active_katalog_dict[katalog][isin]:
+                        if len(active_depot) != 0:
+                            active_depot += "," + depot
+                        else:
+                            active_depot += depot
+                        # end if
+                    # end for
+                # end if
+            # end for
+        # end if
+    # end for
+    return (status, errtext, active_depot)
+# end if
