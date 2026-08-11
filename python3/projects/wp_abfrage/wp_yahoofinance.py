@@ -337,6 +337,41 @@ def get_usdeuro_data(np_classdef,start_dat, end_dat):
 
     return (status, errtext, np_obj)
 # end def
+def get_chfeuro_data(np_classdef,start_dat, end_dat):
+    """
+    (status, errtext, np_obj) = wp_yfinance.get_usdeuro_data(np_classdef,lastdat,end_dat)
+    """
+    status = hdef.OKAY
+    errtext = ""
+
+    # Start time
+    start_dat_time_class = htype.type_transform_direct(start_dat,"dat","datetimeclass")
+    # End time
+    # add one day because yfinace need
+    end_dat_add = end_dat + 24 * 60 * 60
+
+    end_dat_time_class   = htype.type_transform_direct(end_dat_add,"dat","datetimeclass")
+
+    t = 'EURCHF=X'
+    df_data_eurodol = yf.download(t, start_dat_time_class.strftime('%Y-%m-%d'), end_dat_time_class.strftime('%Y-%m-%d'))
+
+    if df_data_eurodol.empty:
+        status = hdef.NOT_OKAY
+        errtext = f"For Euro-Calc Ticker-Symbol \"{t}\" no data from yahoofinance"
+        return (status, errtext, None)
+    # end if
+
+    date_str_list = df_data_eurodol.index.strftime("%d.%m.%Y").tolist()
+    euro_dat_np_array = np.array(htype.type_transform_direct(date_str_list, "datStrP", "dat"), copy=True)
+    euro_close_np_array = df_data_eurodol["Close"].to_numpy()
+
+    euro_dat_np_array   = euro_dat_np_array.reshape(np.prod(euro_dat_np_array.shape))
+    euro_close_np_array = euro_close_np_array.reshape(np.prod(euro_close_np_array.shape))
+
+    np_obj = np_classdef(euro_dat_np_array,euro_close_np_array)
+
+    return (status, errtext, np_obj)
+# end def
 if __name__ == '__main__':
 
     ticker = "^GDAXI"

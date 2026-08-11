@@ -275,6 +275,24 @@ def set_value(wb_obj, isin,key,wert):
 
     return (status, errtext)
 # end def
+def filter_wp_dict(wb_obj, wp_dict):
+    """
+    (status, errtext,basic_info_dict) = filter_wp_dict(wb_obj,wp_dict)
+    """
+    status = hdef.OKAY
+    errtext = ""
+    basic_info_dict = {}
+    for key in wp_basic_info_internet.INFO_DICT.keys():
+
+        if key in wp_dict.keys():
+            basic_info_dict[key] = wp_dict[key]
+        else:
+            basic_info_dict[key] = wp_basic_info_internet.INFO_DICT[key]
+        # end if
+    # end for
+
+    return (status, errtext, basic_info_dict)
+# end def
 def save(wb_obj, isin_input, basic_info_dict):
     """
 
@@ -345,7 +363,7 @@ def process_isin_from_wkn(wb_obj, wkn):
                                                 wb_obj.base_ddict["store_path"])
 
     formatpj = 2
-    (status, errtext, isin) = wp_wkn.wp_search_wkn(wkn,
+    (status, errtext, isin,isin_dict_exists) = wp_wkn.wp_search_wkn(wkn,
                                                    wpname_isin_filename,
                                                    formatpj,
                                                    wb_obj.base_ddict["basic_info_pre_file_name"],
@@ -356,6 +374,13 @@ def process_isin_from_wkn(wb_obj, wkn):
         print(f"get_isin_from_wkn not working errtext: {errtext}")
         isin = ""
     # end if
+    if not isin_dict_exists:
+        (status, errtext, info_dict) = wp_basic_info_internet.search(isin)
+
+        if status == hdef.OKAY:
+            (status, errtext) = save(wb_obj, isin, info_dict)
+        # end if
+
     return (status,errtext,isin)
 # end def
 def find_wpname(wb_obj, comment):

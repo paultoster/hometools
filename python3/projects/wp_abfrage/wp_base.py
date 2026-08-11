@@ -97,6 +97,7 @@ class WPParam:
 
     INDICES_EZB_LEITZINS_NAME = "ezbleitzins"
     INDICES_USDEURO_NAME = "usdeuro"
+    INDICES_CHFEURO_NAME = "chfeuro"
 
 
 # end class
@@ -242,6 +243,15 @@ class WPData:
         """
         (self.status, self.errtext) = wp_base_basic_info.set_value(self, isin,key,wert)
         return (self.status, self.errtext)
+    # end def
+    def filter_basic_info_from_wp_dict(self,wp_dict: dict) -> (int,str,dict):
+        """
+        :param wp_dict:
+        :return: (status, errtext,basic_info_dict) = self.filter_basic_info_from_wp_dict(wp_dict)
+        """
+        (self.status, self.errtext,basic_info_dict) = wp_base_basic_info.filter_wp_dict(self, wp_dict)
+
+        return (self.status, self.errtext, basic_info_dict)
     # end def
     def save_basic_info(self, isin_input: str|list, basic_info_dict: list|dict) -> (int,str):
         '''
@@ -522,12 +532,23 @@ class WPData:
 
 
     # end def
-    def build_ariva_isin_csv(self):
+    def make_backup_price_volumen(self,isin_liste=[],move_flag = False):
+        """
+        :param wb_obj:
+        :return: (status, errtext) = make_backup_basic_infos(wb_obj)
+        """
+        (self.status,self.errtext) = wp_base_price_volume.make_backup(self,isin_liste,move_flag)
+        if self.status != hdef.OKAY:
+            return (self.status,self.errtext)
+
+        return (self.status,self.errtext)
+    # end def
+    def build_ariva_isin_csv(self,isin_ariva_liste=[]):
         status = hdef.OKAY
 
         errtext = ""
 
-        (self.status, self.errtext, self.infotext) = wp_base_price_volume.build_ariva_isin_csv(self)
+        (self.status, self.errtext, self.infotext) = wp_base_price_volume.build_ariva_isin_csv(self,isin_ariva_liste)
         if self.status != hdef.OKAY:
             return (self.status, self.errtext, self.infotext)
         # end if

@@ -107,7 +107,7 @@ mpf.plot(
     type='candle',
     volume=True,           # Zeigt das Handelsvolumen unter dem Chart an
     addplot=add_lines,     # Fügt die weiteren Linien hinzu
-    style='yahoo',         # Klassischer Finanz-Look
+    style='yahoo',         # Klassischer Finanz-Look 'binance'
     title='Candlestick mit Volume & Zusätzlicher Linie'
 )
 

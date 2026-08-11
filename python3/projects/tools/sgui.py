@@ -287,7 +287,7 @@ def abfrage_liste_index(liste, title=None,geometry_list=None):
 def abfrage_liste_indexListe(liste, title=None,geometry_list=None):
     
     obj = sliste_class.abfrage_liste_class(liste, title=title,geometry_list=geometry_list)
-    indexListe = obj.indexListe
+    indexListe = copy.copy(obj.indexListe)
     
     if isinstance(geometry_list, list):
         geometry_list[0] = obj.GUI_GEOMETRY_WIDTH

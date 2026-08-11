@@ -12,6 +12,8 @@ if (tools_path not in sys.path):
 from tools import hfkt_type as htype
 from tools import hfkt_def as hdef
 
+from wp_abfrage import wp_fkt
+
 def requests_exists(url: str) -> bool:
     try:
         with requests.get(url, stream=True) as response:
@@ -116,7 +118,9 @@ def get_price_volume_data(url,np_classdef):
                                volume_np_array])
 
     # currency
-    np_obj.currency = "euro"
+    currency = wp_fkt.find_currency(df[index_open][1:].to_list())
+
+    np_obj.set_currency(currency)
 
     np_obj.sort_by_dat()
 

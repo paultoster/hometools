@@ -120,6 +120,7 @@ def search(isin,url_ariva="",url_onvista="",log=None):
         else:
             print(t)
         # end if
+
         info_dict = get_default_info_dict(isin)
         (status, errtext, info_dict) = ariva_anleihe(isin,url_ariva, info_dict)
         if status == hdef.OKAY:

@@ -32,10 +32,10 @@ def wp_search_wkn(wkn,wpname_isin_filename,formatpj,basic_info_pre_file_name,sto
     :param store_path:
     :param wkn_isin_n_times:
     :param wkn_isin_sleep_time:
-    :return: (status,errtext,isin) = wp_search_wkn(wkn,wpname_isin_filename,formatpj,basic_info_pre_file_name,store_path,wkn_isin_n_times,wkn_isin_sleep_time)
+    :return: (status,errtext,isin,isin_dict_exists) = wp_search_wkn(wkn,wpname_isin_filename,formatpj,basic_info_pre_file_name,store_path,wkn_isin_n_times,wkn_isin_sleep_time)
     """
     (status,errtext,wp_isin_dict) = wp_storage.read_dict(wpname_isin_filename,formatpj)
-
+    isin_dict_exists = False
     for isin in wp_isin_dict.keys():
 
         file_name = wp_storage.build_file_name_json(basic_info_pre_file_name + isin,
@@ -45,10 +45,13 @@ def wp_search_wkn(wkn,wpname_isin_filename,formatpj,basic_info_pre_file_name,sto
                                                           formatpj)
         
         if status != hdef.OKAY:
-            return (status,errtext,None)
+            return (status,errtext,None,isin_dict_exists)
+
+        print(f"wkn_search: {wkn} wkn_act: {info_dict["wkn"]}, {info_dict = }")
         
         if info_dict["wkn"] == wkn:
-            return (status, errtext, isin)
+            isin_dict_exists = True
+            return (status, errtext, isin,isin_dict_exists)
         # end if
     # end for
 
@@ -59,7 +62,7 @@ def wp_search_wkn(wkn,wpname_isin_filename,formatpj,basic_info_pre_file_name,sto
             info_dict = wp_basic_info_internet.get_default_info_dict("")
             (status, errtext, info_dict) = wp_basic_info_internet.ariva_anleihe("", url_ariva, info_dict)
             if status == hdef.OKAY:
-                return (status,errtext,info_dict["isin"])
+                return (status,errtext,info_dict["isin"],isin_dict_exists)
             # end if
         # end if
         icount += 1
@@ -67,7 +70,7 @@ def wp_search_wkn(wkn,wpname_isin_filename,formatpj,basic_info_pre_file_name,sto
 
     (status,errtext,isin) = wp_search_wkn_html(wkn,wkn_isin_n_times,wkn_isin_sleep_time)
     
-    return (status,errtext,isin)
+    return (status,errtext,isin,isin_dict_exists)
 # end def
 def wp_search_wkn_html(wkn,wkn_isin_n_times,wkn_isin_sleep_time):
     '''

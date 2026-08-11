@@ -35,6 +35,9 @@
     - sucht aus Liste den index für first_item und den für last_item und sagt
     - ob first_item innerhalb der Liste steht start_in_range = True sowie
     - ob last_item innerhalb der Liste steht end_in_range = True
+
+
+    currency = find_currency(liste|item)
 """
 
 
@@ -143,12 +146,16 @@ def check_isin_input(isin_input):
 
     return (status,errtext,isin_input_is_list, isin_list)
 # end def
-def letzter_beendeter_handelstag_dat_list(boerse):
+def letzter_beendeter_handelstag_dat_list(boerse=None):
     """
 
     :param boerse:
     :return: dat_time_list = letzter_beendeter_handelstag_dat_list(boerse)
     """
+    if boerse is None:
+        boerse = "xetra"
+    # end if
+
     # letzte Handelszeit Zeit
     dat_time_list = hdt.get_akt_dat_time_list()
 
@@ -176,6 +183,42 @@ def letzter_beendeter_handelstag_dat_list(boerse):
             dat_time_list = hdt.verschiebe_dat_list_in_tagen(dat_time_list, -1)
     # end if
     return dat_time_list
+# end def
+def naechster_handelstag_dat_list(dat,vorwaerts=True,boerse=None):
+    """
+
+    :param boerse:
+    :return: dat = naechster_handelstag_dat_list(dat,vorwaerts=True,boerse=None)
+    """
+    if boerse is None:
+        boerse = "xetra"
+    # end if
+
+    #
+    dat_time_list = hdt.calc_secs_to_dat_time_list(dat)
+
+    if vorwaerts:
+        dat_time_list = hdt.verschiebe_dat_list_in_tagen(dat_time_list, 1)
+    else:
+        dat_time_list = hdt.verschiebe_dat_list_in_tagen(dat_time_list, -1)
+
+    # wenn kein Handelstag, dann ein Tag vor
+    while ist_kein_handestag(dat_time_list, boerse):
+        if vorwaerts:
+            dat_time_list = hdt.verschiebe_dat_list_in_tagen(dat_time_list, 1)
+        else:
+            dat_time_list = hdt.verschiebe_dat_list_in_tagen(dat_time_list, -1)
+
+    # Handelstag auf Handelsschluss setzen
+    if boerse == "xetra":
+        dat_time_list[3:6] = XETRA_HANDEL_ENDE_TIME_TUP[0:3]
+    else:
+        raise Exception(f"ausgewählte Börse {boerse} ist nicht implementiert")
+    # end if
+
+    return  hdt.calc_dat_time_list_to_secs(dat_time_list)
+
+
 # end def
 def ist_kein_handestag(date_tuple,boerse):
     """
@@ -492,6 +535,56 @@ def find_linear_interpol_index(float_np_array,float_value, istart):
     # end while
     return (i0, i1, fact, index)
 # end def
+def find_currency(item):
+    """
+    currency = find_currency_in_list(liste)
+    """
+
+    if isinstance(item,list):
+        liste = item
+    else:
+        liste = [item]
+    # end if
+
+    euro_count = 0
+    dollar_count = 0
+    schweiz_count = 0
+    percent_count = 0
+    for x in liste:
+        if x.find("€") >= 0:
+            euro_count += 1
+        elif x.lower().find("euro") >= 0:
+            euro_count += 1
+        elif x.find("$") >= 0:
+            dollar_count += 1
+        elif x.lower().find("dollar") >= 0:
+            dollar_count += 1
+        elif x.lower().find("chf") >= 0:
+            schweiz_count += 1
+        elif x.find("%") >= 0:
+            percent_count += 1
+        elif x.lower().find("percent") >= 0:
+            percent_count += 1
+        else:
+            euro_count += 1
+        # end if
+    # end for
+
+    zahlen = [euro_count, dollar_count, schweiz_count, percent_count]
+    max_wert = max(zahlen)
+    max_index = zahlen.index(max_wert)
+
+    if max_index == 0:
+        return "euro"
+    elif max_index == 1:
+        return "dollar"
+    elif max_index == 2:
+        return "chf"
+    else:
+        return "percent"
+    # end if
+# end def
+
 # def merge_usdeuro_dfnew_to_df(df,df_new, dat_name,usdeuro_name):
 #     """
 #

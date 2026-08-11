@@ -18,8 +18,9 @@ from wp_abfrage import wp_fkt
 
 from wp_abfrage import wp_np_dataclass as wp_np_dc
 from wp_abfrage import wp_base
-from wp_abfrage import wp_usdeuro
-from wp_abfrage import wp_ezbleitzins
+from wp_abfrage import wp_indice_usdeuro
+from wp_abfrage import wp_indice_ezbleitzins
+from wp_abfrage import wp_indice_chfeuro
 
 
 
@@ -31,7 +32,7 @@ def get_indices_liste(wb_obj) -> list:
     :return: indices_liste = wp_base_indices.get_indices_liste(wb_obj)
     """
 
-    liste = [wb_obj.par.INDICES_EZB_LEITZINS_NAME, wb_obj.par.INDICES_USDEURO_NAME]
+    liste = [wb_obj.par.INDICES_EZB_LEITZINS_NAME, wb_obj.par.INDICES_USDEURO_NAME, wb_obj.par.INDICES_CHFEURO_NAME]
 
     return liste
 # end def
@@ -65,12 +66,16 @@ def update_indices(wb_obj,indice = None):
         match indice:
             case wb_obj.par.INDICES_EZB_LEITZINS_NAME:
 
-                (status,errtext) = wp_ezbleitzins.process_akt(wb_obj)
+                (status,errtext) = wp_indice_ezbleitzins.process_akt(wb_obj)
 
 
             case wb_obj.par.INDICES_USDEURO_NAME:
 
-                (status, errtext) = wp_usdeuro.process_akt(wb_obj)
+                (status, errtext) = wp_indice_usdeuro.process_akt(wb_obj)
+
+            case wb_obj.par.INDICES_CHFEURO_NAME:
+
+                (status, errtext) = wp_indice_chfeuro.process_akt(wb_obj)
 
             case _:
 
@@ -109,15 +114,22 @@ def get_dict_from_act(wb_obj,indice=None):
         match indice:
             case wb_obj.par.INDICES_EZB_LEITZINS_NAME:
 
-                (status, errtext, np_obj) = wp_ezbleitzins.get_act(wb_obj)
+                (status, errtext, np_obj) = wp_indice_ezbleitzins.get_act(wb_obj)
 
                 np_obj.set_currency("%")
 
             case wb_obj.par.INDICES_USDEURO_NAME:
 
-                (status, errtext, np_obj) = wp_usdeuro.get_act(wb_obj)
+                (status, errtext, np_obj) = wp_indice_usdeuro.get_act(wb_obj)
 
                 np_obj.set_currency("-")
+
+            case wb_obj.par.INDICES_CHFEURO_NAME:
+
+                (status, errtext, np_obj) = wp_indice_chfeuro.get_act(wb_obj)
+
+                if np_obj is not None:
+                    np_obj.set_currency("-")
 
             case _:
 
@@ -157,11 +169,15 @@ def get_dict_from_start_dat_to_end_dat(wb_obj,indice,start_dat,end_dat):
         match indice:
             case wb_obj.par.INDICES_EZB_LEITZINS_NAME:
 
-                (status, errtext, np_obj) = wp_ezbleitzins.get_from_start_dat_to_end_dat(wb_obj,start_dat,end_dat)
+                (status, errtext, np_obj) = wp_indice_ezbleitzins.get_from_start_dat_to_end_dat(wb_obj,start_dat,end_dat)
 
             case wb_obj.par.INDICES_USDEURO_NAME:
 
-                (status, errtext,np_obj) = wp_usdeuro.get_from_start_dat_to_end_dat(wb_obj,start_dat,end_dat)
+                (status, errtext,np_obj) = wp_indice_usdeuro.get_from_start_dat_to_end_dat(wb_obj,start_dat,end_dat)
+
+            case wb_obj.par.INDICES_CHFEURO_NAME:
+
+                (status, errtext,np_obj) = wp_indice_chfeuro.get_from_start_dat_to_end_dat(wb_obj,start_dat,end_dat)
 
             case _:
 

@@ -291,6 +291,15 @@ def build_file_name_pandas(body,store_path):
     '''
     return os.path.join(store_path, body+".parquet")
 # end def
+def build_file_name_joblib(body,store_path):
+    '''
+
+    :param base:
+    :param base_dict:
+    :return: file_name
+    '''
+    return os.path.join(store_path, body+".joblib")
+# end def
 def read_pickle(file_name):
     '''
 

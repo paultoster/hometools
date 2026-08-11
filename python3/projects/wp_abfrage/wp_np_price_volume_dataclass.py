@@ -1,196 +1,160 @@
 import numpy as np
-import os, sys
+import os, sys, copy
+import joblib
 
 t_path, _ = os.path.split(__file__)
-tools_path = t_path + "\\.."
-if (tools_path not in sys.path):
-  sys.path.append(tools_path)
-# endif
+if (t_path == os.getcwd()):
 
-import tools.hfkt_type as hfkt_type
-import tools.hfkt_date_time as hfkt_date_time
+    import hfkt_def as hdef
+    import hfkt_file_path as hfile_path
+    import hfkt_type as hfkt_type
+    import hfkt_date_time as hfkt_date_time
+
+else:
+    p_list = os.path.normpath(t_path).split(os.sep)
+    if (len(p_list) > 1): p_list = p_list[: -1]
+    t_path = ""
+    for i, item in enumerate(p_list): t_path += item + os.sep
+    if (os.path.normpath(t_path) not in sys.path): sys.path.append(t_path)
+
+    from tools import hfkt_def as hdef
+    from tools import hfkt_file_path as hfile_path
+    from tools import hfkt_type as hfkt_type
+    from tools import hfkt_date_time as hfkt_date_time
+
+# end if
 
 from wp_abfrage import wp_fkt as wp_fkt
 
 
-class NpBaseClass:
-    def __init__(self,args,np_name_list,class_def) -> None:
+TYPE_NDARRAY = "ndarray"
+TYPE_STR = "str"
+TYPE_FLOAT = "float"
+TYPE_INT = "int"
 
-        self.class_def = class_def
-
-        if len(args) == 0:
-            for name in np_name_list:
-                self.__setattr__(name, None)
-            # end for
-        else:
-            n = len(np_name_list)
-            count = 0
-            for i,val in enumerate(args):
-
-                if i < n:
-                    self.__setattr__(np_name_list[i], val)
-                    count += 1
-                # end if
-            # end for
-            if count != n:
-                raise Exception(f"NpBaseClass init ging schief Anzahl args: {count} ist ungleich anzulegenden {n = }")
-            # end if
-        # end if
-        return
-    def to_dict(self):
-        # class_vars = vars(self.class_def)  # get any "default" attrs defined at the class level
-        inst_vars = vars(self)  # get any attrs defined on the instance (self)
-        # all_vars = dict(class_vars)
-        # all_vars.update(inst_vars)
-        # filter out private attributes
-        all_vars = {k: v for k, v in inst_vars.items() if k != "class_def"}
-        public_vars = {k: v for k, v in all_vars.items() if not k.startswith('_')}
-        return public_vars
-    # end def
-    def to_store_dict(self):
-        ddict = self.to_dict()
-        ddict_trans = {}
-        for key, value in ddict.items():
-            if key in self.np_name_list:
-                ddict_trans[key] = [ddict[key].tolist(),ddict[key].shape]
-            else:
-                ddict_trans[key] = value
-            # end if
-        # end for
-        return ddict_trans
-    # end def
-    def from_store_dict(self,ddict):
-
-        count = 0
-        for key, value in ddict.items():
-
-            if (key == "np_name_list") or (key == "class_def"):
-                pass
-            elif key in self.np_name_list:
-
-                if (key == "start_np_array") \
-                        or (key == "end_np_array") \
-                        or (key == "high_np_array") \
-                        or (key == "low_np_array") \
-                        or (key == "volume_np_array"):
-
-                    liste = ddict[key][0]
-
-                    if len(liste) != 0:
-                        if isinstance(liste[0],str):
-                            ddict[key][0] = [float(i) for i in liste]
-                        # end if
-                    # end if
-                # end if
-
-
-                np_array = np.array(ddict[key][0]).reshape(ddict[key][1])
-                self.__setattr__(key, np_array)
-                count += 1
-            else:
-                self.__setattr__(key, value)
-            # end if
-        # end for
-        if count != len(self.np_name_list):
-            raise Exception(f"NpBaseClass from_store_dict() ging schief Anzahl args: {count} ist ungleich anzulegenden n = {len(self.np_name_list)}")
-        return
-    # end def
-    def from_np_array_list(self,np_array_list):
-
-        count = 0
-        for i, np_array in enumerate(np_array_list):
-
-            if i < len(self.np_name_list):
-                self.__setattr__(self.np_name_list[i], np_array)
-                count += 1
-            # end if
-        # end for
-        if count != len(self.np_name_list):
-            raise Exception(f"NpBaseClass from_np_array_list() ging schief Anzahl args: {count} ist ungleich anzulegenden n = {len(self.np_name_list)}")
-        return
-    # end def
-    def __str__(self):
-        return f"NpBaseClass mit np_arrays: {self.np_name_list} und file_base_name = {self.file_base_name}  "
-    # end def
+class NpDataClass:
+    def __init__(self) -> None:
+        pass
 # end class
+class NpPriceVolumeClass:
+    def __init__(self,filename=None) -> None:
 
-class NpUsdEuroClass(NpBaseClass):
-    np_name_list: list[str] = ["dat_np_array","indice_np_array"]
-    # file_base_name: str = "usdeuro_values"
-    def __init__(self,*args):
-        super().__init__(args,np_name_list=self.np_name_list,class_def = NpUsdEuroClass)
+        self.status = hdef.OKAY
+        self.errtext = ""
+        self.infotext = ""
+
+        self.TYPE_NDARRAY = TYPE_NDARRAY
+        self.TYPE_STR = TYPE_STR
+        self.TYPE_FLOAT = TYPE_FLOAT
+        self.TYPE_INT = TYPE_INT
+
+        if (filename != None):
+            self.file_flag = True
+            (store_path,fbody,extension) = hfile_path.get_pfe(filename)
+            self.file_name =  os.path.join(store_path, fbody + ".joblib")
+        else:
+            self.file_flag = False
+            self.file_name = ""
+        # end if
+
+        self.signal_list = ["dat_np_array","start_np_array","high_np_array","low_np_array","end_np_array","volume_np_array","currency"]
+        self.dat_np_array = np.array([], dtype=np.int64)
+        self.start_np_array = np.array([], dtype=np.float64)
+        self.high_np_array = np.array([], dtype=np.float64)
+        self.low_np_array = np.array([], dtype=np.float64)
+        self.end_np_array = np.array([], dtype=np.float64)
+        self.volume_np_array = np.array([], dtype=np.float64)
         self.currency: str = ""
-        self.filename: str = ""
+
+        self.np_name_list = ["dat_np_array","start_np_array","high_np_array","low_np_array","end_np_array","volume_np_array"]
+
+        self.signal_obj  = NpDataClass()
+
+    def get_status(self):
+        return self.status
+    def get_errtext(self):
+        return self.errtext
+    def get_infotext(self):
+        return self.infotext
+    def reset_status(self):
+        self.status = hdef.OKAY
+        self.errtext = ""
+        self.infotext = ""
+    def set_filename(self,filename):
+        self.file_flag = True
+        (store_path, fbody, extension) = hfile_path.get_pfe(filename)
+        self.file_name = os.path.join(store_path, fbody + ".joblib")
         return
     # end def
-    def get_last_data(self):
-        if hasattr(self, 'dat_np_array'):
-            if self.dat_np_array is not None:
-                dat_act = self.dat_np_array[-1]
-                array_act = self.indice_np_array[-1]
-                return (dat_act,array_act)
-            # end if
+    def put_signal(self,dat_np_array,start_np_array,high_np_array,low_np_array,end_np_array,volume_np_array):
+
+        self.dat_np_array = dat_np_array
+        self.start_np_array = start_np_array
+        self.high_np_array = high_np_array
+        self.low_np_array = low_np_array
+        self.end_np_array = end_np_array
+        self.volume_np_array = volume_np_array
+
+        return
+    # end def
+    def get_data(self,signal_name):
+        if hasattr(self,signal_name):
+
+            return getattr(self,signal_name)
+        else:
+            return None
         # end if
-        return (None,None)
     # end def
-    def get_first_data(self):
-        if hasattr(self, 'dat_np_array'):
-            if self.dat_np_array is not None:
-                dat_0 = self.dat_np_array[0]
-                array_0 = self.indice_np_array[0]
-                return (dat_0,array_0)
-            # end if
-        # end if
-        return (None,None)
-    def add_filename(self,filename):
-        self.filename = filename
-    # end def
-    def set_currency(self,currency):
-        self.currency = currency
-    # end def
-    def sort_by_dat(self):
-        if hasattr(self, 'dat_np_array'):
-            index_arr = np.argsort(self.dat_np_array)
-            self.dat_np_array = np.array(self.dat_np_array)[index_arr]
+    def save(self):
+        if self.file_flag:
             try:
-                self.indice_np_array = np.array(self.indice_np_array)[index_arr]
-            except:
-                a = 0
+                joblib.dump(self,self.file_name)
+            except Exception as e:
+                self.errtext = f"Fehler beim Speichern der Datei: {self.file_name} \nFehler: {e}"
+                self.status = hdef.NOT_OKAY
+                return
             # end try
         # end if
-    def reduce_end_dat(self,end_dat):
-
-        if hasattr(self, 'dat_np_array'):
-
-            if len(self.dat_np_array) > 0:
-
-                self.sort_by_dat()
-
-                edayend = hfkt_date_time.secs_to_end_of_day(end_dat)
-
-                while self.dat_np_array[-1] > edayend:
-                    self.dat_np_array    = np.delete(self.dat_np_array, -1)
-                    self.indice_np_array  = np.delete(self.indice_np_array, -1)
-                    if len(self.dat_np_array) == 0:
-                        break
-                # end while
+    # end def
+    def exist_file(self):
+        if self.file_flag:
+            if os.path.isfile(self.file_name):
+                return True
             # end if
         # end if
+        return False
     # end def
+    def read(self):
+        if self.file_flag:
+            try:
+                signal_obj = joblib.load(self.file_name)
+            except FileNotFoundError:
+                self.errtext = f"Datei: {self.file_name} wurde nicht gefunden."
+                self.status = hdef.NOT_OKAY
+            except PermissionError:
+                self.errtext = f"Keine Berechtigung zum Lesen der Datei: {self.file_name}"
+                self.status = hdef.NOT_OKAY
+            except EOFError:
+                self.errtext = f"Datei: {self.file_name} ist unvollständig oder beschädigt."
+                self.status = hdef.NOT_OKAY
+            except Exception as e:
+                self.errtext = f"Anderer Fehler  Datei: {self.file_name}: {e}"
+                self.status = hdef.NOT_OKAY
+            # end try
 
-
-    # end def
-class NpPriceVolumeClass(NpBaseClass):
-    np_name_list: list[str] = ["dat_np_array","start_np_array","high_np_array","low_np_array","end_np_array","volume_np_array"]
-    # file_base_name: str = ""
-    def __init__(self,*args):
-        super().__init__(args,np_name_list=self.np_name_list,class_def = NpPriceVolumeClass)
-        self.currency: str = ""
-        self.filename: str = ""
+            if self.status == hdef.OKAY:
+                for signalname in self.signal_list:
+                    if hasattr(signal_obj, signalname):
+                        self.__setattr__(signalname, getattr(signal_obj, signalname))
+                    else:
+                        self.errtext = f"read Datei: {self.file_name}: eingelesenes signal_obj hat kein \"{signalname}\""
+                        self.status = hdef.NOT_OKAY
+                        return
+                    # end if
+            # end if
+        # end if
         return
     # end def
-    def add_filename(self,filename):
-        self.filename = filename
     def is_empty(self):
         if hasattr(self, 'dat_np_array'):
             if self.dat_np_array is None:
@@ -208,7 +172,7 @@ class NpPriceVolumeClass(NpBaseClass):
         first_dat_str = ""
         last_dat_str  = ""
         if hasattr(self, 'dat_np_array'):
-            if isinstance(self.dat_np_array, np.ndarray) and len(self.dat_np_array) > 0:
+            if isinstance(self.dat_np_array, np.ndarray) and (len(self.dat_np_array) > 0):
                 first_dat = self.dat_np_array[0]
                 last_dat = self.dat_np_array[-1]
 
@@ -219,41 +183,38 @@ class NpPriceVolumeClass(NpBaseClass):
     # end def
     def sort_by_dat(self):
 
-        if hasattr(self, 'dat_np_array'):
+        if hasattr(self, 'dat_np_array') and isinstance(self.dat_np_array, np.ndarray) and (len(self.dat_np_array) > 0):
             index_arr = np.argsort(self.dat_np_array)
             self.dat_np_array    = np.array(self.dat_np_array)[index_arr]
             try:
                 self.start_np_array  = np.array(self.start_np_array)[index_arr]
+                self.high_np_array = np.array(self.high_np_array)[index_arr]
+                self.low_np_array = np.array(self.low_np_array)[index_arr]
+                self.end_np_array = np.array(self.end_np_array)[index_arr]
+                self.volume_np_array = np.array(self.volume_np_array)[index_arr]
             except:
-                raise Exception(f"start_np_array kann nicht sortiert werden")
+                raise Exception(f"start_np_array,high_np_array,low_np_array,end_np_array oder volume_np_array kann nicht sortiert werden")
             # end try
-            self.high_np_array   = np.array(self.high_np_array)[index_arr]
-            self.low_np_array    = np.array(self.low_np_array)[index_arr]
-            self.end_np_array    = np.array(self.end_np_array)[index_arr]
-            self.volume_np_array = np.array(self.volume_np_array)[index_arr]
         # end if
     # end def
     def reduce_end_dat(self,end_dat):
 
-        if hasattr(self, 'dat_np_array'):
+        if hasattr(self, 'dat_np_array') and isinstance(self.dat_np_array, np.ndarray) and (len(self.dat_np_array) > 0):
 
-            if len(self.dat_np_array) > 0:
+            self.sort_by_dat()
 
-                self.sort_by_dat()
+            edayend = hfkt_date_time.secs_to_end_of_day(end_dat)
 
-                edayend = hfkt_date_time.secs_to_end_of_day(end_dat)
-
-                while self.dat_np_array[-1] > edayend:
-                    self.dat_np_array    = np.delete(self.dat_np_array, -1)
-                    self.start_np_array  = np.delete(self.start_np_array, -1)
-                    self.high_np_array   = np.delete(self.high_np_array, -1)
-                    self.low_np_array    = np.delete(self.low_np_array, -1)
-                    self.end_np_array    = np.delete(self.end_np_array, -1)
-                    self.volume_np_array = np.delete(self.volume_np_array, -1)
-                    if len(self.dat_np_array) == 0:
-                        break
-                # end while
-            # end if
+            while self.dat_np_array[-1] > edayend:
+                self.dat_np_array    = np.delete(self.dat_np_array, -1)
+                self.start_np_array  = np.delete(self.start_np_array, -1)
+                self.high_np_array   = np.delete(self.high_np_array, -1)
+                self.low_np_array    = np.delete(self.low_np_array, -1)
+                self.end_np_array    = np.delete(self.end_np_array, -1)
+                self.volume_np_array = np.delete(self.volume_np_array, -1)
+                if len(self.dat_np_array) == 0:
+                    break
+            # end while
         # end if
     # end def
     def delete_nan_items(self):
@@ -305,7 +266,6 @@ class NpPriceVolumeClass(NpBaseClass):
 
             n = len(self.dat_np_array)
 
-
             index_pair_list = []
             for i in range(n):
 
@@ -329,7 +289,9 @@ class NpPriceVolumeClass(NpBaseClass):
                         setattr(self,self.np_name_list[j],np_array)
                     # end if
 
-                elif (i == n-1): # letzen Wert weglöschen
+                elif (i > n - 1):
+                    pass
+                elif (i == n - 1):  # letzen Wert weglöschen
 
                     self.dat_np_array = np.delete(self.dat_np_array, i)
                     self.start_np_array = np.delete(self.start_np_array, i)
@@ -337,6 +299,7 @@ class NpPriceVolumeClass(NpBaseClass):
                     self.low_np_array = np.delete(self.low_np_array, i)
                     self.end_np_array = np.delete(self.end_np_array, i)
                     self.volume_np_array = np.delete(self.volume_np_array, i)
+                    n -= 1
                     if len(self.dat_np_array) == 0:
                         break
                     # end if
@@ -366,7 +329,7 @@ class NpPriceVolumeClass(NpBaseClass):
             n = len(self.dat_np_array)
 
             value_pair_list = []
-            name_list = self.np_name_list[1:5]
+            name_list = ["start_np_array","high_np_array","low_np_array","end_np_array"]
             for j, name in enumerate(name_list):
                 np_array = getattr(self, name_list[j])
                 mean = np.mean(np_array)
@@ -394,16 +357,6 @@ class NpPriceVolumeClass(NpBaseClass):
                     np_array[i] = np_array[i + 1]
                     setattr(self, name_list[j], np_array)
 
-
-                    # if j == 0: # date
-                    #     self.dat_np_array[i] = wp_fkt.naechster_handelstag_dat_list(self.dat_np_array[i + 1],
-                    #                                                                 vorwaerts=False)
-                    # else:
-                    #
-                    #     np_array = getattr(self, name_list[j])
-                    #     np_array[i] = np_array[i+1]
-                    #     setattr(self,name_list[j],np_array)
-                    # # end if
                 elif i > n-1:
                     pass  # wurde schon am Ende gelöscht
                 elif (i == n-1): # letzen Wert weglöschen
@@ -423,7 +376,7 @@ class NpPriceVolumeClass(NpBaseClass):
                     # end if
                 else: # ansonsten interpolieren
 
-                    fac = self.get_neighbour_factor(i, name_list[j], n, index_pair_list)
+                    fac = self.get_neighbour_factor(i, j, name_list, n, index_pair_list)
 
                     np_array = getattr(self, name_list[j])
 
@@ -432,32 +385,24 @@ class NpPriceVolumeClass(NpBaseClass):
                     np_array[i] = (np_array[i - 1] + np_array[i + 1]) / 2. * fac
                     setattr(self, name_list[j], np_array)
 
-                    # if j == 0: # date
-                    #     self.dat_np_array[i] = wp_fkt.naechster_handelstag_dat_list(self.dat_np_array[i - 1],
-                    #                                                                 vorwaerts=True)
-                    # else:
-                    #     fac = self.get_neighbour_factor(i, j, n, index_pair_list)
-                    #
-                    #     np_array = getattr(self, name_list[j])
-                    #     np_array[i] = (np_array[i - 1] + np_array[i + 1]) / 2. * fac
-                    #     setattr(self, name_list[j], np_array)
-                    # # end if
                 # end if
             # end for
         # end if
         return flag
     # end def
-    def get_neighbour_factor(self,i,name,n,index_pair_list):
+    def get_neighbour_factor(self,i,j,name_list,n,index_pair_list):
         """
             fac = self.get_neighbour_factor(i, j, n,index_pair_list)
         """
 
-        if (i == 0) or (i == n-1) or (name == self.np_name_list[5]) or (name == self.np_name_list[0]): # Wenn erste Zeile oder letzte Zeile in Datensatz oder wenn Volumen (hat keine Nachbar)
+        name = name_list[j]
+
+        if (i == 0) or (i == n-1): # Wenn erste Zeile oder letzte Zeile in Datensatz
             fac = 1.0
         else:
 
             # neighbour
-            neighbour_list = [na for na in [self.np_name_list[1],self.np_name_list[2],self.np_name_list[3],self.np_name_list[4]] if na != name]
+            neighbour_list = [na for na in name_list if na != name]
 
             neighb= None
             for neighbour in neighbour_list:
@@ -481,7 +426,9 @@ class NpPriceVolumeClass(NpBaseClass):
     # end def
     def set_currency(self,currency):
 
-        if currency.find("€") >= 0:
+        if len(currency) == 0:
+            self.currency = "euro"
+        elif currency.find("€") >= 0:
             self.currency = "euro"
         elif currency.lower().find("euro") >= 0:
             self.currency = "euro"
@@ -493,7 +440,7 @@ class NpPriceVolumeClass(NpBaseClass):
             self.currency = "chf"
         elif currency.find("%") >= 0:
             self.currency = "percent"
-        elif x.lower().find("percent") >= 0:
+        elif currency.lower().find("percent") >= 0:
             self.currency = "percent"
         else:
             raise Exception(f"currency nicht gefundent werden")
@@ -532,18 +479,3 @@ class NpPriceVolumeClass(NpBaseClass):
 
 
     # end def
-###############################################################################
-if __name__ == '__main__':
-
-    np_dat_array = np.array([0,1,2,3,4,5,6])
-    np_ue_array = np.array([1.2,1.3,1.25,1.5,1.4,1.3,1.6])
-    obj = NpUsdEuroClass(np_dat_array,np_ue_array)
-
-    ddict_trans = obj.to_store_dict()
-    print(ddict_trans)
-
-    obj1 = NpUsdEuroClass()
-    obj1.from_store_dict(ddict_trans)
-
-    print(obj1.dat_np_array)
-    print(obj1.indice_np_array)
