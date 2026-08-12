@@ -67,14 +67,13 @@ def is_info_available(isin,eodhd_key):
 
     return (flag_avail,symbol,exchange,currency,infotext)
 # end def
-def get_price_volume_data(symbol,exchange,currency,eodhd_key,np_classdef):
+def get_price_volume_data(symbol,exchange,currency,eodhd_key,np_obj):
     """
     (status, errtext, np_obj) = get_price_volume_data(symbol,exchange,currency,eodhd_key,np_classdef)
     """
     status = hdef.OKAY
     errtext = ""
     infotext = ""
-    np_obj = np_classdef()
 
     url = f'https://eodhd.com/api/eod/{symbol}.{exchange}?api_token={eodhd_key}&fmt=json'
     data = requests.get(url)
@@ -99,14 +98,14 @@ def get_price_volume_data(symbol,exchange,currency,eodhd_key,np_classdef):
         close_np_array = close_np_array.reshape(np.prod(close_np_array.shape))
         volume_np_array = volume_np_array.reshape(np.prod(volume_np_array.shape))
 
-        np_obj.from_np_array_list([dat_np_array,
+        np_obj.put_signal(dat_np_array,
                                    open_np_array,
                                    high_np_array,
                                    low_np_array,
                                    close_np_array,
-                                   volume_np_array])
+                                   volume_np_array)
 
-        np_obj.currency = currency
+        np_obj.set_currency(currency)
 
         np_obj.sort_by_dat()
     else:

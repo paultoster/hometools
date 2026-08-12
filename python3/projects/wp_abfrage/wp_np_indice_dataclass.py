@@ -52,6 +52,9 @@ class NpIndiceClass:
         self.dat_np_array = np.array([], dtype=np.int64)
         self.indice_np_array = np.array([], dtype=np.float64)
 
+
+        self.unit = ""
+
         self.np_name_list = ["dat_np_array","indice_np_array"]
 
         self.signal_obj = NpDataClass()
@@ -77,6 +80,9 @@ class NpIndiceClass:
         return
 
     # end def
+    def get_filename(self):
+        return self.file_name
+    # end if
     def put_signal(self, dat_np_array, indice_np_array):
 
         self.dat_np_array = dat_np_array
@@ -158,6 +164,25 @@ class NpIndiceClass:
         return False
 
     # end def
+    def get_last_data(self):
+        if hasattr(self, 'dat_np_array'):
+            if isinstance(self.dat_np_array, np.ndarray) and (len(self.dat_np_array) > 0):
+                dat_act = self.dat_np_array[-1]
+                array_act = self.indice_np_array[-1]
+                return (dat_act,array_act)
+            # end if
+        # end if
+        return (None,None)
+    # end def
+    def get_first_data(self):
+        if hasattr(self, 'dat_np_array'):
+            if isinstance(self.dat_np_array, np.ndarray) and (len(self.dat_np_array) > 0):
+                dat_0 = self.dat_np_array[0]
+                array_0 = self.indice_np_array[0]
+                return (dat_0,array_0)
+            # end if
+        # end if
+        return (None,None)
     def get_first_last_dat(self, formatstr):
         """
             (first_dat_str, last_dat_str) = self.get_first_last_dat(formatstr)
@@ -205,3 +230,38 @@ class NpIndiceClass:
             # end while
         # end if
     # end def
+    def set_unit(self,unit):
+
+        if len(unit) == 0:
+            self.unit = "-"
+        elif unit.find("%") >= 0:
+            self.unit = "percent"
+        elif unit.lower().find("percent") >= 0:
+            self.unit = "percent"
+        elif unit.lower().find("prozent") >= 0:
+            self.unit = "percent"
+        else:
+            raise Exception(f"unit nicht gefundent werden")
+        # end if
+        return
+    # end def
+    def get_unit(self):
+        return self.unit
+    # end def
+    def is_unit(self, unit):
+        if (unit.find("%") >= 0) or (unit.lower().find("percent") >= 0) or (unit.lower().find("prozent") >= 0):
+            if self.unit == "percent":
+                return True
+            else:
+                return False
+            # end if
+        elif (unit.find("-") >= 0):
+            if self.unit == "-":
+                return True
+            else:
+                return False
+            # end if
+        else:
+            raise Exception(f"unit konnte nicht gefundent werden")
+        # end if
+        return

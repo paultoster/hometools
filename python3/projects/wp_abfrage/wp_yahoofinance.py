@@ -95,14 +95,13 @@ def is_Ticker_info_available(ticker):
         return False
     # end if
 # end def
-def get_price_volume_data(ticker,np_classdef,start_dat,end_dat):
+def get_price_volume_data(ticker,np_obj,start_dat,end_dat):
     """
-    (status, errtext, np_obj) = get_price_volume_data(ticker,np_classdef,start_dat,end_dat)
+    (status, errtext, np_obj) = get_price_volume_data(ticker,np_obj,start_dat,end_dat)
     """
     status = hdef.OKAY
     errtext = ""
     infotext = ""
-    np_obj = np_classdef()
 
     # sub einen Tag
     start_dat_minus = start_dat - 24*60*60
@@ -191,120 +190,26 @@ def get_price_volume_data(ticker,np_classdef,start_dat,end_dat):
     close_np_array   = close_np_array.reshape(np.prod(close_np_array.shape))
     volume_np_array   = volume_np_array.reshape(np.prod(volume_np_array.shape))
 
-    np_obj.from_np_array_list([dat_np_array,
+    np_obj.put_signal(dat_np_array,
                                open_np_array,
                                high_np_array,
                                low_np_array,
                                close_np_array,
-                               volume_np_array])
+                               volume_np_array)
 
     # currency
     if "currency" in info.history_metadata.keys():
         currency = info.history_metadata["currency"]
-
-        if currency.find("EUR") == 0:
-            np_obj.currency = "euro"
-        elif currency.find("USD") == 0:
-            np_obj.currency = "usd"
-        # end if
+        np_obj.set_currency(currency)
     # end def
 
     np_obj.sort_by_dat()
 
     return (status, errtext,infotext, np_obj)
 # end def
-# def get_price_volume_data(ticker, waehrung, start_dat_time_list, end_dat_time_list):
-#     """
-#
-#
-#     :param ticker:
-#     :param waehrung:
-#     :param start_dat_time_list:
-#     :param end_dat_time_list:
-#     :return: (status,errtext,df_data) = get_price_volume_data(ticker,waehrung,start_dat_time_list,end_dat_time_list)
-#     """
-#
-#     status = hdef.OKAY
-#     errtext = ""
-#
-#     # Start time
-#     (status, start_dat) = htype.type_transform(start_dat_time_list, "datTimeList", "datetimeclass")
-#     if status != hdef.OKAY:
-#         raise Exception(f"type transform missglückt von {start_dat_time_list = } von \"datTimeList\" zu \"dat\" ")
-#     # end if
-#     # End time
-#     (status, end_dat) = htype.type_transform(end_dat_time_list, "datTimeList", "datetimeclass")
-#     if status != hdef.OKAY:
-#         raise Exception(f"type transform missglückt von {end_dat_time_list = } von \"datTimeList\" zu \"dat\" ")
-#     # end if
-#
-#     df_data = yf.download(ticker, start_dat.strftime('%Y-%m-%d'), end_dat.strftime('%Y-%m-%d'))
-#
-#     if df_data.empty:
-#         status = hdef.NOT_OKAY
-#         errtext = f"for Ticker-Symbol \"{ticker}\" no data from yahoofinance"
-#         return (status, errtext, df_data)
-#     # end if
-#
-#     date_str_list = df_data.index.strftime("%d.%m.%Y").tolist()
-#
-#     dat_np_array = np.array(htype.type_transform_direct(date_str_list, "datStrP", "dat"), copy=True)
-#     close_np_array = df_data["Close"].to_numpy()
-#     high_np_array = df_data["High"].to_numpy()
-#     low_np_array = df_data["Low"].to_numpy()
-#     open_np_array = df_data["Open"].to_numpy()
-#     volume_np_array = df_data["Volume"].to_numpy()
-#
-#     # currency
-#     if waehrung == "euro" or waehrung == "€":
-#
-#         t = 'EURUSD=X'
-#         df_data_eurodol = yf.download(t, start_dat.strftime('%Y-%m-%d'), end_dat.strftime('%Y-%m-%d'))
-#
-#         if df_data_eurodol.empty:
-#             status = hdef.NOT_OKAY
-#             errtext = f"For Euro-Calc Ticker-Symbol \"{t}\" no data from yahoofinance"
-#             return (status, errtext, df_data)
-#         # end if
-#
-#         date_str_list = df_data_eurodol.index.strftime("%d.%m.%Y").tolist()
-#         euro_dat_np_array = np.array(htype.type_transform_direct(date_str_list, "datStrP", "dat"), copy=True)
-#         euro_close_np_array = df_data_eurodol["Close"].to_numpy()
-#
-#         half_day_seconds = 12 * 60 * 60
-#         index_dat_of_euro_dict = wp_fkt.build_overlap_dict_of_index(dat_np_array.tolist(),euro_close_np_array.tolist(), half_day_seconds)
-#
-#         dat_end_array = np.empty([len(index_dat_of_euro_dict), 1], dtype=dat_np_array.dtype)
-#         close_end_array = np.empty([len(index_dat_of_euro_dict), 1], dtype=float)
-#         high_end_array = np.empty([len(index_dat_of_euro_dict), 1], dtype=float)
-#         low_end_array = np.empty([len(index_dat_of_euro_dict), 1], dtype=float)
-#         open_end_array = np.empty([len(index_dat_of_euro_dict), 1], dtype=float)
-#         volume_end_array = np.empty([len(index_dat_of_euro_dict), 1], dtype=volume_np_array.dtype)
-#
-#         index = 0
-#         for key, value in index_dat_of_euro_dict.items():
-#             dat_end_array[index] = dat_np_array[key]
-#             close_end_array[index] = close_np_array[key] * euro_close_np_array[value]
-#             high_end_array[index] = close_np_array[key] * euro_close_np_array[value]
-#             low_end_array[index] = close_np_array[key] * euro_close_np_array[value]
-#             open_end_array[index] = close_np_array[key] * euro_close_np_array[value]
-#             volume_end_array[index] = volume_np_array[key]
-#             index += 1
-#         # end for
-#     else:
-#         dat_end_array = dat_np_array.view()
-#         close_end_array = close_np_array.view()
-#         high_end_array = high_np_array.view()
-#         low_end_array = low_np_array.view()
-#         open_end_array = open_np_array.view()
-#         volume_end_array = volume_np_array.view()
-#     # end if
-#
-#     return (status, errtext, df_data)
-# # end def
-def get_usdeuro_data(np_classdef,start_dat, end_dat):
+def get_indice_data(wb_obj,np_obj,start_dat, end_dat, indice):
     """
-    (status, errtext, np_obj) = wp_yfinance.get_usdeuro_data(np_classdef,lastdat,end_dat)
+    (status, errtext, np_obj) = wp_yfinance.get_usdeuro_data(np_obj,lastdat,end_dat)
     """
     status = hdef.OKAY
     errtext = ""
@@ -317,7 +222,16 @@ def get_usdeuro_data(np_classdef,start_dat, end_dat):
 
     end_dat_time_class   = htype.type_transform_direct(end_dat_add,"dat","datetimeclass")
 
-    t = 'EURUSD=X'
+    if indice == wb_obj.par.INDICES_USDEURO_NAME:
+        t = 'USDEUR=X'
+    elif indice == wb_obj.par.INDICES_CHFEURO_NAME:
+            t = 'CHFEUR=X'
+    elif indice == wb_obj.par.INDICES_GBPEURO_NAME:
+            t = 'GBPEUR=X'
+    else:
+        raise Exception(f"invalid indice: {indice}")
+    # end if
+
     df_data_eurodol = yf.download(t, start_dat_time_class.strftime('%Y-%m-%d'), end_dat_time_class.strftime('%Y-%m-%d'))
 
     if df_data_eurodol.empty:
@@ -333,42 +247,7 @@ def get_usdeuro_data(np_classdef,start_dat, end_dat):
     euro_dat_np_array   = euro_dat_np_array.reshape(np.prod(euro_dat_np_array.shape))
     euro_close_np_array = euro_close_np_array.reshape(np.prod(euro_close_np_array.shape))
 
-    np_obj = np_classdef(euro_dat_np_array,euro_close_np_array)
-
-    return (status, errtext, np_obj)
-# end def
-def get_chfeuro_data(np_classdef,start_dat, end_dat):
-    """
-    (status, errtext, np_obj) = wp_yfinance.get_usdeuro_data(np_classdef,lastdat,end_dat)
-    """
-    status = hdef.OKAY
-    errtext = ""
-
-    # Start time
-    start_dat_time_class = htype.type_transform_direct(start_dat,"dat","datetimeclass")
-    # End time
-    # add one day because yfinace need
-    end_dat_add = end_dat + 24 * 60 * 60
-
-    end_dat_time_class   = htype.type_transform_direct(end_dat_add,"dat","datetimeclass")
-
-    t = 'EURCHF=X'
-    df_data_eurodol = yf.download(t, start_dat_time_class.strftime('%Y-%m-%d'), end_dat_time_class.strftime('%Y-%m-%d'))
-
-    if df_data_eurodol.empty:
-        status = hdef.NOT_OKAY
-        errtext = f"For Euro-Calc Ticker-Symbol \"{t}\" no data from yahoofinance"
-        return (status, errtext, None)
-    # end if
-
-    date_str_list = df_data_eurodol.index.strftime("%d.%m.%Y").tolist()
-    euro_dat_np_array = np.array(htype.type_transform_direct(date_str_list, "datStrP", "dat"), copy=True)
-    euro_close_np_array = df_data_eurodol["Close"].to_numpy()
-
-    euro_dat_np_array   = euro_dat_np_array.reshape(np.prod(euro_dat_np_array.shape))
-    euro_close_np_array = euro_close_np_array.reshape(np.prod(euro_close_np_array.shape))
-
-    np_obj = np_classdef(euro_dat_np_array,euro_close_np_array)
+    np_obj.put_signal(euro_dat_np_array,euro_close_np_array)
 
     return (status, errtext, np_obj)
 # end def

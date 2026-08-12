@@ -98,8 +98,12 @@ class WPParam:
     INDICES_EZB_LEITZINS_NAME = "ezbleitzins"
     INDICES_USDEURO_NAME = "usdeuro"
     INDICES_CHFEURO_NAME = "chfeuro"
+    INDICES_GBPEURO_NAME = "gbpeuro"
 
-
+    INDICES_NAME_LISTE = [INDICES_USDEURO_NAME,
+                          INDICES_CHFEURO_NAME,
+                          INDICES_GBPEURO_NAME,
+                          INDICES_EZB_LEITZINS_NAME]
 # end class
 class WPData:
     '''
@@ -448,13 +452,13 @@ class WPData:
 
         return (self.status, self.errtext, np_obj_dict)
     # end def
-    def get_dict_indice_from_start_dat_to_end_dat(self,indice,start_dat:int,end_dat:int):
+    def get_dict_indice_from_start_dat_to_end_dat(self,start_dat:int,end_dat:int,indice):
         """
         :param start_dat:
         :param end_dat:
         :return: (status,errtext,np_obj_dict) = get_usdeuro_from_start_dat_to_end_dat(self,start_dat:int,end_dat:int)
         """
-        (self.status, self.errtext,np_obj_dict) = wp_base_indices.get_dict_from_start_dat_to_end_dat(self,indice,start_dat,end_dat)
+        (self.status, self.errtext,np_obj_dict) = wp_base_indices.get_dict_from_start_dat_to_end_dat(self,start_dat,end_dat,indice)
 
         return (self.status, self.errtext,np_obj_dict)
     # end def

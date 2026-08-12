@@ -32,14 +32,14 @@ def requests_exists(url: str) -> bool:
         return True
     # end if
 # end def
-def get_price_volume_data(url,np_classdef):
+def get_price_volume_data(url,np_obj):
     """
-    (status, errtext, np_obj) = get_price_volume_data(url,np_classdef,start_dat,end_dat)
+    (status, errtext, np_obj) = get_price_volume_data(url,np_obj,start_dat,end_dat)
     """
     status = hdef.OKAY
     errtext = ""
     infotext = ""
-    np_obj = np_classdef()
+
 
     # Alle Tabellen auf der Seite als Liste von DataFrames einlesen
     tabellen = pd.read_html(url)
@@ -110,12 +110,12 @@ def get_price_volume_data(url,np_classdef):
     close_np_array   = close_np_array.reshape(np.prod(close_np_array.shape))
     volume_np_array   = volume_np_array.reshape(np.prod(volume_np_array.shape))
 
-    np_obj.from_np_array_list([dat_np_array,
+    np_obj.put_signal(dat_np_array,
                                open_np_array,
                                high_np_array,
                                low_np_array,
                                close_np_array,
-                               volume_np_array])
+                               volume_np_array)
 
     # currency
     currency = wp_fkt.find_currency(df[index_open][1:].to_list())

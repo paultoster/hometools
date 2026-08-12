@@ -1,6 +1,7 @@
 import numpy as np
 import os, sys, copy
 import joblib
+import pandas as pd
 
 t_path, _ = os.path.split(__file__)
 if (t_path == os.getcwd()):
@@ -86,6 +87,9 @@ class NpPriceVolumeClass:
         self.file_name = os.path.join(store_path, fbody + ".joblib")
         return
     # end def
+    def get_filename(self):
+        return self.file_name
+    # end if
     def put_signal(self,dat_np_array,start_np_array,high_np_array,low_np_array,end_np_array,volume_np_array):
 
         self.dat_np_array = dat_np_array
@@ -106,6 +110,7 @@ class NpPriceVolumeClass:
         # end if
     # end def
     def save(self):
+        self.print_mean_max_min()
         if self.file_flag:
             try:
                 joblib.dump(self,self.file_name)
@@ -114,7 +119,33 @@ class NpPriceVolumeClass:
                 self.status = hdef.NOT_OKAY
                 return
             # end try
+
+            self.save_csv()
         # end if
+    # end def
+    def save_csv(self):
+        if self.file_flag:
+            csv_filename = hfile_path.reset_ext(self.file_name,"csv")
+
+            df = pd.DataFrame({
+                'Date': pd.to_datetime(getattr(self, "dat_np_array"), unit='s'),
+                'Open': getattr(self, "start_np_array"),
+                'High': getattr(self, "high_np_array"),
+                'Low': getattr(self, "low_np_array"),
+                'Close': getattr(self, "end_np_array"),
+                'Volume': getattr(self, "volume_np_array")
+            })
+
+            # df.set_index('Date', inplace=True)
+            df.to_csv(csv_filename, sep=";", index=False)
+            (_, fbody, _) = hfile_path.get_pfe(csv_filename)
+            if len(self.infotext):
+                self.infotext = self.infotext + "\n"+ f"save_csv: {fbody+".csv"}"
+            else:
+                self.infotext = f"save_csv: {fbody+".csv"}"
+
+        # end if
+        return
     # end def
     def exist_file(self):
         if self.file_flag:
@@ -153,6 +184,7 @@ class NpPriceVolumeClass:
                     # end if
             # end if
         # end if
+        self.print_mean_max_min()
         return
     # end def
     def is_empty(self):
@@ -353,7 +385,9 @@ class NpPriceVolumeClass:
                 if (i == 0) and (n>1): # Wert von i=1 nehmen
 
                     np_array = getattr(self, name_list[j])
-                    print(f"interpolate_Ausreisser: np_ob.{name_list[j]}[0] = {np_array[0]} => {np_array[1]} gesetzt")
+                    t = f"interpolate_Ausreisser: np_ob.{name_list[j]}[0] = {np_array[0]} => {np_array[1]} gesetzt"
+                    print(t)
+                    self.infotext += "\n" + t
                     np_array[i] = np_array[i + 1]
                     setattr(self, name_list[j], np_array)
 
@@ -362,7 +396,9 @@ class NpPriceVolumeClass:
                 elif (i == n-1): # letzen Wert weglöschen
 
                     np_array = getattr(self, name_list[j])
-                    print(f"interpolate_Ausreisser: np_ob.{name_list[j]}[{i}] = {np_array[i]} am Ende löschen")
+                    t = f"interpolate_Ausreisser: np_ob.{name_list[j]}[{i}] = {np_array[i]} am Ende löschen"
+                    print(t)
+                    self.infotext += "\n" + t
 
                     self.dat_np_array = np.delete(self.dat_np_array, i)
                     self.start_np_array = np.delete(self.start_np_array, i)
@@ -380,7 +416,9 @@ class NpPriceVolumeClass:
 
                     np_array = getattr(self, name_list[j])
 
-                    print(f"interpolate_Ausreisser: np_ob.{name_list[j]}[{i}] = {np_array[i]} => {(np_array[i - 1] + np_array[i + 1]) / 2. * fac}")
+                    t = f"interpolate_Ausreisser: np_ob.{name_list[j]}[{i}] = {np_array[i]} => {(np_array[i - 1] + np_array[i + 1]) / 2. * fac}"
+                    print(t)
+                    self.infotext += "\n" + t
 
                     np_array[i] = (np_array[i - 1] + np_array[i + 1]) / 2. * fac
                     setattr(self, name_list[j], np_array)
@@ -424,20 +462,63 @@ class NpPriceVolumeClass:
         # end if
         return fac
     # end def
+    def print_mean_max_min(self):
+
+        if hasattr(self, 'dat_np_array') and (len(self.dat_np_array) > 0):
+
+            n = len(self.dat_np_array)
+
+            value_llist = []
+            name_list = ["start_np_array","high_np_array","low_np_array","end_np_array"]
+            for j, name in enumerate(name_list):
+                np_array = getattr(self, name_list[j])
+                mean = np.mean(np_array)
+                std = np.std(np_array)
+                maxval = np.max(np_array)
+                minval = np.min(np_array)
+                value_llist.append((mean,std, maxval, minval))
+            # end for
+            isearch = -1
+            maxval_search = -1000.
+            for i,liste in enumerate(value_llist):
+
+                if abs(liste[2]) > maxval_search:
+                    maxval_search = abs(liste[2])
+                    isearch = i
+                # end if
+                if abs(liste[3]) > maxval_search:
+                    maxval_search = abs(liste[3])
+                    isearch = i
+                # end if
+            # end if
+
+            (_, fbody, _) = hfile_path.get_pfe(self.file_name)
+            if len(self.infotext):
+                self.infotext = self.infotext + "\n"+ f"print_mean_max_min: {fbody}: {name_list[isearch]}, mean: {value_llist[isearch][0]}, std: {value_llist[isearch][1]}, max: {value_llist[isearch][2]}, std: {value_llist[isearch][3]}"
+            else:
+                self.infotext = f"print_mean_max_min: {fbody}: {name_list[isearch]}, mean: {value_llist[isearch][0]}, std: {value_llist[isearch][1]}, max: {value_llist[isearch][2]}, std: {value_llist[isearch][3]}"
+            # end if
+        # end if
+        return
+    # end def
     def set_currency(self,currency):
 
         if len(currency) == 0:
             self.currency = "euro"
         elif currency.find("€") >= 0:
             self.currency = "euro"
-        elif currency.lower().find("euro") >= 0:
+        elif currency.lower().find("eur") >= 0:
             self.currency = "euro"
         elif currency.find("$") >= 0:
-            self.currency = "dollar"
+            self.currency = "usd"
         elif currency.lower().find("dollar") >= 0:
-            self.currency = "dollar"
+            self.currency = "usd"
+        elif currency.lower().find("usd") >= 0:
+            self.currency = "usd"
         elif currency.lower().find("chf") >= 0:
             self.currency = "chf"
+        elif currency.lower().find("gbp") >= 0:
+            self.currency = "gbp"
         elif currency.find("%") >= 0:
             self.currency = "percent"
         elif currency.lower().find("percent") >= 0:
@@ -447,6 +528,9 @@ class NpPriceVolumeClass:
         # end if
         return
     # end def
+    def get_currency(self):
+        return self.currency
+    # end def
     def is_currency(self, currency):
         if (currency.find("€") >= 0) or (currency.lower().find("euro") >= 0):
             if self.currency == "euro":
@@ -455,13 +539,19 @@ class NpPriceVolumeClass:
                 return False
             # end if
         elif (currency.find("$") >= 0) or (currency.lower().find("dollar") >= 0) or (currency.lower().find("usd") >= 0):
-            if self.currency == "dollar":
+            if self.currency == "usd":
                 return True
             else:
                 return False
             # end if
         elif (currency.lower().find("chf") >= 0):
             if self.currency == "chf":
+                return True
+            else:
+                return False
+            # end if
+        elif (currency.lower().find("gbp") >= 0):
+            if self.currency == "gbp":
                 return True
             else:
                 return False

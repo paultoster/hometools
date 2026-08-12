@@ -689,6 +689,7 @@ def edit_price_volume(wb_obj):
                 t = f"Error wp_bearbeiten.edit_price_volume(wb_obj) \n errtext = {errtext}"
                 sgui.anzeige_text(t, textcolor='red')
                 wb_obj.log.write_err(t)
+                status = hdef.OKAY
                 runflag = False
             # end if
         elif indexAbfrage == i_abfrage_build_ariva_csv:

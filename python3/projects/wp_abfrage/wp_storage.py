@@ -18,7 +18,7 @@ import tools.hfkt_def as hdef
 import tools.hfkt_file_path as hfp
 
 from wp_abfrage import wp_fkt
-from wp_abfrage import wp_np_dataclass as wp_np_dc
+from wp_abfrage import wp_np_price_volume_dataclass as wp_np_dc
 
 FORMAT_PICKLE = 1
 FORMAT_JSON   = 2

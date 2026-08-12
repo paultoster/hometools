@@ -17,7 +17,7 @@ import tools.hfkt_io as hio
 import tools.hfkt_list as hlist
 import tools.hfkt_type as htype
 
-import wp_abfrage.wp_np_dataclass as wp_np_dc
+import wp_abfrage.wp_np_price_volume_dataclass as wp_np_dc
 
 def get_ariva_url_playwright(isin,log=None):
     status  =  hdef.NOT_FOUND
@@ -271,15 +271,15 @@ def get_onvista_url_playwright(isin,log=None):
 
 
 # end def
-def get_ariva_price_volume_data(wp_dict_liste,np_classdef,ariva_user,ariva_pw,timeout_s,log=None):
+def get_ariva_price_volume_data(wp_dict_liste,ariva_user,ariva_pw,timeout_s,log=None):
     """
     :param wp_dict_liste: see definition in wp_base_price_volume.get_new_price_vol_from_ariva()
-    :param np_classdef:
+    :param np_obj:
     :param ariva_user:
     :param ariva_pw:
     :param timeout_s:
     :return: (status,errtext,logtext,wp_dict_liste) =
-                     get_price_volume_data(wp_dict_liste,np_classdef,ariva_user,ariva_pw,timeout_s)
+                     get_price_volume_data(wp_dict_liste,np_obj,ariva_user,ariva_pw,timeout_s)
     """
     status = hdef.NOT_FOUND
     errtext = ""
@@ -295,7 +295,7 @@ def get_ariva_price_volume_data(wp_dict_liste,np_classdef,ariva_user,ariva_pw,ti
         try:
 
             (status, errtext, wp_dict_liste) = asyncio.run(
-                playwright_ariva(wp_dict_liste,np_classdef,ariva_user,ariva_pw,timeout_s,log))
+                playwright_ariva(wp_dict_liste,ariva_user,ariva_pw,timeout_s,log))
 
             # with sync_playwright() as playwright:
             #
@@ -392,13 +392,13 @@ def get_ariva_price_volume_data(wp_dict_liste,np_classdef,ariva_user,ariva_pw,ti
 
     return (status,errtext,wp_dict_liste)
 # end def
-async def playwright_ariva(wp_dict_liste,np_classdef,ariva_user,ariva_pw,timeout_s,log):
+async def playwright_ariva(wp_dict_liste,ariva_user,ariva_pw,timeout_s,log):
     async with async_playwright() as playwright:
-        (status,errtext,wp_dict_liste) = await run_playright_ariva(playwright,wp_dict_liste,np_classdef,ariva_user,ariva_pw,timeout_s,log)
+        (status,errtext,wp_dict_liste) = await run_playright_ariva(playwright,wp_dict_liste,ariva_user,ariva_pw,timeout_s,log)
 
     return (status,errtext,wp_dict_liste)
 # end def
-async def run_playright_ariva(playwright,wp_dict_liste,np_classdef,ariva_user,ariva_pw,timeout_s,log):
+async def run_playright_ariva(playwright,wp_dict_liste,ariva_user,ariva_pw,timeout_s,log):
 
     akzept_flag = False  # Ist ein Flag zur Identifizierung, ob die Abnickseite schon abgenickt ist
 
@@ -441,7 +441,7 @@ async def run_playright_ariva(playwright,wp_dict_liste,np_classdef,ariva_user,ar
                 if csv_filename is None:
                     log_message(log,f"isin = {wp_dict["isin"]}: csv_filename konnte nicht von {url_ariva = } generiert werden")
                 elif os.path.exists(csv_filename):
-                    (status, errtext, wp_dict) = read_ariva_csv_file(csv_filename, wp_dict, np_classdef, log)
+                    (status, errtext, wp_dict) = read_ariva_csv_file(csv_filename, wp_dict, log)
 
                     if status == hdef.OKAY:
                         os.remove(csv_filename)
@@ -614,7 +614,7 @@ async def get_ariva_price_volume_isin(page,context,browser, isin,url_ariva,datSt
     # end if
     return (status,errtext,csv_filename,akzept_flag)
 # end def
-def read_ariva_csv_file(csv_filename,wp_dict,np_classdef,log=None):
+def read_ariva_csv_file(csv_filename,wp_dict,log=None):
     """
     :param csv_filename:
     :param wp_dict:
@@ -624,7 +624,7 @@ def read_ariva_csv_file(csv_filename,wp_dict,np_classdef,log=None):
 
     status = hdef.OKAY
     errtext = ""
-    np_obj = np_classdef()
+
 
     t = f"ariva-playwright: read {csv_filename = }"
     if log is not None:
@@ -669,13 +669,14 @@ def read_ariva_csv_file(csv_filename,wp_dict,np_classdef,log=None):
     end_np_array = np.array(end_list, copy=True)
     vol_np_array = np.array(vol_list, copy=True)
 
-    np_obj.from_np_array_list([dat_np_array,
+    np_obj = wp_dict["np_obj_new"]
+    np_obj.put_signal(dat_np_array,
                                start_np_array,
                                high_np_array,
                                low_np_array,
                                end_np_array,
-                               vol_np_array])
-    np_obj.currency = wp_dict["waehrung"]
+                               vol_np_array)
+    np_obj.set_currency(wp_dict["waehrung"])
 
     np_obj.sort_by_dat()
 
@@ -683,15 +684,15 @@ def read_ariva_csv_file(csv_filename,wp_dict,np_classdef,log=None):
 
     return (status,errtext,ariva_data_dict)
 # end def
-def get_onvista_price_volume_data(wp_dict_liste,np_classdef,onvista_user,onvista_pw,timeout_s,log=None):
+def get_onvista_price_volume_data(wp_dict_liste,onvista_user,onvista_pw,timeout_s,log=None):
     """
     :param wp_dict_liste: see definition in wp_base_price_volume.get_new_price_vol_from_onvista()
-    :param np_classdef:
+    :param np_obj:
     :param onvista_user:
     :param onvista_pw:
     :param timeout_s:
     :return: (status,errtext,wp_dict_liste) =
-                     get_onvista_price_volume_data(wp_dict_liste,np_classdef,onvista_user,onvista_pw,timeout_s)
+                     get_onvista_price_volume_data(wp_dict_liste,onvista_user,onvista_pw,timeout_s)
     """
     status = hdef.NOT_FOUND
     errtext = ""
@@ -705,7 +706,7 @@ def get_onvista_price_volume_data(wp_dict_liste,np_classdef,onvista_user,onvista
         log_message(log,"onvista-playwright: Step: {i+1}. Versuch onvista zu öffnen")
         try:
 
-            (status, errtext, wp_dict_liste) = asyncio.run(playwright_onvista(wp_dict_liste,np_classdef,onvista_user,onvista_pw,timeout_s,log))
+            (status, errtext, wp_dict_liste) = asyncio.run(playwright_onvista(wp_dict_liste,onvista_user,onvista_pw,timeout_s,log))
 
 
         except:
@@ -717,13 +718,13 @@ def get_onvista_price_volume_data(wp_dict_liste,np_classdef,onvista_user,onvista
 
     return (status,errtext,wp_dict_liste)
 # end def
-async def playwright_onvista(wp_dict_liste,np_classdef,onvista_user,onvista_pw,timeout_s,log):
+async def playwright_onvista(wp_dict_liste,onvista_user,onvista_pw,timeout_s,log):
     async with async_playwright() as playwright:
-        (status,errtext,wp_dict_liste) = await run_playright_onvista(playwright,wp_dict_liste,np_classdef,onvista_user,onvista_pw,timeout_s,log)
+        (status,errtext,wp_dict_liste) = await run_playright_onvista(playwright,wp_dict_liste,onvista_user,onvista_pw,timeout_s,log)
 
     return (status,errtext,wp_dict_liste)
 # end def
-async def run_playright_onvista(playwright,wp_dict_liste,np_classdef,onvista_user,onvista_pw,timeout_s,log):
+async def run_playright_onvista(playwright,wp_dict_liste,onvista_user,onvista_pw,timeout_s,log):
 
     akzept_flag = False  # Ist ein Flag zur Identifizierung, ob die Abnickseite schon abgenickt ist
 
@@ -754,7 +755,7 @@ async def run_playright_onvista(playwright,wp_dict_liste,np_classdef,onvista_use
                 break
             else:
                 if os.path.exists(csv_filename):
-                    (status, errtext, wp_dict) = read_onvista_csv_file(csv_filename, wp_dict, np_classdef, log)
+                    (status, errtext, wp_dict) = read_onvista_csv_file(csv_filename, wp_dict, log)
 
                     if status == hdef.OKAY:
                         os.remove(csv_filename)
@@ -987,17 +988,16 @@ async def get_onvista_price_volume_isin(page,context,browser, isin,url_onvista,d
     # end if
     return (status,errtext,csv_filename,akzept_flag)
 # end def
-def read_onvista_csv_file(csv_filename,wp_dict,np_classdef,log=None):
+def read_onvista_csv_file(csv_filename,wp_dict,log=None):
     """
     :param csv_filename:
     :param wp_dict:
     :param np_classdef:
-    :return: (status, errtext,ariva_data_dict) = read_onvista_csv_file(csv_filename,wp_dict,np_classdef)
+    :return: (status, errtext,ariva_data_dict) = read_onvista_csv_file(csv_filename,wp_dict,np_obj)
     """
 
     status = hdef.OKAY
     errtext = ""
-    np_obj = np_classdef()
 
     t = f"onvista-playwright: read {csv_filename = }"
     if log is not None:
@@ -1042,13 +1042,15 @@ def read_onvista_csv_file(csv_filename,wp_dict,np_classdef,log=None):
     end_np_array = np.array(end_list, copy=True)
     vol_np_array = np.array(vol_list, copy=True)
 
-    np_obj.from_np_array_list([dat_np_array,
+
+    np_obj = wp_dict["np_obj_new"]
+    np_obj.put_signal(dat_np_array,
                                start_np_array,
                                high_np_array,
                                low_np_array,
                                end_np_array,
-                               vol_np_array])
-    np_obj.currency = wp_dict["waehrung"]
+                               vol_np_array)
+    np_obj.set_currency(wp_dict["waehrung"])
 
     np_obj.sort_by_dat()
 
@@ -1220,7 +1222,7 @@ if __name__ == '__main__':
                                  {"isin":"IE00B4L5Y983","url_ariva":"https://www.ariva.de/etf/ishares-core-msci-world-ucits-etf-usd-acc","waehrung":"euro","updated":False}]
 
         (status, errtext, ariva_data_dict_liste) = get_ariva_price_volume_data(ariva_data_dict_liste,
-                                                                               wp_np_dc.NpPriceVolumeClass,
+                                                                               np_obj,
                                                                                ariva_user,
                                                                                ariva_pw,
                                                                                sleep_time_s)
@@ -1231,5 +1233,5 @@ if __name__ == '__main__':
         csv_filename = "wkn_A0RPWH_historic.csv"
         ariva_data_dict = {"isin":isin,"url_ariva":ariva_url,"waehrung":"euro"}
 
-        (status,errtext,ariva_data_dict) = read_ariva_csv_file(csv_filename, ariva_data_dict, wp_np_dc.NpPriceVolumeClass)
+        (status,errtext,ariva_data_dict) = read_ariva_csv_file(csv_filename, ariva_data_dict, np_obj)
     # end if

@@ -28,7 +28,7 @@ from wp_abfrage import wp_storage as wp_storage
 from wp_abfrage import wp_requests as wp_req
 from wp_abfrage import wp_np_price_volume_dataclass
 from wp_abfrage import wp_np_indice_dataclass
-from wp_abfrage import wp_np_dataclass as wp_np_dc
+# from wp_abfrage import wp_np_pdataclass as wp_np_dc
 
 
 
@@ -37,6 +37,10 @@ def read_price_volumen_np_data(wb_obj,isin):
     np_obj = build_price_volumen_np_obj(wb_obj,isin)
     if np_obj.exist_file():
         np_obj.read()
+        infotext = np_obj.get_infotext()
+        if len(infotext):
+            wb_obj.log.write_info(infotext)
+        # end if
     else:
         np_obj = None
     # end if
@@ -44,12 +48,17 @@ def read_price_volumen_np_data(wb_obj,isin):
 # end def
 def build_price_volumen_np_obj(wb_obj,isin):
 
-    file_name = wp_storage.build_file_name_joblib(wb_obj.base_ddict["price_volumen_pre_file_name"] + isin,
-                                                wb_obj.base_ddict["store_path"])
+    file_name = build_price_volumen_filename(wb_obj,isin)
 
     np_obj = wp_np_price_volume_dataclass.NpPriceVolumeClass(file_name)
 
     return np_obj
+# end def
+def build_price_volumen_filename(wb_obj,isin):
+
+    file_name = wp_storage.build_file_name_joblib(wb_obj.base_ddict["price_volumen_pre_file_name"] + isin,
+                                                wb_obj.base_ddict["store_path"])
+    return file_name
 # end def
 def read_indice_np_data(wb_obj,indice):
 
@@ -64,8 +73,7 @@ def read_indice_np_data(wb_obj,indice):
 def build_indice_np_obj(wb_obj,indice):
 
     if wp_base_indices.is_indices_name(wb_obj, indice):
-        file_name = wp_storage.build_file_name_joblib(wb_obj.base_ddict["indices_pre_file_name"] + indice,
-                                                    wb_obj.base_ddict["store_path"])
+        file_name = build_indice_filename(wb_obj,indice)
 
         np_obj = wp_np_indice_dataclass.NpIndiceClass(file_name)
     else:
@@ -73,68 +81,74 @@ def build_indice_np_obj(wb_obj,indice):
 
     return np_obj
 # end def
-# old definition
-def read_np_obj(wb_obj, isin):
-    """
-    (status, errtext,np_obj) = read_np_obj(wb_obj,isin)
+def build_indice_filename(wb_obj,indice):
 
-        Wenn keine Datei vorhanden, np_obj = None aber status = OKAY
-    """
-    status = hdef.OKAY
-    errtext = ""
-
-    # Gibt es bereits eine Datei
-    file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["price_volumen_pre_file_name"] + isin,
+    file_name = wp_storage.build_file_name_joblib(wb_obj.base_ddict["indices_pre_file_name"] + indice,
                                                 wb_obj.base_ddict["store_path"])
-
-    formatpj = int(wb_obj.base_ddict["price_volumen_use_format"] / 10)
-    flag = wp_storage.np_obj_storage_exist(file_name, formatpj)
-
-    # Wenn ja lese Datei ein
-    if flag:
-        (status, errtext, np_obj) = wp_storage.read_np_obj(wp_np_dc.NpPriceVolumeClass,
-                                                           file_name,
-                                                           formatpj)
-
-        np_obj.sort_by_dat()
-
-        if status != hdef.OKAY:
-            return (status, errtext, np_obj)
-    else:
-        np_obj = None
-    # end if
-    return (status, errtext, np_obj)
+    return file_name
 # end def
-def read_np_indice_obj(wb_obj, indice):
-    """
-    (status, errtext,np_obj) = read_np_indice_obj(wb_obj,indice)
-
-        Wenn keine Datei vorhanden, np_obj = None aber status = OKAY
-    """
-    status = hdef.OKAY
-    errtext = ""
-    np_obj = None
-
-    if wp_base_indices.is_indices_name(wb_obj, indice):
-
-        # Hole korrekte Datumsreihe:
-        file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["indices_pre_file_name"] + indice,
-                                                    wb_obj.base_ddict["store_path"])
-
-        formatpj = int(wb_obj.base_ddict["usdeuro_use_format"]/10)
-
-        flag = wp_storage.np_obj_storage_exist(file_name, formatpj)
-
-        if flag:
-
-            (status,errtext,np_obj) = wp_storage.read_np_obj(wp_np_dc.NpUsdEuroClass,file_name,formatpj)
-            if status != hdef.OKAY:
-                return (status, errtext, None)
-            # end if
-        # end if
-
-    return (status, errtext, np_obj)
-# end def
+# old definition
+# def read_np_obj(wb_obj, isin):
+#     """
+#     (status, errtext,np_obj) = read_np_obj(wb_obj,isin)
+#
+#         Wenn keine Datei vorhanden, np_obj = None aber status = OKAY
+#     """
+#     status = hdef.OKAY
+#     errtext = ""
+#
+#     # Gibt es bereits eine Datei
+#     file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["price_volumen_pre_file_name"] + isin,
+#                                                 wb_obj.base_ddict["store_path"])
+#
+#     formatpj = int(wb_obj.base_ddict["price_volumen_use_format"] / 10)
+#     flag = wp_storage.np_obj_storage_exist(file_name, formatpj)
+#
+#     # Wenn ja lese Datei ein
+#     if flag:
+#         (status, errtext, np_obj) = wp_storage.read_np_obj(wp_np_dc.NpPriceVolumeClass,
+#                                                            file_name,
+#                                                            formatpj)
+#
+#         np_obj.sort_by_dat()
+#
+#         if status != hdef.OKAY:
+#             return (status, errtext, np_obj)
+#     else:
+#         np_obj = None
+#     # end if
+#     return (status, errtext, np_obj)
+# # end def
+# def read_np_indice_obj(wb_obj, indice):
+#     """
+#     (status, errtext,np_obj) = read_np_indice_obj(wb_obj,indice)
+#
+#         Wenn keine Datei vorhanden, np_obj = None aber status = OKAY
+#     """
+#     status = hdef.OKAY
+#     errtext = ""
+#     np_obj = None
+#
+#     if wp_base_indices.is_indices_name(wb_obj, indice):
+#
+#         # Hole korrekte Datumsreihe:
+#         file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["indices_pre_file_name"] + indice,
+#                                                     wb_obj.base_ddict["store_path"])
+#
+#         formatpj = int(wb_obj.base_ddict["usdeuro_use_format"]/10)
+#
+#         flag = wp_storage.np_obj_storage_exist(file_name, formatpj)
+#
+#         if flag:
+#
+#             (status,errtext,np_obj) = wp_storage.read_np_obj(wp_np_dc.NpUsdEuroClass,file_name,formatpj)
+#             if status != hdef.OKAY:
+#                 return (status, errtext, None)
+#             # end if
+#         # end if
+#
+#     return (status, errtext, np_obj)
+# # end def
 
 
 def make_backup_build_new_dir_price_volume(wb_obj):
@@ -161,7 +175,7 @@ def make_backup_build_new_dir_price_volume(wb_obj):
 
     return (status, errtext,backup_dir)
 # end def
-def get_price_volume_data_from_ariva_csv_file(csv_file,delim,np_classdef,wp_dict):
+def get_price_volume_data_from_ariva_csv_file(csv_file,delim,np_obj,wp_dict):
     """
     :param csv_file:
     :param delim:
@@ -173,7 +187,6 @@ def get_price_volume_data_from_ariva_csv_file(csv_file,delim,np_classdef,wp_dict
     status = hdef.OKAY
     errtext = ""
     infotext = ""
-    np_obj = np_classdef()
 
     # read csv-File
     # ==============

@@ -12,9 +12,9 @@ if (tools_path not in sys.path):
 from tools import hfkt_type as htype
 from tools import hfkt_def as hdef
 
-def get_data(np_classdef,start_dat, end_dat):
+def get_data(np_obj,start_dat, end_dat):
     """
-    (status, errtext, np_obj) = wp_yfinance.get_usdeuro_data(np_classdef,lastdat,end_dat)
+    (status, errtext, np_obj) = wp_yfinance.get_usdeuro_data(np_obj,lastdat,end_dat)
     """
     status = hdef.OKAY
     errtext = ""
@@ -47,7 +47,7 @@ def get_data(np_classdef,start_dat, end_dat):
     euro_dat_np_array   = ezb_dat_np_array.reshape(np.prod(ezb_dat_np_array.shape))
     ezb_zins_np_array = ezb_zins_np_array.reshape(np.prod(ezb_zins_np_array.shape))
 
-    np_obj = np_classdef(ezb_dat_np_array,ezb_zins_np_array)
+    np_obj.put_signal(ezb_dat_np_array,ezb_zins_np_array)
 
     np_obj.sort_by_dat()
 

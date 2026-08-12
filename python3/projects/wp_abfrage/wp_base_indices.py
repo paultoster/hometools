@@ -16,14 +16,10 @@ import tools.hfkt_def as hdef
 from wp_abfrage import wp_storage
 from wp_abfrage import wp_fkt
 
-from wp_abfrage import wp_np_dataclass as wp_np_dc
+from wp_abfrage import wp_np_price_volume_dataclass as wp_np_dc
 from wp_abfrage import wp_base
-from wp_abfrage import wp_indice_usdeuro
+from wp_abfrage import wp_indice_yahoo
 from wp_abfrage import wp_indice_ezbleitzins
-from wp_abfrage import wp_indice_chfeuro
-
-
-
 
 def get_indices_liste(wb_obj) -> list:
     """
@@ -31,10 +27,7 @@ def get_indices_liste(wb_obj) -> list:
     :param wb_obj:
     :return: indices_liste = wp_base_indices.get_indices_liste(wb_obj)
     """
-
-    liste = [wb_obj.par.INDICES_EZB_LEITZINS_NAME, wb_obj.par.INDICES_USDEURO_NAME, wb_obj.par.INDICES_CHFEURO_NAME]
-
-    return liste
+    return wb_obj.par.INDICES_NAME_LISTE
 # end def
 def is_indices_name(wb_obj, indices_name) -> (int, str, list):
     """
@@ -69,13 +62,9 @@ def update_indices(wb_obj,indice = None):
                 (status,errtext) = wp_indice_ezbleitzins.process_akt(wb_obj)
 
 
-            case wb_obj.par.INDICES_USDEURO_NAME:
+            case wb_obj.par.INDICES_USDEURO_NAME  | wb_obj.par.INDICES_CHFEURO_NAME  | wb_obj.par.INDICES_GBPEURO_NAME:
 
-                (status, errtext) = wp_indice_usdeuro.process_akt(wb_obj)
-
-            case wb_obj.par.INDICES_CHFEURO_NAME:
-
-                (status, errtext) = wp_indice_chfeuro.process_akt(wb_obj)
+                (status, errtext) = wp_indice_yahoo.process_akt(wb_obj,indice)
 
             case _:
 
@@ -116,20 +105,14 @@ def get_dict_from_act(wb_obj,indice=None):
 
                 (status, errtext, np_obj) = wp_indice_ezbleitzins.get_act(wb_obj)
 
-                np_obj.set_currency("%")
+                np_obj.set_unit("%")
 
-            case wb_obj.par.INDICES_USDEURO_NAME:
+            case wb_obj.par.INDICES_USDEURO_NAME  | wb_obj.par.INDICES_CHFEURO_NAME  | wb_obj.par.INDICES_GBPEURO_NAME:
 
-                (status, errtext, np_obj) = wp_indice_usdeuro.get_act(wb_obj)
-
-                np_obj.set_currency("-")
-
-            case wb_obj.par.INDICES_CHFEURO_NAME:
-
-                (status, errtext, np_obj) = wp_indice_chfeuro.get_act(wb_obj)
+                (status, errtext, np_obj) = wp_indice_yahoo.get_act(wb_obj,indice)
 
                 if np_obj is not None:
-                    np_obj.set_currency("-")
+                    np_obj.set_unit("-")
 
             case _:
 
@@ -150,7 +133,7 @@ def get_dict_from_act(wb_obj,indice=None):
     # end if
 
 # end def
-def get_dict_from_start_dat_to_end_dat(wb_obj,indice,start_dat,end_dat):
+def get_dict_from_start_dat_to_end_dat(wb_obj,start_dat,end_dat,indice):
 
     status = hdef.OKAY
     errtext = ""
@@ -171,13 +154,9 @@ def get_dict_from_start_dat_to_end_dat(wb_obj,indice,start_dat,end_dat):
 
                 (status, errtext, np_obj) = wp_indice_ezbleitzins.get_from_start_dat_to_end_dat(wb_obj,start_dat,end_dat)
 
-            case wb_obj.par.INDICES_USDEURO_NAME:
+            case wb_obj.par.INDICES_USDEURO_NAME  | wb_obj.par.INDICES_CHFEURO_NAME  | wb_obj.par.INDICES_GBPEURO_NAME:
 
-                (status, errtext,np_obj) = wp_indice_usdeuro.get_from_start_dat_to_end_dat(wb_obj,start_dat,end_dat)
-
-            case wb_obj.par.INDICES_CHFEURO_NAME:
-
-                (status, errtext,np_obj) = wp_indice_chfeuro.get_from_start_dat_to_end_dat(wb_obj,start_dat,end_dat)
+                (status, errtext,np_obj) = wp_indice_yahoo.get_from_start_dat_to_end_dat(wb_obj,start_dat,end_dat,indice)
 
             case _:
 
