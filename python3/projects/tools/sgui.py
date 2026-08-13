@@ -232,6 +232,7 @@ if (t_path == os.getcwd()):
     import sgui_abfrage_janein_class as sjanein_class
     import sgui_abfrage_liste_class as sliste_class
     import sgui_anzeige_text_class as stext_class
+    import sgui_anzeige_plot_class as splot_class
 else:
     p_list = os.path.normpath(t_path).split(os.sep)
     if (len(p_list) > 1): p_list = p_list[: -1]
@@ -252,6 +253,7 @@ else:
     from tools import sgui_abfrage_janein_class as sjanein_class
     from tools import sgui_abfrage_liste_class as sliste_class
     from tools import sgui_anzeige_text_class as stext_class
+    from tools import sgui_anzeige_plot_class as splot_class
 
 # endif--------------------------------------------------------------------------
 
@@ -1844,6 +1846,48 @@ def radiobutton_dialog(auswahl_liste,title="Auswahl"):
 
     return int(index)
 #end if
+def plot_mit_radiobuttons(ddict_inp):
+    """
+
+    ddict_out = plot_mit_radiobuttons(ddict_inp)
+
+    Erstelt mit matplotlib eib Plot mit zusätzlichen Radiobutton-abfragen
+
+    ddict_inp["title"] = "title"
+    ddict_inp["auswahl_liste"] = ["entscheidung1","entscheidung2",...]
+    ddict_inp["index_default_auswahl"] = 1
+
+    ddict_inp["plot_x_np_array"] = x-array
+    ddict_inp["plot_y_np_array"] = y-array
+    ddict_inp["plot_x_is_date"] = 1/0
+    ddict_inp["plot_x_name"] = "namea"
+    ddict_inp["plot_y_name"] = "nameb"
+
+    ddict_inp["plo_title"] = "plot_title"
+    ddict_inp["plo_x_label"] = "namex"
+    ddict_inp["plot_y_label"] = "namey"
+    ddict_inp["plot_legend"] = 1/0
+
+    Ouput:
+
+    return ddict_out
+    mit
+    ddict_out["index"]                        selected index von asuwahl_liste
+    ddict_out["status"]                       status
+    ddict_out["errtext"]                      errtext
+
+    """
+
+    obj = splot_class.plot_mit_radiobbutton_class(ddict_inp)
+
+    ddict_out = {}
+    ddict_out["status"] = obj.status
+    ddict_out["errtext"] = obj.errtext
+    ddict_out["INDEX"] = obj.index
+
+    del obj
+    return ddict_out
+# end def
 if __name__ == '__main__':
     
     

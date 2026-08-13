@@ -510,11 +510,11 @@ def save_dict_file_pickle(data_ddict, filebodyname, store_path):
     # end if
     return
 # end def
-def read_usdeuro_ezb_xml(classdef,xmlfilename):
+def read_indice_ezb_xml(xmlfilename,np_obj):
     """
     :param classdef
     :param xmlfilename:
-    :return: (status, errtext,np_obj) = read_usdeuro_ezb_xml(classdef,xmlfilename)
+    :return: (status, errtext,np_obj) = read_indice_ezb_xml(classdef,xmlfilename)
 
     """
 
@@ -546,8 +546,12 @@ def read_usdeuro_ezb_xml(classdef,xmlfilename):
 
 
     np_dat_arr = np.array(np_dat_list, dtype=np.int64)
-    np_usdeuro_arr = np.array(np_usdeuro_liste, dtype=np.float64)
+    np_indice_arr = np.array(np_usdeuro_liste, dtype=np.float64)
 
-    return classdef(np_dat_arr,np_usdeuro_arr)
+    np_obj.put_signal(np_dat_arr,np_indice_arr)
+
+    np_obj.sort_by_dat()
+
+    return (status,errtext,np_obj)
 # end def
 

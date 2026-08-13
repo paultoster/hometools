@@ -20,6 +20,8 @@ from wp_abfrage import wp_np_price_volume_dataclass as wp_np_dc
 from wp_abfrage import wp_base
 from wp_abfrage import wp_indice_yahoo
 from wp_abfrage import wp_indice_ezbleitzins
+from wp_abfrage import wp_bearbeiten as wp_bearbeit
+from wp_abfrage import wp_plot
 
 def get_indices_liste(wb_obj) -> list:
     """
@@ -77,6 +79,30 @@ def update_indices(wb_obj,indice = None):
 
     return (status,errtext)
 # end def
+def process_ezb_xml(wb_obj: wp_base.WPData,xmlfilename: str,indice:str) -> (int,str):
+    """
+
+    :param wb_obj:
+    :param xmlfilename:
+    :param indice:
+    :return: (status,errtext) = wp_base_usdeuro.process_ezb_xml(wb_obj ,xmlfilename,indice)
+    """
+    np_obj_new = wp_bearbeit.build_indice_np_obj(wb_obj,indice)
+    (status, errtext, np_obj_new) = wp_storage.read_indice_ezb_xml(xmlfilename,np_obj_new)
+    if status != hdef.OKAY:
+        return (status, errtext)
+
+    (status, errtext, np_obj_new) = proof_ezb_xml_np_obj(wb_obj, np_obj_new,indice)
+
+
+    #(status, errtext) = update_with_np_obj_new(wb_obj,np_obj_new)
+
+    if status != hdef.OKAY:
+        return (status, errtext)
+
+    return (status, errtext)
+# end  def
+
 def get_dict_from_act(wb_obj,indice=None):
     """
     (status,errtext,np_obj_dict) = get_dict_from_act(wb_obj):
@@ -172,4 +198,16 @@ def get_dict_from_start_dat_to_end_dat(wb_obj,start_dat,end_dat,indice):
 
     return (status, errtext,np_obj_dict)
 # end def
+def proof_ezb_xml_np_obj(wb_obj, np_obj,indice):
+    """
+    (status, errtext, np_obj_new) = proof_ezb_xml_np_obj(wb_obj, np_obj)
+    """
+    status = hdef.OKAY
+    errtext = ""
+
+    wp_plot.plot_indice(np_obj,indice)
+
+    return (status, errtext, np_obj)
+# end def
+
 

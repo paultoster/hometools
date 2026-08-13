@@ -878,10 +878,11 @@ def edit_indices(wb_obj):
 
 
 
-    abfrage_liste = ["update one-inidce","ende", "update all-indices"]
+    abfrage_liste = ["update one-inidce","ende", "update all-indices","read-ezb-xml"]
     i_abfrage_ende = 1
     i_abfrage_update_indice = 0
     i_abfrage_update_all = 2
+    i_abfrage_ezb_xml = 3
     runflag = True
 
     while (runflag):
@@ -900,7 +901,7 @@ def edit_indices(wb_obj):
         elif indexAbfrage == i_abfrage_update_indice:
 
             if index < 0:
-                wb_obj.log.write_info("Keine isin ausgewählt")
+                wb_obj.log.write_info("Keine indice ausgewählt")
                 runflag = True
             else:
 
@@ -943,6 +944,34 @@ def edit_indices(wb_obj):
                 wb_obj.log.write_err(t)
                 runflag = False
             # end if
+        elif indexAbfrage == i_abfrage_ezb_xml:
+
+            if index < 0:
+                wb_obj.log.write_info("Keine indice ausgewählt")
+                runflag = True
+            else:
+
+                # Bearbeite basic infos von isin
+                indice = indices_liste[index]
+
+                wb_obj.log.write_info(f"Indice update: {indice}")
+
+            print(f"Start Abfrage  \"{indice}\" ausgewählt")
+            print("Siehe: https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html")
+            print("Download XML unter dem Chart")
+
+            # Abfrage xml-File
+            xmlfilename = sgui.abfrage_file(file_types="*.xml",comment=f"Wähle eine xml-Datei von EZB",start_dir=wb_obj.base_ddict["store_path"])
+            if len(xmlfilename) > 0 :
+                # Einlesen xml-File
+                (status, errtext) = wb_obj.process_indice_ezb_xml(xmlfilename,indice)
+
+                if status != hdef.OKAY:
+                    print(f"Error wp_obj.process_usdeuro_ezb_xml(xmlfilename) \n errtext = {errtext}")
+                # end if
+            # end if
+
+
         else: # indexAbfrage == i_dumP-basic:
 
             runflag = True

@@ -234,6 +234,8 @@ class NpIndiceClass:
 
         if len(unit) == 0:
             self.unit = "-"
+        elif unit.find("-") >= 0:
+            self.unit = "-"
         elif unit.find("%") >= 0:
             self.unit = "percent"
         elif unit.lower().find("percent") >= 0:

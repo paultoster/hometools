@@ -462,6 +462,21 @@ class WPData:
 
         return (self.status, self.errtext,np_obj_dict)
     # end def
+    def process_indice_ezb_xml(self, xmlfilename: str,indice:str) -> (int,str):
+        """
+
+        :param wp_obj:
+        :param xmlfilename:
+        :param indice:
+        :return: (status, errtext) = wp_obj.process_usdeuro_ezb_xml(xmlfilename,indice)
+        """
+
+        (self.status,self.errtext) = wp_base_indices.process_ezb_xml(self,xmlfilename,indice)
+
+
+        return (self.status,self.errtext)
+    # end def
+
     def is_an_isin(self,isin):
         (status, wert) = htype.type_proof_isin(isin)
         if status == hdef.OKAY:
