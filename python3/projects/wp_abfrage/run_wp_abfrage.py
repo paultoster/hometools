@@ -878,11 +878,13 @@ def edit_indices(wb_obj):
 
 
 
-    abfrage_liste = ["update one-inidce","ende", "update all-indices","read-ezb-xml"]
-    i_abfrage_ende = 1
+    abfrage_liste = ["update one-inidce", "update all-indices","read-ezbchange-xml","read-leitzins-csv","backup","ende"]
+    i_abfrage_ende = 5
     i_abfrage_update_indice = 0
-    i_abfrage_update_all = 2
-    i_abfrage_ezb_xml = 3
+    i_abfrage_update_all = 1
+    i_abfrage_ezb_xml = 2
+    i_abfrage_leitzins_csv = 3
+    i_abfrage_backup = 4
     runflag = True
 
     while (runflag):
@@ -971,6 +973,28 @@ def edit_indices(wb_obj):
                 # end if
             # end if
 
+        elif indexAbfrage == i_abfrage_leitzins_csv:
+
+            indice = wb_obj.get_leitzins_indice()
+
+            wb_obj.log.write_info(f"Indice update: {indice}")
+
+
+            # Abfrage xml-File
+            csvfilename = sgui.abfrage_file(file_types="*.csv",comment=f"Wähle die csv-Datei von EZB für den leitzins",start_dir=wb_obj.base_ddict["store_path"])
+            if len(csvfilename) > 0 :
+                # Einlesen csv-File
+                (status, errtext) = wb_obj.process_indice_ezb_leitzins_csv(csvfilename)
+
+                if status != hdef.OKAY:
+                    print(f"Error wp_obj.process_usdeuro_ezb_xml(xmlfilename) \n errtext = {errtext}")
+                # end if
+            # end if
+        elif indexAbfrage == i_abfrage_backup:
+            (status, errtext) = wb_obj.make_backup_indice()
+            if status != hdef.OKAY:
+                return (status, errtext, infotext)
+            runflag = True
 
         else: # indexAbfrage == i_dumP-basic:
 

@@ -76,7 +76,7 @@ else:
 
 # endif--------------------------------------------------------------------------
 
-class abfrage_sheet_class:
+class plot_mit_radiobbutton_class:
     """
 
     """
@@ -291,6 +291,8 @@ class abfrage_sheet_class:
 
         self.root.mainloop()
 
+        return
+
     def __del__(self):
         if (self.flag_mainloop):
             self.GUI_GEOMETRY_HEIGHT = self.root.winfo_height()
@@ -305,7 +307,7 @@ class abfrage_sheet_class:
         self.RadioButton_Frame = Tk.Frame(self.root, relief=Tk.GROOVE, bd=2)
         self.RadioButton_Frame.pack(fill=Tk.X, pady=5)
 
-        self.RadioButton_Auswahl = Tk.StringVar(value="")
+        self.RadioButton_Auswahl = Tk.StringVar(value=self.auswahl_liste[0])
 
         self.RadioButton_Label = Tk.Label(self.RadioButton_Frame, text=f"{self.auswahl_title}:")
         self.RadioButton_Label.pack(padx=10, pady=10)
@@ -315,15 +317,15 @@ class abfrage_sheet_class:
             b_back = Tk.Radiobutton(self.RadioButton_Frame,
                                     text = str(name),
                                     variable = self.RadioButton_Auswahl,
-                                    value = i)
+                                    value = str(name))
             b_back.pack(padx=5, pady=5)
             # b_back.pack(side=Tk.LEFT, pady=4, padx=2)
             self.RadioButton_Liste.append(b_back)
         # endfor
 
-        self.RadioButton_Auswahl.set(self.index_default_auswahl)
+        # self.RadioButton_Auswahl.set(self.index_default_auswahl)
 
-        self.RadioButton_Button = Tk.Button(self.RadioButton_Frame, text="OK", command=self.exitMenu)
+        self.RadioButton_Button = Tk.Button(self.RadioButton_Frame, text="OK", command=lambda m="OK": self.exitMenu(m))
         self.RadioButton_Button.pack(pady=10)
 
     # end def
@@ -335,15 +337,21 @@ class abfrage_sheet_class:
         self.PlotGui_Frame.pack(expand=1, fill=Tk.BOTH)
 
         # Matplotlib-Figur erzeugen
-        fig = mpl.figure(figsize=(5, 4), dpi=100)
-        ax = fig.add_subplot(111)
+        # fig = mpl.figure(figsize=(5, 4), dpi=100)
+        self.PlotGui_Figure = mpl.pyplot.figure(figsize=(5, 4), dpi=100)
+        # self.PlotGui_Figure.set_visible(False)
+        ax = self.PlotGui_Figure.add_subplot(1,1,1)
 
         if self.plot_x_is_date > 0:
-            ax.xaxis.set_major_formatter(mpl.figure.dates.DateFormatter('%d.%m.%Y'))
-            ax.xaxis.set_major_locator(mpl.dates.MonthLocator())
+            mpl.pyplot.gca().xaxis.set_major_formatter(mpl.dates.DateFormatter('%d.%m.%Y'))
+            mpl.pyplot.gca().xaxis.set_major_locator(mpl.dates.MonthLocator())
+#            ax.xaxis.set_major_formatter(mpl.pyplot.figure.dates.DateFormatter('%d.%m.%Y'))
+#            ax.xaxis.set_major_locator(mpl.pyplot.dates.MonthLocator())
         # end if
 
         ax.plot(self.plot_x_np_array, self.plot_y_np_array)
+        ax.grid(axis='x', color='0.95')
+        ax.grid(axis='y', color='0.95')
 
         if len(self.plot_title):
             ax.set_title(self.plot_title)
@@ -352,12 +360,13 @@ class abfrage_sheet_class:
         if len(self.plot_y_name):
             ax.set_ylabel(self.plot_y_name)
 
-        self.PlotGui_Canvas = FigureCanvasTkAgg(fig, master=self.PlotGui_Frame)
+        self.PlotGui_Canvas = FigureCanvasTkAgg(self.PlotGui_Figure, master=self.PlotGui_Frame)
         self.PlotGui_Canvas.draw()
         self.PlotGui_Canvas.get_tk_widget().pack(side=Tk.TOP, fill=Tk.BOTH, expand=True)
 
+
     # end def
-    def exitMenu(self):
+    def exitMenu(self,bname):
         ''' Beenden der Gui
         '''
         # Vor Beenden Speichern abfragen
@@ -365,7 +374,9 @@ class abfrage_sheet_class:
         # if( ans ): self.base.save_db_file()
 
         if len(self.auswahl_liste):
-            self.index = self.RadioButton_Auswahl.get()
+            auswahl = self.RadioButton_Auswahl.get()
+            if auswahl in self.auswahl_liste:
+                self.index = self.auswahl_liste.index(auswahl)
 
         if (self.flag_mainloop):
             self.GUI_GEOMETRY_HEIGHT = self.root.winfo_height()
@@ -373,7 +384,8 @@ class abfrage_sheet_class:
             self.GUI_GEOMETRY_POSX = self.root.winfo_x()
             self.GUI_GEOMETRY_POSY = self.root.winfo_y()
             self.root.destroy()
+            mpl.pyplot.close(self.PlotGui_Figure)
             self.flag_mainloop = False
-
+        return
     # end def
 # end class

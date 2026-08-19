@@ -1883,7 +1883,7 @@ def plot_mit_radiobuttons(ddict_inp):
     ddict_out = {}
     ddict_out["status"] = obj.status
     ddict_out["errtext"] = obj.errtext
-    ddict_out["INDEX"] = obj.index
+    ddict_out["index"] = obj.index
 
     del obj
     return ddict_out

@@ -679,7 +679,12 @@ def calc_time_str_to_time_list(dat_str, delim=":"):
 
 
 # end def
-
+def calc_secs_to_datetime(secs):
+    return datetime.datetime.fromtimestamp(secs)
+# end def
+def calc_secs_to_datetime_date(secs):
+    return datetime.datetime.fromtimestamp(secs).date()
+# end def
 ########################################################################################################################
 def find_str_dat(str_text,flag_liste=False):
     """
@@ -924,6 +929,59 @@ def time_liste_from_str_time_re(str_time):
     # endif
 
 # enddef
+def date_time_list_from_date_time(dt):
+    """
+    dt  datetime.date(year,month,day) oder datetime.datetime(year,month,day,hour,minute,second)
+    date_time_list = date_time_list_from_date_time(dt)
+    (day,month,year,hour,minute,second)
+    """
+    date_time_list = [0, 0, 0, 0, 0, 0 ]
+    if hasattr(dt, 'year'):
+        date_time_list[2] = dt.year
+    if hasattr(dt, 'month'):
+        date_time_list[1] = dt.month
+    if hasattr(dt, 'day'):
+        date_time_list[0] = dt.day
+    if hasattr(dt, 'hour'):
+        date_time_list[3] = dt.hour
+    if hasattr(dt, 'minute'):
+        date_time_list[4] = dt.minute
+    if hasattr(dt, 'second'):
+        date_time_list[5] = dt.second
+    return date_time_list
+# end def
+def date_list_from_date_time(dt):
+    """
+    dt  datetime.date(year,month,day) oder datetime.datetime(year,month,day,hour,minute,second)
+    date_list = date_time_list_from_date_time(dt)
+    (day,month,year)
+    """
+    date_list = [0, 0, 0 ]
+    if hasattr(dt, 'year'):
+        date_list[2] = dt.year
+    if hasattr(dt, 'month'):
+        date_list[1] = dt.month
+    if hasattr(dt, 'day'):
+        date_list[0] = dt.day
+    return date_list
+# end def
+def time_list_from_date_time(dt):
+    """
+    dt  datetime.date(year,month,day) oder datetime.datetime(year,month,day,hour,minute,second)
+    time_list = date_time_list_from_date_time(dt)
+    (day,month,year,hour,minute,second)
+    """
+    time_list = [ 0, 0, 0 ]
+    if hasattr(dt, 'hour'):
+        time_list[0] = dt.hour
+    if hasattr(dt, 'minute'):
+        time_list[1] = dt.minute
+    if hasattr(dt, 'second'):
+        time_list[2] = dt.second
+    return time_list
+# end def
+
+
 ########################################################################################################################
 def is_dat_str(str_dat,delim='.'):
     """
@@ -1199,7 +1257,17 @@ def  is_dat_list_a_to_b(a_dat_list, b_dat_list,sign):
         raise Exception(f"is_dat_list_a_to_b: sign = {sign} is unkown")
     # end
 # end def
+def is_date_time(d):
+    """
+    :param d: datetime.date(2026,12,31,01,00,00)
 
+    """
+    if isinstance(d, datetime.date) or isinstance(d, datetime.datetime):
+        return True
+    else:
+        return False
+    # end if
+# end def
 ########################################################################################################################
 def int_to_dec36(int_val, digits=0):
     """
@@ -1991,6 +2059,41 @@ def secs_to_end_of_day(secs: int) -> int:
 # testen mit main
 ###########################################################################
 if __name__ == '__main__':
+    d1 = datetime.datetime(1999, 1, 1)
+    d2 = datetime.datetime(2026, 8, 19)
+
+    print(d1,d1.timestamp())
+    print(d2,d2.timestamp())
+
+    # import numpy as np
+    # import pandas as pd
+    #
+    # np_dat_str1 = np.array(['2026-12-01', '2026-12-02', '2026-12-03'])
+    # np_dat_str2 = np.array(['01.12.2026', '02.12.2026', '03.12.2026'])
+    #
+    # np_datetime1 = np_dat_str1.astype('datetime64[s]')
+    # np_datetine1 = np_dat_str1.astype('datetime64[D]')
+    #
+    # np_datetime2 = np.array([datetime.datetime.strptime(s, "%d.%m.%Y") for s in np_dat_str2])
+    # np_datetime2 = pd.to_datetime(np_dat_str2, format="%d.%m.%Y").to_numpy(dtype='datetime64[s]')
+    #
+    # np_dat1 = np_datetime1.astype(np.int64)
+    # np_dat2 = np_datetime2.astype(np.int64)
+    #
+    # timestamp = int(np_dat1[0])
+    #
+    # d = datetime.datetime.fromtimestamp(timestamp).date()
+    # np_d =np.datetime64(d)
+    #
+    # np_datetime1 = np_dat1.astype('datetime64[s]')
+    # np_datetime1 = np_dat1.astype('datetime64[D]')
+    # np_datetime2 = np_dat2.astype('datetime64[D]')
+    # np_datetime2 = np_dat2.astype('datetime64[s]')
+    #
+    # np_dat_str1 = np_datetime1.astype(str)
+    # np_dat_str2 = (pd.to_datetime(np_datetime2).strftime('%d.%m.%Y')
+    #                .to_numpy())
+
 
     secs = calc_dat_time_list_to_secs([12,5,1993,10,20,11])
     print(f"{secs = }")

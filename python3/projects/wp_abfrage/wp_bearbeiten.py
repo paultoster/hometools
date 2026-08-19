@@ -175,6 +175,31 @@ def make_backup_build_new_dir_price_volume(wb_obj):
 
     return (status, errtext,backup_dir)
 # end def
+
+def make_backup_build_new_dir_indice(wb_obj):
+    """
+    (status, errtext) = make_backup_build_new_dir_indice(wb_obj)
+    """
+
+    status = hdef.OKAY
+    errtext = ""
+
+    backup_dir = os.path.join(wb_obj.base_ddict["store_path"],
+                            hdate.get_name_by_dat_time("indice_", ""))
+
+
+    if not os.path.isdir(backup_dir):
+        try:
+            os.mkdir(backup_dir)
+        except:
+
+            errtext = f"Der BACKUP_store_path: {backup_dir} konnte nicht erstellt werden"
+            status = hdef.NOT_OKAY
+        # end try
+    # end if
+
+    return (status, errtext,backup_dir)
+# end def
 def get_price_volume_data_from_ariva_csv_file(csv_file,delim,np_obj,wp_dict):
     """
     :param csv_file:

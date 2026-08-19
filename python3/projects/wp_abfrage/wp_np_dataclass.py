@@ -322,7 +322,7 @@ class NpPriceVolumeClass(NpBaseClass):
                 if (i == 0) and (n>1): # Wert von i=1 nehmen
 
                     if j == 0: # date
-                        self.dat_np_array[i] = wp_fkt.naechster_handelstag_dat_list(self.dat_np_array[i+1], vorwaerts=False)
+                        self.dat_np_array[i] = wp_fkt.naechster_handelstag_timestamp(self.dat_np_array[i+1], vorwaerts=False)
                     else:
                         np_array = getattr(self, self.np_name_list[j])
                         np_array[i] = np_array[i+1]
@@ -343,7 +343,7 @@ class NpPriceVolumeClass(NpBaseClass):
                 else: # ansonsten interpolieren
 
                     if j == 0: # date
-                        self.dat_np_array[i] = wp_fkt.naechster_handelstag_dat_list(self.dat_np_array[i - 1],
+                        self.dat_np_array[i] = wp_fkt.naechster_handelstag_timestamp(self.dat_np_array[i - 1],
                                                                                     vorwaerts=True)
                     else:
                         np_array = getattr(self, self.np_name_list[j])
@@ -396,7 +396,7 @@ class NpPriceVolumeClass(NpBaseClass):
 
 
                     # if j == 0: # date
-                    #     self.dat_np_array[i] = wp_fkt.naechster_handelstag_dat_list(self.dat_np_array[i + 1],
+                    #     self.dat_np_array[i] = wp_fkt.naechster_handelstag_timestamp(self.dat_np_array[i + 1],
                     #                                                                 vorwaerts=False)
                     # else:
                     #
@@ -433,7 +433,7 @@ class NpPriceVolumeClass(NpBaseClass):
                     setattr(self, name_list[j], np_array)
 
                     # if j == 0: # date
-                    #     self.dat_np_array[i] = wp_fkt.naechster_handelstag_dat_list(self.dat_np_array[i - 1],
+                    #     self.dat_np_array[i] = wp_fkt.naechster_handelstag_timestamp(self.dat_np_array[i - 1],
                     #                                                                 vorwaerts=True)
                     # else:
                     #     fac = self.get_neighbour_factor(i, j, n, index_pair_list)

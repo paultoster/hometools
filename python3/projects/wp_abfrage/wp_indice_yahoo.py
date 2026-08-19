@@ -30,8 +30,7 @@ def process_akt(wb_obj,indice):
         (_,last_dat) = np_obj.get_first_last_dat("dat")
 
     # Was ist der letzte aktuelle Handelsdatum
-    end_dat_time_list = wp_fkt.letzter_beendeter_handelstag_dat_list(wb_obj.base_ddict["boerse"])
-    end_dat = htype.type_transform_direct(end_dat_time_list, "datTimeList", "dat")
+    end_dat = wp_fkt.letzter_beendeter_handelstag_timestamp(wb_obj.base_ddict["boerse"])
     np_obj_new = wp_bearbeit.build_indice_np_obj(wb_obj,indice)
     (status, errtext, np_obj_new) = wp_yfinance.get_indice_data(wb_obj,np_obj_new,last_dat,end_dat,indice)
 
@@ -177,23 +176,23 @@ def get_act(wb_obj,indice):
 
     return (status,errtext,np_obj)
 # end def
-def get_datums_reihe(wb_obj,start_dat,end_dat,indice):
-    """
-        (status, errtext,dat_np_array) = get_datums_reihe_von_usdeuro(wb_obj,end_dat)
-    """
-    #
-    # Hole korrekte Datumsreihe:
-    (status, errtext, np_obj) = get_from_start_dat_to_end_dat(wb_obj, start_dat, end_dat,indice)
-
-    if np_obj is not None:
-        np_obj.reduce_end_dat(end_dat)
-
-        dat_np_array = np_obj.dat_np_array
-    else:
-        dat_np_array = None
-        status = hdef.NOT_OKAY
-        errtext = f"get_datums_reihe: Keine Datumreihe für USDEuro gefunden"
-    # end if
-
-    return (status, errtext,dat_np_array)
+# def get_datums_reihe(wb_obj,start_dat,end_dat,indice):
+#     """
+#         (status, errtext,dat_np_array) = get_datums_reihe_von_usdeuro(wb_obj,end_dat)
+#     """
+#     #
+#     # Hole korrekte Datumsreihe:
+#     (status, errtext, np_obj) = get_from_start_dat_to_end_dat(wb_obj, start_dat, end_dat,indice)
+#
+#     if np_obj is not None:
+#         np_obj.reduce_end_dat(end_dat)
+#
+#         dat_np_array = np_obj.dat_np_array
+#     else:
+#         dat_np_array = None
+#         status = hdef.NOT_OKAY
+#         errtext = f"get_datums_reihe: Keine Datumreihe für USDEuro gefunden"
+#     # end if
+#
+#     return (status, errtext,dat_np_array)
 # end def

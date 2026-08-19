@@ -1,6 +1,7 @@
 import numpy as np
 import os, sys, copy
 import joblib
+import pandas as pd
 
 t_path, _ = os.path.split(__file__)
 if (t_path == os.getcwd()):
@@ -91,6 +92,15 @@ class NpIndiceClass:
         return
 
     # end def
+    def put_indice_signal(self, indice_np_array):
+
+        self.indice_np_array = indice_np_array
+
+        if len(self.dat_np_array) != len(self.indice_np_array):
+            raise Exception("len(self.dat_np_array) != len(self.indice_np_array)")
+        return
+
+    # end def
     def get_data(self, signal_name):
         if hasattr(self, signal_name):
 
@@ -110,7 +120,27 @@ class NpIndiceClass:
                 return
             # end try
         # end if
+        self.save_csv()
+    # end def
+    def save_csv(self):
+        if self.file_flag:
+            csv_filename = hfile_path.reset_ext(self.file_name,"csv")
 
+            df = pd.DataFrame({
+                'Date': pd.to_datetime(getattr(self, "dat_np_array"), unit='s').strftime('%d.%m.%Y %H:%M-%a'),
+                'Indice': getattr(self, "indice_np_array"),
+            })
+
+            df.set_index('Date', inplace=True)
+            df.to_csv(csv_filename, sep=";", index=True)
+            (_, fbody, _) = hfile_path.get_pfe(csv_filename)
+            if len(self.infotext):
+                self.infotext = self.infotext + "\n"+ f"save_csv: {fbody+".csv"}"
+            else:
+                self.infotext = f"save_csv: {fbody+".csv"}"
+
+        # end if
+        return
     # end def
     def exist_file(self):
         if self.file_flag:

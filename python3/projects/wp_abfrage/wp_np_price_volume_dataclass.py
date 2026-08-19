@@ -128,7 +128,7 @@ class NpPriceVolumeClass:
             csv_filename = hfile_path.reset_ext(self.file_name,"csv")
 
             df = pd.DataFrame({
-                'Date': pd.to_datetime(getattr(self, "dat_np_array"), unit='s'),
+                'Date':  pd.to_datetime(getattr(self, "dat_np_array"), unit='s').strftime('%d.%m.%Y %H:%M-%a'),
                 'Open': getattr(self, "start_np_array"),
                 'High': getattr(self, "high_np_array"),
                 'Low': getattr(self, "low_np_array"),
@@ -136,8 +136,8 @@ class NpPriceVolumeClass:
                 'Volume': getattr(self, "volume_np_array")
             })
 
-            # df.set_index('Date', inplace=True)
-            df.to_csv(csv_filename, sep=";", index=False)
+            df.set_index('Date', inplace=True)
+            df.to_csv(csv_filename, sep=";", index=True)
             (_, fbody, _) = hfile_path.get_pfe(csv_filename)
             if len(self.infotext):
                 self.infotext = self.infotext + "\n"+ f"save_csv: {fbody+".csv"}"
@@ -314,7 +314,7 @@ class NpPriceVolumeClass:
                 if (i == 0) and (n>1): # Wert von i=1 nehmen
 
                     if j == 0: # date
-                        self.dat_np_array[i] = wp_fkt.naechster_handelstag_dat_list(self.dat_np_array[i+1], vorwaerts=False)
+                        self.dat_np_array[i] = wp_fkt.naechster_handelstag_timestamp(self.dat_np_array[i+1], vorwaerts=False)
                     else:
                         np_array = getattr(self, self.np_name_list[j])
                         np_array[i] = np_array[i+1]
@@ -338,7 +338,7 @@ class NpPriceVolumeClass:
                 else: # ansonsten interpolieren
 
                     if j == 0: # date
-                        self.dat_np_array[i] = wp_fkt.naechster_handelstag_dat_list(self.dat_np_array[i - 1],
+                        self.dat_np_array[i] = wp_fkt.naechster_handelstag_timestamp(self.dat_np_array[i - 1],
                                                                                     vorwaerts=True)
                     else:
                         np_array = getattr(self, self.np_name_list[j])

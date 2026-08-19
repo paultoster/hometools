@@ -19,7 +19,7 @@ from wp_abfrage import wp_fkt
 from wp_abfrage import wp_yahoofinance as wp_yfinance
 from wp_abfrage import wp_ezbleitzins_requests as wp_ezbleitzins_requests
 from wp_abfrage import wp_bearbeiten as wp_bearbeit
-from wp_abfrage import wp_indice_yahoo as wp_indice_yahoo
+from wp_abfrage import wp_fkt
 
 def process_akt(wb_obj):
     """
@@ -27,6 +27,8 @@ def process_akt(wb_obj):
     :param wb_obj:
     :return: (status, errtext) = process_akt(wp_obj)
     """
+    # Lade bisherigen Datensatz
+    #--------------------------
     np_obj = wp_bearbeit.read_indice_np_data(wb_obj,wb_obj.par.INDICES_EZB_LEITZINS_NAME)
     if (np_obj is None) or np_obj.is_empty():
         lastdat = htype.type_transform_direct(wb_obj.base_ddict["price_volumen_first_dat"], "datStrP", "dat")
@@ -34,17 +36,17 @@ def process_akt(wb_obj):
         (firstdat,lastdat) = np_obj.get_first_last_dat("dat")
 
     # Was ist der letzte aktuelle Handelsdatum
-    end_dat_time_list = wp_fkt.letzter_beendeter_handelstag_dat_list(wb_obj.base_ddict["boerse"])
-    end_dat = htype.type_transform_direct(end_dat_time_list, "datTimeList", "dat")
+    end_dat = wp_fkt.letzter_beendeter_handelstag_timestamp(wb_obj.base_ddict["boerse"])
 
+    # Neuer Datensatz bis aktuellem Datum:
+    #-------------------------------------
 
-    (status, errtext,dat_np_array) = wp_indice_yahoo.get_datums_reihe(wb_obj,lastdat,end_dat,wb_obj.par.INDICES_USDEURO_NAME)
-    if status != hdef.OKAY:
-        return (status, errtext)
+    # hole von usdeuro das datums-array
+    dat_np_array = wp_fkt.get_np_handels_tage_von_bis(lastdat,end_dat)
 
 
     # Holle EZB-Leitzins und erweitere auf datums-reihe
-    np_obj = wp_bearbeit.build_indice_np_obj(wb_obj)
+    np_obj = wp_bearbeit.build_indice_np_obj(wb_obj,wb_obj.par.INDICES_EZB_LEITZINS_NAME)
     (status, errtext, np_obj_zins) = wp_ezbleitzins_requests.get_data(np_obj, lastdat, end_dat)
 
     np_obj_zins = erweitere_auf_dat_np_array(wb_obj,np_obj_zins,dat_np_array)
@@ -52,7 +54,9 @@ def process_akt(wb_obj):
     if status != hdef.OKAY:
         return (status, errtext)
 
-    (status, errtext) = update_with_np_obj_new(wb_obj,np_obj_zins)
+    # Merge beide Datensätze
+    #-----------------------
+    (status, errtext) = update_with_np_obj_new(wb_obj,np_obj,np_obj_zins)
 
     return (status, errtext)
 # end def
@@ -92,7 +96,7 @@ def erweitere_auf_dat_np_array(wb_obj,np_obj_zins,dat_np_array):
         zins_array[i] = zins_old
     # end for
 
-    np_obj = wp_bearbeit.build_indice_np_obj()
+    np_obj = wp_bearbeit.build_indice_np_obj(wb_obj,wb_obj.par.INDICES_EZB_LEITZINS_NAME)
     np_obj.put_signal(dat_np_array, zins_array)
 
     return np_obj
@@ -166,7 +170,7 @@ def merge_usdeuro_np_obj_new_to_np_obj(wb_obj,np_obj,np_obj_new):
             # end if
         # end for
 
-        np_obj_out = wp_bearbeit.build_indice_np_obj()
+        np_obj_out = wp_bearbeit.build_indice_np_obj(wb_obj,wb_obj.par.INDICES_EZB_LEITZINS_NAME)
         np_obj_out.put_signal(np_dat_merge, np_usdeuro_merge)
 
     # end if

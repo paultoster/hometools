@@ -321,6 +321,115 @@ def bilde_gleiche_basis(np_dat_array_liste,np_array_liste_in):
     # end for
     return (status, errtext, np_dat_array, np_array_liste)
 # end def
+def build_sort_list_of_index_for_dat_array(np_dat_array1, np_dat_array2):
+    """
+    siehe build_sort_list_of_index(), aber es wird direkt mit dem Datum gerechnet
+    """
+    np_array1 = np_dat_array1.astype('datetime64[s]').astype('datetime64[D]')
+    np_array2 = np_dat_array2.astype('datetime64[s]').astype('datetime64[D]')
+
+    pre_sort_index_list = []
+
+    index1 = 0
+    index2 = 0
+    n1 = len(np_array1)
+    n2 = len(np_array2)
+    LIST1 = 0
+    LIST2 = 1
+
+    flag_run_liste1 = True
+    flag_run_liste2 = True
+
+
+    if n1 == 0:
+        for i in range(n2):
+            pre_sort_index_list.append((LIST2, i))
+        # end if
+    elif n2 == 0:
+        for i in range(n1):
+            pre_sort_index_list.append((LIST1, i))
+        # end if
+    else:
+
+        while index1 < n1 and index2 < n2:
+
+            if flag_run_liste2 and (np_array2[index2] < np_array1[index1]):
+                pre_sort_index_list.append((LIST2, index2))
+                index2 += 1
+            elif flag_run_liste1 and (np_array1[index1] < np_array2[index2]):
+                pre_sort_index_list.append((LIST1, index1))
+                index1 += 1
+            elif np_array1[index1] == np_array2[index2]:
+                pre_sort_index_list.append((LIST1, index1))
+                index1 += 1
+                index2 += 1
+            elif flag_run_liste2 and (np_array2[index2] > np_array1[index1]):
+                pre_sort_index_list.append((LIST2, index2))
+                index2 += 1
+            elif flag_run_liste1 and (np_array1[index1] > np_array2[index2]):
+                pre_sort_index_list.append((LIST1, index1))
+                index1 += 1
+            # end if
+
+            if flag_run_liste1:
+                if index1 == n1:
+                    flag_run_liste1 = False
+                    index1 = n1 - 1
+                # end if
+            # end if
+            if flag_run_liste2:
+                if index2 == n2:
+                    flag_run_liste2 = False
+                    index2 = n2 - 1
+                # end if
+            # end if
+            if not flag_run_liste1 and not flag_run_liste2:
+                break
+            # end if
+
+        # end while
+    # end if
+
+    sort_index_list = []
+    n = len(pre_sort_index_list)
+    if n > 0:
+        if pre_sort_index_list[0][0] == LIST1:
+            akt_liste1_flag = True
+        else:
+            akt_liste1_flag = False
+        # end if
+
+        i1 = 0
+        for index, val in enumerate(pre_sort_index_list):
+
+            if akt_liste1_flag:
+                if val[0] == LIST2:
+                    i2 = pre_sort_index_list[index - 1][1]
+                    sort_index_list.append((LIST1, i1, i2))
+                    akt_liste1_flag = False
+                    i1 = val[1]
+                # end if
+            else:
+                if val[0] == LIST1:
+                    i2 = pre_sort_index_list[index - 1][1]
+                    sort_index_list.append((LIST2, i1, i2))
+                    akt_liste1_flag = True
+                    i1 = val[1]
+                # end if
+            # end if
+            if index == (n - 1):
+                i2 = val[1]
+                if akt_liste1_flag:
+                    sort_index_list.append((LIST1, i1, i2))
+                else:
+                    sort_index_list.append((LIST2, i1, i2))
+                # end if
+            # end if
+        # end for
+    # end if
+    return sort_index_list
+# end def
+
 def build_sort_list_of_index(np_data_array1, np_data_array2, overlap):
     """
     In welcher Reihen Folge werden liste1 und liste2 zusammengesetzt. Dabei gilt z.B datum von liste1 zuerst und Datum von liste2, wenn es in liste1 fehlt

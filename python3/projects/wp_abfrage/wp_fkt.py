@@ -7,13 +7,13 @@
     - Schreibt immer eine Liste raus => isin_list
     - Prüft jeden Wert, ob eine echte isin
 
-    dat_time_list = wp_fkt.letzter_beendeter_handelstag_dat_list(boerse)
-    - Berechnet anhand aktuellem Datum und Zeit den letzten abgeschlossenen Handelstag
+    dat_timestamp = wp_fkt.letzter_beendeter_handelstag_timestamp(boerse)
+    - Berechnet anhand aktuellem Datum und Zeit den letzten abgeschlossenen Handelstag als timestamp (secs)
     - boerse bisher nur "xetra"
 
-    flag = wp_fkt.ist_kein_handestag(date_tuple,boerse)
+    flag = wp_fkt.ist_kein_handestag(date_time,boerse)
     - Prüft ob das Datum kein Handelstag ist
-    - date_tuple: (tag,monat,jahr,...)  type = datList oder datTimeList
+    - date_time: datetime.datetime  type = datTime
 
     sort_index_list = wp_fkt.build_sort_list_of_index(list1, list2,distbetween)
     - In welcher Reihen Folge werden liste1 und liste2 zusammengesetzt.
@@ -48,7 +48,7 @@
 import os
 import sys
 # import pandas as pd
-
+import datetime
 import numpy as np
 
 t_path, _ = os.path.split(__file__)
@@ -146,81 +146,85 @@ def check_isin_input(isin_input):
 
     return (status,errtext,isin_input_is_list, isin_list)
 # end def
-def letzter_beendeter_handelstag_dat_list(boerse=None):
+def letzter_beendeter_handelstag_timestamp(boerse=None):
     """
 
     :param boerse:
-    :return: dat_time_list = letzter_beendeter_handelstag_dat_list(boerse)
+    :return: dat_timestamp = letzter_beendeter_handelstag_timestamp(boerse)
     """
     if boerse is None:
         boerse = "xetra"
     # end if
 
     # letzte Handelszeit Zeit
-    dat_time_list = hdt.get_akt_dat_time_list()
+    date_time = datetime.datetime.today()
 
     # wenn kein Handelstag, dann ein Tag zurück bis Handelstag
-    while ist_kein_handestag(dat_time_list,boerse):
-        dat_time_list = hdt.verschiebe_dat_list_in_tagen(dat_time_list,-1)
+    while ist_kein_handestag(date_time,boerse):
+        date_time -= datetime.timedelta(days=1)
 
     # Handelstag auf Handelsschluss setzen
     if boerse == "xetra":
-        dat_time_list[3:6] = XETRA_HANDEL_ENDE_TIME_TUP[0:3]
+        date_time = date_time.replace(hour=XETRA_HANDEL_ENDE_TIME_TUP[0],
+                                      minute=XETRA_HANDEL_ENDE_TIME_TUP[1],
+                                      second=XETRA_HANDEL_ENDE_TIME_TUP[2],
+                                      microsecond=0)
     else:
         raise Exception(f"ausgewählte Börse {boerse} ist nicht implementiert")
     # end if
 
     # aktuelle Zeit
-    akt_dat_time_list = hdt.get_akt_dat_time_list()
+    akt_dat_time = datetime.datetime.now()
 
     # Wenn aktuelle Zeit nach Handelschluß dann Handelstag nehmen
-    if hdt.is_dat_time_list_a_to_b(akt_dat_time_list,dat_time_list,'>'):
+    if akt_dat_time > date_time:
         pass
     # Ansosnten einen Tag zurück und prüfen, ob Handelstag
     else:
-        dat_time_list = hdt.verschiebe_dat_list_in_tagen(dat_time_list, -1)
-        while ist_kein_handestag(dat_time_list, boerse):
-            dat_time_list = hdt.verschiebe_dat_list_in_tagen(dat_time_list, -1)
+        date_time -= datetime.timedelta(days=1)
+        while ist_kein_handestag(date_time, boerse):
+            date_time -= datetime.timedelta(days=1)
     # end if
-    return dat_time_list
+    date_time = date_time.replace(hour=0,minute=0,second=0)
+    return int(date_time.timestamp())
 # end def
-def naechster_handelstag_dat_list(dat,vorwaerts=True,boerse=None):
+def naechster_handelstag_timestamp(dat,vorwaerts=True,boerse=None):
     """
 
     :param boerse:
-    :return: dat = naechster_handelstag_dat_list(dat,vorwaerts=True,boerse=None)
+    :return: dat = naechster_handelstag_timestamp(dat,vorwaerts=True,boerse=None)
     """
     if boerse is None:
         boerse = "xetra"
     # end if
 
     #
-    dat_time_list = hdt.calc_secs_to_dat_time_list(dat)
+    date_time = datetime.datetime.fromtimestamp(dat).date()
 
     if vorwaerts:
-        dat_time_list = hdt.verschiebe_dat_list_in_tagen(dat_time_list, 1)
+        date_time += datetime.timedelta(days=1)
     else:
-        dat_time_list = hdt.verschiebe_dat_list_in_tagen(dat_time_list, -1)
+        date_time -= datetime.timedelta(days=1)
 
     # wenn kein Handelstag, dann ein Tag vor
-    while ist_kein_handestag(dat_time_list, boerse):
+    while ist_kein_handestag(date_time, boerse):
         if vorwaerts:
-            dat_time_list = hdt.verschiebe_dat_list_in_tagen(dat_time_list, 1)
+            date_time += datetime.timedelta(days=1)
         else:
-            dat_time_list = hdt.verschiebe_dat_list_in_tagen(dat_time_list, -1)
+            date_time -= datetime.timedelta(days=1)
 
     # Handelstag auf Handelsschluss setzen
     if boerse == "xetra":
-        dat_time_list[3:6] = XETRA_HANDEL_ENDE_TIME_TUP[0:3]
+        date_time.replace(hour=XETRA_HANDEL_ENDE_TIME_TUP[0],
+                          minute=XETRA_HANDEL_ENDE_TIME_TUP[1],
+                          second=XETRA_HANDEL_ENDE_TIME_TUP[2])
     else:
         raise Exception(f"ausgewählte Börse {boerse} ist nicht implementiert")
     # end if
 
-    return  hdt.calc_dat_time_list_to_secs(dat_time_list)
-
-
+    return  int(date_time.timestamp())
 # end def
-def ist_kein_handestag(date_tuple,boerse):
+def ist_kein_handestag(datetimeproof,boerse=None):
     """
 
     :param date_tuple: (tag,monat,jahr,...)
@@ -228,18 +232,25 @@ def ist_kein_handestag(date_tuple,boerse):
     :return: flag = ist_kein_handestag(date_tuple,boerse)
     """
 
+    if boerse is None:
+        boerse = "xetra"
+    # end if
+
     # Wochenende
-    if hdt.get_isoweekday(date_tuple) > 5:
+    if not datetimeproof.isoweekday():
         return True
+
+    np_array_feiertage = build_np_array_feiertage_datetime_d(datetimeproof.year)
+    np_datetimeproof = np.datetime64(datetimeproof).astype('datetime64[D]')
 
     # Feiertage
     if boerse == "xetra":
-        if hdt.is_dat_list_a_to_b(date_tuple,FEIERTAGE_XETRA_LLISTE[-1],'>'):
-            raise Exception(f"aktuelles Datum: {hdt.str_dat_from_dat_list(date_tuple)} ist später als letzter Feiertag eintrag: {hdt.str_dat_from_dat_list(FEIERTAGE_XETRA_LLISTE[-1])}")
+        if np_datetimeproof > np_array_feiertage[-1]:
+            raise Exception(f"aktuelles Datum: {np_datetimeproof} ist später als letzter Feiertag eintrag: {hdt.str_dat_from_dat_list(FEIERTAGE_XETRA_LLISTE[-1])}")
         # end if
 
-        for liste in FEIERTAGE_XETRA_LLISTE:
-            if hdt.is_dat_list_a_to_b(date_tuple,liste,'=='):
+        for np_feiertag in np_array_feiertage:
+            if np_datetimeproof == np_feiertag.astype('datetime64[D]'):
                 return True
             # end if
         # end for
@@ -248,40 +259,95 @@ def ist_kein_handestag(date_tuple,boerse):
     # end if
     return False
 # end def
-# def build_overlap_dict_of_index(list1, list2,distbetween):
-#     """
-#     Was ist aus Sicht liste1 (key=index1) gleich bzw. im distbetween Bereich von liste2 (value=index2)
-#
-#     :param list1: erste Liste mit Daten
-#     :param list2: zweite Liste mit Daten
-#     :param distbetween: distbetween offset
-#     :return: distbetween_index_dict = build_index_class_of_euro_dict(list1,list2,distbetween) => overlap_index_dict[key] = value key: index of liste1 value: index of liste2
-#     """
-#
-#
-#     distbetween_ndex_dict = {}
-#     distbetweenhalf = distbetween / 2
-#     index2 = 0
-#     n2 = len(list2)
-#
-#     for index1, dat in enumerate(list1):
-#
-#         while (index2 < (n2-1)) and (dat > (list2[index2] + distbetweenhalf)):
-#             index2 += 1
-#         # end while
-#
-#         while (index2 > 0) and (dat < (list2[index2] - distbetweenhalf)):
-#             index2 -= 1
-#         # end while
-#
-#         if abs(dat - list2[index2]) < distbetweenhalf:
-#             distbetween_ndex_dict[index1] = index2
-#             index2 += 1
-#         # end if
-#     # end for
-#     # print("overlap_ndex_dict:", overlap_ndex_dict)
-#     return distbetween_ndex_dict
-# # end def
+def get_np_handels_tage_von_bis(datstart:int,datend:int):
+    """
+    Gibt alle Xetra-Handelstage des angegebenen Zeitraum zurück.
+    Rückgabe in timestamp
+    np_handelstage_dat_array = get_np_handels_tage_von_bis(datstart,datend)
+    """
+
+    datetimestart = datetime.datetime.fromtimestamp(datstart).date()
+    datetimeend = datetime.datetime.fromtimestamp(datend).date()
+
+    jahre = np.arange(datetimestart.year, datetimeend.year+1)
+    n = len(jahre)
+    np_handelstage_dat_array = np.array([],dtype='int64')
+    for i,jahr in enumerate(jahre):
+
+        feiertage = build_np_array_feiertage_datetime_d(jahr)
+
+        # Börsenkalender
+        kalender = np.busdaycalendar(
+            weekmask='1111100',
+            holidays=feiertage
+        )
+        if i == 0:
+            startdatum = datetimestart
+        else:
+            startdatum = f'{jahr}-01-01'
+        # end if
+
+        if i == n-1:
+            enddatum = datetimeend + datetime.timedelta(days=1)
+        else:
+            enddatum = f'{jahr+1}-01-01'
+        # end if
+
+        tage = np.arange(
+            np.datetime64(startdatum),
+            np.datetime64(enddatum),
+            np.timedelta64(1, 'D')
+        )
+
+        werktage = tage[np.is_busday(tage, busdaycal=kalender)]
+
+        ttt = werktage.astype('datetime64[s]').astype('int64')
+        np_handelstage_dat_array = np.concatenate((np_handelstage_dat_array, ttt))
+
+    # Alle Xetra-Handelstage
+    return np_handelstage_dat_array
+#end def
+def build_np_array_feiertage_datetime_d(jahr):
+    """
+    :param jahr:
+    :return: feiertage = build_np_array_feiertage_datetime_d(jahr)
+    feiertage = array(datetime.date(2026,12,31),...)
+    """
+    # Ostersonntag nach dem Gregorianischen Kalender
+    a = jahr % 19
+    b = jahr // 100
+    c = jahr % 100
+    d = b // 4
+    e = b % 4
+    f = (b + 8) // 25
+    g = (b - f + 1) // 3
+    h = (19 * a + b - d - g + 15) % 30
+    i = c // 4
+    k = c % 4
+    l = (32 + 2 * e + 2 * i - h - k) % 7
+    m = (a + 11 * h + 22 * l) // 451
+    monat = (h + l - 7 * m + 114) // 31
+    tag = ((h + l - 7 * m + 114) % 31) + 1
+
+    ostern = datetime.date(jahr, monat, tag)
+
+    # Xetra handelsfreie Tage
+    feiertage = [
+        datetime.date(jahr, 1, 1),  # Neujahr
+        ostern - datetime.timedelta(days=2),  # Karfreitag
+        ostern + datetime.timedelta(days=1),  # Ostermontag
+        datetime.date(jahr, 5, 1),  # Tag der Arbeit
+        datetime.date(jahr, 12, 24),  # Heiligabend
+        datetime.date(jahr, 12, 25),  # 1. Weihnachtstag
+        datetime.date(jahr, 12, 26),  # 2. Weihnachtstag
+        datetime.date(jahr, 12, 31),  # Silvester
+    ]
+
+    # NumPy-Datumsarray
+    np_array_feiertage = np.array(feiertage, dtype='datetime64[D]')
+
+    return np_array_feiertage
+# end def
 def build_sort_list_of_index(list1, list2,distbetween):
     """
     In welcher Reihen Folge werden liste1 und liste2 zusammengesetzt. Dabei gilt z.B datum von liste1 zuerst und Datum von liste2, wenn es in liste1 fehlt
@@ -473,6 +539,60 @@ def find_index_range(liste, start_item,last_item, distbetween):
 
     return (start_index,end_index,start_in_range,end_in_range)
 # end def
+def interpol_with_dat_const(np_dat_array,np_value_array,np_dat_calc_array):
+    """
+    Sucht für den np_dat_calc_array in np_value_array(np_dat_array) die interpolierten Konstantwerte
+    np_value_calc_array = interpol_with_dat_const(np_dat_array,np_value_array,np_dat_calc_array)
+    """
+
+    n = min(len(np_dat_array),len(np_value_array))
+    np_value_calc_array = np.zeros_like(np_dat_calc_array).astype(np_value_array.dtype)
+
+    i0 = 0
+    for i,dat in enumerate(np_dat_calc_array):
+
+        i0 = find_const_interpol_index(np_dat_array,dat, i0)
+
+        if i0 >= n:
+            i0 = n-1
+
+        np_value_calc_array[i] = np_value_array[i0]
+    # end for
+
+    return np_value_calc_array
+# end def
+def find_const_interpol_index(np_array,value, istart):
+    """
+    i0 = find_const_interpol_index(np_array,value,istart)
+    """
+    n = len(np_array)
+    index = max(min(istart, n), 0)
+
+    while index < n:
+
+        if value < np_array[index]:
+            if index == 0:
+                i0 = 0
+                break
+            else:
+                index -= 1
+            # end if
+        else:
+            if index == (n - 1):
+                i0 = n - 1
+                break
+            elif value < np_array[index + 1]:
+                i0 = index
+                break
+            else:
+                index += 1
+            # end if
+        # end if
+    # end while
+    return i0
+# end def
+
+
 def find_linear_interpol(float_np_array, float_value, istart):
     """
     :param float_np_array:  numpy array
@@ -584,88 +704,15 @@ def find_currency(item):
         return "percent"
     # end if
 # end def
-
-# def merge_usdeuro_dfnew_to_df(df,df_new, dat_name,usdeuro_name):
-#     """
-#
-#     :param df:
-#     :param df_new:
-#     :param dat_name:
-#     :param usdeuro_name: (status, errtext, df_merge) = wp_fkt.merge_usdeuro_dfnew_to_df(df,df_new, dat_name,usdeuro_name)
-#     :return:
-#     """
-#     status = hdef.OKAY
-#     errtext = ""
-#
-#     np_dat_akt = df[dat_name].to_numpy()
-#     np_dat_new = df_new[dat_name].to_numpy()
-#
-#     half_day_seconds = 24 * 60 * 60
-#     sort_index_list = build_sort_list_of_index(list(np_dat_akt), list(np_dat_new), half_day_seconds)
-#
-#     if len(sort_index_list):
-#         np_usdeuro_akt = df[usdeuro_name].to_numpy()
-#         np_usdeuro_new = df_new[usdeuro_name].to_numpy()
-#
-#         np_dat_merge = np.array([], dtype=np.int64)
-#         np_usdeuro_merge = np.array([], dtype=np.float64)
-#
-#
-#         for index,val in enumerate(sort_index_list):
-#
-#             if val[0] == 0:
-#                 np_dat_merge = np.append(np_dat_merge,np_dat_akt[val[1]:val[2]+1])
-#                 np_usdeuro_merge = np.append(np_usdeuro_merge,np_usdeuro_akt[val[1]:val[2]+1])
-#             else:
-#                 np_dat_merge = np.append(np_dat_merge,np_dat_new[val[1]:val[2]+1])
-#                 np_usdeuro_merge = np.append(np_usdeuro_merge,np_usdeuro_new[val[1]:val[2] + 1])
-#             # end if
-#         # end for
-#         (status, errtext, df) = build_usdeuro_df(np_dat_merge, dat_name, np_usdeuro_merge, usdeuro_name)
-#     # end if
-#     return (status, errtext, df )
-# # end def
-# def get_usdeuro_df_with_dat(df,first_dat,last_dat,dat_name,usdeuro_name):
-#     """
-#
-#     :param df:
-#     :param first_dat:
-#     :param last_dat:
-#     :param dat_name:
-#     :param usdeuro_name:
-#     :return: (status, errtext, dfpart,first_df_dat,last_df_dat) = wp_fkt.get_usdeuro_df_with_dat(df,first_dat,last_dat,dat_name,usdeuro_name)
-#     """
-#     status = hdef.OKAY
-#     errtext = ""
-#     dfpart = None
-#     first_df_dat = None
-#     last_df_dat = None
-#
-#     np_dat_akt = df[dat_name].to_numpy()
-#     np_usdeuro_akt = df[usdeuro_name].to_numpy()
-#
-#     half_day_seconds = 12 * 60 * 60
-#     (start_index,last_index,start_in_range,last_in_range) = find_index_range(list(np_dat_akt), first_dat,last_dat, half_day_seconds)
-#
-#     if (start_index is None) or (last_index is None):
-#         status = hdef.NOT_OKAY
-#         errtext = f"Das Datum zwischen {first_dat = } und {last_dat = } konnte nicht gefunden werden."
-#         return (status,errtext,dfpart,first_df_dat,last_dat,first_df_dat,last_df_dat)
-#     else:
-#         np_dat_part = np.array(np_dat_akt[start_index:last_index+1])
-#         np_usdeuro_part = np.array(np_usdeuro_akt[start_index:last_index+1])
-#         first_df_dat = np_dat_part[0]
-#         last_df_dat = np_dat_part[-1]
-#         dfpart = build_usdeuro_df(np_dat_part, dat_name, np_usdeuro_part, usdeuro_name)
-#     # end if
-#     return (status,errtext,dfpart,first_df_dat,last_dat,first_df_dat,last_df_dat)
-# # end def
 ###########################################################################
 # testen mit main
 ###########################################################################
 if __name__ == '__main__':
 
-    # dat_tup = letzter_beendeter_handelstag_dat_list("xetra")
+    a = datetime.date(2026, 5, 1)
+
+
+    # dat_tup = letzter_beendeter_handelstag_timestamp("xetra")
 
     # print(hdt.str_dat_from_dat_list(dat_tup))
 

@@ -496,8 +496,8 @@ def proof_is_upgedated(wb_obj,wp_dict):
 
 
     # Was ist der letzte aktuelle Handelsdatum
-    end_dat_time_list = wp_fkt.letzter_beendeter_handelstag_dat_list(wb_obj.base_ddict["boerse"])
-    end_display_dat = htype.type_transform_direct(end_dat_time_list, "datTimeList", "datStrP")
+    end_dat_timestamp = wp_fkt.letzter_beendeter_handelstag_timestamp(wb_obj.base_ddict["boerse"])
+    end_display_dat = htype.type_transform_direct(end_dat_timestamp, "dat", "datStrP")
     end_dat = htype.type_transform_direct(end_display_dat, "datStrP", "dat")
 
     wp_dict["end_dat"] = end_dat
@@ -608,8 +608,8 @@ def get_update_dict_values(wb_obj, wp_dict):
     wp_dict["start_display_dat"] = start_display_dat
 
     # Was ist der letzte aktuelle Handelsdatum
-    end_dat_time_list = wp_fkt.letzter_beendeter_handelstag_dat_list(wb_obj.base_ddict["boerse"])
-    end_display_dat = htype.type_transform_direct(end_dat_time_list, "datTimeList", "datStrP")
+    end_dat_timestamp = wp_fkt.letzter_beendeter_handelstag_timestamp(wb_obj.base_ddict["boerse"])
+    end_display_dat = htype.type_transform_direct(end_dat_timestamp, "dat", "datStrP")
     end_dat = htype.type_transform_direct(end_display_dat, "datStrP", "dat")
 
     wp_dict["end_dat"] = end_dat
@@ -1462,12 +1462,12 @@ def pruefe_datums_kontinuitaet(np_dat_akt,np_dat_new):
         else:
             d = 24*60*60
             next_day = last_dat + d
-            while wp_fkt.ist_kein_handestag(hdt.calc_secs_to_dat_time_list(next_day), "xetra"):
+            while wp_fkt.ist_kein_handestag(hdt.calc_secs_to_datetime_date(next_day), "xetra"):
                 next_day += d
             next_day -= d
 
             day_bef =  first_dat - d
-            while wp_fkt.ist_kein_handestag(hdt.calc_secs_to_dat_time_list(day_bef), "xetra"):
+            while wp_fkt.ist_kein_handestag(hdt.calc_secs_to_datetime_date(day_bef), "xetra"):
                 day_bef -= d
             day_bef += d
 

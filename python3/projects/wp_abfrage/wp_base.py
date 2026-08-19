@@ -417,6 +417,13 @@ class WPData:
 
         return (self.status, self.errtext,indices_liste)
     # end def
+    def get_leitzins_indice(self):
+
+        indice = wp_base_indices.get_leitzins_indice(self)
+
+        return indice
+    # end def
+
     def is_an_indice(self,wp):
         """
         (status, errtext) = self.is_rom_indes_liste(wp)
@@ -441,6 +448,18 @@ class WPData:
 
         return (self.status, self.errtext,self.infotext)
     # end def
+    def make_backup_indice(self,indice_liste=[],move_flag = False):
+        """
+        :param wb_obj:
+        :return: (status, errtext) = make_backup_basic_infos(wb_obj)
+        """
+        (self.status,self.errtext) = wp_base_indices.make_backup(self,indice_liste,move_flag)
+        if self.status != hdef.OKAY:
+            return (self.status,self.errtext)
+
+        return (self.status,self.errtext)
+    # end def
+
     def get_dict_indice_from_act(self, indice=None):
         """
         (status, errtext, np_obj_dict) = self.get_dict_indice_from_act()
@@ -473,10 +492,17 @@ class WPData:
 
         (self.status,self.errtext) = wp_base_indices.process_ezb_xml(self,xmlfilename,indice)
 
+        return (self.status,self.errtext)
+    # end def
+    def process_indice_ezb_leitzins_csv(self,csvfilename:str):
+        """
+        :param csvfilename:
+        (status, errtext) = wp_obj.process_indice_ezb_leitzins_csv(csvfilename)
+        """
+        (self.status,self.errtext) = wp_base_indices.process_ezb_leitzins_csv(self,csvfilename)
 
         return (self.status,self.errtext)
     # end def
-
     def is_an_isin(self,isin):
         (status, wert) = htype.type_proof_isin(isin)
         if status == hdef.OKAY:

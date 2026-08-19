@@ -26,8 +26,8 @@ def update_last_price_volume_isin(wp_obj, isin_basic_dict, isin):
     errtext = ""
 
     print("Bestimme letzen aktiven Handelstag:")
-    last_active_dat_time_list = wp_fkt.letzter_beendeter_handelstag_dat_list(wp_obj.base_ddict["boerse"])
-    datStrLast = htype.type_transform_direct(last_active_dat_time_list,"datTimeList","datStrP")
+    last_active_dat_timestamp = wp_fkt.letzter_beendeter_handelstag_timestamp(wp_obj.base_ddict["boerse"])
+    datStrLast = htype.type_transform_direct(last_active_dat_timestamp,"dat","datStrP")
     print(f"letzen aktiver Handelstag: {datStrLast}")
     first_active_dat_time_list = wp_obj.basic_dict["price_volumen_first_dat "]
 
@@ -36,7 +36,7 @@ def update_last_price_volume_isin(wp_obj, isin_basic_dict, isin):
 
 
     # Prüfe ob Daten vorhanden
-    (flag, last_stored_dat_time_list) =  proof_date_in_price_volume_data(wp_obj, isin, last_active_dat_time_list)
+    (flag, last_stored_dat_time_list) =  proof_date_in_price_volume_data(wp_obj, isin)
     if not flag:
 
         if len(isin_basic_dict["ticker"]) != 0:
@@ -56,7 +56,7 @@ def update_last_price_volume_isin(wp_obj, isin_basic_dict, isin):
 
     return (status,errtext)
 # end def
-def proof_date_in_price_volume_data(wp_obj, isin, last_active_dat_time_list):
+def proof_date_in_price_volume_data(wp_obj, isin):
     """
 
     :param wp_obj:
