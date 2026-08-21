@@ -2,6 +2,7 @@ import numpy as np
 import os, sys, re
 from ecbdata import ecbdata
 import pandas as pd
+import datetime
 
 t_path, _ = os.path.split(__file__)
 tools_path = t_path + "\\.."
@@ -11,6 +12,9 @@ if (tools_path not in sys.path):
 
 from tools import hfkt_type as htype
 from tools import hfkt_def as hdef
+from tools import hfkt_np_fkt as hnp_fkt
+
+from wp_abfrage import wp_fkt
 
 def get_data(np_obj,start_dat, end_dat):
     """
@@ -24,11 +28,6 @@ def get_data(np_obj,start_dat, end_dat):
     start_dat_time = start_dat_time_class.strftime('%Y-%m-%d')
 
 
-    # End time
-    # end_dat_add = end_dat + 24 * 60 * 60
-    # end_dat_time_class   = htype.type_transform_direct(end_dat_add,"dat","datetimeclass")
-    # end_dat_time = end_dat_time_class.strftime('%Y-%m-%d')
-    start_dat_time = "1999-01-01"
     df = ecbdata.get_series('FM.B.U2.EUR.4F.KR.DFR.LEV', start=start_dat_time)
 
     # Nur die interessanten Spalten auswählen
@@ -41,13 +40,23 @@ def get_data(np_obj,start_dat, end_dat):
     df_ecbzins.set_index("TIME_PERIOD", inplace=True)
 
     date_str_list = df_ecbzins.index.strftime("%d.%m.%Y").tolist()
-    ezb_dat_np_array = np.array(htype.type_transform_direct(date_str_list, "datStrP", "dat"), copy=True)
+    date_time_list = [datetime.datetime.strptime(d, "%d.%m.%Y") for d in date_str_list]
+    ezb_dat_np_array = hnp_fkt.transform_date_time_liste_in_np_dat_array_d(date_time_list)
+
     ezb_zins_np_array = df_ecbzins["OBS_VALUE"].to_numpy()
 
-    euro_dat_np_array   = ezb_dat_np_array.reshape(np.prod(ezb_dat_np_array.shape))
+
+    ezb_dat_np_array   = ezb_dat_np_array.reshape(np.prod(ezb_dat_np_array.shape))
     ezb_zins_np_array = ezb_zins_np_array.reshape(np.prod(ezb_zins_np_array.shape))
 
-    np_obj.put_signal(ezb_dat_np_array,ezb_zins_np_array)
+    dat_letzter_handelstag = wp_fkt.letzter_beendeter_handelstag_timestamp()
+
+    np_handelstage_dat_array = wp_fkt.get_np_handels_tage_von_bis(start_dat,dat_letzter_handelstag)
+
+    ezb_zins_handelstage_np_array = wp_fkt.interpol_with_dat_const(ezb_dat_np_array,ezb_zins_np_array,np_handelstage_dat_array)
+
+
+    np_obj.put_signal(np_handelstage_dat_array,ezb_zins_handelstage_np_array)
 
     np_obj.sort_by_dat()
 

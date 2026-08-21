@@ -1,6 +1,8 @@
 import os, sys
 import numpy as np
 
+import wp_base_indices
+
 # from hfkt_log import log
 
 t_path, _ = os.path.split(__file__)
@@ -46,61 +48,62 @@ def process_akt(wb_obj):
 
 
     # Holle EZB-Leitzins und erweitere auf datums-reihe
-    np_obj = wp_bearbeit.build_indice_np_obj(wb_obj,wb_obj.par.INDICES_EZB_LEITZINS_NAME)
-    (status, errtext, np_obj_zins) = wp_ezbleitzins_requests.get_data(np_obj, lastdat, end_dat)
+    np_obj_new = wp_bearbeit.build_indice_np_obj(wb_obj,wb_obj.par.INDICES_EZB_LEITZINS_NAME)
+    (status, errtext, np_obj_new) = wp_ezbleitzins_requests.get_data(np_obj_new, lastdat, end_dat)
 
-    np_obj_zins = erweitere_auf_dat_np_array(wb_obj,np_obj_zins,dat_np_array)
+    # np_obj_zins = erweitere_auf_dat_np_array(wb_obj,np_obj_zins,dat_np_array)
 
-    if status != hdef.OKAY:
-        return (status, errtext)
+    # if status != hdef.OKAY:
+    #     return (status, errtext)
 
     # Merge beide Datensätze
     #-----------------------
-    (status, errtext) = update_with_np_obj_new(wb_obj,np_obj,np_obj_zins)
+    print(np_obj_new.dat_np_array.astype('datetime64[s]'))
+    (status, errtext) = update_with_np_obj_new(wb_obj,np_obj,np_obj_new)
 
     return (status, errtext)
 # end def
-def erweitere_auf_dat_np_array(wb_obj,np_obj_zins,dat_np_array):
-    """
-        Erweitert auf dat_np_array dat_np_array in np_obj_zins unregelmässig nach Leitzinsänderung steht
-
-    :param np_obj_zins: dataclass
-    :param dat_np_array: dataclass
-        np_obj_zins = erweitere_auf_dat_np_array(np_obj_zins,dat_np_array)
-    """
-
-
-
-
-    zins_array = np.empty(len(dat_np_array), dtype=float)
-
-    nj = len(np_obj_zins.dat_np_array)
-
-    j = 0
-    zins_old = np_obj_zins.indice_np_array[j]
-    dat_old  = np_obj_zins.dat_np_array[j]
-    j += 1
-    for i,datval in enumerate(dat_np_array):
-
-        if datval >= np_obj_zins.dat_np_array[j]:
-            while (datval >= np_obj_zins.dat_np_array[j]):
-                zins_old = np_obj_zins.indice_np_array[j]
-                dat_old = np_obj_zins.dat_np_array[j]
-                j += 1
-                if j >= nj:
-                    j -= 1
-                    break
-            # end while
-        # end if
-
-        zins_array[i] = zins_old
-    # end for
-
-    np_obj = wp_bearbeit.build_indice_np_obj(wb_obj,wb_obj.par.INDICES_EZB_LEITZINS_NAME)
-    np_obj.put_signal(dat_np_array, zins_array)
-
-    return np_obj
-# end def
+# def erweitere_auf_dat_np_array(wb_obj,np_obj_zins,dat_np_array):
+#     """
+#         Erweitert auf dat_np_array dat_np_array in np_obj_zins unregelmässig nach Leitzinsänderung steht
+#
+#     :param np_obj_zins: dataclass
+#     :param dat_np_array: dataclass
+#         np_obj_zins = erweitere_auf_dat_np_array(np_obj_zins,dat_np_array)
+#     """
+#
+#
+#
+#
+#     zins_array = np.empty(len(dat_np_array), dtype=float)
+#
+#     nj = len(np_obj_zins.dat_np_array)
+#
+#     j = 0
+#     zins_old = np_obj_zins.indice_np_array[j]
+#     dat_old  = np_obj_zins.dat_np_array[j]
+#     j += 1
+#     for i,datval in enumerate(dat_np_array):
+#
+#         if datval >= np_obj_zins.dat_np_array[j]:
+#             while (datval >= np_obj_zins.dat_np_array[j]):
+#                 zins_old = np_obj_zins.indice_np_array[j]
+#                 dat_old = np_obj_zins.dat_np_array[j]
+#                 j += 1
+#                 if j >= nj:
+#                     j -= 1
+#                     break
+#             # end while
+#         # end if
+#
+#         zins_array[i] = zins_old
+#     # end for
+#
+#     np_obj = wp_bearbeit.build_indice_np_obj(wb_obj,wb_obj.par.INDICES_EZB_LEITZINS_NAME)
+#     np_obj.put_signal(dat_np_array, zins_array)
+#
+#     return np_obj
+# # end def
 def update_with_np_obj_new(wb_obj,np_obj,np_obj_new):
     """
 
@@ -116,7 +119,11 @@ def update_with_np_obj_new(wb_obj,np_obj,np_obj_new):
     if np_obj is not None:
 
         if isinstance(np_obj.dat_np_array, (np.ndarray, np.generic)):
-            (status, errtext, np_obj) = merge_usdeuro_np_obj_new_to_np_obj(wb_obj,np_obj,np_obj_new)
+            (status, errtext, np_obj) = wp_base_indices.merge_np_obj_new_to_np_obj(wb_obj,
+                                                                                   np_obj,
+                                                                                   np_obj_new,
+                                                                                   wb_obj.par.INDICES_EZB_LEITZINS_NAME,
+                                                                                   False)
             if status != hdef.OKAY:
                 return (status, errtext)
         else:
@@ -133,49 +140,49 @@ def update_with_np_obj_new(wb_obj,np_obj,np_obj_new):
 
     return (status,errtext)
 # end def
-def merge_usdeuro_np_obj_new_to_np_obj(wb_obj,np_obj,np_obj_new):
-    """
-
-    :param df:
-    :param df_new:
-    :param dat_name:
-    :param usdeuro_name: (status, errtext, df_merge) = obj.merge_usdeuro_dfnew_to_df(dwb_obj,np_obj,np_obj_new)
-    :return:
-    """
-    status = hdef.OKAY
-    errtext = ""
-
-    np_dat_akt = np_obj.dat_np_array
-    np_dat_new = np_obj_new.dat_np_array
-
-    half_day_seconds = 24 * 60 * 60
-    sort_index_list = wp_fkt.build_sort_list_of_index(list(np_dat_akt), list(np_dat_new), half_day_seconds)
-
-    if len(sort_index_list):
-        np_usdeuro_akt = np_obj.indice_np_array
-        np_usdeuro_new = np_obj_new.indice_np_array
-
-        np_dat_merge = np.array([], dtype=np.int64)
-        np_usdeuro_merge = np.array([], dtype=np.float64)
-
-
-        for index,val in enumerate(sort_index_list):
-
-            if val[0] == 0:
-                np_dat_merge = np.append(np_dat_merge,np_dat_akt[val[1]:val[2]+1])
-                np_usdeuro_merge = np.append(np_usdeuro_merge,np_usdeuro_akt[val[1]:val[2]+1])
-            else:
-                np_dat_merge = np.append(np_dat_merge,np_dat_new[val[1]:val[2]+1])
-                np_usdeuro_merge = np.append(np_usdeuro_merge,np_usdeuro_new[val[1]:val[2] + 1])
-            # end if
-        # end for
-
-        np_obj_out = wp_bearbeit.build_indice_np_obj(wb_obj,wb_obj.par.INDICES_EZB_LEITZINS_NAME)
-        np_obj_out.put_signal(np_dat_merge, np_usdeuro_merge)
-
-    # end if
-    return (status, errtext, np_obj_out )
-# end def
+# def merge_usdeuro_np_obj_new_to_np_obj(wb_obj,np_obj,np_obj_new):
+#     """
+#
+#     :param df:
+#     :param df_new:
+#     :param dat_name:
+#     :param usdeuro_name: (status, errtext, df_merge) = obj.merge_usdeuro_dfnew_to_df(dwb_obj,np_obj,np_obj_new)
+#     :return:
+#     """
+#     status = hdef.OKAY
+#     errtext = ""
+#
+#     np_dat_akt = np_obj.dat_np_array
+#     np_dat_new = np_obj_new.dat_np_array
+#
+#     half_day_seconds = 24 * 60 * 60
+#     sort_index_list = wp_fkt.build_sort_list_of_index(list(np_dat_akt), list(np_dat_new), half_day_seconds)
+#
+#     if len(sort_index_list):
+#         np_usdeuro_akt = np_obj.indice_np_array
+#         np_usdeuro_new = np_obj_new.indice_np_array
+#
+#         np_dat_merge = np.array([], dtype=np.int64)
+#         np_usdeuro_merge = np.array([], dtype=np.float64)
+#
+#
+#         for index,val in enumerate(sort_index_list):
+#
+#             if val[0] == 0:
+#                 np_dat_merge = np.append(np_dat_merge,np_dat_akt[val[1]:val[2]+1])
+#                 np_usdeuro_merge = np.append(np_usdeuro_merge,np_usdeuro_akt[val[1]:val[2]+1])
+#             else:
+#                 np_dat_merge = np.append(np_dat_merge,np_dat_new[val[1]:val[2]+1])
+#                 np_usdeuro_merge = np.append(np_usdeuro_merge,np_usdeuro_new[val[1]:val[2] + 1])
+#             # end if
+#         # end for
+#
+#         np_obj_out = wp_bearbeit.build_indice_np_obj(wb_obj,wb_obj.par.INDICES_EZB_LEITZINS_NAME)
+#         np_obj_out.put_signal(np_dat_merge, np_usdeuro_merge)
+#
+#     # end if
+#     return (status, errtext, np_obj_out )
+# # end def
 def get_from_start_dat_to_end_dat(wb_obj, start_dat, end_dat):
     """
     :param wb_obj:

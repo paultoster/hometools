@@ -1,5 +1,6 @@
 import yfinance as yf
 # import pandas as pd
+import datetime
 import numpy as np
 import os, sys
 
@@ -11,7 +12,7 @@ if (tools_path not in sys.path):
 
 from tools import hfkt_type as htype
 from tools import hfkt_def as hdef
-import tools.hfkt_date_time as hdt
+import tools.hfkt_np_fkt as hnp_fkt
 
 if os.path.isfile('wp_fkt.py'):
     import wp_fkt
@@ -240,9 +241,13 @@ def get_indice_data(wb_obj,np_obj,start_dat, end_dat, indice):
         return (status, errtext, None)
     # end if
 
-    date_str_list = df_data_eurodol.index.strftime("%d.%m.%Y").tolist()
-    euro_dat_np_array = np.array(htype.type_transform_direct(date_str_list, "datStrP", "dat"), copy=True)
+    date_time_list = df_data_eurodol.index.strftime("%d.%m.%Y").tolist()
+    date_time_list = [datetime.datetime.strptime(d, "%d.%m.%Y") for d in date_time_list]
+    euro_dat_np_array = hnp_fkt.transform_date_time_liste_in_np_dat_array_d(date_time_list)
     euro_close_np_array = df_data_eurodol["Close"].to_numpy()
+
+    print(euro_dat_np_array.astype('datetime64[s]'))
+    print(euro_close_np_array)
 
     euro_dat_np_array   = euro_dat_np_array.reshape(np.prod(euro_dat_np_array.shape))
     euro_close_np_array = euro_close_np_array.reshape(np.prod(euro_close_np_array.shape))

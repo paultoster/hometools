@@ -1,4 +1,5 @@
 import numpy as np
+import datetime
 import os, sys, copy
 
 t_path, _ = os.path.split(__file__)
@@ -723,6 +724,33 @@ def interpoliere(x,x_np_array,y_np_array,type='lin'):
     # end if
 
     return y
+# end if
+def transform_date_time_liste_in_np_dat_array_d(date_time_liste):
+    """
+    tranformiert ein Liste mit datetime.datetime-Objekten in ein timestamp Format
+    wobei die nur Tage ohne jegliche Zeit gebildet wird
+    np_dat_array = transform_date_time_liste_in_np_dat_array_d(date_time_liste)
+    """
+
+    if isinstance(date_time_liste,list):
+        if len(date_time_liste)==0:
+            np_dat_array = np.array([],dtype=np.int64)
+        elif isinstance(date_time_liste[0],datetime.datetime):
+
+            np_array = np.array(date_time_liste)
+
+            np_dat_array = np_array.astype('datetime64[s]') \
+                                    .astype('datetime64[D]') \
+                                    .astype('datetime64[s]') \
+                                    .astype(np.int64)
+        else:
+            raise Exception("transform_date_time_liste_in_np_dat_array_d: In der Liste ist kein datetime-Format")
+        # end if
+    else:
+        raise Exception("transform_date_time_liste_in_np_dat_array_d: Die Liste ist keine Liste")
+    # end if
+
+    return np_dat_array
 # end if
 
 def find_index_d(x_np_array,x):

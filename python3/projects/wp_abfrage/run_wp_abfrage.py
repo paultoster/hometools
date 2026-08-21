@@ -975,12 +975,12 @@ def edit_indices(wb_obj):
 
         elif indexAbfrage == i_abfrage_leitzins_csv:
 
-            indice = wb_obj.get_leitzins_indice()
+            indice = wb_obj.get_leitzins_indice_name()
 
             wb_obj.log.write_info(f"Indice update: {indice}")
 
 
-            # Abfrage xml-File
+            # Abfrage csv-File
             csvfilename = sgui.abfrage_file(file_types="*.csv",comment=f"Wähle die csv-Datei von EZB für den leitzins",start_dir=wb_obj.base_ddict["store_path"])
             if len(csvfilename) > 0 :
                 # Einlesen csv-File

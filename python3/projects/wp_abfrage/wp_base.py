@@ -417,9 +417,9 @@ class WPData:
 
         return (self.status, self.errtext,indices_liste)
     # end def
-    def get_leitzins_indice(self):
+    def get_leitzins_indice_name(self):
 
-        indice = wp_base_indices.get_leitzins_indice(self)
+        indice = wp_base_indices.get_leitzins_indice_name(self)
 
         return indice
     # end def

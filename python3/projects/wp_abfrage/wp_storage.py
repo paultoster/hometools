@@ -16,6 +16,7 @@ if (tools_path not in sys.path):
 
 import tools.hfkt_def as hdef
 import tools.hfkt_file_path as hfp
+import tools.hfkt_np_fkt as hnp_fkt
 
 from wp_abfrage import wp_fkt
 from wp_abfrage import wp_np_price_volume_dataclass as wp_np_dc
@@ -528,25 +529,25 @@ def read_indice_ezb_xml(xmlfilename,np_obj):
         "exr": "http://www.ecb.europa.eu/vocabulary/stats/exr/1"
     }
 
-    date_str_list = []
+    date_time_list = []
     value_string_list = []
     for obs in root.findall(".//exr:Obs", ns):
-        date_str_list.append(int(datetime.datetime.strptime(obs.attrib["TIME_PERIOD"],"%Y-%m-%d").timestamp()))
-        value_string_list.append(float(obs.attrib["OBS_VALUE"]))
+        date_time_list.append(datetime.datetime.strptime(obs.attrib["TIME_PERIOD"],"%Y-%m-%d"))
+        value_string_list.append(obs.attrib["OBS_VALUE"])
     # end for
 
-    np_dat_list = np.array(date_str_list)
-    np_usdeuro_liste = np.array(value_string_list)
-
-    if np_dat_list.size == 0:
+    if len(date_time_list) == 0:
         status = hdef.NOT_OKAY
         errtext = f"Von Datei: {xmlfilename} konnten keine Daten Obs \"TIME_PERIOD\" ist \"OBS_VALUE\" gefunden werden."
         return (status,errtext,None)
     # end if
 
 
-    np_dat_arr = np.array(np_dat_list, dtype=np.int64)
-    np_indice_arr = np.array(np_usdeuro_liste, dtype=np.float64)
+    np_dat_arr = hnp_fkt.transform_date_time_liste_in_np_dat_array_d(date_time_list)
+    np_indice_arr = np.array(value_string_list).astype(np.float64)
+
+    # print(np_dat_arr.astype('datetime64[s]'))
+    # print(np_indice_arr)
 
     np_obj.put_signal(np_dat_arr,np_indice_arr)
 

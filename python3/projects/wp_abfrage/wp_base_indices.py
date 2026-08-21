@@ -37,7 +37,7 @@ def get_indices_liste(wb_obj) -> list:
     """
     return wb_obj.par.INDICES_NAME_LISTE
 # end def
-def get_leitzins_indice(wb_obj):
+def get_leitzins_indice_name(wb_obj):
     return wb_obj.par.INDICES_EZB_LEITZINS_NAME
 # end def
 def is_indices_name(wb_obj, indices_name) -> (int, str, list):
@@ -221,6 +221,9 @@ def read_csv_ezb_leitzins(wb_obj,csvfilename):
     np_indice_array = df.iloc[:, 2].to_numpy().astype('float64')
 
     dat_letzter_handelstag = wp_fkt.letzter_beendeter_handelstag_timestamp()
+
+    if dat_letzter_handelstag > np_dat_array[-1]:
+        dat_letzter_handelstag = np_dat_array[-1]
 
     np_handelstage_dat_array = wp_fkt.get_np_handels_tage_von_bis(np_dat_array[0],dat_letzter_handelstag)
 

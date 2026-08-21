@@ -15,6 +15,8 @@ import tools.hfkt_type as htype
 from wp_abfrage import wp_fkt
 from wp_abfrage import wp_yahoofinance as wp_yfinance
 from wp_abfrage import wp_bearbeiten as wp_bearbeit
+from wp_abfrage import wp_base_indices
+
 
 def process_akt(wb_obj,indice):
     """
@@ -45,7 +47,7 @@ def process_akt(wb_obj,indice):
     else:
 
         if isinstance(np_obj.dat_np_array, (np.ndarray, np.generic)):
-            (status, errtext, np_obj) = merge_indice_np_obj_new_to_np_obj(wb_obj,np_obj,np_obj_new)
+            (status, errtext, np_obj) = wp_base_indices.merge_np_obj_new_to_np_obj(wb_obj,np_obj,np_obj_new,indice)
             if status != hdef.OKAY:
                 return (status, errtext)
         else:
