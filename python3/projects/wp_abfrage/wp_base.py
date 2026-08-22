@@ -588,24 +588,24 @@ class WPData:
 
         return (self.status,self.errtext)
     # end def
-    def build_ariva_isin_csv(self,isin_ariva_liste=[]):
+    def build_ariva_isin_csv_liste(self,isin_ariva_liste=[]):
         status = hdef.OKAY
 
         errtext = ""
 
-        (self.status, self.errtext, self.infotext) = wp_base_price_volume.build_ariva_isin_csv(self,isin_ariva_liste)
+        (self.status, self.errtext, self.infotext) = wp_base_price_volume.build_ariva_isin_csv_liste(self,isin_ariva_liste)
         if self.status != hdef.OKAY:
             return (self.status, self.errtext, self.infotext)
         # end if
 
         return (self.status, self.errtext, self.infotext)
     # end def
-    def update_price_volume_ariva_csv(self):
+    def update_price_volume_ariva_csv_download(self):
         status = hdef.OKAY
 
         errtext = ""
 
-        (self.status, self.errtext, self.infotext) = wp_base_price_volume.update_ariva_csv(self)
+        (self.status, self.errtext, self.infotext) = wp_base_price_volume.update_ariva_csv_download(self)
         if self.status != hdef.OKAY:
             return (self.status, self.errtext, self.infotext)
         # end if

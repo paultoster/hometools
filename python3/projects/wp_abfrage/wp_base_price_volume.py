@@ -230,7 +230,7 @@ def make_backup(wb_obj,isin_liste,move_flag):
     return (status, errtext)
 
 # end if
-def build_ariva_isin_csv(wb_obj,isin_ariva_liste=[]):
+def build_ariva_isin_csv_liste(wb_obj,isin_ariva_liste):
     """
         build isin-Liste für Power Act als csv-Datei
 
@@ -238,85 +238,20 @@ def build_ariva_isin_csv(wb_obj,isin_ariva_liste=[]):
 
     """
     infotext =  ""
-    # Get basic_info_dict in a list
-    (status, errtext, isin_liste) = wb_obj.get_basic_info_isin_liste()
-    if status != hdef.OKAY:
-        return (status, errtext,infotext)
-    (status, errtext, isin_info_dict_liste) = wb_obj.get_basic_info(isin_liste)
-    if status != hdef.OKAY:
-        return (status, errtext,infotext)
 
-    isin_ariva_llist = []
-    wegschreib_flag_list = []
-    for isin_info_dict in isin_info_dict_liste:
-
-        wp_dict = copy.copy(isin_info_dict)
-
-        (status, errtext, wp_dict) = get_np_obj(wb_obj, wp_dict)
-        if status != hdef.OKAY:
-            return (status, errtext, infotext)
-        # end if
-
-        # erstes Datum zum Suchen aus ini
-        start_dat_ini_file = htype.type_transform_direct(wb_obj.base_ddict["price_volumen_first_dat"], "datStrP", "dat")
-        # Erscheinungsdatum des wp
-        if len(wp_dict["start_dat_str"]) == 0:
-            start_dat_wp = start_dat_ini_file
-        else:
-            start_dat_wp = htype.type_transform_direct(wp_dict["start_dat_str"], "datStrP", "dat")
-        # end if
-
-        # Wenn wp_dict["start_ariva_dat_str"] nehme dieses Datum
-        if len(wp_dict["start_ariva_dat_str"]) > 0:
-
-            start_dat_wp = htype.type_transform_direct(wp_dict["start_ariva_dat_str"], "datStrP", "dat")
-        # end if
-
-
-
-            # Start Datum
-        halfrange = 12 * 60 * 60
-        if wp_dict["isin"] in isin_ariva_liste:
-            wegschreib_flag_list.append(True)
-            isin_ariva_llist.append([wp_dict["isin"]])
-        elif wp_dict["first_dat"] == -1:
-            wegschreib_flag_list.append(False)
-            isin_ariva_llist.append([wp_dict["isin"]])
-        elif wp_dict["first_dat"] > start_dat_wp + halfrange:
-            wegschreib_flag_list.append(False)
-            isin_ariva_llist.append([wp_dict["isin"]])
-        # end if
-    # end for
-
-
-
-    if len(isin_ariva_llist) > 0:
+    if len(isin_ariva_liste) > 0:
 
         filename = os.path.join(wb_obj.base_ddict["avira_price_volume_csv_store_path"],
                                 wb_obj.base_ddict["avira_price_isin_liste_csv_filebasename"]+".csv")
 
-
-        status = hio.write_csv_file_header_data(filename, ["isin"], isin_ariva_llist, delim=";")
+        isin_ariva_lliste = [[item] for item in isin_ariva_liste]
+        status = hio.write_csv_file_header_data(filename, ["isin"], isin_ariva_lliste, delim=";")
         if status != hdef.OKAY:
             errtext = f"write_csv_file_header_data: File {filename} konnte nicht geschrieben werden"
             return (status, errtext, infotext)
         # end if
 
-        liste_move = []
-        liste_backup = []
-        for flag,isin in zip(wegschreib_flag_list,isin_ariva_liste):
-
-            if flag:
-                liste_move.append(isin)
-            else:
-                liste_backup.append(isin)
-            # end if
-        # end for
-        if len(liste_move)>0:
-            (status, errtext) = make_backup(wb_obj, liste_move, True)
-
-        if (status == hdef.OKAY) and (len(liste_backup)>0):
-            (status, errtext) = make_backup(wb_obj, liste_backup, False)
+        (status, errtext) = make_backup(wb_obj, isin_ariva_liste, True)
 
 
     else:
@@ -325,7 +260,7 @@ def build_ariva_isin_csv(wb_obj,isin_ariva_liste=[]):
 
     return (status, errtext, infotext)
 # end def
-def update_ariva_csv(wb_obj):
+def update_ariva_csv_download(wb_obj):
     """
         updated prive-volumen aus csv-Daten
         a) ariva-Daten  csv-Datei ist aufgevaut:  wb_obj.base_ddict["avira_price_volume_csv_pre_fie_name"]

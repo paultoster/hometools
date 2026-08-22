@@ -616,26 +616,22 @@ def edit_price_volume(wb_obj):
         return (status, errtext,"")
     # end if
 
-    abfrage_liste = ["update one-isin",
+    abfrage_liste = ["update 1-isin",
                      "update all-isin",
-                     "ariva-isin-csv-liste",
-                     "update avira-csv",
+                     "ariva-power-automate"
                      "backup",
                      "proof one-isin",
                      "proof all-isin",
-                     "dump basic_info(ods)",
                      "plot isin",
                      "ende"]
     i_abfrage_ende = 9
     i_abfrage_update_isin = 0
     i_abfrage_update_all = 1
-    i_abfrage_build_ariva_csv = 2
-    i_abfrage_update_ariva_csv = 3
-    i_backup = 4
-    i_abfrage_proof_one_isin = 5
-    i_abfrage_proof_all_isin = 6
-    i_dump_basic = 7
-    # i_plot_isin = 8
+    i_abfrage_ariva_power_automate = 2
+    i_backup = 3
+    i_abfrage_proof_one_isin = 4
+    i_abfrage_proof_all_isin = 5
+    # i_plot_isin = 6
     runflag = True
 
     while (runflag):
@@ -692,59 +688,27 @@ def edit_price_volume(wb_obj):
                 status = hdef.OKAY
                 runflag = False
             # end if
-        elif indexAbfrage == i_abfrage_build_ariva_csv:
+        elif indexAbfrage == i_abfrage_ariva_power_automate:
 
             wb_obj.log.write_info(f"WP build ariva-csv:")
 
-
-
-            (status, errtext, isin_liste, isin_wpname_liste) = get_isin_and_wpname_list(wb_obj)
-            if status != hdef.OKAY:
-                return (status, errtext, "")
-            # end if
-
-            (stat,errtext,isin_ariva_liste) = wp_storage.read_dict("SpezialISINListe_BuildArivaCsv.json", 2)
-            if stat != hdef.OKAY:
-                indexListe = sgui.abfrage_liste_indexListe(isin_wpname_liste, title="Wähle isins für ariva-csv aus aktuelle Dateien werden weggeschrieben (backup)")
-                isin_ariva_liste = [isin for i, isin in enumerate(isin_liste) if i in indexListe]
-            # end iuf
-
-
-
-            (status, errtext, infotext) = wb_obj.build_ariva_isin_csv(isin_ariva_liste)
+            (status, errtext, infotext) = edit_price_volume_ariva_power_automate(wb_obj)
 
             if len(infotext):
-                t = f"Info wb_obj.wp_bearbeiten.build_ariva_isin_csv() \n infotext = {infotext}"
+                t = f"Info wp_bearbeiten.get_last_price_volume(wb_obj) \n infotext = {infotext}"
                 sgui.anzeige_text(t, textcolor='green')
                 wb_obj.log.write_info(t)
                 infotext = ""
             # end if
 
             if status != hdef.OKAY:
-                t = f"Error wb_obj.wp_bearbeiten.build_ariva_isin_csv() \n errtext = {errtext}"
+                t = f"Error wp_bearbeiten.edit_price_volume(wb_obj) \n errtext = {errtext}"
                 sgui.anzeige_text(t, textcolor='red')
                 wb_obj.log.write_err(t)
-                runflag = True
-            # end if
-        elif indexAbfrage == i_abfrage_update_ariva_csv:
-
-            wb_obj.log.write_info(f"WP update ariva-csv:")
-
-            (status, errtext, infotext) = wb_obj.update_price_volume_ariva_csv()
-
-            if len(infotext):
-                t = f"Info wb_obj.wp_bearbeiten.update_ariva_csv() \n infotext = {infotext}"
-                sgui.anzeige_text(t, textcolor='green')
-                wb_obj.log.write_info(t)
-                infotext = ""
-            # end if
-
-            if status != hdef.OKAY:
-                t = f"Error wb_obj.wp_bearbeiten.update_ariva_csv() \n errtext = {errtext}"
-                sgui.anzeige_text(t, textcolor='red')
-                wb_obj.log.write_err(t)
+                status = hdef.OKAY
                 runflag = False
             # end if
+
         elif indexAbfrage == i_backup:
             (status, errtext) = wb_obj.make_backup_price_volumen()
             if status != hdef.OKAY:
@@ -798,12 +762,6 @@ def edit_price_volume(wb_obj):
                 runflag = False
             # end if
 
-        elif indexAbfrage == i_dump_basic:
-
-            (status, errtext) = dump_in_ods(wb_obj,isin_liste)
-            if status != hdef.OKAY:
-                return (status, errtext, infotext)
-            runflag = True
         else: # i_plot_isin
             if index < 0:
                 wb_obj.log.write_info("Keine isin ausgewählt")
@@ -837,6 +795,109 @@ def edit_price_volume(wb_obj):
     # end while
     return (status, errtext, infotext)
 # end def
+def edit_price_volume_ariva_power_automate(wb_obj):
+    """
+    update gesamte data-set mit ariva-power-automate routine
+    """
+    infotext = ""
+
+    # Hole die dict-Liste mit allen WPs name[isin]
+    #---------------------------------------------
+    (status, errtext,isin_liste,isin_wpname_liste)  = get_isin_and_wpname_list(wb_obj)
+    if status != hdef.OKAY:
+        return (status, errtext,"")
+    # end if
+
+    index_liste = ["build ariva-isin-csv-liste",
+                   "update ariva-csv-download",
+                   "ende"]
+    abfrage_liste = ["okay","cancel","ende"]
+
+    indexButton_okay = 0
+    indexButton_cancel = 1
+    indexButton_ende = 2
+
+    index_abfrage_ende = 2
+    index_abfrage_build_ariva_isin_csv = 0
+    iindex_abfrage_update_ariva_csv_download = 1
+    runflag = True
+
+
+
+
+    while (runflag):
+
+        [indexButton, indexAbfrage] = sgui.abfrage_liste_index_abfrage_index(index_liste, abfrage_liste, "Ariva-power-automate edit")
+
+        if (indexButton == indexButton_cancel) or (indexButton == indexButton_ende) or (indexAbfrage < 0) or (indexAbfrage == index_abfrage_ende):
+            runflag = False
+        else:
+            runflag = True
+            if indexAbfrage == index_abfrage_build_ariva_isin_csv:
+
+                (status, errtext, isin_liste, isin_wpname_liste) = get_isin_and_wpname_list(wb_obj)
+                if status != hdef.OKAY:
+                    return (status, errtext, "")
+                # end if
+
+                indexListe = sgui.abfrage_liste_indexListe(isin_wpname_liste,
+                                                           title="Wähle isins für ariva-csv aus aktuelle Daten-Dateien werden weggeschrieben(backup)")
+                isin_ariva_liste = [isin for i, isin in enumerate(isin_liste) if i in indexListe]
+
+                # zusätzliche Werte aus json auch in csv schreiben und backup-en
+                (stat,errtext,isin_ariva_liste2) = wp_storage.read_dict("SpezialISINListe_BuildArivaCsv.json", 2)
+                if stat == hdef.OKAY:
+
+                    for isin in isin_ariva_liste2:
+
+                        if isin not in isin_ariva_liste:
+                            isin_ariva_liste.append(isin)
+                        # end if
+                    # end for
+                # end if
+
+                (status, errtext, infotext) = wb_obj.build_ariva_isin_csv_liste(isin_ariva_liste)
+
+                if len(infotext):
+                    t = f"Info wb_obj.wp_bearbeiten.build_ariva_isin_csv_liste() \n infotext = {infotext}"
+                    sgui.anzeige_text(t, textcolor='green')
+                    wb_obj.log.write_info(t)
+                    infotext = ""
+                # end if
+
+                if status != hdef.OKAY:
+                    t = f"Error wb_obj.wp_bearbeiten.build_ariva_isin_csv_liste() \n errtext = {errtext}"
+                    sgui.anzeige_text(t, textcolor='red')
+                    wb_obj.log.write_err(t)
+                    runflag = True
+                # end if
+
+            elif indexAbfrage == iindex_abfrage_update_ariva_csv_download:
+
+                wb_obj.log.write_info(f"WP update ariva-csv-download:")
+
+                (status, errtext, infotext) = wb_obj.update_price_volume_ariva_csv_download()
+
+                if len(infotext):
+                    t = f"Info wb_obj.update_price_volume_ariva_csv_download() \n infotext = {infotext}"
+                    sgui.anzeige_text(t, textcolor='green')
+                    wb_obj.log.write_info(t)
+                    infotext = ""
+                # end if
+
+                if status != hdef.OKAY:
+                    t = f"Error wb_obj.update_price_volume_ariva_csv_download() \n errtext = {errtext}"
+                    sgui.anzeige_text(t, textcolor='red')
+                    wb_obj.log.write_err(t)
+                    runflag = False
+                # end if
+
+            # end if
+        # end if
+    # end while
+    return (status, errtext, infotext)
+# end if
+
 def plot_price_volume(wb_obj,isin):
     """
     (status, errtext, infotext) = plot_price_volume(isin)
