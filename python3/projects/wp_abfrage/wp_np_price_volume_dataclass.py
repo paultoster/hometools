@@ -2,6 +2,8 @@ import numpy as np
 import os, sys, copy
 import joblib
 import pandas as pd
+import datetime
+
 
 t_path, _ = os.path.split(__file__)
 if (t_path == os.getcwd()):
@@ -92,7 +94,7 @@ class NpPriceVolumeClass:
     # end if
     def put_signal(self,dat_np_array,start_np_array,high_np_array,low_np_array,end_np_array,volume_np_array):
 
-        self.dat_np_array = dat_np_array
+        self.dat_np_array = dat_np_array.astype('datetime64[s]').astype('datetime64[D]').astype('datetime64[s]').astype(np.int64)
         self.start_np_array = start_np_array
         self.high_np_array = high_np_array
         self.low_np_array = low_np_array
@@ -110,7 +112,7 @@ class NpPriceVolumeClass:
         # end if
     # end def
     def save(self):
-        self.print_mean_max_min()
+        # self.print_mean_max_min()
         if self.file_flag:
             try:
                 joblib.dump(self,self.file_name)
@@ -184,7 +186,7 @@ class NpPriceVolumeClass:
                     # end if
             # end if
         # end if
-        self.print_mean_max_min()
+        # self.print_mean_max_min()
         return
     # end def
     def is_empty(self):
@@ -235,16 +237,20 @@ class NpPriceVolumeClass:
 
             self.sort_by_dat()
 
-            edayend = hfkt_date_time.secs_to_end_of_day(end_dat)
+            # edayend = hfkt_date_time.secs_to_end_of_day(end_dat)
+            end_date_time = datetime.datetime.fromtimestamp(end_dat).date()
+            date_time_list = [datetime.datetime.fromtimestamp(d).date() for d in self.dat_np_array]
 
-            while self.dat_np_array[-1] > edayend:
+
+            while date_time_list[-1] > end_date_time:
+                date_time_list.pop()
                 self.dat_np_array    = np.delete(self.dat_np_array, -1)
                 self.start_np_array  = np.delete(self.start_np_array, -1)
                 self.high_np_array   = np.delete(self.high_np_array, -1)
                 self.low_np_array    = np.delete(self.low_np_array, -1)
                 self.end_np_array    = np.delete(self.end_np_array, -1)
                 self.volume_np_array = np.delete(self.volume_np_array, -1)
-                if len(self.dat_np_array) == 0:
+                if len(date_time_list) == 0:
                     break
             # end while
         # end if

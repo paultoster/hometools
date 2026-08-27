@@ -645,6 +645,18 @@ class WPData:
         (self.status, self.errtext, np_obj) = wp_base_price_volume.get_act_np_obj(self, isin)
         return (self.status, self.errtext, np_obj)
     # end def
+    def get_first_and_last_dat_price_volume_np_obj(self,isin,datetype="datStr"):
+        """
+        Gebe erstes und letztes Datum der Datei zu isin zurück, wenn keine Datei vorhanden, dann (None,None)
+
+        :param isin:
+        :param datetype:
+        :return: (first,last) = wp_obj.get_firts_and_last_dat_price_volume_np_obj(isin)
+                 (first,last) = wp_obj.get_firts_and_last_dat_price_volume_np_obj(isin,datetype)
+        """
+
+        return wp_base_price_volume.get_first_and_last_dat_np_obj(self, isin,datetype)
+    # end def
     def is_wp(self,wp):
         """
         Gibt es dieses wertpapier a) als gültige isin oder als abgelegter indice

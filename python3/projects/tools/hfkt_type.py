@@ -1782,7 +1782,7 @@ def  type_transform_datStr(wert_in,type_out):
     (okay, wert) = type_proof(wert_in, 'dat')
     if( okay == hdef.OKAY):
         if type_out == "datetimeclass":
-            wert_out = datetime.timestamp(wert)
+            wert_out = datetime.datetime.fromtimestamp(wert)
         elif type_out == "dat":
             wert_out = wert
         elif type_out == "int":

@@ -14,7 +14,7 @@ if (tools_path not in sys.path):
 
 import tools.hfkt_def as hdef
 import tools.hfkt_np_fkt as hnp_fkt
-import hfkt_file_path as hfp
+import tools.hfkt_file_path as hfp
 
 
 from wp_abfrage import wp_storage

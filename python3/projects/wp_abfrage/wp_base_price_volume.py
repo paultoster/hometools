@@ -17,6 +17,8 @@ import tools.hfkt_type as htype
 import tools.hfkt_str as hstr
 import tools.hfkt_io as hio
 import tools.hfkt_date_time as hdt
+import tools.hfkt_np_fkt as hnp_fkt
+
 
 from wp_abfrage import wp_storage
 from wp_abfrage import wp_fkt
@@ -105,19 +107,6 @@ def update(wb_obj,isin_liste):
                 return (status, errtext,infotext)
             # end if
 
-        # save for updated np_objs
-        if wp_dict["updated"] and (wp_dict["update_type"] != "file"):
-            np_obj = wp_dict["np_obj"]
-            np_obj.save()
-            tt = np_obj.get_infotext()
-            if len(tt):
-                wb_obj.log.write_info(tt)
-            # end if
-
-            wp_dict["np_obj"] = None
-            del np_obj
-        # end if
-        wb_obj.log.write_info(tt)
     # end for
     wb_obj.log.write_info(tt)
     return (status,errtext,infotext)
@@ -147,7 +136,7 @@ def proof(wb_obj,isin_liste):
         wp_dict["changed"] = False
 
         # Prüfe np_obj
-        (status, errtext, infotext, wp_dict) = proof_np_obj_liste_data(wb_obj, wp_dict)
+        (status, errtext, infotext, wp_dict) = proof_date_in_np_obj(wb_obj, wp_dict)
         if status != hdef.OKAY:
             return (status, errtext, infotext)
         # end if
@@ -273,11 +262,11 @@ def update_ariva_csv_download(wb_obj):
     """
 
     # 1 ariva-csv
-    (status,errtext,infotext,csv_lliste) = get_csv_ariva_csv_lliste(wb_obj)
+    (status,errtext,infotext,csv_dict_wkn_filename) = get_csv_ariva_csv_dict_wkn_filename(wb_obj)
     if status != hdef.OKAY:
         return (status, errtext, infotext)
 
-    for csv_file,wkn in csv_lliste:
+    for wkn,csv_file in csv_dict_wkn_filename.items():
 
         wb_obj.log.write_info(f"Start read file {csv_file}")
 
@@ -288,6 +277,91 @@ def update_ariva_csv_download(wb_obj):
         # end if
 
     # end for
+
+    return (status, errtext, infotext)
+# end def
+def get_csv_ariva_csv_dict_wkn_filename(wb_obj):
+    """
+    :param wb_obj:
+    :return: (status, errtext, infotext, csv_dict_wkn_filename) = get_csv_ariva_csv_dict_wkn_filename(wb_obj)
+    csv_dict_wkn_filename = [wkn1:filename1, wkn2:filename2, ...]
+    """
+
+    status = hdef.OKAY
+    errtext = ""
+    infotext = ""
+    csv_dict_wkn_filename = {}
+
+    file_liste = []
+    file_liste = hfp.get_liste_of_subdir_files(wb_obj.base_ddict["avira_price_volume_csv_store_path"],
+                                               liste=file_liste,
+                                               search_ext="csv")
+
+    for filename in file_liste:
+        (path,fbody,ext) = hfp.get_pfe(filename)
+        index = hstr.such(fbody, wb_obj.base_ddict["avira_price_volume_csv_pre_file_name"])
+
+
+        if index == 0:
+            index = hstr.such(fbody, wb_obj.base_ddict["avira_price_volume_csv_post_file_name"])
+
+            if index == (len(fbody) - len(wb_obj.base_ddict["avira_price_volume_csv_post_file_name"])):
+
+                wkn = fbody[len(wb_obj.base_ddict["avira_price_volume_csv_pre_file_name"]):index]
+                csv_dict_wkn_filename[wkn] = filename
+            # end if
+        # end if
+    # end for
+
+    return (status, errtext, infotext,csv_dict_wkn_filename)
+# end if
+def read_csv_ariva_file(wb_obj,csv_file,wkn):
+    """
+    :param wb_obj:
+    :param csv_file:
+    :param wkn:         Muss in infodict vorhanden sein
+    :return: (status, errtext, infotext) = read_csv_ariva_file(wb_obj,csv_file,wkn
+    """
+
+    # status = hdef.OKAY
+    errtext = ""
+    infotext = ""
+
+    (status,isin) = wb_obj.get_isin_from_wkn(wkn)
+
+    if (status != hdef.OKAY) or (len(isin) == 0):
+        infotext += wb_obj.errtext
+    else:
+
+        # Get basic_info_dict in a list
+        (status, errtext, wp_dict) = wb_obj.get_basic_info(isin)
+        if status != hdef.OKAY:
+            return (status, errtext, infotext)
+
+        if wp_bearb.exist_price_volumen_np_data(wb_obj, wp_dict["isin"]):
+            wb_obj.log.write_info(f"Data zu isin = {wp_dict["isin"]} existiert auf Platte ")
+        else:
+            wb_obj.log.write_info(f"Keine Data zu isin = {wp_dict["isin"]} auf Platte ")
+
+        wp_dict["np_obj"] = wp_bearb.read_price_volumen_np_data(wb_obj, wp_dict["isin"])
+
+        (status, errtext, wp_dict) = proof_is_upgedated(wb_obj, wp_dict)
+
+        # Von csv_llise zu np_data_new erstellen
+        (status, errtext, wp_dict) = get_new_price_vol_from_ariva_csv_file(wb_obj, wp_dict, csv_file)
+        if status != hdef.OKAY:
+            return (status, errtext, infotext)
+
+        (status, errtext, wp_dict_liste) = merge_ariva_csv_and_update_file(wb_obj, wp_dict)
+        if status != hdef.OKAY:
+            return (status, errtext, infotext)
+
+        if wb_obj.base_ddict["avira_price_volume_csv_delete"] > 0:
+            wb_obj.log.write_info(f"Delete file from Disc: {csv_file} ")
+            hfp.remove_file(csv_file)
+        # end if
+
+    # end if
 
     return (status, errtext, infotext)
 # end def
@@ -365,6 +439,24 @@ def get_act_np_obj(wb_obj, isin):
 
     return (status, errtext,np_obj)
 # end def
+def get_first_and_last_dat_np_obj(wb_obj, isin, datetype="datStr"):
+    """
+    Gebe erstes und letztes Datum der Datei zu isin zurück, wenn keine Datei vorhanden, dann (None,None)
+
+    :param isin:
+    :param datetype:
+    :return: (first,last) = wp_obj.get_firts_and_last_dat_price_volume_np_obj(wb_obj,isin)
+             (first,last) = wp_obj.get_firts_and_last_dat_price_volume_np_obj(wb_obj,isin,datetype)
+    """
+
+    if wp_bearb.exist_price_volumen_np_data(wb_obj, isin):
+        np_obj = wp_bearb.read_price_volumen_np_data(wb_obj, isin)
+        return np_obj.get_first_last_dat(datetype)
+    else:
+        return (None,None)
+# end def
+
+
 # def get_np_obj_liste(wb_obj,wp_dict_liste):
 #     """
 #         (status, errtext, wp_dict_liste) = get_np_obj_liste(wb_obj,wp_dict_liste)
@@ -887,6 +979,10 @@ def get_new_price_vol_from_ariva_requests(wb_obj,  wp_dict):
                 wb_obj.log.write_info(f"ariva-requests: Suche CHF/euro-Kurse ")
                 (status, errtext, np_obj_ariva) = transfer_price_vol_indice_euro(wb_obj, np_obj_ariva,wb_obj.par.INDICES_CHFEURO_NAME)
 
+            elif np_obj_ariva.is_currency("gbp"):
+
+                wb_obj.log.write_info(f"ariva-requests: Suche GBP/euro-Kurse ")
+                (status, errtext, np_obj_ariva) = transfer_price_vol_indice_euro(wb_obj, np_obj_ariva,wb_obj.par.INDICES_GBPEURO_NAME)
             # end if
 
             # keep end date
@@ -1034,11 +1130,12 @@ def get_new_price_vol_from_ariva_csv_file(wb_obj,  wp_dict, csv_file):
 
     wb_obj.log.write_info(f"ariva-csv: Versuche Daten von ariva für {wpname = } mit {isin = } einzulesen")
 
-    np_obj =wp_bearb.build_price_volume_np_obj(wp_dict, isin)
+
     (status, errtext, infotext, np_obj_csv) = wp_bearb.get_price_volume_data_from_ariva_csv_file(
+        wb_obj,
         csv_file,
         wb_obj.base_ddict["avira_price_volume_csv_trennzeichen"],
-        np_obj,
+        isin,
         wp_dict)
 
 
@@ -1062,7 +1159,11 @@ def get_new_price_vol_from_ariva_csv_file(wb_obj,  wp_dict, csv_file):
         elif np_obj_csv.is_currency("chf"):
             wb_obj.log.write_info(f"ariva-csv: Suche CHF/euro-Kurse ")
             (status, errtext, np_obj_csv) = transfer_price_vol_indice_euro(wb_obj, np_obj_csv,
-                                                                                  wb_obj.par.INDICES_CHFEURO_NAME)
+                                                                           wb_obj.par.INDICES_CHFEURO_NAME)
+        elif np_obj_csv.is_currency("gbp"):
+            wb_obj.log.write_info(f"ariva-csv: Suche GBP/euro-Kurse ")
+            (status, errtext, np_obj_csv) = transfer_price_vol_indice_euro(wb_obj, np_obj_csv,
+                                                                                  wb_obj.par.INDICES_GBPEURO_NAME)
         # end if
 
         # keep end date
@@ -1079,20 +1180,14 @@ def get_new_price_vol_from_ariva_csv_file(wb_obj,  wp_dict, csv_file):
 
     return (status, errtext, wp_dict)
 # end def
-def transfer_price_vol_indice_euro(wb_obj,np_price_vol):
+def transfer_price_vol_indice_euro(wb_obj,np_price_vol,indice):
     """
     :param wb_obj:
     :param np_obj_new:
     :return: (status,errtext,np_obj_new) = transfer_price_vol_indice_euro(wb_obj,np_price_vol)
     """
 
-    if np_price_vol.get_currency() == "usd":
-        indice = wb_obj.par.INDICES_USDEURO_NAME
-    elif np_price_vol.get_currency() == "chf":
-        indice = wb_obj.par.INDICES_CHFEURO_NAME
-    elif np_price_vol.get_currency() == "gbp":
-        indice = wb_obj.par.INDICES_GBP_NAME
-    else:
+    if (indice != wb_obj.par.INDICES_USDEURO_NAME) and (indice != wb_obj.par.INDICES_CHFEURO_NAME) and (indice != wb_obj.par.INDICES_GBP_NAME):
         raise Exception(f"{np_price_vol.get_currency()} is not supported")
     # end if
 
@@ -1154,7 +1249,7 @@ def merge_and_update_file(wb_obj, wp_dict):
 
             if pruefe_datums_kontinuitaet(np_dat_akt, np_dat_new):
 
-                (status, errtext, np_obj) = merge_np_data(wb_obj,wp_dict["np_obj"], wp_dict["np_obj_new"],wp_dict["isin"])
+                (status, errtext, np_obj) = merge_np_data(wb_obj,wp_dict["np_obj"], wp_dict["np_obj_new"],wp_dict["isin"],False)
 
                 if status != hdef.OKAY:
                     return (status, errtext,infotext, wp_dict)
@@ -1226,9 +1321,9 @@ def merge_ariva_csv_and_update_file(wb_obj, wp_dict):
             (first_dat_before_merge, _) = wp_dict["np_obj"].get_first_last_dat("dat")
 
             if wb_obj.base_ddict["avira_price_volume_csv_is_master"] > 0:
-                (status, errtext, np_obj) = merge_np_data(wb_obj, wp_dict["np_obj_new"],wp_dict["np_obj"],wp_dict["isin"])
+                (status, errtext, np_obj) = merge_np_data(wb_obj,wp_dict["np_obj"], wp_dict["np_obj_new"],wp_dict["isin"],flag_take_new=True)
             else:
-                (status, errtext, np_obj) = merge_np_data(wb_obj,wp_dict["np_obj"], wp_dict["np_obj_new"],wp_dict["isin"])
+                (status, errtext, np_obj) = merge_np_data(wb_obj,wp_dict["np_obj"], wp_dict["np_obj_new"],wp_dict["isin"],flag_take_new=False)
 
             if status != hdef.OKAY:
                 return (status, errtext, wp_dict)
@@ -1311,7 +1406,7 @@ def save_start_ariva_dat_str(wb_obj, wp_dict,first_new_dat,first_dat_before_merg
 
     return (status, errtext)
 # end def
-def merge_np_data(wb_obj,np_obj,np_obj_new,isin):
+def merge_np_data(wb_obj,np_obj,np_obj_new,isin,flag_take_new=False):
     """
     :param wb_obj:
     :param isin:
@@ -1326,16 +1421,29 @@ def merge_np_data(wb_obj,np_obj,np_obj_new,isin):
         np_obj = np_obj_new
     else:
 
-        np_obj.currency = np_obj_new.currency
+        if flag_take_new:
+            currency = np_obj_new.get_currency()
+        else:
+            currency = np_obj.get_currency()
 
         np_dat_akt = np_obj.dat_np_array
         np_dat_new = np_obj_new.dat_np_array
 
-        day_seconds = 24 * 60 * 60
-        sort_index_list = wp_fkt.build_sort_list_of_index(list(np_dat_akt), list(np_dat_new), day_seconds)
+        np_date_time_akt = np_dat_akt.astype("datetime64[s]")
+        np_date_time_new = np_dat_new.astype("datetime64[s]")
+
+        if flag_take_new:
+            sort_index_list = hnp_fkt.build_sort_list_of_index_for_dat_array(np_dat_new, np_dat_akt)
+        else:
+            sort_index_list = hnp_fkt.build_sort_list_of_index_for_dat_array(np_dat_akt, np_dat_new)
+
+        #day_seconds = 24 * 60 * 60
+        #sort_index_list = wp_fkt.build_sort_list_of_index(list(np_dat_akt), list(np_dat_new), day_seconds)
 
         if len(sort_index_list):
             # "dat_np_array", "start_np_array", "high_np_array", "low_np_array", "end_np_array", "volume_np_array"
+
+            np_date_time_merge = np.array([],dtype="datetime64[s]")
 
             np_dat_merge = np.array([], dtype=np.int64)
             np_start_merge = np.array([], dtype=np.float64)
@@ -1344,10 +1452,16 @@ def merge_np_data(wb_obj,np_obj,np_obj_new,isin):
             np_end_merge = np.array([], dtype=np.float64)
             np_volume_merge = np.array([], dtype=np.float64)
 
+            if flag_take_new:
+                index_akt = 1  # => akt is second
+            else:
+                index_akt = 0  # => akt is first
+            # end if
 
             for index,val in enumerate(sort_index_list):
 
-                if val[0] == 0:
+                if val[0] == index_akt:
+                    np_date_time_merge = np.append(np_date_time_merge,np_date_time_akt[val[1]:val[2]+1])
                     np_dat_merge   = np.append(np_dat_merge,np_obj.dat_np_array[val[1]:val[2]+1])
                     np_start_merge = np.append(np_start_merge,np_obj.start_np_array[val[1]:val[2]+1])
                     np_high_merge = np.append(np_high_merge,np_obj.high_np_array[val[1]:val[2]+1])
@@ -1355,6 +1469,8 @@ def merge_np_data(wb_obj,np_obj,np_obj_new,isin):
                     np_end_merge = np.append(np_end_merge,np_obj.end_np_array[val[1]:val[2]+1])
                     np_volume_merge = np.append(np_volume_merge,np_obj.volume_np_array[val[1]:val[2]+1])
                 else:
+                    np_date_time_merge = np.append(np_date_time_merge,
+                                                   np_date_time_new[val[1]:val[2] + 1])
                     np_dat_merge   = np.append(np_dat_merge,np_obj_new.dat_np_array[val[1]:val[2]+1])
                     np_start_merge = np.append(np_start_merge,np_obj_new.start_np_array[val[1]:val[2] + 1])
                     np_high_merge = np.append(np_high_merge,np_obj_new.high_np_array[val[1]:val[2]+1])
@@ -1374,6 +1490,8 @@ def merge_np_data(wb_obj,np_obj,np_obj_new,isin):
                               np_low_merge,
                               np_end_merge,
                               np_volume_merge)
+
+            np_obj.set_currency(currency)
         # end if
     # end if
     return (status, errtext, np_obj )
@@ -1461,98 +1579,11 @@ def get_exist_filenames(wp_obj, isin_input):
     # end for
     return (status, errtext, filename_list)
 # end def
-def get_csv_ariva_csv_lliste(wb_obj):
-    """
-    :param wb_obj:
-    :return: (status, errtext, infotext, csv_lliste) = update_csv_ariva(wb_obj)
-    csv_lliste = [ [filename1,wkn1], [filename2,wkn2], ...]
-    """
-
-    status = hdef.OKAY
-    errtext = ""
-    infotext = ""
-    csv_lliste = []
-
-    file_liste = []
-    file_liste = hfp.get_liste_of_subdir_files(wb_obj.base_ddict["avira_price_volume_csv_store_path"],
-                                               liste=file_liste,
-                                               search_ext="csv")
-
-    for filename in file_liste:
-        (path,fbody,ext) = hfp.get_pfe(filename)
-        index = hstr.such(fbody, wb_obj.base_ddict["avira_price_volume_csv_pre_file_name"])
-
-
-        if index == 0:
-            index = hstr.such(fbody, wb_obj.base_ddict["avira_price_volume_csv_post_file_name"])
-
-            if index == (len(fbody) - len(wb_obj.base_ddict["avira_price_volume_csv_post_file_name"])):
-
-                wkn = fbody[len(wb_obj.base_ddict["avira_price_volume_csv_pre_file_name"]):index]
-                csv_lliste.append([filename,wkn])
-            # end if
-        # end if
-    # end for
-
-    return (status, errtext, infotext,csv_lliste)
-# end if
-def read_csv_ariva_file(wb_obj,csv_file,wkn):
-    """
-    :param wb_obj:
-    :param csv_file:
-    :param wkn:         Muss in infodict vorhanden sein
-    :return: (status, errtext, infotext) = read_csv_ariva_file(wb_obj,csv_file,wkn
-    """
-
-    # status = hdef.OKAY
-    errtext = ""
-    infotext = ""
-
-    (status,isin) = wb_obj.get_isin_from_wkn(wkn)
-
-    if (status != hdef.OKAY) or (len(isin) == 0):
-        infotext += wb_obj.errtext
-    else:
-
-        # Get basic_info_dict in a list
-        (status, errtext, isin_wp_dict) = wb_obj.get_basic_info(isin)
-        if status != hdef.OKAY:
-            return (status, errtext, infotext)
-
-        wp_dict_liste = [isin_wp_dict]
-        (status, errtext, wp_dict_liste) = get_np_obj_liste(wb_obj, wp_dict_liste)
-        if status != hdef.OKAY:
-            return (status, errtext, infotext)
-        # end if
-        isin_wp_dict = wp_dict_liste[0]
-
-        # Von csv_llise zu np_data_new erstellen
-        (status, errtext, wp_dict) = get_new_price_vol_from_ariva_csv_file(wb_obj, isin_wp_dict, csv_file)
-        if status != hdef.OKAY:
-            return (status, errtext, infotext)
-
-        (status, errtext, wp_dict_liste) = merge_ariva_csv_and_update_file(wb_obj, wp_dict)
-        if status != hdef.OKAY:
-            return (status, errtext, infotext)
-
-        (status, errtext, infotext,wp_dict_liste) = proof_np_obj_liste_data(wb_obj, [wp_dict])
-        if status != hdef.OKAY:
-            return (status, errtext, infotext)
-
-        if wb_obj.base_ddict["avira_price_volume_csv_delete"] > 0:
-            wb_obj.log.write_info(f"Delete file from Disc: {csv_file} ")
-            hfp.remove_file(csv_file)
-        # end if
-
-    # end if
-
-    return (status, errtext, infotext)
-# end def
-def proof_np_obj_liste_data(wb_obj,wp_dict):
+def proof_date_in_np_obj(wb_obj,wp_dict):
     """
     :param wb_obj:
     :param wp_dict:
-         (status, errtext, infotext,wp_dict) = proof_np_obj_liste_data(wb_obj,wp_dict)
+         (status, errtext, infotext,wp_dict) = proof_date_in_np_obj(wb_obj,wp_dict)
     """
 
     status = hdef.OKAY

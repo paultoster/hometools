@@ -47,7 +47,7 @@ def wp_search_wkn(wkn,wpname_isin_filename,formatpj,basic_info_pre_file_name,sto
         if status != hdef.OKAY:
             return (status,errtext,None,isin_dict_exists)
 
-        print(f"wkn_search: {wkn} wkn_act: {info_dict["wkn"]}, {info_dict = }")
+        # print(f"wkn_search: {wkn} wkn_act: {info_dict["wkn"]}, {info_dict = }")
         
         if info_dict["wkn"] == wkn:
             isin_dict_exists = True

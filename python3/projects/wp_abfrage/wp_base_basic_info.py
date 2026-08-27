@@ -332,7 +332,7 @@ def save(wb_obj, isin_input, basic_info_dict):
 
         file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["basic_info_pre_file_name"] + isin,
                                                     wb_obj.base_ddict["store_path"])
-        formatpj = 3
+        formatpj = 2
         (status, errtext,_) = wp_storage.save_dict(basic_info_dict_list[i],
                                                  file_name,
                                                  formatpj)

@@ -272,6 +272,7 @@ ABFRAGE_DICT_INDEX = -1
 # ===============================================================================
 def abfrage_liste_index(liste, title=None,geometry_list=None):
     obj = sliste_class.abfrage_liste_class(liste, title=title,geometry_list=geometry_list)
+    obj.run()
     index = obj.index
     
     if isinstance(geometry_list,list):
@@ -289,6 +290,7 @@ def abfrage_liste_index(liste, title=None,geometry_list=None):
 def abfrage_liste_indexListe(liste, title=None,geometry_list=None):
     
     obj = sliste_class.abfrage_liste_class(liste, title=title,geometry_list=geometry_list)
+    obj.run()
     indexListe = copy.copy(obj.indexListe)
     
     if isinstance(geometry_list, list):
@@ -305,6 +307,7 @@ def abfrage_liste_indexListe(liste, title=None,geometry_list=None):
 
 def abfrage_liste_index_abfrage_index(liste, listeAbfrage, title=None,geometry_list=None):
     obj = sliste_class.abfrage_liste_class(liste, listeAbfrage, title,geometry_list)
+    obj.run()
     index = obj.index
     indexAbfrage = obj.indexAbfrage
     if isinstance(geometry_list, list):
@@ -319,6 +322,7 @@ def abfrage_liste_index_abfrage_index(liste, listeAbfrage, title=None,geometry_l
 
 def abfrage_liste_indexListe_abfrage_index(liste, listeAbfrage, title=None,geometry_list=None):
     obj = sliste_class.abfrage_liste_class(liste, listeAbfrage, title,geometry_list)
+    obj.run()
     indexListe = obj.indexListe
     indexAbfrage = obj.indexAbfrage
     

@@ -2,6 +2,7 @@ import pandas as pd
 import requests
 import numpy as np
 import os, sys, re
+import datetime
 
 t_path, _ = os.path.split(__file__)
 tools_path = t_path + "\\.."
@@ -11,6 +12,7 @@ if (tools_path not in sys.path):
 
 from tools import hfkt_type as htype
 from tools import hfkt_def as hdef
+from tools import hfkt_np_fkt as hnp_fkt
 
 from wp_abfrage import wp_fkt
 
@@ -94,8 +96,9 @@ def get_price_volume_data(url,np_obj):
         return (status, errtext, infotext, np_obj)
     # end if
     df = tabellen[index_tab]
-    date_list = df[index_dat][1:].tolist()
-    dat_np_array = np.array(htype.type_transform_direct(date_list, "datStrP", "dat"), copy=True)
+    date_str_list = df[index_dat][1:].tolist()
+    date_time_list = [datetime.datetime.strptime(htype.type_transform_direct(d,"datStrP", "datStr"), "%d.%m.%Y") for d in date_str_list]
+    dat_np_array = hnp_fkt.transform_date_time_liste_in_np_dat_array_d(date_time_list)
 
     open_np_array = np.array(wandel_char_liste(df[index_open][1:].to_list()))
     high_np_array =  np.array(wandel_char_liste(df[index_high][1:].to_list()))

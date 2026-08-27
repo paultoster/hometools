@@ -151,10 +151,11 @@ class abfrage_liste_class:
         # --------------
         # self.createMenu()
         self.makeListGui()
+        return
+    # end def
+    def run(self):
         self.flag_mainloop = True
-        
         self.root.mainloop()
-    
     def __del__(self):
         if (self.flag_mainloop):
             self.GUI_GEOMETRY_HEIGHT = self.root.winfo_height()
@@ -197,7 +198,7 @@ class abfrage_liste_class:
         # entry StringVar fuer die Eingabe
         self.StringVarFiltText = Tk.StringVar()
         self.StringVarFiltText.set("")
-        self.StringVarFiltText.trace("w", self.runDoFilter)
+        self.StringVarFiltText.trace_add("write", self.runDoFilter)
         
         # entry Aufruf
         entry_a = Tk.Entry(gr_entry, width=(100), textvariable=self.StringVarFiltText)

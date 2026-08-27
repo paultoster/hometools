@@ -669,6 +669,7 @@ def find_currency(item):
     euro_count = 0
     dollar_count = 0
     schweiz_count = 0
+    gbp_count = 0
     percent_count = 0
     for x in liste:
         if x.find("€") >= 0:
@@ -681,6 +682,10 @@ def find_currency(item):
             dollar_count += 1
         elif x.lower().find("chf") >= 0:
             schweiz_count += 1
+        elif x.lower().find("£") >= 0:
+            gbp_count += 1
+        elif x.lower().find("gbp") >= 0:
+            gbp_count += 1
         elif x.find("%") >= 0:
             percent_count += 1
         elif x.lower().find("percent") >= 0:
@@ -690,7 +695,7 @@ def find_currency(item):
         # end if
     # end for
 
-    zahlen = [euro_count, dollar_count, schweiz_count, percent_count]
+    zahlen = [euro_count, dollar_count, schweiz_count, gbp_count, percent_count]
     max_wert = max(zahlen)
     max_index = zahlen.index(max_wert)
 
@@ -700,6 +705,8 @@ def find_currency(item):
         return "dollar"
     elif max_index == 2:
         return "chf"
+    elif max_index == 3:
+        return "gbp"
     else:
         return "percent"
     # end if

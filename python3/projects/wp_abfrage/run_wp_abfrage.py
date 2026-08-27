@@ -1,7 +1,5 @@
 import os, sys
 
-from hfkt_log import log
-
 t_path, _ = os.path.split(__file__)
 if len(t_path) > 0 :
     tools_path = t_path + "\\.."
@@ -11,7 +9,7 @@ else:
 if (tools_path not in sys.path):
   sys.path.append(tools_path)
 # endif
-
+from tools.hfkt_log import log
 from tools import sgui
 from tools import hfkt_def as hdef
 from tools import hfkt_dict as hdict
@@ -446,7 +444,7 @@ def edit_isin_basic_info(wb_obj, wpname, isin):
 
 
 # end def
-def get_isin_and_wpname_list(wb_obj):
+def get_isin_and_wpname_list(wb_obj,flag_first_last=False):
     """
 
     :param wb_obj:
@@ -472,7 +470,19 @@ def get_isin_and_wpname_list(wb_obj):
             return (status, errtext, isin_liste, isin_wpname_liste)
         # end if
 
-        isin_wpname_liste.append(f"{i}:{isin}/{output_dict["wkn"]} : {output_dict["type"]} : {wpname_isin_dict[isin]}")
+        if flag_first_last:
+            (first_dat_str,last_dat_str) = wb_obj.get_first_and_last_dat_price_volume_np_obj(output_dict["isin"],"datStr")
+
+            if  first_dat_str is None:
+                first_dat_str = "-"
+                last_dat_str = "-"
+            # end if
+            isin_wpname_liste.append(
+                f"{i}:{isin}/{output_dict["wkn"]}/{first_dat_str}/{last_dat_str} : {output_dict["type"]} : {wpname_isin_dict[isin]}")
+        else:
+            isin_wpname_liste.append(f"{i}:{isin}/{output_dict["wkn"]} : {output_dict["type"]} : {wpname_isin_dict[isin]}")
+        # end if
+
         isin_liste.append(isin)
     # end for
 
@@ -611,20 +621,16 @@ def edit_price_volume(wb_obj):
     infotext = ""
     # Hole die dict-Liste mit allen WPs name[isin]
     #---------------------------------------------
-    (status, errtext,isin_liste,isin_wpname_liste)  = get_isin_and_wpname_list(wb_obj)
-    if status != hdef.OKAY:
-        return (status, errtext,"")
-    # end if
 
     abfrage_liste = ["update 1-isin",
                      "update all-isin",
-                     "ariva-power-automate"
+                     "ariva-power-automate",
                      "backup",
                      "proof one-isin",
                      "proof all-isin",
                      "plot isin",
                      "ende"]
-    i_abfrage_ende = 9
+    i_abfrage_ende = 7
     i_abfrage_update_isin = 0
     i_abfrage_update_all = 1
     i_abfrage_ariva_power_automate = 2
@@ -635,8 +641,14 @@ def edit_price_volume(wb_obj):
     runflag = True
 
     while (runflag):
-        [index, indexAbfrage] = sgui.abfrage_liste_index_abfrage_index(isin_wpname_liste, abfrage_liste, "WP edit price volume")
 
+        (status, errtext, isin_liste, isin_wpname_liste) = get_isin_and_wpname_list(wb_obj, True)
+        if status != hdef.OKAY:
+            return (status, errtext, "")
+        # end if
+
+        [index, indexAbfrage] = sgui.abfrage_liste_index_abfrage_index(isin_wpname_liste, abfrage_liste, "WP edit price volume")
+        print(f"{index = }, {indexAbfrage = }")
         if indexAbfrage < 0:
             runflag = True
         elif indexAbfrage == i_abfrage_ende:
@@ -644,7 +656,7 @@ def edit_price_volume(wb_obj):
         elif indexAbfrage == i_abfrage_update_isin:
 
             if index < 0:
-                wb_obj.log.write_info("Keine isin ausgewählt")
+                wb_obj.log.write_info("A Keine isin ausgewählt")
                 runflag = True
             else:
 
@@ -718,7 +730,7 @@ def edit_price_volume(wb_obj):
         elif indexAbfrage == i_abfrage_proof_one_isin:
 
             if index < 0:
-                wb_obj.log.write_info("Keine isin ausgewählt")
+                wb_obj.log.write_info("B Keine isin ausgewählt")
                 runflag = True
             else:
 
@@ -764,7 +776,7 @@ def edit_price_volume(wb_obj):
 
         else: # i_plot_isin
             if index < 0:
-                wb_obj.log.write_info("Keine isin ausgewählt")
+                wb_obj.log.write_info("C Keine isin ausgewählt")
                 runflag = True
             else:
 
@@ -808,18 +820,18 @@ def edit_price_volume_ariva_power_automate(wb_obj):
         return (status, errtext,"")
     # end if
 
-    index_liste = ["build ariva-isin-csv-liste",
+    abfrage_liste = ["build ariva-isin-csv-liste",
                    "update ariva-csv-download",
                    "ende"]
-    abfrage_liste = ["okay","cancel","ende"]
+    button_liste = ["okay","cancel","ende"]
 
-    indexButton_okay = 0
-    indexButton_cancel = 1
-    indexButton_ende = 2
+    # button_abfrage_okay = 0
+    button_abfrage_cancel = 1
+    button_abfrage_ende = 2
 
-    index_abfrage_ende = 2
-    index_abfrage_build_ariva_isin_csv = 0
-    iindex_abfrage_update_ariva_csv_download = 1
+    abfrage_liste_ende = 2
+    abfrage_liste_build_ariva_isin_csv = 0
+    abfrage_lsite_update_ariva_csv_download = 1
     runflag = True
 
 
@@ -827,13 +839,13 @@ def edit_price_volume_ariva_power_automate(wb_obj):
 
     while (runflag):
 
-        [indexButton, indexAbfrage] = sgui.abfrage_liste_index_abfrage_index(index_liste, abfrage_liste, "Ariva-power-automate edit")
+        [index_abfrage, index_button] = sgui.abfrage_liste_index_abfrage_index(abfrage_liste, button_liste, "Ariva-power-automate edit")
 
-        if (indexButton == indexButton_cancel) or (indexButton == indexButton_ende) or (indexAbfrage < 0) or (indexAbfrage == index_abfrage_ende):
+        if (index_button == button_abfrage_cancel) or (index_button == button_abfrage_ende) or (index_abfrage < 0) or (index_abfrage == abfrage_liste_ende):
             runflag = False
         else:
             runflag = True
-            if indexAbfrage == index_abfrage_build_ariva_isin_csv:
+            if index_abfrage == abfrage_liste_build_ariva_isin_csv:
 
                 (status, errtext, isin_liste, isin_wpname_liste) = get_isin_and_wpname_list(wb_obj)
                 if status != hdef.OKAY:
@@ -856,10 +868,19 @@ def edit_price_volume_ariva_power_automate(wb_obj):
                     # end for
                 # end if
 
+                # Suche nach fehlenden data-Dateien:
+                for isin in isin_liste:
+                    if not wp_bearbeiten.exist_price_volumen_np_data(wb_obj, isin):
+                        if isin not in isin_ariva_liste:
+                            isin_ariva_liste.append(isin)
+                        # end if
+                    # end if
+                # end for
+
                 (status, errtext, infotext) = wb_obj.build_ariva_isin_csv_liste(isin_ariva_liste)
 
                 if len(infotext):
-                    t = f"Info wb_obj.wp_bearbeiten.build_ariva_isin_csv_liste() \n infotext = {infotext}"
+                    t = f"Info wb_obj.build_ariva_isin_csv_liste() \n infotext = {infotext}"
                     sgui.anzeige_text(t, textcolor='green')
                     wb_obj.log.write_info(t)
                     infotext = ""
@@ -872,7 +893,7 @@ def edit_price_volume_ariva_power_automate(wb_obj):
                     runflag = True
                 # end if
 
-            elif indexAbfrage == iindex_abfrage_update_ariva_csv_download:
+            elif index_abfrage == abfrage_lsite_update_ariva_csv_download:
 
                 wb_obj.log.write_info(f"WP update ariva-csv-download:")
 

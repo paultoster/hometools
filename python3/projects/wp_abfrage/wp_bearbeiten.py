@@ -32,6 +32,14 @@ from wp_abfrage import wp_np_indice_dataclass
 
 
 
+def exist_price_volumen_np_data(wb_obj,isin):
+    np_obj = build_price_volumen_np_obj(wb_obj, isin)
+    if np_obj.exist_file():
+        return True
+    else:
+        return False
+    # end if
+# end def
 def read_price_volumen_np_data(wb_obj,isin):
 
     np_obj = build_price_volumen_np_obj(wb_obj,isin)
@@ -200,7 +208,11 @@ def make_backup_build_new_dir_indice(wb_obj):
 
     return (status, errtext,backup_dir)
 # end def
-def get_price_volume_data_from_ariva_csv_file(csv_file,delim,np_obj,wp_dict):
+def get_price_volume_data_from_ariva_csv_file(wb_obj,
+                                              csv_file,
+                                              delim,
+                                              isin,
+                                              wp_dict):
     """
     :param csv_file:
     :param delim:
@@ -233,7 +245,7 @@ def get_price_volume_data_from_ariva_csv_file(csv_file,delim,np_obj,wp_dict):
 
         if i > 0:
 
-            liste = [htype.type_transform_direct(csv_list[0], "datStrB", "dat"),
+            liste = [htype.type_transform_direct(csv_list[0], "datStrB", "datetimeclass"),
                      htype.type_transform_direct(csv_list[1], "euroStrK", "float"),
                      htype.type_transform_direct(csv_list[2], "euroStrK", "float"),
                      htype.type_transform_direct(csv_list[3], "euroStrK", "float"),
@@ -253,30 +265,33 @@ def get_price_volume_data_from_ariva_csv_file(csv_file,delim,np_obj,wp_dict):
     end_list = hlist.get_col_list_by_index(llist, 4)
     vol_list = hlist.get_col_list_by_index(llist, 5)
 
-    dat_np_array  = np.array(dat_list, copy=True)
+    dat_np_array  = np.array(dat_list, copy=True).astype('datetime64[D]').astype('datetime64[s]').astype(np.int64)
     start_np_array = np.array(start_list, copy=True)
     high_np_array = np.array(high_list, copy=True)
     low_np_array = np.array(low_list, copy=True)
     end_np_array = np.array(end_list, copy=True)
     vol_np_array = np.array(vol_list, copy=True)
 
-    np_obj.from_np_array_list([dat_np_array,
-                               start_np_array,
-                               high_np_array,
-                               low_np_array,
-                               end_np_array,
-                               vol_np_array])
+    np_obj = build_price_volumen_np_obj(wb_obj, isin)
 
+    np_obj.put_signal(dat_np_array,
+                      start_np_array,
+                      high_np_array,
+                      low_np_array,
+                      end_np_array,
+                      vol_np_array)
 
+    # dummy weil hier nur die Währung gesucht wird
+    np_obj_dummy = build_price_volumen_np_obj(wb_obj, isin)
     base_url = hstr.elim_e(wp_dict["url_ariva"], "/")
     url = f"{base_url}/kurse/historische-kurse"
-    (status, errtext, infotext, np_obj_ariva_request) = wp_req.get_price_volume_data(url,np_classdef)
+    (status, errtext, infotext, np_obj_dummy) = wp_req.get_price_volume_data(url,np_obj_dummy)
 
     if status != hdef.OKAY:
         return (status, errtext, infotext, np_obj)
 
-    if len(np_obj_ariva_request.currency) > 0:
-        np_obj.set_currency(np_obj_ariva_request.currency)
+    if len(np_obj_dummy.currency) > 0:
+        np_obj.set_currency(np_obj_dummy.currency)
     else:
         np_obj.set_currency(wp_dict["waehrung"])
 

@@ -2,7 +2,7 @@ import requests
 import json
 import pandas as pd
 import numpy as np
-
+import datetime
 import os, sys
 
 t_path, _ = os.path.split(__file__)
@@ -13,7 +13,7 @@ if (tools_path not in sys.path):
 
 from tools import hfkt_type as htype
 from tools import hfkt_def as hdef
-
+from tools import hfkt_np_fkt as hnp_fkt
 
 def is_info_available(isin,eodhd_key):
     """
@@ -84,7 +84,11 @@ def get_price_volume_data(symbol,exchange,currency,eodhd_key,np_obj):
         df = pd.DataFrame(d)
 
         date_list = df['date'].tolist()
-        dat_np_array = np.array(htype.type_transform_direct(date_list, "datStrBInv", "dat"), copy=True)
+        dat_str_list = htype.type_transform_direct(date_list, "datStrBInv", "datStr")
+        date_time_list = [datetime.datetime.strptime(d, "%d.%m.%Y")
+                          for d in dat_str_list]
+        dat_np_array = hnp_fkt.transform_date_time_liste_in_np_dat_array_d(date_time_list)
+
         open_np_array = df["open"].to_numpy()
         high_np_array = df["high"].to_numpy()
         low_np_array = df["low"].to_numpy()

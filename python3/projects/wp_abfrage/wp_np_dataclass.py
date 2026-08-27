@@ -491,14 +491,21 @@ class NpPriceVolumeClass(NpBaseClass):
             self.currency = "dollar"
         elif currency.lower().find("chf") >= 0:
             self.currency = "chf"
+        elif currency.lower().find("gbp") >= 0:
+            self.currency = "gbp"
+        elif currency.lower().find("£") >= 0:
+            self.currency = "gbp"
         elif currency.find("%") >= 0:
             self.currency = "percent"
-        elif x.lower().find("percent") >= 0:
+        elif currency.lower().find("percent") >= 0:
             self.currency = "percent"
         else:
             raise Exception(f"currency nicht gefundent werden")
         # end if
         return
+    # end def
+    def get_currency(self):
+        return self.currency
     # end def
     def is_currency(self, currency):
         if (currency.find("€") >= 0) or (currency.lower().find("euro") >= 0):
@@ -515,6 +522,12 @@ class NpPriceVolumeClass(NpBaseClass):
             # end if
         elif (currency.lower().find("chf") >= 0):
             if self.currency == "chf":
+                return True
+            else:
+                return False
+            # end if
+        elif (currency.lower().find("gbp") >= 0) or (currency.lower().find("£") >= 0):
+            if self.currency == "gbp":
                 return True
             else:
                 return False
