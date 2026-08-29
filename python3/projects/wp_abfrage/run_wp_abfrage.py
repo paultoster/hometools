@@ -22,7 +22,7 @@ from wp_abfrage import wp_bearbeiten
 from wp_abfrage import wp_storage
 
 
-INT_FILENAME = "D:/data/orga/wp_store/wp_abfrage.ini"
+INT_FILENAME = "D:/data/wp/wp_store/wp_abfrage.ini"
 
 wb_obj = wp_base.WPData(INT_FILENAME)
 
@@ -813,12 +813,6 @@ def edit_price_volume_ariva_power_automate(wb_obj):
     """
     infotext = ""
 
-    # Hole die dict-Liste mit allen WPs name[isin]
-    #---------------------------------------------
-    (status, errtext,isin_liste,isin_wpname_liste)  = get_isin_and_wpname_list(wb_obj)
-    if status != hdef.OKAY:
-        return (status, errtext,"")
-    # end if
 
     abfrage_liste = ["build ariva-isin-csv-liste",
                    "update ariva-csv-download",
@@ -847,7 +841,9 @@ def edit_price_volume_ariva_power_automate(wb_obj):
             runflag = True
             if index_abfrage == abfrage_liste_build_ariva_isin_csv:
 
-                (status, errtext, isin_liste, isin_wpname_liste) = get_isin_and_wpname_list(wb_obj)
+                # Hole die dict-Liste mit allen WPs name[isin]
+                # ---------------------------------------------
+                (status, errtext, isin_liste, isin_wpname_liste) = get_isin_and_wpname_list(wb_obj,True)
                 if status != hdef.OKAY:
                     return (status, errtext, "")
                 # end if

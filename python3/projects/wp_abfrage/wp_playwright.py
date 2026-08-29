@@ -28,7 +28,14 @@ def get_ariva_url_playwright(isin,log=None):
     sleepTimeHalf = 2.5/2.
     #tTime = pTime*1000
 
-
+    # Test Playwright
+    with sync_playwright() as p:
+        t = f"Playwright funktioniert! \n {p.chromium}"
+        if log is not None:
+            log.write_info(t)
+        else:
+            print(t)
+        # end if
 
     while (icount < 2) and (status != hdef.OKAY):
         

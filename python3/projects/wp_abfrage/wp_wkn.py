@@ -69,6 +69,8 @@ def wp_search_wkn(wkn,wpname_isin_filename,formatpj,basic_info_pre_file_name,sto
     # end while
 
     (status,errtext,isin) = wp_search_wkn_html(wkn,wkn_isin_n_times,wkn_isin_sleep_time)
+
+
     
     return (status,errtext,isin,isin_dict_exists)
 # end def

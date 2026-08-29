@@ -3,6 +3,7 @@ import os, sys, re
 from ecbdata import ecbdata
 import pandas as pd
 import datetime
+import requests
 
 t_path, _ = os.path.split(__file__)
 tools_path = t_path + "\\.."
@@ -27,8 +28,40 @@ def get_data(np_obj,start_dat, end_dat):
     start_dat_time_class = htype.type_transform_direct(start_dat,"dat","datetimeclass")
     start_dat_time = start_dat_time_class.strftime('%Y-%m-%d')
 
+    series_key = "FM.D.U2.EUR.4F.KR.DFR.LEV"  # 'FM.B.U2.EUR.4F.KR.DFR.LEV'
 
-    df = ecbdata.get_series('FM.B.U2.EUR.4F.KR.DFR.LEV', start=start_dat_time)
+    """
+    headers = {"Accept": "application/vnd.sdmx.data+json;version=1.0.0"}
+
+    url = ( "https://data-api.ecb.europa.eu/service/data/" + series_key )
+
+
+    params = { "startPeriod": "2020-01-01" }
+
+    response = requests.get( url, params=params, headers=headers, timeout=30 )
+    response.raise_for_status()
+
+    data = response.json()
+
+    # Beobachtungsdaten aus der SDMX-JSON-Struktur holen
+
+    dataset = data["data"]["dataSets"][0]
+    series = dataset["series"]
+
+    # Die erste (und einzige) Serie
+    serie = next(iter(series.values()))
+    observations = serie["observations"]
+
+    # Zeitdimension bestimmen
+    time_values = ( data["data"]["structure"]["dimensions"]["observation"][0]["values"] )
+
+    # Letzte Beobachtung
+    index = max(map(int, observations.keys()))
+    wert = observations[str(index)][0]
+    datum = time_values[index]["id"]
+    """
+
+    df = ecbdata.get_series(series_key, start=start_dat_time)
 
     # Nur die interessanten Spalten auswählen
     df_ecbzins = df[["TIME_PERIOD", "OBS_VALUE"]].copy()

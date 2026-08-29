@@ -162,6 +162,8 @@ def get_price_volume_data(ticker,np_obj,start_dat,end_dat):
     date_str_list = df_data.index.strftime("%d.%m.%Y").tolist()
     # dat_np_array = np.array(htype.type_transform_direct(date_str_list, "datStrP", "dat"), copy=True)
 
+    # print(f" {date_str_list[0] = }, {date_str_list[-1] = }")
+
     date_time_list = [datetime.datetime.strptime(htype.type_transform_direct(d,"datStrP", "datStr"), "%d.%m.%Y") for d in date_str_list]
     dat_np_array = hnp_fkt.transform_date_time_liste_in_np_dat_array_d(date_time_list)
 

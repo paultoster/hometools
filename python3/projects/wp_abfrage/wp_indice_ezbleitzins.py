@@ -1,7 +1,8 @@
 import os, sys
 import numpy as np
 
-import wp_base_indices
+
+import wp_abfrage.wp_base_indices as wp_base_indices
 
 # from hfkt_log import log
 

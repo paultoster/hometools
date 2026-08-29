@@ -467,6 +467,29 @@ def build_sort_list_of_index(list1, list2,distbetween):
     # end if
     return sort_index_list
 # end def
+def dat_is_in_day_range(dat_proof,dat_target,days):
+    """
+    Prüft ob Datum sich um kleiner gleich days befinden days=0 gleiches Datum
+    """
+
+    date_time_proof = datetime.datetime.fromtimestamp(dat_proof).date()
+    date_time_target = datetime.datetime.fromtimestamp(dat_target).date()
+
+    if date_time_proof > date_time_target:
+
+        if date_time_proof - date_time_target > datetime.timedelta(days=days):
+            return False
+        else:
+            return True
+        # end if
+    else:
+        if date_time_target - date_time_proof > datetime.timedelta(days=days):
+            return False
+        else:
+            return True
+        # end if
+    # end if
+# end def
 def is_in_range(val_proof,val_target,range):
     """
     flag = wp_fkt.is_in_range(val_proof,val_target,range)

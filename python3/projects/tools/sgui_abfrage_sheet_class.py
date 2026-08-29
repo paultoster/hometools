@@ -470,7 +470,7 @@ class abfrage_sheet_class:
         # entry StringVar fuer die Eingabe
         self.StringVarDatFiltText = Tk.StringVar()
         self.StringVarDatFiltText.set(self.default_dat_filter)
-        self.StringVarDatFiltText.trace("w", self.runFilter)
+        self.StringVarDatFiltText.trace_add("write", self.runFilter)
 
         # entry Aufruf
         entry_a = Tk.Entry(self.FilterFrame, width=(100), textvariable=self.StringVarDatFiltText)

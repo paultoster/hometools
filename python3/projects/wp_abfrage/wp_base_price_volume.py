@@ -96,6 +96,12 @@ def update(wb_obj,isin_liste):
                 return (status, errtext,infotext)
             # end if
 
+            # Da bei Yahoo nicht immer alle Daten. z.B. letzte Datum kommt, wird hier nochmal geprüft
+            (status, errtext, wp_dict) = proof_is_upgedated(wb_obj, wp_dict)
+            if status != hdef.OKAY:
+                return (status, errtext, infotext)
+            # end if
+
         # 3. eodhd
         if not wp_dict["updated"]:
             (status, errtext, infotext0,wp_dict) = update_start_to_end_dat_eodhd(wb_obj, wp_dict)
@@ -226,6 +232,8 @@ def build_ariva_isin_csv_liste(wb_obj,isin_ariva_liste):
         Schreibt in wb_obj.base_ddict["avira_price_isin_liste_csv_filebasename"} mit dem Pfad wb_obj.base_ddict["avira_price_volume_csv_store_path"]
 
     """
+    status = hdef.OKAY
+    errtext =  ""
     infotext =  ""
 
     if len(isin_ariva_liste) > 0:
@@ -394,7 +402,7 @@ def get_act(wb_obj,isin_liste,pricetype,dattype):
 
         wp_dict = copy.copy(isin_info_dict)
 
-        wp_dict["np_obj"] = wp_bearb.read_price_volumen_np_data(wp_dict["isin"])
+        wp_dict["np_obj"] = wp_bearb.read_price_volumen_np_data(wb_obj,wp_dict["isin"])
 
         if wp_dict["np_obj"] is not None:
             (wp_dict["first_dat"], wp_dict["last_dat"]) = wp_dict["np_obj"].get_first_last_dat("dat")
@@ -815,23 +823,15 @@ def get_new_price_vol_from_yf(wb_obj,  wp_dict):
         # Währung
         if np_obj_yf != None:
             if len(np_obj_yf.dat_np_array) != 0:
-                # Währung
-                if np_obj_yf.is_currency("usd"):
-                    wb_obj.log.write_info(f"yahoo-finance: Suche USD/euro-Kurse ")
-                    (status, errtext, np_obj_yf) = transfer_price_vol_fromto_euro(wb_obj, np_obj_yf,
-                                                                                          wb_obj.par.INDICES_USDEURO_NAME)
-                elif np_obj_yf.is_currency("chf"):
-                    wb_obj.log.write_info(f"yahoo-finance: Suche CHF/euro-Kurse ")
-                    (status, errtext, np_obj_yf) = transfer_price_vol_fromto_euro(wb_obj, np_obj_yf,
-                                                                                          wb_obj.par.INDICES_CHFEURO_NAME)
-                # end if
+                (status, errtext, np_obj_yf) = check_currency_transfer(wb_obj, np_obj_yf)
 
                 # keep end date
                 np_obj_yf.reduce_end_dat(wp_dict["end_dat"])
                 if len(np_obj_yf.dat_np_array) != 0:
-                    range = 60*60*24
-                    flag = wp_fkt.is_in_range(np_obj_yf.dat_np_array[-1],wp_dict["end_dat"],range)
 
+                    # flag = wp_fkt.dat_is_in_day_range(np_obj_yf.dat_np_array[-1],wp_dict["end_dat"],0)
+                    # Es kann vorkommen, das yahoo nicht die vollständigen Daten, bzw das letzte Datum nicht hat
+                    flag = True
                     if flag:
                         wp_dict["np_obj_new"]  = np_obj_yf
                         wp_dict["updated"]     = True
@@ -903,15 +903,7 @@ def get_new_price_vol_from_eodhd(wb_obj,  wp_dict):
         # Währungs USDEuro
         if np_obj_eodhd != None:
 
-            if not np_obj_eodhd.is_currency("euro"):
-                (status, errtext, np_obj_eodhd) = transfer_price_vol_indice_euro(wb_obj, np_obj_eodhd)
-            if np_obj_eodhd.is_currency("usd"):
-                wb_obj.log.write_info(f"end-of-day-hd: Suche USD/euro-Kurse ")
-                (status, errtext, np_obj_eodhd) = transfer_price_vol_indice_euro(wb_obj, np_obj_eodhd,wb_obj.par.INDICES_USDEURO_NAME)
-            elif np_obj_eodhd.is_currency("chf"):
-                wb_obj.log.write_info(f"end-of-day-hd: Suche CHF/euro-Kurse ")
-                (status, errtext, np_obj_eodhd) = transfer_price_vol_indice_euro(wb_obj, np_obj_eodhd,wb_obj.par.INDICES_CHFEURO_NAME)
-            # end if
+            (status, errtext, np_obj_eodhd) = check_currency_transfer(wb_obj, np_obj_eodhd)
 
             # keep end date
             np_obj_eodhd.reduce_end_dat(wp_dict["end_dat"])
@@ -969,21 +961,7 @@ def get_new_price_vol_from_ariva_requests(wb_obj,  wp_dict):
         # Währungs USDEuro
         if np_obj_ariva != None:
 
-            if np_obj_ariva.is_currency("usd"):
-
-                wb_obj.log.write_info(f"ariva-requests: Suche USD/euro-Kurse ")
-                (status, errtext, np_obj_ariva) = transfer_price_vol_indice_euro(wb_obj, np_obj_ariva,wb_obj.par.INDICES_USDEURO_NAME)
-
-            elif np_obj_ariva.is_currency("chf"):
-
-                wb_obj.log.write_info(f"ariva-requests: Suche CHF/euro-Kurse ")
-                (status, errtext, np_obj_ariva) = transfer_price_vol_indice_euro(wb_obj, np_obj_ariva,wb_obj.par.INDICES_CHFEURO_NAME)
-
-            elif np_obj_ariva.is_currency("gbp"):
-
-                wb_obj.log.write_info(f"ariva-requests: Suche GBP/euro-Kurse ")
-                (status, errtext, np_obj_ariva) = transfer_price_vol_indice_euro(wb_obj, np_obj_ariva,wb_obj.par.INDICES_GBPEURO_NAME)
-            # end if
+            (status, errtext, np_obj_ariva) = check_currency_transfer(wb_obj, np_obj_ariva)
 
             # keep end date
             np_obj_ariva.reduce_end_dat(wp_dict["end_dat"])
@@ -1038,16 +1016,7 @@ def get_new_price_vol_from_ariva(wb_obj,  wp_dict_liste):
         # Währungs USDEuro
         if wp_dict["update_type"] == "ariva":
 
-
-            if wp_dict["np_obj_new"].is_currency("usd"):
-                wb_obj.log.write_info(f"ariva: Suche USD/euro-Kurse ")
-                (status, errtext, wp_dict["np_obj_new"]) = transfer_price_vol_indice_euro(wb_obj, wp_dict["np_obj_new"],
-                                                                                   wb_obj.par.INDICES_USDEURO_NAME)
-            elif wp_dict["np_obj_new"].is_currency("chf"):
-                wb_obj.log.write_info(f"ariva: Suche CHF/euro-Kurse ")
-                (status, errtext, wp_dict["np_obj_new"]) = transfer_price_vol_indice_euro(wb_obj, wp_dict["np_obj_new"],
-                                                                                   wb_obj.par.INDICES_CHFEURO_NAME)
-            # end if
+            (status, errtext, wp_dict["np_obj_new"]) = check_currency_transfer(wb_obj, wp_dict["np_obj_new"])
 
             wp_dict_liste[i] = wp_dict
         # end if
@@ -1095,15 +1064,7 @@ def get_new_price_vol_from_onvista(wb_obj, wp_dict_liste):
         # Währungs USDEuro
         if wp_dict["update_type"] == "onvista":
 
-            if  wp_dict["np_obj_new"].is_currency("usd"):
-                wb_obj.log.write_info(f"onvista: Suche USD/euro-Kurse ")
-                (status, errtext,  wp_dict["np_obj_new"]) = transfer_price_vol_indice_euro(wb_obj,  wp_dict["np_obj_new"],
-                                                                                      wb_obj.par.INDICES_USDEURO_NAME)
-            elif  wp_dict["np_obj_new"].is_currency("chf"):
-                wb_obj.log.write_info(f"onvista: Suche CHF/euro-Kurse ")
-                (status, errtext,  wp_dict["np_obj_new"]) = transfer_price_vol_indice_euro(wb_obj,  wp_dict["np_obj_new"],
-                                                                                      wb_obj.par.INDICES_CHFEURO_NAME)
-            # end if
+            (status, errtext, wp_dict["np_obj_new"]) = check_currency_transfer(wb_obj, wp_dict["np_obj_new"])
 
             wp_dict_liste[i] = wp_dict
         # end if
@@ -1140,7 +1101,7 @@ def get_new_price_vol_from_ariva_csv_file(wb_obj,  wp_dict, csv_file):
 
 
     if status != hdef.OKAY:
-        if np_obj_csv.is_empty():
+        if (np_obj_csv is None) or np_obj_csv.is_empty():
             wb_obj.log.write_info(f"ariva-csv: {csv_file = } mit {isin = } ist leer {errtext = }")
             status = hdef.OKAY
             errtext = ""
@@ -1152,19 +1113,7 @@ def get_new_price_vol_from_ariva_csv_file(wb_obj,  wp_dict, csv_file):
 
     # Währungs USDEuro
     if np_obj_csv != None:
-        if np_obj_csv.is_currency("usd"):
-            wb_obj.log.write_info(f"ariva-csv: Suche USD/euro-Kurse ")
-            (status, errtext, np_obj_csv) = transfer_price_vol_indice_euro(wb_obj, np_obj_csv,
-                                                                                  wb_obj.par.INDICES_USDEURO_NAME)
-        elif np_obj_csv.is_currency("chf"):
-            wb_obj.log.write_info(f"ariva-csv: Suche CHF/euro-Kurse ")
-            (status, errtext, np_obj_csv) = transfer_price_vol_indice_euro(wb_obj, np_obj_csv,
-                                                                           wb_obj.par.INDICES_CHFEURO_NAME)
-        elif np_obj_csv.is_currency("gbp"):
-            wb_obj.log.write_info(f"ariva-csv: Suche GBP/euro-Kurse ")
-            (status, errtext, np_obj_csv) = transfer_price_vol_indice_euro(wb_obj, np_obj_csv,
-                                                                                  wb_obj.par.INDICES_GBPEURO_NAME)
-        # end if
+        (status, errtext, np_obj_csv) = check_currency_transfer(wb_obj, np_obj_csv)
 
         # keep end date
         np_obj_csv.reduce_end_dat(wp_dict["end_dat"])
@@ -1180,6 +1129,34 @@ def get_new_price_vol_from_ariva_csv_file(wb_obj,  wp_dict, csv_file):
 
     return (status, errtext, wp_dict)
 # end def
+def check_currency_transfer(wb_obj, np_obj):
+    """
+    :param wb_obj:
+    :param np_obj:
+    :return: (status, errtext, np_obj) = check_currency_transfer(wb_obj, np_obj)
+    """
+
+
+    # Währung
+    if np_obj.is_currency("usd"):
+        wb_obj.log.write_info(f"yahoo-finance: Suche USD/euro-Kurse ")
+        (status, errtext, np_obj) = transfer_price_vol_indice_euro(wb_obj, np_obj,
+                                                                      wb_obj.par.INDICES_USDEURO_NAME)
+    elif np_obj.is_currency("chf"):
+        wb_obj.log.write_info(f"yahoo-finance: Suche CHF/euro-Kurse ")
+        (status, errtext, np_obj) = transfer_price_vol_indice_euro(wb_obj, np_obj,
+                                                                      wb_obj.par.INDICES_CHFEURO_NAME)
+
+    elif np_obj.is_currency("gbp"):
+        wb_obj.log.write_info(f"yahoo-finance: Suche CHF/euro-Kurse ")
+        (status, errtext, np_obj) = transfer_price_vol_indice_euro(wb_obj, np_obj,
+                                                                      wb_obj.par.INDICES_GBPEURO_NAME)
+    else:
+        status = hdef.OKAY
+        errtext = ""
+    # end if
+    return (status, errtext, np_obj)
+# end def
 def transfer_price_vol_indice_euro(wb_obj,np_price_vol,indice):
     """
     :param wb_obj:
@@ -1187,7 +1164,7 @@ def transfer_price_vol_indice_euro(wb_obj,np_price_vol,indice):
     :return: (status,errtext,np_obj_new) = transfer_price_vol_indice_euro(wb_obj,np_price_vol)
     """
 
-    if (indice != wb_obj.par.INDICES_USDEURO_NAME) and (indice != wb_obj.par.INDICES_CHFEURO_NAME) and (indice != wb_obj.par.INDICES_GBP_NAME):
+    if (indice != wb_obj.par.INDICES_USDEURO_NAME) and (indice != wb_obj.par.INDICES_CHFEURO_NAME) and (indice != wb_obj.par.INDICES_GBPEURO_NAME):
         raise Exception(f"{np_price_vol.get_currency()} is not supported")
     # end if
 
@@ -1270,6 +1247,8 @@ def merge_and_update_file(wb_obj, wp_dict):
                     return (status, errtext, infotext,wp_dict)
                 # end if
 
+                wp_dict["np_obj"] = np_obj
+
                 wb_obj.log.write_info(f"Updated file: {filename} ")
             else:
                 wb_obj.log.write_info(f"No Update nmerge == nstart ")
@@ -1343,18 +1322,19 @@ def merge_ariva_csv_and_update_file(wb_obj, wp_dict):
                 return (status, errtext, wp_dict)
             # end if
 
+            wp_dict["np_obj"] = np_obj
 
             wb_obj.log.write_info(f"Updated file: {filename} ")
         # end if
     else:
         wb_obj.log.write_info(f"No Update  ")
     # end if
-
-    if save_flag or (wp_dict["np_obj_new"].is_empty == False):
-        # basic_info_dict["start_ariva_dat_str"] bearbeiten
-        (status, errtext) = save_start_ariva_dat_str(wb_obj, wp_dict, first_new_dat, first_dat_before_merge)
-        if status != hdef.OKAY:
-            return (status, errtext, wp_dict)
+    if wp_dict["np_obj_new"] is not None:
+        if save_flag or (wp_dict["np_obj_new"].is_empty == False):
+            # basic_info_dict["start_ariva_dat_str"] bearbeiten
+            (status, errtext) = save_start_ariva_dat_str(wb_obj, wp_dict, first_new_dat, first_dat_before_merge)
+            if status != hdef.OKAY:
+                return (status, errtext, wp_dict)
 
     return (status,errtext,wp_dict)
 # end def

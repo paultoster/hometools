@@ -711,7 +711,7 @@ if __name__ == '__main__':
     isin = "AU3TB0000192"
     isin = "DE000ETFL482"
     
-    store_path = "D:/data/orga/wp_store/wp_abfrage.ini"
+    store_path = "D:/data/wp/wp_store/wp_abfrage.ini"
     wp = WPData(store_path)
     if wp.status != hdef.OKAY:
         print(f"WPData: Fehler  errtext = {wp.errtext}")

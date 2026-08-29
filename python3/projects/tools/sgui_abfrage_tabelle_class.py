@@ -440,7 +440,7 @@ class abfrage_tabelle_class:
         # entry StringVar fuer die Eingabe
         self.StringVarDatFiltText = Tk.StringVar()
         self.StringVarDatFiltText.set(self.default_dat_filter)
-        self.StringVarDatFiltText.trace("w", self.runDoFilter)
+        self.StringVarDatFiltText.trace_add("write", self.runDoFilter)
 
         # entry Aufruf
         entry_a = Tk.Entry(gr_entry, width=(100), textvariable=self.StringVarDatFiltText)
@@ -464,7 +464,7 @@ class abfrage_tabelle_class:
         # entry StringVar fuer die Eingabe
         self.StringVarFiltText = Tk.StringVar()
         self.StringVarFiltText.set("")
-        self.StringVarFiltText.trace("w", self.runDoFilter)
+        self.StringVarFiltText.trace_add("write", self.runDoFilter)
         
         # entry Aufruf
         entry_a = Tk.Entry(gr_entry, width=(100), textvariable=self.StringVarFiltText)

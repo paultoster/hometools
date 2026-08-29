@@ -224,6 +224,7 @@ def get_price_volume_data_from_ariva_csv_file(wb_obj,
     status = hdef.OKAY
     errtext = ""
     infotext = ""
+    np_obj = None
 
     # read csv-File
     # ==============

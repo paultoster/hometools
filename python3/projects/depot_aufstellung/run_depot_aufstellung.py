@@ -163,11 +163,11 @@ if __name__ == '__main__':
     # end if
     
     if switch == 1:
-        WORKING_DIRECTORY = "D:/data/orga/Otnok"
+        WORKING_DIRECTORY = "D:/data/wp/Konto"
         LOG_FILE_NAME = "konto_aufstellung.log"
         INI_FILE_NAME = "konto_aufstellung.ini"
     else:
-        WORKING_DIRECTORY = "D:/data/orga/Toped"
+        WORKING_DIRECTORY = "D:/data/wp/Depot"
         LOG_FILE_NAME = "depot_aufstellung.log"
         INI_FILE_NAME = "depot_aufstellung.ini"
     # end if

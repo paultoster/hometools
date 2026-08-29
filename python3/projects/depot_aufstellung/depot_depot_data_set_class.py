@@ -723,7 +723,7 @@ class DepotDataSet:
                          ["nK","int"],
                          ["nV","int"],
                          ["Kkurs","float"],
-                         ["Vkurs/Akurs","float"],
+                         ["Vkurs|Akurs","float"],
                          ["Verhältnis","float"],
                          ["Kwert","euroStrK"],
                          ["Vwert","euroStrK"],
