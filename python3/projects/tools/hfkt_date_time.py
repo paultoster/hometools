@@ -2115,3 +2115,7 @@ if __name__ == '__main__':
     str = calc_secs_to_str(secs,"-")
 
     print(str)
+
+if __name__ == '__main__':
+
+    a = 0

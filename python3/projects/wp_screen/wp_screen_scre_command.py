@@ -359,7 +359,7 @@ def scre_show_screen(rd,index):
             runflag = False
         else: # indexAbfrage == index_plot
             print( "plot")
-            rundflag = True
+            runflag = True
         # end if
     # end while
     return

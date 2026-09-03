@@ -164,7 +164,7 @@ def get_0par_signal(rd,werte_dict,np_data_obj,np_isin_obj):
                 return (False, None)
             # end if
 
-            if np_indice_obj.currency == "%":
+            if np_indice_obj.is_unit("%"):
                 np_indice_obj.indice_np_array /= 100.
 
             np_y_array = hnpfkt.interpoliere(getattr(np_data_obj, rd.par.SIG_STORE_DATUM),

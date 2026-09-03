@@ -443,7 +443,7 @@ def get_act_np_obj(wb_obj, isin):
         return (status, errtext,None)
     # end if
 
-    np_obj = wp_bearb.read_price_volumen_np_data(wp_dict["isin"])
+    np_obj = wp_bearb.read_price_volumen_np_data(wb_obj,wp_dict["isin"])
 
     return (status, errtext,np_obj)
 # end def

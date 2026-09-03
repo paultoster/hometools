@@ -382,3 +382,5 @@ def plot_price_volume(np_obj,tit):
         style='yahoo',         # Klassischer Finanz-Look 'binance'
         title=tit
     )
+    return (status, errtext, infotext)
+# end def

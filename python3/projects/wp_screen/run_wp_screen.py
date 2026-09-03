@@ -172,7 +172,7 @@ def wp_screener_command(rd):
     return
 # end def
 if __name__ == '__main__':
-    ini_filename = "D:/data/orga/wp_screen/wp_screen.ini"
+    ini_filename = "D:/data/wp/wp_screen/wp_screen.ini"
 
     rd = wp_screen_base.WPScreen(ini_filename)
 

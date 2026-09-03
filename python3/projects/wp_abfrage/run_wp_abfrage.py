@@ -933,6 +933,7 @@ def plot_price_volume(wb_obj,isin):
         return (status, errtext, infotext)
 
     tit = f"Price-Volume {isin = }, {name = } Währung: {curr}"
+    wb_obj.log.write_info(tit)
     (status, errtext, infotext) = wp_bearbeiten.plot_price_volume(np_obj,tit)
     if status != hdef.OKAY:
         return (status, errtext, infotext)

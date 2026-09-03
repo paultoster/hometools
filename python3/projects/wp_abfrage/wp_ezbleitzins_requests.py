@@ -59,9 +59,24 @@ def get_data(np_obj,start_dat, end_dat):
     index = max(map(int, observations.keys()))
     wert = observations[str(index)][0]
     datum = time_values[index]["id"]
+
     """
 
-    df = ecbdata.get_series(series_key, start=start_dat_time)
+    try:
+
+        df = ecbdata.get_series(series_key, start=start_dat_time)
+
+    except requests.exceptions.HTTPError as e:
+        status = hdef.NOT_OKAY
+        errtext = f"get_data: Funktion ecbdata.get_series() funktioniert nicht: {e}!!!"
+
+        return (status, errtext, np_obj)
+    except:
+        status = hdef.NOT_OKAY
+        errtext = f"get_data: Funktion ecbdata.get_series() funktioniert nicht!!!"
+
+        return (status, errtext, np_obj)
+    # end try
 
     # Nur die interessanten Spalten auswählen
     df_ecbzins = df[["TIME_PERIOD", "OBS_VALUE"]].copy()
@@ -92,6 +107,8 @@ def get_data(np_obj,start_dat, end_dat):
     np_obj.put_signal(np_handelstage_dat_array,ezb_zins_handelstage_np_array)
 
     np_obj.sort_by_dat()
+
+    np_obj.set_unit("%")
 
     return (status, errtext, np_obj)
 # end def

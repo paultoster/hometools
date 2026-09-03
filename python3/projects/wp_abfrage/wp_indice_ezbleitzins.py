@@ -2,7 +2,6 @@ import os, sys
 import numpy as np
 
 
-import wp_abfrage.wp_base_indices as wp_base_indices
 
 # from hfkt_log import log
 
@@ -20,9 +19,10 @@ from wp_abfrage import wp_storage
 from wp_abfrage import wp_fkt
 
 from wp_abfrage import wp_yahoofinance as wp_yfinance
-from wp_abfrage import wp_ezbleitzins_requests as wp_ezbleitzins_requests
+from wp_abfrage import wp_ezbleitzins_requests
 from wp_abfrage import wp_bearbeiten as wp_bearbeit
 from wp_abfrage import wp_fkt
+from wp_abfrage import wp_base_indices
 
 def process_akt(wb_obj):
     """
