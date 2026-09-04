@@ -1,5 +1,9 @@
+from tokenize import endpats
+
 import numpy as np
 import os,sys
+import datetime
+import calendar
 
 t_path, _ = os.path.split(__file__)
 if( t_path == os.getcwd() ):
@@ -27,7 +31,7 @@ WSPACE_DEFAULT = 0.05
 LEFT_DEFAULT = 0.05
 RIGHT_DEFAULT = 0.95
 BOTTOM_DEFAULT = 0.1
-TOP_DEFAULT = 0.9
+TOP_DEFAULT = 0.85
 
 
 
@@ -49,9 +53,12 @@ def check_dict_plot(dict_plot):
                          ddict["top"] = 0.9
                          ddict["bottom"] = 0.1
                          ddict["title"] = text
+                         ddict["title_add_date_range"] = False (default,True)
                          ddict["subplot_list"] = [dict_subplot1, dict_subplot2, dict_subplot3] Liste von dictionaries
 
                          dict_plot["height_rows_sum"] errechnet
+                         dict_plot["first_date_time"] errechnet
+                         dict_plot["last_date_time"] errechnet
 
                          dict_subplot1["name"]   = "subplot1"  (default)
                          dict_subplot1["title"]   = "title"
@@ -61,6 +68,9 @@ def check_dict_plot(dict_plot):
                          dict_subplot1["grid"] = True (default, False)
                          dict_subplot1["legend"] = "upper left","upper center","upper right","center left","center","center right","lower left","lower center","lower right"
                          dict_subplot1["data_list"]   = [dict_data1, dictr_data2, ...]
+
+                         dict_subplot1["first_date_time"] errechnet
+                         dict_subplot1["last_date_time"] errechnet
 
                          dict_data1["xdat"] = np.array([secs1,secs2, ...])
                          dict_data1["y"]   = np.array([val1,val2, ...])
@@ -145,6 +155,14 @@ def check_dict_plot(dict_plot):
         dict_plot[key] = ""
     else:
         dict_plot[key] = str(dict_plot[key])
+    # end if
+
+    # ddict["title_add_date_range"] = False(default, True)
+    key = "title_add_date_range"
+    if key not in dict_plot:
+        dict_plot[key] = False
+    else:
+        dict_plot[key] = bool(dict_plot[key])
     # end if
 
     # dict_plot["subplot_list"] = [dict_subplot1, dict_subplot2, dict_subplot3] Liste von dictionaries
@@ -319,7 +337,47 @@ def check_dict_data(data_dict,i):
 
     return (status, errtext, data_dict)
 # end def
-def build_date_time(data_dict,i):
+def build_date_time(plot_dict):
+
+    status = hdef.OKAY
+    errtext = ""
+
+    plot_dict["first_date_time"] = datetime.datetime
+    plot_dict["last_date_time"] = datetime.datetime
+
+    for i, subplot_dict in enumerate(plot_dict["subplot_list"]):
+
+        subplot_dict["first_date_time"] = datetime.datetime
+        subplot_dict["last_date_time"] = datetime.datetime
+
+        for j, data_dict in enumerate(subplot_dict["data_list"]):
+            # Build date-time for each dataset
+            # ---------------------------------
+            (status, errtext, data_dict) = build_date_time_data_dict(data_dict, j)
+            if status != hdef.OKAY:
+                return
+            subplot_dict["data_list"][j] = data_dict
+
+            if (j == 0) or (data_dict["first_date_time"] < subplot_dict["first_date_time"]):
+                subplot_dict["first_date_time"] = data_dict["first_date_time"]
+            # end if
+            if (j == 0) or (data_dict["last_date_time"] > subplot_dict["last_date_time"]):
+                subplot_dict["last_date_time"] = data_dict["last_date_time"]
+            # end if
+
+        # end for
+        if (i == 0) or (subplot_dict["first_date_time"] < plot_dict["first_date_time"]):
+            plot_dict["first_date_time"] = subplot_dict["first_date_time"]
+        # end if
+        if (i == 0) or (subplot_dict["last_date_time"] > plot_dict["last_date_time"]):
+            plot_dict["last_date_time"] = subplot_dict["last_date_time"]
+        # end if
+
+        plot_dict["subplot_list"][i] = subplot_dict
+    # end for
+    return (status, errtext, plot_dict)
+# end def
+def build_date_time_data_dict(data_dict,i):
     """
     (status, errtext, data_dict) = build_date_time(data_dict)
     """
@@ -341,5 +399,199 @@ def build_date_time(data_dict,i):
     data_dict["xdate_time"] = np_date_time_array
     data_dict["xdate_str"] = np_date_str_array
 
+    data_dict["first_date_time"] = to_datetime( np_date_time_array[0] )
+    data_dict["last_date_time"] = to_datetime( np_date_time_array[-1] )
+
+
     return (status, errtext, data_dict)
+# end def
+def detect_change_date_range(text,first_date_time,last_date_time):
+    """
+    (status, start_date_time,end_date_time) = detect_change_date_range(text,first_date_time,last_date_time)
+
+    10T                     :       plotte die letzten 10 tage
+    2M                      :       plotte die letzten 2 Monate
+    2025                    :       plotte das Jahr 2025
+    10.2026                 :       plotte das den Monat Okt 2026
+    1.10.2026-31.11.2026    :       Plotte den zeitbereich
+    1.10.2026-200T          :       Plotte von 1.10.2026 200 Tage
+    1.10.2026-2M            :       Plotte von 1.10.2026 2 Monate
+    """
+    status = hdef.OKAY
+    start_date_time = None
+    end_date_time = None
+
+    # Split Zeitbereich mit "-"
+    liste = text.split("-")
+    if len(liste) > 2:
+        return (hdef.NOT_OKAY,None,None)
+    elif (len(liste) == 2) and (len(liste[0]) == 0):
+        liste = liste[1:]
+    # end if
+
+    if len(liste) == 1:
+        return detect_change_date_range_1item(liste[0],first_date_time,last_date_time)
+    else:
+        return detect_change_date_range_2item(liste[0],liste[1],first_date_time,last_date_time)
+    # end if
+# end def
+def detect_change_date_range_1item(date_str_range,first_date_time,last_date_time):
+    """
+    (status, start_date_time,end_date_time) = detect_change_date_range(date_str_range)
+
+    10T                     :       plotte die letzten 10 tage
+    2W                      :       plotte die letzten 2 Wochen
+    2025                    :       plotte das Jahr 2025
+    10.2026                 :       plotte das den Monat Okt 2026
+    """
+
+    if len(date_str_range.replace(" ","")) == 0:
+        return (hdef.NOT_OKAY,None,None)
+    # end if
+
+    # Tage
+    days = finde_tage(date_str_range)
+    if days is not None:
+
+        start_date_time = last_date_time + datetime.timedelta(days=days * (-1))
+        if start_date_time < first_date_time:
+            start_date_time = first_date_time
+        # end if
+        end_date_time = last_date_time
+        return (hdef.OKAY, start_date_time, end_date_time)
+    # end if
+
+    # Wochen
+    weeks = finde_wochen(date_str_range)
+    if weeks is not None:
+
+        start_date_time = last_date_time + datetime.timedelta(weeks=weeks*(-1))
+        if start_date_time < first_date_time:
+            start_date_time = first_date_time
+        # end if
+        end_date_time = last_date_time
+        return (hdef.OKAY, start_date_time, end_date_time)
+    # end if
+
+    # Monat.Jahr
+    (okay, wert) = htype.type_proof(date_str_range, "month.yearStr")
+    if okay == hdef.OKAY:
+        liste = wert.split(".")
+        month = int(liste[0])
+        year = int(liste[1])
+        (day0,day1) = calendar.monthrange(year,month)
+        start_date_time = datetime.datetime(year, month, day0)
+        end_date_time = datetime.datetime(year, month, day1)
+        return (hdef.OKAY, start_date_time, end_date_time)
+    # end if
+
+    # Jahr
+    (okay, wert) = htype.type_proof(date_str_range, "yearStr")
+    if okay == hdef.OKAY:
+        liste = wert.split(".")
+        month = int(liste[0])
+        year = int(wert)
+        month0,month1 = 1,12
+        day0 = 1
+        (_,day1) = calendar.monthrange(year,month1)
+        start_date_time = datetime.datetime(year, month0, day0)
+        end_date_time = datetime.datetime(year, month1, day1)
+        return (hdef.OKAY, start_date_time, end_date_time)
+    # end if
+
+    return (hdef.OKAY,None,None)
+# end def
+def finde_tage(date_str_range):
+    """
+    days = finde_tage(date_str_range)
+    """
+    iTage = date_str_range.lower().find("t")
+    if iTage != -1:
+
+        try:
+            days = int(float(date_str_range[0:iTage]))
+        except:
+            days =  None
+        # end try
+        return days
+    # end if
+    return None
+# end def
+def finde_wochen(date_str_range):
+    """
+    weeks = finde_wochen(date_str_range)
+    """
+    iWochen = date_str_range.lower().find("w")
+    if iWochen != -1:
+        try:
+            weeks = int(float(date_str_range[0:iWochen]))
+        except:
+            weeks = None
+        # end try
+        return weeks
+    # end if
+    return None
+# end def
+def detect_change_date_range_2item(date_str_start,date_str_end_or_range,first_date_time,last_date_time):
+    """
+    (status, start_date_time,end_date_time) = detect_change_date_range(date_str_start,date_str_end_or_range)
+
+    1.10.2026-31.11.2026    :       Plotte den zeitbereich
+    1.10.2026-200T          :       Plotte von 1.10.2026 200 Tage
+    1.10.2026-2W            :       Plotte von 1.10.2026 2 Wochen
+    """
+
+    # Anfangsdatum
+    (status, start_date_time) = htype.type_transform(date_str_start, "datStrP", "datetimeclass")
+
+    if status == hdef.OKAY:
+
+        if start_date_time < first_date_time:
+            start_date_time = first_date_time
+        # end if
+
+        # Tage
+        days = finde_tage(date_str_end_or_range)
+        if days is not None:
+            end_date_time = start_date_time + datetime.timedelta(days=days)
+            if end_date_time > last_date_time:
+                end_date_time = last_date_time
+            # end if
+            return (hdef.OKAY, start_date_time, end_date_time)
+        # end if
+
+        # Wochen
+        weeks = finde_wochen(date_str_end_or_range)
+        if weeks is not None:
+
+            end_date_time = start_date_time + datetime.timedelta(weeks=weeks)
+            if end_date_time > last_date_time:
+                end_date_time = last_date_time
+            # end if
+            return (hdef.OKAY, start_date_time, end_date_time)
+        # end if
+
+        # Enddatum
+        (status, end_date_time) = htype.type_transform(date_str_end_or_range, "datStrP", "datetimeclass")
+        if status == hdef.OKAY:
+            if end_date_time > last_date_time:
+                end_date_time = last_date_time
+            # end if
+            return (hdef.OKAY, start_date_time, end_date_time)
+        # end if
+    # end if
+
+    return (hdef.OKAY, None, None)
+# end def
+def to_datetime(date):
+    """
+    Converts a numpy datetime64 object to a python datetime object
+    Input:
+      date - a np.datetime64 object
+    Output:
+      DATE - a python datetime object
+    """
+    timestamp = ((date - np.datetime64('1970-01-01T00:00:00'))
+                 / np.timedelta64(1, 's'))
+    return datetime.datetime.fromtimestamp(timestamp)
 # end def

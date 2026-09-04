@@ -1784,6 +1784,30 @@ def is_year_str(str_year_in):
     # end if
     return flag
 # enddef
+def is_month_str(str_month_in):
+    '''
+    Prüft, ob str_year ein Jahr wie 2005 ist
+
+    :param str_year:
+    :return: flag = is_year_str("2015")
+    '''
+    lliste = str_month_in.split(' ')
+    if (len(lliste) > 1):
+        str_month = lliste[0]
+    else:
+        str_month = str_month_in
+    # end if
+    try:
+        if 0 < int(str_month) < 13:
+            flag = True
+        else:
+            flag = False
+        # end if
+    except:
+        flag = False
+    # end try
+    return flag
+# enddef
 def is_datum_str(str_dat, delim="."):
     """ Prüft, ob str_dat ein Datum wie 01.03.2005 ist
     """
@@ -2052,6 +2076,7 @@ def secs_to_end_of_day(secs: int) -> int:
 
     return secs
 # enddef
+
 ########################################################################################################################
 
 ########################################################################################################################

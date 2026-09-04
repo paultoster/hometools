@@ -498,7 +498,8 @@ def type_proof(wert_in, type):
     "datStrP": Convert to date string mit Punkt "20.03.2024"
     "datStrB": Convert to date string mit Bindesttrich "20-03-2024"
     "datStrBInv": Convert to date string mit Bindesttrich "2024-03-20"
-    "yearStr": Covert to year string "2024"
+    "month.yearStr": Convert to year string "12.2024"
+    "yearStr": Convert to year string "2024"
     "monthInt": Convert to month as int from 1 ... 12
     "datList": Convert to inger list with [day,month,year]
     "datTimeList": Convert to inger list with [day,month,year,hour,minute,second]
@@ -539,6 +540,8 @@ def type_proof(wert_in, type):
         return type_proof_datStrB(wert_in)
     elif type == "yearStr":
         return type_proof_yearStr(wert_in)
+    elif type == "month.yearStr":
+        return type_proof_monthStr_yearStr(wert_in)
     elif type == "monthInt":
         return type_proof_monthInt(wert_in)
     elif type == "datList":
@@ -806,7 +809,7 @@ def type_proof_datStrB(wert_in):
     return (hdef.NOT_OKAY, None)
 # enddef
 def type_proof_yearStr(wert_in):
-    """ return value in epoch seconds"""
+    """ return value in year (str)"""
     if isinstance(wert_in, int):
         
         (okay,wert) = type_proof_string(wert_in)
@@ -838,6 +841,30 @@ def type_proof_yearStr(wert_in):
     # end if
     return (hdef.NOT_OKAY, None)
 # enddef
+def type_proof_monthStr_yearStr(wert_in):
+    """ return value in month.year (str)"""
+    if (isinstance(wert_in, str)):
+
+        liste = wert_in.split(".")
+
+        if len(liste) == 2:
+
+            month = liste[0]
+            year = liste[1]
+
+            month = month.replace(" ", "")
+            year = year.replace(" ", "")
+
+            flagM = hdate.is_month_str(month)
+            flagY = hdate.is_year_str(year)
+
+            if flagM and flagY:
+                return (hdef.OKAY, month+"."+year)
+            # end if
+        # end if
+    # end if
+    return (hdef.NOT_OKAY, None)
+# end def
 def type_proof_monthInt(wert_in):
     """ return value in month integer"""
     
