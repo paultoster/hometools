@@ -272,7 +272,7 @@ def build_rank_liste(rd,signame,isin_liste,dat,flagmin):
 
     return rank_liste
 # end def
-def get_np_data_obj(rd,isin,dat):
+def get_np_data_obj(rd,isin,dat=-1):
     """
     :param rd:
     :param isin:

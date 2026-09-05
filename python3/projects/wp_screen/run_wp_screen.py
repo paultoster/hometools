@@ -26,14 +26,15 @@ import tools.sgui as sgui
 def wp_screener_command(rd):
     runflag = True
 
-    start_auswahl = ["Ende", "katalog", "sigset", "tabelle","screener","update wps"]
+    start_auswahl = ["Ende", "katalog", "sigset", "tabelle","screener","plot","update wps"]
 
     index_ende = 0
     index_katalog = 1
     index_sigset = 2
     index_tabelle = 3
     index_screener = 4
-    index_update_wps = 5
+    index_plot = 5
+    index_update_wps = 6
 
     abfrage_liste = ["okay", "cancel", "ende"]
     #i_abfrage_okay = 0
@@ -59,6 +60,7 @@ def wp_screener_command(rd):
         elif index == index_katalog:
 
             wp_screen_katalog.katalog_set(rd)
+
             if wp_screen_katalog.get_status() != hdef.OKAY:
                 return
             # end if
@@ -131,6 +133,10 @@ def wp_screener_command(rd):
                 rd.log.write_err(t, screen=rd.par.LOG_SCREEN_OUT)
                 runflag = False
             # end if
+        elif index == index_plot:
+
+            wp_screen_scre_command.scre_command(rd)
+
         elif index == index_update_wps:
 
             (status, errtext, infotext) = rd.wpfunc.update_price_volume()

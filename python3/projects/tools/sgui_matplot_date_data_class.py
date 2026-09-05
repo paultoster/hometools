@@ -28,7 +28,7 @@ else:
   from tools import sgui_matplot_date_data_fkt as matplot_fkt
 #endif--------------------------------------------------------------------------
 
-class maplot_date_plot:
+class maplot_date_plot_class:
     """
     Plotten eine Diagramms mit mehreren zeitreihen
 
@@ -46,11 +46,12 @@ class maplot_date_plot:
                          ddict["top"] = 0.9
                          ddict["bottom"] = 0.1
                          ddict["title"] = text
+                         ddict["title_add_date_range"] = False (default,True)
                          ddict["subplot_list"] = [dict_subplot1, dict_subplot2, dict_subplot3] Liste von dictionaries
 
                          dict_plot["height_rows_sum"] errechnet
-                         dict_plot["first_date_time"]
-                         dict_plot["last_date_time"]
+                         dict_plot["first_date_time"] errechnet
+                         dict_plot["last_date_time"] errechnet
 
                          dict_subplot1["name"]   = "subplot1"  (default)
                          dict_subplot1["title"]   = "title"
@@ -60,6 +61,9 @@ class maplot_date_plot:
                          dict_subplot1["grid"] = True (default, False)
                          dict_subplot1["legend"] = "upper left","upper center","upper right","center left","center","center right","lower left","lower center","lower right"
                          dict_subplot1["data_list"]   = [dict_data1, dictr_data2, ...]
+
+                         dict_subplot1["first_date_time"] errechnet
+                         dict_subplot1["last_date_time"] errechnet
 
                          dict_data1["xdat"] = np.array([secs1,secs2, ...])
                          dict_data1["y"]   = np.array([val1,val2, ...])
@@ -299,7 +303,7 @@ if __name__ == '__main__':
 
 
 
-    obj = maplot_date_plot(dict_input)
+    obj = maplot_date_plot_class(dict_input)
     obj.run()
 
     exit(0)

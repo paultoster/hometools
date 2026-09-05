@@ -77,6 +77,16 @@ class WPScreen:
                     "ttable_raw": None,
                     "ttable": None,
                     "color_dict_liste": []}
+        self.plot: dict = {
+                    "plotdef_liste": [],
+                    "plotdef_liste_filename": "",
+                    "plotdef_liste_jsonobj": None,
+                    "plotdef": "",
+                    "plotdef_dict": {},
+                    "plotdef_dict_filename": "",
+                    "plotdef_dict_jsonobj": None,
+                    "plotdef_werte_dict_liste": {},
+                    "plotdef_signaldef_liste": {}   }
 
         # gui
         self.gui = sgui_prot.SguiProtocol()

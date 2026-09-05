@@ -10,7 +10,9 @@ class Param:
                             ("tab_dict_pre_file_name", "str", "str", "tab_dict_"),
                             ("scre_liste_file_name", "str", "str", "scre_liste"),
                             ("scre_dict_pre_file_name", "str", "str", "scre_dict_"),
-                            ("scre_dataclass_pre_file_name", "str", "str", "scre_dataclass_")
+                            ("scre_dataclass_pre_file_name", "str", "str", "scre_dataclass_"),
+                            ("plotdef_liste_file_name", "str", "str", "plotdef_liste"),
+                            ("plotdef_dict_pre_file_name", "str", "str", "plotdef_dict_")
                             ]
 
     LOG_SCREEN_OUT = 1
@@ -129,6 +131,7 @@ class Param:
     SCRE_KATALOG = "katalog"
     SCRE_SIGSET  = "sigset"
     SCRE_TAB     = "tab"
+    SCRE_PLOTDEF = "plotdef"
 
 
 

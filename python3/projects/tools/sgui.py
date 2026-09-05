@@ -233,6 +233,7 @@ if (t_path == os.getcwd()):
     import sgui_abfrage_liste_class as sliste_class
     import sgui_anzeige_text_class as stext_class
     import sgui_anzeige_plot_class as splot_class
+    import sgui_matplot_date_data_class as smatplot_class
 else:
     p_list = os.path.normpath(t_path).split(os.sep)
     if (len(p_list) > 1): p_list = p_list[: -1]
@@ -254,6 +255,7 @@ else:
     from tools import sgui_abfrage_liste_class as sliste_class
     from tools import sgui_anzeige_text_class as stext_class
     from tools import sgui_anzeige_plot_class as splot_class
+    from tools import sgui_matplot_date_data_class as smatplot_class
 
 # endif--------------------------------------------------------------------------
 
@@ -1891,6 +1893,50 @@ def plot_mit_radiobuttons(ddict_inp):
 
     del obj
     return ddict_out
+# end def
+def matplot_date_data(ddict_inp):
+    """
+    ddict_inp = matplot_date_data(ddict_inp)
+
+    dict_input["plot"] = ddict["rows"] = 1  (defaultwert, Anzahl der senkrechten Plots)
+                         ddict["cols"] = 1  (defaultwert, Anzahl der waagrechten Plots)
+                         ddict["sharex"] = False  (defaultwert, True, 'col', Für alle eine x-Achse)
+                         ddict["sharey"] = False  (defaultwert, True, 'row', Für alle eine y-Achse)
+                         ddict["width"] = 30 (default, Plot Breite in cm)
+                         ddict["height"] = 30 (default, Plot Breite in cm)
+                         ddict["hspace"] = 0.05 Anteil Zwischenraum höhe
+                         ddict["wspace"] = 0.05 Anteil Zwischenraum breite
+                         ddict["left"] = 0.05 in Anteilen linke Position Diagramm
+                         ddict["right"] = 0.95
+                         ddict["top"] = 0.9
+                         ddict["bottom"] = 0.1
+                         ddict["title"] = text
+                         ddict["title_add_date_range"] = False (default,True)
+                         ddict["subplot_list"] = [dict_subplot1, dict_subplot2, dict_subplot3] Liste von dictionaries
+
+                         dict_subplot1["name"]   = "subplot1"  (default)
+                         dict_subplot1["title"]   = "title"
+                         dict_subplot1["xlabel"]   = "xname""
+                         dict_subplot1["ylabel"]   = "yname"
+                         dict_subplot1["height_rows"] = 1 (default, Wieviele Reihen im Verhältnis zu den anderen Diagrammen soll es einenehmen, Ganzzahl)
+                         dict_subplot1["grid"] = True (default, False)
+                         dict_subplot1["legend"] = "upper left","upper center","upper right","center left","center","center right","lower left","lower center","lower right"
+                         dict_subplot1["data_list"]   = [dict_data1, dictr_data2, ...]
+
+                         dict_data1["xdat"] = np.array([secs1,secs2, ...])
+                         dict_data1["y"]   = np.array([val1,val2, ...])
+                         dict_data1["color"]   = 'k', (default,'b', 'g', 'r', 'c', 'm', 'y', 'k', 'w', ...)
+                         dict_data1["linewidth"]    = 1 (default)
+                         dict_data1["linestyle"]    = '-' (default, '--', '-.', ':', '')
+                         dict_data1["marker"]    = '' (default, '.', 'o', 'd', 'v', '^', '>', '<', ...)
+                         dict_data1["label"]    = 'linex' (default)
+    """
+
+    obj = smatplot_class.maplot_date_plot_class(ddict_inp)
+
+    del obj
+
+    return
 # end def
 if __name__ == '__main__':
     

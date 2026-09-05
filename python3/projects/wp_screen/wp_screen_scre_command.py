@@ -15,6 +15,7 @@ import wp_screen_tab
 import wp_screen_scre_build_signal
 import wp_screen_scre_build_fmttab
 import wp_screen_scre
+import wp_screen_scre_plot
 
 import tools.hfkt_def as hdef
 import tools.hfkt_pickle as hfkt_pickle
@@ -358,8 +359,12 @@ def scre_show_screen(rd,index):
         if (indexAbfrage < 0) or (indexAbfrage == index_ende):
             runflag = False
         else: # indexAbfrage == index_plot
-            print( "plot")
-            runflag = True
+            if index < 0:
+                rd.log.write_info("Keine wp ausgewählt")
+                runflag = True
+            else:
+                (status,errtext) = wp_screen_scre_plot.plot_scre(rd,rd.scre["scre"],index)
+                runflag = True
         # end if
     # end while
     return
