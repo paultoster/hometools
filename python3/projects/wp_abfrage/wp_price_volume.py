@@ -25,7 +25,7 @@ def update_last_price_volume_isin(wp_obj, isin_basic_dict, isin):
     status = hdef.OKAY
     errtext = ""
 
-    print("Bestimme letzen aktiven Handelstag:")
+    wp_obj.log.write_info("Bestimme letzen aktiven Handelstag:")
     last_active_dat_timestamp = wp_fkt.letzter_beendeter_handelstag_timestamp(wp_obj.base_ddict["boerse"])
     datStrLast = htype.type_transform_direct(last_active_dat_timestamp,"dat","datStrP")
     print(f"letzen aktiver Handelstag: {datStrLast}")

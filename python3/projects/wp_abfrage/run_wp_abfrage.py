@@ -217,6 +217,22 @@ def run_wp_abfrage():
 
         elif index == index_update_wps:
 
+            (status, errtext, infotext) = wb_obj.update_indices()
+
+            if len(infotext):
+                t = f"Info wb_obj.update_indices() \n infotext = {infotext}"
+                sgui.anzeige_text(t, textcolor='green')
+                wb_obj.log.write_info(t)
+                infotext = ""
+            # end if
+
+            if status != hdef.OKAY:
+                t = f"Error wb_obj.update_indices() \n errtext = {errtext}"
+                sgui.anzeige_text(t, textcolor='red')
+                wb_obj.log.write_err(t)
+                runflag = False
+            # end if
+
             (status, errtext, infotext) = wb_obj.update_price_volume()
 
             if len(infotext):
@@ -233,21 +249,6 @@ def run_wp_abfrage():
                 runflag = False
             # end if
 
-            (status, errtext, infotext) = wb_obj.update_indices()
-
-            if len(infotext):
-                t = f"Info wb_obj.update_indices() \n infotext = {infotext}"
-                sgui.anzeige_text(t, textcolor='green')
-                wb_obj.log.write_info(t)
-                infotext = ""
-            # end if
-
-            if status != hdef.OKAY:
-                t = f"Error wb_obj.update_indices() \n errtext = {errtext}"
-                sgui.anzeige_text(t, textcolor='red')
-                wb_obj.log.write_err(t)
-                runflag = False
-            # end if
 
         else:
             wb_obj.log.write_info(f"Auswahl: {index} nicht bekannt")
@@ -522,7 +523,7 @@ def proof_url_subsequent(wb_obj,isin_liste,isin_wpname_liste):
 
             isin = isin_liste[i]
             wpname = isin_wpname_liste[i] + "no url => none"
-            print(isin_wpname_liste[i])
+            # print(isin_wpname_liste[i])
             (status, errtext) = edit_isin_basic_info(wb_obj, wpname, isin)
             return (status, errtext, infotext)
         # end if
@@ -573,7 +574,7 @@ def make_backup_basic_infos(wb_obj):
 
     for file_name in filename_list:
 
-        print(f"copy {file_name = } into {backup_dir = }")
+        # print(f"copy {file_name = } into {backup_dir = }")
         (status, errtext) = hfp.make_backup_file(file_name, backup_dir, no_act_date=True)
 
         if status != hdef.OKAY:
@@ -648,7 +649,7 @@ def edit_price_volume(wb_obj):
         # end if
 
         [index, indexAbfrage] = sgui.abfrage_liste_index_abfrage_index(isin_wpname_liste, abfrage_liste, "WP edit price volume")
-        print(f"{index = }, {indexAbfrage = }")
+        # print(f"{index = }, {indexAbfrage = }")
         if indexAbfrage < 0:
             runflag = True
         elif indexAbfrage == i_abfrage_ende:
@@ -1037,9 +1038,9 @@ def edit_indices(wb_obj):
 
                 wb_obj.log.write_info(f"Indice update: {indice}")
 
-            print(f"Start Abfrage  \"{indice}\" ausgewählt")
-            print("Siehe: https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html")
-            print("Download XML unter dem Chart")
+            wb_obj.log.write_info(f"Start Abfrage  \"{indice}\" ausgewählt")
+            wb_obj.log.write_info("Siehe: https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html")
+            wb_obj.log.write_info("Download XML unter dem Chart")
 
             # Abfrage xml-File
             xmlfilename = sgui.abfrage_file(file_types="*.xml",comment=f"Wähle eine xml-Datei von EZB",start_dir=wb_obj.base_ddict["store_path"])
@@ -1048,7 +1049,7 @@ def edit_indices(wb_obj):
                 (status, errtext) = wb_obj.process_indice_ezb_xml(xmlfilename,indice)
 
                 if status != hdef.OKAY:
-                    print(f"Error wp_obj.process_usdeuro_ezb_xml(xmlfilename) \n errtext = {errtext}")
+                    wb_obj.log.write_info(f"Error wp_obj.process_usdeuro_ezb_xml(xmlfilename) \n errtext = {errtext}")
                 # end if
             # end if
 
@@ -1066,7 +1067,7 @@ def edit_indices(wb_obj):
                 (status, errtext) = wb_obj.process_indice_ezb_leitzins_csv(csvfilename)
 
                 if status != hdef.OKAY:
-                    print(f"Error wp_obj.process_usdeuro_ezb_xml(xmlfilename) \n errtext = {errtext}")
+                    wb_obj.log.write_info(f"Error wp_obj.process_usdeuro_ezb_xml(xmlfilename) \n errtext = {errtext}")
                 # end if
             # end if
         elif indexAbfrage == i_abfrage_backup:

@@ -52,6 +52,8 @@ def update(wb_obj,isin_liste):
         wp_dict["i"] = i
         wp_dict["n"] = len(isin_info_dict_liste)
 
+        wb_obj.log.write_info("")
+
         t = f"Update: {wp_dict['isin']}, Name: {wp_dict['name']} "
         while len(t) < 80:
             t += "=="

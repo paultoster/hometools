@@ -36,3 +36,29 @@ COLOR_GREEN_TOKEN = "__COLOR_GREEN__"
 COLOR_RED_TOKEN = "__COLOR_RED__"
 COLOR_BLUE_TOKEN = "__COLOR_BLUE__"
 COLOR_BLACK_TOKEN = "__COLOR_BLACK__"
+
+class StatClass:
+    def __init__(self):
+        self.status = OKAY
+        self.errtext = ""
+        self.logtext = ""
+    def reset(self):
+        self.status = OKAY
+        self.errtext = ""
+        self.logtext = ""
+    def is_okay(self):
+        return self.status == OKAY
+    def is_not_okay(self):
+        return self.status != OKAY
+    def is_not_found(self):
+        return self.status == NOT_FOUND
+    def set_okay(self):
+        self.status = OKAY
+    def set_not_okay(self):
+        self.status = NOT_OKAY
+    def set_not_found(self):
+        self.status = NOT_FOUND
+    def get_errtext(selfself):
+        return self.errtext
+    def get_logtext(self):
+        return self.logtext

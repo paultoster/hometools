@@ -371,7 +371,7 @@ def process_isin_from_wkn(wb_obj, wkn):
                                                    wb_obj.base_ddict["wkn_isin_n_times"],
                                                    wb_obj.base_ddict["wkn_isin_sleep_time"])
     if status != hdef.OKAY:
-        print(f"get_isin_from_wkn not working errtext: {errtext}")
+        # print(f"get_isin_from_wkn not working errtext: {errtext}")
         isin = ""
     # end if
     if not isin_dict_exists:
@@ -398,8 +398,8 @@ def find_wpname(wb_obj, comment):
                                                                  wpname_isin_filename,
                                                                  formatpj)
 
-    if status != hdef.OKAY:
-        print(f"find_wpname_in_comment_get_isin not working errtext: {errtext}")
+    # if status != hdef.OKAY:
+        # print(f"find_wpname_in_comment_get_isin not working errtext: {errtext}")
     # end if
     return (status, errtext, isin)
 # end def
@@ -416,7 +416,7 @@ def process_isin_w_wpname_wkn(wb_obj,isin,wpname,wkn):
     (status, errtext, info_dict) = wb_obj.get_basic_info(isin)
 
     if status != hdef.OKAY:
-        print(f"update_isin_w_wpname_wkn: not working errtext: {errtext}")
+        # print(f"update_isin_w_wpname_wkn: not working errtext: {errtext}")
         return (status,errtext)
     # end if
     flag = False
@@ -489,7 +489,7 @@ def update_isin(wb_obj,isin, flag_update_all):
 
     (status1, errtext, info_dict_search) = wp_basic_info_internet.search(isin,url_avira,url_onvista,wb_obj.log)
     if status1 == hdef.NOT_OKAY:
-        print(f"update_isin not working errtext: {errtext}")
+        # print(f"update_isin not working errtext: {errtext}")
         wb_obj.log.write_err(f"Update search {isin = }, {url_avira = }, {url_onvista} funktioniert nicht: {errtext}")
         return (status1, errtext)
     # end if
