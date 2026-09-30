@@ -35,7 +35,7 @@ def first_question_loop(rd):
         start_auswahl = ["Cancel (no save)", "Ende", "Save", "Ini edit (and save)", "Iban", "Konto"]
     else:
         start_auswahl = ["Cancel (no save)", "Ende", "Save", "Ini edit and save", "Iban", "Konto", "Depot",
-                         "wp"]  # ["Cancel (no save)","Ende","Iban","Save","Konto","Depot"]
+                         "update wp"]  # ["Cancel (no save)","Ende","Iban","Save","Konto","Depot"]
     # end if
     index_cancel_no_save = 0
     index_ende = 1

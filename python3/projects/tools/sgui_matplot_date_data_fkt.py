@@ -1,6 +1,7 @@
 from tokenize import endpats
 
 import numpy as np
+import matplotlib
 import os,sys
 import datetime
 import calendar
@@ -303,6 +304,13 @@ def check_dict_data(data_dict,i):
         data_dict["color"] = "k"
     # end if
 
+    # proof
+    if not matplotlib.colors.is_color_like(data_dict[key]):
+        status = hdef.NOT_OKAY
+        errtext = f"{key} in {i+1}. color = {data_dict[key]} is nicht gültig"
+        return (status, errtext, data_dict)
+    # end if
+
     # dict_data1["linewidth"] = 1(default)
     key = "linewidth"
     if key not in data_dict:
@@ -319,12 +327,26 @@ def check_dict_data(data_dict,i):
         data_dict[key] = str(data_dict[key])
     # end if
 
+    # proof
+    if not ist_gueltiger_linestyle(data_dict[key]):
+        status = hdef.NOT_OKAY
+        errtext = f"{key} in {i+1}. linestyle = {data_dict[key]} is nicht gültig"
+        return (status, errtext, data_dict)
+    # end if
+
     # dict_data1["marker"] = ''(default, '.', 'o', 'd', 'v', '^', '>', '<', ...)
     key = "marker"
     if key not in data_dict:
-        data_dict[key] = ''
+        data_dict[key] = 'None'
     else:
         data_dict[key] = str(data_dict[key])
+    # end if
+
+    # proof
+    if not ist_gueltiger_marker(data_dict[key]):
+        status = hdef.NOT_OKAY
+        errtext = f"{key} in {i+1}. marker = {data_dict[key]} is nicht gültig"
+        return (status, errtext, data_dict)
     # end if
 
     # dict_data1["label"] = 'linex'(default)
@@ -595,3 +617,16 @@ def to_datetime(date):
                  / np.timedelta64(1, 's'))
     return datetime.datetime.fromtimestamp(timestamp)
 # end def
+def ist_gueltiger_linestyle(style_string):
+    try:
+        matplotlib.lines._as_dash_seq(style_string)
+        return True
+    except ValueError:
+        return False
+# end def
+def ist_gueltiger_marker(marker_string):
+    try:
+        matplotlib.markers.MarkerStyle(marker_string)
+        return True
+    except ValueError:
+        return False

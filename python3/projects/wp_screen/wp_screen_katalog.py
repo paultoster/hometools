@@ -7,7 +7,7 @@ if (tools_path not in sys.path):
     sys.path.append(tools_path)
 # endif
 
-import wp_screen_gui
+import wp_screen_katalog_command
 
 import tools.hfkt_def as hdef
 import tools.hfkt_pickle as hfkt_pickle
@@ -35,6 +35,23 @@ def reset_status():
     STATUS = hdef.OKAY
     ERRTEXT = ""
     INFOTEXT = ""
+# end def
+def katalog_start(rd):
+
+    katalog_set(rd)
+
+    if get_status() != hdef.OKAY:
+        return
+    # end if
+
+    wp_screen_katalog_command.katalog_command(rd)
+    if wp_screen_katalog_command.get_status() != hdef.OKAY:
+        global STATUS, ERRTEXT
+        STATUS = wp_screen_katalog_command.get_status()
+        ERRTEXT = wp_screen_katalog_command.get_errtext()
+        wp_screen_katalog_command.reset_status()
+    # end def
+    return
 # end def
 def katalog_set(rd):
     # Katalog Json-Liste einladen

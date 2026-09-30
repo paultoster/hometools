@@ -203,6 +203,33 @@ def tab_dict_modify(gui, tab, ddict):
 
     return sigset_dict_mod
 # end def
+def plotdef_dict_abfrage(gui, ddict, title = None,abfrage_liste=None):
+    """
+
+    :param gui:
+    :param ddict:
+    :return: (ddict,changed_key_liste) = tab_dict_abfrage(gui, ddict, title = None)
+    """
+
+    (ddict,changed_key_liste,index_abfrage) = gui.abfrage_dict2(ddict,title=title,abfrage_liste=abfrage_liste)
+
+    return (ddict,changed_key_liste,index_abfrage)
+
+# end def
+
+def plotdef_dict_modify(gui, tab, ddict):
+    '''
+
+    :param gui:
+    :param katalog:
+    :param isin_liste:
+    :return: isin_list_mod = katalog_isin_liste_modify(gui, katalog, isin_liste)
+    '''
+    title = f"Von Tabellendef: {tab} TabellenSpaltenNamen-dict editieren"
+    sigset_dict_mod = gui.modify_variable(ddict, title)
+
+    return sigset_dict_mod
+# end def
 def scre_dict_abfrage(gui, ddict, title = None,abfrage_liste=None):
     """
 
@@ -236,3 +263,44 @@ def scre_sheet_show(gui, ttable, abfrage_liste,color_dict_liste,title=None):
 
     return (dict_out["status"], dict_out["errtext"], dict_out["index_abfrage"], dict_out["irow_select"])
 # end def
+def matplot_date_data(gui, ddict):
+    """
+        dict_input["plot"] = ddict["rows"] = 1  (defaultwert, Anzahl der senkrechten Plots)
+                         ddict["cols"] = 1  (defaultwert, Anzahl der waagrechten Plots)
+                         ddict["sharex"] = False  (defaultwert, True, 'col', Für alle eine x-Achse)
+                         ddict["sharey"] = False  (defaultwert, True, 'row', Für alle eine y-Achse)
+                         ddict["width"] = 30 (default, Plot Breite in cm)
+                         ddict["height"] = 30 (default, Plot Breite in cm)
+                         ddict["hspace"] = 0.05 Anteil Zwischenraum höhe
+                         ddict["wspace"] = 0.05 Anteil Zwischenraum breite
+                         ddict["left"] = 0.05 in Anteilen linke Position Diagramm
+                         ddict["right"] = 0.95
+                         ddict["top"] = 0.9
+                         ddict["bottom"] = 0.1
+                         ddict["title"] = text
+                         ddict["title_add_date_range"] = False (default,True)
+                         ddict["subplot_list"] = [dict_subplot1, dict_subplot2, dict_subplot3] Liste von dictionaries
+
+                         dict_subplot1["name"]   = "subplot1"  (default)
+                         dict_subplot1["title"]   = "title"
+                         dict_subplot1["xlabel"]   = "xname""
+                         dict_subplot1["ylabel"]   = "yname"
+                         dict_subplot1["height_rows"] = 1 (default, Wieviele Reihen im Verhältnis zu den anderen Diagrammen soll es einenehmen, Ganzzahl)
+                         dict_subplot1["grid"] = True (default, False)
+                         dict_subplot1["legend"] = "upper left","upper center","upper right","center left","center","center right","lower left","lower center","lower right"
+                         dict_subplot1["data_list"]   = [dict_data1, dictr_data2, ...]
+
+                         dict_data1["xdat"] = np.array([secs1,secs2, ...])
+                         dict_data1["y"]   = np.array([val1,val2, ...])
+                         dict_data1["color"]   = 'k', (default,'b', 'g', 'r', 'c', 'm', 'y', 'k', 'w', ...)
+                         dict_data1["linewidth"]    = 1 (default)
+                         dict_data1["linestyle"]    = '-' (default, '--', '-.', ':', '')
+                         dict_data1["marker"]    = '' (default, '.', 'o', 'd', 'v', '^', '>', '<', ...)
+                         dict_data1["label"]    = 'linex' (default)
+
+    """
+
+    dict_input = {}
+    dict_input["plot"] = ddict
+
+    sgui.matplot_date_data(dict_input)

@@ -7,7 +7,9 @@ if (tools_path not in sys.path):
     sys.path.append(tools_path)
 # endif
 
-import wp_screen_gui
+# import wp_screen_gui
+import wp_screen_plotdef_command
+import wp_screen_plotdef_check
 
 import tools.hfkt_def as hdef
 import tools.hfkt_pickle as hfkt_pickle
@@ -36,6 +38,23 @@ def reset_status():
     ERRTEXT = ""
     INFOTEXT = ""
 # end def
+def plotdef_start(rd):
+
+    plotdef_set(rd)
+
+    if get_status() != hdef.OKAY:
+        return
+    # end if
+
+    wp_screen_plotdef_command.plotdef_command(rd)
+    if wp_screen_plotdef_command.get_status() != hdef.OKAY:
+        global STATUS, ERRTEXT
+        STATUS = wp_screen_plotdef_command.get_status()
+        ERRTEXT = wp_screen_plotdef_command.get_errtext()
+        wp_screen_plotdef_command.reset_status()
+    # end def
+
+    return
 def plotdef_set(rd):
     # Signalset-Liste Json-Liste einladen
     if rd.plot["plotdef_liste_jsonobj"] is None:
@@ -86,21 +105,6 @@ def plotdef_dict_read(rd):
 # -----------------------------------------------------------
 # Externe Funktionen
 # ------------------------------------------------------------
-def get_plotdef_auswahl(rd):
-    plotdef_set(rd)
-
-    (index, _) = wp_screen_gui.listen_abfrage(rd.gui, rd.plot["plotdef_liste"], auswahl_title="Auswahl Plotdef-Set")
-
-    if index >= 0:
-        plotdef = rd.plot["plotdef_liste"][index]
-
-    else:
-        plotdef = None
-    # end if
-
-    return plotdef
-
-# end def
 def exist_plotdef(rd, plotdef):
     if plotdef in rd.plot["plotdef_liste"]:
         return True
@@ -110,6 +114,9 @@ def exist_plotdef(rd, plotdef):
 
 # end def
 def get_plotdef_dict(rd, plotdef):
+
+    plotdef_set(rd)
+
     if plotdef in rd.plot["plotdef_liste"]:
 
         rd.plot["plotdef"] = plotdef
@@ -126,7 +133,17 @@ def get_plotdef_werte_dict_liste(rd, plotdef_dict):
     :param plotdef_dict:
     :return: (okay,infotext,plotdef_werte_dict_liste) = get_plotdef_werte_dict_liste(rd,plotdef_dict)
     """
-    (okay, infotext) = wp_screen_plotdef_check.check(rd, plotdef_dict)
+    wp_screen_plotdef_check.check(rd, plotdef_dict)
 
-    return (okay, infotext, rd.plot["plotdef_werte_dict_liste"])
+    if wp_screen_plotdef_check.get_status() != hdef.OKAY:
+        global INFOTEXT, STATUS, ERRTEXT
+        STATUS = wp_screen_plotdef_check.get_status()
+        ERRTEXT = wp_screen_plotdef_check.get_errtext()
+        INFOTEXT = wp_screen_plotdef_check.get_infotext()
+        wp_screen_plotdef_check.reset_status()
+        return []
+    # end if
+
+
+    return rd.plot["plotdef_werte_dict_liste"]
 # end def

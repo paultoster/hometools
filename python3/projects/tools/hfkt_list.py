@@ -118,6 +118,14 @@ liste = split_str_into_list(textstr,delim='\n',remove_empty=True)
 
 (n,m) = size_of_llist(llist)
 
+liste_out = recalc_integer_liste(liste,start_with_one=True):
+
+    :param liste: integer Größen in Liste die keine Lücke aufweist
+    z.B wenn start_with_one = True  liste_in = [4,2,1] => liste_out = [3,2,1]
+                                    liste_in = [4,2,1,0] => liste_out = [4,3,2,1]
+    z.B wenn start_with_one = False liste_in = [4,2,1] => liste_out = [2,1,0]
+                                    liste_in = [4,2,1,0] => liste_out = [3,2,1,0]
+
 
 '''
 
@@ -150,6 +158,7 @@ t_path, _ = os.path.split(__file__)
 if (t_path == os.getcwd()):
     
     import hfkt_str as hstr
+    import hfkt_np_fkt as hnp_fkt
 else:
     p_list = os.path.normpath(t_path).split(os.sep)
     if (len(p_list) > 1): p_list = p_list[: -1]
@@ -158,6 +167,7 @@ else:
     if (os.path.normpath(t_path) not in sys.path): sys.path.append(t_path)
     
     from tools import hfkt_str as hstr
+    from tools import hfkt_np_fkt as hnp_fkt
 
 # endif--------------------------------------------------------------------------
 
@@ -690,6 +700,7 @@ def sort_list(liste, aufsteigend=1):
     # edn fi
     
     return new_llist
+# end def
 
 
 def sort_two_list(liste1, liste2, aufsteigend=1):
@@ -775,7 +786,20 @@ def erase_double_value_in_list(liste):
     # end if
     return indexllist
 # end def
+def recalc_integer_liste(liste,start_with_one=True):
+    """
+    :param liste: integer Größen in Liste die keine Lücke aufweist
+    z.B wenn start_with_one = True  liste_in = [4,2,1] => liste_out = [3,2,1]
+                                    liste_in = [4,2,1,0] => liste_out = [4,3,2,1]
+    z.B wenn start_with_one = False liste_in = [4,2,1] => liste_out = [2,1,0]
+                                    liste_in = [4,2,1,0] => liste_out = [3,2,1,0]
+    """
+    np_array = hnp_fkt.make_np_array(liste)
+    np_array = hnp_fkt.recalc_integer_np_array(np_array, start_with_one=start_with_one)
 
+    liste    = np_array.tolist()
+    return liste
+# end def
 ###########################################################################
 # testen mit main
 ###########################################################################
@@ -784,11 +808,20 @@ if __name__ == '__main__':
     # print(sort_list_of_list(lliste, 1))
     # print(sort_list_of_list(lliste, 1,aufsteigend=0))
     
-    liste = split_str_into_list("test0\nTest1\n\nTest3\n\n", delim='\n', remove_empty=False)
-    
-    lliste = [{'name': 'Homer', 'age': 39}, {'name': 'Bart', 'age': 10}, {'name': 'Constantin', 'age': 10},
-              {'name': 'Alfred', 'age': 10}]
-    print(sort_list_of_dict(lliste, 'name', aufsteigend=1))
-    print(sort_list_of_dict(lliste, 'name', aufsteigend=0))
-    print(sort_list_of_dict(lliste, 'age', aufsteigend=1))
-    print(sort_list_of_dict(lliste, 'age', aufsteigend=0))
+    # liste = split_str_into_list("test0\nTest1\n\nTest3\n\n", delim='\n', remove_empty=False)
+    #
+    # lliste = [{'name': 'Homer', 'age': 39}, {'name': 'Bart', 'age': 10}, {'name': 'Constantin', 'age': 10},
+    #           {'name': 'Alfred', 'age': 10}]
+    # print(sort_list_of_dict(lliste, 'name', aufsteigend=1))
+    # print(sort_list_of_dict(lliste, 'name', aufsteigend=0))
+    # print(sort_list_of_dict(lliste, 'age', aufsteigend=1))
+    # print(sort_list_of_dict(lliste, 'age', aufsteigend=0))
+
+    liste = [1,1,5,6,3,3,4,5]
+
+    liste_out = recalc_integer_liste(liste)
+
+    print(liste)
+    print(liste_out)
+
+    print("ende")

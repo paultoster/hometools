@@ -18,8 +18,15 @@ else:
 #    from tools import hfkt_file_path as hfile_path
 # end if
 
+def make_np_array(liste):
 
-
+    if isinstance(liste,list):
+        np_array = np.array(liste)
+    else:
+        np_array = None
+    # end if
+    return np_array
+# end def
 def sma(np_array: np.ndarray, k:int):
     """
     simple moving avarage
@@ -782,12 +789,50 @@ def find_index_d(x_np_array,x):
     # end if
     return (index,d)
 # end def
+def recalc_integer_np_array(np_array,start_with_one=True):
+    """
+    :param liste: integer Größen in Liste die keine Lücke aufweist
+    z.B wenn start_with_one = True  np_array = [4,2,1] => np_array = [3,2,1]
+                                    np_array = [4,2,1,0] => np_array = [4,3,2,1]
+    z.B wenn start_with_one = False np_array = [4,2,1] => np_array = [2,1,0]
+                                    np_array = [4,2,1,0] => np_array = [3,2,1,0]
+    """
+
+    idx_liste = np.argsort(np_array)
+
+    if start_with_one:
+        i0 = 1
+    else:
+        i0 = 0
+    # end if
+
+    val_act = np_array[idx_liste[0]]
+    np_array_out = np.zeros_like(np_array)
+    for index in idx_liste:
+
+        if np_array[index] > val_act:
+            i0 += 1
+            val_act = np_array[index]
+        # end if
+        np_array_out[index] = i0
+    # end def
+
+    return np_array_out
+# end def
 if __name__ == '__main__':
 
 
-    np_array1 = np.array([10.,20.])
-    np_array2 = np.array([20., 30., 40.,50.])
-    overlap = 10.
-    (np1_i0, np1_i1, np2_i0, np2_i1) = suche_ueberlappung(np_array1, np_array2, overlap)
+    # np_array1 = np.array([10.,20.])
+    # np_array2 = np.array([20., 30., 40.,50.])
+    # overlap = 10.
+    # (np1_i0, np1_i1, np2_i0, np2_i1) = suche_ueberlappung(np_array1, np_array2, overlap)
+    #
+    # print(f"{np1_i0 = },{np1_i1 = },{np2_i0 = },{np2_i1 = }")
 
-    print(f"{np1_i0 = },{np1_i1 = },{np2_i0 = },{np2_i1 = }")
+    np_array = np.array([1,1,5,6,3,3,4,5])
+    np_array_out = recalc_integer_np_array(np_array)
+
+    print(np_array)
+    print(np_array_out)
+
+    print("ende")

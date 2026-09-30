@@ -9,6 +9,7 @@ if (tools_path not in sys.path):
 
 import wp_screen_gui
 import wp_screen_sigset_check
+import wp_screen_sigset_command
 
 import tools.hfkt_def as hdef
 import tools.hfkt_pickle as hfkt_pickle
@@ -38,6 +39,22 @@ def reset_status():
     INFOTEXT = ""
 # end def
 
+def sigset_start(rd):
+
+    sigset_set(rd)
+    if get_status() != hdef.OKAY:
+        return
+    # end if
+
+    wp_screen_sigset_command.sigset_command(rd)
+    if wp_screen_sigset_command.get_status() != hdef.OKAY:
+        global STATUS, ERRTEXT
+        STATUS = wp_screen_sigset_command.get_status()
+        ERRTEXT = wp_screen_sigset_command.get_errtext()
+        wp_screen_sigset_command.reset_status()
+    # end def
+    return
+# end def
 def sigset_set(rd):
     # Signalset-Liste Json-Liste einladen
     if rd.sig["sigset_liste_jsonobj"] is None:

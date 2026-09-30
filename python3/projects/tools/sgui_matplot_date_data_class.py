@@ -78,7 +78,7 @@ class maplot_date_plot_class:
 
     """
 
-    def __init__(self, dict_inp):
+    def __init__(self, dict_input):
         """
         """
         self.status = hdef.OKAY

@@ -1896,7 +1896,7 @@ def plot_mit_radiobuttons(ddict_inp):
 # end def
 def matplot_date_data(ddict_inp):
     """
-    ddict_inp = matplot_date_data(ddict_inp)
+    matplot_date_data(ddict_inp)
 
     dict_input["plot"] = ddict["rows"] = 1  (defaultwert, Anzahl der senkrechten Plots)
                          ddict["cols"] = 1  (defaultwert, Anzahl der waagrechten Plots)
@@ -1920,7 +1920,7 @@ def matplot_date_data(ddict_inp):
                          dict_subplot1["ylabel"]   = "yname"
                          dict_subplot1["height_rows"] = 1 (default, Wieviele Reihen im Verhältnis zu den anderen Diagrammen soll es einenehmen, Ganzzahl)
                          dict_subplot1["grid"] = True (default, False)
-                         dict_subplot1["legend"] = "upper left","upper center","upper right","center left","center","center right","lower left","lower center","lower right"
+                         dict_subplot1["legend"] = "best", "upper left","upper center","upper right","center left","center","center right","lower left","lower center","lower right"
                          dict_subplot1["data_list"]   = [dict_data1, dictr_data2, ...]
 
                          dict_data1["xdat"] = np.array([secs1,secs2, ...])
@@ -1933,6 +1933,7 @@ def matplot_date_data(ddict_inp):
     """
 
     obj = smatplot_class.maplot_date_plot_class(ddict_inp)
+    obj.run()
 
     del obj
 
@@ -1940,7 +1941,8 @@ def matplot_date_data(ddict_inp):
 # end def
 if __name__ == '__main__':
     
-    
+    """
+
     ddict = {"abc":"Test1(abc)","def":"Test2(def)","ghi":[1,2,3,4]}
     r = modify_variable(ddict)
     liste = ["ggg","gttr","gsteke","hsvd"]
@@ -1977,7 +1979,6 @@ if __name__ == '__main__':
     print(f"irow_select = {ddict_out['irow_select']}")
     print(f"status = {ddict_out['status']}")
     print(f"errtext = \"{ddict_out['errtext']}\"")
-    """
 
     header_liste = ["Datuam", "Markt", "Kosten"]
     data_set = [["1.2.2010", "Rewe", 10.15, "1.2.2010", "Rewe", 10.15]
@@ -2008,19 +2009,107 @@ if __name__ == '__main__':
     t       = "Vorsicht"
     anzeige_text(texteingabe,title=t,textcolor='green')
     """
-    # listeAnzeige = ["Materialname","Materialmesseinheit","Materialabrechnungseinheit","Materialname","Materialmesseinheit","Materialabrechnungseinheit","Materialname","Materialmesseinheit","Materialabrechnungseinheit","Materialname","Materialmesseinheit","Materialabrechnungseinheit","Materialname","Materialmesseinheit","Materialabrechnungseinheit"]
-    # #listeAnzeige = ["Materialname","Materialmesseinheit","Materialabrechnungseinheit"]
-    # listeErgebnis = abfrage_n_eingabezeilen(listeAnzeige)
-    # print(listeErgebnis)
 
-##    liste=[]
-##    for i in range(0,10,1):
-##        liste.append("abcdef "+chr(65+i))
-##        # print ("%s" % liste[i])
-##
-##
-##    [index,indexAbfrage] = abfrage_liste_index(liste)
-##    print index
-##    print indexAbfrage
+    import pandas as pd
+    import numpy as np
+    import datetime
+    import hfkt_np_fkt as hnp_fkt
 
+    df = pd.read_csv("wp_price_volume_data_DE0007164600.csv",parse_dates=["Date"],sep=';')
+    print(df.head())
+    print(df.tail())
+
+    liste = df['Date'].to_list()
+    date_str_liste =[datetime.datetime.strptime(htype.type_transform_direct(s,"datStr","datStrP"), "%d.%m.%Y") for s in liste]
+    np_dat_array = hnp_fkt.transform_date_time_liste_in_np_dat_array_d(date_str_liste)
+    np_open_array = df['Open'].to_numpy()
+    np_high_array = df['High'].to_numpy()
+    np_low_array = df['Low'].to_numpy()
+    np_close_array = df['Close'].to_numpy()
+    np_volume_array = df['Volume'].to_numpy()
+
+    n=int(len(np_dat_array)/10)
+    np_dat_array = np_dat_array[0:n]
+    np_open_array = np_open_array[0:n]
+    np_high_array = np_high_array[0:n]
+    np_low_array = np_low_array[0:n]
+    np_close_array = np_close_array[0:n]
+    np_volume_array = np_volume_array[0:n]
+
+    np_dat_array   = np_dat_array.reshape(np.prod(np_dat_array.shape))
+    np_open_array   = np_open_array.reshape(np.prod(np_open_array.shape))
+    np_high_array   = np_high_array.reshape(np.prod(np_high_array.shape))
+    np_low_array   = np_low_array.reshape(np.prod(np_low_array.shape))
+    np_close_array   = np_close_array.reshape(np.prod(np_close_array.shape))
+    np_volume_array   = np_volume_array.reshape(np.prod(np_volume_array.shape))
+
+    # fig = plt.figure(figsize=(11, 8), facecolor='lightblue')
+    # gs = fig.add_gridspec(nrows=1, ncols=1)
+    # ax = fig.add_subplot(gs[0:1, :])
+    # ax.plot(np_dat_array, np_close_array, linestyle='solid', color='red')
+    # plt.show()
+
+
+    dict_data1 = {}
+    dict_data1["xdat"] = np_dat_array
+    dict_data1["y"] = np_close_array
+    dict_data1["color"] = "k"
+    dict_data1["linewidth"] = 1
+    dict_data1["linestyle"] = "-"
+    dict_data1["marker"] = "o"
+    dict_data1["label"] = "closing"
+
+    dict_data2 = {}
+    dict_data2["xdat"] = np_dat_array
+    dict_data2["y"] = np_open_array
+    dict_data2["color"] = "b"
+    dict_data2["linewidth"] = 2
+    dict_data2["linestyle"] = "--"
+    dict_data2["marker"] = ""
+    dict_data2["label"] = "open"
+
+    dict_subplot1 = {}
+    dict_subplot1["name"] = "WP"
+    dict_subplot1["title"] = "Zeigt den Kurs"
+    dict_subplot1["xlabel"] = "Date"
+    dict_subplot1["ylabel"] = "€"
+    dict_subplot1["height_rows"] = 3
+    dict_subplot1["legend"] = "best"
+    dict_subplot1["data_list"] = [dict_data1,dict_data2]
+
+    dict_data1 = {}
+    dict_data1["xdat"] = np_dat_array
+    dict_data1["y"] = np_high_array
+    dict_data1["color"] = "r"
+    dict_data1["linewidth"] = 1
+    dict_data1["linestyle"] = "-"
+    dict_data1["marker"] = ""
+    dict_data1["label"] = "high"
+
+    dict_subplot2 = {}
+    dict_subplot2["name"] = "WP"
+    dict_subplot2["title"] = "Zeigt den Kurs"
+    dict_subplot2["xlabel"] = "Date"
+    dict_subplot2["ylabel"] = "€"
+    dict_subplot2["height_rows"] = 1
+    dict_subplot2["data_list"] = [dict_data1]
+
+    ddict = {}
+    ddict["rows"] = 1
+    ddict["cols"] = 1
+    ddict["sharex"] = False
+    ddict["sharey"] = False
+    ddict["width"] = 30
+    ddict["height"] = 20
+    ddict["title"] = "Gesamtplot"
+    ddict["title_add_date_range"] = True
+
+    ddict["subplot_list"] = [dict_subplot1,dict_subplot2]
+
+    dict_input = {}
+    dict_input["plot"] = ddict
+
+    matplot_date_data(dict_input)
+
+    exit(0)
 ###################################################################

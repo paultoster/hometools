@@ -159,7 +159,7 @@ def plotdef_edit_command(rd, index):
 
     rd.plot["plotdef"] = rd.plot["plotdef_liste"][index]
 
-    wp_screen_plotdef.plot_dict_read(rd)
+    wp_screen_plotdef.plotdef_dict_read(rd)
 
     if get_status() != hdef.OKAY:
         return
@@ -236,19 +236,20 @@ def plotdef_edit_command(rd, index):
     return
 # end def
 def plotdef_edit_update(rd, ddict_mod,changed_key_liste):
-    global STATUS, ERRTEXT
+    global STATUS, ERRTEXT, INFOTEXT
     # Check modified dictionary
-    (okay,infotext) = wp_screen_plotdef_check.check(rd,ddict_mod)
+    wp_screen_plotdef_check.check(rd,ddict_mod)
     if wp_screen_plotdef_check.get_status() != hdef.OKAY:
 
         STATUS = wp_screen_plotdef_check.get_status()
+        INFOTEXT = wp_screen_plotdef_check.get_infotext()
         ERRTEXT = wp_screen_plotdef_check.get_errtext()
         wp_screen_plotdef_check.reset_status()
         return
     # end if
 
-    if okay != hdef.OKAY:
-        wp_screen_gui.janein_abfrage(rd.gui,f"Fehler in plotdef {infotext = }","")
+    if STATUS != hdef.OKAY:
+        wp_screen_gui.janein_abfrage(rd.gui,f"Fehler in plotdef {INFOTEXT = }","")
         return
     else:
 
@@ -270,27 +271,33 @@ def plotdef_edit_modify(rd):
     :param rd:
     :return:
     """
+
+    global INFOTEXT, STATUS, ERRTEXT
+
     dict_mod = wp_screen_gui.plotdef_dict_modify(rd.gui,
                                                    rd.plot["plotdef"],
                                                    rd.plot["plotdef_dict"],)
 
     # Check modified dictionary
-    (okay,infotext) = wp_screen_plotdef_check.check(rd,dict_mod)
+    wp_screen_plotdef_check.check(rd,dict_mod)
 
-    if okay != hdef.OKAY:
-        wp_screen_gui.janein_abfrage(rd.gui,f"Fehler in plotdef {infotext = }","")
+    if wp_screen_plotdef_check.get_status() != hdef.OKAY:
+
+        STATUS = wp_screen_plotdef_check.get_status()
+        ERRTEXT = wp_screen_plotdef_check.get_errtext()
+        INFOTEXT = wp_screen_plotdef_check.get_infotext()
+        wp_screen_gui.anzeige_text(rd.gui, f"Fehler in plotdef {INFOTEXT = }", title="", textcolor='red')
+        wp_screen_plotdef_check.reset_status()
         return
-    else:
+    # end if
 
-        rd.plot["plotdef_dict"] = dict_mod
-        rd.plot["plotdef_dict_jsonobj"].save(rd.plot["plotdef_dict"])
-        if rd.plot["plotdef_dict_jsonobj"].get_status() != hdef.OKAY:
-            global STATUS, ERRTEXT
-            STATUS = rd.plot["plotdef_dict_jsonobj"].get_status()
-            ERRTEXT = rd.plot["plotdef_dict_jsonobj"].get_errtext()
-            rd.plot["plotdef_dict_jsonobj"].reset_status()
-            return
-        # end if
+    rd.plot["plotdef_dict"] = dict_mod
+    rd.plot["plotdef_dict_jsonobj"].save(rd.plot["plotdef_dict"])
+    if rd.plot["plotdef_dict_jsonobj"].get_status() != hdef.OKAY:
+        STATUS = rd.plot["plotdef_dict_jsonobj"].get_status()
+        ERRTEXT = rd.plot["plotdef_dict_jsonobj"].get_errtext()
+        rd.plot["plotdef_dict_jsonobj"].reset_status()
+        return
     # end if
     return
 # end def
@@ -331,6 +338,7 @@ def plotdef_edit_delete(rd):
     :param rd:
     :return: return
     """
+    global STATUS, ERRTEXT, INFOTEXT
 
     auswahl_liste = list(rd.plot["plotdef_dict"].keys())
     auswahl_title = "wähle ein Plotdefnamen aus"
@@ -345,26 +353,45 @@ def plotdef_edit_delete(rd):
         del dict_mod[plodefname]
 
         # Check modified dictionary
-        (okay,infotext) = wp_screen_plotdef_check.check(rd,dict_mod)
+        wp_screen_plotdef_check.check(rd,dict_mod)
 
-        if okay != hdef.OKAY:
-            wp_screen_gui.janein_abfrage(rd.gui,f"Fehler in plodef {infotext = }","")
+        if wp_screen_plotdef_check.get_status() != hdef.OKAY:
+            STATUS = wp_screen_plotdef_check.get_status()
+            ERRTEXT = wp_screen_plotdef_check.get_errtext()
+            INFOTEXT = wp_screen_plotdef_check.get_infotext()
+            wp_screen_gui.anzeige_text(rd.gui, f"Fehler in plotdef {INFOTEXT = }", title="", textcolor='red')
+            wp_screen_plotdef_check.reset_status()
             return
-        else:
+        # end if
 
-            rd.plot["plotdef_dict"] = dict_mod
-            rd.plot["plotdef_dict_jsonobj"].save(rd.plot["plotdef_dict"])
-            if rd.plot["plotdef_dict_jsonobj"].get_status() != hdef.OKAY:
-                global STATUS, ERRTEXT
-                STATUS = rd.plot["plotdef_dict_jsonobj"].get_status()
-                ERRTEXT = rd.plot["plotdef_dict_jsonobj"].get_errtext()
-                rd.plot["plotdef_dict_jsonobj"].reset_status()
-                return
-            # end if
+        rd.plot["plotdef_dict"] = dict_mod
+        rd.plot["plotdef_dict_jsonobj"].save(rd.plot["plotdef_dict"])
+        if rd.plot["plotdef_dict_jsonobj"].get_status() != hdef.OKAY:
+            STATUS = rd.plot["plotdef_dict_jsonobj"].get_status()
+            ERRTEXT = rd.plot["plotdef_dict_jsonobj"].get_errtext()
+            rd.plot["plotdef_dict_jsonobj"].reset_status()
+            return
         # end if
     # end if
     return
 # end def
+def get_plotdef_auswahl(rd):
+
+    wp_screen_plotdef.plotdef_set(rd)
+
+    (index, _) = wp_screen_gui.listen_abfrage(rd.gui, rd.plot["plotdef_liste"], auswahl_title="Auswahl Plotdef-Set")
+
+    if index >= 0:
+        plotdef = rd.plot["plotdef_liste"][index]
+
+    else:
+        plotdef = None
+    # end if
+
+    return plotdef
+
+# end def
+
 def plotdef_edit_hilfe(rd):
     """
 

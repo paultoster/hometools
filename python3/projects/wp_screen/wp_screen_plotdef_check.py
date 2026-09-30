@@ -54,12 +54,12 @@ def check(rd,ddict):
 
         werte_dict = {"plotsignal":key}
         if check_content(rd,ddict[key],werte_dict) != hdef.OKAY:
-            return  (hdef.NOT_OKAY,INFOTEXT)
+            return
         else:
             if key in plotdef_liste:
                 index = plotdef_liste.index(key)
                 INFOTEXT = f"Signalname {key} {i+1}. Definition ist bereits in der {index+1}. Definition gemacht worden!!!"
-                return (hdef.NOT_OKAY, INFOTEXT)
+                return
             else:
                 plotdef_liste.append(key)
             # end if
@@ -69,7 +69,7 @@ def check(rd,ddict):
     # end for
     rd.plot["plotdef_signaldef_liste"] = plotdef_liste
 
-    return (hdef.OKAY,"")
+    return
 # end def
 def check_content(rd,content,werte_dict):
 
@@ -80,7 +80,21 @@ def check_content(rd,content,werte_dict):
     muster = r"(\w+)\("
     tupel_liste = re.findall(muster, t.replace(" ", ""))
 
-    if len(tupel_liste) > 0:
+    # default-Werte
+    key_liste = ["subplot", "height_rows", "color", "linewidth","linestyle", "marker"]
+    werte_dict["subplot"] = 1
+    werte_dict["height_rows"] = 1
+    werte_dict["color"] = "k"
+    werte_dict["linewidth"] = 1
+    werte_dict["linestyle"] = '-'
+    werte_dict["marker"] = "None"
+
+    if len(tupel_liste) == 0:
+
+        werte_dict["signal"] = t
+        return hdef.OKAY
+
+    else:
 
         sig_name = tupel_liste[0][0]
         werte_dict["signal"] = sig_name
@@ -90,13 +104,17 @@ def check_content(rd,content,werte_dict):
 
         if len(tupel_liste) > 0:
             item_list = tupel_liste[0][0].split(',')
-            return check_content_tuple(rd.par,sig_name,item_list,werte_dict)
+            return check_content_tuple(rd.par,sig_name,item_list,werte_dict,key_liste)
         # end if
     # end if
 
+    global STATUS, INFOTEXT
+    STATUS = hdef.NOT_OKAY
+    INFOTEXT = f"check_content: Der content {content} konnte nicht erkannt werden"
+
     return hdef.NOT_OKAY
 # end def
-def check_content_tuple(par,sig_name,item_list,werte_dict):
+def check_content_tuple(par,sig_name,item_list,werte_dict,key_liste):
 
     global INFOTEXT
     global ZEILE
@@ -107,12 +125,6 @@ def check_content_tuple(par,sig_name,item_list,werte_dict):
         INFOTEXT = f"Im plotdef zeile:{ZEILE}, (Anweisung: \"={sig_name}({item_list})\") sind mehr als 5 Parameter gefunden worden!!!"
         return hdef.NOT_OKAY
     else:
-        liste = ["subplot","height_rows","color","linewidth","marker"]
-        werte_dict["subplot"] = 1
-        werte_dict["height_rows"] = 1
-        werte_dict["color"] = "k"
-        werte_dict["linewidth"] = 1
-        werte_dict["marker"] = ""
         for i,item in enumerate(item_list):
 
             items = item.split('=')
@@ -125,23 +137,23 @@ def check_content_tuple(par,sig_name,item_list,werte_dict):
                 wert = hstr.elim_ae_liste(items[1], [" ", "\t"])
             # end if
 
-            if name not in liste:
+            if name not in key_liste:
                 INFOTEXT = f"Im plotdef zeile:{ZEILE}, (Anweisung: \"={sig_name}({item_list})\") ist der {i+1}. Parameter name = {name} nicht definiert Definition = {liste} "
                 return hdef.NOT_OKAY
             # end if
-            index = liste.index(name)
+            index = key_liste.index(name)
             # liste = ["subplot", "height_rows", "color", "linewidth", "marker"]
 
             if index == 0:
-                werte_dict[liste[index]] = int(wert)
+                werte_dict[key_liste[index]] = int(wert)
             elif index == 1:
-                werte_dict[liste[index]] = int(wert)
+                werte_dict[key_liste[index]] = int(wert)
             elif index == 2:
-                werte_dict[liste[index]] = str(wert)
+                werte_dict[key_liste[index]] = str(wert)
             elif index == 3:
-                werte_dict[liste[index]] = float(wert)
+                werte_dict[key_liste[index]] = float(wert)
             elif index == 4:
-                werte_dict[liste[index]] = str(wert)
+                werte_dict[key_liste[index]] = str(wert)
             # end if
         # end for
     # end if

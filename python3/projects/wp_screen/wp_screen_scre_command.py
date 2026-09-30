@@ -12,8 +12,9 @@ import wp_screen_gui
 import wp_screen_katalog
 import wp_screen_sigset
 import wp_screen_tab
-import wp_screen_scre_build_signal
-import wp_screen_scre_build_fmttab
+import wp_screen_plotdef_command
+# import wp_screen_scre_build_signal
+# import wp_screen_scre_build_fmttab
 import wp_screen_scre
 import wp_screen_scre_plot
 
@@ -49,10 +50,6 @@ def reset_status():
 
 def scre_command(rd):
 
-    wp_screen_scre.scre_set(rd)
-    if get_status() != hdef.OKAY:
-        return
-    # end if
 
     auswahl_title = "Screen-Namen editieren"
     abfrage_liste = ["edit(values)","add", "delete", "rename","build","ende"]
@@ -136,14 +133,15 @@ def scre_edit_command(rd, index):
         return
 
 
-    abfrage_liste = ["katalog","sigset", "tab","end"]
+    abfrage_liste = ["katalog","sigset", "tab","plotdef","end"]
 
     title = f"scre: \"{rd.scre["scre"]}\"; Ändere katalog, signalset, tabelle"
 
     index_katalog = 0
     index_sigset  = 1
     index_tab     = 2
-    index_end     = 3
+    index_plotdef = 3
+    index_end     = 4
 
 
     runflag = True
@@ -221,6 +219,19 @@ def scre_edit_command(rd, index):
                     return
                 # end if
             # end if
+
+        elif index_abfrage == index_plotdef:
+
+            plotdef = wp_screen_plotdef_command.get_plotdef_auswahl(rd)
+
+            if plotdef != None:
+                rd.scre["scre_dict"][rd.par.SCRE_PLOTDEF] = plotdef
+                wp_screen_scre.scre_dict_save(rd)
+                if STATUS != hdef.OKAY:
+                    return
+                # end if
+            # end if
+
         # end if
     # end while
     return
@@ -344,7 +355,7 @@ def scre_show_screen(rd,index):
     runflag = True
     while runflag:
 
-        (status,errtext,index, indexAbfrage) = wp_screen_gui.scre_sheet_show(rd.gui,
+        (status,errtext, indexAbfrage,index) = wp_screen_gui.scre_sheet_show(rd.gui,
                                                               rd.scre["ttable"],
                                                               abfrage_liste,
                                                               rd.scre["color_dict_liste"],
@@ -363,7 +374,16 @@ def scre_show_screen(rd,index):
                 rd.log.write_info("Keine wp ausgewählt")
                 runflag = True
             else:
-                (status,errtext) = wp_screen_scre_plot.plot_scre(rd,rd.scre["scre"],index)
+                wp_screen_scre_plot.plot_scre(rd,rd.scre["scre"],rd.scre["scre_dict"],index)
+
+                if wp_screen_scre_plot.get_status() != hdef.OKAY:
+                    STATUS = wp_screen_scre_plot.get_status()
+                    ERRTEXT = wp_screen_scre_plot.get_errtext()
+                    wp_screen_scre_plot.reset_status()
+                    t = f"scre_show_screen: Plotten ging schief:{ERRTEXT}"
+                    wp_screen_gui.anzeige_text(rd.gui,t, title="",textcolor='red')
+                    rd.log.write_info(t)
+                # end if
                 runflag = True
         # end if
     # end while

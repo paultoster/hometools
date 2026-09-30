@@ -12,6 +12,8 @@ import wp_screen_gui
 import wp_screen_katalog
 import wp_screen_sigset
 import wp_screen_tab
+import wp_screen_plotdef
+import wp_screen_scre_command
 import wp_screen_scre_build_signal
 import wp_screen_scre_build_fmttab
 import wp_screen_scre_build_rawtab
@@ -45,7 +47,23 @@ def reset_status():
     ERRTEXT = ""
     INFOTEXT = ""
 # end def
+def scre_start(rd):
 
+    scre_set(rd)
+    if get_status() != hdef.OKAY:
+        return
+    # end if
+
+    wp_screen_scre_command.scre_command(rd)
+    if wp_screen_scre_command.get_status() != hdef.OKAY:
+        global STATUS, ERRTEXT
+        STATUS = wp_screen_scre_command.get_status()
+        ERRTEXT = wp_screen_scre_command.get_errtext()
+        wp_screen_scre_command.reset_status()
+    # end def
+
+    return
+# end def
 def scre_set(rd):
     # Signalset-Liste Json-Liste einladen
     if rd.scre["scre_liste_jsonobj"] is None:
@@ -83,6 +101,11 @@ def scre_check_changes(rd, ddict):
         flag = False
         INFOTEXT = INFOTEXT + "\n" + f"tab: {ddict[rd.par.SCRE_TAB]} gibt es nicht im Tabellen-Set"
     # end if
+    if (len(ddict[rd.par.SCRE_PLOTDEF])>0) and not wp_screen_plotdef.exist_plotdef(rd,ddict[rd.par.SCRE_PLOTDEF]):
+        flag = False
+        INFOTEXT = INFOTEXT + "\n" + f"tab: {ddict[rd.par.SCRE_PLOTDEF]} gibt es nicht im Tabellen-Set"
+    # end if
+
     return flag
 # end def
 def scre_dict_read(rd):
@@ -102,7 +125,7 @@ def scre_dict_read(rd):
     rd.scre["scre_dict"] = rd.scre["scre_dict_jsonobj"].read_and_get_data()
 
     if rd.scre["scre_dict_jsonobj"].get_status() == hdef.NOT_FOUND:
-        rd.scre["scre_dict"] = {rd.par.SCRE_KATALOG:"",rd.par.SCRE_SIGSET:"",rd.par.SCRE_TAB:""}
+        rd.scre["scre_dict"] = {rd.par.SCRE_KATALOG:"",rd.par.SCRE_SIGSET:"",rd.par.SCRE_TAB:"",rd.par.SCRE_PLOTDEF:""}
         rd.scre["scre_dict_jsonobj"].reset_status()
     elif rd.scre["scre_dict_jsonobj"].get_status() != hdef.OKAY:
         rd.log.write_err(rd.scre["scre_dict_jsonobj"].get_errtext(), screen=rd.par.LOG_SCREEN_OUT)
@@ -111,6 +134,17 @@ def scre_dict_read(rd):
         ERRTEXT = rd.scre["scre_dict_jsonobj"].get_errtext()
         rd.scre["scre_dict_jsonobj"].reset_status()
         # end if
+    else:
+        if rd.par.SCRE_KATALOG not in rd.scre["scre_dict"].keys():
+            rd.scre["scre_dict"][rd.par.SCRE_KATALOG] = ""
+        if rd.par.SCRE_SIGSET not in rd.scre["scre_dict"].keys():
+            rd.scre["scre_dict"][rd.par.SCRE_SIGSET] = ""
+        if rd.par.SCRE_TAB not in rd.scre["scre_dict"].keys():
+            rd.scre["scre_dict"][rd.par.SCRE_TAB] = ""
+        if rd.par.SCRE_PLOTDEF not in rd.scre["scre_dict"].keys():
+            rd.scre["scre_dict"][rd.par.SCRE_PLOTDEF] = ""
+
+    rd.scre["scre_dict_jsonobj"].reset_status()
     return
 # end def
 def scre_dict_save(rd):

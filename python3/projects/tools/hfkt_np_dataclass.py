@@ -236,4 +236,18 @@ class NpDataHandlingClass:
         # end if
         return
     # end def
+    def exist_signal_as_nparray(self,signame):
+        if hasattr(self, signame) and isinstance(self.__getattribute__(signame), np.ndarray):
+            return True
+        else:
+            return False
+        # end if
+    # end def
+    def get_signal(self,signame):
+        if hasattr(self, signame):
+            return getattr(self,signame)
+        else:
+            return None
+        # end if
+    # end def
 
