@@ -1,5 +1,6 @@
 
-import os, sys, copy
+import os, sys
+import numpy as np
 
 
 t_path, _ = os.path.split(__file__)
@@ -84,24 +85,29 @@ def plot_scre(rd,scre,scre_dict,index):
         return
     # end if
 
+    (plotdef_werte_dict_list,max_subplot,nrows) = build_all_diagram_data(rd,
+                                                                         plotdef_werte_dict_list,
+                                                                         np_data_obj,
+                                                                         scre,
+                                                                         scre_dict)
 
-    # proof if signal available, count number of rows
-    nrows = 0
-    for i,plotdef_werte_dict in enumerate(plotdef_werte_dict_list):
+    if STATUS != hdef.OKAY:
+        return
 
-        if not np_data_obj.exist_signal_as_nparray(plotdef_werte_dict["signal"]):
-            STATUS = hdef.NOT_OKAY
-            ERRTEXT = f"plotdef: screen definition {scre}: in position {i} of plotdef_dict {scre_dict[rd.par.SCRE_PLOTDEF]} is signal: {plotdef_werte_dict['signal']} not available"
-            return
-        # end if
+    fig_dict = build_figure_dictionary(plotdef_werte_dict_list,max_subplot,nrows,isin)
 
-        if plotdef_werte_dict["subplot"] > nrows:
-            nrows = plotdef_werte_dict["subplot"]
-        # end if
 
-    # end for
+    # Bilde Diagramm
+    wp_screen_gui.matplot_date_data(rd.gui, fig_dict)
+
+    return
+# end def
+def build_all_diagram_data(rd,plotdef_werte_dict_list,np_data_obj,scre,scre_dict):
+
+    global INFOTEXT, STATUS, ERRTEXT
 
     # proof ob subplot von 1 hochzählt ohne Lücke
+    #--------------------------------------------
     # in liste schreiben
     liste = []
     for plotdef_werte_dict in plotdef_werte_dict_list:
@@ -118,6 +124,82 @@ def plot_scre(rd,scre,scre_dict,index):
         plotdef_werte_dict_list[i] = plotdef_werte_dict
     # end for
 
+    # proof if signal available, count number of rows
+    nrows = 0
+    for i,plotdef_werte_dict in enumerate(plotdef_werte_dict_list):
+
+        type = check_special_line_for_type(rd, np_data_obj, plotdef_werte_dict["signal"])
+
+        if type == rd.par.SIG_TYPE_2PAR_LINGRAD:
+
+            plotdef_werte_dict = build_line_for_lingrad(rd, np_data_obj, plotdef_werte_dict)
+
+        else:
+
+            if not np_data_obj.exist_signal_as_nparray(plotdef_werte_dict["signal"]):
+                STATUS = hdef.NOT_OKAY
+                ERRTEXT = f"plotdef: screen definition {scre}: in position {i} of plotdef_dict {scre_dict[rd.par.SCRE_PLOTDEF]} is signal: {plotdef_werte_dict['signal']} not available"
+                return
+            # end if
+
+            plotdef_werte_dict["y"]    = np_data_obj.get_signal(plotdef_werte_dict["signal"])
+            plotdef_werte_dict["xdat"] = np_data_obj.Datum
+        # end if
+
+        if plotdef_werte_dict["subplot"] > nrows:
+            nrows = plotdef_werte_dict["subplot"]
+        # end if
+
+        # zurückschreiben
+        plotdef_werte_dict_list[i] = plotdef_werte_dict
+
+    # end for
+
+    return (plotdef_werte_dict_list,max_subplot,nrows)
+# end def
+def check_special_line_for_type(rd,np_data_obj,signalname):
+
+    # LinGrad
+    signal_name_n  = signalname + "_" + rd.par.SIG_STORE_LINGRAD_N
+    signal_name_y0 = signalname + "_" + rd.par.SIG_STORE_LINGRAD_Y0
+    signal_name_y1 = signalname + "_" + rd.par.SIG_STORE_LINGRAD_Y1
+
+    if  np_data_obj.exist_signal_as_nparray(signal_name_n)  and \
+        np_data_obj.exist_signal_as_nparray(signal_name_y0) and \
+        np_data_obj.exist_signal_as_nparray(signal_name_y1):
+
+        return rd.par.SIG_TYPE_2PAR_LINGRAD
+    # end if
+
+    return "None"
+# end def
+def  build_line_for_lingrad(rd, np_data_obj, plotdef_werte_dict):
+
+    # LinGrad
+    signal_name_n  = plotdef_werte_dict["signal"] + "_" + rd.par.SIG_STORE_LINGRAD_N
+    signal_name_y0 = plotdef_werte_dict["signal"] + "_" + rd.par.SIG_STORE_LINGRAD_Y0
+    signal_name_y1 = plotdef_werte_dict["signal"] + "_" + rd.par.SIG_STORE_LINGRAD_Y1
+
+    np_array_n  = np_data_obj.get_signal(signal_name_n)
+    np_array_y0 = np_data_obj.get_signal(signal_name_y0)
+    np_array_y1 = np_data_obj.get_signal(signal_name_y1)
+
+    ngradlin = np_array_n[-1]
+    y0 = np_array_y0[-1]
+    y1 = np_array_y1[-1]
+
+    n = len(np_data_obj.Dataum)
+    i0 = max(0,n-ngradlin)
+    np_array_xdat = np_data_obj.Dataum[i0:n]
+    np_array_y    = np.linspace(start=y0, stop=y1, num=ngradlin)
+
+    plotdef_werte_dict["y"] = np_array_y
+    plotdef_werte_dict["xdat"] = np_array_xdat
+
+    return plotdef_werte_dict
+# end if
+def build_figure_dictionary(plotdef_werte_dict_list,max_subplot,nrows,isin):
+
     # Build plot-dict
     dict_subplot_liste = []
     for i in range(max_subplot):
@@ -127,8 +209,8 @@ def plot_scre(rd,scre,scre_dict,index):
             height_rows = 0
             if plotdef_werte_dict["subplot"] == isubplot:
                 dict_data = {}
-                dict_data["xdat"]      = np_data_obj.Datum
-                dict_data["y"]         = np_data_obj.get_signal(plotdef_werte_dict["signal"])
+                dict_data["xdat"]      = plotdef_werte_dict["xdat"]
+                dict_data["y"]         = plotdef_werte_dict["y"]
                 dict_data["color"]     = plotdef_werte_dict["color"]
                 dict_data["linewidth"] = plotdef_werte_dict["linewidth"]
                 dict_data["linestyle"] = plotdef_werte_dict["linestyle"]
@@ -150,16 +232,12 @@ def plot_scre(rd,scre,scre_dict,index):
         dict_subplot_liste.append(dict_subplot)
     # end for
 
-    plot_dict = {}
-    plot_dict["rows"] = nrows
-    plot_dict["sharex"] = True
-    plot_dict["title"]  = f"ISIN: {isin}"
-    plot_dict["title_add_date_range"] = True
-    plot_dict["subplot_list"] = dict_subplot_liste
+    fig_dict = {}
+    fig_dict["rows"] = nrows
+    fig_dict["sharex"] = True
+    fig_dict["title"]  = f"ISIN: {isin}"
+    fig_dict["title_add_date_range"] = True
+    fig_dict["subplot_list"] = dict_subplot_liste
 
-    # Bilde Diagramm
-    wp_screen_gui.matplot_date_data(rd.gui, plot_dict)
-
-    return
+    return fig_dict
 # end def
-

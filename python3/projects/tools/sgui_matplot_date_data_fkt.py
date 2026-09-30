@@ -502,6 +502,10 @@ def detect_change_date_range_1item(date_str_range,first_date_time,last_date_time
         month = int(liste[0])
         year = int(liste[1])
         (day0,day1) = calendar.monthrange(year,month)
+        if day0 < 1:
+            print(f"Fehler calendar.monthrange day0 = {day0}")
+            day0 = 1
+        # end if
         start_date_time = datetime.datetime(year, month, day0)
         end_date_time = datetime.datetime(year, month, day1)
         return (hdef.OKAY, start_date_time, end_date_time)
@@ -618,13 +622,13 @@ def to_datetime(date):
     return datetime.datetime.fromtimestamp(timestamp)
 # end def
 def ist_gueltiger_linestyle(style_string):
-    try:
-        matplotlib.lines._as_dash_seq(style_string)
-        return True
-    except ValueError:
-        return False
+
+    valid_linestyles = set(matplotlib.lines.lineStyles.keys())
+    return style_string in valid_linestyles
+
 # end def
 def ist_gueltiger_marker(marker_string):
+
     try:
         matplotlib.markers.MarkerStyle(marker_string)
         return True
