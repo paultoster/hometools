@@ -54,6 +54,7 @@ def check(rd,ddict):
 
         werte_dict = {"plotsignal":key}
         if check_content(rd,ddict[key],werte_dict) != hdef.OKAY:
+            INFOTEXT = f"Signalname {key} {i + 1}. Definition wird nicht erkannt Inhalt: {ddict[key]}!!!"
             return
         else:
             if key in plotdef_liste:
@@ -77,7 +78,7 @@ def check_content(rd,content,werte_dict):
 
     t = copy.copy(content)
 
-    muster = r"(\w+)\("
+    muster = r"^(.+?)\((.*?)\)$"
     tupel_liste = re.findall(muster, t.replace(" ", ""))
 
     # default-Werte
@@ -99,11 +100,12 @@ def check_content(rd,content,werte_dict):
         sig_name = tupel_liste[0][0]
         werte_dict["signal"] = sig_name
 
-        muster = r"\((.*?)\)"    # r"([^(),]+)(?:,|(?=\)))"
-        tupel_liste = re.findall(muster, t.replace(" ", ""))
+        # muster = r"\((.*?)\)"    # r"([^(),]+)(?:,|(?=\)))"
+        # tupel_liste = re.findall(muster, t.replace(" ", ""))
 
-        if len(tupel_liste) > 0:
-            item_list = tupel_liste[0][0].split(',')
+        item_list_string = tupel_liste[0][1]
+        if len(item_list_string) > 0:
+            item_list = item_list_string.split(',')
             return check_content_tuple(rd.par,sig_name,item_list,werte_dict,key_liste)
         # end if
     # end if
@@ -121,7 +123,7 @@ def check_content_tuple(par,sig_name,item_list,werte_dict,key_liste):
 
     # SignalName(subplot=x, height_rows=x, color=c, linewidth=y, linestyle=z, marker=m)"
 
-    if len(item_list) > 6:
+    if len(item_list) > len(key_liste):
         INFOTEXT = f"Im plotdef zeile:{ZEILE}, (Anweisung: \"={sig_name}({item_list})\") sind mehr als 5 Parameter gefunden worden!!!"
         return hdef.NOT_OKAY
     else:
@@ -142,7 +144,7 @@ def check_content_tuple(par,sig_name,item_list,werte_dict,key_liste):
                 return hdef.NOT_OKAY
             # end if
             index = key_liste.index(name)
-            # liste = ["subplot", "height_rows", "color", "linewidth", "marker"]
+            # liste = ["subplot", "height_rows", "color", "linewidth", "linestyle", "marker"]
 
             if index == 0:
                 werte_dict[key_liste[index]] = int(wert)
@@ -153,6 +155,11 @@ def check_content_tuple(par,sig_name,item_list,werte_dict,key_liste):
             elif index == 3:
                 werte_dict[key_liste[index]] = float(wert)
             elif index == 4:
+                werte_dict[key_liste[index]] = str(wert)
+            elif index == 5:
+                werte_dict[key_liste[index]] = str(wert)
+            # zur Sicherheit
+            else:
                 werte_dict[key_liste[index]] = str(wert)
             # end if
         # end for

@@ -143,7 +143,13 @@ def get_plotdef_werte_dict_liste(rd, plotdef_dict):
         wp_screen_plotdef_check.reset_status()
         return []
     # end if
-
+    if len(wp_screen_plotdef_check.get_infotext()) > 0:
+        STATUS = hdef.NOT_FOUND
+        ERRTEXT = wp_screen_plotdef_check.get_infotext()
+        INFOTEXT = wp_screen_plotdef_check.get_infotext()
+        wp_screen_plotdef_check.reset_status()
+        return []
+    # end dif
 
     return rd.plot["plotdef_werte_dict_liste"]
 # end def

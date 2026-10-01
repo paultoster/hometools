@@ -75,6 +75,14 @@ def plot_scre(rd,scre,scre_dict,index):
 
     plotdef_dict = wp_screen_plotdef.get_plotdef_dict(rd, scre_dict[rd.par.SCRE_PLOTDEF])
 
+    if wp_screen_plotdef.get_status() != hdef.OKAY:
+        STATUS = wp_screen_plotdef.get_status()
+        ERRTEXT = wp_screen_plotdef.get_errtext()
+        INFOTEXT = wp_screen_plotdef.get_infotext()
+        wp_screen_plotdef.reset_status()
+        return
+    # end if
+
     plotdef_werte_dict_list = wp_screen_plotdef.get_plotdef_werte_dict_liste(rd, plotdef_dict)
 
     if wp_screen_plotdef.get_status() != hdef.OKAY:
@@ -98,7 +106,12 @@ def plot_scre(rd,scre,scre_dict,index):
 
 
     # Bilde Diagramm
-    wp_screen_gui.matplot_date_data(rd.gui, fig_dict)
+    (status,errtext) = wp_screen_gui.matplot_date_data(rd.gui, fig_dict)
+    if status != hdef.OKAY:
+        STATUS = status
+        ERRTEXT = errtext
+        return
+    # end if
 
     return
 # end def
@@ -188,9 +201,9 @@ def  build_line_for_lingrad(rd, np_data_obj, plotdef_werte_dict):
     y0 = np_array_y0[-1]
     y1 = np_array_y1[-1]
 
-    n = len(np_data_obj.Dataum)
+    n = len(np_data_obj.Datum)
     i0 = max(0,n-ngradlin)
-    np_array_xdat = np_data_obj.Dataum[i0:n]
+    np_array_xdat = np_data_obj.Datum[i0:n]
     np_array_y    = np.linspace(start=y0, stop=y1, num=ngradlin)
 
     plotdef_werte_dict["y"] = np_array_y

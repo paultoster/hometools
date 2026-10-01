@@ -167,8 +167,16 @@ class maplot_date_plot_class:
             pass
 
         # Textbox
+        # 10T                     :       plotte die letzten 10 tage
+        # 2M                      :       plotte die letzten 2 Monate
+        # 2025                    :       plotte das Jahr 2025
+        # 10.2026                 :       plotte das den Monat Okt 2026
+        # 1.10.2026-31.11.2026    :       Plotte den zeitbereich
+        # 1.10.2026-200T          :       Plotte von 1.10.2026 200 Tage
+        # 1.10.2026-2M            :       Plotte von 1.10.2026 2 Monate
         self.axtextbox = fig.add_axes([0.2, 0.9, 0.6, 0.05])
-        self.textbox = TextBox(self.axtextbox,'Datum',initial='Test')
+        self.start_text = 'nT,nM,J,M.J,T.M.J-T.M.J,T.M.J-nT,T.M.J-nM'
+        self.textbox = TextBox(self.axtextbox,'Datum',initial=self.start_text)
         self.textbox.on_submit(self.callback_change)
 
 
@@ -194,6 +202,7 @@ class maplot_date_plot_class:
                 subplot_dict["ax"].relim()
                 subplot_dict["ax"].autoscale()
             # end for
+            self.textbox.set_val(self.start_text)
             plt.draw()
         # end if
         return

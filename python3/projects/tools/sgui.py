@@ -1933,11 +1933,16 @@ def matplot_date_data(ddict_inp):
     """
 
     obj = smatplot_class.maplot_date_plot_class(ddict_inp)
-    obj.run()
+    if obj.status == hdef.OKAY:
+        obj.run()
+
+    ddict_out = {}
+    ddict_out["status"] = obj.status
+    ddict_out["errtext"] = obj.errtext
 
     del obj
 
-    return
+    return ddict_out
 # end def
 if __name__ == '__main__':
     

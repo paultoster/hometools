@@ -265,6 +265,8 @@ def scre_sheet_show(gui, ttable, abfrage_liste,color_dict_liste,title=None):
 # end def
 def matplot_date_data(gui, ddict):
     """
+        (status,errtext) = matplot_date_data(gui, dict_input)
+
         dict_input["plot"] = ddict["rows"] = 1  (defaultwert, Anzahl der senkrechten Plots)
                          ddict["cols"] = 1  (defaultwert, Anzahl der waagrechten Plots)
                          ddict["sharex"] = False  (defaultwert, True, 'col', Für alle eine x-Achse)
@@ -303,4 +305,6 @@ def matplot_date_data(gui, ddict):
     dict_input = {}
     dict_input["plot"] = ddict
 
-    sgui.matplot_date_data(dict_input)
+    dict_out = sgui.matplot_date_data(dict_input)
+
+    return (dict_out["status"], dict_out["errtext"])
