@@ -1,6 +1,7 @@
 import numpy as np
 import datetime
-import os, sys, copy
+import os, sys
+from scipy import signal
 
 t_path, _ = os.path.split(__file__)
 if (t_path == os.getcwd()):
@@ -70,10 +71,63 @@ def ema(np_array: np.ndarray, k:int):
     # end for
     return np_ema_array
 # end def
+def performance(np_array: np.ndarray, npoints:int,grad_faktor:float):
+    """
+    relative Performance von aktuell zu npoints-Werte davor.
+    Bilde den relativen Anstieg bezogen auf den Mittelwert von y0 und y1 multipliziert mit grad_faktor
+    Mit dem Mittelwert bekommt man so eine relativer Anstieg, ansonsten wäre es € pro Einheit
+    damit wird es auf einen anderen Zeitraum gerechnet (Tageschart, grad_faktor = 252 => Jahres Anstieg relativ )
+    :param np_array:
+    :param npoints:
+    :return: np_performance_array
+    """
+    np_ferformance_array = np.zeros(np_array.shape)
+    n = len(np_array)
+    npoints = max(npoints,2)
+
+    for i in  range(n):
+
+        if i == 0:
+
+            rel_anstieg = 0.0
+        else:
+
+            ny = min(npoints,i+1)
+
+            y0 = np_array[i-ny+1]
+            y1 = np_array[i]
+            ym = (y0+y1)/2.
+            rel_anstieg = (y1 - y0) / float(ny-1) / ym * grad_faktor
+        # end if
+
+        np_ferformance_array[i] = rel_anstieg
+    # end for
+    return np_ferformance_array
+# end def
+def filtfilt(np_array,N,Wn):
+    """
+        Bilde ein Zero-Phase-FilterSignal mit filtfilt-Fkt und Butterworth Filter
+        np_filtfilt_array  = hnpfkt.filtfilt(np_array,N,Wn)
+    """
+    if N < 0:
+        N = abs(N)
+    elif N == 0:
+        N = 1
+    # end if
+
+    Wn = max(0.0000001,min(Wn,0.999999999))
+
+    b, a = signal.butter(N, Wn)
+
+    np_filtfilt_array = signal.filtfilt(b, a, np_array, method='gust')
+
+    return np_filtfilt_array
+# end if
 def lingrad(np_array: np.ndarray, npoints:int, grad_faktor:float ):
     """
     Bilde ein lineare Funktion über npoints erstelle y0_np_array,y1_np_array die Eckpunkte der gerade über
     n_np_arry Punkten. Bilde den relativen Anstieg bezogen auf den Mittelwert von y0 und y1 multipliziert mit grad_faktor
+    Mit dem Mittelwert bekommt man so eine relativer Anstieg, ansonsten wäre es € pro Einheit
     damit wird es auf einen anderen Zeitraum gerechnet (Tageschart, grad_faktor = 252 => Jahres Anstieg relativ )
 
     (n_np_array,y0_np_array,y1_np_array,rel_anstieg_np_array) = hfkt.lingrad(np_array,npoints,grad_faktor)

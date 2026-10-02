@@ -32,6 +32,8 @@ class Param:
     SIG_2PAR_EMA = "ema"
     SIG_2PAR_MAX = "max"
     SIG_2PAR_MIN = "min"
+    SIG_2PAR_PERFORMANCE = "performance"
+    SIG_3PAR_FILTFILT = "filtfilt"
     SIG_3PAR_VERGLEICH = "vergleich"
     SIG_NPAR_BEDINGUNG = "bedingung"
 
@@ -51,10 +53,12 @@ class Param:
     SIG_TYPE_2PAR_EMA = 13
     SIG_TYPE_2PAR_MAX = 14
     SIG_TYPE_2PAR_MIN = 15
-    SIG_TYPE_3PAR_VERGLEICH = 16
-    SIG_TYPE_NPAR_BEDINGUNG = 17
+    SIG_TYPE_2PAR_PERFORMANCE = 16
+    SIG_TYPE_3PAR_VERGLEICH = 17
+    SIG_TYPE_3PAR_FILTFILT = 18
+    SIG_TYPE_NPAR_BEDINGUNG = 19
 
-    SIG_STORE_DATUM = "dat_np_array"
+    SIG_STORE_DATUM = "Datum"
     SIG_STORE_GRAD  = "grad"
 
     SIG_ANZAHL_HANDELSTAGE_PRO_JAHR = 252

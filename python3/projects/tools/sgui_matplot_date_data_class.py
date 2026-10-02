@@ -174,9 +174,9 @@ class maplot_date_plot_class:
         # 1.10.2026-31.11.2026    :       Plotte den zeitbereich
         # 1.10.2026-200T          :       Plotte von 1.10.2026 200 Tage
         # 1.10.2026-2M            :       Plotte von 1.10.2026 2 Monate
-        self.axtextbox = fig.add_axes([0.2, 0.9, 0.6, 0.05])
-        self.start_text = 'nT,nM,J,M.J,T.M.J-T.M.J,T.M.J-nT,T.M.J-nM'
-        self.textbox = TextBox(self.axtextbox,'Datum',initial=self.start_text)
+        self.axtextbox = fig.add_axes([0.3, 0.9, 0.5, 0.05])
+
+        self.textbox = TextBox(self.axtextbox,'Datum(nT,nM,J,M.J,T.M.J-T.M.J,T.M.J-nT,T.M.J-nM)',initial='')
         self.textbox.on_submit(self.callback_change)
 
 
@@ -202,7 +202,7 @@ class maplot_date_plot_class:
                 subplot_dict["ax"].relim()
                 subplot_dict["ax"].autoscale()
             # end for
-            self.textbox.set_val(self.start_text)
+
             plt.draw()
         # end if
         return

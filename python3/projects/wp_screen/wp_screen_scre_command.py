@@ -374,7 +374,13 @@ def scre_show_screen(rd,index):
                 rd.log.write_info("Keine wp ausgewählt")
                 runflag = True
             else:
-                wp_screen_scre_plot.plot_scre(rd,rd.scre["scre"],rd.scre["scre_dict"],index)
+
+                ttable = rd.scre["ttable"]
+
+                index_isin_liste = rd.scre["ttable_index_sorted_liste"][index]
+                wp_name          = rd.scre["ttable_name_notsorted_liste"][index_isin_liste]
+
+                wp_screen_scre_plot.plot_scre(rd,rd.scre["scre"],rd.scre["scre_dict"],index_isin_liste,wp_name)
 
                 if wp_screen_scre_plot.get_status() != hdef.OKAY:
                     STATUS = wp_screen_scre_plot.get_status()

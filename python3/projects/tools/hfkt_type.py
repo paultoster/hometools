@@ -2,7 +2,7 @@
 #
 # 18.06.23 von hfkt.py
 #############################
-import os.path
+import os, sys
 # import string
 import datetime
 import numpy as np
@@ -54,13 +54,18 @@ import re
 import math
 import zlib
 
-# from pandas.core.dtypes.inference import is_float
-
-if os.path.isfile('hfkt_def.py'):
+t_path, _ = os.path.split(__file__)
+if( t_path == os.getcwd() ):
     import hfkt_def as hdef
     import hfkt_str as hstr
     import hfkt_date_time as hdate
 else:
+    p_list = os.path.normpath(t_path).split(os.sep)
+    if (len(p_list) > 1): p_list = p_list[: -1]
+    t_path = ""
+    for i, item in enumerate(p_list): t_path += item + os.sep
+    if (os.path.normpath(t_path) not in sys.path): sys.path.append(t_path)
+
     import tools.hfkt_def as hdef
     import tools.hfkt_str as hstr
     import tools.hfkt_date_time as hdate

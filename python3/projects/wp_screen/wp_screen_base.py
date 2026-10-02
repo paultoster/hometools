@@ -76,6 +76,8 @@ class WPScreen:
                     "scre_isin_dataclass_filename_dict": {},
                     "ttable_raw": None,
                     "ttable": None,
+                    "ttable_index_sorted_liste": [],
+                    "ttable_name_notsorted_liste": [],
                     "color_dict_liste": []}
         self.plot: dict = {
                     "plotdef_liste": [],

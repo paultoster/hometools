@@ -42,12 +42,13 @@ def plotdef_command(rd):
 
 
     auswahl_title = "Plotdef-Namen editieren"
-    abfrage_liste = ["edit(plotdef)","add", "delete", "rename","ende"]
+    abfrage_liste = ["edit(plotdef)","add", "delete", "rename","hilfe","ende"]
     i_edit = 0
     i_add = 1
     i_delete = 2
     i_rename = 3
-    i_ende = 4
+    i_hilfe = 4
+    i_ende = 5
 
     runflag = True
 
@@ -76,12 +77,14 @@ def plotdef_command(rd):
             else:
                 plotdef_del(rd, index)
             # end if
-        else:  # if indexAbfrage == i_rename:
+        elif indexAbfrage == i_rename:
             if (index < 0) or (index >= n_auswahl_liste):
                 rd.log.write_err("plotdef_command rename: index out of range or not set", screen=rd.par.LOG_SCREEN_OUT)
             else:
                 plotdef_rename(rd, index)
             # end if
+        else: # index_abfrage == i_hilfe
+            plotdef_edit_hilfe(rd)
     # end while
     return
 # end def

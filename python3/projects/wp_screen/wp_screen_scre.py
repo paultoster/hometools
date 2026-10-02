@@ -253,9 +253,9 @@ def scre_build_rawtable(rd, scre_dict, dat):
 
     # end for
 
-    # 2. Vergleichende Werte in Tabelle bilden:
-    #----------------------
-    ttable = wp_screen_scre_build_rawtab.scre_build_values_over_rawtab(rd,ttable,tab_werte_dict_liste,isin_liste,dat)
+    # 2. Vergleichende Werte in Tabelle bilden und sortieren:
+    #--------------------------------------------------------
+    (ttable,index_sorted_liste) = wp_screen_scre_build_rawtab.scre_build_values_over_rawtab(rd,ttable,tab_werte_dict_liste,isin_liste,dat)
     if wp_screen_scre_build_rawtab.get_status() != hdef.OKAY:
         STATUS = hdef.NOT_OKAY
         ERRTEXT = wp_screen_scre_build_signal.get_errtext()
@@ -263,6 +263,27 @@ def scre_build_rawtable(rd, scre_dict, dat):
     # end if
 
     rd.scre["ttable_raw"] = ttable
+    rd.scre["ttable_index_sorted_liste"] = index_sorted_liste
+
+    # Finde Name wenn möglich
+    #------------------------
+    flag = False
+    namelist = ["Name","name"]
+    for name in namelist:
+        if htvar.check_name_from_table(ttable,name):
+            icol = htvar.get_index_from_table(ttable, name)
+            flag = True
+            break
+        # end if
+    # end for
+    name_notsorted_liste = ['' for i in range(len(index_sorted_liste))]
+    if flag:
+        for i in range(len(index_sorted_liste)):
+            name = htvar.get_val_from_table(ttable,i,icol)
+            name_notsorted_liste[index_sorted_liste[i]] = name
+        # end for
+    # end if
+    rd.scre["ttable_name_notsorted_liste"] = name_notsorted_liste
 
     return ttable
 # end def

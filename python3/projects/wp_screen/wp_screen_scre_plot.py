@@ -47,7 +47,7 @@ def reset_status():
     INFOTEXT = ""
 # end def
 
-def plot_scre(rd,scre,scre_dict,index):
+def plot_scre(rd,scre,scre_dict,index,wp_name):
     """
     (status,errtext) = wp_screen_scre_plot.plot_scre(rd,scre_dict,index)
     """
@@ -102,7 +102,7 @@ def plot_scre(rd,scre,scre_dict,index):
     if STATUS != hdef.OKAY:
         return
 
-    fig_dict = build_figure_dictionary(plotdef_werte_dict_list,max_subplot,nrows,isin)
+    fig_dict = build_figure_dictionary(plotdef_werte_dict_list,max_subplot,nrows,isin,wp_name)
 
 
     # Bilde Diagramm
@@ -211,7 +211,7 @@ def  build_line_for_lingrad(rd, np_data_obj, plotdef_werte_dict):
 
     return plotdef_werte_dict
 # end if
-def build_figure_dictionary(plotdef_werte_dict_list,max_subplot,nrows,isin):
+def build_figure_dictionary(plotdef_werte_dict_list,max_subplot,nrows,isin,wp_name):
 
     # Build plot-dict
     dict_subplot_liste = []
@@ -248,7 +248,7 @@ def build_figure_dictionary(plotdef_werte_dict_list,max_subplot,nrows,isin):
     fig_dict = {}
     fig_dict["rows"] = nrows
     fig_dict["sharex"] = True
-    fig_dict["title"]  = f"ISIN: {isin}"
+    fig_dict["title"]  = f"ISIN: {isin}:{wp_name}"
     fig_dict["title_add_date_range"] = True
     fig_dict["subplot_list"] = dict_subplot_liste
 

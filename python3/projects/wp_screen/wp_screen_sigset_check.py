@@ -360,6 +360,24 @@ def check_content_2par_tuple(par,fkt,par1,par2,signaldef_liste,werte_dict):
         werte_dict["fkt"] = par.SIG_2PAR_MIN
         werte_dict["par1"] = par1
         werte_dict["par2"] = val
+
+    elif fkt == par.SIG_2PAR_PERFORMANCE:
+
+        # par1: signal, par2: n
+        if par1 not in signaldef_liste:
+            INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({par1},{par2})\") ist erster Parameter signal = {par1} nicht davor definiert worden "
+            return hdef.NOT_OKAY
+        # end if
+        (status, nint) = htype.type_proof_int(par2)
+        if status != hdef.OKAY:
+            INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({par1},{par2})\") ist zweiter Parameter n = {par2} nicht in integer wandelbar "
+            return status
+        # end if
+        werte_dict["type"] = par.SIG_TYPE_2PAR_PERFORMANCE
+        werte_dict["fkt"] = par.SIG_2PAR_PERFORMANCE
+        werte_dict["par1"] = par1
+        werte_dict["par2"] = abs(nint)
+
     else:
 
         INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({par1},{par2})\") ist Parameter Funktion:{fkt} nicht definiert"
@@ -389,7 +407,28 @@ def  check_content_3par_tuple(par,fkt,par1,par2,par3,signaldef_liste, werte_dict
     global INFOTEXT
     global ZEILE
 
-    if fkt == par.SIG_3PAR_VERGLEICH:
+    if fkt == par.SIG_3PAR_FILTFILT:
+        # par1: signal, par2: N par3: Wn
+        if par1 not in signaldef_liste:
+            INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({par1},{par2},{par3})\") ist erster Parameter signal = {par1} nicht davor definiert worden "
+            return hdef.NOT_OKAY
+        # end if
+        (status, nint) = htype.type_proof_int(par2)
+        if status != hdef.OKAY:
+            INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({par1},{par2},{par3})\") ist zweiter Parameter n = {par2} nicht in integer wandelbar "
+            return hdef.NOT_OKAY
+        # end if
+        (status, val) = htype.type_proof_float(par3)
+        if status != hdef.OKAY:
+            INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({par1},{par2},{par3})\") ist dritte Parameter signal = {par3} nicht in float wandelbar "
+            return hdef.NOT_OKAY
+        # end if
+        werte_dict["type"] = par.SIG_TYPE_3PAR_FILTFILT
+        werte_dict["fkt"] = par.SIG_3PAR_FILTFILT
+        werte_dict["par1"] = par1
+        werte_dict["par2"] = nint
+        werte_dict["par3"] = val
+    elif fkt == par.SIG_3PAR_VERGLEICH:
 
         # par1: signal1, par2: <,>, ... par3: signal2
         if par1 not in signaldef_liste:
@@ -420,11 +459,9 @@ def hilfe(rd):
     SignalName2 = close/open/high/low/volume            Chart-Werte
     SignalName2 = ecbleitzins,usdeuro                   Bisherige Indizes
     SignalName3 = datum(SignalName1)                    Datum von einem bestimmten Signal
-    SignalName4 = rankmin(SignalName1)                  erstellt ein Ranking minimum am besten 1, 2, ...
-    SignalName4 = rankmax(SignalName1)                  erstellt ein Ranking maximum am besten 1, 2, ...
     SignalName4 = np_obj(isin,kurs)                     Kurswerte von einer anderen isin
                                                         gespeichrt wird:
-                                                        "SignalName3_dat_array" und "SignalName3"
+                                                        "SignalName4_dat_array" und "SignalName3"
     SignalName5 = lingrad(SignalName1,20)               Linearer Gerade aus SignalName1 mit 20 Punkten
                                                         gespeichert wird:
                                                         "SignalName4_dat_array" und "SignalName4" sowie "SignalName4_grad" (Einzelwert)
@@ -436,6 +473,11 @@ def hilfe(rd):
                                                         "SignalName6_dat_array" (wenn aus fremd-signal) und "SignalName6"
     SignalName10 = max(SignalName1,0.0)                 Nimmt signal1 und führt max(signal1,0.0) aus
     SignalName11 = min(SignalName1,0.0)                 Nimmt signal1 und führt min(signal1,0.0) aus
+
+    SignalName6 = performance(SignalName1,100)          Performance aus SignalName1 mit 200 Punkten vor dem aktuellen Wert
+                                                        gespeichert wird:
+                                                        "SignalName5_dat_array" (wenn aus fremd-signal) und "SignalName5"
+    SignalName12 = filtfilt(SignalName,N,Wn)            Zero-Phase-Filter mit butterworth(N,Wn)
 
     SignalName8 = vergleich(SignalName1,<,SignalName4)  vergleich  SignalName1 und SignalName2 hier SignalName1 < SignalName2
                                                         wahr wird = 1 gesetzt und unwahr = 0
@@ -469,7 +511,7 @@ def hilfe(rd):
                 val2 = "Datumsabfrage"
             case 4:
                 val1 = "indice"
-                val2 = "Indicesabfrage wie ecbleitzins, usdeuro"
+                val2 = "Indicesabfrage wie indice = ecbleitzins, usdeuro"
             case 5:
                 val1 = f"{rd.par.SIG_2PAR_NP_OBJ}(isin,{rd.par.SIG_KURS})"
                 val2 = f"Kurs von einer bestimmten isin, {rd.par.SIG_KURS} = {rd.par.SIG_CLOSE}"
@@ -489,9 +531,15 @@ def hilfe(rd):
                 val1 = f"{rd.par.SIG_2PAR_MIN}(signal,Zahl)"
                 val2 = f"Min-Fkt für Signal (muss definiert sein) und Zahl"
             case 11:
+                val1 = f"{rd.par.SIG_2PAR_PERFORMANCE}(signal,Anzahl/Tage)"
+                val2 = f"relative Performance berechnung für Signal (muss definiert sein) und im Abstand von Anzahl/Tage"
+            case 12:
+                val1 = f"{rd.par.SIG_3PAR_FILTFIT}(signal,N,Wn)"
+                val2 = f"Zero-Phasen-Butterworth-Filter auf das signal (muss definiert sein) N: Filterordnung, Wn: relative Grenzfrequenz (>0 und <1) (für leichtes smoothen N=2,Wn=0.3) "
+            case 13:
                 val1 = f"{rd.par.SIG_3PAR_VERGLEICH}(signal1,>,signal2)"
                 val2 = f"Vergleich zweier Signale (müssen definiert sein) und Vorschrift (>,<,>=,<=,==,!=) Ergebnis: 0/1 pro Punkt"
-            case 12:
+            case 14:
                 val1 = f"{rd.par.SIG_NPAR_BEDINGUNG}(signal1,signal2, ...)"
                 val2 = f"Vergleicht jedes Signal auf > null (müssen definiert sein und max 5) und verundet alle Ergebnisse, Ergebnis: 0/1 pro Punkt"
             case _:

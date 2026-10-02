@@ -195,14 +195,20 @@ def scre_build_values_over_rawtab(rd,ttable,tab_werte_dict_liste,isin_liste,dat)
     :param ttable:
     :param tab_werte_dict_liste:
     :param dat
-    :return: ttable = wp_screen_scre_build_rawtab.scre_build_values_over_rawtab(rd,ttable,tab_werte_dict_liste,isin_liste,dat)
+    :return: (ttable,index_sorted_liste) = wp_screen_scre_build_rawtab.scre_build_values_over_rawtab(rd,ttable,tab_werte_dict_liste,isin_liste,dat)
+
+        ttable ist die sortierte Tabelle in Roh-Form
+        index_sorted_liste ist die Indexreihen folge der tabelle ttable bezogen of die isin_liste
     """
 
+    # default
+    index_sorted_liste = [val for val in range(len(isin_liste))]
     for icol, werte_dict in enumerate(tab_werte_dict_liste):
 
         if werte_dict["section"] == rd.par.TAB_SEC_TABRANKMIN:
 
-            rank_liste = build_rank_liste(rd,werte_dict["name"],isin_liste,dat,True)
+            rank_liste         = build_rank_liste(rd,werte_dict["name"],isin_liste,dat,True)
+            index_sorted_liste = [rank_liste.index(i) for i in range(1,len(rank_liste)+1)]
 
             for i,rank in enumerate(rank_liste):
                 ttable.table[i][icol] = rank
@@ -213,6 +219,7 @@ def scre_build_values_over_rawtab(rd,ttable,tab_werte_dict_liste,isin_liste,dat)
         elif werte_dict["section"] == rd.par.TAB_SEC_TABRANKMAX:
 
             rank_liste = build_rank_liste(rd,werte_dict["name"],isin_liste,dat,False)
+            index_sorted_liste = [rank_liste.index(i) for i in range(1,len(rank_liste)+1)]
 
             for i,rank in enumerate(rank_liste):
                 ttable.table[i][icol] = rank
@@ -222,7 +229,7 @@ def scre_build_values_over_rawtab(rd,ttable,tab_werte_dict_liste,isin_liste,dat)
 
         # end if
     # end for
-    return ttable
+    return (ttable,index_sorted_liste)
 # end def
 def build_rank_liste(rd,signame,isin_liste,dat,flagmin):
     """

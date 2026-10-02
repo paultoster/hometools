@@ -44,12 +44,13 @@ def tab_command(rd):
 
 
     auswahl_title = "Tabellen-Namen editieren"
-    abfrage_liste = ["edit(tabelle)","add", "delete", "rename","ende"]
+    abfrage_liste = ["edit(tabelle)","add", "delete", "rename","hilfe","ende"]
     i_edit = 0
     i_add = 1
     i_delete = 2
     i_rename = 3
-    i_ende = 4
+    i_hilfe = 4
+    i_ende = 5
 
     runflag = True
 
@@ -78,12 +79,14 @@ def tab_command(rd):
             else:
                 tab_del(rd, index)
             # end if
-        else:  # if indexAbfrage == i_rename:
+        elif indexAbfrage == i_rename:
             if (index < 0) or (index >= n_auswahl_liste):
                 rd.log.write_err("tab_command rename: index out of range or not set", screen=rd.par.LOG_SCREEN_OUT)
             else:
                 tab_rename(rd, index)
             # end if
+        else: # index_abfrage == i_hilfe
+            tab_edit_hilfe(rd)
     # end while
     return
 # end def

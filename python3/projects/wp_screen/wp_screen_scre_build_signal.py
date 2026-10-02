@@ -318,6 +318,23 @@ def get_2par_signal(rd, werte_dict, np_data_obj):
                 ERRTEXT = f"Der 2. Parameter von fkt: {rd.par.SIG_2PAR_MAX}({signame},{value}) ist nicht bekannt"
                 return
             # end if
+        case rd.par.SIG_TYPE_2PAR_PERFORMANCE:
+
+            signame = werte_dict["par1"]
+            points = werte_dict["par2"]
+
+            (success_sub, np_performance_array) = build_signal_performance(rd, signame, points, np_data_obj)
+            if STATUS != hdef.OKAY:
+                return
+
+            if success_sub:
+                np_data_obj.add_signal(np_performance_array, werte_dict["signal"])
+                success = True
+            else:
+                STATUS = hdef.NOT_OKAY
+                ERRTEXT = f"Der 2. Parameter von fkt: {rd.par.SIG_2PAR_PERFORMANCE}({signame},{points}) ist nicht bekannt"
+                return
+            # end if
     # end match
 
     if success:
@@ -337,9 +354,26 @@ def get_3par_signal(rd, werte_dict, np_data_obj):
     success = False
     match werte_dict["type"]:
         #
-        # SignalName3 = np_obj(isin,kurs)                     Kurswerte von einer anderen isin
-        #                                                     gespeichrt wird:
-        #                                                     "SignalName3_dat_array" und "SignalName3"
+        # SignalName3 = filtfilt(kurs,N,Wn)                 filtfilt Funktion
+        case rd.par.SIG_TYPE_3PAR_FILTFILT:
+            signal = werte_dict["par1"]
+            N      = werte_dict["par2"]
+            Wn     = werte_dict["par3"]
+
+            (success_sub, np_filtfilt_array) = build_signal_filtfilt(signal, N,Wn,np_data_obj)
+            if STATUS != hdef.OKAY:
+                return (success, np_data_obj)
+
+            if success_sub:
+                np_data_obj.add_signal(np_filtfilt_array, werte_dict["signal"])
+                success = True
+            else:
+                STATUS = hdef.NOT_OKAY
+                ERRTEXT = f"D filtfilt-Fkt: {rd.par.SIG_2PAR_VERGLEICH}({signal},{N},{Wn}) kann nicht ausgeführt werden"
+                return (success, np_data_obj)
+            # end if
+        #
+        # SignalName3 = np_obj(kurs1,>,kurs2)                 Vergleich zweier Kurswerte
         case rd.par.SIG_TYPE_3PAR_VERGLEICH:
             signal1   = werte_dict["par1"]
             vergleich = werte_dict["par2"]
@@ -594,6 +628,48 @@ def build_signal_minmax(rd, signame, value, np_data_obj,flagmin):
         return (success, np_minmax_array)
     # end if
     return (success, np_minmax_array)
+# end def
+def build_signal_performance(rd, signame, points, np_data_obj):
+    """
+        (success_sub, np_performance_array) = build_signal_performance(rd, signame, points, np_data_obj)
+    """
+    global STATUS, ERRTEXT
+
+    success = False
+    np_performance_array = None
+
+    if hasattr(np_data_obj, signame):
+
+        np_array     = getattr(np_data_obj, signame)
+        np_performance_array  = hnpfkt.performance(np_array,points,float(rd.par.SIG_ANZAHL_HANDELSTAGE_PRO_JAHR))
+        success = True
+    else:
+        STATUS = hdef.NOT_OKAY
+        ERRTEXT = f"Signal {signame} nicht bekannt im erstellten Datensatz !!"
+        return (success, np_performance_array)
+    # end if
+    return (success, np_performance_array)
+# end def
+def build_signal_filtfilt( signame, N,Wn,np_data_obj):
+    """
+        (success_sub, np_filtfilt_array) = build_signal_filtfilt(rd, signal, N,Wn,np_data_obj)
+    """
+    global STATUS, ERRTEXT
+
+    success = False
+    np_filtfilt_array = None
+
+    if hasattr(np_data_obj, signame):
+
+        np_array     = getattr(np_data_obj, signame)
+        np_filtfilt_array  = hnpfkt.filtfilt(np_array,N,Wn)
+        success = True
+    else:
+        STATUS = hdef.NOT_OKAY
+        ERRTEXT = f"Signal {signame} nicht bekannt im erstellten Datensatz !!"
+        return (success, np_filtfilt_array)
+    # end if
+    return (success, np_filtfilt_array)
 # end def
 def build_signal_vergleich(rd, signal1, vergleich,signal2,np_data_obj):
     """
