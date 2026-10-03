@@ -75,6 +75,17 @@ def update(wb_obj,isin_liste):
             t += "=="
         wb_obj.log.write_info(t)
 
+        # 3. eodhd
+        if not wp_dict["updated"]:
+            (status, errtext, infotext0,wp_dict) = update_start_to_end_dat_eodhd(wb_obj, wp_dict)
+            if len(infotext0) != 0:
+                wb_obj.log.write_info(f"end-of-day-hd: {infotext0}")
+                infotext = infotext + "\n" + infotext0
+            # end if
+            if status != hdef.OKAY:
+                return (status, errtext,infotext)
+            # end if
+        # end if
 
         # 1. ariva_requests
         if not wp_dict["updated"]:
@@ -86,12 +97,13 @@ def update(wb_obj,isin_liste):
             if status != hdef.OKAY:
                 return (status, errtext,infotext)
             # end if
+        # end if
 
         # 2. Yahoo
         if not wp_dict["updated"]:
             (status, errtext, infotext0,wp_dict) = update_start_to_end_dat_yahoo(wb_obj, wp_dict)
             if len(infotext0) != 0:
-                wb_obj.log.write_info(f"ariva-requests: {infotext0}")
+                wb_obj.log.write_info(f"yahoo: {infotext0}")
                 infotext = infotext + "\n" + infotext0
             # end if
             if status != hdef.OKAY:
@@ -103,17 +115,7 @@ def update(wb_obj,isin_liste):
             if status != hdef.OKAY:
                 return (status, errtext, infotext)
             # end if
-
-        # 3. eodhd
-        if not wp_dict["updated"]:
-            (status, errtext, infotext0,wp_dict) = update_start_to_end_dat_eodhd(wb_obj, wp_dict)
-            if len(infotext0) != 0:
-                wb_obj.log.write_info(f"ariva-requests: {infotext0}")
-                infotext = infotext + "\n" + infotext0
-            # end if
-            if status != hdef.OKAY:
-                return (status, errtext,infotext)
-            # end if
+        # end if
 
     # end for
     wb_obj.log.write_info(tt)

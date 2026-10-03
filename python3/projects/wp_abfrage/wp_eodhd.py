@@ -30,6 +30,10 @@ def is_info_available(isin,eodhd_key):
 
     try:
         data = requests.get(url)
+        if data.status_code != 200:
+            infotext = f"data.status_code nicht == 200: data.status_code = {data.status_code}"
+            return (flag_avail, symbol, exchange, currency, infotext)
+        # end if
         d_list = data.json()
     except requests.exceptions.JSONDecodeError as e:
         infotext = f" data was not okay json-Error:\n{str(e)}"
