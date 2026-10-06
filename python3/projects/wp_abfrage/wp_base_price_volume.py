@@ -75,7 +75,8 @@ def update(wb_obj,isin_liste):
             t += "=="
         wb_obj.log.write_info(t)
 
-        # 3. eodhd
+        # 1. eodhd
+        #----------------------------------------------------------------------------------------
         if not wp_dict["updated"]:
             (status, errtext, infotext0,wp_dict) = update_start_to_end_dat_eodhd(wb_obj, wp_dict)
             if len(infotext0) != 0:
@@ -87,19 +88,8 @@ def update(wb_obj,isin_liste):
             # end if
         # end if
 
-        # 1. ariva_requests
-        if not wp_dict["updated"]:
-            (status, errtext, infotext0,wp_dict) = update_start_to_end_dat_ariva_requests(wb_obj, wp_dict)
-            if len(infotext0) != 0:
-                wb_obj.log.write_info(f"ariva-requests: {infotext0}")
-                infotext = infotext + "\n" + infotext0
-            # end if
-            if status != hdef.OKAY:
-                return (status, errtext,infotext)
-            # end if
-        # end if
-
         # 2. Yahoo
+        #-----------------------------------------------------------------------------------------
         if not wp_dict["updated"]:
             (status, errtext, infotext0,wp_dict) = update_start_to_end_dat_yahoo(wb_obj, wp_dict)
             if len(infotext0) != 0:
@@ -114,6 +104,19 @@ def update(wb_obj,isin_liste):
             (status, errtext, wp_dict) = proof_is_upgedated(wb_obj, wp_dict)
             if status != hdef.OKAY:
                 return (status, errtext, infotext)
+            # end if
+        # end if
+
+        # 3. ariva_requests
+        #-------------------------------------------------------------------------------------------------
+        if not wp_dict["updated"]:
+            (status, errtext, infotext0,wp_dict) = update_start_to_end_dat_ariva_requests(wb_obj, wp_dict)
+            if len(infotext0) != 0:
+                wb_obj.log.write_info(f"ariva-requests: {infotext0}")
+                infotext = infotext + "\n" + infotext0
+            # end if
+            if status != hdef.OKAY:
+                return (status, errtext,infotext)
             # end if
         # end if
 
@@ -735,6 +738,7 @@ def update_start_to_end_dat_eodhd(wb_obj,wp_dict):
 
     wb_obj.log.write_info(
         f"end-of-day-hd: {wp_dict["i"] + 1}./{wp_dict["n"]} Wert Versuche Daten von eodhd für isin: {wp_dict["isin"] = } Name: {wp_dict["name"]} einzulesen")
+
     (status, errtext, wp_dict) = get_new_price_vol_from_eodhd(wb_obj, wp_dict)
     if status != hdef.OKAY:
         return (status, errtext)
@@ -873,7 +877,7 @@ def get_new_price_vol_from_eodhd(wb_obj,  wp_dict):
         wpname = wp_dict["name"]
 
 
-
+        wb_obj.log.write_info(f"start: {wp_dict['start_display_dat']}, end: {wp_dict['end_display_dat']}")
 
         (flag_avail, symbol, exchange, currency, infotext) = wp_eodhd.is_info_available(isin, wb_obj.base_ddict["eodhd_key"])
         if len(infotext) > 0:
@@ -882,12 +886,14 @@ def get_new_price_vol_from_eodhd(wb_obj,  wp_dict):
 
         if flag_avail:
 
-            wb_obj.log.write_info(f"end-of-day-hd: Ist vorhanden  symbol:exchange = {symbol}:{exchange} currency = {currency}")
+            wb_obj.log.write_info(f"end-of-day-hd: Ist vorhanden  symbol: {symbol} exchange:{exchange} currency: {currency}")
             np_obj = wp_bearb.build_price_volumen_np_obj(wb_obj, isin)
             (status, errtext, infotext, np_obj_eodhd) = wp_eodhd.get_price_volume_data(symbol,
                                                                                     exchange,
                                                                                     currency,
                                                                                     wb_obj.base_ddict["eodhd_key"],
+                                                                                    wp_dict["start_dat"],
+                                                                                    wp_dict["end_dat"],
                                                                                     np_obj)
 
             if status != hdef.OKAY:
@@ -1152,7 +1158,7 @@ def check_currency_transfer(wb_obj, np_obj):
                                                                       wb_obj.par.INDICES_CHFEURO_NAME)
 
     elif np_obj.is_currency("gbp"):
-        wb_obj.log.write_info(f"yahoo-finance: Suche CHF/euro-Kurse ")
+        wb_obj.log.write_info(f"yahoo-finance: Suche GBP/euro-Kurse ")
         (status, errtext, np_obj) = transfer_price_vol_indice_euro(wb_obj, np_obj,
                                                                       wb_obj.par.INDICES_GBPEURO_NAME)
     else:
@@ -1184,9 +1190,10 @@ def transfer_price_vol_indice_euro(wb_obj,np_price_vol,indice):
         float_array_dat_indice = np.array(np_indice.dat_np_array, dtype=np.float64)
         float_array_dat_price_vol = np.array(np_price_vol.dat_np_array, dtype=np.float64)
 
+
         for i,d in enumerate(float_array_dat_price_vol):
 
-            index = np.abs(np_indice.dat_np_array - d).argmin()
+            # index = np.abs(np_indice.dat_np_array - d).argmin()
 
             (i0, i1, fact, istart) = wp_fkt.find_linear_interpol_index(float_array_dat_indice, d, istart)
 
@@ -1194,9 +1201,10 @@ def transfer_price_vol_indice_euro(wb_obj,np_price_vol,indice):
                        (np_indice.indice_np_array[i1] - np_indice.indice_np_array[i0]) * fact)
 
             np_price_vol.start_np_array[i] = np_price_vol.start_np_array[i] * factor
-            np_price_vol.high_np_array[i] = np_price_vol.start_np_array[i] * factor
-            np_price_vol.low_np_array[i] = np_price_vol.start_np_array[i] * factor
-            np_price_vol.end_np_array[i] = np_price_vol.start_np_array[i] * factor
+            np_price_vol.high_np_array[i] = np_price_vol.high_np_array[i] * factor
+            np_price_vol.low_np_array[i] = np_price_vol.low_np_array[i] * factor
+            np_price_vol.end_np_array[i] = np_price_vol.end_np_array[i] * factor
+
 
         # end for
         np_price_vol.set_currency("euro")

@@ -42,36 +42,43 @@ def is_info_available(isin,eodhd_key):
 
     if data.ok and (len(d_list) > 0):
 
-        for d in d_list:
+        (d,exchange_liste) = get_best_exchange(d_list)
+        infotext = f"Exchange_list: {isin = }: {exchange_liste}"
 
-            key = "Exchange"
-            if key in d.keys() and ((d[key] == "XETRA") or (d[key] == "EUFUND")):
 
-                symbol   = d['Code']
-                exchange = d[key]
-                cur      = d['Currency'].lower()
+        symbol   = d['Code']
+        exchange = d['Exchange']
+        cur      = d['Currency'].lower()
 
-                if cur.find("EUR") == 0:
-                    currency = "euro"
-                elif cur.find("USD") == 0:
-                    currency = "usd"
-                else:
-                    currency = cur.lower()
-                # end if
-
-                flag_avail = True
-                break
-            # end if
-        # end for
-        if not flag_avail:
-            infotext = f" Xetra was not found see dump:\n{json.dumps(d_list, indent=2)}"
+        if cur.lower().find("eur") == 0:
+            currency = "euro"
+        elif cur.lower().find("usd") == 0:
+            currency = "usd"
+        else:
+            currency = cur.lower()
         # end if
+        flag_avail = True
     # end if
 
 
     return (flag_avail,symbol,exchange,currency,infotext)
 # end def
-def get_price_volume_data(symbol,exchange,currency,eodhd_key,np_obj):
+def get_best_exchange(d_list):
+
+    key = "Exchange"
+    exchange_liste = [d[key] for d in d_list]
+
+    key_exchange_list = ["XETRA","F","US","EUFUND","LSE"]
+    for key_exchange in key_exchange_list:
+        if key_exchange in exchange_liste:
+            i = exchange_liste.index(key_exchange)
+            return (d_list[i],exchange_liste)
+        # end if
+    # end for
+
+    return (d_list[0],exchange_liste)
+# end def
+def get_price_volume_data(symbol,exchange,currency,eodhd_key,strat_dat,end_dat,np_obj):
     """
     (status, errtext, np_obj) = get_price_volume_data(symbol,exchange,currency,eodhd_key,np_classdef)
     """
@@ -79,13 +86,21 @@ def get_price_volume_data(symbol,exchange,currency,eodhd_key,np_obj):
     errtext = ""
     infotext = ""
 
-    url = f'https://eodhd.com/api/eod/{symbol}.{exchange}?api_token={eodhd_key}&fmt=json'
+
+    start_dat_strBInv = htype.type_transform_direct(strat_dat, "dat","datStrBInv")
+    end_dat_strBInv = htype.type_transform_direct(end_dat, "dat","datStrBInv")
+
+    url = f'https://eodhd.com/api/eod/{symbol}.{exchange}?api_token={eodhd_key}&from={start_dat_strBInv}&to={end_dat_strBInv}&fmt=json'
+    # print(f"url = {url}")
     data = requests.get(url)
 
     if data.ok:
 
         d = data.json()
         df = pd.DataFrame(d)
+
+        # print(df.head())
+        # print(df.tail())
 
         date_list = df['date'].tolist()
         dat_str_list = htype.type_transform_direct(date_list, "datStrBInv", "datStr")
@@ -107,11 +122,11 @@ def get_price_volume_data(symbol,exchange,currency,eodhd_key,np_obj):
         volume_np_array = volume_np_array.reshape(np.prod(volume_np_array.shape))
 
         np_obj.put_signal(dat_np_array,
-                                   open_np_array,
-                                   high_np_array,
-                                   low_np_array,
-                                   close_np_array,
-                                   volume_np_array)
+                          open_np_array,
+                          high_np_array,
+                          low_np_array,
+                          close_np_array,
+                          volume_np_array)
 
         np_obj.set_currency(currency)
 

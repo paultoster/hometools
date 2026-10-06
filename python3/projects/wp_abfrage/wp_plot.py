@@ -11,23 +11,21 @@ if (tools_path not in sys.path):
     sys.path.append(tools_path)
 
 import tools.sgui as sgui
-import tools.hfkt_list as hlist
-import tools.hfkt_type as htype
-import tools.hfkt_date_time as hdt
+import tools.hfkt_def as hdef
 
 if os.path.isfile('wp_base.py'):
-    import wp_storage as wp_storage
-    import wp_playwright as wp_pr
-
+    # import wp_storage as wp_storage
+    # import wp_playwright as wp_pr
+    pass
 else:
-    import wp_abfrage.wp_storage as wp_storage
-    import wp_abfrage.wp_playwright as wp_pr
-
+    # import wp_abfrage.wp_storage as wp_storage
+    # import wp_abfrage.wp_playwright as wp_pr
+    pass
 # end if
 
-def plot_indice(np_obj,indice):
+def plot_indice_invert(np_obj,indice):
     """
-    (status,errtext,invert_indice) = plot_indice(np_obj)
+    (status,errtext,invert_indice) = plot_indice_invert(np_obj)
     """
 
     # np_dat_str_array = pd.to_datetime(getattr(np_obj, "dat_np_array"))
@@ -75,3 +73,55 @@ def plot_indice(np_obj,indice):
     # plt.xlabel("datum")
     #
     # plt.show()
+def plot_indice(wb_obj,np_obj, indice):
+    """
+    (status,errtext) = plot_indice(wb_obj.np_obj,indice)
+    """
+
+    # Build plot-dict
+    dict_data = {}
+    dict_data["xdat"] = getattr(np_obj, "dat_np_array")
+    dict_data["y"] = getattr(np_obj, "indice_np_array")
+    dict_data["label"] = indice
+
+    dict_subplot = {}
+    dict_subplot["xlabel"] = "date"
+
+    match indice:
+        case wb_obj.par.INDICES_EZB_LEITZINS_NAME:
+
+            dict_subplot["ylabel"] = np_obj.get_unit()
+
+        case wb_obj.par.INDICES_USDEURO_NAME:
+
+            dict_subplot["ylabel"] = "usd/euro"
+
+        case wb_obj.par.INDICES_CHFEURO_NAME:
+
+            dict_subplot["ylabel"] = "chf/euro"
+
+        case wb_obj.par.INDICES_GBPEURO_NAME:
+
+            dict_subplot["ylabel"] = "gbp/euro"
+
+        case _:
+
+            status = hdef.NOT_OKAY
+            errtext = f"plot_indice: Der Indice {indice} ist nicht gefunden worden in der Liste."
+    # end match
+
+    dict_subplot["data_list"] = [dict_data]
+    dict_subplot["legend"] = "best"
+
+    fig_dict = {}
+    fig_dict["title"]  = f"indice: {indice}"
+    fig_dict["title_add_date_range"] = True
+    fig_dict["subplot_list"] = [dict_subplot]
+
+    dict_input = {}
+    dict_input["plot"] = fig_dict
+
+    dict_out = sgui.matplot_date_data(dict_input)
+
+    return (dict_out["status"], dict_out["errtext"])
+# end def

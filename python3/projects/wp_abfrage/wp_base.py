@@ -503,6 +503,17 @@ class WPData:
 
         return (self.status,self.errtext)
     # end def
+    def plot_one_indice(self,indice):
+
+        (self.status, self.errtext) = wp_base_indices.plot_one_indice(self,indice)
+
+        if self.status != hdef.OK:
+            return (self.status, self.errtext,self.infotext)
+
+
+        return (self.status, self.errtext,self.infotext)
+
+    # end def
     def is_an_isin(self,isin):
         (status, wert) = htype.type_proof_isin(isin)
         if status == hdef.OKAY:

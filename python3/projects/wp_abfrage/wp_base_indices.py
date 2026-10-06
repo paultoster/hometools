@@ -417,7 +417,7 @@ def proof_ezb_xml_np_obj(wb_obj, np_obj,indice):
     status = hdef.OKAY
     errtext = ""
 
-    (status,errtext,invert_indice) = wp_plot.plot_indice(np_obj,indice)
+    (status,errtext,invert_indice) = wp_plot.plot_indice_invert(np_obj,indice)
     if status != hdef.OKAY:
         return (status, errtext,np_obj)
 
@@ -427,6 +427,28 @@ def proof_ezb_xml_np_obj(wb_obj, np_obj,indice):
     # endif
 
     return (status, errtext, np_obj)
+# end def
+def plot_one_indice(wb_obj,indice):
+    """
+        (status,errtext) = plot_one_indice(wb_obj,indice)
+    """
+    status = hdef.OKAY
+    errtext = ""
+
+    np_obj = wp_bearbeit.read_indice_np_data(wb_obj, indice)
+
+    if np_obj is None:
+        status = hdef.NOT_OKAY
+        errtext = f"plot_one_indice: indice: {indice} ist nicht eingelsen werden."
+        return (status, errtext)
+    # end if
+
+    (status, errtext) = wp_plot.plot_indice(wb_obj,np_obj, indice)
+    if status != hdef.OKAY:
+        return (status, errtext, np_obj)
+    # end if
+
+    return (status, errtext)
 # end def
 
 

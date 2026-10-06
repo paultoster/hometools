@@ -525,12 +525,14 @@ class NpPriceVolumeClass:
             self.currency = "chf"
         elif currency.lower().find("gbp") >= 0:
             self.currency = "gbp"
+        elif currency.lower().find("gbx") >= 0:
+            self.currency = "gbp"
         elif currency.find("%") >= 0:
             self.currency = "percent"
         elif currency.lower().find("percent") >= 0:
             self.currency = "percent"
         else:
-            raise Exception(f"currency nicht gefundent werden")
+            raise Exception(f"NpPriceVolumeClass.set_currency: currency: {currency} konnte nicht gefundent werden")
         # end if
         return
     # end def

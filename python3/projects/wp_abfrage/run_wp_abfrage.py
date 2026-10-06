@@ -35,99 +35,6 @@ def run_wp_abfrage():
 
 
 
-    # # Read all data and store in new dataclass
-    # (status, errtext, backup_dir) = wp_bearbeiten.make_backup_build_new_dir_price_volume(wb_obj)
-    # if status != hdef.OKAY:
-    #     return
-    # #  end if
-    # (status, errtext, isin_liste) = wb_obj.get_basic_info_isin_liste()
-    #
-    # for isin in isin_liste:
-    #     (status, errtext, np_obj) = wp_bearbeiten.read_np_obj(wb_obj, isin)
-    #
-    #     if status == hdef.OKAY:
-    #         np_obj_new = wp_bearbeiten.build_price_volumen_np_obj(wb_obj,isin)
-    #
-    #         np_obj_new.put_signal(np_obj.dat_np_array,
-    #                               np_obj.start_np_array,
-    #                               np_obj.high_np_array,
-    #                               np_obj.low_np_array,
-    #                               np_obj.end_np_array,
-    #                               np_obj.volume_np_array)
-    #
-    #         np_obj_new.set_currency(np_obj.currency)
-    #
-    #         np_obj_new.save()
-    #
-    #         del np_obj_new
-    #
-    #
-    #         file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["price_volumen_pre_file_name"] + isin,
-    #                                                     wb_obj.base_ddict["store_path"])
-    #         if os.path.isfile(file_name):
-    #             status = hfp.move_file(file_name, backup_dir)
-    #             if status != hdef.OKAY:
-    #                 errtext = f"file {file_name = } was moved into {backup_dir = }"
-    #                 return
-    #
-    #         file_name = wp_storage.build_file_name_pickle(wb_obj.base_ddict["price_volumen_pre_file_name"] + isin,
-    #                                                     wb_obj.base_ddict["store_path"])
-    #
-    #         if os.path.isfile(file_name):
-    #             status = hfp.move_file(file_name, backup_dir)
-    #             if status != hdef.OKAY:
-    #                 errtext = f"file {file_name = } was moved into {backup_dir = }"
-    #                 return
-    #         # end if
-    #     # end if
-    #     del np_obj
-    # # end for
-
-
-    # # Read all data and store in new dataclass
-    # (status, errtext, backup_dir) = wp_bearbeiten.make_backup_build_new_dir_price_volume(wb_obj)
-    # if status != hdef.OKAY:
-    #     return
-    # #  end if
-    # (status, errtext, indice_liste) = wb_obj.get_indices_liste()
-    #
-    # for indice in indice_liste:
-    #     (status, errtext, np_obj) = wp_bearbeiten.read_np_indice_obj(wb_obj, indice)
-    #
-    #     if status == hdef.OKAY:
-    #         np_obj_new = wp_bearbeiten.build_indice_np_obj(wb_obj,indice)
-    #
-    #         np_obj_new.put_signal(np_obj.dat_np_array,
-    #                               np_obj.indice_np_array)
-    #
-    #
-    #         np_obj_new.save()
-    #
-    #         del np_obj_new
-    #
-    #
-    #         file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["indices_pre_file_name"] + indice,
-    #                                                     wb_obj.base_ddict["store_path"])
-    #         if os.path.isfile(file_name):
-    #             status = hfp.move_file(file_name, backup_dir)
-    #             if status != hdef.OKAY:
-    #                 errtext = f"file {file_name = } was moved into {backup_dir = }"
-    #                 return
-    #
-    #         file_name = wp_storage.build_file_name_pickle(wb_obj.base_ddict["indices_pre_file_name"] + indice,
-    #                                                     wb_obj.base_ddict["store_path"])
-    #
-    #         if os.path.isfile(file_name):
-    #             status = hfp.move_file(file_name, backup_dir)
-    #             if status != hdef.OKAY:
-    #                 errtext = f"file {file_name = } was moved into {backup_dir = }"
-    #                 return
-    #         # end if
-    #     # end if
-    #     del np_obj
-
-
-
     runflag = True
     
     start_auswahl = ["Ende", "edit basic info","edit price volume","edit indices","update wps"]
@@ -958,13 +865,14 @@ def edit_indices(wb_obj):
 
 
 
-    abfrage_liste = ["update one-inidce", "update all-indices","read-ezbchange-xml","read-leitzins-csv","backup","ende"]
-    i_abfrage_ende = 5
+    abfrage_liste = ["update one-inidce", "update all-indices","read-ezbchange-xml","read-leitzins-csv","backup","plot","ende"]
     i_abfrage_update_indice = 0
     i_abfrage_update_all = 1
     i_abfrage_ezb_xml = 2
     i_abfrage_leitzins_csv = 3
     i_abfrage_backup = 4
+    i_abfrage_plot = 5
+    i_abfrage_ende = 6
     runflag = True
 
     while (runflag):
@@ -1038,18 +946,19 @@ def edit_indices(wb_obj):
 
                 wb_obj.log.write_info(f"Indice update: {indice}")
 
-            wb_obj.log.write_info(f"Start Abfrage  \"{indice}\" ausgewählt")
-            wb_obj.log.write_info("Siehe: https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html")
-            wb_obj.log.write_info("Download XML unter dem Chart")
+                wb_obj.log.write_info(f"Start Abfrage  \"{indice}\" ausgewählt")
+                wb_obj.log.write_info("Siehe: https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html")
+                wb_obj.log.write_info("Download XML unter dem Chart")
 
-            # Abfrage xml-File
-            xmlfilename = sgui.abfrage_file(file_types="*.xml",comment=f"Wähle eine xml-Datei von EZB",start_dir=wb_obj.base_ddict["store_path"])
-            if len(xmlfilename) > 0 :
-                # Einlesen xml-File
-                (status, errtext) = wb_obj.process_indice_ezb_xml(xmlfilename,indice)
+                # Abfrage xml-File
+                xmlfilename = sgui.abfrage_file(file_types="*.xml",comment=f"Wähle eine xml-Datei von EZB für Indice {indice}",start_dir=wb_obj.base_ddict["store_path"])
+                if len(xmlfilename) > 0 :
+                    # Einlesen xml-File
+                    (status, errtext) = wb_obj.process_indice_ezb_xml(xmlfilename,indice)
 
-                if status != hdef.OKAY:
-                    wb_obj.log.write_info(f"Error wp_obj.process_usdeuro_ezb_xml(xmlfilename) \n errtext = {errtext}")
+                    if status != hdef.OKAY:
+                        wb_obj.log.write_info(f"Error wp_obj.process_usdeuro_ezb_xml(xmlfilename) \n errtext = {errtext}")
+                    # end if
                 # end if
             # end if
 
@@ -1075,6 +984,21 @@ def edit_indices(wb_obj):
             if status != hdef.OKAY:
                 return (status, errtext, infotext)
             runflag = True
+        elif indexAbfrage == i_abfrage_plot:
+
+            if index < 0:
+                wb_obj.log.write_info("Keine indice ausgewählt")
+                runflag = True
+            else:
+
+                # Bearbeite basic infos von isin
+                indice = indices_liste[index]
+
+                wb_obj.log.write_info(f"Indice plot: {indice}")
+
+                (status, errtext, infotext) = wb_obj.plot_one_indice(indice)
+            # end if
+
 
         else: # indexAbfrage == i_dumP-basic:
 
