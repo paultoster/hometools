@@ -1,7 +1,5 @@
 import os, sys
 
-
-
 t_path, _ = os.path.split(__file__)
 tools_path = t_path + "\\.."
 if (tools_path not in sys.path):
@@ -16,7 +14,7 @@ import wp_screen_sigset
 import wp_screen_tab
 import wp_screen_scre
 
-import wp_abfrage.wp_base as wp_base
+import wp_abfrage.wp_base as wp_abfrage_base
 
 import tools.hfkt_def as hdef
 import tools.hfkt_log as hlog
@@ -114,7 +112,7 @@ class WPScreen:
         # end if
 
         # wp_abfrage
-        self.wpfunc = wp_base.WPData(ini_filename=self.ini["wp_func_ini_file_name"],
+        self.wpfunc = wp_abfrage_base.WPData(ini_filename=self.ini["wp_func_ini_file_name"],
                                    log_obj=self.log)
 
         # setup katalog

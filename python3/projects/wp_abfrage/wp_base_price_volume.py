@@ -109,14 +109,20 @@ def update(wb_obj,isin_liste):
 
         # 3. ariva_requests
         #-------------------------------------------------------------------------------------------------
+        # Den Ariva request nur durchführen, wenn bereits Daten angelegt sind, Hier bekomme ich nur ein Monat aktuell
+        # dannn würden die historischen Daten fehlen
         if not wp_dict["updated"]:
-            (status, errtext, infotext0,wp_dict) = update_start_to_end_dat_ariva_requests(wb_obj, wp_dict)
-            if len(infotext0) != 0:
-                wb_obj.log.write_info(f"ariva-requests: {infotext0}")
-                infotext = infotext + "\n" + infotext0
-            # end if
-            if status != hdef.OKAY:
-                return (status, errtext,infotext)
+            if not wp_bearb.exist_price_volumen_np_data(wb_obj, wp_dict["isin"]):
+                wb_obj.log.write_info(f"ariva-requests: Es wird kein request ausgeführt, da noch keine historischen Daten gefunden (eodhd und yahoo failed)\n Bitte mit Ariva händisch ausführen")
+            else:
+                (status, errtext, infotext0,wp_dict) = update_start_to_end_dat_ariva_requests(wb_obj, wp_dict)
+                if len(infotext0) != 0:
+                    wb_obj.log.write_info(f"ariva-requests: {infotext0}")
+                    infotext = infotext + "\n" + infotext0
+                # end if
+                if status != hdef.OKAY:
+                    return (status, errtext,infotext)
+                # end if
             # end if
         # end if
 
@@ -283,6 +289,7 @@ def update_ariva_csv_download(wb_obj):
 
     for wkn,csv_file in csv_dict_wkn_filename.items():
 
+        wb_obj.log.write_info(f"{"-"*80}")
         wb_obj.log.write_info(f"Start read file {csv_file}")
 
         (status, errtext, infotext) = read_csv_ariva_file(wb_obj,csv_file,wkn)

@@ -195,10 +195,6 @@ def wp_screener_command(rd):
     return
 # end def
 if __name__ == '__main__':
-    # import matplotlib.pyplot as plt
-    #
-    # plt.plot([1, 2, 3, 4], [1, 4, 9, 16], marker='d', color='red',linestyle='None')
-    # plt.show()
 
     ini_filename = "D:/data/wp/wp_screen/wp_screen.ini"
 
@@ -208,3 +204,7 @@ if __name__ == '__main__':
     wp_screener_command(rd)
 
 
+   # import matplotlib.pyplot as plt
+    #
+    # plt.plot([1, 2, 3, 4], [1, 4, 9, 16], marker='d', color='red',linestyle='None')
+    # plt.show()

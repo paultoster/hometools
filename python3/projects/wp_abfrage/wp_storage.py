@@ -146,8 +146,8 @@ def update_isin_name_dict(isin, wpname, file_name, formatpj):
     # end if
 
     # set isin and name
-    if isin not in wpname_dict.keys():
-        print(f"add isin: {isin} und wpname: {wpname} zu wpname_dict[isin] = wpname")
+    #if isin not in wpname_dict.keys():
+    #    print(f"add isin: {isin} und wpname: {wpname} zu wpname_dict[isin] = wpname")
 
     wpname_dict[isin] = wpname
 

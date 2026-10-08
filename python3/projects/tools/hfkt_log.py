@@ -17,31 +17,33 @@ import sys
 # import pathlib
 import logging
 import datetime
-import tkinter as tk
+# import tkinter as tk
 import subprocess
 import socket
-import time
+# import time
 
-
+from . import hfkt_def as hdef
+from . import hfkt as h
+from . import hfkt_file_path as hfp
 
 # -------------------------------------------------------------------------------
-t_path, _ = os.path.split(__file__)
-if (t_path == os.getcwd()):
-
-    import hfkt_def as hfkt_def
-    import hfkt as h
-    import hfkt_file_path as hfp
-else:
-    p_list = os.path.normpath(t_path).split(os.sep)
-    if (len(p_list) > 1): p_list = p_list[: -1]
-    t_path = ""
-    for i, item in enumerate(p_list): t_path += item + os.sep
-    if (os.path.normpath(t_path) not in sys.path): sys.path.append(t_path)
-
-    from tools import hfkt_def as hfkt_def
-    from tools import hfkt as h
-    from tools import hfkt_file_path as hfp
-# end if
+# t_path, _ = os.path.split(__file__)
+# if (t_path == os.getcwd()):
+#
+#     import hdef as hdef
+#     import hfkt as h
+#     import hfkt_file_path as hfp
+# else:
+#     p_list = os.path.normpath(t_path).split(os.sep)
+#     if (len(p_list) > 1): p_list = p_list[: -1]
+#     t_path = ""
+#     for i, item in enumerate(p_list): t_path += item + os.sep
+#     if (os.path.normpath(t_path) not in sys.path): sys.path.append(t_path)
+#
+#     from tools import hdef as hdef
+#     from tools import hfkt as h
+#     from tools import hfkt_file_path as hfp
+# # end if
 
 # endif--------------------------------------------------------------------------
 class log:
@@ -49,24 +51,24 @@ class log:
     PRINT_SCREEN = 1
     GUI_SCREEN = 2
 
-    HOST = hfkt_def.LOG_HOST
-    PORT = hfkt_def.LOG_PORT
+    HOST = hdef.LOG_HOST
+    PORT = hdef.LOG_PORT
 
-    EXIT_TOKEN        = hfkt_def.EXIT_TOKEN
-    COLOR_GREEN_TOKEN = hfkt_def.COLOR_GREEN_TOKEN
-    COLOR_RED_TOKEN   = hfkt_def.COLOR_RED_TOKEN
-    COLOR_BLUE_TOKEN  = hfkt_def.COLOR_BLUE_TOKEN
-    COLOR_BLACK_TOKEN = hfkt_def.COLOR_BLACK_TOKEN
+    EXIT_TOKEN        = hdef.EXIT_TOKEN
+    COLOR_GREEN_TOKEN = hdef.COLOR_GREEN_TOKEN
+    COLOR_RED_TOKEN   = hdef.COLOR_RED_TOKEN
+    COLOR_BLUE_TOKEN  = hdef.COLOR_BLUE_TOKEN
+    COLOR_BLACK_TOKEN = hdef.COLOR_BLACK_TOKEN
 
 
-    NOT_OKAY = hfkt_def.NOT_OKAY
-    OKAY     = hfkt_def.OKAY
+    NOT_OKAY = hdef.NOT_OKAY
+    OKAY     = hdef.OKAY
 
     def __init__(self, log_file=None, consol_func=False,log_window=False):
         """ Log-Datei oeffnen
         log(log_file=filename/None,consol_func=True/False,log_window=True/False)
         """
-        self.state = hfkt_def.OKAY
+        self.state = hdef.OKAY
         self.errtext = ""
         self.logfile_out_flag = False
         self.log_message = []
@@ -135,7 +137,7 @@ class log:
         except IOError:
             self.errtext = "IO-error of opening log_file <%s>" % self.log_file
             print(self.errtext)
-            self.state = hfkt_def.NOT_OK
+            self.state = hdef.NOT_OK
             self.logfile_out_flag = False
             # self.fid = 0
 
@@ -152,7 +154,7 @@ class log:
 
             self.errtext = "IO-error of opening subprocess python log_window_anwendung_einszweidrei.py"
             print(self.errtext)
-            self.state = hfkt_def.NOT_OK
+            self.state = hdef.NOT_OK
             self.log_window_open = False
 
 
