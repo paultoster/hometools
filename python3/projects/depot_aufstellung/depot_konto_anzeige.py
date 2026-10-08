@@ -76,7 +76,11 @@ def anzeige(rd,konto_obj):
     '''
     
     status = hdef.OKAY
-    abfrage_liste = ["ende","edit_row", "update(edit)","scan(isin)", "edit_row(isin)","add", "delete_row","set_kat","del_kat","kat_regel_run","kat_regel_build"]
+    if len(rd.ini.ddict[rd.par.INI_DEPOT_DATA_LIST_NAMES_NAME]) == 0:  # nur konto
+        abfrage_liste = ["ende","edit_row", "update(edit)","scan(isin)", "edit_row(isin)","add", "delete_row","set_kat","del_kat","kat_regel_run","kat_regel_build"]
+    else:
+        abfrage_liste = ["ende", "edit_row", "update(edit)", "scan(isin)", "edit_row(isin)", "add", "delete_row"]
+    # end if
     i_end = 0
     i_update = 2
     i_update_isin = 3

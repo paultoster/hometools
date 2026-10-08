@@ -1,5 +1,5 @@
 
-import os, sys, copy
+import os, sys, time
 
 
 t_path, _ = os.path.split(__file__)
@@ -163,17 +163,15 @@ def scre_dict_save(rd):
         return
     return
 # end def
-def scre_build_sigset(rd,scre_dict):
+def scre_build_sigset(rd,scre,scre_dict):
 
     global STATUS, ERRTEXT
 
     katalog = scre_dict[rd.par.SCRE_KATALOG]
     sigset = scre_dict[rd.par.SCRE_SIGSET]
-    tab = scre_dict[rd.par.SCRE_TAB]
 
     isin_liste = wp_screen_katalog.get_katalog_isin_liste(rd,katalog)
     sigset_dict = wp_screen_sigset.get_sigset_dict(rd,sigset)
-    tab_dict = wp_screen_tab.get_tab_dict(rd,tab)
 
     (status, infotext, sigset_werte_dict_liste) = wp_screen_sigset.get_sigset_werte_dict_liste(rd, sigset_dict)
     if status != hdef.OKAY:
@@ -189,12 +187,14 @@ def scre_build_sigset(rd,scre_dict):
     n = len(isin_liste)
     for i,isin in enumerate(isin_liste):
 
-        rd.scre["scre_isin_dataclass_filename_dict"][isin] = wp_screen_scre_build_signal.get_dataclass_filename(rd, isin)
+        time.sleep(5)
 
-        if not wp_screen_scre_build_signal.proof_if_data_uptodate(rd,isin):
+        rd.scre["scre_isin_dataclass_filename_dict"][isin] = wp_screen_scre_build_signal.get_dataclass_filename(rd, scre, isin)
+
+        if not wp_screen_scre_build_signal.proof_if_data_uptodate(rd,scre,isin):
 
 
-            wp_screen_scre_build_signal.scre_build_signal(rd, isin, sigset_werte_dict_liste)
+            wp_screen_scre_build_signal.scre_build_signal(rd, scre,isin, sigset_werte_dict_liste)
 
             rd.log.write_info(f"{i+1}/{n}: Update sigset for isin = {isin}, {wp_screen_scre_build_signal.get_infotext()}",
                               screen=rd.par.LOG_SCREEN_OUT)

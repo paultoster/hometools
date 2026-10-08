@@ -1,5 +1,5 @@
 
-import os, sys, copy
+import os, sys, copy, time
 
 
 t_path, _ = os.path.split(__file__)
@@ -107,7 +107,9 @@ def scre_command(rd):
                 sgui.anzeige_text(t, textcolor='orange')
             else:
 
+
                 scre_show_screen(rd,index)
+
 
                 if STATUS != hdef.OKAY:
                     t = f"scre_command build: Error in scre_show_screen \n errtext = {ERRTEXT}"
@@ -314,6 +316,8 @@ def scre_show_screen(rd,index):
     """
     global STATUS, ERRTEXT
 
+    start_cpu = time.process_time()
+    start_real = time.perf_counter()
 
     rd.scre["scre"] = rd.scre["scre_liste"][index]
     wp_screen_scre.scre_dict_read(rd)
@@ -321,7 +325,7 @@ def scre_show_screen(rd,index):
         return
 
     # 1. build alll signals
-    wp_screen_scre.scre_build_sigset(rd, rd.scre["scre_dict"])
+    wp_screen_scre.scre_build_sigset(rd, rd.scre["scre"], rd.scre["scre_dict"])
     if wp_screen_scre.get_status() != hdef.OKAY:
         STATUS = hdef.NOT_OKAY
         ERRTEXT = f"scre_show_screen build: Error in scre_build_sigset \n errtext = {wp_screen_scre.get_errtext()}"
@@ -338,8 +342,7 @@ def scre_show_screen(rd,index):
         return
     # end if
 
-
-
+    # 3. build fmttable
     wp_screen_scre.scre_build_fmttable(rd, rd.scre["scre_dict"])
     if wp_screen_scre.get_status() != hdef.OKAY:
         STATUS = hdef.NOT_OKAY
@@ -347,6 +350,12 @@ def scre_show_screen(rd,index):
         wp_screen_scre.reset_status()
         return
     # end if
+
+    end_cpu = time.process_time()
+    end_real = time.perf_counter()
+
+    rd.log.write_info(f"Reine CPU-Prozesszeit: {end_cpu - start_cpu:.6f} Sekunden", screen=rd.par.LOG_SCREEN_OUT)
+    rd.log.write_info(f"Echte vergangene Zeit: {end_real - start_real:.6f} Sekunden", screen=rd.par.LOG_SCREEN_OUT)
 
     abfrage_liste = ["plot","ende"]
     index_plot = 0

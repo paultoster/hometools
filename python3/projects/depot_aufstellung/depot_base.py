@@ -31,7 +31,7 @@ def first_question_loop(rd):
     save_flag = True
     init_flag = False
     
-    if len(rd.ini.ddict[rd.par.INI_DEPOT_DATA_LIST_NAMES_NAME]) == 0:
+    if len(rd.ini.ddict[rd.par.INI_DEPOT_DATA_LIST_NAMES_NAME]) == 0:   # nur konto
         start_auswahl = ["Cancel (no save)", "Ende", "Save", "Ini edit (and save)", "Iban", "Konto"]
     else:
         start_auswahl = ["Cancel (no save)", "Ende", "Save", "Ini edit and save", "Iban", "Konto", "Depot",

@@ -1,1 +1,1 @@
-C:/Python312/python.exe run_depot_aufstellung.py "depot"
+C:/Python314/python.exe run_depot_aufstellung.py "depot"

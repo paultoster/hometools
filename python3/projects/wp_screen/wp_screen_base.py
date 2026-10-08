@@ -253,7 +253,7 @@ class WPScreen:
             return
         # end if
 
-        wp_screen_scre.scre_build_sigset(self, self.scre["scre_dict"])
+        wp_screen_scre.scre_build_sigset(self, scre_name, self.scre["scre_dict"])
         if wp_screen_scre.get_status() != hdef.OKAY:
             self.status = hdef.NOT_OKAY
             self.errtext = f"Error wp_screen_base.build_scre_sigset({scre_name}) errtext = {wp_screen_scre.get_errtext()}"

@@ -41,13 +41,13 @@ def reset_status():
     INFOTEXT = ""
 # end def
 
-def scre_build_signal(rd,isin,sigset_werte_dict_liste):
+def scre_build_signal(rd,scre, isin,sigset_werte_dict_liste):
 
     global STATUS,ERRTEXT, INFOTEXT
 
     # dataclass anlegen
     #------------------
-    filename = get_dataclass_filename(rd, isin)
+    filename = get_dataclass_filename(rd, scre,isin)
     np_data_obj = hnp_dataclass.NpDataHandlingClass(filename)
 
 
@@ -761,18 +761,18 @@ def build_signal_bedingung(rd, signal_liste,np_data_obj):
 
     return (success, np_bedignung_array)
 # end def
-def get_dataclass_filename(rd,isin):
+def get_dataclass_filename(rd,scre,isin):
 
-    filename = os.path.join(rd.ini["store_path"],rd.ini["scre_dataclass_pre_file_name"] + isin + ".joblib")
+    filename = os.path.join(rd.ini["store_path"],rd.ini["scre_dataclass_pre_file_name"] + scre + "_" + isin + ".joblib")
     return filename
 # end def
-def proof_if_data_uptodate(rd, isin):
+def proof_if_data_uptodate(rd, scre,isin):
     """
     flag = proof_if_data_uptodate(rd,isin)
     """
     global STATUS, ERRTEXT
 
-    filename = get_dataclass_filename(rd, isin)
+    filename = get_dataclass_filename(rd, scre, isin)
     np_data_obj = hnp_dataclass.NpDataHandlingClass(filename)
     if np_data_obj.exist_file():
         np_data_obj.read()

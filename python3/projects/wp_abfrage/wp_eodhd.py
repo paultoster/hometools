@@ -95,24 +95,32 @@ def get_price_volume_data(symbol,exchange,currency,eodhd_key,strat_dat,end_dat,n
     data = requests.get(url)
 
     if data.ok:
-
         d = data.json()
+    else:
+        d = []
+    #end if
+
+    if len(d) > 0:
         df = pd.DataFrame(d)
 
         # print(df.head())
         # print(df.tail())
+        try:
+            date_list = df['date'].tolist()
+            dat_str_list = htype.type_transform_direct(date_list, "datStrBInv", "datStr")
+            date_time_list = [datetime.datetime.strptime(d, "%d.%m.%Y")
+                              for d in dat_str_list]
+            dat_np_array = hnp_fkt.transform_date_time_liste_in_np_dat_array_d(date_time_list)
 
-        date_list = df['date'].tolist()
-        dat_str_list = htype.type_transform_direct(date_list, "datStrBInv", "datStr")
-        date_time_list = [datetime.datetime.strptime(d, "%d.%m.%Y")
-                          for d in dat_str_list]
-        dat_np_array = hnp_fkt.transform_date_time_liste_in_np_dat_array_d(date_time_list)
-
-        open_np_array = df["open"].to_numpy()
-        high_np_array = df["high"].to_numpy()
-        low_np_array = df["low"].to_numpy()
-        close_np_array = df["adjusted_close"].to_numpy()
-        volume_np_array = df["volume"].to_numpy()
+            open_np_array = df["open"].to_numpy()
+            high_np_array = df["high"].to_numpy()
+            low_np_array = df["low"].to_numpy()
+            close_np_array = df["adjusted_close"].to_numpy()
+            volume_np_array = df["volume"].to_numpy()
+        except:
+            infotext = f"for Symbol \"{symbol}\" and Exchange \"{exchange}\" pandas-numpy-tranforming crashed"
+            return (status, errtext, infotext, np_obj)
+        # end try
 
         dat_np_array = dat_np_array.reshape(np.prod(dat_np_array.shape))
         open_np_array = open_np_array.reshape(np.prod(open_np_array.shape))

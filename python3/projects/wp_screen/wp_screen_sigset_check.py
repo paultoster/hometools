@@ -477,7 +477,7 @@ def hilfe(rd):
     SignalName6 = performance(SignalName1,100)          Performance aus SignalName1 mit 200 Punkten vor dem aktuellen Wert
                                                         gespeichert wird:
                                                         "SignalName5_dat_array" (wenn aus fremd-signal) und "SignalName5"
-    SignalName12 = filtfilt(SignalName,N,Wn)            Zero-Phase-Filter mit butterworth(N,Wn)
+    SignalName12 = filtfilt(SignalName,N,Wn)            Zero-Phase-Filter mit butterworth(N,Wn) (für leichtes smoothen N=2,Wn=0.3)
 
     SignalName8 = vergleich(SignalName1,<,SignalName4)  vergleich  SignalName1 und SignalName2 hier SignalName1 < SignalName2
                                                         wahr wird = 1 gesetzt und unwahr = 0
