@@ -1569,7 +1569,9 @@ def  check_euroStrK_witheuroStrP(wert_in0, delim, thousandsign):
 # end def
 def type_proof_cent(wert_in):
     okay = hdef.OKAY
-    if is_int(wert_in):
+    if isinstance(wert_in, (np.int32, np.int64, np.float32, np.float64)):
+        wert = int(wert_in)
+    elif is_int(wert_in):
         wert = wert_in
     elif is_float(wert_in):
         wert = int(wert_in + math.copysign(0.5, wert_in))

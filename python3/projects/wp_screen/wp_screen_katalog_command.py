@@ -9,8 +9,8 @@ if (tools_path not in sys.path):
     sys.path.append(tools_path)
 # endif
 
-import wp_screen_gui
-import wp_screen_katalog
+import wp_screen.wp_screen_gui as wp_screen_gui
+import wp_screen.wp_screen_katalog as wp_screen_katalog
 
 import tools.hfkt_def as hdef
 import tools.hfkt_type as htype

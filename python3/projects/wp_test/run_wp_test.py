@@ -12,8 +12,9 @@ import tools.hfkt_def as hdef
 import wp_test_base
 
 param_filename = 'D:/data/wp/wp_test/wp_test_start.yaml'
+ini_filename   = 'D:/data/wp/wp_test/wp_test.ini'
 
-wpobj = wp_test_base.WPTest(param_filename)
+wpobj = wp_test_base.WPTest(param_filename=param_filename,ini_filename=ini_filename)
 
 if wpobj.status != hdef.OKAY:
     # print(wpobj.errtext)

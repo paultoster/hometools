@@ -1,7 +1,7 @@
 
 import os, sys, copy, re
 
-import wp_screen_param
+# import wp_screen.wp_screen_param as wp_param
 
 t_path, _ = os.path.split(__file__)
 tools_path = t_path + "\\.."
@@ -12,7 +12,7 @@ if (tools_path not in sys.path):
 import tools.hfkt_def as hdef
 import tools.hfkt_str as hstr
 # import tools.hfkt_tvar as htvar
-import tools.hfkt_type as htype
+# import tools.hfkt_type as htype
 
 STATUS   = hdef.OKAY
 ERRTEXT  = ""

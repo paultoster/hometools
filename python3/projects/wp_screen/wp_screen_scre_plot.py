@@ -9,11 +9,11 @@ if (tools_path not in sys.path):
     sys.path.append(tools_path)
 # endif
 
-import wp_screen_gui
-import wp_screen_katalog
-# import wp_screen_sigset
-import wp_screen_plotdef
-import wp_screen_scre_build_rawtab
+import wp_screen.wp_screen_gui as wp_screen_gui
+import wp_screen.wp_screen_katalog as wp_screen_katalog
+# import wp_screen_sigset as
+import wp_screen.wp_screen_plotdef as wp_screen_plotdef
+import wp_screen.wp_screen_scre_build_rawtab as wp_screen_scre_build_rawtab
 # import wp_screen_scre_build_signal
 # import wp_screen_scre_build_fmttab
 # import wp_screen_scre

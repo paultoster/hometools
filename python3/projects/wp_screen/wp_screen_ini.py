@@ -34,7 +34,9 @@ def reset_status():
     ERRTEXT = ""
     INFOTEXT = ""
 # end def
-def get_ini_dict(ini_filename:str, ini_dict_proof_liste:list):
+def get_tomlib_ini_dict(ini_filename:str, ini_dict_proof_liste:list):
+
+    global STATUS, ERRTEXT, INFOTEXT
 
     if (not os.path.isfile(ini_filename)):
         STATUS = hdef.NOT_OKAY

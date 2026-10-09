@@ -8,15 +8,15 @@ if (tools_path not in sys.path):
     sys.path.append(tools_path)
 # endif
 
-import wp_screen_gui
-import wp_screen_katalog
-import wp_screen_sigset
-import wp_screen_tab
-import wp_screen_plotdef
-import wp_screen_scre_command
-import wp_screen_scre_build_signal
-import wp_screen_scre_build_fmttab
-import wp_screen_scre_build_rawtab
+import wp_screen.wp_screen_gui as wp_screen_gui
+import wp_screen.wp_screen_katalog as wp_screen_katalog
+import wp_screen.wp_screen_sigset as wp_screen_sigset
+import wp_screen.wp_screen_tab as wp_screen_tab
+import wp_screen.wp_screen_plotdef as wp_screen_plotdef_command
+import wp_screen.wp_screen_scre_command as wp_screen_scre_command
+import wp_screen.wp_screen_scre_build_signal as wp_screen_scre_build_signal
+import wp_screen.wp_screen_scre_build_fmttab as wp_screen_scre_build_fmttab
+import wp_screen.wp_screen_scre_build_rawtab as wp_screen_scre_build_rawtab
 
 import tools.hfkt_def as hdef
 import tools.hfkt_pickle as hfkt_pickle

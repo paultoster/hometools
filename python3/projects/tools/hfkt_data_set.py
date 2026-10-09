@@ -18,7 +18,9 @@ import tools.hfkt_tvar as htvar
 
 class DataSet:
     '''
-        :return:                    self.set_definition(icol, name, type)  definiere für icol (Spalte) das dutum mit name und dem type
+        :return: obj              = DataSet(name)
+                                    self.set_definition(icol, name, type)  definiere für icol (Spalte) das dutum mit name und dem type
+                 status           = self.add_data_set_liste(data_set_liste,name_liste,type_liste,[line_color= ""])
                  status           = self.add_data_set_tvar(data_set_tlist,[line_color=""])
                  status           = self.add_data_set_tvar(data_set_ttable,[line_color=""])
                  value            = self.get_data_item(irow, icol [,type])
@@ -45,6 +47,7 @@ class DataSet:
                  status           = self.set_data_tlist(tlist,line_color,irow)
                  status           = self.delete_row_in_data_set(irow)
                                     self.reset_line_color(line_color)
+                                    self.recalc_summe_from_value(name_summe,name_value)  aus der Spalte name_value wird die Summe in Spalte name_summe geschrieben
                  
                                     self.update_order_icol(icol)
                                     self.update_order_name(self, name)
@@ -61,6 +64,14 @@ class DataSet:
         self.def_okay  = False   # is definition okay
         self.status    = hdef.OKAY
         self.errtext   = ""
+    def get_status(self):
+        return self.status
+
+    # end def
+    def get_errtext(self):
+        return self.errtext
+
+    # end def
     def reset_status(self):
         self.status = hdef.OKAY
         self.errtext = ""
@@ -97,6 +108,15 @@ class DataSet:
     def get_n_data(self):
         self.n_data_sets = len(self.data_set_llist)
         return self.n_data_sets
+    # end def
+    def add_data_set_liste(self ,data_set_liste,name_liste,type_liste,line_color :str = ""):
+        """
+
+        """
+
+        new_tlist = htvar.build_list(name_liste,data_set_liste,type_liste)
+
+        return self.add_data_set_tlist(new_tlist, line_color)
     # end def
     def add_data_set_tvar(self ,tvar: htvar.TTable | htvar.TList ,line_color :str = ""):
         '''
@@ -962,6 +982,25 @@ class DataSet:
             self.line_color_liste[irow] = line_color
         # end for
         return
+    # end def
+    def recalc_summe_from_value(self,name_summe,name_value):
+        """
+
+        aus der Spalte name_value wird die Summe in Spalte name_summe geschrieben
+
+
+        :param name_summe:
+        :param name_value:
+        :return: status
+        """
+        sumwert = self.get_data_item(0,name_summe)
+        for i in range(self.get_n_data()):
+            if i > 0:
+                sumwert += self.get_data_item(i,name_value)
+                self.set_data_item(sumwert, "", i, name_summe)
+            # end if
+        # end for
+        return self.status
     # end def
     def update_order_icol(self ,icol):
         self.data_set_llist = hlist.sort_list_of_list(self.data_set_llist, icol ,aufsteigend=1)

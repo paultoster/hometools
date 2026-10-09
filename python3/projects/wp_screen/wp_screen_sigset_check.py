@@ -1,7 +1,7 @@
 
 import os, sys, copy, re
 
-import wp_screen_param
+import wp_screen.wp_screen_param as wp_screen_param
 
 t_path, _ = os.path.split(__file__)
 tools_path = t_path + "\\.."

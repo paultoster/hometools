@@ -21,6 +21,7 @@
     NTageBisErgebnis    int                      8              Intervall der wiederholenen Ergebinsausgabe
     StartCash           euroStrK                 "10.000,00"    Startkapital in Euro
     CashAufteilung      str/list(int)            "gleich"       Aufteilung des Cash auf die Kataloggruppen
+    SimName             str                      "TestLauf"     Name der Simulation
     Katalog             dict[gruppe]:list(isin)                 Die zu betrachtenden Wps in Gruppen z.B. "{'Tagesgeld':['ezbleitzins']}"
     ParameterVariation  str                      "parallel"     alle Parameter werden Parralell in ihrer sequenz verabrbeitet
 
@@ -34,6 +35,7 @@ import os, sys
 import yaml
 import copy
 import json
+from types import SimpleNamespace
 
 from pathlib import Path
 
@@ -50,7 +52,7 @@ import tools.hfkt_type as htype
 PARAMETERFILE = ""
 
 PARAMKEYS = ["Start","End","ErsterTagPruefung","NTageBisPruefung","ErterTagErgebnis",
-             "NTageBisErgebnis","StartCash","CashAufteilung","Katalog","ParameterVariation"]
+             "NTageBisErgebnis","StartCash","CashAufteilung","SimName","Katalog","ParameterVariation"]
 
 
 def set_param(master,param_filename):
@@ -102,7 +104,7 @@ def build_par_liste(master,par_raw_dict):
 
     (par_dict,platzhalter_dict_liste) = build_par_liste_sep_platzh(master,par_raw_dict)
 
-    build_par_liste_erste_pruefung(master,par_dict)
+    par_liste_erste_pruefung(master,par_dict)
     if master.status != hdef.OKAY:
         return []
 
@@ -110,12 +112,19 @@ def build_par_liste(master,par_raw_dict):
     if master.status != hdef.OKAY:
         return []
 
-    build_par_liste_zweite_pruefung(master, par_liste)
+    par_liste_zweite_pruefung(master, par_liste)
     if master.status != hdef.OKAY:
         return []
 
-    return par_liste
+    par_liste = build_par_liste_konvertieren(master, par_liste)
+    if master.status != hdef.OKAY:
+        return []
 
+
+    par_struct_liste = build_struktur_liste(master,par_liste)
+
+    return par_struct_liste
+# end def
 def build_par_liste_sep_platzh(master,par_raw_dict):
     """
 
@@ -177,11 +186,11 @@ def build_par_liste_sep_platzh(master,par_raw_dict):
 
     return (par_dict,platzhalter_dict_liste)
 # end def
-def build_par_liste_erste_pruefung(master,par_dict):
+def par_liste_erste_pruefung(master,par_dict):
     """
         Es werden alle keys geprüft und der Inhalt zur Parameterbestimmung
 
-        build_par_liste_erste_pruefung(master,par_dict)
+        par_liste_erste_pruefung(master,par_dict)
 
     :param master:
     :param par_dict:
@@ -191,14 +200,14 @@ def build_par_liste_erste_pruefung(master,par_dict):
     for key in PARAMKEYS:
         if key not in par_dict:
             master.status = hdef.NOT_OKAY
-            master.errtext = f"build_par_liste_erste_pruefung: In File {PARAMETERFILE} fehlt Parameter {key}"
+            master.errtext = f"par_liste_erste_pruefung: In File {PARAMETERFILE} fehlt Parameter {key}"
             return
         # end if
     # end for
 
     if par_dict["ParameterVariation"].lower() != "parallel":
         master.status = hdef.NOT_OKAY
-        master.errtext = f"build_par_liste_erste_pruefung: In File {PARAMETERFILE} ist Parameter {"ParameterVariation"} nicht richt gesetzt."
+        master.errtext = f"par_liste_erste_pruefung: In File {PARAMETERFILE} ist Parameter {"ParameterVariation"} nicht richt gesetzt."
         return
     else:
         par_dict["ParameterVariation"] = "parallel"
@@ -266,16 +275,15 @@ def build_par_liste_ersetze_platzh(master,par_dict,platzhalter_dict_liste):
 
     return par_liste
 # end def
-def build_par_liste_zweite_pruefung(master, par_liste):
+def par_liste_zweite_pruefung(master, par_liste):
     """
 
-    build_par_liste_zweite_pruefung(master, par_liste):
+    par_liste_zweite_pruefung(master, par_liste):
 
     :param master:
     :param par_liste:
     :return:
-    ["Start","End","ErsterTagPruefung","NTageBisPruefung","ErterTagErgebnis",
-             "NTageBisErgebnis","StartCash","CashAufteilung","Katalog","ParameterVariation"]
+
     """
     global PARAMETERFILE
 
@@ -287,7 +295,7 @@ def build_par_liste_zweite_pruefung(master, par_liste):
         (okay, wert) = htype.type_proof(pdict[key], "datStrP")
         if okay != hdef.OKAY:
             master.status = hdef.NOT_OKAY
-            master.errtext = f"build_par_liste_zweite_pruefung: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} ist kein Datum"
+            master.errtext = f"par_liste_zweite_pruefung: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} ist kein Datum"
             return
         # end if
 
@@ -297,7 +305,7 @@ def build_par_liste_zweite_pruefung(master, par_liste):
         (okay, wert) = htype.type_proof(pdict[key], "datStrP")
         if okay != hdef.OKAY:
             master.status = hdef.NOT_OKAY
-            master.errtext = f"build_par_liste_zweite_pruefung: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} ist kein Datum"
+            master.errtext = f"par_liste_zweite_pruefung: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} ist kein Datum"
             return
         # end if
 
@@ -308,7 +316,7 @@ def build_par_liste_zweite_pruefung(master, par_liste):
             wochentage = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"]
             if pdict[key] not in wochentage:
                 master.status = hdef.NOT_OKAY
-                master.errtext = f"build_par_liste_zweite_pruefung: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} ist kein Wochentag: {wochentage}"
+                master.errtext = f"par_liste_zweite_pruefung: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} ist kein Wochentag: {wochentage}"
                 return
             # end if
         else:
@@ -331,7 +339,7 @@ def build_par_liste_zweite_pruefung(master, par_liste):
             wochentage = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"]
             if pdict[key] not in wochentage:
                 master.status = hdef.NOT_OKAY
-                master.errtext = f"build_par_liste_zweite_pruefung: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} ist kein Wochentag: {wochentage}"
+                master.errtext = f"par_liste_zweite_pruefung: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} ist kein Wochentag: {wochentage}"
                 return
             # end if
         else:
@@ -352,42 +360,90 @@ def build_par_liste_zweite_pruefung(master, par_liste):
         (okay, wert) = htype.type_proof(pdict[key], "euroStrK")
         if okay != hdef.OKAY:
             master.status = hdef.NOT_OKAY
-            master.errtext = f"build_par_liste_zweite_pruefung: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} ist kein euroStrK"
+            master.errtext = f"par_liste_zweite_pruefung: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} ist kein euroStrK"
             return
         # end if
 
         key = "CashAufteilung"
         if not isinstance(pdict[key], str):
             master.status = hdef.NOT_OKAY
-            master.errtext = f"build_par_liste_zweite_pruefung: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} ist nicht \"gleichverteilt\""
+            master.errtext = f"par_liste_zweite_pruefung: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} ist nicht \"gleichverteilt\""
             return
         elif pdict[key] != "gleichverteilt":
             master.status = hdef.NOT_OKAY
-            master.errtext = f"build_par_liste_zweite_pruefung: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} ist nicht \"gleichverteilt\""
+            master.errtext = f"par_liste_zweite_pruefung: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} ist nicht \"gleichverteilt\""
+            return
+        # end if
+
+        key = "SimName"
+        if not isinstance(pdict[key], str):
+            master.status = hdef.NOT_OKAY
+            master.errtext = f"par_liste_zweite_pruefung: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} ist nicht string"
             return
         # end if
 
         key = "Katalog"
         if not isinstance(pdict[key], str):
             master.status = hdef.NOT_OKAY
-            master.errtext = f"build_par_liste_zweite_pruefung: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} ist kein string"
+            master.errtext = f"par_liste_zweite_pruefung: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} ist kein string"
             return
         try:
             var = json.loads(pdict[key])
         except Exception as e:
             master.status = hdef.NOT_OKAY
-            master.errtext = f"build_par_liste_zweite_pruefung: In File {PARAMETERFILE} while reading the json-text \n\n\"{pdict[key]}\" \n message with {e}"
+            master.errtext = f"par_liste_zweite_pruefung: In File {PARAMETERFILE} while reading the json-text \n\n\"{pdict[key]}\" \n message with {e}"
             return
         # end try
+
+        if not isinstance(var, dict):
+            master.status = hdef.NOT_OKAY
+            master.errtext = f"par_liste_zweite_pruefung: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} ist var: {var} kein dictionary"
+            return
+        # end if
 
         for key2 in var.keys():
             if not isinstance(var[key2], list):
                 master.status = hdef.NOT_OKAY
-                master.errtext = f"build_par_liste_zweite_pruefung: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} wird zu dict: {var} und die Wps der Gruppe {key2} is keine Liste"
+                master.errtext = f"par_liste_zweite_pruefung: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} wird zu dict: {var} und die Wps der Gruppe {key2} is keine Liste"
                 return
             # endif
         # end for
     # end for
 
     return
+# end def
+def build_par_liste_konvertieren(master, par_liste):
+    """
+    Konvertiert z.B. json obj und weiteres
+    :param master:
+    :param par_liste:
+    :return: par_liste
+    """
+
+    for (i,pdict) in enumerate(par_liste):
+
+        # Katalog
+        #--------
+        pdict["Katalog"] = json.loads(pdict["Katalog"])
+
+        par_liste[i] = pdict
+    # end for
+    return par_liste
+def build_struktur_liste(master,par_liste):
+    """
+
+    :param master:
+    :param par_liste:
+    :return: par_struct_liste
+    """
+
+    par_struct_liste = []
+
+    for pardict in par_liste:
+
+        parstruct = SimpleNamespace(**pardict)
+
+        par_struct_liste.append(parstruct)
+    # end if
+    return par_struct_liste
 # end def

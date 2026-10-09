@@ -48,6 +48,7 @@ key = find_first_key_dict_value(ddict,value) if not in value = None
 """
 import os
 import openpyxl
+import copy
 
 if os.path.isfile('hfkt_def.py'):
     import hfkt_def as hdef
@@ -100,15 +101,16 @@ def proof_transform_ddict(ddict, proof_liste):
     '''
     status = hdef.OKAY
     errtext = ""
+    namelist = []
     for index,item in enumerate(proof_liste):
         
         proof_name = False
-        proof_type = False
         trans_type = False
         default_val = False
         if isinstance(item,str):
             proof_name = True
             name       = item
+            namelist   = name.split(".")
         elif isinstance(item,list) or isinstance(item,tuple):
             n = len(item)
             if n == 0:
@@ -119,6 +121,7 @@ def proof_transform_ddict(ddict, proof_liste):
             if (n > 0) and isinstance(item[0],str):
                 proof_name = True
                 name = item[0]
+                namelist = name.split(".")
             # end if
             if (n > 1) and isinstance(item[1],str):
                 proof_type = True
@@ -137,36 +140,94 @@ def proof_transform_ddict(ddict, proof_liste):
         
         if proof_name:
             if default_val:
-                if name in ddict:
-                    defualt_val = False
+                if is_name_in_dict(ddict,namelist):
+                    default_val = False
                 else:
-                    ddict[name] = item[3]
+                    set_value_in_dict(ddict, namelist,item[3])
                 # end if
-            elif  (name not in ddict):
+            elif  not is_name_in_dict(ddict,namelist):
                 status = hdef.NOT_OKAY
-                errtext = f"proof_transform_ddict: proof_liste[{index}] = {name} ist nicht in dictionary"
+                errtext = f"proof_transform_ddict: proof_liste[{index}] = {namelist} ist nicht in dictionary"
                 return (status, errtext,ddict)
             # end if
         # end if
         if trans_type:
-            [okay, wert] = htype.type_transform(ddict[name], item[1], item[2])
+            valin = get_value_from_dict(ddict,namelist)
+            [okay, wert] = htype.type_transform(valin, item[1], item[2])
             if okay == hdef.OKAY:
-                ddict[name]  = wert
+                if valin!=wert:
+                    set_value_in_dict(ddict, namelist, wert)
             else:
                 status = hdef.NOT_OKAY
-                errtext = f"proof_transform_ddict: ddict[{name}] = {ddict[name]} kann in dict nicht transformiert werden type: {item[1]} => {item[2]}"
+                errtext = f"proof_transform_ddict: ddict[{namelist}] = {get_value_from_dict(ddict,namelist)} kann in dict nicht transformiert werden type: {item[1]} => {item[2]}"
                 return (status, errtext, ddict)
             # end if
         else:
-            [okay, wert] = htype.type_proof(ddict[name], item[1])
+            [okay, wert] = htype.type_proof(get_value_from_dict(ddict,namelist), item[1])
             if okay != hdef.OKAY:
                 status = hdef.NOT_OKAY
-                errtext = f"proof_transform_ddict: ddict[{name}] = {ddict[name]}  type: {item[1]} stimmt nicht"
+                errtext = f"proof_transform_ddict: ddict[{namelist}] = {get_value_from_dict(ddict,namelist)}  type: {item[1]} stimmt nicht"
                 return (status, errtext, ddict)
             # end if
         # end if
     # end for
     return (status, errtext, ddict)
+# end def
+def is_name_in_dict(ddict,namelist):
+    flag = False
+    n = len(namelist)
+    count = 0
+    if n:
+        keylist = list(ddict.keys())
+        if namelist[0] in keylist:
+            d = ddict[namelist[0]]
+            count += 1
+            for name in namelist[1:]:
+                if name in d.keys():
+                    d = copy.deepcopy(d[name])
+                    count += 1
+                # end if
+            # end for
+        # end if
+    # end if
+    if count == n:
+        flag = True
+    # end if
+    return flag
+# end if
+def set_value_in_dict(ddict, namelist,value):
+
+    d = ddict
+    nmeins = len(namelist)-1
+    for i,name in enumerate(namelist):
+        if i < nmeins:
+            if name in d.keys():
+                d = d[name]
+            else:
+                raise Exception("Hier geht was schief")
+            # end if
+        else:
+            d[name] = value
+        # end if
+    # end for
+    return
+# end def
+def get_value_from_dict(ddict, namelist):
+
+    d = ddict
+    value = None
+    nmeins = len(namelist)-1
+    for i,name in enumerate(namelist):
+        if name in d.keys():
+            if i < nmeins:
+                d = d[name]
+            else:
+                value = d[name]
+            # end if
+        # end if
+    # end for
+
+    return value
 # end def
 def proof_transform_ddict_to_tvar(ddict, proof_liste):
     '''

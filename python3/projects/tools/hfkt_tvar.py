@@ -12,6 +12,7 @@ obj = hfkt_tvar.build_val(name,val,type,type_store)             build single var
 obj = hfkt_tvar.build_list(names,vals,types)                    build list variable as TList
 obj = hfkt_tvar.build_list(names,vals,types,types_store)        build list variable as TList with type-list to store
 obj = hfkt_tvar.build_default_list(names,types)
+obj = hfkt_tvar.build_empty_table(names,types)                  build table (llist) variable as TTable but empty
 obj = hfkt_tvar.build_table(names,table,types)                  build table (llist) variable as TTable
 obj = hfkt_tvar.build_table(names,table,types,types_store)      build table (llist) variable as TTable with type-list to store
 obj = hfkt_tvar.build_table_from_list(tlist,types_store)
@@ -245,6 +246,15 @@ def build_default_list(names: list,types: list):
         vvals.append(wert)
     # end if
     return build_list(nnames, vvals, ttypes)
+# end def
+def build_empty_table(names: list, types:list, types_store:list=None):
+    """
+    build table (llist) variable as TTable but empty
+    :return: obj = hfkt_tvar.build_empty_table(names,table,types)
+             obj = hfkt_tvar.build_empty_table(names,table,types,types_store)
+    """
+
+    return build_table(names,[], types, types_store)
 # end def
 def build_table(names: list, table: list, types:list, types_store:list=None):
     '''

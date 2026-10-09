@@ -6,13 +6,13 @@ if (tools_path not in sys.path):
     sys.path.append(tools_path)
 # endif
 
-import wp_screen_param
-import wp_screen_ini
-# import wp_screen_gui
-import wp_screen_katalog
-import wp_screen_sigset
-import wp_screen_tab
-import wp_screen_scre
+import wp_screen.wp_screen_param as wp_screen_param
+import wp_screen.wp_screen_ini as wp_screen_ini
+# import wp_screen_gui as wp_screen_gui
+import wp_screen.wp_screen_katalog as wp_screen_katalog
+import wp_screen.wp_screen_sigset as wp_screen_sigset
+import wp_screen.wp_screen_tab as wp_screen_tab
+import wp_screen.wp_screen_scre as wp_screen_scre
 
 import wp_abfrage.wp_base as wp_abfrage_base
 
@@ -103,7 +103,7 @@ class WPScreen:
         self.par = wp_screen_param.Param()
 
         # ini
-        self.ini = wp_screen_ini.get_ini_dict(ini_filename, self.par.INI_DICT_PROOF_LISTE)
+        self.ini = wp_screen_ini.get_tomlib_ini_dict(ini_filename, self.par.INI_DICT_PROOF_LISTE)
 
         if wp_screen_ini.get_status() != hdef.OK:
             self.log.write_e(wp_screen_ini.get_errtext(), screen=1)

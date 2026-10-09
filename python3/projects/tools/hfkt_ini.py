@@ -23,124 +23,192 @@
 import os
 import configparser
 import sys
+import tomllib
 
 
-#-------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 t_path, _ = os.path.split(__file__)
-if( t_path == os.getcwd() ):
+if (t_path == os.getcwd()):
 
-  import hfkt     as h
-  import hfkt_def as hdef
+    import hfkt as h
+    import hfkt_def as hdef
+    import hfkt_dict as hdict
 else:
-  p_list     = os.path.normpath(t_path).split(os.sep)
-  if( len(p_list) > 1 ): p_list = p_list[ : -1]
-  t_path = ""
-  for i,item in enumerate(p_list): t_path += item + os.sep
-  if( os.path.normpath(t_path) not in sys.path ): sys.path.append(t_path)
+    p_list = os.path.normpath(t_path).split(os.sep)
+    if (len(p_list) > 1): p_list = p_list[: -1]
+    t_path = ""
+    for i, item in enumerate(p_list): t_path += item + os.sep
+    if (os.path.normpath(t_path) not in sys.path): sys.path.append(t_path)
 
-  from tools import hfkt     as h
-  from tools import hfkt_def as hdef
-#endif--------------------------------------------------------------------------
+    from tools import hfkt as h
+    from tools import hfkt_def as hdef
+    from tools import hfkt_dict as hdict
 
 
-def readini( ini_file, dliste=None ):
-  out      = None
-  outtext  = ""
-  # Pr�fen, ob ini-Datei vorhanden
-  if( not os.path.isfile(ini_file ) ):
-    actpath = os.path.abspath(".")
-    outtext = "ini-file <%s> konnte nicht gefunden werden (actpath: <%s> " % (ini_file,actpath)
-    return (hdef.NOT_OK,outtext,out)
+# endif--------------------------------------------------------------------------
 
-  config = configparser.RawConfigParser()
-  #try:
+
+def readini(ini_file, dliste=None):
+    out = None
+    outtext = ""
+    # Pr�fen, ob ini-Datei vorhanden
+    if (not os.path.isfile(ini_file)):
+        actpath = os.path.abspath(".")
+        outtext = "ini-file <%s> konnte nicht gefunden werden (actpath: <%s> " % (ini_file, actpath)
+        return (hdef.NOT_OK, outtext, out)
+
+    config = configparser.RawConfigParser()
+    # try:
     # open configfile
-  f = config.read(ini_file)
-  #except:
-  #  outtext = "Error configparser read file <%s>" % ini_file
-  #  return (hdef.NOT_OK,outtext,out)
-  if(len(f) == 0):
-    hfkt_log.write_e("Error configparser read file <%s>" % ini_file)
-    return out
+    f = config.read(ini_file)
+    # except:
+    #  outtext = "Error configparser read file <%s>" % ini_file
+    #  return (hdef.NOT_OK,outtext,out)
+    if (len(f) == 0):
+        hfkt_log.write_e("Error configparser read file <%s>" % ini_file)
+        return out
 
-  # wenn nicht definiert, wir alles eingelesen und ausgegeben
-  if( dliste == None or len(dliste) == 0 ):
-    if( out == None ):
-      out = {}
+    # wenn nicht definiert, wir alles eingelesen und ausgegeben
+    if (dliste == None or len(dliste) == 0):
+        if (out == None):
+            out = {}
 
-    liste = config.sections()
-    for sect in liste:
-      liste2 = config.options(sect)
-      if( not (sect in out) and (len(liste2)>0) ):
-        out[sect] = {}
-      for opt in liste2:
-        out[sect][opt] = config.get(sect,opt)
+        liste = config.sections()
+        for sect in liste:
+            liste2 = config.options(sect)
+            if (not (sect in out) and (len(liste2) > 0)):
+                out[sect] = {}
+            for opt in liste2:
+                out[sect][opt] = config.get(sect, opt)
 
 
-  # Es werden nach der dliste, die Werte gesetzt
-  else:
+    # Es werden nach der dliste, die Werte gesetzt
+    else:
 
-    ii = 0
-    for liste in dliste:
-      ii += 1
-      if( len(liste) < 4 ):
-        outtext = "%i. Variable in ini-Liste ddlist hat nicht gen�gend Werte < 4 (['name','section',typ,'defaul'])" % ii
-        return (hdef.NOT_OK,outtext,out)
+        ii = 0
+        for liste in dliste:
+            ii += 1
+            if (len(liste) < 4):
+                outtext = "%i. Variable in ini-Liste ddlist hat nicht gen�gend Werte < 4 (['name','section',typ,'defaul'])" % ii
+                return (hdef.NOT_OK, outtext, out)
 
-      sect = liste[0]
-      name = liste[1]
-      typ  = liste[2]
-      setdef = liste[3]
-      defa = liste[4]
-      if( config.has_section(sect) and config.has_option(sect,name) ):
-        val = config.get(sect, name)
-      elif( setdef != 0 ):
-        val = defa
-      else:
-        outtext = "%i. Variable <%s.%s> ist nicht in ini-File <%s> " % (ii,sect,name,ini_file)
-        return (hdef.NOT_OK,outtext,out)
+            sect = liste[0]
+            name = liste[1]
+            typ = liste[2]
+            setdef = liste[3]
+            defa = liste[4]
+            if (config.has_section(sect) and config.has_option(sect, name)):
+                val = config.get(sect, name)
+            elif (setdef != 0):
+                val = defa
+            else:
+                outtext = "%i. Variable <%s.%s> ist nicht in ini-File <%s> " % (ii, sect, name, ini_file)
+                return (hdef.NOT_OK, outtext, out)
 
-      if( typ == hdef.DEF_FLT ):
+            if (typ == hdef.DEF_FLT):
+                try:
+                    v = float(val)
+                except:
+                    outtext = "Fehler bei Wandlung Wert zu float aus ini-File <%s> [%s]%s =  %s " % (ini_file, sect,
+                                                                                                     name, val)
+                    return (hdef.NOT_OK, outtext, out)
+            elif (typ == hdef.DEF_INT):
+                try:
+                    v = int(val)
+                except:
+                    outtext = "Fehler bei Wandlung Wert zu integer aus ini-File <%s> [%s]%s =  %s " % (ini_file, sect,
+                                                                                                       name, val)
+                    return (hdef.NOT_OK, outtext, out)
+            elif (typ == hdef.DEF_VEC):
+                try:
+                    v = h.string_to_num_list(val)
+                except:
+                    outtext = "Fehler bei Wandlung Wert zu vektor aus ini-File <%s> [%s]%s =  %s " % (ini_file, sect,
+                                                                                                      name, val)
+                    return (hdef.NOT_OK, outtext, out)
+            else:
+                v = val
+
+            if (out == None):
+                out = {}
+
+            if (not sect in out):
+                out[sect] = {}
+
+            out[sect][name] = v
+
+    return (hdef.OK, outtext, out)
+
+
+# enddef
+def writeini(ini_file_name, out):
+    config = configparser.ConfigParser()
+
+    for key1 in out.keys():
+        config[key1] = out[key1]
+    # endfor
+
+    with open(ini_file_name, 'w') as configfile:
+        config.write(configfile)
+
+    # endwith
+
+
+# enddef
+def get_tomlib_ini_dict(ini_filename: str, ini_dict_proof_liste: list):
+    '''
+
+    Beispiel ini_filename:
+
+      konto_auswert_jahr = 2026
+      konto_auswert_path = "./auswert"
+      konto_auswert_konto_names = ["ing_bank_giro", "postbank_giro", "c24_giro"]
+
+      [ing_bank_giro]
+      iban = "DEXX XXXX XXXX XXXX XXXX XX"
+      bank = "ING-DiBa Bank"
+      wer = "Name"
+      start_wert = "0,00"
+      start_datum = "10.01.2025"
+      import_config_type = "csv_ing"
+
+
+    Beispiel ini_dict_proof_liste
+
+      INI_DICT_PROOF_LISTE = [("konto_auswert_jahr", "int"),
+                              ("konto_auswert_path", "str","str","./auswert"),
+                              ("konto_auswert_konto_names", "list"),
+                              ("ing_bank_giro.iban", "str"),
+                              ("ing_bank_giro.iban", "str"),
+                              ]
+
+
+    '''
+
+
+    if (not os.path.isfile(ini_filename)):
+        STATUS = hdef.NOT_OKAY
+        ERRTEXT = f"ini_file_name = {ini_filename} does not exist !!!!"
+        return {}
+        # read ini-file
+    else:
+        INI_FILE_NAME = ini_filename
         try:
-          v = float(val)
-        except:
-          outtext = "Fehler bei Wandlung Wert zu float aus ini-File <%s> [%s]%s =  %s " % (ini_file,sect,name,val)
-          return (hdef.NOT_OK,outtext,out)
-      elif( typ == hdef.DEF_INT ):
-        try:
-          v = int(val)
-        except:
-          outtext = "Fehler bei Wandlung Wert zu integer aus ini-File <%s> [%s]%s =  %s " % (ini_file,sect,name,val)
-          return (hdef.NOT_OK,outtext,out)
-      elif( typ == hdef.DEF_VEC ):
-        try:
-          v = h.string_to_num_list(val)
-        except:
-          outtext = "Fehler bei Wandlung Wert zu vektor aus ini-File <%s> [%s]%s =  %s " % (ini_file,sect,name,val)
-          return (hdef.NOT_OK,outtext,out)
-      else:
-        v = val
+            with open(ini_filename, "rb") as f:
+                ddict = tomllib.load(f)
+        except Exception as e:
+            ERRTEXT = f"tomllib: Bei lesen {ini_filename} gibt Fehler: {e.args[0]}"
+            STATUS = hdef.NOT_OKAY
+            return {}
+        # endtry
+        # endif
 
-      if( out == None ):
-        out = {}
+    (status, errtext, base_dict) = hdict.proof_transform_ddict(ddict, ini_dict_proof_liste)
+    if status != hdef.OKAY:
+        STATUS = hdef.NOT_OKAY
+        ERRTEXT = errtext
+        return base_dict
+    # end if
 
-      if( not sect in out ):
-        out[sect] = {}
-
-      out[sect][name] = v
-
-
-  return (hdef.OK,outtext,out)
-#enddef
-def writeini(ini_file_name,out):
-  config = configparser.ConfigParser()
-
-  for key1 in out.keys():
-    config[key1] = out[key1]
-  #endfor
-
-  with open(ini_file_name, 'w') as configfile:
-
-    config.write(configfile)
-  #endwith
-#enddef
+    return base_dict
+# end def

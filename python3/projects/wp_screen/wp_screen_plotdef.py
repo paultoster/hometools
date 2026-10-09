@@ -8,8 +8,8 @@ if (tools_path not in sys.path):
 # endif
 
 # import wp_screen_gui
-import wp_screen_plotdef_command
-import wp_screen_plotdef_check
+import wp_screen.wp_screen_plotdef_command as wp_screen_plotdef_command
+import wp_screen.wp_screen_plotdef_check as wp_screen_plotdef_check
 
 import tools.hfkt_def as hdef
 import tools.hfkt_pickle as hfkt_pickle
