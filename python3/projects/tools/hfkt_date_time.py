@@ -114,6 +114,15 @@ flag = is_dat_list_a_to_b(a_dat_list, b_dat_list,sign) a_dat_list:  (12,05,1959)
  (eday,edaysecs) = secs_time_epoch_to_epoch_day_time(secs)
  (secs) = epoch_day_time_to_secs_time_epoch_to_(eday,edaysecs)
 
+ dat_datClass = get_next_weekday(last_dat_datClass,weekday)  sucht den nächsten Wochentag > last_dat (datetime-class)
+                                                             last_dat_datClass = datetime.datetime.strptime("12.10.2023", "%d.%m.%Y")
+                                                             weekday = "Mo"
+                                                             => dat_datClass = 2023-10-16 00:00:00
+
+ dat_datClass = get_next_datumday(last_dat_datClass,datumday)  sucht den nächsten Datumstag > last_dat (datetime-class)
+                                                             last_dat_datClass = datetime.datetime.strptime("12.10.2023", "%d.%m.%Y")
+                                                             weekday = 16
+                                                             => dat_datClass = 2023-10-16 00:00:00
 
 
 """
@@ -2076,7 +2085,89 @@ def secs_to_end_of_day(secs: int) -> int:
 
     return secs
 # enddef
+def get_next_weekday(last_dat_datClass,weekday):
+    """
+    sucht den nächsten Wochentag > last_dat (datetime-class)
+    last_dat_datClass = datetime.datetime.strptime("12.10.2023", "%d.%m.%Y")
+    weekday = "Mo"
+    => dat_datClass = 2023-10-16 00:00:00
 
+    dat_datClass = get_next_weekday(last_dat_datClass,weekday)
+
+    :param last_dat_datClass:
+    :param weekday:
+    :return: dat_datClass
+    """
+
+    if isinstance(weekday, int):
+        number = weekday
+        if (number < 0) or (number > 6):
+            raise Exception(f"get_next_weekday: Unknown weekday {weekday} (0:Mo - 6:So)")
+    else:
+        match weekday.lower():
+
+            case "mo":
+                number = 0
+            case "di":
+                number = 1
+            case "mi":
+                number = 2
+            case "do":
+                number = 3
+            case "fr":
+                number = 4
+            case "sa":
+                number = 5
+            case "so":
+                number = 6
+            case _:
+                raise Exception(f"get_next_weekday: Unknown weekday {weekday}")
+        # end matsch
+    # end if
+
+    # Einen Tag vor
+    d = last_dat_datClass + datetime.timedelta(days=1)
+    while d.weekday() != number:
+        d += datetime.timedelta(days=1)
+    return d
+# end def
+def get_next_datumday(last_dat_datClass, datumday):
+    """
+    dat_datClass = get_next_datumday(last_dat_datClass, datumday)
+
+    sucht den nächsten Datumstag > last_dat(datetime-class )
+        last_dat_datClass = datetime.datetime.strptime("12.10.2023", "%d.%m.%Y")
+        weekday = 16
+        = > dat_datClass = 2023-10-16 00:00: 00
+
+    :param last_dat_datClass:
+    :param datumday:
+    :return:
+    """
+    # Einen Tag vor
+    d = last_dat_datClass + datetime.timedelta(days=1)
+
+    if d.day == datumday: # ist exakt der Tag
+        pass
+    elif d.day > datumday: # Der Tag liegt im nächsten Monat
+        if d.month == 12:
+            d = datetime.datetime(year=d.year+1, month=1, day=datumday)
+        else:
+            d = datetime.datetime(year=d.year, month=d.month+1, day=datumday)
+        # end if
+    else: # Der Tag liegt im aktuellen Monat vorraus
+        d += datetime.timedelta(days=1)
+        while d.day != datumday:
+            if d.day == 1:
+                d -= datetime.timedelta(days=1)
+                break
+            # end if
+            d += datetime.timedelta(days=1)
+        # end while
+    # end if
+
+    return d
+# end def
 ########################################################################################################################
 
 ########################################################################################################################
@@ -2084,6 +2175,12 @@ def secs_to_end_of_day(secs: int) -> int:
 # testen mit main
 ###########################################################################
 if __name__ == '__main__':
+
+    last_dat_datClass = datetime.datetime.strptime("12.09.2023", "%d.%m.%Y")
+    datumday = 31
+
+    print( get_next_datumday(last_dat_datClass, datumday))
+
     d1 = datetime.datetime(1999, 1, 1)
     d2 = datetime.datetime(2026, 8, 19)
 
@@ -2140,7 +2237,3 @@ if __name__ == '__main__':
     str = calc_secs_to_str(secs,"-")
 
     print(str)
-
-if __name__ == '__main__':
-
-    a = 0

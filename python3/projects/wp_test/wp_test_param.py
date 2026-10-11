@@ -15,10 +15,11 @@
     Name                format      default     Beispiel        Erklärung
     Start               datStrP                 "01.01.2000"    Beginn  der Simulation
     End                 datStrP                 "31.12.2010"    Ende der Simulation
-    ErsterTagPruefung   str/int                 "Do",1          Erste Prüfung der Strategie kann Wochentag sein Mo,Di,Mi,Do,Fr,Sa,So oder ein Tag zwischen 1 ... (30,31),
-    NTageBisPruefung    int                      8              Intervall der wiederholenen StrategiePrüfung
+    ErsterTagPruefung   str/int                 "Do",1          Erste Prüfung der Strategie kann Wochentag sein Mo,Di,Mi,Do,Fr,Sa,So
+                                                                oder ein Tag zwischen 1 ... (30,31),
+    WiederholTagPruefung str/int                "Mi",1          Wiederholtag zu Prüfung ist Wochentag oder Monatsdatume
     ErterTagErgebnis    str/int                 "Mo",1          Erste Ergebinsausgabe kann Wochentag sein Mo,Di,Mi,Do,Fr,Sa,So oder ein Tag zwischen 1 ... (30,31),
-    NTageBisErgebnis    int                      8              Intervall der wiederholenen Ergebinsausgabe
+    WiederholTagErgebnis str/int                "Di",31         Wiederholtag Ergebinsausgabe ist Wochentag oder Monatsdatume
     StartCash           euroStrK                 "10.000,00"    Startkapital in Euro
     CashAufteilung      str/list(int)            "gleich"       Aufteilung des Cash auf die Kataloggruppen
     SimName             str                      "TestLauf"     Name der Simulation
@@ -51,8 +52,8 @@ import tools.hfkt_type as htype
 
 PARAMETERFILE = ""
 
-PARAMKEYS = ["Start","End","ErsterTagPruefung","NTageBisPruefung","ErterTagErgebnis",
-             "NTageBisErgebnis","StartCash","CashAufteilung","SimName","Katalog","ParameterVariation"]
+PARAMKEYS = ["Start","End","ErsterTagPruefung","WiederholTagPruefung","ErsterTagErgebnis",
+             "WiederholTagErgebnis","StartCash","CashAufteilung","SimName","Katalog","ParameterVariation"]
 
 
 def set_param(master,param_filename):
@@ -327,14 +328,23 @@ def par_liste_zweite_pruefung(master, par_liste):
                 value = 31
         # end if
 
-        # NTageBisPruefung
+        # WiederholTagPruefung
         # -----------------
-        key = "NTageBisPruefung"
-        value = int(pdict[key])
+        key = "WiederholTagPruefung"
+        if isinstance(pdict[key], str):
+            wochentage = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"]
+            if pdict[key] not in wochentage:
+                master.status = hdef.NOT_OKAY
+                master.errtext = f"par_liste_zweite_pruefung: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} ist kein Wochentag: {wochentage}"
+                return
+            # end if
+        else:
+            value = int(pdict[key])
+        # end if
 
-        # ErterTagErgebnis
+        # ErsterTagErgebnis
         # ------------------
-        key = "ErterTagErgebnis"
+        key = "ErsterTagErgebnis"
         if isinstance(pdict[key], str):
             wochentage = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"]
             if pdict[key] not in wochentage:
@@ -350,10 +360,19 @@ def par_liste_zweite_pruefung(master, par_liste):
                 value = 31
         # end if
 
-        # NTageBisErgebnis
+        # WiederholTagErgebnis
         # -----------------
-        key = "NTageBisErgebnis"
-        value = int(pdict[key])
+        key = "WiederholTagErgebnis"
+        if isinstance(pdict[key], str):
+            wochentage = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"]
+            if pdict[key] not in wochentage:
+                master.status = hdef.NOT_OKAY
+                master.errtext = f"par_liste_zweite_pruefung: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} ist kein Wochentag: {wochentage}"
+                return
+            # end if
+        else:
+            value = int(pdict[key])
+        # end if
 
 
         key = "StartCash"
@@ -426,7 +445,35 @@ def build_par_liste_konvertieren(master, par_liste):
         #--------
         pdict["Katalog"] = json.loads(pdict["Katalog"])
 
+        # WiederholTagPruefung
+        # -----------------
+        key = "WiederholTagPruefung"
+        if not isinstance(pdict[key], str):
+
+            value = int(pdict[key])
+            if value < 1:
+                value = 1
+            elif value > 31:
+                value = 31
+            # end if
+            pdict[key] = value
+        # end if
+
+        # WiederholTagErgebnis
+        # -----------------
+        key = "WiederholTagErgebnis"
+        if not isinstance(pdict[key], str):
+            value = int(pdict[key])
+            if value < 1:
+                value = 1
+            elif value > 31:
+                value = 31
+            # end if
+            pdict[key] = value
+        # end if
+
         par_liste[i] = pdict
+
     # end for
     return par_liste
 def build_struktur_liste(master,par_liste):

@@ -11,7 +11,7 @@ import tools.hfkt_log as hlog
 # import tools.hfkt_type as htype
 # import tools.hfkt_np_calc as hnpcalc
 
-import wp_test_cash_konto_class
+import wp_test_verrechnungs_konto_class
 
 
 class WPBank:
@@ -26,9 +26,9 @@ class WPBank:
         self.infotext = ""
 
 
-        # Cashkonto anlegen
+        # Verrechnungskonto anlegen
         #------------------
-        self.CashKonto = wp_test_cash_konto_class.WPCashKonto("Cashkonto",start_dat_datclass,start_cash_cent)
+        self.VerrecghnungsKonto = wp_test_verrechnungs_konto_class.WPVerrechnungsKonto("Cashkonto", start_dat_datclass, start_cash_cent)
 
 
 

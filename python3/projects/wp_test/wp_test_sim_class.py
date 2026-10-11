@@ -12,7 +12,7 @@ import tools.hfkt_type as htype
 import tools.hfkt_np_calc as hnpcalc
 
 import wp_test_bank_class
-
+import wp_test_rigger_datum_class
 
 class WPSim:
     """
@@ -32,33 +32,47 @@ class WPSim:
         self.End_datStrP = parstruct.End
         self.End_datClass   = htype.type_transform_direct(parstruct.End, "datStrP", "datetimeclass")
 
-        # Gesamt Start Cash
+        # Start Cash
         #------------------
-        self.GesamtStartCash_cent = htype.type_transform_direct(parstruct.StartCash, "euroStrK", "cent")
+        self.StartCash_cent = htype.type_transform_direct(parstruct.StartCash, "euroStrK", "cent")
 
-        # Anzahl der Konten
-        #------------------
-        self.NKonten = len(parstruct.Katalog.keys())
-
-
-
-        # Konten erstellen
+        # Konto erstellen
         #-----------------
-        konto_start_cash_np_array = hnpcalc.divide_in_int_nparts(self.GesamtStartCash_cent, self.NKonten)
-        self.KontoObjListe = [None]*self.NKonten
+        self.KontoObj = wp_test_bank_class.WPBank(self.Start_datClass,self.StartCash_cent)
 
-        for i in range(self.NKonten):
-            self.KontoObjListe[i] = wp_test_bank_class.WPBank(self.Start_datClass,konto_start_cash_np_array[i])
+        if self.KontoObj.get_status() != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = self.KontoObj.get_errtext()
+            self.KontoObj.reset_status()
+            return
+        # end if
 
-            if self.KontoObjListe[i].get_status() != hdef.OKAY:
-                self.status = hdef.NOT_OKAY
-                self.errtext = self.KontoObjListe[i].get_errtext()
-                self.KontoObjListe[i].reset_status()
-                return
-            # end if
-        # end for
+        # Prüf Datum (Prüfen der anlage)
+        self.PruefDatumtObj = wp_test_rigger_datum_class.WPTriggerDatum(self.Start_datClass,
+                                                                        self.End_datClass,
+                                                                        parstruct.ErsterTagPruefung,
+                                                                        parstruct.WiederholTagPruefung )
 
+        if self.PruefDatumtObj.get_status() != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = self.PruefDatumtObj.get_errtext()
+            self.PruefDatumtObj.reset_status()
+            return
+        # end if
 
+        # Ergebnis Datum (Zwischergebnis produzieren)
+        self.ErgebnisDatumtObj = wp_test_rigger_datum_class.WPTriggerDatum(self.Start_datClass,
+                                                                        self.End_datClass,
+                                                                        parstruct.ErsterTagErgebnis,
+                                                                        parstruct.WiederholTagErgebnis)
+
+        if self.ErgebnisDatumtObj.get_status() != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = self.ErgebnisDatumtObj.get_errtext()
+            self.ErgebnisDatumtObj.reset_status()
+            return
+
+        # end if
 
     def get_status(self):
         return self.status

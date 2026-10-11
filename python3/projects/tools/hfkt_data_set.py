@@ -76,6 +76,22 @@ class DataSet:
         self.status = hdef.OKAY
         self.errtext = ""
     # end def
+    def set_definition_list(self,header_liste, type_liste, store_type_liste):
+        """
+
+        :param header_liste:
+        :param type_liste:
+        :param sstore_type_liste:
+        :return:
+        """
+        n = min(len(header_liste),len(type_liste))
+        n = min(n,len(store_type_liste))
+
+        for i in range(n):
+            self.set_definition(i,header_liste[i], type_liste[i], store_type_liste[i])
+        # end for
+        return
+    # end def
     def set_definition(self ,icol :int ,name :str ,type: str | list ,store_type: str| list):
         '''
         Deinition einer Spalte
