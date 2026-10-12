@@ -1,4 +1,5 @@
 import os, sys
+import datetime
 
 t_path, _ = os.path.split(__file__)
 tools_path = t_path + "\\.."
@@ -9,11 +10,11 @@ if (tools_path not in sys.path):
 import tools.hfkt_def as hdef
 import tools.hfkt_log as hlog
 import tools.hfkt_ini as hini
-
+# import tools.hfkt_type as htype
 
 import wp_screen.wp_screen_base as wp_screen_base
 import wp_test_param
-import wp_test_sim_class
+import sim_class
 
 INI_DICT_PROOF_LISTE =   [("store_path", "str"),
                           ("wpscre_func_ini_file_name","str")]
@@ -43,7 +44,7 @@ class WPTest:
 
         # Parameter
         # ---------
-        self.par_liste = wp_test_param.set_param(self,param_filename)
+        (self.par_struct_liste,self.comment_struct) = wp_test_param.set_param(self,param_filename)
 
         if self.status != hdef.OKAY:
             self.log.write_err(self.errtext)
@@ -85,19 +86,52 @@ class WPTest:
     def run(self):
         self.reset_status()
 
-        n = len(self.par_liste)
-        for i,par in enumerate(self.par_liste):
-            self.log.write_info(f"{i+1}/{n}: Start Simulation: {par.SimName} von {par.Start} - {par.End}")
+        n = len(self.par_struct_liste)
+        for i,parstruct in enumerate(self.par_struct_liste):
 
-            simobj = wp_test_sim_class.WPSim(par)
+            self.wpscrefunc.reset_status()
 
-            if simobj.get_status() != hdef.OKAY:
+            if n > 1:
+                parstruct.SimName += "_" + str(i)
+
+            self.log.write_info(f"{i+1}/{n}: Start Simulation: {parstruct.SimName} von {parstruct.StartDat_str} - {parstruct.EndDat_str}")
+
+            # Init Simulation
+            #----------------
+            self.Simobj = sim_class.WPSim(self.wpscrefunc,parstruct)
+
+            if self.Simobj.get_status() != hdef.OKAY:
                 self.status = hdef.NOT_OKAY
-                self.errtext = self.wp_test_sim_class.get_errtext()
+                self.errtext = self.Simobj.get_errtext()
                 self.log.write_err(self.errtext)
-                self.wp_test_sim_class.reset_status()
+                self.Simobj.reset_status()
+                return
+            # end if
+
+            if len(self.Simobj.get_infotext()):
+                self.log.write_info(self.Simobj.get_infotext())
+                self.Simobj.reset_status()
+            # end if
+
+            if self.status != hdef.OKAY:
                 return
 
-        return
+            # Run simulation
+            #--------------
+            self.Simobj.run()
+
+            if self.Simobj.get_status() != hdef.OKAY:
+                self.status = hdef.NOT_OKAY
+                self.errtext = self.Simobj.get_errtext()
+                self.log.write_err(self.errtext)
+                self.Simobj.reset_status()
+                return
+            # end if
+
+            print("Endabrechnung")
+
+            if self.status != hdef.OKAY:
+                return
+
     # end def
 # end class

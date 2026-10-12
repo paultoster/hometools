@@ -114,15 +114,15 @@ flag = is_dat_list_a_to_b(a_dat_list, b_dat_list,sign) a_dat_list:  (12,05,1959)
  (eday,edaysecs) = secs_time_epoch_to_epoch_day_time(secs)
  (secs) = epoch_day_time_to_secs_time_epoch_to_(eday,edaysecs)
 
- dat_datClass = get_next_weekday(last_dat_datClass,weekday)  sucht den nächsten Wochentag > last_dat (datetime-class)
-                                                             last_dat_datClass = datetime.datetime.strptime("12.10.2023", "%d.%m.%Y")
+ dat_datetime = get_next_weekday(last_dat_datetime,weekday)  sucht den nächsten Wochentag > last_dat (datetime-class)
+                                                             last_dat_datetime = datetime.datetime.strptime("12.10.2023", "%d.%m.%Y")
                                                              weekday = "Mo"
-                                                             => dat_datClass = 2023-10-16 00:00:00
+                                                             => dat_datetime = 2023-10-16 00:00:00
 
- dat_datClass = get_next_datumday(last_dat_datClass,datumday)  sucht den nächsten Datumstag > last_dat (datetime-class)
-                                                             last_dat_datClass = datetime.datetime.strptime("12.10.2023", "%d.%m.%Y")
+ dat_datetime = get_next_datumday(last_dat_datetime,datumday)  sucht den nächsten Datumstag > last_dat (datetime-class)
+                                                             last_dat_datetime = datetime.datetime.strptime("12.10.2023", "%d.%m.%Y")
                                                              weekday = 16
-                                                             => dat_datClass = 2023-10-16 00:00:00
+                                                             => dat_datetime = 2023-10-16 00:00:00
 
 
 """
@@ -2085,18 +2085,18 @@ def secs_to_end_of_day(secs: int) -> int:
 
     return secs
 # enddef
-def get_next_weekday(last_dat_datClass,weekday):
+def get_next_weekday(last_dat_datetime,weekday):
     """
     sucht den nächsten Wochentag > last_dat (datetime-class)
-    last_dat_datClass = datetime.datetime.strptime("12.10.2023", "%d.%m.%Y")
+    last_dat_datetime = datetime.datetime.strptime("12.10.2023", "%d.%m.%Y")
     weekday = "Mo"
-    => dat_datClass = 2023-10-16 00:00:00
+    => dat_datetime = 2023-10-16 00:00:00
 
-    dat_datClass = get_next_weekday(last_dat_datClass,weekday)
+    dat_datetime = get_next_weekday(last_dat_datetime,weekday)
 
-    :param last_dat_datClass:
+    :param last_dat_datetime:
     :param weekday:
-    :return: dat_datClass
+    :return: dat_datetime
     """
 
     if isinstance(weekday, int):
@@ -2126,26 +2126,26 @@ def get_next_weekday(last_dat_datClass,weekday):
     # end if
 
     # Einen Tag vor
-    d = last_dat_datClass + datetime.timedelta(days=1)
+    d = last_dat_datetime + datetime.timedelta(days=1)
     while d.weekday() != number:
         d += datetime.timedelta(days=1)
     return d
 # end def
-def get_next_datumday(last_dat_datClass, datumday):
+def get_next_datumday(last_dat_datetime, datumday):
     """
-    dat_datClass = get_next_datumday(last_dat_datClass, datumday)
+    dat_datetime = get_next_datumday(last_dat_datetime, datumday)
 
     sucht den nächsten Datumstag > last_dat(datetime-class )
-        last_dat_datClass = datetime.datetime.strptime("12.10.2023", "%d.%m.%Y")
+        last_dat_datetime = datetime.datetime.strptime("12.10.2023", "%d.%m.%Y")
         weekday = 16
-        = > dat_datClass = 2023-10-16 00:00: 00
+        = > dat_datetime = 2023-10-16 00:00: 00
 
-    :param last_dat_datClass:
+    :param last_dat_datetime:
     :param datumday:
     :return:
     """
     # Einen Tag vor
-    d = last_dat_datClass + datetime.timedelta(days=1)
+    d = last_dat_datetime + datetime.timedelta(days=1)
 
     if d.day == datumday: # ist exakt der Tag
         pass
@@ -2176,10 +2176,10 @@ def get_next_datumday(last_dat_datClass, datumday):
 ###########################################################################
 if __name__ == '__main__':
 
-    last_dat_datClass = datetime.datetime.strptime("12.09.2023", "%d.%m.%Y")
+    last_dat_datetime = datetime.datetime.strptime("12.09.2023", "%d.%m.%Y")
     datumday = 31
 
-    print( get_next_datumday(last_dat_datClass, datumday))
+    print( get_next_datumday(last_dat_datetime, datumday))
 
     d1 = datetime.datetime(1999, 1, 1)
     d2 = datetime.datetime(2026, 8, 19)

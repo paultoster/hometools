@@ -12,7 +12,7 @@ import tools.hfkt_date_time as hdt
 import tools.hfkt_type as htype
 import tools.hfkt_np_calc as hnpcalc
 
-import wp_test_bank_class
+import konto_class
 
 
 class WPTriggerDatum:
@@ -20,14 +20,14 @@ class WPTriggerDatum:
 
     """
 
-    def __init__(self,start_dat_datClass,end_dat_datClass,ersterTag,wiederholTag) -> None:
+    def __init__(self,start_dat_datetime,end_dat_datetime,ersterTag,wiederholTag) -> None:
 
         self.status = hdef.OKAY
         self.errtext = ""
         self.infotext = ""
 
-        self.Start_datClass = start_dat_datClass
-        self.End_datClass = end_dat_datClass
+        self.StartDat_datetime = start_dat_datetime
+        self.EndDat_datetime = end_dat_datetime
 
 
         if isinstance(ersterTag,str):
@@ -52,19 +52,19 @@ class WPTriggerDatum:
         # Bestimmung nächster Prüftag
         if self.FlagErsterWochentag:
 
-            self.NaechstTriggerTag_datClass = hdt.get_next_weekday(self.Start_datClass,
+            self.NaechstTriggerTag_datetime = hdt.get_next_weekday(self.StartDat_datetime,
                                                           self.ErsterWochentag)
         else:
 
-            self.NaechstTriggerTag_datClass = hdt.get_next_datumday(self.Start_datClass,
+            self.NaechstTriggerTag_datetime = hdt.get_next_datumday(self.StartDat_datetime,
                                                                  self.ErsterDatumstag)
 
         # end if
 
         # Prüfen, ob über end-Datum
-        if (self.NaechstTriggerTag_datClass - self.End_datClass) > datetime.timedelta(0):
+        if (self.NaechstTriggerTag_datetime - self.EndDat_datetime) > datetime.timedelta(0):
             self.status = hdef.NOT_OKAY
-            self.errtext = f"WPTriggerDatum: Bei Init NaechsterTriggerTag: {self.NaechstTriggerTag_datClass} nach Ende: {self.End_datClass}"
+            self.errtext = f"WPTriggerDatum: Bei Init NaechsterTriggerTag: {self.NaechstTriggerTag_datetime} nach Ende: {self.EndDat_datetime}"
             return
 
         # end if
@@ -72,27 +72,27 @@ class WPTriggerDatum:
 
         return
     # end def
-    def triggerStatus(self,akt_dat_datClass):
+    def triggerStatus(self,akt_dat_datetime):
         """
-        flag = self.triggerStatus(akt_dat_datClass)
+        flag = self.triggerStatus(akt_dat_datetime)
 
         Prüft, ob das aktuelle Datum vor, gleich bzw. nach dem nächsten Trigger Tag liegt
-        (self.NaechstTriggerTag_datClass)
+        (self.NaechstTriggerTag_datetime)
 
             wenn nächster Trigger vor dem aktuellen Datum dann flag = False
             wenn nächster Trigger gleich oder nach dem aktuellen Datum dann flag = True
 
-        :param akt_dat_datClass:
+        :param akt_dat_datetime:
         :return:
         """
 
-        if akt_dat_datClass < self.NaechstTriggerTag_datClass:
+        if akt_dat_datetime < self.NaechstTriggerTag_datetime:
             return False
         else:
             return True
         # end if
     # end def
-    def set_next_trigger_day(self):
+    def setNextTriggerDay(self):
         """
         setzt den nächsten Triggertag voraus nach vorgegebener Regel
         :return:
@@ -100,11 +100,11 @@ class WPTriggerDatum:
         # Bestimmung nächster Prüftag
         if self.FlagWiederholWochentag:
 
-            self.NaechstTriggerTag_datClass = hdt.get_next_weekday(self.NaechstTriggerTag_datClass,
+            self.NaechstTriggerTag_datetime = hdt.get_next_weekday(self.NaechstTriggerTag_datetime,
                                                           self.WiederholWochentag)
         else:
 
-            self.NaechstTriggerTag_datClass = hdt.get_next_datumday(self.NaechstTriggerTag_datClass,
+            self.NaechstTriggerTag_datetime = hdt.get_next_datumday(self.NaechstTriggerTag_datetime,
                                                                  self.WiederholDatumstag)
 
         # end if

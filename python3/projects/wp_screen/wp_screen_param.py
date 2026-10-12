@@ -12,7 +12,8 @@ class Param:
                             ("scre_dict_pre_file_name", "str", "str", "scre_dict_"),
                             ("scre_dataclass_pre_file_name", "str", "str", "scre_dataclass_"),
                             ("plotdef_liste_file_name", "str", "str", "plotdef_liste"),
-                            ("plotdef_dict_pre_file_name", "str", "str", "plotdef_dict_")
+                            ("plotdef_dict_pre_file_name", "str", "str", "plotdef_dict_"),
+                            ("ezbzins_dataclass_file_name", "str", "str", "ezbzins_dataclass")
                             ]
 
     LOG_SCREEN_OUT = 1

@@ -13,8 +13,10 @@ import wp_screen.wp_screen_katalog as wp_screen_katalog
 import wp_screen.wp_screen_sigset as wp_screen_sigset
 import wp_screen.wp_screen_tab as wp_screen_tab
 import wp_screen.wp_screen_scre as wp_screen_scre
+import wp_screen.wp_screen_ezbzins as wp_screen_ezbzins
 
 import wp_abfrage.wp_base as wp_abfrage_base
+
 
 import tools.hfkt_def as hdef
 import tools.hfkt_log as hlog
@@ -293,3 +295,36 @@ class WPScreen:
         # end if
         return rawtable
     # end def
+    def build_ezbzins_sigset(self):
+        """
+
+        (status,errtext) = self.build_ezbzins_sigset()
+
+        """
+
+        wp_screen_ezbzins.build_ezbzins_sigset(self)
+
+        if wp_screen_ezbzins.get_status() != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"Error wp_screen_base.build_ezbzins_sigset() errtext = {wp_screen_ezbzins.get_errtext()}"
+            wp_screen_ezbzins.reset_status()
+        # end if
+
+        if len(wp_screen_ezbzins.get_infotext()):
+            self.infotext = wp_screen_ezbzins.get_infotext()
+            wp_screen_ezbzins.reset_status()
+        # end if
+        return
+    # end def
+    def get_ezbzins(self,dat):
+        """
+
+        """
+        ezbzins = wp_screen_ezbzins.get_ezbzins(self,dat)
+
+        if wp_screen_ezbzins.get_status() != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"Error wp_screen_base.build_ezbzins_sigset() errtext = {wp_screen_ezbzins.get_errtext()}"
+            wp_screen_ezbzins.reset_status()
+        # end if
+        return ezbzins

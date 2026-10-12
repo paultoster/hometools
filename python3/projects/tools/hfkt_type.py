@@ -497,7 +497,7 @@ def type_proof(wert_in, type):
     '''
     (okay,wert) = type_proof(wert_in, type) Prüft den Wert auf seinen type und wandelt gegebenefalls
     
-    type: "str","float","int","dat","iban"
+    type: "str","float","int","bool","dat","iban"
     "dat": Convert to epoch seconds
     "datetimeclass" Converts into class datetime
     "datStrP": Convert to date string mit Punkt "20.03.2024"
@@ -527,6 +527,8 @@ def type_proof(wert_in, type):
         return type_proof_float(wert_in)
     elif type == "int":
         return type_proof_int(wert_in)
+    elif type == "bool":
+        return type_proof_bool(wert_in)
     elif type == "list":
         return type_proof_list(wert_in, "")
     elif isinstance(type,list):
@@ -661,6 +663,45 @@ def type_proof_int(wert_in):
         return (okay, wert)  # endif
 
 
+# enddef
+def type_proof_bool(wert_in):
+
+    if (isinstance(wert_in, bool)):
+        return (hdef.OKAY, wert_in)
+    elif (isinstance(wert_in, int)):
+        wert = bool(wert_in)
+        return (hdef.OKAY, wert)
+    elif (isinstance(wert_in, list) or isinstance(wert_in, tuple)):
+        try:
+            return type_proof_bool(wert_in[0])
+        except:
+            return (hdef.NOT_OKAY, None)  # endtry
+    elif (isinstance(wert_in, str)):
+
+        if (wert_in.lower() == "true"):
+            wert = True
+        elif (wert_in.lower() == "false"):
+            wert = False
+        else:
+            wert = None
+        # end if
+        if (wert == None):
+            okay = hdef.NOT_OKAY
+        else:
+            okay = hdef.OKAY
+        # endif
+        return (okay,wert)
+    else:
+        try:
+            wert = bool(wert_in)
+            okay = hdef.OKAY
+        except:
+            wert = None
+            okay = hdef.NOT_OKAY
+        # endtry
+        return (okay, wert)  # endif
+
+    # end if
 # enddef
 
 def type_proof_list(wert_in,type):
@@ -1666,7 +1707,7 @@ def type_transform_direct(wert_in: any, type_in: str | list, type_out: str | lis
 def type_transform(wert_in: any, type_in: str | list, type_out: str | list):
     '''
     
-    type: "str","float","int","dat","iban"
+    type: "str","float","int","bool","dat","iban"
     "dat": Convert to epoch seconds
     "datetimeclass" Converts into class datetime
     "datStrP": Convert to date string mit Punkt "20.03.2024"
@@ -1711,6 +1752,8 @@ def type_transform(wert_in: any, type_in: str | list, type_out: str | list):
         (okay, wert_out) = type_transform_str(wert_in, type_out)
     elif type_in == "int":
         (okay, wert_out) = type_transform_int(wert_in, type_out)
+    elif type_in == "bool":
+        (okay, wert_out) = type_transform_bool(wert_in, type_out)
     elif type_in == "float":
         (okay, wert_out) = type_transform_float(wert_in, type_out)
     elif type_in == "euro":
@@ -1783,22 +1826,22 @@ def  type_transform_datetimeclass(wert_in,type_out):
     :return: (okay, wert_out) =  type_transform_dat(wert_in,type_out)
     '''
     (okay, wert) = type_proof(wert_in, 'datetimeclass')
-    secs = datetime.timestamp(wert)
+    secs = wert.timestamp()
     if( okay == hdef.OKAY):
         if (type_out == "datStr") or (type_out == "datStrP"):
-            wert_out = hdate.secs_time_epoch_to_str(wert,delim=".")
+            wert_out = hdate.secs_time_epoch_to_str(secs,delim=".")
         elif type_out == "datStrB":
-            wert_out = hdate.secs_time_epoch_to_str(wert, delim="-")
+            wert_out = hdate.secs_time_epoch_to_str(secs, delim="-")
         elif type_out == "datStrBInv":
-            wert_out = hdate.secs_time_epoch_to_str(wert, delim="-",date_inverse_flag=True)
+            wert_out = hdate.secs_time_epoch_to_str(secs, delim="-",date_inverse_flag=True)
         elif type_out == "monthInt":
-            liste = hdate.secs_time_epoch_to_int_list(wert)
+            liste = hdate.secs_time_epoch_to_int_list(secs)
             wert_out = int(liste[1])
         elif type_out == "yearStr":
-            liste = hdate.secs_time_epoch_to_int_list(wert)
+            liste = hdate.secs_time_epoch_to_int_list(secs)
             wert_out = str(liste[0])
-        elif type_out == "int":
-            wert_out = int(wert)
+        elif (type_out == "int") or (type_out == "dat"):
+            wert_out = int(secs)
         else:
             raise Exception(f"In type_transform_dat ist type_out: {type_out} nicht möglich")
         # end if
@@ -2095,7 +2138,7 @@ def  type_transform_int(wert_in,type_out):
                 okay = hdef.NOT_OKAY
                 wert_out = None
             # end if
-        if (type_out == "float") or (type_out == "euro"):
+        elif (type_out == "float") or (type_out == "euro"):
             (okay, wert_out) = type_proof(wert, type_out)
         elif type_out == "cent":
             wert_out = wert
@@ -2111,6 +2154,38 @@ def  type_transform_int(wert_in,type_out):
             wert_out = hdate.secs_time_epoch_to_str(wert, delim=".")
         elif type_out == "datStrB":
             wert_out = hdate.secs_time_epoch_to_str(wert, delim="-")
+        else:
+            raise Exception(f"In type_transform_int ist type_out: {type_out} nicht möglich")
+        # end if
+    else:
+        wert_out = wert
+    # end if
+    return (okay,wert_out)
+# end def
+def  type_transform_bool(wert_in,type_out):
+    '''
+    :param wert_in:
+    :param type_out:
+    :return: (okay, wert_out) =  type_transform_dat_bool(wert_in,type_out)
+    '''
+    (okay, wert) = type_proof_bool(wert_in)
+    if( okay == hdef.OKAY):
+        if (type_out == "float") or (type_out == "euro"):
+
+            (okay, wert_out) = type_proof(float(wert), type_out)
+        elif type_out == "cent":
+            wert_out = int(wert)
+        elif type_out == "str":
+            (okay, wert_out) = type_proof(str(wert), "str")
+        elif type_out == "euroStrK":
+            wert_out = num_cent_in_euroStr(float(wert))
+        elif type_out == "list":
+            wert_out = [wert]
+        elif (type_out == "listStr") or (type_out == "list_str") :
+            wert_out = [str(wert)]
+        elif (type_out == "datStr") or (type_out == "datStrP") or (type_out == "datStrB"):
+            wert_out = None
+            okay = hdef.NOT_OKAY
         else:
             raise Exception(f"In type_transform_int ist type_out: {type_out} nicht möglich")
         # end if

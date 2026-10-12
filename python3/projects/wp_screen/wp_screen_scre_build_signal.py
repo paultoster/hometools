@@ -64,7 +64,7 @@ def scre_build_signal(rd,scre, isin,sigset_werte_dict_liste):
     # Datum in np_data_obj schreiben
     if not hnpfkt.is_monoton_steigend(np_isin_obj.dat_np_array):
         STATUS = hdef.NOT_OKAY
-        ERRTEXT = f"scre_build_signal: Für {isin = } ist np_isin_obj mit dem Datums-array nicht monoton steigend \n{errtext = }"
+        ERRTEXT = f"scre_build_signal: Für {isin = } ist np_isin_obj mit dem Datums-array nicht monoton steigend"
         return
     # end if
 
@@ -121,7 +121,7 @@ def scre_build_signal(rd,scre, isin,sigset_werte_dict_liste):
     np_data_obj.save()
     if np_data_obj.get_status() != hdef.OKAY:
         STATUS = hdef.NOT_OKAY
-        ERRTEXT = f"scre_build_signal: Für {isin = } konnte Signal {rd.par.SIG_STORE_DATUM} nicht zu np_data_obj hinzugefügt werden \n{np_data_obj.get_errtext()}"
+        ERRTEXT = f"scre_build_signal: Für {isin = } konnte np_data_obj nicht gespeichert werden \n{np_data_obj.get_errtext()}"
         return
     # end if
 

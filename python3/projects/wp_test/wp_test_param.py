@@ -12,25 +12,25 @@
 
     Parameter:
 
-    Name                format      default     Beispiel        Erklärung
-    Start               datStrP                 "01.01.2000"    Beginn  der Simulation
-    End                 datStrP                 "31.12.2010"    Ende der Simulation
-    ErsterTagPruefung   str/int                 "Do",1          Erste Prüfung der Strategie kann Wochentag sein Mo,Di,Mi,Do,Fr,Sa,So
-                                                                oder ein Tag zwischen 1 ... (30,31),
-    WiederholTagPruefung str/int                "Mi",1          Wiederholtag zu Prüfung ist Wochentag oder Monatsdatume
-    ErterTagErgebnis    str/int                 "Mo",1          Erste Ergebinsausgabe kann Wochentag sein Mo,Di,Mi,Do,Fr,Sa,So oder ein Tag zwischen 1 ... (30,31),
-    WiederholTagErgebnis str/int                "Di",31         Wiederholtag Ergebinsausgabe ist Wochentag oder Monatsdatume
-    StartCash           euroStrK                 "10.000,00"    Startkapital in Euro
-    CashAufteilung      str/list(int)            "gleich"       Aufteilung des Cash auf die Kataloggruppen
-    SimName             str                      "TestLauf"     Name der Simulation
-    Katalog             dict[gruppe]:list(isin)                 Die zu betrachtenden Wps in Gruppen z.B. "{'Tagesgeld':['ezbleitzins']}"
-    ParameterVariation  str                      "parallel"     alle Parameter werden Parralell in ihrer sequenz verabrbeitet
-
-
-
-
-
 """
+PARAM_LLIST = [
+("StartDat_str",           "Beginn der Simulation (01.01.2000)",{"type":"datStrP"}),
+("EndDat_str",             "Ende der Simulation  (31.10.2015)",{"type":"datStrP"}),
+("ErsterTagPruefung",      "Erste Prüfung der Strategie kann Wochentag oder ein Tag (Mo,Di,Mi,Do,Fr,Sa,So, 1 ... (30,31))",{"wert":["Mo","Di","Do","Fr","Sa","So"],"type":"int"}),
+("WiederholTagPruefung",   "Wiederholtag zu Prüfung ist Wochentag oder Monatsdatume  (Mo,Di,Mi,Do,Fr,Sa,So, 1 ... (30,31))",{"wert":["Mo","Di","Do","Fr","Sa","So"],"type":"int"}),
+("ErsterTagErgebnis",       "Erste Ergebnisausgabe (Zwischenergebnis) der Strategie kann Wochentag oder ein Tag (Mo,Di,Mi,Do,Fr,Sa,So, 1 ... (30,31))",{"wert":["Mo","Di","Do","Fr","Sa","So"],"type":"int"}),
+("WiederholTagErgebnis",    "Wiederholtag Ergebinsausgabe ist Wochentag oder Monatsdatume  (Mo,Di,Mi,Do,Fr,Sa,So, 1 ... (30,31))",{"wert":["Mo","Di","Do","Fr","Sa","So"],"type":"int"}),
+("StartCash",               "Startkapital in Euro  (10,000,00 )",{"type":"euroStrK"}),
+("ZinsKontoPruefung",       "Soll verbleibender Cash auf Zinskonto gelegt werden  (True/False, bool)",{"type":"bool"}),
+("ErsterTagZinsAbrechnung", "Erste Zinsabrechnung der Strategie kann Wochentag oder ein Tag (Mo,Di,Mi,Do,Fr,Sa,So, 1 ... (30,31))",{"wert":["Mo","Di","Do","Fr","Sa","So"],"type":"int"}),
+("WiederholTagZinsAbrechnung", "Wiederholtag Ergebinsausgabe ist Wochentag oder Monatsdatume  (Mo,Di,Mi,Do,Fr,Sa,So, 1 ... (30,31))",{"wert":["Mo","Di","Do","Fr","Sa","So"],"type":"int"}),
+("SimName",                 "Name der Simulation  (TestLauf, str)",{"type":"str"}),
+("Katalog",                 "Die zu betrachtenden WPs in Gruppen als Katalog ('{'Tagesgeld':['ezbleitzins']}', json von dict)",{"type":"str"}),
+("NAuswahlWPGruppe",        "Anzahl WP aus Anzahl Katlaog-Gruppen  (1, int)",{"type":"int"}),
+("NAuswahlWP",              "Anzahl WP aus Liste pro Katlaog-Gruppe  (1, int)",{"type":"int"}),
+("ParameterVariation",      "Beschreibung  (parallel, format)",{"wert":["parallel"]})
+]
+
 import copy
 import os, sys
 import yaml
@@ -52,18 +52,16 @@ import tools.hfkt_type as htype
 
 PARAMETERFILE = ""
 
-PARAMKEYS = ["Start","End","ErsterTagPruefung","WiederholTagPruefung","ErsterTagErgebnis",
-             "WiederholTagErgebnis","StartCash","CashAufteilung","SimName","Katalog","ParameterVariation"]
 
 
-def set_param(master,param_filename):
+def set_param(mobj,param_filename):
     """
 
-    param_liste = set_param(master,param_filename)
+    "param_struct_liste,comment_struct" = set_param(mobj,param_filename)
 
-    :param master:          contains infos and status,errtext, etc
+    :param mobj:          contains infos and status,errtext, etc
     :param param_filename:  Parameterfile
-    :return: param_liste    List mit Parameter-sets
+    :return: param_struct_liste,comment_struct    List mit Parameter-sets und ein comment-set
     """
 
     par_liste = []
@@ -80,58 +78,44 @@ def set_param(master,param_filename):
     except yaml.YAMLError as exc:
         mark = getattr(exc, "problem_mark", None)
         where = f" at line {mark.line + 1}, column {mark.column + 1}" if mark else ""
-        master.status = hdef.NOT_OKAY
-        master.errtext = f"invalid YAML in {path}{where}: {getattr(exc, 'problem', exc)}"
+        mobj.status = hdef.NOT_OKAY
+        mobj.errtext = f"invalid YAML in {path}{where}: {getattr(exc, 'problem', exc)}"
     # end try
-
-    # Parameterplatzhalter ersetzen
-    #------------------------------
-    par_liste = build_par_liste(master,par_raw_dict)
-
-    return par_liste
-# end def
-def build_par_liste(master,par_raw_dict):
-    """
-
-    par_liste = build_par_liste(master,par_raw_dict)
-
-    :param master:              contains infos and status,errtext, etc
-    :param par_raw_dict:        eingelesenes yaml-File
-    :return: par_liste          Liste mit allen Parametersätzen
-    """
-    global PARAMETERFILE
 
     par_liste = []
 
-    (par_dict,platzhalter_dict_liste) = build_par_liste_sep_platzh(master,par_raw_dict)
+    # Auftrennen von platzhalter Parmeter und eigentlichen Parameter
+    #---------------------------------------------------------------
+    (par_dict,platzhalter_dict_liste) = build_par_liste_sep_platzh(mobj,par_raw_dict)
 
-    par_liste_erste_pruefung(master,par_dict)
-    if master.status != hdef.OKAY:
-        return []
+    par_liste_pruefung_existenz(mobj,par_dict)
+    if mobj.status != hdef.OKAY:
+        return (None,None)
 
-    par_liste = build_par_liste_ersetze_platzh(master,par_dict,platzhalter_dict_liste)
-    if master.status != hdef.OKAY:
-        return []
+    par_liste = build_par_liste_ersetze_platzh(mobj,par_dict,platzhalter_dict_liste)
+    if mobj.status != hdef.OKAY:
+        return (None,None)
 
-    par_liste_zweite_pruefung(master, par_liste)
-    if master.status != hdef.OKAY:
-        return []
+    par_liste_pruefung_inhalt(mobj, par_liste)
+    if mobj.status != hdef.OKAY:
+        return (None,None)
 
-    par_liste = build_par_liste_konvertieren(master, par_liste)
-    if master.status != hdef.OKAY:
-        return []
+    par_liste = build_par_liste_konvertieren(mobj, par_liste)
+    if mobj.status != hdef.OKAY:
+        return (None,None)
 
+    comment_struct = build_comment_liste(par_liste)
 
-    par_struct_liste = build_struktur_liste(master,par_liste)
+    par_struct_liste = build_struktur_liste(mobj,par_liste)
 
-    return par_struct_liste
+    return (par_struct_liste,comment_struct)
 # end def
-def build_par_liste_sep_platzh(master,par_raw_dict):
+def build_par_liste_sep_platzh(mobj,par_raw_dict):
     """
 
-    (par_dict,platzhalter_dict_liste) = build_par_liste_sep_platzh(master,par_raw_dict)
+    (par_dict,platzhalter_dict_liste) = build_par_liste_sep_platzh(mobj,par_raw_dict)
 
-    :param master:
+    :param mobj:
     :param par_raw_dict:
     :return par_dict                 separierte Parameter
     :return platzhalter_dict_liste   Liste mit Platzhaltern
@@ -147,26 +131,26 @@ def build_par_liste_sep_platzh(master,par_raw_dict):
 
             key2 = "type"
             if key2 not in par_raw_dict[key]:
-                master.status = hdef.NOT_OKAY
-                master.errtext = f"build_par_liste_sep_platzh: In File {PARAMETERFILE} ist für Parameter {key} kein Unterparameter: {key2} definiert"
+                mobj.status = hdef.NOT_OKAY
+                mobj.errtext = f"build_par_liste_sep_platzh: In File {PARAMETERFILE} ist für Parameter {key} kein Unterparameter: {key2} definiert"
                 return (None,None)
             # end if
 
             if par_raw_dict[key][key2] == "liste":
                 key3 = "liste"
                 if key3 not in par_raw_dict[key]:
-                    master.status = hdef.NOT_OKAY
-                    master.errtext = f"build_par_liste_sep_platzh: In File {PARAMETERFILE} ist für Parameter {key} kein Unterparameter: {key3} definiert"
+                    mobj.status = hdef.NOT_OKAY
+                    mobj.errtext = f"build_par_liste_sep_platzh: In File {PARAMETERFILE} ist für Parameter {key} kein Unterparameter: {key3} definiert"
                     return (None, None)
                 # end if
                 if not isinstance(par_raw_dict[key][key3],list):
-                    master.status = hdef.NOT_OKAY
-                    master.errtext = f"build_par_liste_sep_platzh: In File {PARAMETERFILE} ist für Parameter {key} ist  Unterparameter: {key3} keine Liste"
+                    mobj.status = hdef.NOT_OKAY
+                    mobj.errtext = f"build_par_liste_sep_platzh: In File {PARAMETERFILE} ist für Parameter {key} ist  Unterparameter: {key3} keine Liste"
                     return (None, None)
                 # end if
             else:
-                master.status = hdef.NOT_OKAY
-                master.errtext = f"build_par_liste_sep_platzh: In File {PARAMETERFILE} ist für Parameter {key} mit Unterparameter: {key2} nicht korrekt definiert"
+                mobj.status = hdef.NOT_OKAY
+                mobj.errtext = f"build_par_liste_sep_platzh: In File {PARAMETERFILE} ist für Parameter {key} mit Unterparameter: {key2} nicht korrekt definiert"
                 return (None, None)
             # end if
 
@@ -187,41 +171,34 @@ def build_par_liste_sep_platzh(master,par_raw_dict):
 
     return (par_dict,platzhalter_dict_liste)
 # end def
-def par_liste_erste_pruefung(master,par_dict):
+def par_liste_pruefung_existenz(mobj,par_dict):
     """
         Es werden alle keys geprüft und der Inhalt zur Parameterbestimmung
 
-        par_liste_erste_pruefung(master,par_dict)
+        par_liste_erste_pruefung(mobj,par_dict)
 
-    :param master:
+    :param mobj:
     :param par_dict:
     :return:
     """
     global PARAMETERFILE
-    for key in PARAMKEYS:
+    for liste in PARAM_LLIST:
+        key = liste[0]
         if key not in par_dict:
-            master.status = hdef.NOT_OKAY
-            master.errtext = f"par_liste_erste_pruefung: In File {PARAMETERFILE} fehlt Parameter {key}"
+            mobj.status = hdef.NOT_OKAY
+            mobj.errtext = f"par_liste_erste_pruefung: In File {PARAMETERFILE} fehlt Parameter {key}"
             return
         # end if
     # end for
 
-    if par_dict["ParameterVariation"].lower() != "parallel":
-        master.status = hdef.NOT_OKAY
-        master.errtext = f"par_liste_erste_pruefung: In File {PARAMETERFILE} ist Parameter {"ParameterVariation"} nicht richt gesetzt."
-        return
-    else:
-        par_dict["ParameterVariation"] = "parallel"
-    # end if
-
     return
 # end def
-def build_par_liste_ersetze_platzh(master,par_dict,platzhalter_dict_liste):
+def build_par_liste_ersetze_platzh(mobj,par_dict,platzhalter_dict_liste):
     """
 
-    par_liste = build_par_liste_ersetze_platzh(master, par_dict, platzhalter_dict_liste)
+    par_liste = build_par_liste_ersetze_platzh(mobj, par_dict, platzhalter_dict_liste)
 
-    :param master:
+    :param mobj:
     :param par_dict:
     :param platzhalter_dict_liste:
     :return: par_liste
@@ -233,7 +210,7 @@ def build_par_liste_ersetze_platzh(master,par_dict,platzhalter_dict_liste):
 
     if par_dict["ParameterVariation"] == "parallel":
 
-        n_par_liste = 0
+        n_par_liste = 1  #  Minimal eins
         for pdict in platzhalter_dict_liste:
             n_par_liste = max(n_par_liste,pdict["n"])
         # end for
@@ -276,165 +253,59 @@ def build_par_liste_ersetze_platzh(master,par_dict,platzhalter_dict_liste):
 
     return par_liste
 # end def
-def par_liste_zweite_pruefung(master, par_liste):
+def par_liste_pruefung_inhalt(mobj, par_liste):
     """
 
-    par_liste_zweite_pruefung(master, par_liste):
+    par_liste_pruefung_inhalt(mobj, par_liste):
 
-    :param master:
+    :param mobj:
     :param par_liste:
     :return:
 
     """
     global PARAMETERFILE
 
-    for (i,pdict) in enumerate(par_liste):
+    for pdict in par_liste:
 
-        # Start
-        #------
-        key = "Start"
-        (okay, wert) = htype.type_proof(pdict[key], "datStrP")
-        if okay != hdef.OKAY:
-            master.status = hdef.NOT_OKAY
-            master.errtext = f"par_liste_zweite_pruefung: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} ist kein Datum"
-            return
-        # end if
+        for liste in PARAM_LLIST:
+            key = liste[0]
+            ddict = liste[2]
 
-        # End
-        #------
-        key = "End"
-        (okay, wert) = htype.type_proof(pdict[key], "datStrP")
-        if okay != hdef.OKAY:
-            master.status = hdef.NOT_OKAY
-            master.errtext = f"par_liste_zweite_pruefung: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} ist kein Datum"
-            return
-        # end if
+            okay = hdef.NOT_OKAY
 
-        # ErsterTagPruefung
-        # ------------------
-        key = "ErsterTagPruefung"
-        if isinstance(pdict[key], str):
-            wochentage = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"]
-            if pdict[key] not in wochentage:
-                master.status = hdef.NOT_OKAY
-                master.errtext = f"par_liste_zweite_pruefung: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} ist kein Wochentag: {wochentage}"
-                return
+            if len(ddict) == 0:
+                okay = hdef.OKAY
+
+            if "type" in ddict.keys():
+                (okay, wert) = htype.type_proof(pdict[key],ddict["type"])
+                if ("wert" not in ddict.keys()) and (okay != hdef.OKAY):
+                    mobj.status = hdef.NOT_OKAY
+                    mobj.errtext = f"par_liste_pruefung_inhalt: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} ist nicht vom type: {ddict["type"]}"
+                    return
+                # end if
             # end if
-        else:
-            value = int(pdict[key])
-            if value < 1:
-                value = 1
-            elif value > 31:
-                value = 31
-        # end if
-
-        # WiederholTagPruefung
-        # -----------------
-        key = "WiederholTagPruefung"
-        if isinstance(pdict[key], str):
-            wochentage = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"]
-            if pdict[key] not in wochentage:
-                master.status = hdef.NOT_OKAY
-                master.errtext = f"par_liste_zweite_pruefung: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} ist kein Wochentag: {wochentage}"
-                return
+            if okay != hdef.OKAY:
+                if "wert" in ddict.keys():
+                    if pdict[key] not in ddict["wert"]:
+                        mobj.status = hdef.NOT_OKAY
+                        mobj.errtext = f"par_liste_pruefung_inhalt: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} ist nicht in der Werte-Liste: {ddict["wert"]}"
+                        return
+                    # end if
+                else:
+                    mobj.status = hdef.NOT_OKAY
+                    mobj.errtext = f"par_liste_pruefung_inhalt: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} promblematisch kein: ddict[\"wert\"] oder ddict[\"type\"]"
+                    return
+                # end if
             # end if
-        else:
-            value = int(pdict[key])
-        # end if
-
-        # ErsterTagErgebnis
-        # ------------------
-        key = "ErsterTagErgebnis"
-        if isinstance(pdict[key], str):
-            wochentage = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"]
-            if pdict[key] not in wochentage:
-                master.status = hdef.NOT_OKAY
-                master.errtext = f"par_liste_zweite_pruefung: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} ist kein Wochentag: {wochentage}"
-                return
-            # end if
-        else:
-            value = int(pdict[key])
-            if value < 1:
-                value = 1
-            elif value > 31:
-                value = 31
-        # end if
-
-        # WiederholTagErgebnis
-        # -----------------
-        key = "WiederholTagErgebnis"
-        if isinstance(pdict[key], str):
-            wochentage = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"]
-            if pdict[key] not in wochentage:
-                master.status = hdef.NOT_OKAY
-                master.errtext = f"par_liste_zweite_pruefung: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} ist kein Wochentag: {wochentage}"
-                return
-            # end if
-        else:
-            value = int(pdict[key])
-        # end if
-
-
-        key = "StartCash"
-        (okay, wert) = htype.type_proof(pdict[key], "euroStrK")
-        if okay != hdef.OKAY:
-            master.status = hdef.NOT_OKAY
-            master.errtext = f"par_liste_zweite_pruefung: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} ist kein euroStrK"
-            return
-        # end if
-
-        key = "CashAufteilung"
-        if not isinstance(pdict[key], str):
-            master.status = hdef.NOT_OKAY
-            master.errtext = f"par_liste_zweite_pruefung: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} ist nicht \"gleichverteilt\""
-            return
-        elif pdict[key] != "gleichverteilt":
-            master.status = hdef.NOT_OKAY
-            master.errtext = f"par_liste_zweite_pruefung: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} ist nicht \"gleichverteilt\""
-            return
-        # end if
-
-        key = "SimName"
-        if not isinstance(pdict[key], str):
-            master.status = hdef.NOT_OKAY
-            master.errtext = f"par_liste_zweite_pruefung: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} ist nicht string"
-            return
-        # end if
-
-        key = "Katalog"
-        if not isinstance(pdict[key], str):
-            master.status = hdef.NOT_OKAY
-            master.errtext = f"par_liste_zweite_pruefung: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} ist kein string"
-            return
-        try:
-            var = json.loads(pdict[key])
-        except Exception as e:
-            master.status = hdef.NOT_OKAY
-            master.errtext = f"par_liste_zweite_pruefung: In File {PARAMETERFILE} while reading the json-text \n\n\"{pdict[key]}\" \n message with {e}"
-            return
-        # end try
-
-        if not isinstance(var, dict):
-            master.status = hdef.NOT_OKAY
-            master.errtext = f"par_liste_zweite_pruefung: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} ist var: {var} kein dictionary"
-            return
-        # end if
-
-        for key2 in var.keys():
-            if not isinstance(var[key2], list):
-                master.status = hdef.NOT_OKAY
-                master.errtext = f"par_liste_zweite_pruefung: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} wird zu dict: {var} und die Wps der Gruppe {key2} is keine Liste"
-                return
-            # endif
         # end for
     # end for
 
     return
 # end def
-def build_par_liste_konvertieren(master, par_liste):
+def build_par_liste_konvertieren(mobj, par_liste):
     """
     Konvertiert z.B. json obj und weiteres
-    :param master:
+    :param mobj:
     :param par_liste:
     :return: par_liste
     """
@@ -443,7 +314,21 @@ def build_par_liste_konvertieren(master, par_liste):
 
         # Katalog
         #--------
-        pdict["Katalog"] = json.loads(pdict["Katalog"])
+        key = "Katalog"
+        try:
+            var = json.loads(pdict[key])
+        except Exception as e:
+            mobj.status = hdef.NOT_OKAY
+            mobj.errtext = f"par_liste_zweite_pruefung: In File {PARAMETERFILE} while reading the json-text \n\n\"{pdict[key]}\" \n message with {e}"
+            return
+        # end try
+
+        if not isinstance(var, dict):
+            mobj.status = hdef.NOT_OKAY
+            mobj.errtext = f"par_liste_zweite_pruefung: In File {PARAMETERFILE} ist Parameter {key} = {var} ist var: {var} kein dictionary"
+            return
+        # end if
+        pdict["Katalog"] = var
 
         # WiederholTagPruefung
         # -----------------
@@ -462,6 +347,19 @@ def build_par_liste_konvertieren(master, par_liste):
         # WiederholTagErgebnis
         # -----------------
         key = "WiederholTagErgebnis"
+        if not isinstance(pdict[key], str):
+            value = int(pdict[key])
+            if value < 1:
+                value = 1
+            elif value > 31:
+                value = 31
+            # end if
+            pdict[key] = value
+        # end if
+
+        # WiederholTagZinsAbrechnung
+        # -----------------
+        key = "WiederholTagZinsAbrechnung"
         if not isinstance(pdict[key], str):
             value = int(pdict[key])
             if value < 1:
@@ -476,10 +374,27 @@ def build_par_liste_konvertieren(master, par_liste):
 
     # end for
     return par_liste
-def build_struktur_liste(master,par_liste):
+def build_comment_liste(par_liste):
+
+    comdict = {}
+    pardict = par_liste[0]
+
+    for liste in PARAM_LLIST:
+        key     = liste[0]
+        comment = liste[1]
+
+        if key in pardict.keys():
+            comdict[key] = comment
+        # end if
+    # end for
+
+    comment_struct = SimpleNamespace(**comdict)
+    return comment_struct
+# end if
+def build_struktur_liste(mobj,par_liste):
     """
 
-    :param master:
+    :param mobj:
     :param par_liste:
     :return: par_struct_liste
     """
