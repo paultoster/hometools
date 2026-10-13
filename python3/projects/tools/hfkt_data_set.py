@@ -36,7 +36,7 @@ class DataSet:
                  ttable:class     = self.get_data_set_ttable([[header_liste],type_liste])
                  tlist:class      = self.get_one_data_set_tlist(irow, [header_liste, [type_liste]])
                  liste:list       = self.get_row_list_of_icol(icol, [type])
-                 liste:list       = self.get_row_list_of_header(headername, [type])
+                 liste:list       = self.get_row_list_of_header(headername, [type]) gibt eine Spalte zurück
                  type             = self.get_type_of_icol(icol)
                  type             = self.get_type_of_header(header)
                  data_type_dict   = self.get_data_type_dict()  data_type_dict[name] = type

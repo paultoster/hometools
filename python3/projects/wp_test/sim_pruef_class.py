@@ -41,7 +41,7 @@ class WPPruef:
 
         if self.Parobj.ZinsKontoPruefung:
             self.update_zinskonto_einzahlung()
-            if self.Parobj.status != hdef.STATUS_OK:
+            if self.Parobj.status != hdef.OKAY:
                 return
             # end if
         # end if
@@ -51,7 +51,7 @@ class WPPruef:
 
         # Was auf dem Verrechnungskonto liegt wird auf das Zins konto eingezahlt
         cash_cent = self.KontoObj.KontoVerrechnung.get_konto_summe()
-        if self.Parobj.status != hdef.STATUS_OK:
+        if self.Parobj.status != hdef.OKAY:
             return
 
         if cash_cent > 0:

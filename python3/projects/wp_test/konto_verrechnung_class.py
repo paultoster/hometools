@@ -20,13 +20,18 @@ class WPKontoVerrechnung:
     NAME_AKTION = "Aktion"
     NAME_WERT   = "Wert"
     NAME_SUMME  = "Summe"
-    Header_liste = [NAME_DATUM, NAME_AKTION, NAME_WERT, NAME_SUMME]
+    HEADER_LISTE = [NAME_DATUM, NAME_AKTION, NAME_WERT, NAME_SUMME]
+
+    ICOL_DATUM = HEADER_LISTE.index(NAME_DATUM)
+    ICOL_AKTION = HEADER_LISTE.index(NAME_AKTION)
+    ICOL_WERT = HEADER_LISTE.index(NAME_WERT)
+    ICOL_SUMME = HEADER_LISTE.index(NAME_SUMME)
 
     TYPE_DATUM = "datetimeclass"
     TYPE_AKTION = "str"
     TYPE_WERT = "cent"
     TYPE_SUMME = "cent"
-    Type_liste = [TYPE_DATUM, TYPE_AKTION, TYPE_WERT, TYPE_SUMME]
+    TYPE_LISTE = [TYPE_DATUM, TYPE_AKTION, TYPE_WERT, TYPE_SUMME]
 
 
     def __init__(self,parobj,name) -> None:
@@ -36,12 +41,12 @@ class WPKontoVerrechnung:
         # Konto anlegen
         #--------------
         self.KontoDataSet = hdset.DataSet(name)
-        self.KontoDataSet.set_definition_list(self.Header_liste, self.Type_liste, self.Type_liste)
+        self.KontoDataSet.set_definition_list(self.HEADER_LISTE, self.TYPE_LISTE, self.TYPE_LISTE)
 
         # Anfangswert setzen
         #-------------------
         data_set_liste = [self.Parobj.StartDat_datetime, "Anfangswert", 0,self.Parobj.StartCash_cent]
-        status = self.KontoDataSet.add_data_set_liste(data_set_liste, self.Header_liste, self.Type_liste)
+        status = self.KontoDataSet.add_data_set_liste(data_set_liste, self.HEADER_LISTE, self.TYPE_LISTE)
 
         if status != hdef.OKAY:
             self.Parobj.status = hdef.NOT_OKAY
@@ -49,6 +54,7 @@ class WPKontoVerrechnung:
             self.KontoDataSet.reset_status()
             return
         # end if
+
         return
     # end def
 
@@ -65,7 +71,7 @@ class WPKontoVerrechnung:
 
         # Prüfen
         #-------
-        (okay, wert) = htype.proof_type(cash_cent, self.TYPE_WERT)
+        (okay, wert) = htype.type_proof(cash_cent, self.TYPE_WERT)
         if okay != hdef.OKAY:
             raise Exception(
                 f"einzahlen: cash_cent = {cash_cent} kann nicht in type = {self.TYPE_WERT} gewandelt werden")
@@ -80,7 +86,7 @@ class WPKontoVerrechnung:
         # end if
         data_set_liste = [aktdat_datetime,aktion,wert,summe]
 
-        status = self.KontoDataSet.add_data_set_liste(data_set_liste,self.Header_liste, self.Type_liste)
+        status = self.KontoDataSet.add_data_set_liste(data_set_liste,self.HEADER_LISTE, self.TYPE_LISTE)
 
         if status != hdef.OKAY:
             self.Parobj.status = hdef.NOT_OKAY
@@ -101,6 +107,8 @@ class WPKontoVerrechnung:
         :return: tat_cash_cent = self.auszahlen(cash_cent,aktdat_datetime,aktion)
         """
 
+        cash_cent = abs(cash_cent)
+
         if self.KontoDataSet.get_n_data() > 0:
             summe = self.KontoDataSet.get_data_item(self.KontoDataSet.get_n_data()-1,self.NAME_SUMME)
         else:
@@ -109,7 +117,7 @@ class WPKontoVerrechnung:
 
         # Prüfen
         #-------
-        (okay, wert) = htype.proof_type(cash_cent, self.TYPE_WERT)
+        (okay, wert) = htype.type_proof(cash_cent, self.TYPE_WERT)
         if okay != hdef.OKAY:
             raise Exception(
                 f"einzahlen: cash_cent = {cash_cent} kann nicht in type = {self.TYPE_WERT} gewandelt werden")
@@ -122,9 +130,9 @@ class WPKontoVerrechnung:
         #--------------
         summe -= wert
 
-        data_set_liste = [aktdat_datetime,aktion,wert,summe]
+        data_set_liste = [aktdat_datetime,aktion,-wert,summe]
 
-        status = self.KontoDataSet.add_data_set_liste(data_set_liste,self.Header_liste, self.Type_liste)
+        status = self.KontoDataSet.add_data_set_liste(data_set_liste,self.HEADER_LISTE, self.TYPE_LISTE)
 
         if status != hdef.OKAY:
             self.Parobj.status = hdef.NOT_OKAY

@@ -1,5 +1,5 @@
 import os, sys
-import datetime
+import copy
 
 t_path, _ = os.path.split(__file__)
 tools_path = t_path + "\\.."
@@ -17,7 +17,8 @@ import wp_test_param
 import sim_class
 
 INI_DICT_PROOF_LISTE =   [("store_path", "str"),
-                          ("wpscre_func_ini_file_name","str")]
+                          ("wpscre_func_ini_file_name","str"),
+                          ("tage_pro_jahr","int","int",365.)]
 
 class WPTest:
     """
@@ -95,6 +96,14 @@ class WPTest:
                 parstruct.SimName += "_" + str(i)
 
             self.log.write_info(f"{i+1}/{n}: Start Simulation: {parstruct.SimName} von {parstruct.StartDat_str} - {parstruct.EndDat_str}")
+
+            # ini-Parameter dazu schreiben
+            #-----------------------------
+            for (key,item) in self.ini.items():
+                if not hasattr(parstruct, key):
+                    parstruct.__setattr__(key, copy.copy(item))
+                # end if
+            # end for
 
             # Init Simulation
             #----------------

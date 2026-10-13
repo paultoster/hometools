@@ -115,33 +115,39 @@ class WPSim:
     # end def
     def run(self):
 
-        self.Dataobj.AktDat_datetime += datetime.timedelta(days=1)
+        self.DataObj.AktDat_datetime += datetime.timedelta(days=1)
 
-        while self.Dataobj.AktDat_datetime != self.Parobj.EndDat_datetime:
+        while self.DataObj.AktDat_datetime != self.Parobj.EndDat_datetime:
 
             # Trigger
             #--------
-            pruefTrigger    = self.PruefDatumtObj.triggerStatus(self.Dataobj.AktDat_datetime)
-            ergebnisTrigger = self.ErgebnisDatumtObj.triggerStatus(self.Dataobj.AktDat_datetime)
-            zinsabrechnungTrigger = self.ZinsAbrechnungDatumtObj.triggerStatus(self.Dataobj.AktDat_datetime)
+            pruefTrigger    = self.PruefDatumtObj.triggerStatus(self.DataObj.AktDat_datetime)
+            ergebnisTrigger = self.ErgebnisDatumtObj.triggerStatus(self.DataObj.AktDat_datetime)
+            zinsabrechnungTrigger = self.ZinsAbrechnungDatumtObj.triggerStatus(self.DataObj.AktDat_datetime)
 
             # Daten updaten
             #--------------
             self.DataObj.update()
 
-
+            # Zinsänderung überprüfen
+            self.KontoObj.KontoZins.AktuallisiereZins(self.DataObj.AktDat_datetime,
+                                                      self.DataObj.AktZins_float)
 
             # Zinsabrechnung
             if zinsabrechnungTrigger:
-                print(f"zinsTrigger: {self.Dataobj.AktDat_datetime.strftime("%d.%m.%Y,}")}")
+                print(f"zinsTrigger: {self.DataObj.AktDat_datetime.strftime("%d.%m.%Y,}")}")
+
+                self.KontoObj.MacheZinsAbrechnung()
+
+                # Trigger neu setzen
                 self.ZinsAbrechnungDatumtObj.setNextTriggerDay()
             # end if
 
             # Pruefen
             if pruefTrigger:
-                print(f"pruefTrigger: {self.Dataobj.AktDat_datetime.strftime("%d.%m.%Y,}")}")
+                print(f"pruefTrigger: {self.DataObj.AktDat_datetime.strftime("%d.%m.%Y,}")}")
                 self.PruefObj.update()
-                if self.Parobj.status != hdef.STATUS_OK:
+                if self.Parobj.status != hdef.OKAY:
                     return
                 self.PruefDatumtObj.setNextTriggerDay()
             # end if
@@ -149,12 +155,12 @@ class WPSim:
             # Ergebnis
             #-----------
             if ergebnisTrigger:
-                print(f"ergebnisTrigger: {self.Dataobj.AktDat_datetime.strftime("%d.%m.%Y,}")}")
+                print(f"ergebnisTrigger: {self.DataObj.AktDat_datetime.strftime("%d.%m.%Y,}")}")
                 self.ErgebnisDatumtObj.setNextTriggerDay()
             # end if
 
             # Update den Tag
-            self.Dataobj.AktDat_datetime += datetime.timedelta(days=1)
+            self.DataObj.AktDat_datetime += datetime.timedelta(days=1)
         # end while
 
         return

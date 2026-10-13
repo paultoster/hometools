@@ -35,7 +35,7 @@ class WPData:
 
         # Daten zu Zinskonto anlegen
         #---------------------------
-        if parobj.ZinsKontoBenutzung:
+        if parobj.ZinsKontoPruefung:
 
             # Datensatz für ezb-zins anlegen
             self.WPscrefunc.build_ezbzins_sigset()
@@ -67,11 +67,11 @@ class WPData:
 
         # Daten zu Zinskonto
         #-------------------
-        if self.Parobj.ZinsKontoBenutzung:
+        if self.Parobj.ZinsKontoPruefung:
 
             # Zins aktuellem Datum abfragen
             self.AktZins_float = self.WPscrefunc.get_ezbzins(
-                htype.type_transform_direct(self.Dataobj.AktDat_datetime, "datetimeclass", "dat"))
+                htype.type_transform_direct(self.AktDat_datetime, "datetimeclass", "dat"))
         # end if
 
         return

@@ -24,6 +24,7 @@ PARAM_LLIST = [
 ("ZinsKontoPruefung",       "Soll verbleibender Cash auf Zinskonto gelegt werden  (True/False, bool)",{"type":"bool"}),
 ("ErsterTagZinsAbrechnung", "Erste Zinsabrechnung der Strategie kann Wochentag oder ein Tag (Mo,Di,Mi,Do,Fr,Sa,So, 1 ... (30,31))",{"wert":["Mo","Di","Do","Fr","Sa","So"],"type":"int"}),
 ("WiederholTagZinsAbrechnung", "Wiederholtag Ergebinsausgabe ist Wochentag oder Monatsdatume  (Mo,Di,Mi,Do,Fr,Sa,So, 1 ... (30,31))",{"wert":["Mo","Di","Do","Fr","Sa","So"],"type":"int"}),
+("ErtragsSteuerAnteil",     "Steueranteil an einem Gewinn oder Zinsertrag (28.,float)",{"type":"float"}),
 ("SimName",                 "Name der Simulation  (TestLauf, str)",{"type":"str"}),
 ("Katalog",                 "Die zu betrachtenden WPs in Gruppen als Katalog ('{'Tagesgeld':['ezbleitzins']}', json von dict)",{"type":"str"}),
 ("NAuswahlWPGruppe",        "Anzahl WP aus Anzahl Katlaog-Gruppen  (1, int)",{"type":"int"}),
