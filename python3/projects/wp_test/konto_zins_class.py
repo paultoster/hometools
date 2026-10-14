@@ -47,6 +47,8 @@ class WPKontoZins:
         #--------------
         self.KontoDataSet = hdset.DataSet(name)
         self.KontoDataSet.set_definition_list(self.Header_liste, self.Type_liste, self.Type_liste)
+        self.KontoDataSetSonderEintrag = False
+        self.KontoDataSetSonderEintragListe = []
 
         # Anfangswert setzen ,
         #-------------------
@@ -102,6 +104,11 @@ class WPKontoZins:
             return wert
         # end if
 
+        # Sondereintrag, der wieder gelöscht wird
+        if self.KontoDataSetSonderEintrag:
+            self.KontoDataSetSonderEintragListe.append(self.KontoDataSet.get_n_data() - 1)
+        # end if
+
         return wert
     # end def
     def auszahlen(self,cash_cent,aktdat_datetime,aktion, aktzins_float):
@@ -114,8 +121,12 @@ class WPKontoZins:
         :return: tat_cash_cent = self.auszahlen(cash_cent,aktdat_datetime,aktion)
         """
 
+        if cash_cent is None:
+            cash_cent = self.GetSumme()
+        # end if
+
         if self.KontoDataSet.get_n_data() > 0:
-            summe = self.KontoDataSet.get_data_item(self.KontoDataSet.get_n_data()-1,self.NAME_SUMME)
+            summe = self.GetSumme()
         else:
             summe = 0
         # end if
@@ -146,7 +157,16 @@ class WPKontoZins:
             return wert
         # end if
 
+        # Sondereintrag, der wieder gelöscht wird
+        if self.KontoDataSetSonderEintrag:
+            self.KontoDataSetSonderEintragListe.append(self.KontoDataSet.get_n_data() - 1)
+        # end if
+
         return wert
+    # end def
+    def GetSumme(self):
+        summe = self.KontoDataSet.get_data_item(self.KontoDataSet.get_n_data() - 1, self.NAME_SUMME)
+        return summe
     # end def
     def AktuallisiereZins(self,aktDat_datetime,aktZins_float):
         """
@@ -214,6 +234,40 @@ class WPKontoZins:
 
         return steuer_c
     # end def
+    def SetzeSonderEintragFlag(self):
+        self.KontoDataSetSonderEintrag = True
+        return
+    # end def
+    def LoescheSonderEintrag(self):
 
+        if len(self.KontoDataSetSonderEintragListe):
+
+            liste = sorted(self.KontoDataSetSonderEintragListe,reverse=True)
+
+            flagLastPoints = True
+            for irow in liste:
+                if (irow+1) != self.KontoDataSet.get_n_data() :
+                    flagLastPoints = False
+                # end if
+                status = self.KontoDataSet.delete_row_in_data_set(irow)
+                if status != hdef.OKAY:
+                    self.Parobj.status = hdef.NOT_OKAY
+                    self.Parobj.errtext = self.KontoDataSet.get_errtext()
+                    self.KontoDataSet.reset_status()
+                    return
+                # end if
+            # end for
+
+            # Summen neu Berechnen
+            if not flagLastPoints:
+                self.KontoDataSet.recalc_summe_from_value(self.NAME_SUMME,
+                                                           self.NAME_WERT)
+            # end if
+            self.KontoDataSetSonderEintragListe = []
+        # end if
+        self.KontoDataSetSonderEintrag = False
+        return
+    # end def
+# end class
 
 

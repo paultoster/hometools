@@ -11,8 +11,6 @@ import tools.hfkt_def as hdef
 import tools.hfkt_type as htype
 # import tools.hfkt_np_calc as hnpcalc
 
-import konto_verrechnung_class
-import konto_zins_class
 
 class WPPruef:
     """
@@ -38,25 +36,13 @@ class WPPruef:
             pass
         # end if
 
-
+        # Soll alles Cash in Zins steckenen
         if self.Parobj.ZinsKontoPruefung:
-            self.update_zinskonto_einzahlung()
+            self.KontoObj.UpdateZinskontoEinzahlung()
             if self.Parobj.status != hdef.OKAY:
                 return
             # end if
         # end if
-        return
-    # end def
-    def update_zinskonto_einzahlung(self):
-
-        # Was auf dem Verrechnungskonto liegt wird auf das Zins konto eingezahlt
-        cash_cent = self.KontoObj.KontoVerrechnung.get_konto_summe()
-        if self.Parobj.status != hdef.OKAY:
-            return
-
-        if cash_cent > 0:
-            cash_cent = self.KontoObj.uebreweise_von_Verrechnung_auf_Zins(cash_cent)
-
         return
     # end def
 

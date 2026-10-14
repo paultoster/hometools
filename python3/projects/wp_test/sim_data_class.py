@@ -54,6 +54,11 @@ class WPData:
 
             # Zins Startdatum abfragen
             self.AktZins_float = self.WPscrefunc.get_ezbzins(htype.type_transform_direct(self.Parobj.StartDat_datetime, "datetimeclass", "dat"))
+
+            # bei Negativzins auf null setzen
+            if self.AktZins_float < 0.0:
+                self.AktZins_float = 0.0
+            # end if
         else:
             self.AktZins_float = 0.0
         # end if
@@ -72,6 +77,11 @@ class WPData:
             # Zins aktuellem Datum abfragen
             self.AktZins_float = self.WPscrefunc.get_ezbzins(
                 htype.type_transform_direct(self.AktDat_datetime, "datetimeclass", "dat"))
+
+            # bei Negativzins auf null setzen
+            if self.AktZins_float < 0.0:
+                self.AktZins_float = 0.0
+            # end if
         # end if
 
         return

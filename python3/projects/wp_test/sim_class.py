@@ -17,6 +17,7 @@ import konto_class
 import trigger_datum_class
 import sim_data_class
 import sim_pruef_class
+import sim_ergebnis_class
 
 class WPSim:
     """
@@ -97,6 +98,20 @@ class WPSim:
                                                 self.Parobj,
                                                 self.DataObj,
                                                 self.KontoObj)
+
+        if self.Parobj.get_status() != hdef.OKAY:
+            return
+        # end if
+
+        # Ergebnis
+        #---------
+        self.ErgebnisObj = sim_ergebnis_class.WPErg(self.Parobj,
+                                                   self.DataObj,
+                                                   self.KontoObj)
+
+        if self.Parobj.get_status() != hdef.OKAY:
+            return
+        # end if
 
         return
     # end def

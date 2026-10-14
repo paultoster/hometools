@@ -59,6 +59,9 @@ class WPKonto:
         self.SteuerDataSet.set_definition_list(self.HEADER_STEUER_TAB_LISTE,
                                               self.TYPE_STEUER_TAB_LISTE,
                                               self.TYPE_STEUER_TAB_LISTE)
+        self.SteuerDataSetSonderEintrag = False
+        self.SteuerDataSetSonderEintragListe = []
+
         # Anfangswert setzen
         #-------------------
         data_set_liste = [self.Parobj.StartDat_datetime,
@@ -76,22 +79,89 @@ class WPKonto:
 
         return
     # end def
-    def uebreweise_von_Verrechnung_auf_Zins(self,cash_cent):
+    def GetSummeSteuer(self):
+        return self.SteuerDataSet.get_data_item(self.SteuerDataSet.get_n_data() - 1,
+                                                self.NAME_STEUR_TAB_SUMME)
+    # end def
+    def UpdateZinskontoEinzahlung(self):
 
-        tat_cash_cent = self.KontoVerrechnung.auszahlen(cash_cent,
-                                                        self.DataObj.AktDat_datetime,
-                                                        "Auszahlung an Zinskonto")
+        # Was auf dem Verrechnungskonto liegt wird auf das Zins konto eingezahlt
+        cash_cent = self.KontoVerrechnung.GetSumme()
         if self.Parobj.status != hdef.OKAY:
-            return 0
+            return
 
-        tat_cash_cent = self.KontoZins.einzahlen(tat_cash_cent,
-                                                 self.DataObj.AktDat_datetime,
-                                                 "Einzahlung von Verrechnungskonto",
-                                                 self.DataObj.AktZins_float)
+        if cash_cent > 0:
+
+            tat_cash_cent = self.KontoVerrechnung.auszahlen(cash_cent,
+                                                            self.DataObj.AktDat_datetime,
+                                                            "Auszahlung an Zinskonto")
+            if self.Parobj.status != hdef.OKAY:
+                return
+
+            _ = self.KontoZins.einzahlen(tat_cash_cent,
+                                         self.DataObj.AktDat_datetime,
+                                         "Einzahlung von Verrechnungskonto",
+                                         self.DataObj.AktZins_float)
+            if self.Parobj.status != hdef.OKAY:
+                return
+
+        return
+    # end def
+    def EntnahmeVollstaendig(self):
+        """
+        vollständige Entnahme aller Konten
+        :return: summe_cash_cent,summe_steuer_cent,summe_kosten_cent
+        """
+
+        summe_cash_cent = 0
+        summe_steuer_cent = 0
+        summe_kosten_cent = 0
+
+        # Mache eine Zinsabrechnung
+        self.MacheZinsAbrechnung()
+
+
+        # Zinskonto leeren
+        self.EntnahmeZinsAnVerrechnung()
+
+        # vollständige Entnahme
+        summe_cash_cent = self.KontoVerrechnung.auszahlen(None,
+                                                          self.DataObj.AktDat_datetime,
+                                                          "vollständige Entnahme")
+
+        # wieviel Steuer abgeführt
+        summe_steuer_cent = self.GetSummeSteuer()
+
+        return
+    # end def
+    def EntnahmeZinsAnVerrechnung(self, entnahme_cent=None):
+        """
+        Entnahme Zinskonto und auf VerrezchnunsKonto schieben
+        :param entnahme_cent: wenn None , dann alles
+        :return:
+        """
+
+        if entnahme_cent == None:
+            entnahme_cent = self.KontoZins.GetSumme()
+        # end if
+
+        tat_entnahme_cent = self.KontoZins.auszahlen(entnahme_cent,
+                                                     self.SteuerDataSet.AktDat_datetime,
+                                                     "Entnahme für Verrechnungskonto",
+                                                     self.DataObj.AktZins_float)
+
         if self.Parobj.status != hdef.OKAY:
-            return 0
-        return tat_cash_cent
-    # end if
+            return
+
+        _ = self.KontoVerrechnung.einzahlen(tat_entnahme_cent,
+                                            self.DataObj.AktDat_datetime,
+                                            "Einzahlung von Zinskonto")
+        if self.Parobj.status != hdef.OKAY:
+            return
+
+        return
+
+    # end def
     def MacheZinsAbrechnung(self):
 
         steuer_c = self.KontoZins.MacheZinsAbrechnung(self.DataObj.AktDat_datetime)
@@ -135,5 +205,47 @@ class WPKonto:
             return wert
         # end if
 
+        # Sondereintrag, der wieder gelöscht wird
+        if self.SteuerDataSetSonderEintrag:
+            self.SteuerDataSetSonderEintragListe.append(self.SteuerDataSet.get_n_data() - 1)
+        # end if
+
         return wert
-# end def
+    # end def
+    def SetzeSonderEintragFlag(self):
+        self.SteuerDataSetSonderEintrag = True
+        self.KontoVerrechnung.SetzeSonderEintragFlag()
+        self.KontoZins.SetzeSonderEintragFlag()
+        return
+    # end def
+    def LoescheSonderEintrag(self):
+
+        if len(self.SteuerDataSetSonderEintragListe):
+
+            liste = sorted(self.SteuerDataSetSonderEintragListe,reverse=True)
+
+            flagLastPoints = True
+            for irow in liste:
+                if (irow+1) != self.SteuerDataSet.get_n_data() :
+                    flagLastPoints = False
+                # end if
+                status = self.SteuerDataSet.delete_row_in_data_set(irow)
+                if status != hdef.OKAY:
+                    self.Parobj.status = hdef.NOT_OKAY
+                    self.Parobj.errtext = self.SteuerDataSet.get_errtext()
+                    self.SteuerDataSet.reset_status()
+                    return
+                # end if
+            # end for
+
+            # Summen neu Berechnen
+            if not flagLastPoints:
+                self.SteuerDataSet.recalc_summe_from_value(self.NAME_STEUER_TAB_SUMME,
+                                                           self.NAME_STEUER_TAB_WERT)
+            # end if
+            self.SteuerDataSetSonderEintragListe = []
+        # end if
+        self.SteuerDataSetSonderEintrag = False
+        return
+    # end def
+# end class
