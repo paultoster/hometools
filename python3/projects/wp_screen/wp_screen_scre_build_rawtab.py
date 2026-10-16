@@ -163,7 +163,7 @@ def scre_build_data_get_value(rd,werte_dict,np_data_obj):
         if np.isnan(value):
             STATUS = hdef.NOT_OKAY
             ERRTEXT = f"Von isin: {werte_dict['isin']} ist das Signal {werte_dict['name']} == np.nan !"
-            return None
+            return (None,None)
         # end if
 
         if isinstance(value,np.int64):

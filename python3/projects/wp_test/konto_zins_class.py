@@ -223,14 +223,15 @@ class WPKontoZins:
 
         # Einzahlung Gutschrift
         #----------------------
-        self.einzahlen(gutschrift_c,
-                       aktDat_datetime,
-                       "Zinsabrechnung",
-                       zins_f)
+        if gutschrift_c > 0:
+            self.einzahlen(gutschrift_c,
+                           aktDat_datetime,
+                           "Zinsabrechnung",
+                           zins_f)
 
         # irow setzen
         #------------
-        self.IrowLetzteZinsAbrechnung = self.KontoDataSet.get_n_data()
+        self.IrowLetzteZinsAbrechnung = self.KontoDataSet.get_n_data()-1
 
         return steuer_c
     # end def

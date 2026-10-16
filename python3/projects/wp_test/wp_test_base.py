@@ -18,7 +18,8 @@ import sim_class
 
 INI_DICT_PROOF_LISTE =   [("store_path", "str"),
                           ("wpscre_func_ini_file_name","str"),
-                          ("tage_pro_jahr","int","int",365.)]
+                          ("tage_pro_jahr","int","int",365.),
+                          ("np_datei_pre_name","str","str","ergebnis_array_")]
 
 class WPTest:
     """
@@ -137,7 +138,17 @@ class WPTest:
                 return
             # end if
 
-            print("Endabrechnung")
+            # Ergebnisauflistung
+            #-------------------
+            self.Simobj.ergebnis()
+
+            if self.Simobj.get_status() != hdef.OKAY:
+                self.status = hdef.NOT_OKAY
+                self.errtext = self.Simobj.get_errtext()
+                self.log.write_err(self.errtext)
+                self.Simobj.reset_status()
+                return
+            # end if
 
             if self.status != hdef.OKAY:
                 return

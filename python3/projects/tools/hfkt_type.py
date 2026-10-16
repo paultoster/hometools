@@ -801,7 +801,9 @@ def type_proof_datStrP(wert_in):
             
         if flag:
             return (hdef.OKAY, wert_in)
-    
+    elif isinstance(wert_in, (int,np.int32, np.int64)):
+        wert = hdate.secs_time_epoch_to_str(wert_in, delim=".")
+        return (hdef.OKAY, wert)
     elif (isinstance(wert_in, list) or isinstance(wert_in, tuple)):
         
         for item in wert_in:
@@ -832,7 +834,12 @@ def type_proof_datStrB(wert_in):
 
         if flag:
             return (hdef.OKAY, wert_in)
-    
+
+    elif (isinstance(wert_in, (int,np.int32, np.int64))):
+
+        wert = hdate.secs_time_epoch_to_str(wert_in, delim="-")
+        return (hdef.OKAY, wert)
+
     elif (isinstance(wert_in, list) or isinstance(wert_in, tuple)):
         
         for item in wert_in:
@@ -1533,8 +1540,9 @@ def type_proof_euroStrK(wert_in, delim=",", thousandsign="."):
     :param thousandsign:
     :return: (okay,wert) =  type_proof_euroStrK(wert_in,delim=",",thousandsign=".")
     '''
-    (okay,wert_in) = type_proof_string(wert_in)
-    if okay == hdef.OKAY:
+    # (okay,wert_in) = type_proof_string(wert_in)
+    okay = hdef.NOT_OKAY
+    if isinstance(wert_in,str):
 
         # r'[\d.]+(?:,\d+)?'
         match = re.search(r'-?[\d.]+(?:,\d+)?', wert_in)
@@ -1551,6 +1559,12 @@ def type_proof_euroStrK(wert_in, delim=",", thousandsign="."):
         else:
             wert = None
         # end if
+    elif isinstance(wert_in, float):
+        wert = num_euro_in_euroStr(float(wert_in), delim, thousandsign)
+        okay = hdef.OKAY
+    elif isinstance(wert_in, (int,np.int32,np.int64)):
+        wert = num_cent_in_euroStr(float(wert_in))
+        okay = hdef.OKAY
     else:
         wert = None
     # end if
@@ -1630,20 +1644,24 @@ def type_proof_percentStr(wert_in):
     :param wert_in:
     :return:
     '''
-    (okay, wert) = type_proof_string(wert_in)
-    
-    if (okay == hdef.OKAY):
-        
-        wert_val = hstr.elim_ae(wert.replace('%',''),' ')
+    # (okay, wert) = type_proof_string(wert_in)
+    if isinstance(wert_in, str):
+        wert = wert_in
+        wert_val = hstr.elim_ae(wert_in.replace('%',''),' ')
         (okay,value) = type_transform_euroStrK(wert_val,'euro')
         if okay != hdef.OKAY:
             wert = None
+    elif isinstance(wert_in, (float, np.float32, np.float64)):
+        wert = ("%.2f" % (float(wert_in) * 100.)) + "%"
+        okay = hdef.OKAY
+    else:
+        okay = hdef.NOT_OKAY
+        wert = None
     # end if
     return (okay, wert)
 
 
 # end def
-
 def type_convert_euro_to_cent(wert_euro,delim=",", thousandsign="."):
     '''
     string_euro_in_int_cent(wert_euro, delim=delim, thousandsign=thousandsign)

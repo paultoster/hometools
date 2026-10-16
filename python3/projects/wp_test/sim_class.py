@@ -108,6 +108,8 @@ class WPSim:
         self.ErgebnisObj = sim_ergebnis_class.WPErg(self.Parobj,
                                                    self.DataObj,
                                                    self.KontoObj)
+        # Anfangszustand eintragen
+        self.ErgebnisObj.update()
 
         if self.Parobj.get_status() != hdef.OKAY:
             return
@@ -171,6 +173,7 @@ class WPSim:
             #-----------
             if ergebnisTrigger:
                 print(f"ergebnisTrigger: {self.DataObj.AktDat_datetime.strftime("%d.%m.%Y,}")}")
+                self.ErgebnisObj.update()
                 self.ErgebnisDatumtObj.setNextTriggerDay()
             # end if
 
@@ -180,3 +183,10 @@ class WPSim:
 
         return
     # end def
+    def ergebnis(self):
+
+        self.ErgebnisObj.erstelleDaten()
+
+        return
+    # end def
+

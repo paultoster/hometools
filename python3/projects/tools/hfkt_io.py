@@ -27,7 +27,7 @@
 ##################################################################################
  def read_csv_file(file_name=name,delimiter=";")
  def (state,header,data)=read_csv_file_header_data(file_name,delim=";")
- def write_csv_file_header_data(file_name,csv_header,csv_data,delim=";")
+ status = write_csv_file_header_data(file_name,csv_header,csv_data,delim=";")
  (okay,data) = read_ascii(file_name=name) entire ascii-text with all carriage return (\n)
  (okay,lines) =  read_ascii_build_list_of_lines(file_name) return(okay,lines) list of lines from ascii-text
  okay = write_ascii(file_name=name,data) write ascii with carriage return (\n)

@@ -187,12 +187,12 @@ def scre_build_sigset(rd,scre,scre_dict):
     n = len(isin_liste)
     for i,isin in enumerate(isin_liste):
 
-        time.sleep(5)
 
         rd.scre["scre_isin_dataclass_filename_dict"][isin] = wp_screen_scre_build_signal.get_dataclass_filename(rd, scre, isin)
 
         if not wp_screen_scre_build_signal.proof_if_data_uptodate(rd,scre,isin):
 
+            time.sleep(5)
 
             wp_screen_scre_build_signal.scre_build_signal(rd, scre,isin, sigset_werte_dict_liste)
 

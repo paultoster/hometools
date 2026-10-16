@@ -81,7 +81,7 @@ class WPKonto:
     # end def
     def GetSummeSteuer(self):
         return self.SteuerDataSet.get_data_item(self.SteuerDataSet.get_n_data() - 1,
-                                                self.NAME_STEUR_TAB_SUMME)
+                                                self.NAME_STEUER_TAB_SUMME)
     # end def
     def UpdateZinskontoEinzahlung(self):
 
@@ -132,7 +132,7 @@ class WPKonto:
         # wieviel Steuer abgeführt
         summe_steuer_cent = self.GetSummeSteuer()
 
-        return
+        return (summe_cash_cent, summe_steuer_cent, summe_kosten_cent)
     # end def
     def EntnahmeZinsAnVerrechnung(self, entnahme_cent=None):
         """
@@ -145,19 +145,20 @@ class WPKonto:
             entnahme_cent = self.KontoZins.GetSumme()
         # end if
 
-        tat_entnahme_cent = self.KontoZins.auszahlen(entnahme_cent,
-                                                     self.SteuerDataSet.AktDat_datetime,
+        if entnahme_cent > 0:
+
+            tat_entnahme_cent = self.KontoZins.auszahlen(entnahme_cent,
+                                                     self.DataObj.AktDat_datetime,
                                                      "Entnahme für Verrechnungskonto",
                                                      self.DataObj.AktZins_float)
 
-        if self.Parobj.status != hdef.OKAY:
-            return
+            if self.Parobj.status != hdef.OKAY:
+                return
 
-        _ = self.KontoVerrechnung.einzahlen(tat_entnahme_cent,
-                                            self.DataObj.AktDat_datetime,
-                                            "Einzahlung von Zinskonto")
-        if self.Parobj.status != hdef.OKAY:
-            return
+            _ = self.KontoVerrechnung.einzahlen(tat_entnahme_cent,
+                                                self.DataObj.AktDat_datetime,
+                                                "Einzahlung von Zinskonto")
+        # end if
 
         return
 
@@ -219,6 +220,9 @@ class WPKonto:
         return
     # end def
     def LoescheSonderEintrag(self):
+
+        self.KontoVerrechnung.LoescheSonderEintrag()
+        self.KontoZins.LoescheSonderEintrag()
 
         if len(self.SteuerDataSetSonderEintragListe):
 

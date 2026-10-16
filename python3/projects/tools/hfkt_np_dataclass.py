@@ -8,6 +8,8 @@ if (t_path == os.getcwd()):
 
     import hfkt_def as hdef
     import hfkt_file_path as hfile_path
+    import hfkt_io as hio
+    import hfkt_type as htype
 else:
     p_list = os.path.normpath(t_path).split(os.sep)
     if (len(p_list) > 1): p_list = p_list[: -1]
@@ -17,6 +19,8 @@ else:
 
     from tools import hfkt_def as hdef
     from tools import hfkt_file_path as hfile_path
+    from tools import hfkt_io as hio
+    from tools import hfkt_type as htype
 # end if
 
 TYPE_NDARRAY = "ndarray"
@@ -122,6 +126,55 @@ class NpDataHandlingClass:
                 return
             # end try
         # end if
+    # end def
+    def save_to_csv(self,ddict):
+        """
+        Schreibt csv Datei
+        :param ddict:  {"signame":"type",...}
+        :return: status
+        """
+        csv_filename = hfile_path.reset_ext(self.file_name, "csv")
+
+        csv_header = []
+        type_liste = []
+        ndat = 0
+        ncol = 0
+        for key in ddict.keys():
+            if hasattr(self,key):
+                ncol += 1
+                csv_header.append(key)
+                ndat = max(ndat,len(getattr(self, key)))
+                type_liste.append(ddict[key])
+            # end if
+        # end if
+
+        zeile = ["" for x in range(ncol)]
+        csv_data = [copy.copy(zeile) for x in range(ndat)]
+
+        for (icol,header) in enumerate(csv_header):
+
+            for idat in range(ndat):
+
+                if idat < len(getattr(self, header)):
+
+                    (okay,wert) = htype.type_proof(getattr(self, header)[idat],
+                                                   type_liste[icol])
+                    if okay == hdef.OKAY:
+                        csv_data[idat][icol] = wert
+                    else:
+                        (okay, wert) = htype.type_proof(getattr(self, header)[idat],
+                                                        type_liste[icol])
+                        raise Exception(f"Tabelle Spalte {header} mit wert: {getattr(self, header)[idat]} kann nicht in type: {type_liste[icol]} gewandelt werden")
+                    # end if
+                # end if
+            # end for
+        # end for
+
+        status = hio.write_csv_file_header_data(csv_filename,
+                                                csv_header,
+                                                csv_data, delim=";")
+
+        return status
     # end def
     def exist_file(self):
         if self.file_flag:
