@@ -28,11 +28,12 @@ else:
   from tools import sgui_matplot_date_data_fkt as matplot_fkt
 #endif--------------------------------------------------------------------------
 
-class maplot_date_plot_class:
+class maplot_date_plot_widget_class:
     """
     Plotten eine Diagramms mit mehreren zeitreihen
 
-
+    dict_input["plotfile"] = fullfilename for png/jpg/pdf
+    dict_input["widget"] = True/False (default, True) widget mit Zeitspannenupdate
     dict_input["plot"] = ddict["rows"] = 1  (defaultwert, Anzahl der senkrechten Plots)
                          ddict["cols"] = 1  (defaultwert, Anzahl der waagrechten Plots)
                          ddict["sharex"] = False  (defaultwert, True, 'col', Für alle eine x-Achse)
@@ -86,7 +87,8 @@ class maplot_date_plot_class:
 
         # Check dictionary plot from input
         #---------------------------------
-        (self.status,self.errtext,self.plot_dict) = matplot_fkt.check_dict_plot(dict_input["plot"])
+        self.dict_input = dict_input
+        (self.status,self.errtext,self.plot_dict) = matplot_fkt.check_dict_plot(self.dict_input)
         if self.status != hdef.OKAY:
             return
 
@@ -166,20 +168,21 @@ class maplot_date_plot_class:
         except:
             pass
 
-        # Textbox
-        # 10T                     :       plotte die letzten 10 tage
-        # 2M                      :       plotte die letzten 2 Monate
-        # 2025                    :       plotte das Jahr 2025
-        # 10.2026                 :       plotte das den Monat Okt 2026
-        # 1.10.2026-31.11.2026    :       Plotte den zeitbereich
-        # 1.10.2026-200T          :       Plotte von 1.10.2026 200 Tage
-        # 1.10.2026-2M            :       Plotte von 1.10.2026 2 Monate
-        self.axtextbox = fig.add_axes([0.3, 0.9, 0.5, 0.05])
+        if dict_input["widget"]:
+            # Textbox
+            # 10T                     :       plotte die letzten 10 tage
+            # 2M                      :       plotte die letzten 2 Monate
+            # 2025                    :       plotte das Jahr 2025
+            # 10.2026                 :       plotte das den Monat Okt 2026
+            # 1.10.2026-31.11.2026    :       Plotte den zeitbereich
+            # 1.10.2026-200T          :       Plotte von 1.10.2026 200 Tage
+            # 1.10.2026-2M            :       Plotte von 1.10.2026 2 Monate
+            self.axtextbox = fig.add_axes([0.3, 0.9, 0.5, 0.05])
 
-        self.textbox = TextBox(self.axtextbox,'Datum(nT,nM,J,M.J,T.M.J-T.M.J,T.M.J-nT,T.M.J-nM)',initial='')
-        self.textbox.on_submit(self.callback_change)
+            self.textbox = TextBox(self.axtextbox,'Datum(nT,nM,J,M.J,T.M.J-T.M.J,T.M.J-nT,T.M.J-nM)',initial='')
+            self.textbox.on_submit(self.callback_change)
 
-
+        # end if
 
     def callback_change(self,event):
 
@@ -208,7 +211,17 @@ class maplot_date_plot_class:
         return
     # end def
     def run(self):
-        plt.show()
+
+        if len(self.dict_input["plotfile"]) > 0:
+            plt.savefig(self.dict_input["plotfile"])
+        # end if
+
+        if self.dict_input["show"]:
+            plt.show()
+        else:
+            plt.close('all')
+        # end if
+        return
     # end def
 
 ###########################################################################
@@ -312,7 +325,7 @@ if __name__ == '__main__':
 
 
 
-    obj = maplot_date_plot_class(dict_input)
+    obj = maplot_date_plot_widget_class(dict_input)
     obj.run()
 
     exit(0)

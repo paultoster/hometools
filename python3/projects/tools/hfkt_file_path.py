@@ -927,8 +927,6 @@ def build_path(pathname):
             return NOT_OK
     else:
         return OK
-
-
 #
 # löscht Inhalt des Pfades
 def clear_path(pathname):

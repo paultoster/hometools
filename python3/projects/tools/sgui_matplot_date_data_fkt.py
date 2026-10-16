@@ -33,14 +33,17 @@ LEFT_DEFAULT = 0.05
 RIGHT_DEFAULT = 0.95
 BOTTOM_DEFAULT = 0.1
 TOP_DEFAULT = 0.85
+TOP_NO_WIDGET_DEFAULT = 0.90
 
 
-
-def check_dict_plot(dict_plot):
+def check_dict_plot(dict_input):
     """
     Plotten eine Diagramms mit mehreren zeitreihen
 
 
+    dict_input["plotfile"] = fullfilename for png/jpg/pdf
+    dict_input["show"] = True/False (default, True) to show
+    dict_input["widget"] = True/False (default, True) widget mit Zeitspannenupdate
     dict_input["plot"] = ddict["rows"] = 1  (defaultwert, Anzahl der senkrechten Plots)
                          ddict["cols"] = 1  (defaultwert, Anzahl der waagrechten Plots)
                          ddict["sharex"] = False  (defaultwert, True, 'col', Für alle eine x-Achse)
@@ -88,6 +91,34 @@ def check_dict_plot(dict_plot):
 
     status = hdef.OKAY
     errtext = ""
+
+    key = "plot"
+    if key not in dict_input:
+        status = hdef.NOT_OKAY
+        errtext = f"dict_inpt has no key: {key}"
+        return (status,errtext,None)
+    else:
+        dict_plot = dict_input[key]
+    # end if
+
+    key = "widget"
+    if key not in dict_input:
+        dict_input[key] = True
+    # end if
+
+    key = "show"
+    if key not in dict_input:
+        dict_input[key] = True
+    # end if
+
+    key = "plotfile"
+    if key not in dict_input:
+        dict_input[key] = ""
+    # end if
+
+
+    # -------------------------------------------------------------
+
 
     # ddict["rows"] = 1  (defaultwert, Anzahl der senkrechten Plots)
     key = "rows"
@@ -139,12 +170,16 @@ def check_dict_plot(dict_plot):
     # end if
     dict_plot[key] *= CM_TO_INCH
 
-    liste  = ["hspace"      , "wspace"      , "left"      , "right"      , "top"      , "bottom"]
-    dliste = [HSPACE_DEFAULT, WSPACE_DEFAULT, LEFT_DEFAULT, RIGHT_DEFAULT, TOP_DEFAULT, BOTTOM_DEFAULT]
+    liste   = ["hspace"      , "wspace"      , "left"      , "right"      , "top"      , "bottom"]
+    dliste  = [HSPACE_DEFAULT, WSPACE_DEFAULT, LEFT_DEFAULT, RIGHT_DEFAULT, TOP_DEFAULT, BOTTOM_DEFAULT]
+    dliste2 = [HSPACE_DEFAULT, WSPACE_DEFAULT, LEFT_DEFAULT, RIGHT_DEFAULT, TOP_NO_WIDGET_DEFAULT, BOTTOM_DEFAULT]
 
     for id,key in enumerate(liste):
         if key not in dict_plot:
-            dict_plot[key] = dliste[id]
+            if dict_input["widget"]:
+                dict_plot[key] = dliste[id]
+            else:
+                dict_plot[key] = dliste2[id]
         else:
             dict_plot[key] = float(dict_plot[key])
         # end fi

@@ -233,7 +233,7 @@ if (t_path == os.getcwd()):
     import sgui_abfrage_liste_class as sliste_class
     import sgui_anzeige_text_class as stext_class
     import sgui_anzeige_plot_class as splot_class
-    import sgui_matplot_date_data_class as smatplot_class
+    import sgui_matplot_date_data_widget_class as smatplot_class
 else:
     p_list = os.path.normpath(t_path).split(os.sep)
     if (len(p_list) > 1): p_list = p_list[: -1]
@@ -255,7 +255,7 @@ else:
     from tools import sgui_abfrage_liste_class as sliste_class
     from tools import sgui_anzeige_text_class as stext_class
     from tools import sgui_anzeige_plot_class as splot_class
-    from tools import sgui_matplot_date_data_class as smatplot_class
+    from tools import sgui_matplot_date_data_widget_class as smatplot_widget_class
 
 # endif--------------------------------------------------------------------------
 
@@ -1894,10 +1894,13 @@ def plot_mit_radiobuttons(ddict_inp):
     del obj
     return ddict_out
 # end def
-def matplot_date_data(ddict_inp):
+def matplot_date_data_widget(ddict_inp):
     """
     matplot_date_data(ddict_inp)
 
+    dict_input["plotfile"] = fullfilename for png/jpg/pdf
+    dict_input["show"] = True/False (default, True) to show
+    dict_input["widget"] = True/False (default, True) widget mit Zeitspannenupdate
     dict_input["plot"] = ddict["rows"] = 1  (defaultwert, Anzahl der senkrechten Plots)
                          ddict["cols"] = 1  (defaultwert, Anzahl der waagrechten Plots)
                          ddict["sharex"] = False  (defaultwert, True, 'col', Für alle eine x-Achse)
@@ -1932,7 +1935,7 @@ def matplot_date_data(ddict_inp):
                          dict_data1["label"]    = 'linex' (default)
     """
 
-    obj = smatplot_class.maplot_date_plot_class(ddict_inp)
+    obj = smatplot_widget_class.maplot_date_plot_widget_class(ddict_inp)
     if obj.status == hdef.OKAY:
         obj.run()
 

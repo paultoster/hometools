@@ -12,8 +12,9 @@ import tools.hfkt_def as hdef
 import tools.hfkt_data_set as hdset
 # import tools.hfkt_log as hlog
 # import tools.hfkt_type as htype
-# import tools.hfkt_np_calc as hnpcalc
-import hfkt_np_dataclass as hnpclass
+import tools.hfkt_file_path as hfp
+import tools.hfkt_np_dataclass as hnpclass
+import tools.sgui as sgui
 
 class WPErg:
     """
@@ -66,7 +67,25 @@ class WPErg:
                                               self.TYPE_ERG_TAB_LISTE,
                                               self.TYPE_ERG_TAB_LISTE)
 
+        # Ergebnispfad
+        #-------------
+        self.ErgPath = os.path.join(self.Parobj.store_path,
+                                    self.Parobj.ergebnis_path_pre_name +
+                                    self.Parobj.SimName)
 
+        status = hfp.build_path(self.ErgPath)
+        if status != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"Pfad: {self.ErgPath} konnte nicht erstellt werden"
+            return
+        # end if
+
+        # np_data-File
+        self.NpDataFilename = os.path.join(self.ErgPath,
+                                self.Parobj.np_datei_name + ".joblib")
+        # np_data-File
+        self.PlotEuroFilename = os.path.join(self.ErgPath,
+                                self.Parobj.plot_euro_datei_ame + ".png")
         return
     def update(self):
 
@@ -93,12 +112,27 @@ class WPErg:
     # end def
     def erstelleDaten(self):
 
+
+        # Bilde ein np_data_obj aus den Ergebnissen
+        np_data_obj = self.do_np_data()
+
+        self.do_plots(np_data_obj)
+
+        return
+    # end def
+    def do_np_data(self):
+        """
+
+        :return: np_data_obj
+        """
+
+
+
         # Dateiname array
-        fbody = self.Parobj.np_datei_pre_name + self.Parobj.SimName
-        filename = os.path.join(self.Parobj.store_path, fbody + ".joblib")
+        # ----------------
 
         # numpy-Dateset anlegen
-        np_data_obj = hnpclass.NpDataHandlingClass(filename)
+        np_data_obj = hnpclass.NpDataHandlingClass(self.NpDataFilename)
 
         # Arrays aus Tabelle
         dat_liste = self.ErgDataSet.get_row_list_of_header(self.NAME_ERG_TAB_DATUM,
@@ -114,7 +148,7 @@ class WPErg:
         np_kosten_array = np.array(kosten_liste)
         np_zins_array = np.array(zins_liste)
 
-        np_data_obj.add_signal(np_dat_array, "dat_np_array")
+        np_data_obj.add_signal(np_dat_array, "np_dat_array")
         np_data_obj.add_signal(np_cash_array, "np_cash_array")
         np_data_obj.add_signal(np_steur_array, "np_stuer_array")
         np_data_obj.add_signal(np_kosten_array, "np_kosten_array")
@@ -122,13 +156,56 @@ class WPErg:
 
         # Datei speichern joblib und csv
         np_data_obj.save()
-        ddict = {"dat_np_array":"datStrP",
+        ddict = {"np_dat_array":"datStrP",
                  "np_cash_array":"euroStrK",
                  "np_stuer_array":"euroStrK",
                  "np_kosten_array":"euroStrK",
                  "np_zins_array":"percentStr"}
         np_data_obj.save_to_csv(ddict)
 
+        return np_data_obj
+    # end def
+    def do_plots(self,np_data_obj):
 
+        dict_data1 = {}
+        dict_data1["xdat"] = np_data_obj.np_dat_array
+        dict_data1["y"] = np_data_obj.np_cash_array
+        dict_data1["color"] = "k"
+        dict_data1["linewidth"] = 1
+        dict_data1["linestyle"] = "-"
+        dict_data1["marker"] = ""
+        dict_data1["label"] = "cash"
+
+        dict_subplot1 = {}
+        dict_subplot1["name"] = "Cash"
+        dict_subplot1["title"] = "Ergebnis"
+        dict_subplot1["xlabel"] = "Date"
+        dict_subplot1["ylabel"] = "€"
+        dict_subplot1["legend"] = "best"
+        dict_subplot1["data_list"] = [dict_data1]
+
+        ddict = {}
+        ddict["rows"] = 1
+        ddict["cols"] = 1
+        ddict["sharex"] = False
+        ddict["sharey"] = False
+        ddict["width"] = 30
+        ddict["height"] = 20
+        ddict["title"] = "Gesamtplot"
+        ddict["title_add_date_range"] = True
+
+        ddict["subplot_list"] = [dict_subplot1]
+
+        dict_input = {}
+        dict_input["plot"] = ddict
+        dict_input["widget"] = False
+        dict_input["show"] = False
+        dict_input["plotfile"] = self.PlotEuroFilename
+
+        obj = sgui.matplot_date_data_widget(dict_input)
+
+
+        return
+    # end def
 # end class
 

@@ -19,7 +19,9 @@ import sim_class
 INI_DICT_PROOF_LISTE =   [("store_path", "str"),
                           ("wpscre_func_ini_file_name","str"),
                           ("tage_pro_jahr","int","int",365.),
-                          ("np_datei_pre_name","str","str","ergebnis_array_")]
+                          ("ergebnis_path_pre_name","str","str","erg_"),
+                          ("np_datei_name","str","str","erg_array"),
+                          ("plot_euro_datei_ame","str","str","erg_plot_euro")]
 
 class WPTest:
     """
