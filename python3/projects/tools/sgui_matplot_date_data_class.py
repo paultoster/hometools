@@ -28,7 +28,7 @@ else:
   from tools import sgui_matplot_date_data_fkt as matplot_fkt
 #endif--------------------------------------------------------------------------
 
-class maplot_date_plot_widget_class:
+class maplot_date_plot_class:
     """
     Plotten eine Diagramms mit mehreren zeitreihen
 
@@ -325,7 +325,7 @@ if __name__ == '__main__':
 
 
 
-    obj = maplot_date_plot_widget_class(dict_input)
+    obj = maplot_date_plot_class(dict_input)
     obj.run()
 
     exit(0)
