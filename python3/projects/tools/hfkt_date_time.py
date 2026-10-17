@@ -56,6 +56,7 @@ int_dat = calc_str_to_int(str_text) str = "12.05.1993 10:20:11" "tt.mm.jjjj hh:m
 secs = calc_str_to_secs(str) str = "12.05.1993 10:20:11" "tt.mm.jjjj hh:mm:ss" => secs  => 737194811
 dat_list = calc_dat_str_to_dat_list(dat_str, delim=".") dat_str = "10.02.2004" => dat_list = [10,2,2004]
 time_list = calc_time_str_to_time_list(dat_str, delim=":") time_str = "10:20:00" => time_list = [10,2,2004]
+dyears_float_liste = calc_datetime_to_dyears_float_liste(dat_datetime)
 ########################################################################################################################
 str_dat        = find_str_dat(str_text,flag_liste=False), str_text = "17.12.2004 20-01-2020" => str_dat = "17.12.2004"
 str_dat_liste  = find_str_dat(str_text,flag_liste=True), str_text = "17.12.2004 20-01-2020" => str_dat_liste = ["17.12.2004","20.01.2020"]
@@ -144,6 +145,7 @@ else:
     import tools.hfkt_str as hstr
 # import datetime
 
+TAGE_PRO_JAHR_FLOAT = 365.0
 
 dec36_dict: dict[int | Any, str | Any] = {0: '0', 1: '1', 2: '2', 3: '3', 4: '4', 5: '5', 6: '6', 7: '7', 8: '8',
                                           9: '9', 10: 'a', 11: 'b', 12: 'c',
@@ -687,6 +689,20 @@ def calc_time_str_to_time_list(dat_str, delim=":"):
     return rliste
 
 
+# end def
+def calc_datetime_to_dyears_float_liste(dat_datetime_liste):
+    """
+    Berechne Zeitdifferenz in Jahren (float)
+    dyears_float_liste = calc_datetime_to_dyears_float_liste(dat_datetime_liste)
+    :param dat_datetime_liste:
+    :return:
+    """
+
+    dat_dt_start = dat_datetime_liste[0]
+
+    dyears_flaot_liste = [float((dat_dt - dat_dt_start).days)/TAGE_PRO_JAHR_FLOAT for dat_dt in dat_datetime_liste]
+
+    return dyears_flaot_liste
 # end def
 def calc_secs_to_datetime(secs):
     return datetime.datetime.fromtimestamp(secs)

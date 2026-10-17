@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, math
 
 import numpy as np
 
@@ -10,7 +10,7 @@ if (tools_path not in sys.path):
 
 import tools.hfkt_def as hdef
 import tools.hfkt_data_set as hdset
-# import tools.hfkt_log as hlog
+import tools.hfkt_date_time as hdt
 # import tools.hfkt_type as htype
 import tools.hfkt_file_path as hfp
 import tools.hfkt_np_dataclass as hnpclass
@@ -114,7 +114,19 @@ class WPErg:
 
 
         # Bilde ein np_data_obj aus den Ergebnissen
+        #-----------------------------------------
+        # np_data_obj.np_dat_array
+        # np_data_obj.np_dyears_array
+        # np_data_obj.np_cash_array
+        # np_data_obj.np_steuer_array
+        # np_data_obj.np_kosten_array
+        # np_data_obj.np_zins_array
+        # np_data_obj.np_cash_mean_zins_array
+        # np_data_obj.mean_zins
+
         np_data_obj = self.do_np_data()
+
+        np_data_obj = self.do_zins_curve(np_data_obj)
 
         self.do_plots(np_data_obj)
 
@@ -137,31 +149,63 @@ class WPErg:
         # Arrays aus Tabelle
         dat_liste = self.ErgDataSet.get_row_list_of_header(self.NAME_ERG_TAB_DATUM,
                                                                 "dat")
+        dyears_float_liste = hdt.calc_datetime_to_dyears_float_liste(self.ErgDataSet.get_row_list_of_header(self.NAME_ERG_TAB_DATUM))
         cash_liste = self.ErgDataSet.get_row_list_of_header(self.NAME_ERG_TAB_CASH)
         stuer_liste = self.ErgDataSet.get_row_list_of_header(self.NAME_ERG_TAB_STEUER)
         kosten_liste = self.ErgDataSet.get_row_list_of_header(self.NAME_ERG_TAB_KOSTEN)
         zins_liste = self.ErgDataSet.get_row_list_of_header(self.NAME_ERG_TAB_ZINS)
 
         np_dat_array = np.array(dat_liste)
+        np_dyears_float_liste = np.array(dyears_float_liste)
         np_cash_array = np.array(cash_liste)
         np_steur_array = np.array(stuer_liste)
         np_kosten_array = np.array(kosten_liste)
         np_zins_array = np.array(zins_liste)
 
         np_data_obj.add_signal(np_dat_array, "np_dat_array")
+        np_data_obj.add_signal(np_dyears_float_liste, "np_dyears_array")
         np_data_obj.add_signal(np_cash_array, "np_cash_array")
-        np_data_obj.add_signal(np_steur_array, "np_stuer_array")
+        np_data_obj.add_signal(np_steur_array, "np_steuer_array")
         np_data_obj.add_signal(np_kosten_array, "np_kosten_array")
         np_data_obj.add_signal(np_zins_array, "np_zins_array")
 
         # Datei speichern joblib und csv
         np_data_obj.save()
         ddict = {"np_dat_array":"datStrP",
+                 "np_dyears_array":"float",
                  "np_cash_array":"euroStrK",
-                 "np_stuer_array":"euroStrK",
+                 "np_steuer_array":"euroStrK",
                  "np_kosten_array":"euroStrK",
                  "np_zins_array":"percentStr"}
         np_data_obj.save_to_csv(ddict)
+
+        return np_data_obj
+    # end def
+    def do_zins_curve(self,np_data_obj):
+        """
+        np_data_obj = self.do_zins_curve(np_data_obj)
+
+        add np_mean_zins_array
+
+        :param np_data_obj:
+        """
+
+        # Startpunkt
+        Kn_K0 = np_data_obj.np_cash_array[-1]/np_data_obj.np_cash_array[0]
+        years = np_data_obj.np_dyears_array[-1]
+        zins_fact = math.pow(Kn_K0, 1./years)
+        mean_zins = zins_fact - 1.
+
+        np_cash_mean_zins_array = np.array(np_data_obj.np_dyears_array)
+
+        for index, x in np.ndenumerate(np_cash_mean_zins_array):
+            np_cash_mean_zins_array[index] = (np_data_obj.np_cash_array[0] *
+                                         math.pow(zins_fact,x))
+
+        np_data_obj.add_signal(np_cash_mean_zins_array, "np_cash_mean_zins_array")
+        np_data_obj.add_signal(mean_zins, "mean_zins")
+
+        np_data_obj.save()
 
         return np_data_obj
     # end def
@@ -176,13 +220,22 @@ class WPErg:
         dict_data1["marker"] = ""
         dict_data1["label"] = "cash"
 
+        dict_data2 = {}
+        dict_data2["xdat"] = np_data_obj.np_dat_array
+        dict_data2["y"] = np_data_obj.np_cash_mean_zins_array
+        dict_data2["color"] = "g"
+        dict_data2["linewidth"] = 1
+        dict_data2["linestyle"] = "-"
+        dict_data2["marker"] = ""
+        dict_data2["label"] = "cash_mzins"
+
         dict_subplot1 = {}
         dict_subplot1["name"] = "Cash"
         dict_subplot1["title"] = "Ergebnis"
         dict_subplot1["xlabel"] = "Date"
         dict_subplot1["ylabel"] = "€"
         dict_subplot1["legend"] = "best"
-        dict_subplot1["data_list"] = [dict_data1]
+        dict_subplot1["data_list"] = [dict_data1,dict_data2]
 
         ddict = {}
         ddict["rows"] = 1
