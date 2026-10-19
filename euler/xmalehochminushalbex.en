@@ -1,0 +1,66 @@
+﻿>f &= x*exp(-0.5*x)
+
+                                 - 0.5 x
+                              x E
+
+>&solve(f=0,x)
+
+                               [x = 0]
+
+>fp &= diff(f,x)
+
+                       - 0.5 x          - 0.5 x
+                      E        - 0.5 x E
+
+>&solve(fp=0,x)
+
+                               [x = 2]
+
+>fpp &= diff(fp,x)
+
+                            - 0.5 x        - 0.5 x
+                    0.25 x E        - 1.0 E
+
+>&solve(fpp=0,x)
+
+                                  []
+
+>&plot2d(f,[x,-2,10]):
+Maxima said:
+
+COERCE-FLOAT-FUN: no such Lisp or Maxima function: f
+ -- an error. To debug this try: debugmode(true);
+
+ %image% xmalehochminushalbex-001.png
+Error in:
+&plot2d(f,[x,-2,10]): ...
+                     ^
+>&x:2
+
+                                  2
+
+>&f
+
+                           0.73575888234288
+
+>&x:4
+
+                                  4
+
+>&f
+
+                           0.54134113294645
+
+>&x:0
+
+                                  0
+
+>&f
+
+                                  0
+
+>&x
+
+                                  2
+
+>

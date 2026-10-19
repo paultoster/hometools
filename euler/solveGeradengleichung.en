@@ -1,0 +1,19 @@
+﻿>&solve([x0+r0*ca0=x1+r1*ca1,y0+r0*sa0=y1+r1*sa1],[r0,r1])
+
+              - ca1 (y0 - y1) - sa1 x1 + sa1 x0
+       [[r0 = ---------------------------------, 
+                      ca1 sa0 - ca0 sa1
+                                   - ca0 (y0 - y1) - sa0 x1 + sa0 x0
+                              r1 = ---------------------------------]]
+                                           ca1 sa0 - ca0 sa1
+
+>&solve([xa+r*calpha=xb+s*calpha,ya+r*salpha=yb+s*salpha],[r,s])
+
+                                  []
+
+>
+Variable psip not found!
+Error in:
+psip ...
+    ^
+>

@@ -1,0 +1,17 @@
+﻿>&solve([0=a11/v*beta+(a12/v/v-1)*psip+b1/v*delta,0=a21*beta+a22/v*psip+b2*delta+c2*Mz],[beta,Mz])
+
+                      2
+                psip v  - b1 delta v - a12 psip
+       [[beta = -------------------------------, 
+                             a11 v
+                  2
+Mz = (- a21 psip v  - (a11 b2 - a21 b1) delta v
+ - (a11 a22 - a12 a21) psip)/(a11 c2 v)]]
+
+>
+>
+Variable psip not found!
+Error in:
+psip ...
+    ^
+>

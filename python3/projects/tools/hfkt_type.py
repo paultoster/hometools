@@ -2341,10 +2341,10 @@ def type_transform_percentStr(wert_in, type_out):
             wert_out = wert
         elif type_out == "int":
             wert = hstr.elim_ae(wert.replace('%', ''),' ')
-            (okay, wert_out) = type_transform(wert, "str", "int")
+            (okay, wert_out) = type_transform(wert/100., "str", "int")
         elif type_out == "float":
             wert = hstr.elim_ae(wert.replace('%', ''), ' ')
-            (okay,wert_out) = type_transform(wert,"str","float")
+            (okay,wert_out) = type_transform(wert/100.,"str","float")
         else:
             wert_out = None
             raise Exception(f"type_transform_percentStr: In type_transform_int ist type_out: {type_out} nicht möglich")

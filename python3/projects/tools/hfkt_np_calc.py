@@ -6,6 +6,8 @@
 """
 
 import numpy as np
+import math
+import scipy
 
 def divide_in_int_nparts(ival:int,nparts:int):
     """
@@ -35,4 +37,105 @@ def divide_in_int_nparts(ival:int,nparts:int):
         # end for
     # end if
     return np_int_array
+# end def
+def build_mean_zins_curve(np_dyears_array,np_value_array):
+    """
+
+    :param np_dyears_array:
+    :param np_vale_array_:
+    :return: (mean_zins,np_mean_zins_curve_array)
+    """
+    def build_mean_zins_curve_function(mean_zins,np_dy_array,np_val_array):
+
+
+        ferror = 0.0
+        for i, dy in np.ndenumerate(np_dy_array):
+            zinseszins = np_val_array[0] * math.pow(mean_zins[0] + 1.0, dy)
+            diff       = zinseszins - np_val_array[i]
+            ferror += diff*diff
+        # end for
+
+        return ferror
+    # end def
+    def build_mean_zins_curve_derive(mean_zins,np_dy_array,np_val_array):
+
+        zins_fact = mean_zins[0] + 1.
+        fderive = 0.0
+        for i, dy in np.ndenumerate(np_dy_array):
+            A0          = np_val_array[0]*math.pow(zins_fact, dy)
+            ableitung_i = 2.*dy*A0/zins_fact
+            ableitung_i *= (A0 - np_val_array[i])
+            fderive += ableitung_i
+        # end for
+
+        return fderive
+    # end def
+
+    # Startpunkt
+    Kn_K0 = np_value_array[-1] / np_value_array[0]
+    years = np_dyears_array[-1]
+    zins_fact = math.pow(Kn_K0, 1. / years)
+    mean_zins = zins_fact - 1.
+
+    result = scipy.optimize.minimize(build_mean_zins_curve_function,
+                                     x0= mean_zins,
+                                     args=(np_dyears_array,np_value_array),
+                                     jac=build_mean_zins_curve_derive,
+                                     method = "BFGS",
+                                     options = { "maxiter": 1000,
+                                                 "gtol": 1e-10
+                                               }
+                                     )
+
+    # jac = build_mean_zins_curve_derive,
+
+    mean_zins = result.x[0]
+    zins_fact = mean_zins + 1.
+    np_mean_zins_curve_array = np.array(np_dyears_array)
+
+    for index, x in np.ndenumerate(np_mean_zins_curve_array):
+        np_mean_zins_curve_array[index] = (np_value_array[0] *
+                                          math.pow(zins_fact, x))
+
+    return (mean_zins,np_mean_zins_curve_array)
+# end def
+def build_median_zins_curve(np_dyears_array,np_value_array):
+    """
+
+    :param np_dyears_array:
+    :param np_vale_array_:
+    :return: (median_zins,np_median_zins_curve_array)
+    """
+    def build_median_zins_curve_function(mean_zins,np_dy_array,np_val_array):
+
+
+        ferror = 0.0
+        for i, dy in np.ndenumerate(np_dy_array):
+            zinseszins = np_val_array[0] * math.pow(mean_zins + 1.0, dy)
+            diff       = zinseszins - np_val_array[i]
+            ferror += diff
+        # end for
+
+        return ferror
+    # end def
+
+    # Startpunkt
+    Kn_K0 = np_value_array[-1] / np_value_array[0]
+    years = np_dyears_array[-1]
+    zins_fact = math.pow(Kn_K0, 1. / years)
+    median_zins = zins_fact - 1.
+
+    result = scipy.optimize.root_scalar(build_median_zins_curve_function,
+                                        args=(np_dyears_array,np_value_array),
+                                        bracket=(0, median_zins*100)
+                                        )
+    median_zins = result.root
+    zins_fact = median_zins + 1.
+    np_median_zins_curve_array = np.array(np_dyears_array)
+
+    for index, x in np.ndenumerate(np_median_zins_curve_array):
+        np_median_zins_curve_array[index] = (np_value_array[0] *
+                                          math.pow(zins_fact, x))
+
+    return (median_zins,np_median_zins_curve_array)
 # end def

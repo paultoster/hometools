@@ -14,6 +14,7 @@ import tools.hfkt_date_time as hdt
 # import tools.hfkt_type as htype
 import tools.hfkt_file_path as hfp
 import tools.hfkt_np_dataclass as hnpclass
+import tools.hfkt_np_calc as hnpcalc
 import tools.sgui as sgui
 
 class WPErg:
@@ -86,6 +87,8 @@ class WPErg:
         # np_data-File
         self.PlotEuroFilename = os.path.join(self.ErgPath,
                                 self.Parobj.plot_euro_datei_ame + ".png")
+        self.PlotProzentFilename = os.path.join(self.ErgPath,
+                                self.Parobj.plot_prozent_datei_ame + ".png")
         return
     def update(self):
 
@@ -112,23 +115,17 @@ class WPErg:
     # end def
     def erstelleDaten(self):
 
-
-        # Bilde ein np_data_obj aus den Ergebnissen
-        #-----------------------------------------
-        # np_data_obj.np_dat_array
-        # np_data_obj.np_dyears_array
-        # np_data_obj.np_cash_array
-        # np_data_obj.np_steuer_array
-        # np_data_obj.np_kosten_array
-        # np_data_obj.np_zins_array
-        # np_data_obj.np_cash_mean_zins_array
-        # np_data_obj.mean_zins
-
         np_data_obj = self.do_np_data()
 
         np_data_obj = self.do_zins_curve(np_data_obj)
 
-        self.do_plots(np_data_obj)
+        np_data_obj = self.do_volatillitaet(np_data_obj)
+
+        self.do_plot_euro(np_data_obj)
+        self.do_plot_prozent(np_data_obj)
+
+        np_data_obj.save()
+
 
         return
     # end def
@@ -190,26 +187,58 @@ class WPErg:
         :param np_data_obj:
         """
 
-        # Startpunkt
-        Kn_K0 = np_data_obj.np_cash_array[-1]/np_data_obj.np_cash_array[0]
-        years = np_data_obj.np_dyears_array[-1]
-        zins_fact = math.pow(Kn_K0, 1./years)
-        mean_zins = zins_fact - 1.
+        (mean_zins,
+         np_cash_mean_zins_array) = hnpcalc.build_mean_zins_curve(np_data_obj.np_dyears_array,
+                                                                  np_data_obj.np_cash_array)
 
-        np_cash_mean_zins_array = np.array(np_data_obj.np_dyears_array)
-
-        for index, x in np.ndenumerate(np_cash_mean_zins_array):
-            np_cash_mean_zins_array[index] = (np_data_obj.np_cash_array[0] *
-                                         math.pow(zins_fact,x))
+        (median_zins,
+         np_cash_median_zins_array) = hnpcalc.build_median_zins_curve(np_data_obj.np_dyears_array,
+                                                                  np_data_obj.np_cash_array)
 
         np_data_obj.add_signal(np_cash_mean_zins_array, "np_cash_mean_zins_array")
         np_data_obj.add_signal(mean_zins, "mean_zins")
+        np_data_obj.add_signal(np_cash_median_zins_array, "np_cash_median_zins_array")
+        np_data_obj.add_signal(median_zins, "median_zins")
 
-        np_data_obj.save()
 
         return np_data_obj
     # end def
-    def do_plots(self,np_data_obj):
+    def do_volatillitaet(self,np_data_obj):
+
+        np_diff_array = np.array(
+            [(cash-zins)/cash for (cash,zins) in zip(np_data_obj.np_cash_array,np_data_obj.np_cash_mean_zins_array) if abs(cash) > 0.1 ]
+        )
+        mean_std = np_diff_array.std(ddof=1)
+
+        np_diff_neg_array = np.array(
+            [np_diff_array[i] for i in range(len(np_diff_array)) if np_diff_array[i] < 0.0]
+        )
+
+        mean_neg_std = np_diff_neg_array.std(ddof=1)
+
+        np_diff_array = np.array(
+            [(cash-zins)/cash for (cash,zins) in zip(np_data_obj.np_cash_array,np_data_obj.np_cash_median_zins_array) if abs(cash) > 0.1 ]
+        )
+
+        # Tägliche Volatilität
+        median_std = np_diff_array.std(ddof=1)
+
+        np_diff_neg_array = np.array(
+            [np_diff_array[i] for i in range(len(np_diff_array)) if np_diff_array[i] < 0.0]
+        )
+
+        median_neg_std = np_diff_neg_array.std(ddof=1)
+
+        np_data_obj.add_signal(mean_std, "mean_std")
+        np_data_obj.add_signal(mean_neg_std, "mean_neg_std")
+        np_data_obj.add_signal(median_std, "median_std")
+        np_data_obj.add_signal(median_neg_std, "median_neg_std")
+
+        return np_data_obj
+    # end def
+    def do_plot_euro(self,np_data_obj):
+
+
 
         dict_data1 = {}
         dict_data1["xdat"] = np_data_obj.np_dat_array
@@ -227,15 +256,24 @@ class WPErg:
         dict_data2["linewidth"] = 1
         dict_data2["linestyle"] = "-"
         dict_data2["marker"] = ""
-        dict_data2["label"] = "cash_mzins"
+        dict_data2["label"] = "cash_mzins_" +  "%.2f" % (float(np_data_obj.mean_zins) * 100) + "%"
+
+        dict_data3 = {}
+        dict_data3["xdat"] = np_data_obj.np_dat_array
+        dict_data3["y"] = np_data_obj.np_cash_median_zins_array
+        dict_data3["color"] = "y"
+        dict_data3["linewidth"] = 1
+        dict_data3["linestyle"] = "-"
+        dict_data3["marker"] = ""
+        dict_data3["label"] = "cash_medzins_" +  "%.2f" % (float(np_data_obj.median_zins) * 100) + "%"
 
         dict_subplot1 = {}
         dict_subplot1["name"] = "Cash"
-        dict_subplot1["title"] = "Ergebnis"
+        dict_subplot1["title"] = "Ergebnis in Euro"
         dict_subplot1["xlabel"] = "Date"
         dict_subplot1["ylabel"] = "€"
         dict_subplot1["legend"] = "best"
-        dict_subplot1["data_list"] = [dict_data1,dict_data2]
+        dict_subplot1["data_list"] = [dict_data1,dict_data2,dict_data3]
 
         ddict = {}
         ddict["rows"] = 1
@@ -257,6 +295,66 @@ class WPErg:
 
         obj = sgui.matplot_date_data_widget(dict_input)
 
+
+        return
+    # end def
+    def do_plot_prozent(self, np_data_obj):
+
+        B0 = np_data_obj.np_cash_array[0]
+        dict_data1 = {}
+        dict_data1["xdat"] = np_data_obj.np_dat_array
+        dict_data1["y"] = (np_data_obj.np_cash_array-B0)/B0 * 100.
+        dict_data1["color"] = "k"
+        dict_data1["linewidth"] = 1
+        dict_data1["linestyle"] = "-"
+        dict_data1["marker"] = ""
+        dict_data1["label"] = "cash"
+
+        dict_data2 = {}
+        dict_data2["xdat"] = np_data_obj.np_dat_array
+        dict_data2["y"] = (np_data_obj.np_cash_mean_zins_array-B0)/B0* 100.
+        dict_data2["color"] = "g"
+        dict_data2["linewidth"] = 1
+        dict_data2["linestyle"] = "-"
+        dict_data2["marker"] = ""
+        dict_data2["label"] = "cash_mzins_" + "%.2f" % (float(np_data_obj.mean_zins) * 100) + "%"
+
+        dict_data3 = {}
+        dict_data3["xdat"] = np_data_obj.np_dat_array
+        dict_data3["y"] = (np_data_obj.np_cash_median_zins_array - B0)/B0 * 100.
+        dict_data3["color"] = "y"
+        dict_data3["linewidth"] = 1
+        dict_data3["linestyle"] = "-"
+        dict_data3["marker"] = ""
+        dict_data3["label"] = "cash_medzins_" + "%.2f" % (float(np_data_obj.median_zins) * 100) + "%"
+
+        dict_subplot1 = {}
+        dict_subplot1["name"] = "Cash"
+        dict_subplot1["title"] = "Ergebnis in Prozent"
+        dict_subplot1["xlabel"] = "Date"
+        dict_subplot1["ylabel"] = "%"
+        dict_subplot1["legend"] = "best"
+        dict_subplot1["data_list"] = [dict_data1, dict_data2, dict_data3]
+
+        ddict = {}
+        ddict["rows"] = 1
+        ddict["cols"] = 1
+        ddict["sharex"] = False
+        ddict["sharey"] = False
+        ddict["width"] = 30
+        ddict["height"] = 20
+        ddict["title"] = "Gesamtplot"
+        ddict["title_add_date_range"] = True
+
+        ddict["subplot_list"] = [dict_subplot1]
+
+        dict_input = {}
+        dict_input["plot"] = ddict
+        dict_input["widget"] = False
+        dict_input["show"] = False
+        dict_input["plotfile"] = self.PlotProzentFilename
+
+        obj = sgui.matplot_date_data_widget(dict_input)
 
         return
     # end def

@@ -1,0 +1,85 @@
+﻿>function f(x) &= 2-x^2 
+
+                                     2
+                                2 - x
+
+>function g(x) &= -2*x-x^2
+
+                                 2
+                              - x  - 2 x
+
+>function h(x) &= x
+
+                                  x
+
+>&solve(f(x)=g(x),x)
+
+                              [x = - 1]
+
+>&integrate(f(x)-g(x),x)
+
+                                2
+                               x  + 2 x
+
+>&integrate(f(x)-g(x),x,-1,0)
+
+                                  1
+
+>function h(x) &= x
+
+                                  x
+
+>&solve(f(x)=h(x),x)
+
+                           [x = 1, x = - 2]
+
+>&integrate(f(x)-h(x),x)
+
+                              3    2
+                             x    x
+                           - -- - -- + 2 x
+                             3    2
+
+>&integrate(f(x)-h(x),x,0,1)
+
+                                  7
+                                  -
+                                  6
+
+>&plot2d([g(x),f(x),h(x)],[x,-1,1],[y,0,2]):
+ %image% Beispiel_integrate_solve-001.png
+>function f(x) &= x^2+3*x+4
+
+                              2
+                             x  + 3 x + 4
+
+>&solve(f(x)=3,x)
+
+                      - sqrt(5) - 3      sqrt(5) - 3
+                 [x = -------------, x = -----------]
+                            2                 2
+
+>%()
+[-2.61803,  -0.381966]
+>&diff(f(x),x)
+
+                               2 x + 3
+
+>&integrate(f(x),x)
+
+                            3      2
+                           x    3 x
+                           -- + ---- + 4 x
+                           3     2
+
+>&diff(f(x),x)
+
+                               2 x + 3
+
+>&integrate(%,x)
+
+                                2
+                               x  + 3 x
+
+>
+>
