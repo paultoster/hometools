@@ -2,6 +2,8 @@
     Integer Berechnungen
 
     liste = devide_in_nparts(102,5) => liste = np.array([21,21,20,20,20])
+    (mean_zins,np_mean_zins_curve_array) = build_mean_zins_curve(np_dyears_array,np_value_array)
+    (median_zins,np_median_zins_curve_array) = build_median_zins_curve(np_dyears_array,np_value_array)
 
 """
 

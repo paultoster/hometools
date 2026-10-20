@@ -74,18 +74,26 @@ class NpDataHandlingClass:
         self.del_signal(signal_name)
 
         if isinstance(signal, np.ndarray):
-            type = TYPE_NDARRAY
+            type = self.TYPE_NDARRAY
         elif isinstance(signal, str):
-            type = TYPE_STR
-        elif isinstance(signal, float):
-            type = TYPE_FLOAT
-        elif isinstance(signal, int):
-            type = TYPE_INT
+            type = self.TYPE_STR
+        elif isinstance(signal, (float,np.float64,np.float32)):
+            type = self.TYPE_FLOAT
+        elif isinstance(signal, (int,np.int8,np.int16,np.int32,np.int64)):
+            type = self.TYPE_INT
         else:
             raise Exception(f"add_signal: signal_name: {signal_name} Type nicht erkannt")
         # end if
-
-        self.__setattr__(signal_name, copy.copy(signal))
+        match type:
+            case self.TYPE_NDARRAY:
+                self.__setattr__(signal_name, copy.copy(signal))
+            case self.TYPE_STR:
+                self.__setattr__(signal_name, str(copy.copy(signal)))
+            case self.TYPE_FLOAT:
+                self.__setattr__(signal_name, float(copy.copy(signal)))
+            case self.TYPE_INT:
+                self.__setattr__(signal_name, int(copy.copy(signal)))
+        # end match
 
         self.signal_list.append(signal_name)
         self.signal_type.append(type)

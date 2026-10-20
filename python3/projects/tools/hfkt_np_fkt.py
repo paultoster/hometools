@@ -170,6 +170,7 @@ def lingrad(np_array: np.ndarray, npoints:int, grad_faktor:float ):
 # end def
 def minvalue(np_array: np.ndarray, minvalue:int|float):
     """
+    Begrenze den Array auf ein Minimum
     minimum value
     :param np_array:
     :param k:
@@ -190,6 +191,7 @@ def minvalue(np_array: np.ndarray, minvalue:int|float):
 # end def
 def maxvalue(np_array: np.ndarray, maxvalue:int|float):
     """
+        Begrenze den Array auf ein Maximum
     maximum value
     :param np_array:
     :param k:
@@ -626,7 +628,7 @@ def bilde_gemeinsame_dat_basis(np_dat_array_liste,overlap):
         dat0 = np_dat_array_liste[0][i]
         flag = True
         for j in range(1,n):
-            dat1 = find_nearest_value(dat0,np_dat_array_liste[j])
+            (dat1,_) = find_nearest_value(dat0,np_dat_array_liste[j])
             if (dat1 is None) or (abs(dat1 - dat0) > overlap_half):
                 flag = False
                 break
@@ -645,7 +647,7 @@ def bilde_gemeinsame_dat_basis(np_dat_array_liste,overlap):
 # end def
 def find_nearest_value(val,np_array):
     """
-    val1 = find_nearest_value(value,np_array)
+    (val1,index) = find_nearest_value(value,np_array)
     """
 
     val1 = None
@@ -660,7 +662,7 @@ def find_nearest_value(val,np_array):
         # end for
         val1 = np_array[idval]
     # end if
-    return val1
+    return (val1,idval)
 # end def
 def suche_ueberlappung(np1_array,np2_array,overlap):
     """

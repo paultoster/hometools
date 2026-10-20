@@ -2235,6 +2235,8 @@ def  type_transform_float(wert_in,type_out):
             wert_out = [wert]
         elif (type_out == "listStr") or (type_out == "list_str") :
             wert_out = [str(wert)]
+        elif type_out == "percentStr":
+            wert_out = ("%.2f" % (float(wert) * 100.)) + "%"
         else:
             raise Exception(f"In type_transform_int ist type_out: {type_out} nicht möglich")
         # end if

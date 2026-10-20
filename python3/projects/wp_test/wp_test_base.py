@@ -21,8 +21,9 @@ INI_DICT_PROOF_LISTE =   [("store_path", "str"),
                           ("tage_pro_jahr","int","int",365.25),
                           ("ergebnis_path_pre_name","str","str","erg_"),
                           ("np_datei_name","str","str","erg_array"),
-                          ("plot_euro_datei_ame","str","str","erg_plot_euro"),
-                          ("plot_prozent_datei_ame","str","str","erg_plot_prozent")]
+                          ("plot_euro_datei_name","str","str","erg_plot_euro"),
+                          ("plot_prozent_datei_name","str","str","erg_plot_prozent"),
+                          ("md_datei_name","str","str","erg_gesamt")]
 
 class WPTest:
     """

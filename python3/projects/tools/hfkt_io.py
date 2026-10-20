@@ -47,6 +47,11 @@ okay = read_http_file(http_filename,local_filename)
  def html_write_tab_zelle(f,h_flag,fett_flag,farbe,inhalt): Beschreib eine Zelle in einer Tabellezeile
  def html_write_leer_zeile(f,n_spalten): Leerzeilen über n Spalten
  def html_get_filename_for_browser(filename): Umsetzen für browser
+##################################################################################
+# Schreiben in md-File
+##################################################################################
+
+
 
 '''
 
@@ -74,6 +79,21 @@ import csv
 import codecs
 import requests
 import locale
+import pypandoc
+from markdownmaker.document import Document as MDDocument
+from markdownmaker.markdownmaker import (
+    Header as MDHeader,
+    HeaderSubLevel as MDHeaderSubLevel,
+    Paragraph as MDParagraph,
+    Bold as MDBold,
+    Italic as MDItalic,
+    Link as MDLink,
+    UnorderedList as MDUnorderedList,
+    OrderedList as MDOrderedList,
+    CodeBlock as MDCodeBlock,
+    Image as MDImage,
+)
+
 
 #-------------------------------------------------------------------------------
 t_path, _ = os.path.split(__file__)
@@ -92,6 +112,7 @@ else:
   from tools import hfkt_type as htype
   from tools import hfkt_def  as hdef
   from tools import hfkt_str as hstr
+  from tools import hfkt_file_path as hfp
 #endif--------------------------------------------------------------------------
 
 
@@ -1061,8 +1082,85 @@ def html_write_leer_zeile(f,n_spalten):
 
 def html_get_filename_for_browser(filename):
 
-  return "file:///"+change_max(filename,'\\','/')
+  return "file:///"+hstr.change_max(filename,'\\','/')
 
+class MDBuild:
+    def __init__(self,filename):
+
+        self.mdfile = filename
+
+        self.doc = MDDocument()
+
+        self.header_level_liste = []
+
+        return
+    # end def
+    def step_in_sub_level(self):
+        obj = MDHeaderSubLevel(self.doc)
+        self.header_level_liste.append(obj)
+        return
+    # end def
+    def step_out_sub_level(self):
+        if len(self.header_level_liste):
+            del self.header_level_liste[-1]
+        # end if
+        return
+    # end def
+    def add_header(self,text):
+        self.doc.add(MDHeader(text))
+        return
+    # end def
+    def add_paragraph(self,liste):
+        p = MDParagraph(liste)
+        self.doc.add(p)
+        return
+    # end def
+    def add_table(self,headers,rows):
+        self.doc.add(make_markdown_table(headers, rows))
+        return
+    # end def
+    def make_bold(self,text):
+        return MDBold(text)
+    # end def
+    def make_italic(self,text):
+        return MDItalic(text)
+    # end def
+    def make_link(self,label,url):
+        return MDLink(label,url)
+    # end def
+    def add_image(self,url,alt_text=""):
+        self.doc.add(MDImage(url,alt_text))
+        return
+    def make_image(self,url, alt_text=""):
+        return MDImage(url,alt_text)
+    # end def
+
+    def write(self):
+        markdown_inhalt = self.doc.write()
+        markdown_inhalt = markdown_inhalt.replace("None", "")
+        with open(self.mdfile, "w", encoding="utf-8") as f:
+            f.write(markdown_inhalt)
+        # end with
+        return
+    # end def
+    def write_pdf(self):
+        pdf_datei = hfp.reset_ext(self.mdfile,"pdf")
+        markdown_zu_pdf_pypandoc(self.mdfile, pdf_datei)
+# end class
+def make_markdown_table(headers, rows):
+    header_row = "| " + " | ".join(headers) + " |"
+    separator_row = "| " + " | ".join(["---"] * len(headers)) + " |"
+    data_rows = ["| " + " | ".join(map(str, row)) + " |" for row in rows]
+    return "\n".join([header_row, separator_row] + data_rows)
+
+def markdown_zu_pdf_pypandoc(md_datei, pdf_datei):
+    try:
+        # Konvertierung starten
+        pypandoc.convert_file(md_datei, 'pdf', outputfile=pdf_datei)
+        print(f"Erfolgreich konvertiert: {pdf_datei}")
+    except RuntimeError as e:
+        print(f"Konvertierungsfehler (Fehlt LaTeX?): {e}")
+    return
 ###########################################################################
 # testen mit main
 ###########################################################################
