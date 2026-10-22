@@ -373,6 +373,7 @@ def katalog_gruppe_isin_dict_modify(rd):
                                                                 rd.kat["katalog"],
                                                                 rd.kat["katalog_gruppe_isin_dict"])
         flag_change = False
+        runflag = False
         for gruppe in ddict_mod.keys():
 
             if not isinstance(ddict_mod[gruppe], list):
@@ -386,6 +387,7 @@ def katalog_gruppe_isin_dict_modify(rd):
                 if not rd.wpfunc.is_wp(wp):
                     rd.log.write_info(f"katalog_gruppe_isin_dict_modify: In Gruppe = {gruppe} Wertpapier = {wp} ist keine gültiges wertpapier (isin oder indice)", screen=rd.par.LOG_SCREEN_OUT)
                     flag_change = False
+                    runflag = True
                     break
                 else:
                     flag_change = True
@@ -408,7 +410,7 @@ def katalog_gruppe_isin_dict_modify(rd):
 
             rd.kat["katalog_gruppe_isin_dict"] = ddict_mod
             rd.kat["katalog_gruppe_isin_dict_jsonobj"].save(rd.kat["katalog_gruppe_isin_dict"])
-            runflag = False
+
         # end if
     # end while
     return

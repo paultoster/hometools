@@ -1,5 +1,6 @@
 
 import os, sys
+import random as rnd
 
 t_path, _ = os.path.split(__file__)
 tools_path = t_path + "\\.."
@@ -146,7 +147,8 @@ def katalog_gruppe_isin_dict_modify(gui, katalog, isin_liste):
     :param isin_liste:
     :return: isin_list_mod = katalog_isin_liste_modify(gui, katalog, isin_liste)
     '''
-    title = f"Von Katalog {katalog} isin-Liste editieren"
+    random_number = rnd.randint(1, 100)
+    title = f"Von Katalog {katalog} isin-Liste editieren {random_number}"
     isin_list_mod = gui.modify_variable(isin_liste, title)
 
     return isin_list_mod

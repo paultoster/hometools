@@ -9,7 +9,7 @@ if (tools_path not in sys.path):
 # endif
 
 import wp_screen.wp_screen_gui as wp_screen_gui
-import wp_screen.wp_screen_katalog as wp_screen_katalog
+import wp_screen.wp_screen_katalog_command as wp_screen_katalog_command
 import wp_screen.wp_screen_sigset as wp_screen_sigset
 import wp_screen.wp_screen_tab as wp_screen_tab
 import wp_screen.wp_screen_plotdef_command as wp_screen_plotdef_command
@@ -190,7 +190,7 @@ def scre_edit_command(rd, index):
         elif (index_abfrage == index_katalog):
 
 
-            katalog = wp_screen_katalog.get_katalog_auswahl(rd)
+            katalog = wp_screen_katalog_command.get_katalog_auswahl(rd)
 
             if katalog != None:
                 rd.scre["scre_dict"][rd.par.SCRE_KATALOG] = katalog

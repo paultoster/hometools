@@ -385,6 +385,22 @@ class WPData:
         return (self.status, self.errtext)
 
     # end def
+    def get_basic_info_dump(self, isin_liste=None):
+        """
+        (status, errtext) = wp_obj.get_basic_ino_dump()
+        """
+
+        if isin_liste is None:
+            (self.status, self.errtext, isin_liste) = self.get_basic_info_isin_liste()
+
+            if self.status != hdef.OK:
+                return (self.status, self.errtext)
+        # end if
+
+        (self.status, self.errtext) = wp_base_basic_info.dump_in_ods(self, isin_liste)
+
+        return (self.status, self.errtext)
+    # end def
     # def process_usdeuro_ezb_xml(self, xmlfilename: str) -> (int,str):
     #     """
     #

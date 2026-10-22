@@ -1894,7 +1894,7 @@ def plot_mit_radiobuttons(ddict_inp):
     del obj
     return ddict_out
 # end def
-def matplot_date_data_widget(ddict_inp):
+def matplot_date_data(ddict_inp):
     """
     matplot_date_data(ddict_inp)
 

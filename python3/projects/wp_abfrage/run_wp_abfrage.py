@@ -12,7 +12,7 @@ if (tools_path not in sys.path):
 from tools.hfkt_log import log
 from tools import sgui
 from tools import hfkt_def as hdef
-from tools import hfkt_dict as hdict
+
 from tools import hfkt_date_time as hdate
 from tools import hfkt_type as htype
 from tools import hfkt_file_path as hfp
@@ -299,7 +299,7 @@ def edit_basic_info(wb_obj):
                 return (status, errtext, infotext)
             runflag = True
         elif indexAbfrage == i_abfrage_dump_ods:
-            (status, errtext) = dump_in_ods(wb_obj, isin_liste)
+            (status, errtext) = wb_obj.dump_isin_liste_in_ods( isin_liste)
             if status != hdef.OKAY:
                 return (status, errtext, infotext)
             runflag = True

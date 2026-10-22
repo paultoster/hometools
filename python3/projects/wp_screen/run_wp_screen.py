@@ -25,7 +25,7 @@ import tools.sgui as sgui
 def wp_screener_command(rd):
     runflag = True
 
-    start_auswahl = ["Ende", "katalog", "sigset", "tabelle","plotdef","screener","update wps"]
+    start_auswahl = ["Ende", "katalog", "sigset", "tabelle","plotdef","screener","update wps","dump wps"]
 
     index_ende = 0
     index_katalog = 1
@@ -34,7 +34,7 @@ def wp_screener_command(rd):
     index_plot = 4
     index_screener = 5
     index_update_wps = 6
-
+    index_dump_wps = 7
     abfrage_liste = ["okay", "cancel", "ende"]
     #i_abfrage_okay = 0
     i_abfrage_cancel = 1
@@ -187,6 +187,18 @@ def wp_screener_command(rd):
                 runflag = False
             # end if
 
+        elif index == index_dump_wps:
+
+            (status, errtext) = rd.wpfunc.get_basic_info_dump()
+
+
+            if status != hdef.OKAY:
+                t = f"Error wb_obj.update_price_volume() \n errtext = {errtext}"
+                sgui.anzeige_text(t, textcolor='red')
+                rd.log.write_err(t)
+                runflag = False
+
+            # end if
         else:
             pass
         # endif

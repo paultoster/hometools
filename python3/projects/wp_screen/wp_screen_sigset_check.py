@@ -534,7 +534,7 @@ def hilfe(rd):
                 val1 = f"{rd.par.SIG_2PAR_PERFORMANCE}(signal,Anzahl/Tage)"
                 val2 = f"relative Performance berechnung für Signal (muss definiert sein) und im Abstand von Anzahl/Tage"
             case 12:
-                val1 = f"{rd.par.SIG_3PAR_FILTFIT}(signal,N,Wn)"
+                val1 = f"{rd.par.SIG_3PAR_FILTFILT}(signal,N,Wn)"
                 val2 = f"Zero-Phasen-Butterworth-Filter auf das signal (muss definiert sein) N: Filterordnung, Wn: relative Grenzfrequenz (>0 und <1) (für leichtes smoothen N=2,Wn=0.3) "
             case 13:
                 val1 = f"{rd.par.SIG_3PAR_VERGLEICH}(signal1,>,signal2)"

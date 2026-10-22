@@ -12,6 +12,7 @@ if (tools_path not in sys.path):
 from tools import hfkt_def as hdef
 # import tools.hfkt_dict as hdict
 from tools import hfkt_type as htype
+from tools import hfkt_dict as hdict
 
 from wp_abfrage import wp_storage
 from wp_abfrage import wp_fkt
@@ -579,4 +580,21 @@ def updat_first_last(wp_obj, isin, first_dat_str,last_dat_str):
 
     return (status,errtext)
 # end def
+def dump_in_ods(wb_obj,isin_liste):
+    """!
+    :param wb_obj:
+    :return: (status, errtext) = dump_in_ods(wb_obj)
+    """
+
+    (status, errtext, output_dict_list) = wb_obj.get_basic_info(isin_liste)
+    if status != hdef.OKAY:
+        return (status, errtext)
+    # end if
+
+    (status, errtext,file_name) = hdict.write_dict_list_in_ods_table(output_dict_list,"basic_info_dict", "basic_info_dict")
+
+    os.startfile(file_name)
+
+    return (status, errtext)
+# end dfe
 
