@@ -375,7 +375,7 @@ class WPErg:
         dict_input["show"] = False
         dict_input["plotfile"] = self.PlotEuroFilename
 
-        obj = sgui.matplot_date_data_widget(dict_input)
+        obj = sgui.matplot_date_data(dict_input)
 
 
         return
@@ -436,7 +436,7 @@ class WPErg:
         dict_input["show"] = False
         dict_input["plotfile"] = self.PlotProzentFilename
 
-        obj = sgui.matplot_date_data_widget(dict_input)
+        obj = sgui.matplot_date_data(dict_input)
 
         return
     # end def

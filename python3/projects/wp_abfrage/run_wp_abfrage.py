@@ -36,31 +36,29 @@ def run_wp_abfrage():
 
 
     runflag = True
-    
+
     start_auswahl = ["Ende", "edit basic info","edit price volume","edit indices","update wps"]
     index_ende = 0
     index_basic_info = 1
     index_price_volume = 2
     index_indices = 3
     index_update_wps = 4
-    save_flag = True
     abfrage_liste = ["okay", "cancel", "ende"]
-    i_abfrage_okay = 0
     i_abfrage_cancel = 1
     i_abfrage_ende = 2
-    
+
     while (runflag):
-        
+
         [index, indexAbfrage] = sgui.abfrage_liste_index_abfrage_index(start_auswahl, abfrage_liste, "WP edit")
-        
-        
+
+
         if indexAbfrage < 0:
             index = -1
         elif indexAbfrage == i_abfrage_cancel:
             index = index_ende
         elif indexAbfrage == i_abfrage_ende:
             index = index_ende
-        
+
         if index < 0:  # cancel button
             runflag = True
         elif index == index_ende:
@@ -68,15 +66,15 @@ def run_wp_abfrage():
         elif index == index_basic_info:
 
             wb_obj.log.write_info(f"Start Abfrage  \"{start_auswahl[index]}\" ausgewählt")
-            
-            
+
+
             (status,errtext,infotext) = edit_basic_info(wb_obj)
 
             if len(infotext) > 0 :
                 t = f"Info wp_bearbeiten.edit_basic_info(wb_obj): {infotext}"
                 sgui.anzeige_text(t,textcolor='orange')
                 wb_obj.log.write_info(t)
-            
+
             if status != hdef.OKAY:
                 t = f"Error wp_bearbeiten.edit_basic_info(wb_obj) errtext = {errtext}"
                 sgui.anzeige_text(t,textcolor='red')
@@ -299,7 +297,7 @@ def edit_basic_info(wb_obj):
                 return (status, errtext, infotext)
             runflag = True
         elif indexAbfrage == i_abfrage_dump_ods:
-            (status, errtext) = wb_obj.dump_isin_liste_in_ods( isin_liste)
+            (status, errtext) = wb_obj.get_basic_info_dump( isin_liste)
             if status != hdef.OKAY:
                 return (status, errtext, infotext)
             runflag = True
@@ -1073,7 +1071,7 @@ if __name__ == '__main__':
 
 
     run_wp_abfrage()
-    
+
 
 # endif
 
