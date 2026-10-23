@@ -50,6 +50,23 @@ okay = read_http_file(http_filename,local_filename)
 ##################################################################################
 # Schreiben in md-File
 ##################################################################################
+obj = self.MDBuild(mdfilename)
+obj.add_header("Text")
+obj.add_paragraph("TExt")
+obj.add_paragraph(["text1",obj.make:bold(""text2"),"text3"])
+obj.step_in_sub_level()
+obj.step_out_sub_level()
+obj.add_table(header_liste,data_lliste)
+obj.add_image("image_file_name")
+btext = obj.make_bold("text")
+itext = obj.make_italic("text")
+ltext = obj.make_link("link")
+imtext = obj.make_image("link")
+obj.write()
+obj.write_pdf()
+##################################################################################
+# Schreiben in jaml-File
+##################################################################################
 
 
 
@@ -93,7 +110,9 @@ from markdownmaker.markdownmaker import (
     CodeBlock as MDCodeBlock,
     Image as MDImage,
 )
-
+import json
+import yaml
+import pathlib
 
 #-------------------------------------------------------------------------------
 t_path, _ = os.path.split(__file__)
@@ -113,6 +132,8 @@ else:
   from tools import hfkt_def  as hdef
   from tools import hfkt_str as hstr
   from tools import hfkt_file_path as hfp
+  import tools.hfkt_date_time as hdate
+
 #endif--------------------------------------------------------------------------
 
 
@@ -946,7 +967,7 @@ def html_write_start(f,title):
         f.write("<!DOCTYPE html>")
         # f.write("\n<html>\n<head>\n<meta charset=\"utf-8\">\n<title>")
         f.write("\n<html>\n<head>\n<title>")
-        f.write(text_to_write(title))
+        f.write(hstr.text_to_write(title))
         f.write("</title>\n</head>")
 def html_write_end(f):
 
@@ -956,11 +977,11 @@ def html_write_end(f):
 def html_write_Ueberschrift(f,text,size=100,font='verdana'):
     if( f.closed != 1 ):
          tt = "\n<body><h1 style=\"font-size:%i%%;font-family:%s;\">%s</h1></body>" % (size,font,text)
-         f.write(text_to_write(tt))
+         f.write(hstr.text_to_write(tt))
 def html_write_text(f,text,size=100,font='verdana'):
     if( f.closed != 1 ):
         tt = "\n<body><p style=\"font-size:%i%%;font-family:%s;\">%s</p></body>" % (size,font,text)
-        f.write(text_to_write(tt))
+        f.write(hstr.text_to_write(tt))
 
 def html_write_start_tab(f,title):
 
@@ -970,7 +991,7 @@ def html_write_start_tab(f,title):
 
         if( len(title) > 0 ):
             tt = "\n<h1><font size=\"3\">%s</font></h1>" % title
-            f.write(text_to_write(tt))
+            f.write(hstr.text_to_write(tt))
 
         f.write("\n\n<table border=1 cellspacing=0 cellpadding=0 style='border-collapse:collapse;border:none;'>")
 
@@ -1085,6 +1106,23 @@ def html_get_filename_for_browser(filename):
   return "file:///"+hstr.change_max(filename,'\\','/')
 
 class MDBuild:
+    """
+    obj = self.MDBuild(mdfilename)
+    obj.add_header("Text")
+    obj.add_paragraph("TExt")
+    obj.add_paragraph(["text1",obj.make:bold(""text2"),"text3"])
+    obj.step_in_sub_level()
+    obj.step_out_sub_level()
+    obj.add_table(header_liste,data_lliste)
+    obj.add_image("image_file_name")
+    btext = obj.make_bold("text")
+    itext = obj.make_italic("text")
+    ltext = obj.make_link("link")
+    imtext = obj.make_image("link")
+    obj.write()
+    obj.write_pdf()
+
+    """
     def __init__(self,filename):
 
         self.mdfile = filename
@@ -1146,6 +1184,7 @@ class MDBuild:
     def write_pdf(self):
         pdf_datei = hfp.reset_ext(self.mdfile,"pdf")
         markdown_zu_pdf_pypandoc(self.mdfile, pdf_datei)
+        return
 # end class
 def make_markdown_table(headers, rows):
     header_row = "| " + " | ".join(headers) + " |"
@@ -1161,6 +1200,293 @@ def markdown_zu_pdf_pypandoc(md_datei, pdf_datei):
     except RuntimeError as e:
         print(f"Konvertierungsfehler (Fehlt LaTeX?): {e}")
     return
+# end def
+class DataJson:
+    OKAY = hdef.OK
+    NOT_OKAY = hdef.NOT_OK
+
+    def __init__(self, filename_json: str):
+        '''
+        read and write data in json format
+        '''
+        self.status = hdef.OKAY
+        self.errtext = ""
+        self.logtext = ""
+        self.name = ""
+        self.data = None
+        self.filename_json = filename_json
+
+    def get_status(self):
+        return self.status
+
+    def get_errtext(self):
+        return self.errtext
+
+    def get_logtext(self):
+        return self.logtext
+
+    def reset_status(self):
+        self.status = hdef.OKAY
+        self.errtext = ""
+        self.logtext = ""
+
+    # end def
+    def get_filename(self):
+        return self.filename_json
+
+    # end def
+    def make_backup(self, path_backup: str = "."):
+        make_backup(path_backup, self.filename_json)
+        return
+
+    def exist_file(self):
+        if (os.path.isfile(self.filename_json)):
+            return True
+        else:
+            return False
+        # end if
+
+    # end def
+    def read_and_get_data(self):
+        self.read()
+        if self.status != hdef.OK:
+            return
+        return self.get_data()
+
+    # end def
+    def read(self):
+
+        if self.exist_file():
+
+            try:
+                with open(self.filename_json, "r") as f:
+                    self.data = json.load(f)
+                    f.close()
+            except PermissionError:
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"File {self.filename_json} does not exist!"
+                return
+            except IOError:
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"An error occurred while reading the file {self.filename_json}"
+                return
+            except Exception as e:
+                self.status = hdef.NOT_OKAY
+
+                self.errtext = f"An error occurred while reading the file {self.filename_json} with {e}"
+                return
+            # endtry
+        else:
+            self.status = hdef.NOT_FOUND
+            self.errtext = f"File {self.filename_json} does not exist!"
+            return
+
+        # end if
+
+    # enddef
+    def get_data(self):
+        return self.data
+
+    # end def
+    def set_data(self, data):
+        self.data = data
+
+    # end def
+    def save(self, data: any = None):
+
+        if data is not None:
+            self.set_data(data)
+        # end if
+        try:
+            json_obj = json.dumps(self.data, indent=2)
+
+            # print json to screen with human-friendly formatting
+            # pprint.pprint(json_obj, compact=True)
+
+            # write json to file with human-friendly formatting
+            # pretty_json_str = pprint.pformat(json_obj, compact=False)
+
+            with open(self.filename_json, 'w') as f:
+                f.write(json_obj)
+
+            # with open(self.filename_json, 'w') as outfile:
+            #     json.dump(self.ddict, outfile, indent=2)
+
+        except PermissionError:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"File {self.filename_json} does not exist!"
+            return
+        except IOError:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"An error occurred while reading the file {self.filename_json}"
+            return
+        except Exception as e:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"An error occurred while reading the file {self.filename_json} with {e}"
+            return
+
+    # enddef
+
+
+# end class
+def make_backup(path_backup, filename):
+    '''
+    Mach Backup, wennn filename vorhanden und noch kein Backup gemacht mit Datum gemacht ist
+    :param filename:
+    :return: None
+    '''
+    if os.path.isfile(filename):
+
+        t = os.path.getmtime(filename)
+
+        (p, fbody, ext) = hfp.get_pfe(filename)
+
+        backup_body_name = hdate.secs_time_epoch_to_str(t, '_', True, True) + "_" + fbody
+        backup_filename = hfp.set_pfe(path_backup, backup_body_name, ext)
+
+        if not os.path.isfile(backup_filename):
+            if not os.path.isdir(path_backup):
+                try:
+                    os.mkdir(path_backup)
+                except OSError as e:
+                    raise Exception(f"Error: {e}")
+
+            okay = hfp.copy(filename, backup_filename, silent=1)
+            if okay == hdef.OKAY:
+                print(f"Backupcopy: {filename} => {backup_filename}")
+            else:
+                print(f"!!!! No Backupcopy: {filename} => {backup_filename}")
+        # end if
+    # end if
+    return
+# end  def
+class DataYaml:
+    OKAY = hdef.OK
+    NOT_OKAY = hdef.NOT_OK
+
+    def __init__(self, filename_yaml: str):
+        '''
+        read and write data in yaml format
+        '''
+        self.status = hdef.OKAY
+        self.errtext = ""
+        self.logtext = ""
+        self.name = ""
+        self.data = None
+        self.filename_yaml = filename_yaml
+
+        self.path = pathlib.Path(self.filename_yaml)
+
+    def get_status(self):
+        return self.status
+
+    def get_errtext(self):
+        return self.errtext
+
+    def get_logtext(self):
+        return self.logtext
+
+    def reset_status(self):
+        self.status = hdef.OKAY
+        self.errtext = ""
+        self.logtext = ""
+
+    # end def
+    def get_filename(self):
+        return self.filename_yaml
+
+    # end def
+    def make_backup(self, path_backup: str = "."):
+        make_backup(path_backup, self.filename_yaml)
+        return
+
+    def exist_file(self):
+        if (os.path.isfile(self.filename_yaml)):
+            return True
+        else:
+            return False
+        # end if
+
+    # end def
+    def read_and_get_data(self):
+        self.read()
+        if self.status != hdef.OK:
+            return
+        return self.get_data()
+
+    # end def
+    def read(self):
+
+        if self.exist_file():
+
+            try:
+                self.data = yaml.safe_load(self.path.read_text(encoding="utf-8")) or {}
+                print(self.data)
+            except yaml.YAMLError as exc:
+                mark = getattr(exc, "problem_mark", None)
+                where = f" at line {mark.line + 1}, column {mark.column + 1}" if mark else ""
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"invalid YAML in {self.path}{where}: {getattr(exc, 'problem', exc)}"
+            except PermissionError:
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"File {self.path} does not exist!"
+                return
+            except IOError:
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"An error occurred while reading the file {self.path}"
+                return
+            except Exception as e:
+                self.status = hdef.NOT_OKAY
+
+                self.errtext = f"An error occurred while reading the file {self.path} with {e}"
+                return
+            # end try
+
+        else:
+            self.status = hdef.NOT_FOUND
+            self.errtext = f"File {self.path} does not exist!"
+            return
+
+        # end if
+
+    # enddef
+    def get_data(self):
+        return self.data
+
+    # end def
+    def set_data(self, data):
+        self.data = data
+
+    # end def
+    def save(self, data: any = None):
+
+        if data is not None:
+            self.set_data(data)
+        # end if
+        try:
+
+            with open(self.filename_yaml, 'w') as outfile:
+                yaml.dump(self.data, outfile, default_flow_style=False, sort_keys=False)
+
+
+        except PermissionError:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"File {self.filename_yaml} does not exist!"
+            return
+        except IOError:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"An error occurred while reading the file {self.filename_yaml}"
+            return
+        except Exception as e:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"An error occurred while reading the file {self.filename_yaml} with {e}"
+            return
+
+    # enddef
+
+
+# end class
+
 ###########################################################################
 # testen mit main
 ###########################################################################

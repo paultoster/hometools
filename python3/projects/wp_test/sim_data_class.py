@@ -35,7 +35,7 @@ class WPData:
 
         # Daten zu Zinskonto anlegen
         #---------------------------
-        if parobj.ZinsKontoPruefung:
+        if self.Parobj.ZinsKontoPruefung:
 
             # Datensatz für ezb-zins anlegen
             self.WPscrefunc.build_ezbzins_sigset()
@@ -63,6 +63,10 @@ class WPData:
             self.AktZins_float = 0.0
         # end if
 
+        if self.Parobj.DepotKontoPruefung:
+            # Katalog anlegen
+            pass
+
         return
     # end def
     def get_aktzins_float(self):
@@ -73,6 +77,7 @@ class WPData:
         # Daten zu Zinskonto
         #-------------------
         if self.Parobj.ZinsKontoPruefung:
+
 
             # Zins aktuellem Datum abfragen
             self.AktZins_float = self.WPscrefunc.get_ezbzins(

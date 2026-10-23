@@ -31,12 +31,17 @@ class WPKontoZins:
 
     TYPE_DATUM = "datetimeclass"
     TYPE_AKTION = "str"
-    TYPE_WERT = "wert"
     TYPE_WERT = "cent"
     TYPE_SUMME = "cent"
     TYPE_ZINS = "float"
     Type_liste = [TYPE_DATUM, TYPE_AKTION, TYPE_WERT, TYPE_SUMME,TYPE_ZINS]
 
+    TYPE_STORE_DATUM = "datStrP"
+    TYPE_STORE_AKTION = "str"
+    TYPE_STORE_WERT = "euroStrK"
+    TYPE_STORE_SUMME = "euroStrK"
+    TYPE_STORE_ZINS = "percentStr"
+    Type_store_liste = [TYPE_STORE_DATUM, TYPE_STORE_AKTION, TYPE_STORE_WERT, TYPE_STORE_SUMME,TYPE_STORE_ZINS]
 
 
     def __init__(self,parobj,aktZins_float, name) -> None:
@@ -46,7 +51,7 @@ class WPKontoZins:
         # Konto anlegen
         #--------------
         self.KontoDataSet = hdset.DataSet(name)
-        self.KontoDataSet.set_definition_list(self.Header_liste, self.Type_liste, self.Type_liste)
+        self.KontoDataSet.set_definition_list(self.Header_liste, self.Type_liste, self.Type_store_liste)
         self.KontoDataSetSonderEintrag = False
         self.KontoDataSetSonderEintragListe = []
 
@@ -65,6 +70,7 @@ class WPKontoZins:
         # iter Datensatz, bis dahin sind die Zinsen berechnet
         #----------------------------------------------------
         self.IrowLetzteZinsAbrechnung = 0
+        self.IrowLetzteZinsAbrechnungMerker = 0
 
         return
     # end def
@@ -190,7 +196,7 @@ class WPKontoZins:
         :return: steuer_c   Steueranteil in Cent
         """
         ndata = self.KontoDataSet.get_n_data()
-        tlist = self.KontoDataSet.get_one_data_set_tlist(self.IrowLetzteZinsAbrechnung)
+        tlist = self.KontoDataSet.get_one_data_set_tlist(self.IrowLetzteZinsAbrechnung,self.Header_liste, self.Type_liste)
 
         summe_c  = htvar.get_val_from_list(tlist, self.ICOL_SUMME)
         dat_dt0 = htvar.get_val_from_list(tlist, self.ICOL_DATUM)
@@ -199,7 +205,7 @@ class WPKontoZins:
         ertrag_float = 0.0
         for irow in range(self.IrowLetzteZinsAbrechnung+1,ndata):
 
-            tlist = self.KontoDataSet.get_one_data_set_tlist(irow)
+            tlist = self.KontoDataSet.get_one_data_set_tlist(irow,self.Header_liste, self.Type_liste)
 
             dat_dt1 = htvar.get_val_from_list(tlist, self.ICOL_DATUM)
             differenz = dat_dt1 - dat_dt0
@@ -237,6 +243,7 @@ class WPKontoZins:
     # end def
     def SetzeSonderEintragFlag(self):
         self.KontoDataSetSonderEintrag = True
+        self.IrowLetzteZinsAbrechnungMerker = self.IrowLetzteZinsAbrechnung
         return
     # end def
     def LoescheSonderEintrag(self):
@@ -266,8 +273,19 @@ class WPKontoZins:
             # end if
             self.KontoDataSetSonderEintragListe = []
         # end if
+
+        if self.KontoDataSetSonderEintrag:
+            self.IrowLetzteZinsAbrechnung = self.IrowLetzteZinsAbrechnungMerker
+
         self.KontoDataSetSonderEintrag = False
         return
+    # end def
+    def ErstelleTabelle(self):
+        """
+
+        :return: ttable
+        """
+        return self.KontoDataSet.get_data_set_to_store_ttable()
     # end def
 # end class
 

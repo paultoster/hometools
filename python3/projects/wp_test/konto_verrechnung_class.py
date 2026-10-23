@@ -33,6 +33,11 @@ class WPKontoVerrechnung:
     TYPE_SUMME = "cent"
     TYPE_LISTE = [TYPE_DATUM, TYPE_AKTION, TYPE_WERT, TYPE_SUMME]
 
+    TYPE_STORE_DATUM = "datStrP"
+    TYPE_STORE_AKTION = "str"
+    TYPE_STORE_WERT = "euroStrK"
+    TYPE_STORE_SUMME = "euroStrK"
+    TYPE_STORE_LISTE = [TYPE_STORE_DATUM, TYPE_STORE_AKTION, TYPE_STORE_WERT, TYPE_STORE_SUMME]
 
     def __init__(self,parobj,name) -> None:
 
@@ -41,7 +46,7 @@ class WPKontoVerrechnung:
         # Konto anlegen
         #--------------
         self.KontoDataSet = hdset.DataSet(name)
-        self.KontoDataSet.set_definition_list(self.HEADER_LISTE, self.TYPE_LISTE, self.TYPE_LISTE)
+        self.KontoDataSet.set_definition_list(self.HEADER_LISTE, self.TYPE_LISTE, self.TYPE_STORE_LISTE)
         self.KontoDataSetSonderEintrag = False
         self.KontoDataSetSonderEintragListe = []
 
@@ -195,5 +200,12 @@ class WPKontoVerrechnung:
         # end if
         self.KontoDataSetSonderEintrag = False
         return
+    # end def
+    def ErstelleTabelle(self):
+        """
+
+        :return: ttable
+        """
+        return self.KontoDataSet.get_data_set_to_store_ttable()
     # end def
 # end class

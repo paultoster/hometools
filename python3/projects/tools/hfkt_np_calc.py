@@ -52,7 +52,10 @@ def build_mean_zins_curve(np_dyears_array,np_value_array):
 
         ferror = 0.0
         for i, dy in np.ndenumerate(np_dy_array):
-            zinseszins = np_val_array[0] * math.pow(mean_zins[0] + 1.0, dy)
+            try:
+                zinseszins = np_val_array[0] * math.pow(max(0.0,mean_zins[0] + 1.0), dy)
+            except:
+                zinseszins = 0.
             diff       = zinseszins - np_val_array[i]
             ferror += diff*diff
         # end for
@@ -82,7 +85,6 @@ def build_mean_zins_curve(np_dyears_array,np_value_array):
     result = scipy.optimize.minimize(build_mean_zins_curve_function,
                                      x0= mean_zins,
                                      args=(np_dyears_array,np_value_array),
-                                     jac=build_mean_zins_curve_derive,
                                      method = "BFGS",
                                      options = { "maxiter": 1000,
                                                  "gtol": 1e-10

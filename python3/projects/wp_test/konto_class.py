@@ -1,5 +1,7 @@
 import os, sys
 
+from hfkt_tvar import transform_icol_table
+
 t_path, _ = os.path.split(__file__)
 tools_path = t_path + "\\.."
 if (tools_path not in sys.path):
@@ -39,6 +41,12 @@ class WPKonto:
     TYPE_STEUER_TAB_SUMME = "cent"
     TYPE_STEUER_TAB_LISTE = [TYPE_STEUER_TAB_DATUM, TYPE_STEUER_TAB_AKTION, TYPE_STEUER_TAB_WERT, TYPE_STEUER_TAB_SUMME]
 
+    TYPE_STEUER_STORE_DATUM = "datStrP"
+    TYPE_STEUER_STORE_AKTION = "str"
+    TYPE_STEUER_STORE_WERT = "euroStrK"
+    TYPE_STEUER_STORE_SUMME = "euroStrK"
+    TYPE_STEUER_STORE_LISTE = [TYPE_STEUER_STORE_DATUM, TYPE_STEUER_STORE_AKTION, TYPE_STEUER_STORE_WERT, TYPE_STEUER_STORE_SUMME]
+
     def __init__(self,parobj,dataobj) -> None:
 
         self.Parobj = parobj
@@ -58,7 +66,7 @@ class WPKonto:
         self.SteuerDataSet = hdset.DataSet("Steuertabelle")
         self.SteuerDataSet.set_definition_list(self.HEADER_STEUER_TAB_LISTE,
                                               self.TYPE_STEUER_TAB_LISTE,
-                                              self.TYPE_STEUER_TAB_LISTE)
+                                              self.TYPE_STEUER_STORE_LISTE)
         self.SteuerDataSetSonderEintrag = False
         self.SteuerDataSetSonderEintragListe = []
 
@@ -251,5 +259,33 @@ class WPKonto:
         # end if
         self.SteuerDataSetSonderEintrag = False
         return
+    # end def
+    def ErstelleSteuerTabelle(self):
+        """
+
+        :return: ttable
+        """
+        return self.SteuerDataSet.get_data_set_to_store_ttable()
+    # end def
+    def ErstelleTabelleKontoVerrechnung(self):
+        """
+
+        :return: ttable
+        """
+
+        ttable = self.KontoVerrechnung.ErstelleTabelle()
+
+        return ttable
+    # end def
+    def ErstelleTabelleKontoZins(self):
+        """
+
+        :return: ttable
+        """
+
+
+        ttable = self.KontoZins.ErstelleTabelle()
+
+        return ttable
     # end def
 # end class

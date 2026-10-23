@@ -19,8 +19,8 @@ import wp_screen.wp_screen_scre_build_fmttab as wp_screen_scre_build_fmttab
 import wp_screen.wp_screen_scre_build_rawtab as wp_screen_scre_build_rawtab
 
 import tools.hfkt_def as hdef
-import tools.hfkt_pickle as hfkt_pickle
-import tools.sgui as sgui
+import tools.hfkt_io as hio
+# import tools.sgui as sgui
 import tools.hfkt_tvar as htvar
 # import tools.hfkt_type as htype
 
@@ -71,7 +71,7 @@ def scre_set(rd):
         rd.scre["scre_liste_filename"] = os.path.join(rd.ini["store_path"],
                                 rd.ini["scre_liste_file_name"]+".json")
 
-        rd.scre["scre_liste_jsonobj"] = hfkt_pickle.DataJson(rd.scre["scre_liste_filename"])
+        rd.scre["scre_liste_jsonobj"] = hio.DataJson(rd.scre["scre_liste_filename"])
     # end if
 
     rd.scre["scre_liste"] = rd.scre["scre_liste_jsonobj"].read_and_get_data()
@@ -120,7 +120,7 @@ def scre_dict_read(rd):
     if rd.scre["scre_dict_jsonobj"] is not None:
         del rd.scre["scre_dict_jsonobj"]
     # end if
-    rd.scre["scre_dict_jsonobj"] = hfkt_pickle.DataJson(rd.scre["scre_dict_filename"])
+    rd.scre["scre_dict_jsonobj"] = hio.DataJson(rd.scre["scre_dict_filename"])
 
     rd.scre["scre_dict"] = rd.scre["scre_dict_jsonobj"].read_and_get_data()
 
@@ -151,7 +151,7 @@ def scre_dict_save(rd):
     global STATUS, ERRTEXT
 
     if rd.scre["scre_dict_jsonobj"] is None:
-        rd.scre["scre_dict_jsonobj"] = hfkt_pickle.DataJson(rd.scre["scre_dict_filename"])
+        rd.scre["scre_dict_jsonobj"] = hio.DataJson(rd.scre["scre_dict_filename"])
     # end if
 
 

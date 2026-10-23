@@ -17,6 +17,7 @@ import tools.hfkt_np_dataclass as hnpclass
 import tools.hfkt_np_calc as hnpcalc
 import tools.hfkt_np_fkt as hnpfkt
 import tools.hfkt_type as htype
+import tools.hfkt_tvar as htvar
 import tools.sgui as sgui
 
 class WPErg:
@@ -94,17 +95,47 @@ class WPErg:
         self.MdFilename = os.path.join(self.ErgPath,
                                 self.Parobj.md_datei_name + ".md")
 
+        # Bilde schreibe Parameterfile
+        self.ParYamlFilename = os.path.join(self.ErgPath,
+                                self.Parobj.SimName + ".yaml")
+        self.ParYamlObj = hio.DataYaml(self.ParYamlFilename)
+        if self.ParYamlObj.get_status() != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"File : {self.ParYamlFilename} konnte nicht erstellt werden errtext: {self.ParYamlObj.get_errtext()}"
+            return
+        # end if
+
+        self.ParYamlObj.set_data(vars(self.Parobj))
+        if self.ParYamlObj.get_status() != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"File : {self.ParYamlFilename} konnte nicht erstellt werden errtext: {self.ParYamlObj.get_errtext()}"
+            return
+        # end if
+
+        self.ParYamlObj.save()
+        if self.ParYamlObj.get_status() != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"File : {self.ParYamlFilename} konnte nicht erstellt werden errtext: {self.ParYamlObj.get_errtext()}"
+            return
+        # end if
+
+        # kONTO-bEWEGUNG CSV-fILE
+        self.ParKontoSteuerCsvFilename = os.path.join(self.ErgPath, "konto_steuer.csv")
+        self.ParKontoVerrechnungCsvFilename = os.path.join(self.ErgPath, "konto_verrechnung.csv")
+        self.ParKontoZinsCsvFilename = os.path.join(self.ErgPath, "konto_zins.csv")
 
         return
-    def update(self):
+    def update(self,ZwischenErgebnisFlag=True):
 
-        self.KontoObj.SetzeSonderEintragFlag()
+        if ZwischenErgebnisFlag:
+            self.KontoObj.SetzeSonderEintragFlag()
 
         (summe_cash_cent,
          summe_steuer_cent,
          summe_kosten_cent) = self.KontoObj.EntnahmeVollstaendig()
 
-        self.KontoObj.LoescheSonderEintrag()
+        if ZwischenErgebnisFlag:
+            self.KontoObj.LoescheSonderEintrag()
 
         data_set_liste = [self.DataObj.AktDat_datetime,
                           summe_cash_cent,
@@ -119,21 +150,31 @@ class WPErg:
 
         return
     # end def
-    def erstelleDaten(self):
+    def erstelleErgebnisse(self):
 
+        # cash, steuer und kosten in arrays
         np_data_obj = self.do_np_data()
 
+        # gebe Konto-Tabellen aus
+        self.do_csv_output_konto_data()
+
+        # Bilde Zinskurve mean und median
         np_data_obj = self.do_zins_curve(np_data_obj)
 
+        # Schaue auf Schwankung und min/max-abweichung
         np_data_obj = self.do_std_min_max(np_data_obj)
 
+        # Gib Änderung Jahr für Jahr auf
         np_data_obj = self.do_change_year_by_year(np_data_obj)
 
+        # Plotten
         self.do_plot_euro(np_data_obj)
         self.do_plot_prozent(np_data_obj)
 
+        # Speichere array-datei
         np_data_obj.save()
 
+        # Schreibe Ergebnis in md-File und bilde pdf
         self.write_md_pdf(np_data_obj)
 
 
@@ -188,6 +229,38 @@ class WPErg:
 
         return np_data_obj
     # end def
+    def do_csv_output_konto_data(self):
+        """
+
+        :return:
+        """
+        ttable = self.KontoObj.ErstelleSteuerTabelle()
+        status =  htvar.write_table_to_csv(ttable,self.ParKontoSteuerCsvFilename)
+        if status != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"File : {self.ParKontoSteuerCsvFilename} konnte nicht erstellt werden"
+            return
+        # end if
+
+        ttable = self.KontoObj.ErstelleTabelleKontoVerrechnung()
+        status =  htvar.write_table_to_csv(ttable,self.ParKontoVerrechnungCsvFilename)
+        if status != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"File : {self.ParKontoVerrechnungCsvFilename} konnte nicht erstellt werden"
+            return
+        # end if
+
+        ttable = self.KontoObj.ErstelleTabelleKontoZins()
+        status =  htvar.write_table_to_csv(ttable,self.ParKontoZinsCsvFilename)
+        if status != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"File : {self.ParKontoZinsCsvFilename} konnte nicht erstellt werden"
+            return
+        # end if
+
+        return
+    # end def
+
     def do_zins_curve(self,np_data_obj):
         """
         np_data_obj = self.do_zins_curve(np_data_obj)

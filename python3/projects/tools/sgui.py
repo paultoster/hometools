@@ -937,7 +937,7 @@ def abfrage_dir(comment=None, start_dir=None):
 
 # ========================== eingabe_file ========================================
 # ===============================================================================
-def eingabe_file(file_types="*", comment="Waehle oder benenne neue Datei", start_dir=None):
+def eingabe_file(file_types="*.*", comment="Waehle oder benenne neue Datei", start_dir=None):
     """
     eingabe_file (FileSelectBox) um ein neues File zu generieren
                                 mit folgenden Parameter
@@ -950,14 +950,15 @@ def eingabe_file(file_types="*", comment="Waehle oder benenne neue Datei", start
     count = 0
     while (count < 10):
         count = count + 1
-        root = tkinter.ttk.Tk()
-        f = SFileSelectBox(root, file_types, comment, start_dir)
-        f.mainloop()
-        f.destroy()
-        print(f.SELECTED_FILE)
-        selected_file = f.SELECTED_FILE
-        del f
-        
+        root = tkinter.Tk()
+        root.title('Tkinter Open File Dialog')
+        root.resizable(False, False)
+        root.geometry('300x150')
+
+        selected_file = askopenfilename(filetypes=file_types,title=comment,initialdir=start_dir)
+
+        root.mainloop()
+
         if (os.path.exists(selected_file)):
             
             if (abfrage_ok_box(text="Die Datei <%s> existiert bereits" % selected_file) == OK):
@@ -990,13 +991,12 @@ class SFileSelectBox:
         # Start Directory
         if (not start_dir or not isinstance(start_dir, str)):
             start_dir = os.getcwd()
-        
-        top = tkinter.ttk.Frame(w \
-                                , relief=Tk.FLAT \
-                                , bd=20 \
-                                )
-        
-        top.fselect = tkinter.ttk.FileSelectBox(top \
+
+        # bd = 20
+
+        top = Tk.Frame(w,relief=Tk.FLAT)
+
+        top.fselect = Tk.FileSelectBox(top \
                                                 , dir=start_dir \
                                                 , pattern=file_types \
                                                 )
@@ -1636,7 +1636,7 @@ def abfrage_file(file_types="*.*", comment=None, start_dir=None):
     return name
 
 
-def eingabe_file(file_types="*", comment="Waehle oder benenne neue Datei", start_dir=None):
+def eingabe_file(file_types="*.*", comment="Waehle oder benenne neue Datei", start_dir=None):
     """
     eingabe_file (FileSelectBox) um ein neues File zu generieren
                                 mit folgenden Parameter
@@ -1649,7 +1649,7 @@ def eingabe_file(file_types="*", comment="Waehle oder benenne neue Datei", start
     count = 0
     while (count < 10):
         count = count + 1
-        root = tkinter.ttk.Tk()
+        root = Tk.Tk()
         f = SFileSelectBox(root, file_types, comment, start_dir)
         f.mainloop()
         f.destroy()

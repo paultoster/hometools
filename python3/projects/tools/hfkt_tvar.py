@@ -76,6 +76,7 @@ flag   = is_list(tlist)
 index  = find_value_in_list_list(tlist,val)                    index = None if not found
 index  = find_value_in_list_list(tlist,val,type)
 ttable = add_table_to_table(table,tableadd)
+status = write_table_to_csv(ttable,filename)
 """
 import os, sys
 from dataclasses import dataclass, field
@@ -90,6 +91,8 @@ if (tools_path not in sys.path):
 import tools.hfkt_def as hdef
 import tools.hfkt_type as htype
 import tools.hfkt_list as hlist
+import tools.hfkt_io as hio
+
 
 
 
@@ -1305,6 +1308,35 @@ def add_table_to_table(ttable,ttableadd):
     
     return ttable
 # end def
+def write_table_to_csv(ttable,filename):
+    """
 
-    
+    :param ttable:
+    :param filename:
+    :return: status = write_table_to_csv(ttable,filename)
+    """
 
+    csv_header = ttable.names
+
+    csv_data = []
+    for row in ttable.table:
+        csv_row = []
+        for icol,_ in enumerate(ttable.names):
+
+            if icol < len(row):
+                (status,strval) = htype.type_transform(row[icol],ttable.types[icol],"str")
+                if status != hdef.OKAY:
+                    strval = "NN"
+                # end if
+            else:
+                strval = "NN"
+            # end if
+            csv_row.append(strval)
+        # end ofr
+        csv_data.append(csv_row)
+    # end for
+
+    status = hio.write_csv_file_header_data(filename, csv_header, csv_data, delim=";")
+
+    return status
+# end def

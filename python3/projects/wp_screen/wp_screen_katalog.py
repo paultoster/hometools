@@ -11,6 +11,7 @@ import wp_screen.wp_screen_katalog_command as wp_screen_katalog_command
 
 import tools.hfkt_def as hdef
 import tools.hfkt_pickle as hfkt_pickle
+import tools.hfkt_io as hio
 import tools.hfkt_list as hlist
 import tools.hfkt_type as htype
 
@@ -60,7 +61,7 @@ def katalog_set(rd):
         rd.kat["katalog_liste_filename"] = os.path.join(rd.ini["store_path"],
                                 rd.ini["katalog_liste_file_name"]+".json")
 
-        rd.kat["katalog_liste_jsonobj"] = hfkt_pickle.DataJson(rd.kat["katalog_liste_filename"])
+        rd.kat["katalog_liste_jsonobj"] = hio.DataJson(rd.kat["katalog_liste_filename"])
     # end if
 
     rd.kat["katalog_liste"] = rd.kat["katalog_liste_jsonobj"].read_and_get_data()
@@ -84,7 +85,7 @@ def katalog_gruppe_isin_dict_read(rd):
     if rd.kat["katalog_gruppe_isin_dict_jsonobj"] is not None:
         del rd.kat["katalog_gruppe_isin_dict_jsonobj"]
     # end if
-    rd.kat["katalog_gruppe_isin_dict_jsonobj"] = hfkt_pickle.DataJson(rd.kat["katalog_gruppe_isin_dict_filename"])
+    rd.kat["katalog_gruppe_isin_dict_jsonobj"] = hio.DataJson(rd.kat["katalog_gruppe_isin_dict_filename"])
 
     rd.kat["katalog_gruppe_isin_dict"] = rd.kat["katalog_gruppe_isin_dict_jsonobj"].read_and_get_data()
 

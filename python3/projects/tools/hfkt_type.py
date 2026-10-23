@@ -1844,8 +1844,11 @@ def  type_transform_datetimeclass(wert_in,type_out):
     :return: (okay, wert_out) =  type_transform_dat(wert_in,type_out)
     '''
     (okay, wert) = type_proof(wert_in, 'datetimeclass')
-    secs = wert.timestamp()
+
     if( okay == hdef.OKAY):
+
+        secs = wert.timestamp()
+
         if (type_out == "datStr") or (type_out == "datStrP"):
             wert_out = hdate.secs_time_epoch_to_str(secs,delim=".")
         elif type_out == "datStrB":
@@ -1888,6 +1891,12 @@ def  type_transform_datStr(wert_in,type_out):
             wert_out = hdate.secs_time_epoch_to_str(wert, delim="-")
         elif type_out == "datStrBInv":
             wert_out = hdate.secs_time_epoch_to_str(wert, delim="-",date_inverse_flag=True)
+        elif type_out == "str":
+            try:
+                wert_out = str(wert_in)
+            except:
+                wert_out = hdate.secs_time_epoch_to_str(wert, delim=".")
+            # end try
         else:
             raise Exception(f"In type_transform_datStrP ist type_out: {type_out} nicht möglich")
         # end if

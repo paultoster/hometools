@@ -12,7 +12,8 @@ import wp_screen.wp_screen_tab_check as wp_screen_tab_check
 import wp_screen.wp_screen_tab_command as wp_screen_tab_command
 
 import tools.hfkt_def as hdef
-import tools.hfkt_pickle as hfkt_pickle
+import tools.hfkt_io as hio
+
 # import tools.hfkt_tvar as htvar
 # import tools.hfkt_type as htype
 
@@ -46,7 +47,7 @@ def tab_set(rd):
         rd.tab["tab_liste_filename"] = os.path.join(rd.ini["store_path"],
                                 rd.ini["tab_liste_file_name"]+".json")
 
-        rd.tab["tab_liste_jsonobj"] = hfkt_pickle.DataJson(rd.tab["tab_liste_filename"])
+        rd.tab["tab_liste_jsonobj"] = hio.DataJson(rd.tab["tab_liste_filename"])
     # end if
 
     rd.tab["tab_liste"] = rd.tab["tab_liste_jsonobj"].read_and_get_data()
@@ -87,7 +88,7 @@ def tab_dict_read(rd):
     if rd.tab["tab_dict_jsonobj"] is not None:
         del rd.tab["tab_dict_jsonobj"]
     # end if
-    rd.tab["tab_dict_jsonobj"] = hfkt_pickle.DataJson(rd.tab["tab_dict_filename"])
+    rd.tab["tab_dict_jsonobj"] = hio.DataJson(rd.tab["tab_dict_filename"])
 
     rd.tab["tab_dict"] = rd.tab["tab_dict_jsonobj"].read_and_get_data()
 

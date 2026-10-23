@@ -38,7 +38,7 @@
  def make_backup_file(fullfilename,backup_dir)
  def move_file(filename,target)
  def change_text_in_file(filename,textsearch,textreplace):
- def build_path(pathname): erstellt Pfad wenn nicht vorhanden
+ okay =  build_path(pathname): erstellt Pfad wenn nicht vorhanden
  def clear_path(pathname): löscht Inhalt des Pfades
  fullfilenamelist = find_file_pattern(pattern, path): find_file_pattern(pattern, path) returns a list of file: find('*.txt', 'D:\\temp') => ["D:\\temp\\filea.txt","D:\\temp\\filea.txt"]
  fullfilenamelist = find_file_pattern_pathlist(pattern,pathlist)

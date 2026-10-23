@@ -185,7 +185,8 @@ class WPSim:
     # end def
     def ergebnis(self):
 
-        self.ErgebnisObj.erstelleDaten()
+        self.ErgebnisObj.update(ZwischenErgebnisFlag=False)
+        self.ErgebnisObj.erstelleErgebnisse()
 
         return
     # end def

@@ -12,9 +12,9 @@ import wp_screen.wp_screen_plotdef_command as wp_screen_plotdef_command
 import wp_screen.wp_screen_plotdef_check as wp_screen_plotdef_check
 
 import tools.hfkt_def as hdef
-import tools.hfkt_pickle as hfkt_pickle
-import tools.hfkt_list as hlist
-import tools.hfkt_type as htype
+import tools.hfkt_io as hio
+# import tools.hfkt_list as hlist
+# import tools.hfkt_type as htype
 
 STATUS   = hdef.OKAY
 ERRTEXT  = ""
@@ -61,7 +61,7 @@ def plotdef_set(rd):
         rd.plot["plotdef_liste_filename"] = os.path.join(rd.ini["store_path"],
                                                        rd.ini["plotdef_liste_file_name"] + ".json")
 
-        rd.plot["plotdef_liste_jsonobj"] = hfkt_pickle.DataJson(rd.plot["plotdef_liste_filename"])
+        rd.plot["plotdef_liste_jsonobj"] = hio.DataJson(rd.plot["plotdef_liste_filename"])
     # end if
 
     rd.plot["plotdef_liste"] = rd.plot["plotdef_liste_jsonobj"].read_and_get_data()
@@ -86,7 +86,7 @@ def plotdef_dict_read(rd):
     if rd.plot["plotdef_dict_jsonobj"] is not None:
         del rd.plot["plotdef_dict_jsonobj"]
     # end if
-    rd.plot["plotdef_dict_jsonobj"] = hfkt_pickle.DataJson(rd.plot["plotdef_dict_filename"])
+    rd.plot["plotdef_dict_jsonobj"] = hio.DataJson(rd.plot["plotdef_dict_filename"])
 
     rd.plot["plotdef_dict"] = rd.plot["plotdef_dict_jsonobj"].read_and_get_data()
 

@@ -20,7 +20,7 @@
 #         obj.save()
 #         obj.save(ddict)
 #-------------------------------------------------------------------
-# obj = hfkt_pickle.DataJson(file_name)
+# obj = hio.DataJson(file_name)
 #
 #       proof obj.status and obj.errtext
 #
@@ -52,6 +52,7 @@ if (tools_path not in sys.path):
 import tools.hfkt_def as hdef
 import tools.hfkt_date_time as hdate
 import tools.hfkt_file_path as hfile
+
 
 class DataPickle:
     OKAY = hdef.OK
@@ -250,151 +251,28 @@ class DataPickle:
         # end if
     
     # enddef
-
-
-class DataJson:
-    OKAY = hdef.OK
-    NOT_OKAY = hdef.NOT_OK
-    
-    def __init__(self, filename_json: str):
-        '''
-        read and write data in json format
-        '''
-        self.status = hdef.OKAY
-        self.errtext = ""
-        self.logtext = ""
-        self.name = ""
-        self.data = None
-        self.filename_json = filename_json
-
-    def get_status(self):
-        return self.status
-
-    def get_errtext(self):
-        return self.errtext
-
-    def get_logtext(self):
-        return self.logtext
-
-    def reset_status(self):
-        self.status = hdef.OKAY
-        self.errtext = ""
-        self.logtext = ""
-
-    # end def
-    def get_filename(self):
-        return self.filename_json
-    # end def
-    def make_backup(self,path_backup:str="."):
-        make_backup(path_backup,self.filename_json)
-        return
-    def exist_file(self):
-        if (os.path.isfile(self.filename_json)):
-            return True
-        else:
-            return False
-        # end if
-    # end def
-    def read_and_get_data(self):
-        self.read()
-        if self.status != hdef.OK:
-            return
-        return self.get_data()
-    # end def
-    def read(self):
-        
-        if self.exist_file():
-            
-            try:
-                with open(self.filename_json, "r") as f:
-                    self.data = json.load(f)
-                    f.close()
-            except PermissionError:
-                self.status = hdef.NOT_OKAY
-                self.errtext = f"File {self.filename_json} does not exist!"
-                return
-            except IOError:
-                self.status = hdef.NOT_OKAY
-                self.errtext = f"An error occurred while reading the file {self.filename_json}"
-                return
-            except Exception as e:
-                self.status = hdef.NOT_OKAY
-                
-                self.errtext = f"An error occurred while reading the file {self.filename_json} with {e}"
-                return
-            # endtry
-        else:
-            self.status = hdef.NOT_FOUND
-            self.errtext = f"File {self.filename_json} does not exist!"
-            return
-        
-        # end if
-    # enddef
-    def get_data(self):
-        return self.data
-    
-    # end def
-    def set_data(self, data):
-        self.data = data
-    
-    # end def
-    def save(self, data: any = None):
-        
-        if data is not None:
-            self.set_data(data)
-        # end if
-        try:
-            json_obj = json.dumps(self.data, indent=2)
-            
-            # print json to screen with human-friendly formatting
-            # pprint.pprint(json_obj, compact=True)
-            
-            # write json to file with human-friendly formatting
-            # pretty_json_str = pprint.pformat(json_obj, compact=False)
-            
-            with open(self.filename_json, 'w') as f:
-                f.write(json_obj)
-            
-            # with open(self.filename_json, 'w') as outfile:
-            #     json.dump(self.ddict, outfile, indent=2)
-        
-        except PermissionError:
-            self.status = hdef.NOT_OKAY
-            self.errtext = f"File {self.filename_json} does not exist!"
-            return
-        except IOError:
-            self.status = hdef.NOT_OKAY
-            self.errtext = f"An error occurred while reading the file {self.filename_json}"
-            return
-        except Exception as e:
-            self.status = hdef.NOT_OKAY
-            self.errtext = f"An error occurred while reading the file {self.filename_json} with {e}"
-            return
-            
-    # enddef
-# end class
-def make_backup(path_backup,filename):
+def make_backup(path_backup, filename):
     '''
     Mach Backup, wennn filename vorhanden und noch kein Backup gemacht mit Datum gemacht ist
     :param filename:
     :return: None
     '''
     if os.path.isfile(filename):
-        
+
         t = os.path.getmtime(filename)
-        
+
         (p, fbody, ext) = hfile.get_pfe(filename)
-        
-        backup_body_name = hdate.secs_time_epoch_to_str(t,'_',True,True) + "_" + fbody
+
+        backup_body_name = hdate.secs_time_epoch_to_str(t, '_', True, True) + "_" + fbody
         backup_filename = hfile.set_pfe(path_backup, backup_body_name, ext)
-        
+
         if not os.path.isfile(backup_filename):
             if not os.path.isdir(path_backup):
                 try:
                     os.mkdir(path_backup)
                 except OSError as e:
                     raise Exception(f"Error: {e}")
-                
+
             okay = hfile.copy(filename, backup_filename, silent=1)
             if okay == hdef.OKAY:
                 print(f"Backupcopy: {filename} => {backup_filename}")
@@ -403,7 +281,10 @@ def make_backup(path_backup,filename):
         # end if
     # end if
     return
-    
+# end  class
+
+
+
 ###########################################################################
 # testen mit main
 ###########################################################################

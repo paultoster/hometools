@@ -9,7 +9,8 @@ if (t_path == os.getcwd()):
     
     import sgui
     import hfkt_def as hdef
-    import hfkt_pickle as hpickle
+    #import hfkt_pickle as hpickle
+    import tools.hfkt_io as hio
     import hfkt_tvar
 else:
     p_list = os.path.normpath(t_path).split(os.sep)
@@ -20,7 +21,8 @@ else:
     
     from tools import sgui
     from tools import hfkt_def as hdef
-    from tools import hfkt_pickle as hpickle
+    #from tools import hfkt_pickle as hpickle
+    from tools import hfkt_io as hio
     import tools.hfkt_tvar as hfkt_tvar
 # endif--------------------------------------------------------------------------
 
@@ -61,7 +63,7 @@ class SguiProtocol:
             self.protocol_file = protocol_file
         # end if
         if protocol_type == READ_PROTOCOL:
-            self.jsonfunc = hpickle.DataJson(self.protocol_file)
+            self.jsonfunc = hio.DataJson(self.protocol_file)
             self.status = self.jsonfunc.status
             self.errtext = self.jsonfunc.errtext
             if self.status == hdef.OKAY:
@@ -81,7 +83,7 @@ class SguiProtocol:
                 self.save_protocol_data = False
             # end if
         elif protocol_type == SAVE_PROTOCOL:
-            self.jsonfunc = hpickle.DataJson(self.protocol_file)
+            self.jsonfunc = hio.DataJson(self.protocol_file)
             self.status = self.jsonfunc.status
             self.errtext = self.jsonfunc.errtext
             if self.status == hdef.OKAY:

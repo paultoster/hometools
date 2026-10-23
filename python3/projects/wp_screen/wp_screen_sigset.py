@@ -12,9 +12,10 @@ import wp_screen.wp_screen_sigset_check as wp_screen_sigset_check
 import wp_screen.wp_screen_sigset_command as wp_screen_sigset_command
 
 import tools.hfkt_def as hdef
-import tools.hfkt_pickle as hfkt_pickle
-import tools.hfkt_tvar as htvar
-import tools.hfkt_type as htype
+import tools.hfkt_io as hio
+
+# import tools.hfkt_tvar as htvar
+# import tools.hfkt_type as htype
 
 STATUS   = hdef.OKAY
 ERRTEXT  = ""
@@ -62,7 +63,7 @@ def sigset_set(rd):
         rd.sig["sigset_liste_filename"] = os.path.join(rd.ini["store_path"],
                                 rd.ini["sigset_liste_file_name"]+".json")
 
-        rd.sig["sigset_liste_jsonobj"] = hfkt_pickle.DataJson(rd.sig["sigset_liste_filename"])
+        rd.sig["sigset_liste_jsonobj"] = hio.DataJson(rd.sig["sigset_liste_filename"])
     # end if
 
     rd.sig["sigset_liste"] = rd.sig["sigset_liste_jsonobj"].read_and_get_data()
@@ -86,7 +87,7 @@ def sigset_dict_read(rd):
     if rd.sig["sigset_dict_jsonobj"] is not None:
         del rd.sig["sigset_dict_jsonobj"]
     # end if
-    rd.sig["sigset_dict_jsonobj"] = hfkt_pickle.DataJson(rd.sig["sigset_dict_filename"])
+    rd.sig["sigset_dict_jsonobj"] = hio.DataJson(rd.sig["sigset_dict_filename"])
 
     rd.sig["sigset_dict"] = rd.sig["sigset_dict_jsonobj"].read_and_get_data()
 
