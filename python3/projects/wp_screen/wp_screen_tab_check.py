@@ -496,7 +496,9 @@ def hilfe(rd):
                 val1 = "color"
                 val2 = "\"[green:>Signal2; red<=Signal2 ]\" (Hintergrund aller Zellen in Spalte mit Vorgabe und Bedignung weiteres Signal aus der Tabelle (Tabellenname))"
             case _:
-                break
+                val1 = ""
+                val2 = ""
+                pass
         # end match
 
         if i == 0:

@@ -87,7 +87,9 @@ def katalog_command(rd):
                     runflag = False
             # end if
         elif indexAbfrage == i_add:
+
             katalog_command_add(rd)
+
         elif indexAbfrage == i_delete:
             if (index < 0) or (index >= n_auswahl_liste):
                 rd.log.write_err("katalog_command delete: index out of range or not set", screen=rd.par.LOG_SCREEN_OUT)
@@ -118,20 +120,7 @@ def katalog_command_add(rd):
     if (status != hdef.OKAY) or (liste_ergebnis == []):
         return
 
-    text = liste_ergebnis[0]
-    # entfernt Leerzeichen, Tabulator (\t), Zeilenumbrüche (\n), geschützte Leerzeichen (\xa0)
-    katalog = "".join(text.split()).replace(" ", "")
-
-    if katalog not in rd.kat["katalog_liste"]:
-        rd.log.write_info(f"{katalog = } wurde der katalog_liste hinzugefügt")
-    else:
-        rd.log.write_info(f"{katalog = } gibt es schon in Liste")
-        return
-    # end if
-
-    rd.kat["katalog_liste"].append(katalog)
-
-    rd.kat["katalog_liste_jsonobj"].save(rd.kat["katalog_liste"])
+    rd.kat["katalog"] = wp_screen_katalog.add_katalogname(rd,liste_ergebnis[0])
 
     return
 # end def
@@ -142,13 +131,15 @@ def katalog_command_del(rd,index):
     :param index:
     :return: return
     """
-    flag = wp_screen_gui.janein_abfrage(rd.gui, f"Soll wirklich das Element {index = } name = \"{rd.sig["katalog_liste"][index]}\" gelöscht werden?",
-                                    "Löschen ja/nein")
-    if flag:
-        del rd.kat["katalog_liste"][index]
-        rd.kat["katalog_liste_jsonobj"].save(rd.kat["katalog_liste"])
-    # end if
 
+    katalogname = rd.kat["katalog_liste"][index]
+
+    flag = wp_screen_gui.janein_abfrage(rd.gui, f"Soll wirklich das Element {index = } name = \"{katalogname}\" gelöscht werden?",
+                                    "Löschen ja/nein")
+
+    if flag:
+        wp_screen_katalog.del_katalogname(rd,katalogname)
+    # end if
 
     return
 # end def
@@ -348,7 +339,7 @@ def katalog_gruppe_isin_dict_edit_update(rd, data_change_irow_icol_liste,ttable_
 
         if wp_screen_katalog.get_status() != hdef.OKAY:
             STATUS = hdef.NOT_OKAY
-            ERTEXT = wp_screen_katalog.get_errtext()
+            ERRTEXT = wp_screen_katalog.get_errtext()
             wp_screen_katalog.reset_status()
             return
         # end if
@@ -366,52 +357,33 @@ def katalog_gruppe_isin_dict_modify(rd):
     global STATUS
     global ERRTEXT
 
-    runflag = True
-    while runflag:
+    flag_change = False
+    counter = 0
+    while not flag_change:
 
         ddict_mod = wp_screen_gui.katalog_gruppe_isin_dict_modify(rd.gui,
                                                                 rd.kat["katalog"],
                                                                 rd.kat["katalog_gruppe_isin_dict"])
-        flag_change = False
-        runflag = False
-        for gruppe in ddict_mod.keys():
 
-            if not isinstance(ddict_mod[gruppe], list):
-                liste = [ddict_mod[gruppe]]
-                ddict_mod[gruppe] = liste
-            # end if
+        wp_screen_katalog.odify_gruppe_isin_dict(rd,ddict_mod)
 
+        if wp_screen_katalog.get_status() != hdef.OKAY:
 
-            for wp in ddict_mod[gruppe]:
-
-                if not rd.wpfunc.is_wp(wp):
-                    rd.log.write_info(f"katalog_gruppe_isin_dict_modify: In Gruppe = {gruppe} Wertpapier = {wp} ist keine gültiges wertpapier (isin oder indice)", screen=rd.par.LOG_SCREEN_OUT)
-                    flag_change = False
-                    runflag = True
-                    break
-                else:
-                    flag_change = True
-                # end if
-            # end for
-        # end for
-
-
-        if flag_change:
-
-            # Proof
-            wp_screen_katalog.katalog_gruppe_isin_dict_proof(rd)
-
-            if wp_screen_katalog.get_status() != hdef.OKAY:
+            counter += 1
+            if counter > 5:
                 STATUS = hdef.NOT_OKAY
-                ERTEXT = wp_screen_katalog.get_errtext()
+                ERRTEXT = wp_screen_katalog.get_errtext()
                 wp_screen_katalog.reset_status()
                 return
+            else:
+                t = f"katalog_gruppe_isin_dict_modify: Katalog {rd.kat["katalog"]} mit {ddict_mod = } ist falsch"
+                wp_screen_gui.anzeige_text(rd.gui, t, title=None, textcolor='red')
+                rd.log.write_info(t, screen=rd.par.LOG_SCREEN_OUT)
             # end if
-
-            rd.kat["katalog_gruppe_isin_dict"] = ddict_mod
-            rd.kat["katalog_gruppe_isin_dict_jsonobj"].save(rd.kat["katalog_gruppe_isin_dict"])
-
+        else:
+            flag_change = True
         # end if
+
     # end while
     return
 # end def

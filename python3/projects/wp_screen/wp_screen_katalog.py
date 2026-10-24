@@ -1,6 +1,8 @@
 
 import os, sys
 
+from win32cryptcon import CRYPT_UNICODE_NAME_ENCODE_DISABLE_CHECK_TYPE_FLAG
+
 t_path, _ = os.path.split(__file__)
 tools_path = t_path + "\\.."
 if (tools_path not in sys.path):
@@ -204,4 +206,96 @@ def get_katalog_indice_liste(rd,katalog):
     # end ofr
     return list(set(indice_liste))
 # end def
+def add_katalogname(rd,katalogname):
+    """
+    :param rd:
+    :param katalogname:
+    :return:
+    """
 
+    # entfernt Leerzeichen, Tabulator (\t), Zeilenumbrüche (\n), geschützte Leerzeichen (\xa0)
+    katalog = "".join(katalogname.split()).replace(" ", "")
+
+    if katalog not in rd.kat["katalog_liste"]:
+
+        rd.kat["katalog_liste"].append(katalog)
+        rd.kat["katalog_liste_jsonobj"].save(rd.kat["katalog_liste"])
+
+        rd.log.write_info(f"{katalog = } wurde der katalog_liste hinzugefügt")
+    else:
+        rd.log.write_info(f"{katalog = } gibt es schon in Liste")
+    # end if
+
+    return katalog
+# end def
+def del_katalogname(rd,katalogname):
+    """
+    :param rd:
+    :param katalogname:
+    :return:
+    """
+
+    if katalogname in rd.kat["katalog_liste"]:
+        index = rd.kat["katalog_liste"].index(katalogname)
+        del rd.kat["katalog_liste"][index]
+        rd.kat["katalog_liste_jsonobj"].save(rd.kat["katalog_liste"])
+    # end if
+    return
+# end def
+def modify_gruppe_isin_dict(rd, ddict_mod):
+    """
+    :param rd:
+    :param ddict_mod:
+    :return: flag_change
+    """
+    global STATUS, ERRTEXT, INFOTEXT
+
+
+    for gruppe in ddict_mod.keys():
+
+        if not isinstance(ddict_mod[gruppe], list):
+            liste = [ddict_mod[gruppe]]
+            ddict_mod[gruppe] = liste
+        # end if
+    # end for
+
+
+    # Proof
+    rd.kat["katalog_gruppe_isin_dict"] = ddict_mod
+    katalog_gruppe_isin_dict_proof(rd)
+
+    if STATUS != hdef.OKAY:
+        return
+    # end if
+
+
+    rd.kat["katalog_gruppe_isin_dict_jsonobj"].save(rd.kat["katalog_gruppe_isin_dict"])
+
+    return
+# end def
+def add_gruppe_isin_dict(rd,katalogname,katalog_dict):
+    """
+    :param rd:
+    :param katalogname: Name dieses Katalogs
+    :param katalog_dict:  dictionary mit gruppe und liste von isins
+    """
+    global STATUS, ERRTEXT
+
+    katalog_set(rd)
+
+    rd.kat["katalog"] = add_katalogname(rd, katalogname)
+
+    katalog_gruppe_isin_dict_read(rd)
+    if STATUS != hdef.OKAY:
+        del_katalogname(rd, katalogname)
+        return
+
+    modify_gruppe_isin_dict(rd, katalog_dict)
+    if STATUS != hdef.OKAY:
+        del_katalogname(rd, katalogname)
+        return
+
+
+
+    return
+# end if

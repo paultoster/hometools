@@ -43,14 +43,12 @@ class WPData:
             if self.WPscrefunc.get_status() != hdef.OKAY:
                 self.Parobj.status = hdef.NOT_OKAY
                 self.Parobj.errtext = self.WPscrefunc.get_errtext()
-                self.WPscrefunc.reset_status()
                 return
             # end if
-
             if len(self.WPscrefunc.get_infotext()):
                 self.Parobj.infotext += self.WPscrefunc.get_infotext()
-                self.WPscrefunc.reset_status()
             # end if
+            self.WPscrefunc.reset_status()
 
             # Zins Startdatum abfragen
             self.AktZins_float = self.WPscrefunc.get_ezbzins(htype.type_transform_direct(self.Parobj.StartDat_datetime, "datetimeclass", "dat"))
@@ -64,8 +62,19 @@ class WPData:
         # end if
 
         if self.Parobj.DepotKontoPruefung:
+
             # Katalog anlegen
-            pass
+            self.WPscrefunc.add_katalog_gruppe_isin_dict(self.Parobj.sim_katalog_name,self.Parobj.Katalog)
+            if self.WPscrefunc.get_status() != hdef.OKAY:
+                self.Parobj.status = hdef.NOT_OKAY
+                self.Parobj.errtext = self.WPscrefunc.get_errtext()
+                return
+            # end if
+            if len(self.WPscrefunc.get_infotext()):
+                self.Parobj.infotext += self.WPscrefunc.get_infotext()
+            # end if
+            self.WPscrefunc.reset_status()
+        # end if
 
         return
     # end def

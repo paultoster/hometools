@@ -424,7 +424,7 @@ def get_npar_signal(rd, werte_dict, np_data_obj):
 
             (success_sub, np_bedingnung_array) = build_signal_bedingung(rd, signal_liste,np_data_obj)
             if STATUS != hdef.OKAY:
-                return
+                return (success, np_data_obj)
 
             if success_sub:
                 np_data_obj.add_signal(np_bedingnung_array, werte_dict["signal"])
@@ -437,7 +437,53 @@ def get_npar_signal(rd, werte_dict, np_data_obj):
                         content += werte_dict[name]+ ","
 
                 ERRTEXT = f"Der 2. Parameter von fkt: {rd.par.SIG_NPAR_BEDINGUNG}({content[0:-1]}) ist nicht bekannt"
-                return
+                return (success, np_data_obj)
+            # end if
+        case rd.par.SIG_TYPE_NPAR_BEDINGUNGNAND:
+            signal_liste = []
+            for name in ["par1", "par2", "par3", "par4", "par5"]:
+                if len(werte_dict[name]):
+                    signal_liste.append(werte_dict[name])
+
+            (success_sub, np_bedingnung_array) = build_signal_bedingungnand(rd, signal_liste, np_data_obj)
+            if STATUS != hdef.OKAY:
+                return (success, np_data_obj)
+
+            if success_sub:
+                np_data_obj.add_signal(np_bedingnung_array, werte_dict["signal"])
+                success = True
+            else:
+                STATUS = hdef.NOT_OKAY
+                content = ""
+                for name in ["par1", "par2", "par3", "par4", "par5"]:
+                    if len(werte_dict[name]):
+                        content += werte_dict[name] + ","
+
+                ERRTEXT = f"Der 2. Parameter von fkt: {rd.par.SIG_NPAR_BEDINGUNGAND}({content[0:-1]}) ist nicht bekannt"
+                return (success, np_data_obj)
+                # end if
+        case rd.par.SIG_TYPE_NPAR_BEDINGUNGOR:
+            signal_liste = []
+            for name in ["par1", "par2", "par3", "par4", "par5"]:
+                if len(werte_dict[name]):
+                    signal_liste.append(werte_dict[name])
+
+            (success_sub, np_bedingnung_array) = build_signal_bedingungor(rd, signal_liste, np_data_obj)
+            if STATUS != hdef.OKAY:
+                return (success, np_data_obj)
+
+            if success_sub:
+                np_data_obj.add_signal(np_bedingnung_array, werte_dict["signal"])
+                success = True
+            else:
+                STATUS = hdef.NOT_OKAY
+                content = ""
+                for name in ["par1", "par2", "par3", "par4", "par5"]:
+                    if len(werte_dict[name]):
+                        content += werte_dict[name] + ","
+
+                ERRTEXT = f"Der 2. Parameter von fkt: {rd.par.SIG_NPAR_BEDINGUNGOR}({content[0:-1]}) ist nicht bekannt"
+                return (success, np_data_obj)
             # end if
     # end match
 
@@ -726,7 +772,7 @@ def build_signal_bedingung(rd, signal_liste,np_data_obj):
     np_bedignung_array = None
     np_dat_array = None
 
-    if hasattr(np_data_obj, rd.par.SIG_STORE_DATUM):
+    if not hasattr(np_data_obj, rd.par.SIG_STORE_DATUM):
         STATUS = hdef.NOT_OKAY
         ERRTEXT = f"Signal {rd.par.SIG_STORE_DATUM} nicht bekannt im erstellten Datensatz !!"
         return (success, np_bedignung_array)
@@ -750,7 +796,7 @@ def build_signal_bedingung(rd, signal_liste,np_data_obj):
         np_array_liste.append(np_array)
     # end if
 
-    (status,errtext,np_dat_array,np_bedignung_array) = hnpfkt.bedigung(np_dat_array_liste,np_array_liste)
+    (status,errtext,np_dat_array,np_bedignung_array) = hnpfkt.bedingung(np_dat_array_liste,np_array_liste)
 
     if status == hdef.NOT_OKAY:
         STATUS = hdef.NOT_OKAY
@@ -760,6 +806,96 @@ def build_signal_bedingung(rd, signal_liste,np_data_obj):
         success = True
 
     return (success, np_bedignung_array)
+# end def
+def build_signal_bedingungnand(rd, signal_liste,np_data_obj):
+    """
+    (success_sub, np_bedignungnand_array) = build_signal_bedingungor(rd, signal1, vergleich, signal2, np_data_obj)
+    """
+    global STATUS, ERRTEXT
+
+    success = False
+    np_bedignungnand_array = None
+    np_dat_array = None
+
+    if not hasattr(np_data_obj, rd.par.SIG_STORE_DATUM):
+        STATUS = hdef.NOT_OKAY
+        ERRTEXT = f"Signal {rd.par.SIG_STORE_DATUM} nicht bekannt im erstellten Datensatz !!"
+        return (success, np_bedignungnand_array)
+    else:
+        np_dat_array = getattr(np_data_obj, rd.par.SIG_STORE_DATUM)
+    # end if
+
+    np_dat_array_liste = []
+    np_array_liste = []
+    for signal in signal_liste:
+
+        if not hasattr(np_data_obj, signal):
+            STATUS = hdef.NOT_OKAY
+            ERRTEXT = f"Signal {signal} nicht bekannt im erstellten Datensatz !!"
+            return (success, np_dat_array, np_bedignungnand_array)
+        # end if
+
+        np_array     = getattr(np_data_obj, signal).copy()
+
+        np_dat_array_liste.append(np_dat_array)
+        np_array_liste.append(np_array)
+    # end if
+
+    (status,errtext,np_dat_array,np_bedignungnand_array) = hnpfkt.bedingungnand(np_dat_array_liste,np_array_liste)
+
+    if status == hdef.NOT_OKAY:
+        STATUS = hdef.NOT_OKAY
+        ERRTEXT = errtext
+        return (success, np_bedignungnand_array)
+    else:
+        success = True
+
+    return (success, np_bedignungnand_array)
+# end def
+def build_signal_bedingungor(rd, signal_liste,np_data_obj):
+    """
+    (success_sub, np_bedignung_array) = build_signal_bedingungor(rd, signal1, vergleich, signal2, np_data_obj)
+    """
+    global STATUS, ERRTEXT
+
+    success = False
+    np_bedignungor_array = None
+    np_dat_array = None
+
+    if not hasattr(np_data_obj, rd.par.SIG_STORE_DATUM):
+        STATUS = hdef.NOT_OKAY
+        ERRTEXT = f"Signal {rd.par.SIG_STORE_DATUM} nicht bekannt im erstellten Datensatz !!"
+        return (success, np_bedignungor_array)
+    else:
+        np_dat_array = getattr(np_data_obj, rd.par.SIG_STORE_DATUM)
+    # end if
+
+    np_dat_array_liste = []
+    np_array_liste = []
+    for signal in signal_liste:
+
+        if not hasattr(np_data_obj, signal):
+            STATUS = hdef.NOT_OKAY
+            ERRTEXT = f"Signal {signal} nicht bekannt im erstellten Datensatz !!"
+            return (success, np_dat_array, np_bedignungor_array)
+        # end if
+
+        np_array     = getattr(np_data_obj, signal).copy()
+
+        np_dat_array_liste.append(np_dat_array)
+        np_array_liste.append(np_array)
+    # end if
+
+    (status,errtext,np_dat_array,np_bedignungor_array) = hnpfkt.bedingungor(np_dat_array_liste,np_array_liste)
+
+    if status == hdef.NOT_OKAY:
+        STATUS = hdef.NOT_OKAY
+        ERRTEXT = errtext
+        return (success, np_bedignungor_array)
+    else:
+        success = True
+
+    return (success, np_bedignungor_array)
 # end def
 def get_dataclass_filename(rd,scre,isin):
 

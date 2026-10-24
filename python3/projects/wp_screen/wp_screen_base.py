@@ -210,7 +210,26 @@ class WPScreen:
         # end if
         return self.kat["katalog_gruppe_isin_dict"]
     # end if
+    def add_katalog_gruppe_isin_dict(self,katalogname,katalog):
+        """
+        add from extern a new katlog, if exist overwrite
+        """
+        wp_screen_katalog.add_gruppe_isin_dict(self,katalogname,katalog)
 
+        if len(wp_screen_katalog.get_infotext()):
+            self.infotext = wp_screen_katalog.get_infotext()
+        # end if
+
+        if wp_screen_katalog.get_status() != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"Error wp_screen_katalog.add_gruppe_isin_dict({katalogname},{katalog}) errtext = {wp_screen_katalog.get_errtext()}"
+            self.log.write_err(self.errtext, screen=self.par.LOG_SCREEN_OUT)
+        # end if
+
+        wp_screen_katalog.reset_status()
+
+        return
+    # end def
     def sigset_set(self):
 
         wp_screen_sigset.sigset_set(self)

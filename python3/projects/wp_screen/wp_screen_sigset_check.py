@@ -152,6 +152,30 @@ def check_content_0par(rd,content):
 # end def
 def check_content_npar(par,content,signaldef_liste,werte_dict):
 
+    index1 =  content.find(par.SIG_NPAR_BEDINGUNGNAND)
+
+    if index1 == 0:
+
+        t = copy.copy(content)
+        muster = r"\((.*?)\)"
+        tupel_liste = re.findall(muster, t.replace(" ", ""))
+
+        if len(tupel_liste) > 0:
+            return check_content_npar_tuple(par,par.SIG_NPAR_BEDINGUNGNAND,tupel_liste[0],signaldef_liste,werte_dict)
+    # end if
+
+    index1 =  content.find(par.SIG_NPAR_BEDINGUNGOR)
+
+    if index1 == 0:
+
+        t = copy.copy(content)
+        muster = r"\((.*?)\)"
+        tupel_liste = re.findall(muster, t.replace(" ", ""))
+
+        if len(tupel_liste) > 0:
+            return check_content_npar_tuple(par,par.SIG_NPAR_BEDINGUNGOR,tupel_liste[0],signaldef_liste,werte_dict)
+    # end if
+
     index1 = content.find(par.SIG_NPAR_BEDINGUNG)
 
     if index1 == 0:
@@ -161,8 +185,9 @@ def check_content_npar(par,content,signaldef_liste,werte_dict):
         tupel_liste = re.findall(muster, t.replace(" ", ""))
 
         if len(tupel_liste) > 0:
-            return check_content_npar_tuple(par,par.SIG_NPAR_BEDINGUNG,tupel_liste[0][0],signaldef_liste,werte_dict)
+            return check_content_npar_tuple(par,par.SIG_NPAR_BEDINGUNG,tupel_liste[0],signaldef_liste,werte_dict)
     # end if
+
 
     return hdef.NOT_OKAY
 # end def
@@ -210,6 +235,87 @@ def check_content_npar_tuple(par,fkt,content,signaldef_liste,werte_dict):
             # end for
             werte_dict["type"] = par.SIG_TYPE_NPAR_BEDINGUNG
             werte_dict["fkt"] = par.SIG_NPAR_BEDINGUNG
+        # end if
+
+    elif fkt == par.SIG_NPAR_BEDINGUNGNAND:
+
+        sig_list = content.split(',')
+
+        if len(sig_list) > 5:
+            INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({content})\") sind mehr als 5 Parameter gefunden worden!!!"
+            return hdef.NOT_OKAY
+        elif len(sig_list) == 0:
+            INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({content})\") sind kein Parameter gefunden worden!!!"
+            return hdef.NOT_OKAY
+        else:
+            werte_dict["par1"] = ""
+            werte_dict["par2"] = ""
+            werte_dict["par3"] = ""
+            werte_dict["par4"] = ""
+            werte_dict["par5"] = ""
+            for i, sig in enumerate(sig_list):
+
+                sig = hstr.elim_ae_liste(sig, [" ", "\t"])
+
+                if sig not in signaldef_liste:
+                    INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({content})\") ist erster Parameter signal = {sig} nicht davor definiert worden "
+                    return hdef.NOT_OKAY
+                # end if
+
+                if i == 0:
+                    werte_dict["par1"] = sig
+                elif i == 1:
+                    werte_dict["par2"] = sig
+                elif i == 2:
+                    werte_dict["par3"] = sig
+                elif i == 3:
+                    werte_dict["par4"] = sig
+                elif i == 4:
+                    werte_dict["par5"] = sig
+                # end if
+            # end for
+            werte_dict["type"] = par.SIG_TYPE_NPAR_BEDINGUNGNAND
+            werte_dict["fkt"] = par.SIG_NPAR_BEDINGUNGNAND
+        # end if
+    elif fkt == par.SIG_NPAR_BEDINGUNGOR:
+
+        sig_list = content.split(',')
+
+        if len(sig_list) > 5:
+            INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({content})\") sind mehr als 5 Parameter gefunden worden!!!"
+            return hdef.NOT_OKAY
+        elif len(sig_list) == 0:
+            INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({content})\") sind kein Parameter gefunden worden!!!"
+            return hdef.NOT_OKAY
+        else:
+            werte_dict["par1"] = ""
+            werte_dict["par2"] = ""
+            werte_dict["par3"] = ""
+            werte_dict["par4"] = ""
+            werte_dict["par5"] = ""
+            for i, sig in enumerate(sig_list):
+
+                sig = hstr.elim_ae_liste(sig, [" ", "\t"])
+
+                if sig not in signaldef_liste:
+                    INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({content})\") ist erster Parameter signal = {sig} nicht davor definiert worden "
+                    return hdef.NOT_OKAY
+                # end if
+
+                if i == 0:
+                    werte_dict["par1"] = sig
+                elif i == 1:
+                    werte_dict["par2"] = sig
+                elif i == 2:
+                    werte_dict["par3"] = sig
+                elif i == 3:
+                    werte_dict["par4"] = sig
+                elif i == 4:
+                    werte_dict["par5"] = sig
+                # end if
+            # end for
+            werte_dict["type"] = par.SIG_TYPE_NPAR_BEDINGUNGOR
+            werte_dict["fkt"] = par.SIG_NPAR_BEDINGUNGOR
         # end if
     else:
 
@@ -489,6 +595,12 @@ def hilfe(rd):
                                                           Wenn Signal float ist (SignalName5) True(1) : signal > 0.0, False(0) : signal <= 0.0
 
                                                           alle signale werden verundet True(1) = signal1 > 0 and signal2 > 0 ...
+    SignalName10 = bedingungor(SignalName8,SignalName5,...)  Berechnet auf den signalen (bis zu 5) ob 1 (int) oder 0 (int) ist
+                                                          Jedes Signal wird auf null geprüft.
+                                                          Wenn Signal int ist (SignalName8)  True(1) : signal > 0, False(0) : signal <= 0
+                                                          Wenn Signal float ist (SignalName5) True(1) : signal > 0.0, False(0) : signal <= 0.0
+
+                                                          alle signale werden verodert True(1) = signal1 > 0 or signal2 > 0 ...
 
     :param rd:
     :return: infotext = hilfe(rd)
@@ -542,7 +654,15 @@ def hilfe(rd):
             case 14:
                 val1 = f"{rd.par.SIG_NPAR_BEDINGUNG}(signal1,signal2, ...)"
                 val2 = f"Vergleicht jedes Signal auf > null (müssen definiert sein und max 5) und verundet alle Ergebnisse, Ergebnis: 0/1 pro Punkt"
+            case 15:
+                val1 = f"{rd.par.SIG_NPAR_BEDINGUNGNAND}(signal1,signal2, ...)"
+                val2 = f"Vergleicht jedes Signal auf > null (müssen definiert sein und max 5) und not-and alle Ergebnisse (d.h. wenn ein Ergebnis 0 => True), Ergebnis: 0/1 pro Punkt"
+            case 15:
+                val1 = f"{rd.par.SIG_NPAR_BEDINGUNGOR}(signal1,signal2, ...)"
+                val2 = f"Vergleicht jedes Signal auf > null (müssen definiert sein und max 5) und verodert alle Ergebnisse, Ergebnis: 0/1 pro Punkt"
             case _:
+                val1 = ""
+                val2 = ""
                 pass
         # end match
 

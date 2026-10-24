@@ -280,25 +280,39 @@ def vergleich(np_dat1_array,np1_array,vergleich,np_dat2_array,np2_array):
 # end def
 def bedingung(np_dat_array_liste,np_array_liste):
     """
-    Bilde die gemeinsame Datumsbasis und vergleiche auf > 0/0.0
+    Bilde die gemeinsame Datumsbasis und vergleiche auf > 0/0.0 and-Bedingung
     np_dat_array_liste = [np_dat_array1, np_dat_array2,,...]
     np_array_liste = [np_array1, np_array2,...]
     return (status,errtext,np_dat_array,np_bedignung_array) = hnpfkt.bedigung(np_dat_array_liste,np_array_liste)
     """
     np_bedignung_array = None
 
+    # dat_vor_str1 = datetime.datetime.fromtimestamp(np_dat_array_liste[0][-1]).strftime("%d.%m.%Y")
+    # val_vor1 = np_array_liste[0][-1]
+
     (status, errtext, np_dat_array, np_array_liste) = bilde_gleiche_basis(np_dat_array_liste, np_array_liste)
 
     if status != hdef.OKAY:
         return (status, errtext, np_dat_array, np_bedignung_array)
 
-    np_bedignung_array = np.zeros(len(np_dat_array), dtype=np.int64)
+    # dat_str0 =  datetime.datetime.fromtimestamp(np_dat_array[0]).strftime("%d.%m.%Y")
+    # dat_str1 =  datetime.datetime.fromtimestamp(np_dat_array[-1]).strftime("%d.%m.%Y")
 
-    for i,np_array in enumerate(np_array_liste):
+    # val0_end = np_array_liste[0][-1]
+    # val1_end = np_array_liste[1][-1]
+    # val2_end = np_array_liste[2][-1]
+
+    n = len(np_dat_array)
+    np_bedignung_array = np.zeros(n, dtype=np.int64)
+
+    for i in range(n):
+
         flag = True
-        for j,val in enumerate(np_array):
+        for np_array in np_array_liste:
 
-            if isinstance(val,int):
+            val = np_array[i]
+
+            if isinstance(val,(int,np.int8,np.int16,np.int32,np.int64)):
                 if val <= 0:
                     flag = False
                     break
@@ -311,11 +325,96 @@ def bedingung(np_dat_array_liste,np_array_liste):
             # end if
         # end for
         if flag:
-            np_bedignung_array[j] = 1
+            np_bedignung_array[i] = 1
         # end if
     # end for
 
     return (status,errtext,np_dat_array,np_bedignung_array)
+# end def
+def bedingungnand(np_dat_array_liste,np_array_liste):
+    """
+    Bilde die gemeinsame Datumsbasis und vergleiche auf > 0/0.0 not-and-Bedingung
+    np_dat_array_liste = [np_dat_array1, np_dat_array2,,...]
+    np_array_liste = [np_array1, np_array2,...]
+    return (status,errtext,np_dat_array,np_bedignungnand_array) = hnpfkt.bedigung(np_dat_array_liste,np_array_liste)
+    """
+    np_bedignungnand_array = None
+
+    (status, errtext, np_dat_array, np_array_liste) = bilde_gleiche_basis(np_dat_array_liste, np_array_liste)
+
+    if status != hdef.OKAY:
+        return (status, errtext, np_dat_array, np_bedignungnand_array)
+
+    n = len(np_dat_array)
+    np_bedignungnand_array = np.zeros(n, dtype=np.int64)
+
+    for i in range(n):
+        flag = False
+
+        for np_array in np_array_liste:
+
+            val = np_array[i]
+
+            if isinstance(val,(int,np.int8,np.int16,np.int32,np.int64)):
+                if val <= 0:
+                    flag = True
+                    break
+                # end if
+            else:
+                if val <= 0.0:
+                    flag = True
+                    break
+                # end if
+            # end if
+        # end for
+        if flag:
+            np_bedignungnand_array[i] = 1
+        # end if
+    # end for
+
+    return (status,errtext,np_dat_array,np_bedignungnand_array)
+# end def
+def bedingungor(np_dat_array_liste,np_array_liste):
+    """
+    Bilde die gemeinsame Datumsbasis und vergleiche auf > 0/0.0 und verodert die signale
+    np_dat_array_liste = [np_dat_array1, np_dat_array2,,...]
+    np_array_liste = [np_array1, np_array2,...]
+    return (status,errtext,np_dat_array,np_bedignungor_array) = hnpfkt.bedigungor(np_dat_array_liste,np_array_liste)
+    """
+    np_bedignungor_array = None
+
+    (status, errtext, np_dat_array, np_array_liste) = bilde_gleiche_basis(np_dat_array_liste, np_array_liste)
+
+    if status != hdef.OKAY:
+        return (status, errtext, np_dat_array, np_bedignungor_array)
+
+    n = len(np_dat_array)
+    np_bedignungor_array = np.zeros(n, dtype=np.int64)
+
+    for i in range(n):
+        flag = False
+        for np_array in np_array_liste:
+
+            val = np_array[i]
+
+            if isinstance(val,(int,np.int8,np.int16,np.int32,np.int64)):
+                if val > 0:
+                    flag = True
+                    break
+                # end if
+            else:
+                if val > 0.0:
+                    flag = True
+                    break
+                # end if
+            # end if
+        # end for
+        if flag:
+            np_bedignungor_array[i] = 1
+        # end if
+    # end for
+
+    return (status,errtext,np_dat_array,np_bedignungor_array)
 # end def
 # def bilde_gleiche_basis(np_dat1_array,np1_array,np_dat2_array,np2_array):
 #     """

@@ -37,6 +37,8 @@ class Param:
     SIG_3PAR_FILTFILT = "filtfilt"
     SIG_3PAR_VERGLEICH = "vergleich"
     SIG_NPAR_BEDINGUNG = "bedingung"
+    SIG_NPAR_BEDINGUNGNAND = "bedingungnand"
+    SIG_NPAR_BEDINGUNGOR = "bedingungor"
 
     SIG_TYPE_NULL    = 0
     SIG_TYPE_COMMENT = 1
@@ -58,6 +60,8 @@ class Param:
     SIG_TYPE_3PAR_VERGLEICH = 17
     SIG_TYPE_3PAR_FILTFILT = 18
     SIG_TYPE_NPAR_BEDINGUNG = 19
+    SIG_TYPE_NPAR_BEDINGUNGNAND = 20
+    SIG_TYPE_NPAR_BEDINGUNGOR = 21
 
     SIG_STORE_DATUM = "Datum"
     SIG_STORE_GRAD  = "grad"

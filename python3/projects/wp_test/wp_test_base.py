@@ -23,7 +23,8 @@ INI_DICT_PROOF_LISTE =   [("store_path", "str"),
                           ("np_datei_name","str","str","erg_array"),
                           ("plot_euro_datei_name","str","str","erg_plot_euro"),
                           ("plot_prozent_datei_name","str","str","erg_plot_prozent"),
-                          ("md_datei_name","str","str","erg_gesamt")]
+                          ("md_datei_name","str","str","erg_gesamt"),
+                          ("sim_katalog_name","str","str","SIM")]
 
 class WPTest:
     """
