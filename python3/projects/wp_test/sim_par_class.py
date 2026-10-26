@@ -39,6 +39,11 @@ class WPSimPar:
         #---------------------
         self.StartCash_cent = htype.type_transform_direct(parstruct.StartCash, "euroStrK", "cent")
 
+        # self.ErtragsSteuerAnteil
+        self.WPKostenFest_cent = htype.type_transform_direct(parstruct.WPKostenFest, "euroStrK", "cent")
+        # eldf.WPKostenAnteil
+        self.WPKostenMax_cent = htype.type_transform_direct(parstruct.WPKostenMax, "euroStrK", "cent")
+
         # Depotpruefung
         #--------------
         if len(self.ScreKat.keys()) == 0:

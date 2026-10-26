@@ -49,6 +49,32 @@ class WPKonto:
     TYPE_STEUER_STORE_SUMME = "euroStrK"
     TYPE_STEUER_STORE_LISTE = [TYPE_STEUER_STORE_DATUM, TYPE_STEUER_STORE_AKTION, TYPE_STEUER_STORE_WERT, TYPE_STEUER_STORE_SUMME]
 
+    NAME_KOSTEN_TAB_DATUM  = "Datum"
+    NAME_KOSTEN_TAB_AKTION = "Aktion"
+    NAME_KOSTEN_TAB_WERT   = "Wert"
+    NAME_KOSTEN_TAB_SUMME  = "Summe"
+    HEADER_KOSTEN_TAB_LISTE = [NAME_KOSTEN_TAB_DATUM,
+                               NAME_KOSTEN_TAB_AKTION,
+                               NAME_KOSTEN_TAB_WERT,
+                               NAME_KOSTEN_TAB_SUMME]
+
+    ICOL_KOSTEN_TAB_DATUM = HEADER_KOSTEN_TAB_LISTE.index(NAME_KOSTEN_TAB_DATUM)
+    ICOL_KOSTEN_TAB_AKTION = HEADER_KOSTEN_TAB_LISTE.index(NAME_KOSTEN_TAB_AKTION)
+    ICOL_KOSTEN_TAB_WERT = HEADER_KOSTEN_TAB_LISTE.index(NAME_KOSTEN_TAB_WERT)
+    ICOL_KOSTEN_TAB_SUMME = HEADER_KOSTEN_TAB_LISTE.index(NAME_KOSTEN_TAB_SUMME)
+
+    TYPE_KOSTEN_TAB_DATUM = "datetimeclass"
+    TYPE_KOSTEN_TAB_AKTION = "str"
+    TYPE_KOSTEN_TAB_WERT = "cent"
+    TYPE_KOSTEN_TAB_SUMME = "cent"
+    TYPE_KOSTEN_TAB_LISTE = [TYPE_KOSTEN_TAB_DATUM, TYPE_KOSTEN_TAB_AKTION, TYPE_KOSTEN_TAB_WERT, TYPE_KOSTEN_TAB_SUMME]
+
+    TYPE_KOSTEN_STORE_DATUM = "datStrP"
+    TYPE_KOSTEN_STORE_AKTION = "str"
+    TYPE_KOSTEN_STORE_WERT = "euroStrK"
+    TYPE_KOSTEN_STORE_SUMME = "euroStrK"
+    TYPE_KOSTEN_STORE_LISTE = [TYPE_KOSTEN_STORE_DATUM, TYPE_KOSTEN_STORE_AKTION, TYPE_KOSTEN_STORE_WERT, TYPE_KOSTEN_STORE_SUMME]
+
     def __init__(self,parobj,dataobj) -> None:
 
         self.Parobj = parobj
@@ -91,11 +117,39 @@ class WPKonto:
             return
         # end if
 
+        # Kostentabelle
+        #--------------
+        self.KostenDataSet = hdset.DataSet("Kostentabelle")
+        self.KostenDataSet.set_definition_list(self.HEADER_KOSTEN_TAB_LISTE,
+                                              self.TYPE_KOSTEN_TAB_LISTE,
+                                              self.TYPE_KOSTEN_STORE_LISTE)
+        self.KostenDataSetSonderEintrag = False
+        self.KostenDataSetSonderEintragListe = []
+
+        # Anfangswert setzen
+        #-------------------
+        data_set_liste = [self.Parobj.StartDat_datetime,
+                          "Anfangswert", 0,0]
+        status = self.KostenDataSet.add_data_set_liste(data_set_liste,
+                                                       self.HEADER_KOSTEN_TAB_LISTE,
+                                                       self.TYPE_KOSTEN_TAB_LISTE)
+
+        if status != hdef.OKAY:
+            self.Parobj.status = hdef.NOT_OKAY
+            self.Parobj.errtext = self.KostenDataSet.get_errtext()
+            self.KostenDataSet.reset_status()
+            return
+        # end if
+
         return
     # end def
     def GetSummeSteuer(self):
         return self.SteuerDataSet.get_data_item(self.SteuerDataSet.get_n_data() - 1,
                                                 self.NAME_STEUER_TAB_SUMME)
+    # end def
+    def GetSummeKosten(self):
+        return self.KostenDataSet.get_data_item(self.SteuerDataSet.get_n_data() - 1,
+                                                self.NAME_KOSTEN_TAB_SUMME)
     # end def
     def UpdateZinskontoEinzahlung(self):
 
@@ -131,6 +185,9 @@ class WPKonto:
         summe_steuer_cent = 0
         summe_kosten_cent = 0
 
+        # Depotverkaufen
+        self.DepotVerkaufAnVerrechnung()
+
         # Mache eine Zinsabrechnung
         self.MacheZinsAbrechnung()
 
@@ -143,8 +200,12 @@ class WPKonto:
                                                           self.DataObj.AktDat_datetime,
                                                           "vollständige Entnahme")
 
+
         # wieviel Steuer abgeführt
         summe_steuer_cent = self.GetSummeSteuer()
+
+        # Kosten
+        summe_kosten_cent = self.GetSummeKosten()
 
         return (summe_cash_cent, summe_steuer_cent, summe_kosten_cent)
     # end def
@@ -227,10 +288,50 @@ class WPKonto:
 
         return wert
     # end def
+    def MacheEintragKosten(self,kosten_cent,aktion):
+
+        # Prüfen
+        # -------
+        (okay, wert) = htype.type_proof(kosten_cent, self.TYPE_KOSTEN_TAB_WERT)
+        if okay != hdef.OKAY:
+            raise Exception(
+                f"einzahlen: kosten_cent = {kosten_cent} kann nicht in type = {self.TYPE_KOSTEN_TAB_WERT} gewandelt werden")
+
+        # summe bilden:
+        # --------------
+        if self.KostenDataSet.get_n_data() > 0:
+            summe = self.KostenDataSet.get_data_item(self.KostenDataSet.get_n_data() - 1,
+                                                     self.NAME_KOSTEN_TAB_SUMME)
+            summe += wert
+        else:
+            summe = 0
+        # end if
+        data_set_liste = [self.DataObj.AktDat_datetime, aktion, wert, summe]
+
+        status = self.KostenDataSet.add_data_set_liste(data_set_liste,
+                                                       self.HEADER_KOSTEN_TAB_LISTE,
+                                                       self.TYPE_KOSTEN_TAB_LISTE)
+
+        if status != hdef.OKAY:
+            self.Parobj.status = hdef.NOT_OKAY
+            self.Parobj.errtext = self.KostenDataSet.get_errtext()
+            self.KostenDataSet.reset_status()
+            return wert
+        # end if
+
+        # Sondereintrag, der wieder gelöscht wird
+        if self.KostenDataSetSonderEintrag:
+            self.KostenDataSetSonderEintragListe.append(self.KostenDataSet.get_n_data() - 1)
+        # end if
+
+        return wert
+    # end def
     def SetzeSonderEintragFlag(self):
         self.SteuerDataSetSonderEintrag = True
+        self.KostenDataSetSonderEintrag = True
         self.KontoVerrechnung.SetzeSonderEintragFlag()
         self.KontoZins.SetzeSonderEintragFlag()
+        self.KontoDepot.SetzeSonderEintragFlag()
         return
     # end def
     def LoescheSonderEintrag(self):
@@ -294,4 +395,60 @@ class WPKonto:
 
         return ttable
     # end def
+    def bildeAktivesDepotListe(self):
+        """
+        :return: liste
+        """
+        return self.KontoDepot.bildeListeAktiveISINs()
+    # end def
+    def verkaufeAusDepot(self,isin,kurs,anzahl = None):
+        """
+
+        :param isin:
+        :return:
+        """
+        if anzahl is None:
+            anzahl = self.KontoDepot.GetSumme(isin)
+        else:
+            anzahl = min(anzahl, self.KontoDepot.GetSumme(isin))
+        # end if
+
+        (gutschrift_c,steuer_c,kosten_c) = self.KontoDepot.verkaufe(isin,self.DataObj.AktDat_datetime,kurs,anzahl)
+
+        # In Steuerliste eintragen
+        #-------------------------
+        if steuer_c > 0:
+            self.MacheEintragSteuer(steuer_c,f"Depotentnahme {isin}: {anzahl} * {kurs:.3f} ")
+        # end if
+
+        # In Kostenliste eintragen
+        #-------------------------
+        if kosten_c > 0:
+            self.MacheEintragKosten(kosten_c,f"Depotentnahme {isin}: {anzahl} * {kurs:.3f} ")
+        # end if
+
+        _ = self.KontoVerrechnung.einzahlen(gutschrift_c,
+                                            self.DataObj.AktDat_datetime,
+                                            f"Depotentnahme {isin}: {anzahl} * {kurs:.3f} ")
+
+        return
+    # end def
+    def kaufeWP(self,isin,anlage_summe_c):
+        """
+        :param isin:
+        :param anlage_summe_c:
+        :return:
+        """
+
+        #####
+    def DepotVerkaufAnVerrechnung(self):
+
+        isin_liste = self.KontoDepot.GetListeISIN()
+
+        for isin in isin_liste:
+            if (self.KontoDepot.GetAnzahlISIN(isin) > 0) and (isin in self.DataObj.WPISINKursDict.keys()):
+                self.verkaufeAusDepot(self, isin, self.DataObj.WPISINKursDict[isin])
+            # end if
+        # end for
+        return
 # end class

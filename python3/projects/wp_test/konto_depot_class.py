@@ -60,6 +60,19 @@ class WPKontoDepot:
         dataset = hdset.DataSetKonto(isin)
         dataset.set_definition_list(self.HEADER_LISTE, self.TYPE_LISTE, self.TYPE_STORE_LISTE)
 
+        # Anfangswert setzen
+        #-------------------
+        data_set_liste = [self.Parobj.StartDat_datetime, "Anfangswert",0.0, 0,0]
+        status = dataset.add_data_set_liste(data_set_liste, self.HEADER_LISTE, self.TYPE_LISTE)
+
+        if status != hdef.OKAY:
+            self.Parobj.status = hdef.NOT_OKAY
+            self.Parobj.errtext = dataset.get_errtext()
+            dataset.reset_status()
+            return
+        # end if
+
+
         return dataset
     # end def
     def Kaufen(self,isin:str,anzahl:int,aktdat_datetime,kurs:float):
@@ -103,14 +116,14 @@ class WPKontoDepot:
 
         return anzahl
     # end def
-    def Verkaufen(self,isin,anzahl,aktdat_datetime):
+    def verkaufe(self,isin,aktdat_datetime,kurs_euro,anzahl):
         """
          Auszahlen cash_sent
 
         :param cash_cent:
         :param aktdat_datetime:
         :param aktion:
-        :return: tat_cash_cent = self.auszahlen(cash_cent,aktdat_datetime,aktion)
+        :return: (gutschrift_c,steuer_c,kosten_c) = self.verkaufe(isin,aktdat_datetime,kurs,anzahl)
         """
 
         if isin not in self.DepotDict.keys():
@@ -132,11 +145,12 @@ class WPKontoDepot:
             anzahl = summe
         # end if
 
+
         # summe bilden:
         #--------------
         summe -= anzahl
 
-        data_set_liste = [aktdat_datetime,aktion,-anzahl,summe]
+        data_set_liste = [aktdat_datetime,aktion,kurs_euro,-anzahl,summe]
 
         status = self.DepotDict[isin].add_data_set_liste(data_set_liste,self.HEADER_LISTE, self.TYPE_LISTE)
 
@@ -152,7 +166,18 @@ class WPKontoDepot:
             self.DepotDict[isin].mache_sondereintrag()
         # end if
 
-        return anzahl
+        # Umsatz,Ertrag
+        # =============
+        umsatz_c_float = anzahl * kurs_euro * 100.
+        ertrag_c_float = self.berechneErtrag(isin,umsatz_c_float)
+
+        # Steueranteil, Kosten Gutschrift
+        # --------------------------------
+        steuer_c = max(0,int(ertrag_c_float * self.Parobj.ErtragsSteuerAnteil + 0.5))
+        kosten_c = self.berechneKosten(umsatz_c_float)
+        gutschrift_c = int(umsatz_c_float + 0.5) - steuer_c - kosten_c
+
+        return (gutschrift_c,steuer_c,kosten_c)
     # end def
     def GetSumme(self,isin):
         summe = self.DepotDict[isin].get_data_item(self.DepotDict[isin].get_n_data() - 1, self.NAME_SUMMEANZAHL)
@@ -192,4 +217,64 @@ class WPKontoDepot:
                 f"GetAnzahlISIN: isin = {isin} kann nicht im depot gefunden werden")
         # end if
         return self.GetSumme(isin)
+    def bildeListeAktiveISINs(self):
+
+        liste = [isin for isin in self.DepotDict.keys() if self.DepotDict[isin].GetSumme() > 0 ]
+        return liste
+    # end def
+    def berechneErtrag(self,isin,umsatz_c_float):
+        """
+
+        :param anzahl:
+        :param kurs_euro:
+        :return: ertrag_c_float
+        """
+        verkaufte_anteile = self.DepotDict[isin].get_data_item(self.DepotDict[isin].get_n_data()-1,self.NAME_ANZAHL)
+        verkaufte_anteile *= (-1)
+
+        # Gehe soweit zurück bis Summe null ist
+        #--------------------------------------
+        index = 0
+        for i in reversed(range(self.DepotDict[isin].get_n_data())):
+
+            summe = self.DepotDict[isin].get_data_item(i,self.NAME_SUMMEANZAHL)
+
+            if summe == 0:
+                index = i
+                break
+            # end if
+        # end for
+
+        # gehe von index soweit vor bis die anteil des Kaufens zusammen sind
+        #-------------------------------------------------------------------
+        kauf_summe_c_float = 0.0
+        for i in range(index+1,self.DepotDict[isin].get_n_data()):
+
+            anteile = self.DepotDict[isin].get_data_item(i,self.NAME_ANZAHL)
+            kurs    = self.DepotDict[isin].get_data_item(i,self.NAME_KURS)
+
+            if anteile > 0:
+
+                if verkaufte_anteile > anteile:
+                    kauf_summe_c_float += kurs * anteile * 100.
+                    verkaufte_anteile -= anteile
+                else:
+                    kauf_summe_c_float += kurs * verkaufte_anteile * 100.
+                    verkaufte_anteile = 0
+                    break
+                # end if
+            # end if
+        # end for
+
+        return umsatz_c_float - kauf_summe_c_float
+    # end def
+    def berechneKosten(self,ertrag_c_float):
+
+
+        kosten_c = int(self.Parobj.WPKostenFest_cent + min(ertrag_c_float * self.Parobj.WPKostenAnteil,self.Parobj.WPKostenMax_cent) + 0.5)
+
+        return kosten_c
+    # end def
+
+
 # end class

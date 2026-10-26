@@ -110,9 +110,13 @@ index_liste = search_value_in_llist_return_indexlist(lliste,icol,value)
 
 index = search_nearest_item_in_list(lliste,value)
 
+index = search_value_in_list_of_dict(lliste,key,value)
+
 newlist = sort_list_of_dict(lliste, keyname, aufsteigend=1)
 newlist = sort_list(liste,aufsteigend=1)
 (newlist1,newlist2) = sort_two_list(liste1,liste2,aufsteigend=1)
+
+
 
 liste = split_str_into_list(textstr,delim='\n',remove_empty=True)
 
@@ -685,6 +689,26 @@ def search_nearest_item_in_list(lliste,value):
     # end for
     return min_index
 # end def
+def search_value_in_list_of_dict(dliste,key,value):
+    """
+    Sucht in jedem dict in der Liste nach dem value zu dem key
+    :param dliste:
+    :param key:
+    :param value:
+    :return: index = search_value_in_list_of_dict(dliste,key,value)
+             index = None not, oder 0,1,2,3
+    """
+
+    for i,d in enumerate(dliste):
+
+        if key in d.keys():
+            if d[key] == value:
+                return i
+            # end if
+        # end if
+    # end for
+    return None
+# end if
 def sort_list(liste, aufsteigend=1):
     '''
     

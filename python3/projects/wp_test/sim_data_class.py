@@ -33,6 +33,10 @@ class WPData:
         self.AktDat_datetime = self.Parobj.StartDat_datetime
         #self.AktDat_datstr   = self.Parobj.StartDat_str
 
+        # Depotaufteilung nach vorgabe
+        #-----------------------------
+        self.AnteilDepotAufteilung = 1./ max(1,self.Parobj.NAuswahlWPGruppe * self.Parobj.NAuswahlWP)
+
         # Daten zu Zinskonto anlegen
         #---------------------------
         if self.Parobj.ZinsKontoPruefung:
@@ -141,6 +145,9 @@ class WPData:
             # Liste mit den screnner Ergebnissen
             self.WPScreDictList = []
 
+            # dict mit isin-Kurswerten
+
+            self.WPISINKursDict = {}
         # end if
 
         return
@@ -175,5 +182,10 @@ class WPData:
         pruef_dat = htype.type_transform_direct(self.AktDat_datetime, "datetimeclass", "dat")
         ttable = self.WPscrefunc.build_scre_rawtable(self.Parobj.sim_scre_name,pruef_dat,self.Parobj.WPExistDays)
         (self.WPScreDictList, _) = htvar.get_dict_list_from_table(ttable)
+
+        self.WPISINKursDict = {}
+        for scredict in self.WPScreDictList:
+            self.WPISINKursDict[scredict["ISIN"]] = scredict["KURS"]
+        # end for
 
     # end class
