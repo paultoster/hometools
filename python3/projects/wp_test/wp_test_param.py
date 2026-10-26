@@ -26,10 +26,15 @@ PARAM_LLIST = [
 ("WiederholTagZinsAbrechnung", "Wiederholtag Ergebinsausgabe ist Wochentag oder Monatsdatume  (Mo,Di,Mi,Do,Fr,Sa,So, 1 ... (30,31))",{"wert":["Mo","Di","Do","Fr","Sa","So"],"type":"int"}),
 ("ErtragsSteuerAnteil",     "Steueranteil an einem Gewinn oder Zinsertrag (28.,float)",{"type":"float"}),
 ("SimName",                 "Name der Simulation  (TestLauf, str)",{"type":"str"}),
-("Katalog",                 "Die zu betrachtenden WPs in Gruppen als Katalog ('{'Tagesgeld':['ezbleitzins']}', json von dict)",{"type":"str"}),
+("ScreKat",                 "wp_screen: Die zu betrachtenden WPs in Gruppen als ScreKat ('{'Tagesgeld':['ezbleitzins']}', json von dict)",{"type":"str"}),
+("ScreSig",                  "wp_screen: Signal set als dict, json von dict)",{"type":"str"}),
+("SreTab",                  "wp_screen: Tabellen set als dict, json von dict)",{"type":"str"}),
 ("NAuswahlWPGruppe",        "Anzahl WP aus Anzahl Katlaog-Gruppen  (1, int)",{"type":"int"}),
 ("NAuswahlWP",              "Anzahl WP aus Liste pro Katlaog-Gruppe  (1, int)",{"type":"int"}),
-("ParameterVariation",      "Beschreibung  (parallel, format)",{"wert":["parallel"]})
+("WPExistDays",             "Anzahl Tage, die das entsprechende WP schon besteht, Daten hat  (1, int)",{"type":"int"}),
+("ParameterVariation",      "Beschreibung  (parallel, format)",{"wert":["parallel"]}),
+
+
 ]
 
 import copy
@@ -313,9 +318,9 @@ def build_par_liste_konvertieren(mobj, par_liste):
 
     for (i,pdict) in enumerate(par_liste):
 
-        # Katalog
+        # ScreKat
         #--------
-        key = "Katalog"
+        key = "ScreKat"
         try:
             var = json.loads(pdict[key])
         except Exception as e:
@@ -329,7 +334,52 @@ def build_par_liste_konvertieren(mobj, par_liste):
             mobj.errtext = f"par_liste_zweite_pruefung: In File {PARAMETERFILE} ist Parameter {key} = {var} ist var: {var} kein dictionary"
             return
         # end if
-        pdict["Katalog"] = var
+        pdict["ScreKat"] = var
+
+        # ScreSig:
+        #--------
+        key = "ScreSig"
+        try:
+            var = json.loads(pdict[key])
+        except Exception as e:
+            mobj.status = hdef.NOT_OKAY
+            mobj.errtext = f"par_liste_zweite_pruefung: In File {PARAMETERFILE} while reading the json-text \n\n\"{pdict[key]}\" \n message with {e}"
+            return
+        # end try
+
+        if not isinstance(var, dict):
+            mobj.status = hdef.NOT_OKAY
+            mobj.errtext = f"par_liste_zweite_pruefung: In File {PARAMETERFILE} ist Parameter {key} = {var} ist var: {var} kein dictionary"
+            return
+        # end if
+        pdict["ScreSig"] = var
+
+        # SreTab:
+        #--------
+        key = "SreTab"
+        try:
+            var = json.loads(pdict[key])
+        except Exception as e:
+            mobj.status = hdef.NOT_OKAY
+            mobj.errtext = f"par_liste_zweite_pruefung: In File {PARAMETERFILE} while reading the json-text \n\n\"{pdict[key]}\" \n message with {e}"
+            return
+        # end try
+
+        if not isinstance(var, dict):
+            mobj.status = hdef.NOT_OKAY
+            mobj.errtext = f"par_liste_zweite_pruefung: In File {PARAMETERFILE} ist Parameter {key} = {var} ist var: {var} kein dictionary"
+            return
+        # end if
+        pdict[key] = var
+
+        # Werte überprüfen
+        for key_check in ["ISIN","KURS","RANKING","KAUFEN","VERKAUFEN"]:
+            if key_check not in pdict[key]:
+                mobj.status = hdef.NOT_OKAY
+                mobj.errtext = f"par_liste_zweite_pruefung: Fehler in File {PARAMETERFILE} bei Parameter {key} = {var}.\n Der key: {key_check} ist nicht vorhanden"
+                return
+            # end if
+        # end for
 
         # WiederholTagPruefung
         # -----------------

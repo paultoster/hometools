@@ -68,8 +68,10 @@ def plotdef_set(rd):
 
     if rd.plot["plotdef_liste_jsonobj"].get_status() == hdef.NOT_FOUND:
         rd.plot["plotdef_liste"] = []
+        rd.plot["plotdef_liste_jsonobj"].reset_status()
     elif rd.plot["plotdef_liste_jsonobj"].get_status() != hdef.OKAY:
         rd.log.write_err(rd.plot["plotdef_liste_jsonobj"].get_errtext(), screen=rd.par.LOG_SCREEN_OUT)
+        rd.plot["plotdef_liste_jsonobj"].reset_status()
         return
     # end if
     return
@@ -92,6 +94,7 @@ def plotdef_dict_read(rd):
 
     if rd.plot["plotdef_dict_jsonobj"].get_status() == hdef.NOT_FOUND:
         rd.plot["plotdef_dict"] = {}
+        rd.plot["plotdef_dict_jsonobj"].reset_status()
     elif rd.plot["plotdef_dict_jsonobj"].get_status() != hdef.OKAY:
         rd.log.write_err(rd.plot["plotdef_dict_jsonobj"].get_errtext(), screen=rd.par.LOG_SCREEN_OUT)
         global STATUS, ERRTEXT

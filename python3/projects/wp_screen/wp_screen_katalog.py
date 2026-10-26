@@ -70,8 +70,11 @@ def katalog_set(rd):
 
     if rd.kat["katalog_liste_jsonobj"].get_status() == hdef.NOT_FOUND:
         rd.kat["katalog_liste"] = []
+        rd.kat["katalog_liste_jsonobj"].reset_status()
     elif rd.kat["katalog_liste_jsonobj"].get_status() != hdef.OKAY:
+
         rd.log.write_err(rd.kat["katalog_liste_jsonobj"].get_errtext(), screen=rd.par.LOG_SCREEN_OUT)
+        rd.kat["katalog_liste_jsonobj"].reset_status()
         return
     # end if
     return
@@ -93,6 +96,7 @@ def katalog_gruppe_isin_dict_read(rd):
 
     if rd.kat["katalog_gruppe_isin_dict_jsonobj"].get_status() == hdef.NOT_FOUND:
         rd.kat["katalog_gruppe_isin_dict"] = {}
+        rd.kat["katalog_gruppe_isin_dict_jsonobj"].reset_status()
     elif rd.kat["katalog_gruppe_isin_dict_jsonobj"].get_status() != hdef.OKAY:
         rd.log.write_err(rd.kat["katalog_gruppe_isin_dict_jsonobj"].get_errtext(), screen=rd.par.LOG_SCREEN_OUT)
         global STATUS, ERRTEXT
@@ -294,8 +298,6 @@ def add_gruppe_isin_dict(rd,katalogname,katalog_dict):
     if STATUS != hdef.OKAY:
         del_katalogname(rd, katalogname)
         return
-
-
 
     return
 # end if

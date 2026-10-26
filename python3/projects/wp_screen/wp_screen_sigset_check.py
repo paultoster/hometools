@@ -546,8 +546,13 @@ def  check_content_3par_tuple(par,fkt,par1,par2,par3,signaldef_liste, werte_dict
             return hdef.NOT_OKAY
         # end if
         if par3 not in signaldef_liste:
-            INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({par1},{par2},{par3})\") ist dritte Parameter signal = {par3} nicht davor definiert worden "
-            return hdef.NOT_OKAY
+
+            # Test fester Wert
+            try:
+                par3 = float(par3)
+            except:
+                INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({par1},{par2},{par3})\") ist dritte Parameter signal = {par3} nicht davor definiert worden "
+                return hdef.NOT_OKAY
         # end if
         werte_dict["type"] = par.SIG_TYPE_3PAR_VERGLEICH
         werte_dict["fkt"] = par.SIG_3PAR_VERGLEICH

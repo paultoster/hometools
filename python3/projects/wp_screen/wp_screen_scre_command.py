@@ -253,20 +253,8 @@ def scre_add(rd):
     if (status != hdef.OKAY) or (liste_ergebnis == []):
         return
 
-    text = liste_ergebnis[0]
-    # entfernt Leerzeichen, Tabulator (\t), Zeilenumbrüche (\n), geschützte Leerzeichen (\xa0)
-    screname = "".join(text.split()).replace(" ", "")
 
-    if screname not in rd.scre["scre_liste"]:
-        rd.log.write_info(f"{screname = } wurde der scre_liste hinzugefügt")
-    else:
-        rd.log.write_info(f"{screname = } gibt es schon in Liste")
-        return
-    # end if
-
-    rd.scre["scre_liste"].append(screname)
-
-    rd.scre["scre_liste_jsonobj"].save(rd.scre["scre_liste"])
+    wp_screen_scre.add_screname(rd, liste_ergebnis[0])
 
     return
 # end def
@@ -334,7 +322,7 @@ def scre_show_screen(rd,index):
     # end if
 
     # 2. build rawtable
-    wp_screen_scre.scre_build_rawtable(rd, rd.scre["scre_dict"],-1)
+    wp_screen_scre.scre_build_rawtable(rd, rd.scre["scre_dict"])
     if wp_screen_scre.get_status() != hdef.OKAY:
         STATUS = hdef.NOT_OKAY
         ERRTEXT = f"scre_show_screen build: Error in scre_build_rawtable \n errtext = {wp_screen_scre.get_errtext()}"

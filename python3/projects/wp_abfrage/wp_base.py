@@ -163,6 +163,21 @@ class WPData:
 
         (self.status,self.errtext) = wp_fkt.check_store_path(self.base_ddict["store_path"])
     # end def
+    def get_status(self):
+        return self.status
+    # end def
+    def get_errtext(self):
+        return self.errtext
+    # end def
+    def get_infotext(self):
+        return self.infotext
+    # end def
+    def reset_status(self):
+        self.status = hdef.OKAY
+        self.errtext = ""
+        self.infotext = ""
+        return
+    # end def
     def __del__(self) -> None:
         if hasattr(self, "log_file_name"):
             print(f"Siehe logfile: {self.log_file_name}")

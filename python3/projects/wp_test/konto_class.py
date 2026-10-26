@@ -16,6 +16,8 @@ import tools.hfkt_type as htype
 
 import konto_verrechnung_class
 import konto_zins_class
+import konto_depot_class
+
 
 class WPKonto:
     """
@@ -59,6 +61,10 @@ class WPKonto:
         # Zinskonto
         #----------
         self.KontoZins = konto_zins_class.WPKontoZins(self.Parobj,self.DataObj.AktZins_float,"Zinskonto")
+
+        # Depotkonto
+        #----------
+        self.KontoDepot = konto_depot_class.WPKontoDepot(self.Parobj,"Depotkonto")
 
 
         # Steuertabelle

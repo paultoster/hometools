@@ -240,6 +240,26 @@ class WPScreen:
         # end if
         return
     # end def
+    def add_sigset_dict(self,sigsetname,sigset):
+        """
+        add from extern a new sigset, if exist overwrite
+        """
+        wp_screen_sigset.add_dict(self,sigsetname,sigset)
+
+        if len(wp_screen_sigset.get_infotext()):
+            self.infotext = wp_screen_sigset.get_infotext()
+        # end if
+
+        if wp_screen_sigset.get_status() != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"Error wp_screen_sigset.add_sigset_dict({sigsetname},{sigset}) errtext = {wp_screen_sigset.get_errtext()}"
+            self.log.write_err(self.errtext, screen=self.par.LOG_SCREEN_OUT)
+        # end if
+
+        wp_screen_sigset.reset_status()
+
+        return
+    # end def
     def tab_set(self):
 
         wp_screen_tab.tab_set(self)
@@ -248,6 +268,26 @@ class WPScreen:
             self.errtext = f"Error wp_screen_tab.tab_set(wp_obj) errtext = {wp_screen_tab.get_errtext()}"
             self.log.write_err(self.errtext, screen=self.par.LOG_SCREEN_OUT)
         # end if
+        return
+    # end def
+    def add_tab_dict(self,tabname,tabdict):
+        """
+        add from extern a new tab, if exist overwrite
+        """
+        wp_screen_tab.add_dict(self,tabname,tabdict)
+
+        if len(wp_screen_tab.get_infotext()):
+            self.infotext = wp_screen_tab.get_infotext()
+        # end if
+
+        if wp_screen_tab.get_status() != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"Error wp_screen_sigset.add_sigset_dict({tabname},{tabdict}) errtext = {wp_screen_tab.get_errtext()}"
+            self.log.write_err(self.errtext, screen=self.par.LOG_SCREEN_OUT)
+        # end if
+
+        wp_screen_tab.reset_status()
+
         return
     # end def
     def scre_set(self):
@@ -260,11 +300,32 @@ class WPScreen:
         # end if
         return
     # end def
-    def build_scre_sigset(self,scre_name):
+    def add_scre_dict(self,screname,scredict):
+        """
+        add from extern a new tab, if exist overwrite
+        """
+        wp_screen_scre.add_dict(self,screname,scredict)
+
+        if len(wp_screen_scre.get_infotext()):
+            self.infotext = wp_screen_scre.get_infotext()
+        # end if
+
+        if wp_screen_scre.get_status() != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"Error wp_screen_sigset.add_sigset_dict({screname},{scredict}) errtext = {wp_screen_scre.get_errtext()}"
+            self.log.write_err(self.errtext, screen=self.par.LOG_SCREEN_OUT)
+        # end if
+
+        wp_screen_scre.reset_status()
+
+        return
+    # end def
+    def build_scre_sigset(self,scre_name,end_dat=None):
         """
 
         """
         wp_screen_scre.setup_scre_name(self,scre_name)
+
 
         if wp_screen_scre.get_status() != hdef.OKAY:
             self.status = hdef.NOT_OKAY
@@ -273,6 +334,19 @@ class WPScreen:
             wp_screen_scre.reset_status()
             return
         # end if
+
+        if end_dat is not None:
+
+            wp_screen_scre.proof_end_dat_of_wp(self,scre_name, self.scre["scre_dict"],end_dat)
+
+            if wp_screen_scre.get_status() != hdef.OKAY:
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"Error wp_screen_base.setup_scre_name({scre_name}) errtext = {wp_screen_scre.get_errtext()}"
+                self.log.write_err(self.errtext, screen=self.par.LOG_SCREEN_OUT)
+                wp_screen_scre.reset_status()
+                return
+            # end if
+        # end fi
 
         wp_screen_scre.scre_build_sigset(self, scre_name, self.scre["scre_dict"])
         if wp_screen_scre.get_status() != hdef.OKAY:
@@ -285,10 +359,11 @@ class WPScreen:
 
         return
     # end def
-    def build_scre_rawtable(self,scre_name, dat):
+    def build_scre_rawtable(self,scre_name, dat = -1,days_wp_exit = -1):
         """
         scre_name:  Name des ausgewählten sreens, muss hier angelegt sein
         dat: Datum für Tabelle erstellen in secs
+        days_wp_exit: Anzahl Tage die der WP schon existieren soll
         return raytable = self.build_scre_rawtable(scre_name, dat)
 
         """
@@ -303,7 +378,7 @@ class WPScreen:
             return
         # end if
 
-        rawtable = wp_screen_scre.scre_build_rawtable(self, self.scre["scre_dict"],dat)
+        rawtable = wp_screen_scre.scre_build_rawtable(self, self.scre["scre_dict"],dat,days_wp_exit)
 
         if wp_screen_scre.get_status() != hdef.OKAY:
             self.status = hdef.NOT_OKAY

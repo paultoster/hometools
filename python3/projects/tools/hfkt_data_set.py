@@ -16,6 +16,7 @@ import tools.hfkt_list as hlist
 import tools.hfkt_dict as hdict
 import tools.hfkt_tvar as htvar
 
+
 class DataSet:
     '''
         :return: obj              = DataSet(name)
@@ -1060,5 +1061,55 @@ class DataSet:
         irow_list = [] # self.find_in_col_between_min_max(val_min, val_max, type, header_name)
         
         return irow_list
+    # end def
+# end class
+
+class DataSetKonto(DataSet):
+    def __init__(self, name):
+
+        super().__init__(name)  # Ruft __init__ von Tier auf
+
+        self.sondereintrag = False
+        self.sondereintrag_liste = []
+
+        return
+
+    # end def
+    def mache_sondereintrag(self):
+        """
+        Der letzter Eintrag in das Dataset wird sich gemerkt
+        :return:
+        """
+        self.sondereintrag = True
+        self.sondereintrag_liste.append(self.get_n_data() - 1)
+        return
+
+    # end def
+    def loesche_sondereintrag(self, wert=None, summe=None):
+
+        if len(self.sondereintrag_liste):
+
+            liste = sorted(self.sondereintrag_liste, reverse=True)
+
+            flagLastPoints = True
+            for irow in liste:
+                if (irow + 1) != self.get_n_data():
+                    flagLastPoints = False
+                # end if
+                status = self.delete_row_in_data_set(irow)
+                if status != hdef.OKAY:
+                    self.status = hdef.NOT_OKAY
+                    return
+                # end if
+            # end for
+
+            # Summen neu Berechnen
+            if (not flagLastPoints) and (wert is not None) and (summe is not None):
+                self.recalc_summe_from_value(summe, wert)
+            # end if
+            self.sondereintrag_liste = []
+        # end if
+        self.sondereintrag = False
+        return
     # end def
 # end class

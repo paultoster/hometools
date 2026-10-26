@@ -283,7 +283,7 @@ class NpDataHandlingClass:
                                     flag = True
                                 else:
                                     np_arr = np.delete(np_arr,-1)
-                                    self.__setattr__(np_arr, self)
+                                    setattr(self,signal,np_arr)
                             except:
                                 raise Exception(f"mit {signame} kann signal: {signal} nicht sortiert werden")
                             # end if

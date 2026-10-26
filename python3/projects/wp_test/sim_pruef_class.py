@@ -33,7 +33,12 @@ class WPPruef:
     def update(self):
 
         if self.Parobj.DepotKontoPruefung:
-            pass
+
+            if len(self.DataObj.WPScreDictList):
+
+                # print(self.DataObj.WPScreDictList)
+
+            # end if
         # end if
 
         # Soll alles Cash in Zins steckenen

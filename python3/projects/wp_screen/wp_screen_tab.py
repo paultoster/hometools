@@ -54,8 +54,10 @@ def tab_set(rd):
 
     if rd.tab["tab_liste_jsonobj"].get_status() == hdef.NOT_FOUND:
         rd.tab["tab_liste"] = []
+        rd.tab["tab_liste_jsonobj"].reset_status()
     elif rd.tab["tab_liste_jsonobj"].get_status() != hdef.OKAY:
         rd.log.write_err(rd.tab["tab_liste_jsonobj"].get_errtext(), screen=rd.par.LOG_SCREEN_OUT)
+        rd.tab["tab_liste_jsonobj"].reset_status()
         return
     # end if
     return
@@ -94,6 +96,7 @@ def tab_dict_read(rd):
 
     if rd.tab["tab_dict_jsonobj"].get_status() == hdef.NOT_FOUND:
         rd.tab["tab_dict"] = {}
+        rd.tab["tab_dict_jsonobj"].reset_status()
     elif rd.tab["tab_dict_jsonobj"].get_status() != hdef.OKAY:
         rd.log.write_err(rd.tab["tab_dict_jsonobj"].get_errtext(), screen=rd.par.LOG_SCREEN_OUT)
         global STATUS, ERRTEXT
@@ -147,5 +150,96 @@ def get_tab_werte_dict_liste(rd,tab_dict):
     (okay,infotext) = wp_screen_tab_check.check(rd,tab_dict)
 
     return (okay,infotext,rd.tab["tab_werte_dict_liste"])
+# end def
+def add_dict(rd,tabname,tab_dict):
+    """
+    :param rd:
+    :param tabname:
+    :param tab_dict:
+    :return:
+    """
+
+    global STATUS, ERRTEXT
+
+    tab_set(rd)
+
+    rd.tab["tab"] = add_tabname(rd, tabname)
+
+    tab_dict_read(rd)
+    if STATUS != hdef.OKAY:
+        del_tabname(rd, tabname)
+        return
+
+    modify_dict(rd, tab_dict)
+    if STATUS != hdef.OKAY:
+        del_tabname(rd, tabname)
+        return
+
+    return
+# end if
+def add_tabname(rd,tabname):
+    """
+    :param rd:
+    :param tabname:
+    :return: tab
+    """
+
+    # entfernt Leerzeichen, Tabulator (\t), Zeilenumbrüche (\n), geschützte Leerzeichen (\xa0)
+    tab = "".join(tabname.split()).replace(" ", "")
+
+    if tab not in rd.tab["tab_liste"]:
+
+        rd.tab["tab_liste"].append(tab)
+        rd.tab["tab_liste_jsonobj"].save(rd.tab["tab_liste"])
+
+        rd.log.write_info(f"{tab = } wurde der tab_liste hinzugefügt")
+    else:
+        rd.log.write_info(f"{tab = } gibt es schon in Liste")
+    # end if
+
+    return tab
+# end def
+def del_tabname(rd,tabname):
+    """
+    :param rd:
+    :param tabname:
+    :return:
+    """
+
+    if tabname in rd.tab["tab_liste"]:
+        index = rd.tab["tab_liste"].index(tabname)
+        del rd.tab["tab_liste"][index]
+        rd.tab["tab_liste_jsonobj"].save(rd.tab["tab_liste"])
+    # end if
+    return
+# end def
+def modify_dict(rd, dict_mod):
+    """
+    :param rd:
+    :param dict_mod:
+    :return:
+    """
+
+    global STATUS, ERRTEXT
+
+    # Check modified dictionary
+    (status,infotext) = wp_screen_tab_check.check(rd,dict_mod)
+
+    if status != hdef.OKAY:
+        STATUS = hdef.NOT_OKAY
+        ERRTEXT = f"wp_screen_sigset_check.check: Mit dict: {dict_mod} => {infotext = }"
+        return
+    # end if
+
+    rd.tab["tab_dict"] = dict_mod
+    rd.tab["tab_dict_jsonobj"].save(rd.tab["tab_dict"])
+    if rd.tab["tab_dict_jsonobj"].get_status() != hdef.OKAY:
+        STATUS = rd.tab["tab_dict_jsonobj"].get_status()
+        ERRTEXT = rd.tab["tab_dict_jsonobj"].get_errtext()
+        rd.tab["tab_dict_jsonobj"].reset_status()
+        return
+    # end if
+
+    return
 # end def
 

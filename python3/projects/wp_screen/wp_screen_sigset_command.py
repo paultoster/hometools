@@ -103,20 +103,8 @@ def sigset_add(rd):
     if (status != hdef.OKAY) or (liste_ergebnis == []):
         return
 
-    text = liste_ergebnis[0]
-    # entfernt Leerzeichen, Tabulator (\t), Zeilenumbrüche (\n), geschützte Leerzeichen (\xa0)
-    sigsetname = "".join(text.split()).replace(" ", "")
-
-    if sigsetname not in rd.sig["sigset_liste"]:
-        rd.log.write_info(f"{sigsetname = } wurde der sigset_liste hinzugefügt")
-    else:
-        rd.log.write_info(f"{sigsetname = } gibt es schon in Liste")
-        return
-    # end if
-
-    rd.sig["sigset_liste"].append(sigsetname)
-
-    rd.sig["sigset_liste_jsonobj"].save(rd.sig["sigset_liste"])
+    #text = liste_ergebnis[0]
+    _ = wp_screen_sigset.add_sigsetname(rd,liste_ergebnis[0])
 
     return
 # end def
@@ -127,11 +115,14 @@ def sigset_del(rd,index):
     :param index:
     :return: return
     """
-    flag = wp_screen_gui.janein_abfrage(rd.gui, f"Soll wirklich das Element {index = } name = \"{rd.sig["sigset_liste"][index]}\" gelöscht werden?",
+
+    sigset = rd.sig["sigset_liste"][index]
+
+    flag = wp_screen_gui.janein_abfrage(rd.gui, f"Soll wirklich das Element {index = } name = \"{sigset}\" gelöscht werden?",
                                     "Löschen ja/nein")
     if flag:
-        del rd.sig["sigset_liste"][index]
-        rd.sig["sigset_liste_jsonobj"].save(rd.sig["sigset_liste"])
+        wp_screen_sigset.del_sigsetname(rd, sigset)
+
     # end if
 
 
@@ -273,28 +264,22 @@ def sigset_edit_modify(rd):
     :param rd:
     :return:
     """
+
+    global STATUS, ERRTEXT
+
     dict_mod = wp_screen_gui.sigset_dict_modify(rd.gui,
                                                    rd.sig["sigset"],
                                                    rd.sig["sigset_dict"],)
+    wp_screen_sigset.modify_dict(rd, dict_mod)
 
-    # Check modified dictionary
-    (okay,infotext) = wp_screen_sigset_check.check(rd,dict_mod)
-
-    if okay != hdef.OKAY:
-        wp_screen_gui.janein_abfrage(rd.gui,f"Fehler in sigset {infotext = }","")
+    if wp_screen_sigset.get_status() != hdef.OKAY:
+        STATUS = wp_screen_sigset.get_status()
+        ERRTEXT = wp_screen_sigset.get_errtext() + wp_screen_sigset.get_infotext()
+        wp_screen_gui.janein_abfrage(rd.gui, f"Fehler in sigset {ERRTEXT = }", "")
+        wp_screen_sigset.reset_status()
         return
-    else:
-
-        rd.sig["sigset_dict"] = dict_mod
-        rd.sig["sigset_dict_jsonobj"].save(rd.sig["sigset_dict"])
-        if rd.sig["sigset_dict_jsonobj"].get_status() != hdef.OKAY:
-            global STATUS, ERRTEXT
-            STATUS = rd.sig["sigset_dict_jsonobj"].get_status()
-            ERRTEXT = rd.sig["sigset_dict_jsonobj"].get_errtext()
-            rd.sig["sigset_dict_jsonobj"].reset_status()
-            return
-        # end if
     # end if
+
     return
 # end def
 def sigset_edit_add(rd):

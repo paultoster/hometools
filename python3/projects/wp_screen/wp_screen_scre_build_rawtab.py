@@ -12,11 +12,12 @@ if (tools_path not in sys.path):
 
 import tools.hfkt_def as hdef
 import tools.hfkt_np_dataclass as hnp_dataclass
+import tools.hfkt_np_fkt as hnp_fkt
 import tools.hfkt_list as hlist
 
 # import tools.sgui as sgui
 import tools.hfkt_tvar as htvar
-# import tools.hfkt_type as htype
+import tools.hfkt_type as htype
 
 STATUS   = hdef.OKAY
 ERRTEXT  = ""
@@ -41,11 +42,14 @@ def reset_status():
     INFOTEXT = ""
 # end def
 
-def scre_build_rawtab(rd, isin, tab_werte_dict_liste, dat):
+def scre_build_rawtab(rd, isin, tab_werte_dict_liste, dat,days_wp_exit):
 
     global STATUS,ERRTEXT
 
-    np_data_obj = get_np_data_obj(rd,isin,dat)
+    np_data_obj = get_np_data_obj(rd,isin,dat,days_wp_exit)
+
+    if np_data_obj is None:
+        return ([],[])
 
     data_list = []
     type_list = []
@@ -189,7 +193,7 @@ def scre_build_data_get_value(rd,werte_dict,np_data_obj):
 
     return (value,type)
 # end if
-def scre_build_values_over_rawtab(rd,ttable,tab_werte_dict_liste,isin_liste,dat):
+def scre_build_values_over_rawtab(rd,ttable,tab_werte_dict_liste,isin_liste,dat,days_wp_exit):
     """
     :param rd:
     :param ttable:
@@ -207,7 +211,7 @@ def scre_build_values_over_rawtab(rd,ttable,tab_werte_dict_liste,isin_liste,dat)
 
         if werte_dict["section"] == rd.par.TAB_SEC_TABRANKMIN:
 
-            rank_liste         = build_rank_liste(rd,werte_dict["name"],isin_liste,dat,True)
+            rank_liste         = build_rank_liste(rd,werte_dict["name"],isin_liste,dat,days_wp_exit,True)
             index_sorted_liste = [rank_liste.index(i) for i in range(1,len(rank_liste)+1)]
 
             for i,rank in enumerate(rank_liste):
@@ -218,7 +222,7 @@ def scre_build_values_over_rawtab(rd,ttable,tab_werte_dict_liste,isin_liste,dat)
 
         elif werte_dict["section"] == rd.par.TAB_SEC_TABRANKMAX:
 
-            rank_liste = build_rank_liste(rd,werte_dict["name"],isin_liste,dat,False)
+            rank_liste = build_rank_liste(rd,werte_dict["name"],isin_liste,dat,days_wp_exit,False)
             index_sorted_liste = [rank_liste.index(i) for i in range(1,len(rank_liste)+1)]
 
             for i,rank in enumerate(rank_liste):
@@ -231,7 +235,7 @@ def scre_build_values_over_rawtab(rd,ttable,tab_werte_dict_liste,isin_liste,dat)
     # end for
     return (ttable,index_sorted_liste)
 # end def
-def build_rank_liste(rd,signame,isin_liste,dat,flagmin):
+def build_rank_liste(rd,signame,isin_liste,dat,days_wp_exit,flagmin):
     """
     :param rd:
     :param signame:
@@ -244,7 +248,7 @@ def build_rank_liste(rd,signame,isin_liste,dat,flagmin):
     value_liste = []
     for isin in isin_liste:
 
-        np_data_obj = get_np_data_obj(rd, isin, dat)
+        np_data_obj = get_np_data_obj(rd, isin, dat,days_wp_exit)
         if get_status() != hdef.OKAY:
             return []
         # end if
@@ -279,7 +283,7 @@ def build_rank_liste(rd,signame,isin_liste,dat,flagmin):
 
     return rank_liste
 # end def
-def get_np_data_obj(rd,isin,dat=-1):
+def get_np_data_obj(rd,isin,dat=-1,days_wp_exit=-1):
     """
     :param rd:
     :param isin:
@@ -297,7 +301,29 @@ def get_np_data_obj(rd,isin,dat=-1):
         return None
     # end if
     np_data_obj.sort_by_signal(rd.par.SIG_STORE_DATUM)
+
+    np_dat_array = np_data_obj.get_signal(rd.par.SIG_STORE_DATUM)
+    switch = 1   # Vollständiger Datensatz benutzen
     if dat > 0:
+        dat_datetime = htype.type_transform_direct(dat,"dat","datetimeclass")
+        first_datetime = htype.type_transform_direct(np_dat_array[0],"dat","datetimeclass")
+        if dat < np_dat_array[0]:
+            switch = 0      # keine Datensatz
+        else:
+            switch = 2      # Datensatz beschneiden
+            if days_wp_exit > 0:
+                (index,d) = hnp_fkt.find_index_d(np_dat_array,dat)
+                if index < days_wp_exit:
+                    switch = 0  # keine Datensatz
+                # end if
+            # end if
+        # end if
+    # end if
+
+    if switch == 0:
+        del np_data_obj
+        np_data_obj = None
+    elif switch == 2:
         np_data_obj.reduce_to_endvalue(rd.par.SIG_STORE_DATUM,dat)
     # end if
     return np_data_obj

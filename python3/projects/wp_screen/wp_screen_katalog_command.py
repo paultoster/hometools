@@ -365,7 +365,7 @@ def katalog_gruppe_isin_dict_modify(rd):
                                                                 rd.kat["katalog"],
                                                                 rd.kat["katalog_gruppe_isin_dict"])
 
-        wp_screen_katalog.odify_gruppe_isin_dict(rd,ddict_mod)
+        wp_screen_katalog.modify_gruppe_isin_dict(rd,ddict_mod)
 
         if wp_screen_katalog.get_status() != hdef.OKAY:
 

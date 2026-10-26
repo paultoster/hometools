@@ -1,9 +1,9 @@
 """
 Build dataclasses:
 
-class TVal(name,val,type)
-class TList(names,vals,types):
-class TTable(names,table,types):
+class TVal(name,val,type,unit)
+class TList(names,vals,types,units):
+class TTable(names,table,types,units):
 
 Build value for TVal:
 
@@ -77,6 +77,8 @@ index  = find_value_in_list_list(tlist,val)                    index = None if n
 index  = find_value_in_list_list(tlist,val,type)
 ttable = add_table_to_table(table,tableadd)
 status = write_table_to_csv(ttable,filename)
+flag   = table_has_units(ttable)
+
 """
 import os, sys
 from dataclasses import dataclass, field
@@ -100,18 +102,22 @@ import tools.hfkt_io as hio
 # @dataclass
 # class TVal:
 #     name: str                # name
+#     unit: str                # eine Einheit
 #     val: str | int | float   # any value
 #     type: str                # type siehe hfk_type.type_proof()
 
 class TVal:
-    def __init__(self,name: str,val: str | int | float,type: str):
+    def __init__(self,name: str,val: str | int | float,type: str,unit=""):
         self.name = copy.copy(name)
+        self.unit = copy.copy(unit)
         self.val = copy.copy(val)
         self.type = copy.copy(type)
 
 # @dataclass
 # class TList:
 #     names: list[str]         # list of names
+#     units: list[str]         # list of units
+#     comments: list[str]      # list of comments
 #     vals: list               # list of values
 #     types: list[str]         # list of types
 #     n: int = field(init=False)               # length of list
@@ -120,8 +126,18 @@ class TVal:
 #         self.n = len(self.names)
 
 class TList:
-    def __init__(self,names: list[str],vals: list,types: list[str]):
+    def __init__(self,names: list[str],vals: list,types: list[str],units: list[str]=None,comments:list[str]=None):
         self.names = copy.copy(names)
+        if units is None:
+            self.units = ["" for name in self.names]
+        else:
+            self.units = copy.copy(units)
+        # end if
+        if comments is None:
+            self.comments = ["" for name in self.names]
+        else:
+            self.comments = copy.copy(comments)
+        # end if
         self.vals = copy.copy(vals)
         self.types = copy.copy(types)
         self.n = len(self.names)
@@ -129,6 +145,7 @@ class TList:
 # @dataclass
 # class TTable:
 #     names: list[str]         # list of names
+#     units: list[str]         # list of units
 #     table: list[list]        # list of list of values (table)
 #     types: list[str]         # list of types
 #     n: int = field(init=False)              # length of names
@@ -139,8 +156,13 @@ class TList:
 #         self.n      = len(self.names)
 
 class TTable:
-    def __init__(self,names: list[str],table: list[list],types: list[str]):
+    def __init__(self,names: list[str],table: list[list],types: list[str],units: list[str]=None):
         self.names = copy.copy(names)
+        if units is None:
+            self.units = ["" for name in self.names]
+        else:
+            self.units = copy.copy(units)
+        # end if
         self.table = copy.deepcopy(table)
         self.types = copy.copy(types)
         self.ntable = len(self.table)
@@ -730,7 +752,7 @@ def get_type_from_table(ttable,name):
     # end if
     return ttable.types[index]
 # end def
-def get_names(tvar):
+def get_names(tvar:TTable|TList):
     '''
 
     :param tvar:
@@ -745,7 +767,7 @@ def get_names(tvar):
         raise Exception(f"Error get_names: tvar = {tvar} ist keine liste (TList) und keine table (TTable)")
     # end if
 # end def
-def get_vals(tvar):
+def get_vals(tvar:TTable|TList):
     '''
 
     :param tvar:
@@ -760,7 +782,7 @@ def get_vals(tvar):
         raise Exception(f"Error get_names: tvar = {tvar} ist keine liste (TList) und keine table (TTable)")
     # end if
 # end def
-def get_table(tvar):
+def get_table(tvar:TTable|TList):
     '''
 
     :param tvar:
@@ -775,7 +797,7 @@ def get_table(tvar):
         raise Exception(f"Error get_names: tvar = {tvar} ist keine liste (TList) und keine table (TTable)")
     # end if
 # end def
-def get_types(tvar):
+def get_types(tvar:TTable|TList):
     '''
 
     :param tvar:
@@ -1027,6 +1049,7 @@ def add_row_liste_to_table(ttable, name,add_row_listeraw,type):
         # end for
     
         ttable.names.append(name)
+        ttable.units.append("")
         ttable.types.append(type)
         ttable.n += 1
     # end if
@@ -1090,17 +1113,21 @@ def sort_col_in_table(ttable,name,aufsteigend=1):
 # end def
 def transform_icol_list(tlist,new_name_list):
     '''
-    
+
+    Vertausche Spalten nach neuer Namesliste
+
     :param tlist:
     :param new_name_list:
     :return: tlist  = transform_icol_list(tlist,new_name_list)
     '''
     types_new = []
+    units_new = []
     index_list = []
     for new_name in new_name_list:
         index = get_index_from_list(tlist, new_name)
         index_list.append(index)
         types_new.append(tlist.types[index])
+        units_new.append(tlist.units[index])
     # end for
     
     vals = tlist.vals
@@ -1109,7 +1136,7 @@ def transform_icol_list(tlist,new_name_list):
         vals_new.append(vals[i])
     # end for
     
-    return build_list(new_name_list, vals_new, types_new)
+    return build_list(new_name_list, vals_new, types_new,units_new)
 # end def
 def transform_type_list(tlist,new_type_list):
     '''
@@ -1130,13 +1157,14 @@ def transform_type_list(tlist,new_type_list):
             tlist = set_val_in_list(tlist, val_new, icol)
         # end if
     # end for
+    tlist.types = new_type_list
     return tlist
 # end def
 
 
 def transform_icol_table(ttable,new_name_list):
     '''
-    
+    Vertausche Spalten nach neuer Namesliste
     :param ttable:
     :param new_name_list:
     :return: ttable = transform_icol_table(ttable,new_name_list)
@@ -1145,10 +1173,12 @@ def transform_icol_table(ttable,new_name_list):
     
     types_new = []
     index_list = []
+    units_new = []
     for new_name in new_name_list:
         index = get_index_from_table(ttable, new_name)
         index_list.append(index)
         types_new.append(ttable.types[index])
+        units_new.append(ttable.units[index])
     # end for
     
     table_new = []
@@ -1162,7 +1192,7 @@ def transform_icol_table(ttable,new_name_list):
         table_new.append(vals_new)
     # end for
     
-    return build_table(new_name_list,table_new,types_new)
+    return build_table(new_name_list,table_new,types_new,units_new)
 # end def
 def transform_type_table(ttable,new_type_list):
     '''
@@ -1186,7 +1216,7 @@ def transform_type_table(ttable,new_type_list):
             # end if
         # end for
     # end for
-
+    ttable.types = new_type_list
     return ttable
 # end def
 def is_table(ttable):
@@ -1316,7 +1346,6 @@ def write_table_to_csv(ttable,filename):
     :return: status = write_table_to_csv(ttable,filename)
     """
 
-    csv_header = ttable.names
 
     csv_data = []
     for row in ttable.table:
@@ -1336,7 +1365,48 @@ def write_table_to_csv(ttable,filename):
         csv_data.append(csv_row)
     # end for
 
-    status = hio.write_csv_file_header_data(filename, csv_header, csv_data, delim=";")
+    if table_has_units(ttable):
+        status = hio.write_csv_file_header_units_data(filename, ttable.names,ttable.units, csv_data, delim=";")
+    else:
+        status = hio.write_csv_file_header_data(filename, ttable.names, csv_data, delim=";")
 
     return status
+# end def
+def save(t: TVal|TList|TTable,filename:str):
+    """
+    return (status,errtext) = save(ttable,filename)
+    """
+    status = hdef.OKAY
+    errtext = ""
+
+    yaml_obj = hio.DataYaml(filename)
+    if yaml_obj.get_status() != hdef.OKAY:
+        status = hdef.NOT_OKAY
+        errtext = f"File : {filename} konnte nicht erstellt werden errtext: {yaml_obj.get_errtext()}"
+        return (status,errtext)
+    # end if
+
+    yaml_obj.set_data(vars(t))
+    if yaml_obj.get_status() != hdef.OKAY:
+        status = hdef.NOT_OKAY
+        errtext = f"File : {filename} konnte nicht erstellt werden errtext: {yaml_obj.get_errtext()}"
+        return (status,errtext)
+    # end if
+
+    yaml_obj.save()
+    if yaml_obj.get_status() != hdef.OKAY:
+        status = hdef.NOT_OKAY
+        errtext = f"File : {filename} konnte nicht erstellt werden errtext: {yaml_obj.get_errtext()}"
+        return (status,errtext)
+    # end if
+    return (status,errtext)
+# end def
+def table_has_units(ttable):
+
+    for unit in ttable.units:
+        if len(unit) > 0:
+            return True
+        # end if
+    # end ofr
+    return False
 # end def

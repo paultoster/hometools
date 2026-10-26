@@ -41,7 +41,7 @@ class WPSimPar:
 
         # Depotpruefung
         #--------------
-        if len(self.Katalog.keys()) == 0:
+        if len(self.ScreKat.keys()) == 0:
             self.DepotKontoPruefung = False
         else:
             self.DepotKontoPruefung = True

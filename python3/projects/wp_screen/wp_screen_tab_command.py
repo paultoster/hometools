@@ -106,19 +106,9 @@ def tab_add(rd):
         return
 
     text = liste_ergebnis[0]
-    # entfernt Leerzeichen, Tabulator (\t), Zeilenumbrüche (\n), geschützte Leerzeichen (\xa0)
-    tabname = "".join(text.split()).replace(" ", "")
 
-    if tabname not in rd.tab["tab_liste"]:
-        rd.log.write_info(f"{tabname = } wurde der tab_liste hinzugefügt")
-    else:
-        rd.log.write_info(f"{tabname = } gibt es schon in Liste")
-        return
-    # end if
-
-    rd.tab["tab_liste"].append(tabname)
-
-    rd.tab["tab_liste_jsonobj"].save(rd.tab["tab_liste"])
+    # text = liste_ergebnis[0]
+    _ = wp_screen_tab.add_tabname(rd, liste_ergebnis[0])
 
     return
 # end def
@@ -132,10 +122,9 @@ def tab_del(rd,index):
     flag = wp_screen_gui.janein_abfrage(rd.gui, f"Soll wirklich das Element {index = } name = \"{rd.tab["tab_liste"][index]}\" gelöscht werden?",
                                     "Löschen ja/nein")
     if flag:
-        del rd.tab["tab_liste"][index]
-        rd.tab["tab_liste_jsonobj"].save(rd.tab["tab_liste"])
-    # end if
+        wp_screen_tab.del_tabname(rd, rd.tab["tab_liste"][index])
 
+    # end if
 
     return
 # end def
@@ -283,28 +272,16 @@ def tab_edit_modify(rd):
                                                    rd.tab["tab"],
                                                    rd.tab["tab_dict"])
 
-    rd.tab["tab_dict"] = dict_mod
+    wp_screen_tab.modify_dict(rd, dict_mod)
 
-    # Check modified dictionary
-    # rd.sig["tab_werte_dict_liste"] wird erstellt
-    (okay,infotext) = wp_screen_tab_check.check(rd,dict_mod)
-
-
-    if okay != hdef.OKAY:
-        wp_screen_gui.anzeige_text(rd.gui,f"Fehler in tab {infotext = }","")
+    if wp_screen_tab.get_status() != hdef.OKAY:
+        STATUS = wp_screen_tab.get_status()
+        ERRTEXT = wp_screen_tab.get_errtext() + wp_screen_tab.get_infotext()
+        wp_screen_gui.janein_abfrage(rd.gui, f"Fehler in sigset {ERRTEXT = }", "")
+        wp_screen_tab.reset_status()
         return
-    else:
-
-
-        rd.tab["tab_dict_jsonobj"].save(rd.tab["tab_dict"])
-        if rd.tab["tab_dict_jsonobj"].get_status() != hdef.OKAY:
-            global STATUS, ERRTEXT
-            STATUS = rd.tab["tab_dict_jsonobj"].get_status()
-            ERRTEXT = rd.tab["tab_dict_jsonobj"].get_errtext()
-            rd.tab["tab_dict_jsonobj"].reset_status()
-            return
-        # end if
     # end if
+
     return
 # end def
 def tab_edit_add(rd):

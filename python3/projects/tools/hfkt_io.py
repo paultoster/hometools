@@ -28,6 +28,7 @@
  def read_csv_file(file_name=name,delimiter=";")
  def (state,header,data)=read_csv_file_header_data(file_name,delim=";")
  status = write_csv_file_header_data(file_name,csv_header,csv_data,delim=";")
+ status = write_csv_file_header_units_data(file_name, csv_header, csv_units, csv_data, delim=";")
  (okay,data) = read_ascii(file_name=name) entire ascii-text with all carriage return (\n)
  (okay,lines) =  read_ascii_build_list_of_lines(file_name) return(okay,lines) list of lines from ascii-text
  okay = write_ascii(file_name=name,data) write ascii with carriage return (\n)
@@ -805,6 +806,55 @@ def write_csv_file_header_data(file_name,csv_header,csv_data,delim=";"):
               f.write("\n")
     
     return hdef.OK
+# end def
+def write_csv_file_header_units_data(file_name, csv_header, csv_units, csv_data, delim=";"):
+    ''' Write DAta with
+        csv_header = ['name1','name2',...]
+        csv_units  = [unit1,unit2,...]
+        csv_data   = [[val_name1_zeile1,val_name2_zeile1,...],[val_name1_zeile2,val_name2_zeile2,...],...]
+        in file as
+
+        name1;name2
+        val_name1_zeile1;val_name2_zeile1
+        val_name1_zeile2;val_name2_zeile2
+
+        return hdef.OK/NOT_OKAY
+
+    '''
+    with open(file_name, 'w') as f:
+
+        n = len(csv_header)
+        for i in range(n):
+            f.write(str(csv_header[i]))
+            if (i + 1 < n):
+                f.write(delim)
+            else:
+                f.write("\n")
+            # end if
+        # end for
+        n = len(csv_units)
+        for i in range(n):
+            f.write(str(csv_units[i]))
+            if (i + 1 < n):
+                f.write(delim)
+            else:
+                f.write("\n")
+            # end if
+        # end ofr
+        for line in csv_data:
+            n = len(line)
+            for i in range(n):
+                f.write(str(line[i]))
+                if (i + 1 < n):
+                    f.write(delim)
+                else:
+                    f.write("\n")
+                # end if
+            # end for
+        # end for
+    return hdef.OK
+# end def
+
 # end def
 def write_csv_file_ttable(file_name,ttable,delim=";"):
     ''' Write DAta with ttable from hfkt_tvar

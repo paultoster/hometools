@@ -180,7 +180,7 @@ def scre_build_sigset(rd,scre,scre_dict):
         return
     # end if
 
-    # 1. Signale aus sigset bilden:
+    # Signale aus sigset bilden:
     #------------------------------
     # reset isin-dataclass dict (vielleicht richtig löschen, einzeln)
     rd.scre["scre_isin_dataclass_filename_dict"] = {}
@@ -213,7 +213,7 @@ def scre_build_sigset(rd,scre,scre_dict):
 
     return
 # end if
-def scre_build_rawtable(rd, scre_dict, dat):
+def scre_build_rawtable(rd, scre_dict, dat = -1,days_wp_exit= -1):
     """
     rawtable = scre_build_rawtable(rd, scre_dict)
     """
@@ -232,13 +232,15 @@ def scre_build_rawtable(rd, scre_dict, dat):
         return None
     # end if
 
-    # 2. Raw-Tabelle bilden:
+    # Raw-Tabelle bilden:
     #----------------------
     header_list = wp_screen_scre_build_fmttab.build_header_list(tab_werte_dict_liste)
 
+    build_table_flag = True
+    next_isin_liste = []
     for i,isin in enumerate(isin_liste):
 
-        (data_liste,type_list) = wp_screen_scre_build_rawtab.scre_build_rawtab(rd, isin, tab_werte_dict_liste,dat)
+        (data_liste,type_list) = wp_screen_scre_build_rawtab.scre_build_rawtab(rd, isin, tab_werte_dict_liste,dat,days_wp_exit)
         if wp_screen_scre_build_rawtab.get_status() != hdef.OKAY:
             STATUS = hdef.NOT_OKAY
             ERRTEXT = wp_screen_scre_build_rawtab.get_errtext()
@@ -246,22 +248,36 @@ def scre_build_rawtable(rd, scre_dict, dat):
             return None
         # end if
 
-        if i == 0:
-            ttable = htvar.build_table(header_list, [], type_list)
-        # end if
-        ttable = htvar.add_data_set_to_table(ttable, data_liste)
+        if (len(data_liste) > 0):
 
+            if build_table_flag:
+                ttable = htvar.build_table(header_list, [], type_list)
+                build_table_flag = False
+            # end if
+            ttable = htvar.add_data_set_to_table(ttable, data_liste)
+            next_isin_liste.append(isin)
+        # end if
     # end for
 
-    # 2. Vergleichende Werte in Tabelle bilden und sortieren:
+    # Vergleichende Werte in Tabelle bilden und sortieren:
     #--------------------------------------------------------
-    (ttable,index_sorted_liste) = wp_screen_scre_build_rawtab.scre_build_values_over_rawtab(rd,ttable,tab_werte_dict_liste,isin_liste,dat)
-    if wp_screen_scre_build_rawtab.get_status() != hdef.OKAY:
-        STATUS = hdef.NOT_OKAY
-        ERRTEXT = wp_screen_scre_build_signal.get_errtext()
-        return ttable
+    if not build_table_flag:
+        (ttable,index_sorted_liste) = wp_screen_scre_build_rawtab.scre_build_values_over_rawtab(rd,
+                                                                                                ttable,
+                                                                                                tab_werte_dict_liste,
+                                                                                                next_isin_liste,
+                                                                                                dat,
+                                                                                                days_wp_exit)
+        if wp_screen_scre_build_rawtab.get_status() != hdef.OKAY:
+            STATUS = hdef.NOT_OKAY
+            ERRTEXT = wp_screen_scre_build_signal.get_errtext()
+            return ttable
+        # end if
+    else:
+        type_list = ["" for h in header_list]
+        ttable = htvar.build_table(header_list, [], type_list)
+        index_sorted_liste = []
     # end if
-
     rd.scre["ttable_raw"] = ttable
     rd.scre["ttable_index_sorted_liste"] = index_sorted_liste
 
@@ -377,4 +393,195 @@ def setup_scre_name(rd,scre_name):
         return
     # end if
     return
+# end def
+def del_screname(rd,screname):
+    """
+    :param rd:
+    :param screname:
+    :return:
+    """
+    if screname in rd.scre["scre_liste"]:
+        index = rd.scre["scre_liste"].index(screname)
+        del rd.scre["scre_liste"][index]
+        rd.scre["scre_liste_jsonobj"].save(rd.scre["scre_liste"])
+    # end if
+    return
+# end def
+
+def add_dict(rd,screname,scre_dict):
+    """
+    :param rd:
+    :param tabname:
+    :param tab_dict:
+    :return:
+    """
+
+    global STATUS, ERRTEXT
+
+    add_screname(rd,screname)
+    setup_scre_name(rd,screname)
+    if STATUS != hdef.OKAY:
+        del_screname(rd, screname)
+        return
+
+    modify_dict(rd, scre_dict)
+    if STATUS != hdef.OKAY:
+        del_screname(rd, screname)
+        return
+
+    return
+# end if
+def add_screname(rd,screname):
+    """
+    :param rd:
+    :param screname:
+    :return: tab
+    """
+
+    # entfernt Leerzeichen, Tabulator (\t), Zeilenumbrüche (\n), geschützte Leerzeichen (\xa0)
+    scre = "".join(screname.split()).replace(" ", "")
+
+    if scre not in rd.scre["scre_liste"]:
+
+        rd.scre["scre_liste"].append(scre)
+        rd.scre["scre_liste_jsonobj"].save(rd.scre["scre_liste"])
+
+        rd.log.write_info(f"{scre = } wurde der scre_liste hinzugefügt")
+    else:
+        rd.log.write_info(f"{scre = } gibt es schon in Liste")
+    # end if
+
+    return scre
+# end def
+
+def modify_dict(rd, dict_mod):
+    """
+    :param rd:
+    :param dict_mod:
+    :return:
+    """
+
+    global STATUS, ERRTEXT
+
+    # Check modified dictionary
+    check(rd,dict_mod)
+    if STATUS != hdef.OKAY:
+        return
+    # end if
+
+    rd.scre["scre_dict"] = dict_mod
+    rd.scre["scre_dict_jsonobj"].save(rd.scre["scre_dict"])
+    if rd.scre["scre_dict_jsonobj"].get_status() != hdef.OKAY:
+        STATUS = rd.scre["scre_dict_jsonobj"].get_status()
+        ERRTEXT = rd.scre["scre_dict_jsonobj"].get_errtext()
+        rd.scre["scre_dict_jsonobj"].reset_status()
+        return
+    # end if
+
+    return
+# end def
+def check(rd,dict_mod):
+    """
+    :param rd:
+    :param dict_mod:
+    :return:
+
+    """
+    global STATUS, ERRTEXT
+    if rd.par.SCRE_KATALOG not in dict_mod.keys():
+        STATUS = hdef.NOT_OKAY
+        ERRTEXT = f"wp_screen_scre.check: Key {rd.par.SCRE_KATALOG} nicht in dict: {dict_mod} "
+        return
+    # end if
+    if rd.par.SCRE_SIGSET not in dict_mod.keys():
+        STATUS = hdef.NOT_OKAY
+        ERRTEXT = f"wp_screen_scre.check: Key {rd.par.SCRE_SIGSET} nicht in dict: {dict_mod} "
+        return
+    # end if
+    if rd.par.SCRE_TAB not in dict_mod.keys():
+        STATUS = hdef.NOT_OKAY
+        ERRTEXT = f"wp_screen_scre.check: Key {rd.par.SCRE_TAB} nicht in dict: {dict_mod} "
+        return
+    # end if
+    if rd.par.SCRE_PLOTDEF not in dict_mod.keys():
+        STATUS = hdef.NOT_OKAY
+        ERRTEXT = f"wp_screen_scre.check: Key {rd.par.SCRE_PLOTDEF} nicht in dict: {dict_mod} "
+        return
+    # end if
+
+    return
+# end def
+def proof_end_dat_of_wp(rd,scre_name, scre_dict,end_dat):
+    """
+    :param rd:
+    :param scre_name:
+    :param scre_dict:
+    :param end_dat:
+    :return:
+    """
+
+    global STATUS, ERRTEXT,INFOTEXT
+
+    katalog = scre_dict[rd.par.SCRE_KATALOG]
+
+    isin_liste = wp_screen_katalog.get_katalog_isin_liste(rd, katalog)
+
+    indices_updated = False
+
+    for isin in isin_liste:
+
+        if not proof_end_dat_of_wp_isin(rd,isin,end_dat):
+
+            if not indices_updated:
+                (status, errtext, infotext) = rd.wpfunc.update_indices()
+                if len(infotext):
+                    INFOTEXT += infotext
+                # endif
+                if status != hdef.OKAY:
+                    STATUS = hdef.NOT_OKAY
+                    ERRTEXT = errtext
+                    rd.wpfunc.reset_status()
+                    return
+                # end if
+                rd.wpfunc.reset_status()
+                indices_updated = True
+            # end if
+
+            (status, errtext, infotext) = rd.wpfunc.update_price_volume(isin)
+
+            if len(infotext):
+                INFOTEXT += infotext
+            # endif
+            if status != hdef.OKAY:
+                STATUS = hdef.NOT_OKAY
+                ERRTEXT = errtext
+                rd.wpfunc.reset_status()
+                return
+            # end if
+            rd.wpfunc.reset_status()
+        # end if
+    # end for
+
+    return
+# end def
+def proof_end_dat_of_wp_isin(rd,isin,end_dat):
+    """
+
+    :param rd:
+    :param isin:
+    :return:
+    """
+
+    global STATUS, ERRTEXT
+
+    # Kursdaten für vorggegbene isin holen
+    (first, last) = rd.wpfunc.get_first_and_last_dat_price_volume_np_obj(isin,"dat")
+
+    if last is None:
+        return False
+    elif end_dat < last:
+        return True
+    else:
+        return False
+    # end if
 # end def

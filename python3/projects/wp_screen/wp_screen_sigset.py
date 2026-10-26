@@ -92,6 +92,7 @@ def sigset_dict_read(rd):
     rd.sig["sigset_dict"] = rd.sig["sigset_dict_jsonobj"].read_and_get_data()
 
     if rd.sig["sigset_dict_jsonobj"].get_status() == hdef.NOT_FOUND:
+        rd.sig["sigset_dict_jsonobj"].reset_status()
         rd.sig["sigset_dict"] = {}
     elif rd.sig["sigset_dict_jsonobj"].get_status() != hdef.OKAY:
         rd.log.write_err(rd.sig["sigset_dict_jsonobj"].get_errtext(), screen=rd.par.LOG_SCREEN_OUT)
@@ -145,4 +146,95 @@ def get_sigset_werte_dict_liste(rd,sigset_dict):
     (okay,infotext) = wp_screen_sigset_check.check(rd,sigset_dict)
 
     return (okay,infotext,rd.sig["sigset_werte_dict_liste"])
+# end def
+def add_dict(rd,sigsetname,sigsetdict):
+    """
+    :param rd:
+    :param sigaetname:
+    :param sigsetdict:
+    :return:
+    """
+
+    global STATUS, ERRTEXT
+
+    sigset_set(rd)
+
+    rd.sig["sigset"] = add_sigsetname(rd, sigsetname)
+
+    sigset_dict_read(rd)
+    if STATUS != hdef.OKAY:
+        del_sigsetname(rd, sigsetname)
+        return
+
+    modify_dict(rd, sigsetdict)
+    if STATUS != hdef.OKAY:
+        del_sigsetname(rd, sigsetname)
+        return
+
+    return
+# end if
+def add_sigsetname(rd,sigsetname):
+    """
+    :param rd:
+    :param sigsetname:
+    :return: sigset
+    """
+
+    # entfernt Leerzeichen, Tabulator (\t), Zeilenumbrüche (\n), geschützte Leerzeichen (\xa0)
+    sigset = "".join(sigsetname.split()).replace(" ", "")
+
+    if sigset not in rd.sig["sigset_liste"]:
+
+        rd.sig["sigset_liste"].append(sigset)
+        rd.sig["sigset_liste_jsonobj"].save(rd.sig["sigset_liste"])
+
+        rd.log.write_info(f"{sigset = } wurde der sigset_liste hinzugefügt")
+    else:
+        rd.log.write_info(f"{sigset = } gibt es schon in Liste")
+    # end if
+
+    return sigset
+# end def
+def del_sigsetname(rd,sigsetname):
+    """
+    :param rd:
+    :param sigsetname:
+    :return:
+    """
+
+    if sigsetname in rd.sig["sigset_liste"]:
+        index = rd.sig["sigset_liste"].index(sigsetname)
+        del rd.sig["sigset_liste"][index]
+        rd.sig["sigset_liste_jsonobj"].save(rd.sig["sigset_liste"])
+    # end if
+    return
+# end def
+def modify_dict(rd, dict_mod):
+    """
+    :param rd:
+    :param dict_mod:
+    :return:
+    """
+
+    global STATUS, ERRTEXT
+
+    # Check modified dictionary
+    (status,infotext) = wp_screen_sigset_check.check(rd,dict_mod)
+
+    if status != hdef.OKAY:
+        STATUS = hdef.NOT_OKAY
+        ERRTEXT = f"wp_screen_sigset_check.check: Mit dict: {dict_mod} => {infotext = }"
+        return
+    # end if
+
+    rd.sig["sigset_dict"] = dict_mod
+    rd.sig["sigset_dict_jsonobj"].save(rd.sig["sigset_dict"])
+    if rd.sig["sigset_dict_jsonobj"].get_status() != hdef.OKAY:
+        STATUS = rd.sig["sigset_dict_jsonobj"].get_status()
+        ERRTEXT = rd.sig["sigset_dict_jsonobj"].get_errtext()
+        rd.sig["sigset_dict_jsonobj"].reset_status()
+        return
+    # end if
+
+    return
 # end def

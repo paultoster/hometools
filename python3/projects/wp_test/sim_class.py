@@ -163,6 +163,17 @@ class WPSim:
             # Pruefen
             if pruefTrigger:
                 print(f"pruefTrigger: {self.DataObj.AktDat_datetime.strftime("%d.%m.%Y,}")}")
+
+                if self.DataObj.AktDat_datetime.year >= 2010:
+                    a = 0
+                # end if
+
+                # screener updaten
+                #-----------------
+                self.DataObj.update_scre()
+
+                # Prüfung durch führen
+                #---------------------
                 self.PruefObj.update()
                 if self.Parobj.status != hdef.OKAY:
                     return

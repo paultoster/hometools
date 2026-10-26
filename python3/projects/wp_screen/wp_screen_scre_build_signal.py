@@ -742,12 +742,17 @@ def build_signal_vergleich(rd, signal1, vergleich,signal2,np_data_obj):
         np1_array     = getattr(np_data_obj, signal1)
     # end if
 
-    if not hasattr(np_data_obj, signal2):
-        STATUS = hdef.NOT_OKAY
-        ERRTEXT = f"Signal {signal2} nicht bekannt im erstellten Datensatz !!"
-        return (success, np_vergl_array)
+    if isinstance(signal2,float):
+        np2_array = np.ones(len(np_dat_array),np1_array.dtype)
+        np2_array *= signal2
     else:
-        np2_array     = getattr(np_data_obj, signal2)
+        if not hasattr(np_data_obj, signal2):
+            STATUS = hdef.NOT_OKAY
+            ERRTEXT = f"Signal {signal2} nicht bekannt im erstellten Datensatz !!"
+            return (success, np_vergl_array)
+        else:
+            np2_array     = getattr(np_data_obj, signal2)
+        # end if
     # end if
 
     (status,errtext,np_dat_array,np_vergl_array) = hnpfkt.vergleich(np_dat_array,np1_array,vergleich,np_dat_array,np2_array)
