@@ -115,7 +115,7 @@ def build_median_zins_curve(np_dyears_array,np_value_array):
 
         ferror = 0.0
         for i, dy in np.ndenumerate(np_dy_array):
-            zinseszins = np_val_array[0] * math.pow(mean_zins + 1.0, dy)
+            zinseszins = np_val_array[0] * math.pow(max(0.0,mean_zins + 1.0), dy)
             diff       = zinseszins - np_val_array[i]
             ferror += diff
         # end for

@@ -148,7 +148,8 @@ class WPKonto:
                                                 self.NAME_STEUER_TAB_SUMME)
     # end def
     def GetSummeKosten(self):
-        return self.KostenDataSet.get_data_item(self.SteuerDataSet.get_n_data() - 1,
+
+        return self.KostenDataSet.get_data_item(self.KostenDataSet.get_n_data() - 1,
                                                 self.NAME_KOSTEN_TAB_SUMME)
     # end def
     def UpdateZinskontoEinzahlung(self):
@@ -360,6 +361,7 @@ class WPKonto:
 
         self.KontoVerrechnung.LoescheSonderEintrag()
         self.KontoZins.LoescheSonderEintrag()
+        self.KontoDepot.LoescheSonderEintrag()
 
         if len(self.SteuerDataSetSonderEintragListe):
 
@@ -417,11 +419,34 @@ class WPKonto:
 
         return ttable
     # end def
+    def ErstelleTabelleKontoDepot(self,isin):
+        """
+
+        :param isin:
+        :return: ttable
+        """
+
+        ttable = self.KontoDepot.ErstelleTabelle(isin)
+        return ttable
+    # end def
     def bildeAktivesDepotListe(self):
         """
         :return: liste
         """
         return self.KontoDepot.bildeListeAktiveISINs()
+    # end def
+    def bildeGesamtDepotListe(self):
+        """
+        :return: liste
+        """
+        return self.KontoDepot.bildeListeGesamtISINs()
+    # end def
+    def bildeAnzahlAktivesDepotListe(self):
+        """
+
+        :return: n
+        """
+        return len(self.KontoDepot.bildeListeAktiveISINs())
     # end def
     def verkaufeAusDepot(self,isin,kurs,anzahl = None):
         """
@@ -440,18 +465,18 @@ class WPKonto:
         # In Steuerliste eintragen
         #-------------------------
         if steuer_c > 0:
-            self.MacheEintragSteuer(steuer_c,f"Depotentnahme {isin}: {anzahl} * {kurs:.3f} ")
+            self.MacheEintragSteuer(steuer_c,f"Depotverkauf {isin}: {anzahl} * {kurs:.3f} ")
         # end if
 
         # In Kostenliste eintragen
         #-------------------------
         if kosten_c > 0:
-            self.MacheEintragKosten(kosten_c,f"Depotentnahme {isin}: {anzahl} * {kurs:.3f} ")
+            self.MacheEintragKosten(kosten_c,f"Depotverkauf {isin}: {anzahl} * {kurs:.3f} ")
         # end if
 
         _ = self.KontoVerrechnung.einzahlen(gutschrift_c,
                                             self.DataObj.AktDat_datetime,
-                                            f"Depotentnahme {isin}: {anzahl} * {kurs:.3f} ")
+                                            f"Depotverkauf {isin}: {anzahl} * {kurs:.3f} ")
 
         return
     # end def
@@ -464,11 +489,23 @@ class WPKonto:
         :return: (belastung_c,kosten_c) = self.kaufeInDepotVonVerrechnung(isin, kurs, anzahl)
         """
 
+        # Prüfen, ob Verrechnungskonto genug hat
+        (belastung_c, kosten_c) = self.KontoDepot.bestimmePreisUndKosten(kurs,anzahl)
+
+        verrechnung_summe_c = self.KontoVerrechnung.GetSumme()
+
+        if verrechnung_summe_c < belastung_c:
+
+            return (False,None,None)
+        # end if
+
+
+        # Aktion durchführen
         (belastung_c, kosten_c) = self.KontoDepot.kaufe(isin, self.DataObj.AktDat_datetime, kurs, anzahl)
 
         # In verrechnungskonto eintragen
         # -------------------------------
-        _ = self.KontoVerrechnung.einzahlen(belastung_c,
+        tat_belastung_c = self.KontoVerrechnung.auszahlen(belastung_c,
                                             self.DataObj.AktDat_datetime,
                                             f"Depotkauf {isin}: {anzahl} * {kurs:.3f} ")
         # In Kostenliste eintragen
@@ -477,7 +514,7 @@ class WPKonto:
             self.MacheEintragKosten(kosten_c, f"Depotkauf {isin}: {anzahl} * {kurs:.3f} ")
         # end if
 
-        return (belastung_c,kosten_c)
+        return (True,tat_belastung_c,kosten_c)
     # end def
     def revidiereKaufeInDepotVonVerrechnung(self,isin, kosten_c):
         """
@@ -497,9 +534,9 @@ class WPKonto:
 
         return
     # end def
-    def kaufeWPmitSumme(self,isin,kurs,anlage_summe_c):
+    def kaufeWPmitSumme(self,isin_kauf,kurs,anlage_summe_c):
         """
-        :param isin:
+        :param isin_kauf:
         :param anlage_summe_c:
         :return:
         """
@@ -518,12 +555,15 @@ class WPKonto:
 
             # Entnehme von Zinskonto
             self.EntnahmeZinsAnVerrechnung(zins_summe_c)
+            zins_summe_c = 0
 
         else: # Verkauf von anderen Aktien
 
             # Entnehme von Zinskonto
             if zins_summe_c > 0:
                 self.EntnahmeZinsAnVerrechnung(zins_summe_c)
+                zins_summe_c = 0
+            # end if
 
             verrechnung_summe_c = self.KontoVerrechnung.GetSumme()
 
@@ -533,7 +573,7 @@ class WPKonto:
 
             for isin in isin_anzahl_dict.keys():
 
-                self.verkaufeAusDepot(isin, kurs, isin_anzahl_dict[isin])
+                self.verkaufeAusDepot(isin, self.DataObj.WPISINKursDict[isin], isin_anzahl_dict[isin])
 
                 verrechnung_summe_c = self.KontoVerrechnung.GetSumme()
 
@@ -544,7 +584,7 @@ class WPKonto:
         # end if
 
         # Kauf des WP aus Verrechnung in Depot
-        (_, _) = self.procedureKaufeInDepotVonVerrechnung(isin, kurs, anzahl)
+        (_, _) = self.procedureKaufeInDepotVonVerrechnung(isin_kauf, kurs, anzahl)
 
         return
     # end def
@@ -557,14 +597,11 @@ class WPKonto:
         :return: (belastung_c,kosten_c) = self.procedureKaufeInDepotVonVerrechnung(isin,kurs,anzahl)
         """
 
-        verrechnung_summe_c = self.KontoVerrechnung.GetSumme()
-
         while True:
-            (belastung_c, kosten_c) = self.kaufeInDepotVonVerrechnung(isin, kurs, anzahl)
-            if verrechnung_summe_c >= belastung_c:
+            (flag,belastung_c, kosten_c) = self.kaufeInDepotVonVerrechnung(isin, kurs, anzahl)
+            if flag:
                 break
             else:
-                self.revidiereKaufeInDepotVonVerrechnung(isin, kosten_c)
                 anzahl -= 1
                 if anzahl == 0:
                     belastung_c = 0
@@ -581,8 +618,8 @@ class WPKonto:
         isin_liste = self.KontoDepot.GetListeISIN()
 
         for isin in isin_liste:
-            if (self.KontoDepot.GetAnzahlISIN(isin) > 0) and (isin in self.DataObj.WPISINKursDict.keys()):
-                self.verkaufeAusDepot(self, isin, self.DataObj.WPISINKursDict[isin])
+            if (self.KontoDepot.GetSummeAnzahlISIN(isin) > 0) and (isin in self.DataObj.WPISINKursDict.keys()):
+                self.verkaufeAusDepot(isin, self.DataObj.WPISINKursDict[isin])
             # end if
         # end for
         return
@@ -600,7 +637,7 @@ class WPKonto:
         isin_max_anzahl_dict = {}
         summe_wps_delta_c = 0
         for isin in isin_liste:
-            if (self.KontoDepot.GetAnzahlISIN(isin) > 0) and (isin in self.DataObj.WPISINKursDict.keys()):
+            if (self.KontoDepot.GetSummeAnzahlISIN(isin) > 0) and (isin in self.DataObj.WPISINKursDict.keys()):
 
                 kurs = self.DataObj.WPISINKursDict[isin]
                 (anzahl, gesamtwert_c) = self.KontoDepot.pruefeWert(isin,kurs)

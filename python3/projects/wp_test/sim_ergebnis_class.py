@@ -167,6 +167,9 @@ class WPErg:
         # Gib Änderung Jahr für Jahr auf
         np_data_obj = self.do_change_year_by_year(np_data_obj)
 
+        # Depot verläufe
+        np_data_obj = self.do_depot_trace(np_data_obj)
+
         # Plotten
         self.do_plot_euro(np_data_obj)
         self.do_plot_prozent(np_data_obj)
@@ -258,9 +261,22 @@ class WPErg:
             return
         # end if
 
+        isin_liste = self.KontoObj.bildeGesamtDepotListe()
+
+        for isin in isin_liste:
+
+            filename = os.path.join(self.ErgPath, f"konto_depot_{isin}.csv")
+            ttable   = self.KontoObj.ErstelleTabelleKontoDepot(isin)
+
+            status =  htvar.write_table_to_csv(ttable,filename)
+            if status != hdef.OKAY:
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"File : {filename} konnte nicht erstellt werden"
+                return
+            # end if
+        # end for
         return
     # end def
-
     def do_zins_curve(self,np_data_obj):
         """
         np_data_obj = self.do_zins_curve(np_data_obj)
@@ -391,6 +407,20 @@ class WPErg:
 
         return np_data_obj
     # end def
+    def do_depot_trace(self,np_data_obj):
+
+        # isin-Liste
+        isin_liste = self.KontoObj.bildeGesamtDepotListe()
+
+        np_data_obj.add_signal(np.array(isin_liste), "np_depot_isin_array")
+
+        for isin in isin_liste:
+
+            ####
+
+
+
+
     def do_plot_euro(self,np_data_obj):
 
 

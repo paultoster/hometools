@@ -145,6 +145,9 @@ class WPData:
             # dict mit isin-Kurswerten
 
             self.WPISINKursDict = {}
+
+            self.AnteilDepotAufteilung = 1.
+            self.AnzahlDepotAufteilung = 1
         # end if
 
         return
@@ -185,10 +188,21 @@ class WPData:
             self.WPISINKursDict[scredict["ISIN"]] = scredict["KURS"]
         # end for
 
-        # Depotaufteilung nach vorgabe, begrenzr ducrh die Anzahl von vorhandenen WP zu dieser Zeit
-        #------------------------------------------------------------------------------------------
-        n = min(self.Parobj.NAuswahlWPGruppe * self.Parobj.NAuswahlWP,len(self.WPISINKursDict))
-        self.AnteilDepotAufteilung = 1./ max(1,n)
-
-
+        return
     # end class
+    def bildeAufteilungWps(self,anzahlWPs, anzahlSollKauf):
+        """
+        Berechnet self.AnzahlDepotAufteilung und self.AnteilDepotAufteilung
+
+        :param anzahlWPs:
+        :param anzahlSollKauf:
+        :return:
+        """
+
+        # Depotaufteilung nach vorgabe, begrenzr ducrh die Anzahl von vorhandenen WP und zu kaufender zu dieser Zeit
+        #------------------------------------------------------------------------------------------
+        self.AnzahlDepotAufteilung = min(self.Parobj.NAuswahlWPGruppe * self.Parobj.NAuswahlWP,
+                                         anzahlWPs + anzahlSollKauf)
+        self.AnteilDepotAufteilung = 1. / max(1, self.AnzahlDepotAufteilung)
+
+        return

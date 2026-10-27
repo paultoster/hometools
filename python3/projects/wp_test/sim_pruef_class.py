@@ -65,7 +65,7 @@ class WPPruef:
 
             if index is not None:
 
-                if self.DataObj.WPScreDictList[index]["VERKAUF"] > 0:
+                if self.DataObj.WPScreDictList[index]["VERKAUFEN"] > 0:
                     verkaufs_index_liste.append(index)
                 # end if
             # end if
@@ -90,33 +90,59 @@ class WPPruef:
         :return:
         """
         liste_isin_im_depot = self.KontoObj.bildeAktivesDepotListe()
+        anzahlWPs = len(liste_isin_im_depot)
 
         verbleib_index_liste = []
         for isin in liste_isin_im_depot:
             index = hlist.search_value_in_list_of_dict(self.DataObj.WPScreDictList, "ISIN", isin)
             if index is not None:
-
-                if self.DataObj.WPScreDictList[index]["VERKAUF"] > 0:
-
-                    verbleib_index_liste.append(index)
-                # endif
+                verbleib_index_liste.append(index)
             # end if
         # end for
 
         # Verbleib aus liste löschen
-        for index in reversed(verbleib_index_liste):
-            del self.DataObj.WPScreDictList[index]
+        if len(verbleib_index_liste) > 1:
+            verbleib_index_liste.sort(reverse=True)
+
+        for index in verbleib_index_liste:
+            try:
+                del self.DataObj.WPScreDictList[index]
+            except:
+                a = 0
         # end for
 
         # Nichtkauf auch rauswerfen
         for index in reversed(range(len(self.DataObj.WPScreDictList))):
-            if self.DataObj.WPScreDictList[index]["KAUF"] == 0:
+            if self.DataObj.WPScreDictList[index]["KAUFEN"] == 0:
                 del self.DataObj.WPScreDictList[index]
             # end if
         # end for
+
+        # Bestimme die Anteile für weiteres investieren
+        anzahlSollKauf = len(self.DataObj.WPScreDictList)
+
+        self.DataObj.bildeAufteilungWps(anzahlWPs, anzahlSollKauf)
         return
+
     # end def
     def pruefe_kauf(self):
+
+        # Länge WPScreDictList auf die Anzahl noch zukaufenden begrenzen
+
+        n_verbleib = max(0,self.DataObj.AnzahlDepotAufteilung - self.KontoObj.bildeAnzahlAktivesDepotListe())
+
+        # von hinten weglöschen, um auf die Anzahl zu kommen
+        # durch RANKING sollte der beste am Anfang stehen und schlechtseste am Ende
+        n = len(self.DataObj.WPScreDictList)
+        n_loesch = n - n_verbleib
+        for index in reversed(range(n)):
+            if n_loesch > 0:
+                del self.DataObj.WPScreDictList[index]
+                n_loesch -= 1
+            else:
+                break
+            # end if
+        # end for
 
         if len(self.DataObj.WPScreDictList):
 
@@ -131,7 +157,7 @@ class WPPruef:
 
             for scre_dict in self.DataObj.WPScreDictList:
 
-                self.KontoObj.kaufeWPmitSumme(scre_dict["ISIN"],anlage_summe_c)
+                self.KontoObj.kaufeWPmitSumme(scre_dict["ISIN"],scre_dict["KURS"],anlage_summe_c)
             # end for
         # end if
 

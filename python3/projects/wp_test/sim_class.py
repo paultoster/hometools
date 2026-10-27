@@ -183,7 +183,7 @@ class WPSim:
             # Ergebnis
             #-----------
             if ergebnisTrigger:
-                print(f"ergebnisTrigger: {self.DataObj.AktDat_datetime.strftime("%d.%m.%Y,}")}")
+                print(f"{self.Parobj.SimName} ergebnisTrigger: {self.DataObj.AktDat_datetime.strftime("%d.%m.%Y,}")}")
                 self.ErgebnisObj.update()
                 self.ErgebnisDatumtObj.setNextTriggerDay()
             # end if
