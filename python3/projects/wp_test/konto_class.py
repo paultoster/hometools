@@ -213,7 +213,7 @@ class WPKonto:
         """
         Entnahme Zinskonto und auf VerrezchnunsKonto schieben
         :param entnahme_cent: wenn None , dann alles
-        :return:
+        :return: self.EntnahmeZinsAnVerrechnung( entnahme_cent=None)
         """
 
         if entnahme_cent == None:
@@ -288,7 +288,7 @@ class WPKonto:
 
         return wert
     # end def
-    def MacheEintragKosten(self,kosten_cent,aktion):
+    def MacheEintragKosten(self,kosten_cent:int,aktion:str):
 
         # Prüfen
         # -------
@@ -326,6 +326,28 @@ class WPKonto:
 
         return wert
     # end def
+    def revidiereLetzteAktionKosten(self):
+        """
+
+        :return:
+        """
+        if self.KostenDataSet.get_n_data() > 0:
+
+            status = self.KostenDataSet.delete_row_in_data_set(self.KostenDataSet.get_n_data() - 1)
+            if status != hdef.OKAY:
+                self.Parobj.status = hdef.NOT_OKAY
+                self.Parobj.errtext = self.KostenDataSet.get_errtext()
+                self.KostenDataSet.reset_status()
+                return
+            # end if
+
+            # Sondereintrag, wieder löschen
+        if self.KostenDataSetSonderEintrag and (len(self.KostenDataSetSonderEintragListe) > 0):
+            del self.KostenDataSetSonderEintragListe[-1]
+            # end if
+        return
+        # end def
+
     def SetzeSonderEintragFlag(self):
         self.SteuerDataSetSonderEintrag = True
         self.KostenDataSetSonderEintrag = True
@@ -405,7 +427,7 @@ class WPKonto:
         """
 
         :param isin:
-        :return:
+        :return: self.verkaufeAusDepot(isin,kurs,anzahl=None)
         """
         if anzahl is None:
             anzahl = self.KontoDepot.GetSumme(isin)
@@ -433,14 +455,127 @@ class WPKonto:
 
         return
     # end def
-    def kaufeWP(self,isin,anlage_summe_c):
+    def kaufeInDepotVonVerrechnung(self,isin,kurs,anzahl):
+        """
+
+        :param isin:
+        :param kurs:
+        :param anzahl:
+        :return: (belastung_c,kosten_c) = self.kaufeInDepotVonVerrechnung(isin, kurs, anzahl)
+        """
+
+        (belastung_c, kosten_c) = self.KontoDepot.kaufe(isin, self.DataObj.AktDat_datetime, kurs, anzahl)
+
+        # In verrechnungskonto eintragen
+        # -------------------------------
+        _ = self.KontoVerrechnung.einzahlen(belastung_c,
+                                            self.DataObj.AktDat_datetime,
+                                            f"Depotkauf {isin}: {anzahl} * {kurs:.3f} ")
+        # In Kostenliste eintragen
+        # -------------------------
+        if kosten_c > 0:
+            self.MacheEintragKosten(kosten_c, f"Depotkauf {isin}: {anzahl} * {kurs:.3f} ")
+        # end if
+
+        return (belastung_c,kosten_c)
+    # end def
+    def revidiereKaufeInDepotVonVerrechnung(self,isin, kosten_c):
+        """
+
+        :param isin:
+        :param kosten_c:
+        :return:
+        """
+
+        self.KontoDepot.revidiereLetzteAktion(isin)
+
+        self.KontoVerrechnung.revidiereLetzteAktion()
+
+        if kosten_c > 0:
+            self.revidiereLetzteAktionKosten()
+        # end if
+
+        return
+    # end def
+    def kaufeWPmitSumme(self,isin,kurs,anlage_summe_c):
         """
         :param isin:
         :param anlage_summe_c:
         :return:
         """
 
-        #####
+        verrechnung_summe_c = self.KontoVerrechnung.GetSumme()
+        zins_summe_c        = self.KontoZins.GetSumme()
+
+        (anzahl,umsatz_c) = self.KontoDepot.pruefeKauf(anlage_summe_c,kurs)
+
+        if verrechnung_summe_c >= umsatz_c:  # nur aus Verrechnung
+
+            pass
+        elif (verrechnung_summe_c+zins_summe_c) >= umsatz_c:  # aus Zinskonto entnahmen
+
+            zins_summe_c = umsatz_c - verrechnung_summe_c
+
+            # Entnehme von Zinskonto
+            self.EntnahmeZinsAnVerrechnung(zins_summe_c)
+
+        else: # Verkauf von anderen Aktien
+
+            # Entnehme von Zinskonto
+            if zins_summe_c > 0:
+                self.EntnahmeZinsAnVerrechnung(zins_summe_c)
+
+            verrechnung_summe_c = self.KontoVerrechnung.GetSumme()
+
+            delta_summe_c = umsatz_c - verrechnung_summe_c
+
+            isin_anzahl_dict = self.sucheWPsImDepotZumVerkauf(delta_summe_c,anlage_summe_c)
+
+            for isin in isin_anzahl_dict.keys():
+
+                self.verkaufeAusDepot(isin, kurs, isin_anzahl_dict[isin])
+
+                verrechnung_summe_c = self.KontoVerrechnung.GetSumme()
+
+                if verrechnung_summe_c >= umsatz_c:
+                    break
+                # end if
+            # end for
+        # end if
+
+        # Kauf des WP aus Verrechnung in Depot
+        (_, _) = self.procedureKaufeInDepotVonVerrechnung(isin, kurs, anzahl)
+
+        return
+    # end def
+    def procedureKaufeInDepotVonVerrechnung(self,isin,kurs,anzahl):
+        """
+
+        :param isin:
+        :param kurs:
+        :param anzahl:
+        :return: (belastung_c,kosten_c) = self.procedureKaufeInDepotVonVerrechnung(isin,kurs,anzahl)
+        """
+
+        verrechnung_summe_c = self.KontoVerrechnung.GetSumme()
+
+        while True:
+            (belastung_c, kosten_c) = self.kaufeInDepotVonVerrechnung(isin, kurs, anzahl)
+            if verrechnung_summe_c >= belastung_c:
+                break
+            else:
+                self.revidiereKaufeInDepotVonVerrechnung(isin, kosten_c)
+                anzahl -= 1
+                if anzahl == 0:
+                    belastung_c = 0
+                    kosten_c = 0
+                    break
+                # end if
+            # end if
+        # end while
+
+        return  (belastung_c, kosten_c)
+    # end def
     def DepotVerkaufAnVerrechnung(self):
 
         isin_liste = self.KontoDepot.GetListeISIN()
@@ -451,4 +586,90 @@ class WPKonto:
             # end if
         # end for
         return
+    # end def
+    def sucheWPsImDepotZumVerkauf(self, delta_summe_c,anlage_summe_c):
+        """
+
+        :param delta_summe_c:
+        :return: isin_anzahl_dict = self.sucheWPsImDepotZumVerkauf(delta_summe_c)
+        """
+
+        isin_liste = self.KontoDepot.GetListeISIN()
+
+        isin_delta_c_dict = {}
+        isin_max_anzahl_dict = {}
+        summe_wps_delta_c = 0
+        for isin in isin_liste:
+            if (self.KontoDepot.GetAnzahlISIN(isin) > 0) and (isin in self.DataObj.WPISINKursDict.keys()):
+
+                kurs = self.DataObj.WPISINKursDict[isin]
+                (anzahl, gesamtwert_c) = self.KontoDepot.pruefeWert(isin,kurs)
+                isin_max_anzahl_dict[isin] = anzahl
+
+                # Wenn der Gesamtwert über dem Anlageanteil liegt
+                if gesamtwert_c > anlage_summe_c:
+
+                    # dann soll die Differenz verwendet werden
+                    delta_c = gesamtwert_c - anlage_summe_c
+
+                    isin_delta_c_dict[isin]  = delta_c
+                    summe_wps_delta_c += delta_c
+                # end if
+            # end if
+        # end for
+
+        # Wenn die Summe zu groß, dann wird verteilt reduziert
+        if summe_wps_delta_c > delta_summe_c:
+
+
+            # Verteilungsfaktor
+            fac = float(delta_summe_c)/float(summe_wps_delta_c)
+            isin_delta_c_dict_neu = {}
+            for isin in isin_delta_c_dict.keys():
+
+                delta_c = int(float(isin_delta_c_dict[isin]) * fac + 0.5)
+                isin_delta_c_dict_neu[isin] = delta_c
+            # end if
+            summe_neu_c = 0
+            for isin in isin_delta_c_dict_neu:
+                summe_neu_c += isin_delta_c_dict_neu[isin]
+            # end if
+
+            # Wenn dann die Summe zu kleine wird Euro-Weise addiert
+            max_loops = max(0,delta_summe_c-summe_neu_c)/len(isin_delta_c_dict_neu.keys())
+            i_loop = 0
+            while summe_neu_c < delta_summe_c:
+                summe_neu_c = 0
+                for isin in isin_delta_c_dict_neu:
+                    isin_delta_c_dict_neu[isin] = min(isin_delta_c_dict[isin],isin_delta_c_dict_neu[isin] + 100)
+                    summe_neu_c += isin_delta_c_dict_neu[isin]
+                # end if
+                i_loop += 1
+                if i_loop > max_loops:
+                    break
+                # end if
+            # end while
+            isin_delta_c_dict = isin_delta_c_dict_neu
+        # end if
+
+        # Für die verbleibenden Überschüsse wird die anzahl bestimmt
+        isin_anzahl_dict = {}
+        for isin in isin_delta_c_dict.keys():
+
+            kurs = self.DataObj.WPISINKursDict[isin]
+
+            anzahl = int(float(isin_delta_c_dict[isin])/100./kurs)
+
+            (anzahl, teil_gutschrift_c) = self.KontoDepot.pruefeWert(isin, kurs, anzahl)
+
+            while teil_gutschrift_c <= isin_delta_c_dict[isin]:
+                anzahl += 1
+                (anzahl, teil_gutschrift_c) = self.KontoDepot.pruefeWert(isin, kurs, anzahl)
+            #end while
+
+            isin_anzahl_dict[isin] = anzahl
+        # end for
+
+        return isin_anzahl_dict
+    # end def
 # end class

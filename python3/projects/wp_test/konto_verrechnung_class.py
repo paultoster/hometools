@@ -163,6 +163,24 @@ class WPKontoVerrechnung:
 
         return wert
     # end def
+    def revidiereLetzteAktion(self):
+
+        if self.KontoDataSet.get_n_data() > 0:
+
+            status = self.KontoDataSet.delete_row_in_data_set(self.KontoDataSet.get_n_data()-1)
+            if status != hdef.OKAY:
+                self.Parobj.status = hdef.NOT_OKAY
+                self.Parobj.errtext = self.KontoDataSet.get_errtext()
+                self.KontoDataSet.reset_status()
+                return
+            # end if
+
+        # Sondereintrag, wieder löschen
+        if self.KontoDataSetSonderEintrag and (len(self.KontoDataSetSonderEintragListe) > 0):
+            del self.KontoDataSetSonderEintragListe[-1]
+        # end if
+        return
+    # end def
     def GetSumme(self):
         summe = self.KontoDataSet.get_data_item(self.KontoDataSet.get_n_data() - 1, self.NAME_SUMME)
         return summe

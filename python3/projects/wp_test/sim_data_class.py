@@ -33,9 +33,6 @@ class WPData:
         self.AktDat_datetime = self.Parobj.StartDat_datetime
         #self.AktDat_datstr   = self.Parobj.StartDat_str
 
-        # Depotaufteilung nach vorgabe
-        #-----------------------------
-        self.AnteilDepotAufteilung = 1./ max(1,self.Parobj.NAuswahlWPGruppe * self.Parobj.NAuswahlWP)
 
         # Daten zu Zinskonto anlegen
         #---------------------------
@@ -187,5 +184,11 @@ class WPData:
         for scredict in self.WPScreDictList:
             self.WPISINKursDict[scredict["ISIN"]] = scredict["KURS"]
         # end for
+
+        # Depotaufteilung nach vorgabe, begrenzr ducrh die Anzahl von vorhandenen WP zu dieser Zeit
+        #------------------------------------------------------------------------------------------
+        n = min(self.Parobj.NAuswahlWPGruppe * self.Parobj.NAuswahlWP,len(self.WPISINKursDict))
+        self.AnteilDepotAufteilung = 1./ max(1,n)
+
 
     # end class

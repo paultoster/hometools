@@ -1085,6 +1085,14 @@ class DataSetKonto(DataSet):
         return
 
     # end def
+    def revidiere_sondereintrag(self):
+
+        if self.sondereintrag and (len(self.sondereintrag_liste) > 0):
+
+            del self.sondereintrag_liste[-1]
+        # end if
+        return
+    # end def
     def loesche_sondereintrag(self, wert=None, summe=None):
 
         if len(self.sondereintrag_liste):

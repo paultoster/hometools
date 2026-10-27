@@ -75,13 +75,29 @@ class WPKontoDepot:
 
         return dataset
     # end def
-    def Kaufen(self,isin:str,anzahl:int,aktdat_datetime,kurs:float):
+    def pruefeKauf(self,anlage_summe_c,kurs):
+        """
+         Berechnet anzahl und Gesamtkosten
+        :param anlage_summe_c:
+        :param kurs:
+        :return: (anzahl,umsatz_c) = self.KontoDepot.pruefeKauf(anlage_summe_c,kurs)
+        """
+
+        anzahl =  int(anlage_summe_c/(kurs*100.))
+        kaufwert_c = anzahl * kurs * 100.
+
+        kosten_c = self.berechneKosten(kaufwert_c)
+
+        umsatz_c = kaufwert_c+kosten_c
+        return (anzahl,umsatz_c)
+    # end def
+    def kaufe(self,isin:str,aktdat_datetime,kurs_euro:float,anzahl:int):
         """
           WP in das Depot legen
         :param isin:
         :param anzahl:
-        :param kurs:
-        :return: anzahl
+        :param kurs_euro:
+        :return: (belastung_c, kosten_c) = self.KontoDepot.kaufe(isin, self.DataObj.AktDat_datetime, kurs_euro,anzahl)
         """
 
         aktion = "Kaufen"
@@ -90,15 +106,22 @@ class WPKontoDepot:
             self.DepotDict[isin] = self.EroeffneDepot(isin)
         # end if
 
+        anzahl = abs(anzahl)
+
         # summe bilden:
         #--------------
         if self.DepotDict[isin].get_n_data() > 0:
             summe = self.DepotDict[isin].get_data_item(self.DepotDict[isin].get_n_data()-1,self.NAME_SUMMEANZAHL)
-            summe += anzahl
         else:
             summe = 0
         # end if
-        data_set_liste = [aktdat_datetime,aktion,kurs,anzahl,summe]
+
+
+        # summe bilden:
+        #--------------
+        summe += anzahl
+
+        data_set_liste = [aktdat_datetime,aktion,kurs_euro,anzahl,summe]
 
         status = self.DepotDict[isin].add_data_set_liste(data_set_liste,self.HEADER_LISTE, self.TYPE_LISTE)
 
@@ -114,7 +137,55 @@ class WPKontoDepot:
             self.DepotDict[isin].mache_sondereintrag()
         # end if
 
+        # Umsatz
+        # ======
+        umsatz_c_float = anzahl * kurs_euro * 100.
+
+        # Steueranteil, Kosten Gutschrift
+        # --------------------------------
+        kosten_c = self.berechneKosten(umsatz_c_float)
+        belastung_c = int(umsatz_c_float + 0.5) + kosten_c
+
+        return (belastung_c,kosten_c)
+
         return anzahl
+    # end def
+    def pruefeWert(self,isin, kurs_euro,anzahl = None):
+        """
+
+        :param isin:
+        :param kurs_euro:
+        :return: (anzahl, gutschrift_c) = self.KontoDepot.pruefeWert(isin,kurs,anzahl=None)
+        """
+
+        if isin not in self.DepotDict.keys():
+
+            if anzahl is None:
+
+                if self.DepotDict[isin].get_n_data() > 0:
+                    anzahl = self.DepotDict[isin].get_data_item(self.DepotDict[isin].get_n_data() - 1,
+                                                               self.NAME_SUMMEANZAHL)
+                else:
+                    anzahl = 0
+                # end if
+            # end if
+            anzahl = abs(anzahl)
+
+            # Umsatz,Ertrag
+            # =============
+            umsatz_c_float = anzahl * kurs_euro * 100.
+            ertrag_c_float = self.berechneErtrag(isin,umsatz_c_float)
+
+            # Steueranteil, Kosten Gutschrift
+            # --------------------------------
+            steuer_c = max(0,int(ertrag_c_float * self.Parobj.ErtragsSteuerAnteil + 0.5))
+            kosten_c = self.berechneKosten(umsatz_c_float)
+            gutschrift_c = int(umsatz_c_float + 0.5) - steuer_c - kosten_c
+        else:
+            anzahl = 0
+            gutschrift_c = 0
+        # end if
+        return (anzahl, gutschrift_c)
     # end def
     def verkaufe(self,isin,aktdat_datetime,kurs_euro,anzahl):
         """
@@ -178,6 +249,28 @@ class WPKontoDepot:
         gutschrift_c = int(umsatz_c_float + 0.5) - steuer_c - kosten_c
 
         return (gutschrift_c,steuer_c,kosten_c)
+    # end def
+    def revidiereLetzteAktion(self,isin):
+        """
+
+        :return: self.KontoDepot.revidiereLetzteAktion(isin)
+        """
+
+        if self.DepotDict[isin].get_n_data() > 0:
+
+            status = self.DepotDict[isin].delete_row_in_data_set(self.DepotDict[isin].get_n_data()-1)
+            if status != hdef.OKAY:
+                self.Parobj.status = hdef.NOT_OKAY
+                self.Parobj.errtext = self.DepotDict[isin].get_errtext()
+                self.DepotDict[isin].reset_status()
+                return
+            # end if
+
+        # Sondereintrag, wieder löschen
+        if self.KontoDataSetSonderEintrag:
+            self.DepotDict[isin].revidiere_sondereintrag()
+        # end if
+        return
     # end def
     def GetSumme(self,isin):
         summe = self.DepotDict[isin].get_data_item(self.DepotDict[isin].get_n_data() - 1, self.NAME_SUMMEANZAHL)
@@ -268,10 +361,10 @@ class WPKontoDepot:
 
         return umsatz_c_float - kauf_summe_c_float
     # end def
-    def berechneKosten(self,ertrag_c_float):
+    def berechneKosten(self,umsatz_c_float):
 
 
-        kosten_c = int(self.Parobj.WPKostenFest_cent + min(ertrag_c_float * self.Parobj.WPKostenAnteil,self.Parobj.WPKostenMax_cent) + 0.5)
+        kosten_c = int(self.Parobj.WPKostenFest_cent + min(umsatz_c_float * self.Parobj.WPKostenAnteil,self.Parobj.WPKostenMax_cent) + 0.5)
 
         return kosten_c
     # end def

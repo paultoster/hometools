@@ -119,6 +119,7 @@ class WPPruef:
     def pruefe_kauf(self):
 
         if len(self.DataObj.WPScreDictList):
+
             # Theoretisches Guthaben
             self.KontoObj.SetzeSonderEintragFlag()
 
@@ -126,11 +127,15 @@ class WPPruef:
 
             self.KontoObj.LoescheSonderEintrag()
 
-            anlage_summe_c = summe_cash_cent/self.DataObj.AnteilDepotAufteilung
+            anlage_summe_c = int(summe_cash_cent * self.DataObj.AnteilDepotAufteilung +0.5)
 
             for scre_dict in self.DataObj.WPScreDictList:
 
-                self.KontoObj.kaufeWP(scre_dict["ISIN"],anlage_summe_c)
+                self.KontoObj.kaufeWPmitSumme(scre_dict["ISIN"],anlage_summe_c)
             # end for
+        # end if
+
+        return
+    # end def
 
 
