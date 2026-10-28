@@ -357,6 +357,16 @@ def build_par_liste_konvertieren(mobj, par_liste):
         # end if
         pdict["ScreSig"] = var
 
+        # Werte überprüfen
+        if len(pdict[key].keys()):
+            for key_check in ["KursFilt"]:
+                if key_check not in pdict[key]:
+                    mobj.status = hdef.NOT_OKAY
+                    mobj.errtext = f"par_liste_zweite_pruefung: Fehler in File {PARAMETERFILE} bei Parameter {key} = {var}.\n Der key: {key_check} ist nicht vorhanden"
+                    return
+                # end if
+            # end for
+        # end if
         # SreTab:
         #--------
         key = "SreTab"
@@ -376,13 +386,15 @@ def build_par_liste_konvertieren(mobj, par_liste):
         pdict[key] = var
 
         # Werte überprüfen
-        for key_check in ["ISIN","KURS","RANKING","KAUFEN","VERKAUFEN"]:
-            if key_check not in pdict[key]:
-                mobj.status = hdef.NOT_OKAY
-                mobj.errtext = f"par_liste_zweite_pruefung: Fehler in File {PARAMETERFILE} bei Parameter {key} = {var}.\n Der key: {key_check} ist nicht vorhanden"
-                return
-            # end if
-        # end for
+        if len(pdict[key].keys()):
+            for key_check in ["ISIN","NAME","KURS","RANKING","KAUFEN","VERKAUFEN"]:
+                if key_check not in pdict[key]:
+                    mobj.status = hdef.NOT_OKAY
+                    mobj.errtext = f"par_liste_zweite_pruefung: Fehler in File {PARAMETERFILE} bei Parameter {key} = {var}.\n Der key: {key_check} ist nicht vorhanden"
+                    return
+                # end if
+            # end for
+        # end if
 
         # WiederholTagPruefung
         # -----------------

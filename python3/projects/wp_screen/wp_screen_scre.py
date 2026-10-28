@@ -1,6 +1,7 @@
 
 import os, sys, time
 
+import numpy as np
 
 t_path, _ = os.path.split(__file__)
 tools_path = t_path + "\\.."
@@ -20,7 +21,7 @@ import wp_screen.wp_screen_scre_build_rawtab as wp_screen_scre_build_rawtab
 
 import tools.hfkt_def as hdef
 import tools.hfkt_io as hio
-# import tools.sgui as sgui
+import tools.hfkt_np_fkt as hnpfkt
 import tools.hfkt_tvar as htvar
 # import tools.hfkt_type as htype
 
@@ -585,3 +586,93 @@ def proof_end_dat_of_wp_isin(rd,isin,end_dat):
         return False
     # end if
 # end def
+def scre_get_array_from_sigset(rd,
+                               isin,
+                               scre,
+                               sig_name,
+                               datstart,
+                               datend):
+    """
+    :param rd:
+    :param scre:
+    :param scre_dict:
+    :param sig_name:
+    :param datstart:
+    :param datend:
+    :return: np_array = scre_get_array_from_sigset(rd,isin,scre,sig_name,datstart,datend)
+    """
+
+    global STATUS, ERRTEXT, INFOTEXT
+
+    np_data_obj = wp_screen_scre_build_rawtab.get_np_data_obj(rd,isin)
+
+    if np_data_obj is None:
+        STATUS = hdef.NOT_OKAY
+        ERRTEXT = f"wp_screen_scre.scre_get_min_max_from_sigset: Signal konnte nicht gefunden werden scre: {scre} sig_name: {sig_name} "
+        return (None,None)
+    # end if
+
+    np_dat_array = np_data_obj.get_data(rd.par.SIG_STORE_DATUM)
+
+    if np_dat_array is None:
+        STATUS = hdef.NOT_OKAY
+        ERRTEXT = f"wp_screen_scre.scre_get_min_max_from_sigset: Signal konnte nicht in np_dat_obj gefunden werden scre: {scre} sig_name: {rd.par.SIG_STORE_DATUM}"
+        return (None, None)
+    # end if
+
+    (istart,d) = hnpfkt.find_index_d(np_dat_array,datstart)
+    if d > 0.5:
+        istart += 1
+
+    (iend,d) = hnpfkt.find_index_d(np_dat_array,datend)
+    if d > 0.5:
+        iend += 1
+
+
+    np_array = np_data_obj.get_data(sig_name)
+
+    if np_array is None:
+        STATUS = hdef.NOT_OKAY
+        ERRTEXT = f"wp_screen_scre.scre_get_min_max_from_sigset: Signal konnte nicht in np_dat_obj gefunden werden scre: {scre} sig_name: {sig_name}"
+        return (None, None)
+    # end if
+
+    np_part_array = np_array[istart:iend+1]
+
+    return np_part_array
+# end def
+def scre_get_min_max_from_sigset(rd,
+                                 isin,
+                                 scre,
+                                 sig_name,
+                                 datstart,
+                                 datend):
+    """
+    :param rd:
+    :param scre:
+    :param scre_dict:
+    :param sig_name:
+    :param datstart:
+    :param datend:
+    :return: (valmin, valmax) = scre_get_min_max_from_sigset(rd,isin,scre,sig_name,datstart,datend)
+    """
+    global STATUS, ERRTEXT, INFOTEXT
+
+    np_part_array = scre_get_array_from_sigset(rd,
+                                               isin,
+                                               scre,
+                                               sig_name,
+                                               datstart,
+                                               datend)
+
+    if STATUS != hdef.OKAY:
+        return (None,None)
+
+    valmin = np.min(np_part_array)
+    valmax = np.max(np_part_array)
+
+    return (valmin,valmax)
+# end def
+
+
+

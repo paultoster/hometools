@@ -206,3 +206,94 @@ class WPData:
         self.AnteilDepotAufteilung = 1. / max(1, self.AnzahlDepotAufteilung)
 
         return
+    # end def
+    def getMinMaxFromWP(self,isin,datstart_datetime,datend_datetime):
+        """
+
+        :param isin:
+        :param datstart_datetime:
+        :param datend_datetime:
+        :return: (KursMin,KursMax) = getMinMaxFromWP(isin,datstart_datetime,datend_datetime)
+        """
+
+        datstart = htype.type_transform_direct(datstart_datetime, "datetimeclass", "dat")
+        datend = htype.type_transform_direct(datend_datetime, "datetimeclass", "dat")
+        (KursMin, KursMax) = self.WPscrefunc.getMaxMinFromSigSet(isin,
+                                                                self.Parobj.sim_scre_name,
+                                                                "KursFilt",
+                                                                datstart,
+                                                                datend)
+
+
+        if self.WPscrefunc.get_status() != hdef.OKAY:
+            raise Exception(self.WPscrefunc.get_errtext())
+        # end if
+
+        return (KursMin,KursMax)
+    # end def
+    def getDatumKursVerlauf(self,isin, startdat_datetime, enddat_datetime):
+        datstart = htype.type_transform_direct(startdat_datetime, "datetimeclass", "dat")
+        datend = htype.type_transform_direct(enddat_datetime, "datetimeclass", "dat")
+        np_array = self.WPscrefunc.getArrayFromSigSet(isin,
+                                                      self.Parobj.sim_scre_name,
+                                                      "Datum",
+                                                      datstart,
+                                                      datend)
+
+
+        if self.WPscrefunc.get_status() != hdef.OKAY:
+            raise Exception(self.WPscrefunc.get_errtext())
+        # end if
+
+        return np_array
+    # end def
+    def getKursVerlauf(self,isin, startdat_datetime, enddat_datetime):
+        datstart = htype.type_transform_direct(startdat_datetime, "datetimeclass", "dat")
+        datend = htype.type_transform_direct(enddat_datetime, "datetimeclass", "dat")
+        np_array = self.WPscrefunc.getArrayFromSigSet(isin,
+                                                      self.Parobj.sim_scre_name,
+                                                      "KursFilt",
+                                                      datstart,
+                                                      datend)
+
+
+        if self.WPscrefunc.get_status() != hdef.OKAY:
+            raise Exception(self.WPscrefunc.get_errtext())
+        # end if
+
+        return np_array
+    # end def
+    def getRohKursVerlauf(self,isin, startdat_datetime, enddat_datetime):
+        datstart = htype.type_transform_direct(startdat_datetime, "datetimeclass", "dat")
+        datend = htype.type_transform_direct(enddat_datetime, "datetimeclass", "dat")
+        np_array = self.WPscrefunc.getArrayFromSigSet(isin,
+                                                      self.Parobj.sim_scre_name,
+                                                      "Kurs",
+                                                      datstart,
+                                                      datend)
+
+
+        if self.WPscrefunc.get_status() != hdef.OKAY:
+            raise Exception(self.WPscrefunc.get_errtext())
+        # end if
+
+        return np_array
+    # end def
+    def getRohKursVerlauf(self,isin, startdat_datetime, enddat_datetime):
+        datstart = htype.type_transform_direct(startdat_datetime, "datetimeclass", "dat")
+        datend = htype.type_transform_direct(enddat_datetime, "datetimeclass", "dat")
+        np_array = self.WPscrefunc.getArrayFromSigSet(isin,
+                                                      self.Parobj.sim_scre_name,
+                                                      "Kurs",
+                                                      datstart,
+                                                      datend)
+
+
+        if self.WPscrefunc.get_status() != hdef.OKAY:
+            raise Exception(self.WPscrefunc.get_errtext())
+        # end if
+
+        return np_array
+    # end def
+
+# end class

@@ -56,7 +56,7 @@ class WPPruef:
         :return:
         """
 
-        liste_isin_im_depot = self.KontoObj.bildeAktivesDepotListe()
+        liste_isin_im_depot = self.KontoObj.bildeAktivesDepotISINListe()
 
         verkaufs_index_liste = []
         for isin in liste_isin_im_depot:
@@ -89,7 +89,7 @@ class WPPruef:
         Prüft anhand der WPScreDictList, was bleiben soll
         :return:
         """
-        liste_isin_im_depot = self.KontoObj.bildeAktivesDepotListe()
+        liste_isin_im_depot = self.KontoObj.bildeAktivesDepotISINListe()
         anzahlWPs = len(liste_isin_im_depot)
 
         verbleib_index_liste = []
@@ -157,7 +157,7 @@ class WPPruef:
 
             for scre_dict in self.DataObj.WPScreDictList:
 
-                self.KontoObj.kaufeWPmitSumme(scre_dict["ISIN"],scre_dict["KURS"],anlage_summe_c)
+                self.KontoObj.kaufeWPmitSumme(scre_dict["ISIN"],scre_dict["NAME"],scre_dict["KURS"],anlage_summe_c)
             # end for
         # end if
 

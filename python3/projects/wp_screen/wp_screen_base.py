@@ -422,3 +422,68 @@ class WPScreen:
             wp_screen_ezbzins.reset_status()
         # end if
         return ezbzins
+    # end def
+    def getArrayFromSigSet(self,
+                           isin,
+                           scre_name,
+                           sig_name,
+                           datstart,
+                           datend):
+
+        wp_screen_scre.setup_scre_name(self,scre_name)
+
+        if wp_screen_scre.get_status() != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"Error wp_screen_base.setup_scre_name({scre_name}) errtext = {wp_screen_scre.get_errtext()}"
+            self.log.write_err(self.errtext, screen=self.par.LOG_SCREEN_OUT)
+            wp_screen_scre.reset_status()
+            return None
+        # end if
+
+        np_array = wp_screen_scre.scre_get_array_from_sigset(self,
+                                                             isin,
+                                                             scre_name,
+                                                             sig_name,
+                                                             datstart,
+                                                             datend)
+        if wp_screen_scre.get_status() != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"Error wp_screen_base.setup_scre_name({scre_name}) errtext = {wp_screen_scre.get_errtext()}"
+            self.log.write_err(self.errtext, screen=self.par.LOG_SCREEN_OUT)
+            wp_screen_scre.reset_status()
+            return None
+        # end if
+        return np_array
+    # end def
+    def getMaxMinFromSigSet(self,
+                            isin,
+                            scre_name,
+                            sig_name,
+                            datstart,
+                            datend):
+        """
+        (status, errtext, KursMin, KursMax) = self.getMaxMinFromSigSet(isin,scre_name,sig_name,datstart,datend)
+        """
+
+        wp_screen_scre.setup_scre_name(self,scre_name)
+
+        if wp_screen_scre.get_status() != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"Error wp_screen_base.setup_scre_name({scre_name}) errtext = {wp_screen_scre.get_errtext()}"
+            self.log.write_err(self.errtext, screen=self.par.LOG_SCREEN_OUT)
+            wp_screen_scre.reset_status()
+            return (None,None)
+        # end if
+
+        (valmin,valmax) = wp_screen_scre.scre_get_min_max_from_sigset(self,isin,scre_name,sig_name,datstart,datend)
+
+
+        if wp_screen_scre.get_status() != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"Error wp_screen_base.setup_scre_name({scre_name}) errtext = {wp_screen_scre.get_errtext()}"
+            self.log.write_err(self.errtext, screen=self.par.LOG_SCREEN_OUT)
+            wp_screen_scre.reset_status()
+            return (None,None)
+        # end if
+        return (valmin,valmax)
+    # end def

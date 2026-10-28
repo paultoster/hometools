@@ -152,6 +152,9 @@ class WPErg:
     # end def
     def erstelleErgebnisse(self):
 
+        # erstelle Trace jeden deals zur Auswertung
+        self.KontoObj.bildeDepotTraceTabelle()
+
         # cash, steuer und kosten in arrays
         np_data_obj = self.do_np_data()
 
@@ -167,12 +170,13 @@ class WPErg:
         # Gib Änderung Jahr für Jahr auf
         np_data_obj = self.do_change_year_by_year(np_data_obj)
 
-        # Depot verläufe
-        np_data_obj = self.do_depot_trace(np_data_obj)
+        # Depot verläufe und WP-Verläüfe
+        np_data_obj = self.do_depot_trace_und_wp_verlauf(np_data_obj)
 
         # Plotten
         self.do_plot_euro(np_data_obj)
         self.do_plot_prozent(np_data_obj)
+        self.do_plot_wp_verlauf(np_data_obj)
 
         # Speichere array-datei
         np_data_obj.save()
@@ -261,7 +265,8 @@ class WPErg:
             return
         # end if
 
-        isin_liste = self.KontoObj.bildeGesamtDepotListe()
+        # Depot Daten
+        isin_liste = self.KontoObj.bildeGesamtDepotISINListe()
 
         for isin in isin_liste:
 
@@ -275,6 +280,21 @@ class WPErg:
                 return
             # end if
         # end for
+
+        # depot Trace Daten
+        for isin in isin_liste:
+
+            filename = os.path.join(self.ErgPath, f"konto_depot_trace_{isin}.csv")
+            ttable   = self.KontoObj.ErstelleTabelleKontoDepotTrace(isin)
+
+            status =  htvar.write_table_to_csv(ttable,filename)
+            if status != hdef.OKAY:
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"File : {filename} konnte nicht erstellt werden"
+                return
+            # end if
+        # end for
+
         return
     # end def
     def do_zins_curve(self,np_data_obj):
@@ -407,20 +427,36 @@ class WPErg:
 
         return np_data_obj
     # end def
-    def do_depot_trace(self,np_data_obj):
+    def do_depot_trace_und_wp_verlauf(self,np_data_obj):
+
 
         # isin-Liste
-        isin_liste = self.KontoObj.bildeGesamtDepotListe()
+        isin_liste = self.KontoObj.bildeGesamtDepotISINListe()
+        namen_liste = [self.KontoObj.getWPName(isin) for isin in isin_liste]
 
-        np_data_obj.add_signal(np.array(isin_liste), "np_depot_isin_array")
+        np_data_obj.add_signal(np.array(isin_liste), "np_depot_wp_isin_array")
+        np_data_obj.add_signal(np.array(namen_liste), "np_depot_wp_namen_array")
 
         for isin in isin_liste:
 
-            ####
+            liste = self.KontoObj.getListeRelVKDepot(isin)
+            np_data_obj.add_signal(np.array(liste), f"np_depot_relvk_{isin}_array")
 
+            liste = self.KontoObj.getListeRelVMaxDepot(isin)
+            np_data_obj.add_signal(np.array(liste), f"np_depot_relvkmax_{isin}_array")
+        # end for
 
+        # WP Verlauf
+        for isin in isin_liste:
+            np_dat_array = self.KontoObj.getDatumKursVerlauf(isin)
+            np_kurs_array = self.KontoObj.getKursVerlauf(isin)
+            np_roh_kurs_array = self.KontoObj.getRohKursVerlauf(isin)
 
-
+            np_data_obj.add_signal(np_dat_array, f"np_wp_dat_{isin}_array")
+            np_data_obj.add_signal(np_kurs_array, f"np_wp_kurs_{isin}_array")
+            np_data_obj.add_signal(np_roh_kurs_array, f"np_wp_rohkurs_{isin}_array")
+        return np_data_obj
+    # end def
     def do_plot_euro(self,np_data_obj):
 
 
@@ -543,6 +579,83 @@ class WPErg:
 
         return
     # end def
+    def do_plot_wp_verlauf(self,np_data_obj):
+        #
+        for isin in np_data_obj.np_depot_wp_isin_array:
+
+
+            name_dat_array =  f"np_wp_dat_{isin}_array"
+            name_kurs_array = f"np_wp_kurs_{isin}_array"
+            name_rohkurs_array = f"np_wp_rohkurs_{isin}_array"
+            bodyname = f"erg_plot_wp_{isin}"
+            filename = os.path.join(self.ErgPath,bodyname + ".png")
+
+            if hasattr(np_data_obj,name_dat_array) and hasattr(np_data_obj,name_kurs_array) and hasattr(np_data_obj,name_rohkurs_array):
+
+
+                self.do_plot_wp_verlauf_plot(isin,
+                                             getattr(np_data_obj,name_dat_array),
+                                             getattr(np_data_obj, name_kurs_array),
+                                             getattr(np_data_obj, name_rohkurs_array),
+                                             filename)
+            # end if
+        # end for
+        return
+    # end def
+    def do_plot_wp_verlauf_plot(self,
+                                isin,
+                                np_dat_array,
+                                np_kurs_array,
+                                np_rohkurs_array,
+                                plotfilename):
+
+        dict_data1 = {}
+        dict_data1["xdat"] =np_dat_array
+        dict_data1["y"] = np_kurs_array
+        dict_data1["color"] = "k"
+        dict_data1["linewidth"] = 1
+        dict_data1["linestyle"] = "-"
+        dict_data1["marker"] = ""
+        dict_data1["label"] = "kurs"
+
+        dict_data2 = {}
+        dict_data2["xdat"] = np_dat_array
+        dict_data2["y"] = np_rohkurs_array
+        dict_data2["color"] = "b"
+        dict_data2["linewidth"] = 1
+        dict_data2["linestyle"] = "-"
+        dict_data2["marker"] = ""
+        dict_data2["label"] = "rohkurs"
+
+        dict_subplot1 = {}
+        dict_subplot1["name"] = "WPVerlauf"
+        dict_subplot1["title"] = f"WPVerlauf {isin} in Euro"
+        dict_subplot1["xlabel"] = "Date"
+        dict_subplot1["ylabel"] = "€"
+        dict_subplot1["legend"] = "best"
+        dict_subplot1["data_list"] = [dict_data1,dict_data2]
+
+        ddict = {}
+        ddict["rows"] = 1
+        ddict["cols"] = 1
+        ddict["sharex"] = False
+        ddict["sharey"] = False
+        ddict["width"] = 30
+        ddict["height"] = 20
+        ddict["title"] = self.Parobj.SimName
+        ddict["title_add_date_range"] = True
+
+        ddict["subplot_list"] = [dict_subplot1]
+
+        dict_input = {}
+        dict_input["plot"] = ddict
+        dict_input["widget"] = False
+        dict_input["show"] = False
+        dict_input["plotfile"] = plotfilename
+
+        obj = sgui.matplot_date_data(dict_input)
+        return
+    # end def
     def write_md_pdf(self,np_data_obj):
 
 
@@ -631,7 +744,7 @@ class WPErg:
                     year_str = ("%.2f" % (float(year)))
                     t = f"({year_str}) {dattime.year}"
                 else:
-                    t = f"({i}.) {dattime.year}"
+                    t = f"({i}.) {dattime.year-1}"
                 # end if
 
                 zeile = [t,
@@ -671,7 +784,7 @@ class WPErg:
                     year_str = ("%.2f" % (float(year)))
                     t = f"({year_str}) {dattime.year}"
                 else:
-                    t = f"({i}.) {dattime.year}"
+                    t = f"({i}.) {dattime.year-1}"
                 # end if
 
                 zeile = [t,
@@ -684,6 +797,25 @@ class WPErg:
         # end for
         mdobj.add_table(headers, rows)
         mdobj.add_paragraph("---")
+
+        mdobj.add_paragraph("---")
+        # Plots von WPs
+        rows = []
+        headers = ["isin","name"]
+        for i,isin in np.ndenumerate(np_data_obj.np_depot_wp_isin_array):
+            rows.append([isin,np_data_obj.np_depot_wp_namen_array[i[0]]])
+        # end ofr
+
+        mdobj.add_table(headers, rows)
+        mdobj.add_paragraph("---")
+
+        # Plots von WPs
+        for isin in np_data_obj.np_depot_wp_isin_array:
+
+            bodyname = f"erg_plot_wp_{isin}"
+            filename = os.path.join(self.ErgPath, bodyname + ".png")
+            mdobj.add_image(filename, f"WPVerlaf {isin}")
+        # end for
 
 
         mdobj.write()

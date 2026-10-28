@@ -916,6 +916,12 @@ def transform_date_time_liste_in_np_dat_array_d(date_time_liste):
 # end if
 
 def find_index_d(x_np_array,x):
+    """
+
+    :param x_np_array:
+    :param x:
+    :return: (index,d) = find_index_d(x_np_array,x)
+    """
 
 
     n = len(x_np_array)
@@ -924,20 +930,20 @@ def find_index_d(x_np_array,x):
         index = 0
         d     = 0.0
         if n > 1:
-            d = (x - x_np_array[0])/(x_np_array[1]-x_np_array[0])
+            d = (x - x_np_array[0])/abs(x_np_array[1]-x_np_array[0])
         # end if
     elif x >= x_np_array[n-1]:
         index = n-2
         d     = 0.0
         if n > 1:
-            d = (x - x_np_array[n-1])/(x_np_array[n-2]-x_np_array[n-1])
+            d = (x - x_np_array[n-1])/abs(x_np_array[n-2]-x_np_array[n-1])
         # end if
     else:
         for i in range(n-1):
 
             if (x >= x_np_array[i]) and (x < x_np_array[i+1]):
                 index = i
-                d = (x - x_np_array[i])/(x_np_array[i+1]-x_np_array[i])
+                d = (x - x_np_array[i])/abs(x_np_array[i+1]-x_np_array[i])
                 break
             # end if
         # end for

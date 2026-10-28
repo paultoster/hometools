@@ -90,7 +90,7 @@ class WPKonto:
 
         # Depotkonto
         #----------
-        self.KontoDepot = konto_depot_class.WPKontoDepot(self.Parobj,"Depotkonto")
+        self.KontoDepot = konto_depot_class.WPKontoDepot(self.Parobj,self.DataObj,"Depotkonto")
 
 
         # Steuertabelle
@@ -429,18 +429,31 @@ class WPKonto:
         ttable = self.KontoDepot.ErstelleTabelle(isin)
         return ttable
     # end def
-    def bildeAktivesDepotListe(self):
+    def ErstelleTabelleKontoDepotTrace(self,isin):
+        """
+        Erstelle Ausgabe Tabelle von einem trace
+        :param isin:
+        :return: ttable
+        """
+        ttable = self.KontoDepot.ErstelleTraceTabelle(isin)
+        return ttable
+
+    # end def
+    def bildeAktivesDepotISINListe(self):
         """
         :return: liste
         """
         return self.KontoDepot.bildeListeAktiveISINs()
     # end def
-    def bildeGesamtDepotListe(self):
+    def bildeGesamtDepotISINListe(self):
         """
         :return: liste
         """
         return self.KontoDepot.bildeListeGesamtISINs()
     # end def
+    def getWPName(self,isin):
+        return self.KontoDepot.getWPName(isin)
+    # end if
     def bildeAnzahlAktivesDepotListe(self):
         """
 
@@ -480,7 +493,7 @@ class WPKonto:
 
         return
     # end def
-    def kaufeInDepotVonVerrechnung(self,isin,kurs,anzahl):
+    def kaufeInDepotVonVerrechnung(self,isin,name,kurs,anzahl):
         """
 
         :param isin:
@@ -501,7 +514,7 @@ class WPKonto:
 
 
         # Aktion durchführen
-        (belastung_c, kosten_c) = self.KontoDepot.kaufe(isin, self.DataObj.AktDat_datetime, kurs, anzahl)
+        (belastung_c, kosten_c) = self.KontoDepot.kaufe(isin, name,self.DataObj.AktDat_datetime, kurs, anzahl)
 
         # In verrechnungskonto eintragen
         # -------------------------------
@@ -534,7 +547,7 @@ class WPKonto:
 
         return
     # end def
-    def kaufeWPmitSumme(self,isin_kauf,kurs,anlage_summe_c):
+    def kaufeWPmitSumme(self,isin_kauf,name_kauf,kurs,anlage_summe_c):
         """
         :param isin_kauf:
         :param anlage_summe_c:
@@ -584,21 +597,22 @@ class WPKonto:
         # end if
 
         # Kauf des WP aus Verrechnung in Depot
-        (_, _) = self.procedureKaufeInDepotVonVerrechnung(isin_kauf, kurs, anzahl)
+        (_, _) = self.procedureKaufeInDepotVonVerrechnung(isin_kauf, name_kauf,kurs, anzahl)
 
         return
     # end def
-    def procedureKaufeInDepotVonVerrechnung(self,isin,kurs,anzahl):
+    def procedureKaufeInDepotVonVerrechnung(self,isin,name,kurs,anzahl):
         """
 
         :param isin:
+        :param name:
         :param kurs:
         :param anzahl:
-        :return: (belastung_c,kosten_c) = self.procedureKaufeInDepotVonVerrechnung(isin,kurs,anzahl)
+        :return: (belastung_c,kosten_c) = self.procedureKaufeInDepotVonVerrechnung(isin,name,kurs,anzahl)
         """
 
         while True:
-            (flag,belastung_c, kosten_c) = self.kaufeInDepotVonVerrechnung(isin, kurs, anzahl)
+            (flag,belastung_c, kosten_c) = self.kaufeInDepotVonVerrechnung(isin,name, kurs, anzahl)
             if flag:
                 break
             else:
@@ -709,4 +723,23 @@ class WPKonto:
 
         return isin_anzahl_dict
     # end def
+    def bildeDepotTraceTabelle(self):
+
+        self.KontoDepot.berechneTrace()
+
+        return
+    # end def
+    def getListeRelVKDepot(self,isin):
+        return self.KontoDepot.getListeRelVK(isin)
+    # end de
+    def getListeRelVMaxDepot(self,isin):
+        return self.KontoDepot.getListeRelVMax(isin)
+    # end de
+    def getDatumKursVerlauf(self,isin):
+        return self.KontoDepot.getDatumKursVerlauf(isin)
+    def getKursVerlauf(self,isin):
+        return self.KontoDepot.getKursVerlauf(isin)
+    def getRohKursVerlauf(self,isin):
+        return self.KontoDepot.getKursVerlauf(isin)
+
 # end class

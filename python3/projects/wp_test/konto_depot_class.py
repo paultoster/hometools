@@ -8,7 +8,7 @@ if (tools_path not in sys.path):
 # endif
 
 import tools.hfkt_def as hdef
-import tools.hfkt_type as htype
+import tools.hfkt_tvar as htvar
 # import tools.hfkt_np_calc as hnpcalc
 import tools.hfkt_data_set as hdset
 
@@ -43,20 +43,59 @@ class WPKontoDepot:
     TYPE_STORE_SUMMEANZAHL = "int"
     TYPE_STORE_LISTE = [TYPE_STORE_DATUM, TYPE_STORE_AKTION, TYPE_STORE_KURS,TYPE_STORE_ANZAHL, TYPE_STORE_SUMMEANZAHL]
 
-    def __init__(self,parobj,name) -> None:
+
+    NAME_DATUMK      = "DatumK"
+    NAME_DATUMV      = "DatumV"
+    NAME_ANZAHL      = "Anzahl"
+    NAME_KURSK       = "KursK"
+    NAME_KURSV       = "KursV"
+    NAME_KURSMAX     = "KursMax"
+    NAME_KURSMIN     = "KursMin"
+    NAME_RELVK       = "RelVK"
+    NAME_RELVMAX     = "RelVMax"
+    HEADER_TRACE_LISTE = [NAME_DATUMK, NAME_DATUMV,NAME_ANZAHL, NAME_KURSK,NAME_KURSV, NAME_KURSMAX,NAME_KURSMIN,NAME_RELVK,NAME_RELVMAX]
+
+    TYPE_DATUMK      = "datetimeclass"
+    TYPE_DATUMV      = "datetimeclass"
+    TYPE_ANZAHL      = "int"
+    TYPE_KURSK       = "float"
+    TYPE_KURSV       = "float"
+    TYPE_KURSMAX     = "float"
+    TYPE_KURSMIN     = "float"
+    TYPE_RELVK       = "float"
+    TYPE_RELVMAX     = "float"
+    TYPE_TRACE_LISTE = [TYPE_DATUMK, TYPE_DATUMV, TYPE_ANZAHL, TYPE_KURSK,TYPE_KURSV, TYPE_KURSMAX,TYPE_KURSMIN,TYPE_RELVK,TYPE_RELVMAX]
+
+    TYPE_STORE_DATUMK      = "datStrP"
+    TYPE_STORE_DATUMV      = "datStrP"
+    TYPE_STORE_ANZAHL      = "int"
+    TYPE_STORE_KURSK       = "euroStrK"
+    TYPE_STORE_KURSV       = "euroStrK"
+    TYPE_STORE_KURSMAX     = "euroStrK"
+    TYPE_STORE_KURSMIN     = "euroStrK"
+    TYPE_STORE_RELVK       = "percentStr"
+    TYPE_STORE_RELVMAX     = "percentStr"
+    TYPE_STORE_TRACE_LISTE = [TYPE_STORE_DATUMK, TYPE_STORE_DATUMV, TYPE_STORE_ANZAHL,TYPE_STORE_KURSK,TYPE_STORE_KURSV, TYPE_STORE_KURSMAX,TYPE_STORE_KURSMIN,TYPE_STORE_RELVK,TYPE_STORE_RELVMAX]
+
+
+    def __init__(self,parobj,datobj,name) -> None:
 
         self.Parobj = parobj
+        self.Dataobj = datobj
         self.Name = name
 
         # Depotdict isin bezogen anlegen
         #--------------------------------
         self.DepotDict = {}
+        self.DepotTraceDict = {}
+        self.WPNameDict = {}
 
         self.KontoDataSetSonderEintrag = False
 
         return
     # end def
-    def EroeffneDepot(self,isin):
+    def EroeffneDepot(self,isin,name):
+
         dataset = hdset.DataSetKonto(isin)
         dataset.set_definition_list(self.HEADER_LISTE, self.TYPE_LISTE, self.TYPE_STORE_LISTE)
 
@@ -72,6 +111,14 @@ class WPKontoDepot:
             return
         # end if
 
+        # Namen des WP
+        self.WPNameDict[isin] = name
+
+
+        # Trace Datei anlegen
+        datasettrace = hdset.DataSetKonto(f"{isin}_trace")
+        datasettrace.set_definition_list(self.HEADER_TRACE_LISTE, self.TYPE_TRACE_LISTE, self.TYPE_STORE_TRACE_LISTE)
+        self.DepotTraceDict[isin] = datasettrace
 
         return dataset
     # end def
@@ -91,19 +138,19 @@ class WPKontoDepot:
         umsatz_c = kaufwert_c+kosten_c
         return (anzahl,umsatz_c)
     # end def
-    def kaufe(self,isin:str,aktdat_datetime,kurs_euro:float,anzahl:int):
+    def kaufe(self,isin:str,name:str,aktdat_datetime,kurs_euro:float,anzahl:int):
         """
           WP in das Depot legen
         :param isin:
         :param anzahl:
         :param kurs_euro:
-        :return: (belastung_c, kosten_c) = self.KontoDepot.kaufe(isin, self.DataObj.AktDat_datetime, kurs_euro,anzahl)
+        :return: (belastung_c, kosten_c) = self.KontoDepot.kaufe(isin, aktdat_datetime, kurs_euro,anzahl)
         """
 
         aktion = "Kaufen"
 
         if isin not in self.DepotDict.keys():
-            self.DepotDict[isin] = self.EroeffneDepot(isin)
+            self.DepotDict[isin] = self.EroeffneDepot(isin,name)
         # end if
 
         anzahl = abs(anzahl)
@@ -231,6 +278,22 @@ class WPKontoDepot:
         #--------------
         summe -= anzahl
 
+
+        # Umsatz,Ertrag (vor dem Eintrag in die Tabelle berechnen)
+        # =======================================================
+        umsatz_c_float = anzahl * kurs_euro * 100.
+        ertrag_c_float = self.berechneErtrag(isin,umsatz_c_float,anzahl)
+
+        # Steueranteil, Kosten Gutschrift
+        # --------------------------------
+        steuer_c = max(0,int(ertrag_c_float * self.Parobj.ErtragsSteuerAnteil + 0.5))
+        kosten_c = self.berechneKosten(umsatz_c_float)
+        gutschrift_c = int(umsatz_c_float + 0.5) - steuer_c - kosten_c
+
+
+
+        # Eintrag in Tabelle
+        #-------------------
         data_set_liste = [aktdat_datetime,aktion,kurs_euro,-anzahl,summe]
 
         status = self.DepotDict[isin].add_data_set_liste(data_set_liste,self.HEADER_LISTE, self.TYPE_LISTE)
@@ -247,16 +310,6 @@ class WPKontoDepot:
             self.DepotDict[isin].mache_sondereintrag()
         # end if
 
-        # Umsatz,Ertrag
-        # =============
-        umsatz_c_float = anzahl * kurs_euro * 100.
-        ertrag_c_float = self.berechneErtrag(isin,umsatz_c_float,anzahl)
-
-        # Steueranteil, Kosten Gutschrift
-        # --------------------------------
-        steuer_c = max(0,int(ertrag_c_float * self.Parobj.ErtragsSteuerAnteil + 0.5))
-        kosten_c = self.berechneKosten(umsatz_c_float)
-        gutschrift_c = int(umsatz_c_float + 0.5) - steuer_c - kosten_c
 
         return (gutschrift_c,steuer_c,kosten_c)
     # end def
@@ -312,6 +365,18 @@ class WPKontoDepot:
         # end if
         return self.DepotDict[isin].get_data_set_to_store_ttable()
     # end def
+    def ErstelleTraceTabelle(self,isin):
+        """
+
+        :param isin:
+        :return: ttable
+        """
+        if isin not in self.DepotTraceDict.keys():
+            raise Exception(
+                f"ErstelleTabelle: isin = {isin} kann nicht im depot zum Tabellenerstellen gefunden werden")
+        # end if
+        return self.DepotTraceDict[isin].get_data_set_to_store_ttable()
+    # end def
     def GetListeISIN(self):
         return list(self.DepotDict.keys())
     # end def
@@ -328,6 +393,13 @@ class WPKontoDepot:
 
         liste = [isin for isin in self.DepotDict.keys()]
         return liste
+    # end def
+    def getWPName(self,isin):
+        if isin in self.WPNameDict.keys():
+            return self.WPNameDict[isin]
+        else:
+            return "NoName"
+        # end if
     # end def
     def bildeListeAktiveISINs(self):
 
@@ -388,6 +460,119 @@ class WPKontoDepot:
 
         return kosten_c
     # end def
+    def berechneTrace(self,isin=None):
+        """
 
+        :param isin:
+        :return:
+        """
+        if isin is None:
+            isin_liste = self.DepotDict.keys()
+        else:
+            isin_liste = [isin]
+        # end if
+
+        for isin in isin_liste:
+
+            list_dat_datetime = self.DepotDict[isin].get_row_list_of_header(self.NAME_DATUM)
+            list_anzahl       = self.DepotDict[isin].get_row_list_of_header(self.NAME_ANZAHL)
+            list_kurs         = self.DepotDict[isin].get_row_list_of_header(self.NAME_KURS)
+
+
+            nloopmax = len(list_anzahl)*3
+            iloop = 0
+            while sum([abs(a) for a in list_anzahl]) > 0:
+
+                iloop += 1
+                if iloop >= nloopmax:
+                    raise Exception("nloopmax erreicht")
+                # end if
+
+                istart = -1
+                iend = -1
+                for i in range(len(list_anzahl)):
+
+                    if list_anzahl[i] > 0:   # Kauf eines WP
+
+                        istart = i
+                        anzahlstart = list_anzahl[i]
+                        break
+                    # end if
+                # end for
+                if istart >= 0:
+
+                    for i in range(istart,len(list_anzahl)):
+
+                        # verkauf
+                        if list_anzahl[i] < 0:
+
+                            iend = i
+                            anzahlend = abs(list_anzahl[i])
+                            break
+                        # end if
+                    # end for
+                # end if
+
+                if iend >= 0:
+
+                    # Wieviele Aktien bei dem Trace
+                    anzahl = min(anzahlstart,anzahlend)
+
+                    kaufdat_datetime = list_dat_datetime[istart]
+                    verkaufdat_datetime = list_dat_datetime[iend]
+
+                    kurskauf = list_kurs[istart]
+                    kursverkauf = list_kurs[iend]
+
+                    # Anzahl austragen
+                    list_anzahl[istart] -= anzahl
+                    if list_anzahl[istart] < 0:
+                        raise Exception("Anzahl darf nicht negativ werden")
+
+                    list_anzahl[iend]   += anzahl
+
+                    if list_anzahl[iend] > 0:
+                        raise Exception("Anzahl darf nicht positiv werden")
+
+
+                    # KursMaximum und Minumum bestimmen
+                    (kursmin, kursmax) =  self.Dataobj.getMinMaxFromWP(isin, kaufdat_datetime, verkaufdat_datetime)
+
+                    relVK =   kursverkauf/max(0.0001,kurskauf)
+                    relVMax = (kursverkauf-kurskauf)/max(0.0001,(kursmax - kurskauf))
+
+                    data_set_liste = [kaufdat_datetime,
+                                     verkaufdat_datetime,
+                                     anzahl,
+                                     kurskauf,
+                                     kursverkauf,
+                                     kursmax,
+                                     kursmin,
+                                     relVK,
+                                     relVMax]
+
+                    self.DepotTraceDict[isin].add_data_set_liste(data_set_liste,
+                                                                 self.HEADER_TRACE_LISTE,
+                                                                 self.TYPE_TRACE_LISTE)
+
+                # end if
+            # end while
+        # end for
+        return
+    # end def
+    def getListeRelVK(self,isin):
+        liste = self.DepotTraceDict[isin].get_row_list_of_header(self.NAME_RELVK)
+        return liste
+    # end def
+    def getListeRelVMax(self, isin):
+        liste = self.DepotTraceDict[isin].get_row_list_of_header(self.NAME_RELVMAX)
+        return liste
+    # end def
+    def getDatumKursVerlauf(self,isin):
+        return self.Dataobj.getDatumKursVerlauf(isin, self.Parobj.StartDat_datetime, self.Parobj.EndDat_datetime)
+    def getKursVerlauf(self,isin):
+        return self.Dataobj.getKursVerlauf(isin, self.Parobj.StartDat_datetime, self.Parobj.EndDat_datetime)
+    def getRohKursVerlauf(self,isin):
+        return self.Dataobj.getRohKursVerlauf(isin, self.Parobj.StartDat_datetime, self.Parobj.EndDat_datetime)
 
 # end class
