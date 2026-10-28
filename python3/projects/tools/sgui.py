@@ -1947,6 +1947,32 @@ def matplot_date_data(ddict_inp):
 
     return ddict_out
 # end def
+def matplot_bar(ddict_inp):
+    """
+    matplot_date_data(ddict_inp)
+
+    dict_input["plotfile"] = fullfilename for png/jpg/pdf
+    dict_input["show"] = True/False (default, True) to show
+    dict_input["widget"] = True/False (default, True) widget mit Zeitspannenupdate
+    dict_input["plot"] = ddict["title"] = text
+                         ddict["xlabel"]   = "xname""
+                         ddict["ylabel"]   = "yname"
+                         ddict["legend"] = "best", "upper left","upper center","upper right","center left","center","center right","lower left","lower center","lower right"
+                         ddict["x"] = np.array([x1,x2, ...])
+                         ddict["y"]   = np.array([val1,val2, ...])
+                         ddict["color"]   = 'k', (default,'b', 'g', 'r', 'c', 'm', 'y', 'k', 'w', ...)
+                         ddict["label"]    = 'barxy' (default)
+    """
+    obj = smatplot_class.maplot_bar_class(ddict_inp)
+    if obj.status == hdef.OKAY:
+        obj.run()
+
+    ddict_out = {}
+    ddict_out["status"] = obj.status
+    ddict_out["errtext"] = obj.errtext
+
+    del obj
+    return ddict_out
 if __name__ == '__main__':
     
     """

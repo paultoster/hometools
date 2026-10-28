@@ -223,7 +223,70 @@ class maplot_date_plot_class:
         # end if
         return
     # end def
+# end class
+class maplot_bar_class:
+    """
+        dict_input["plotfile"] = fullfilename for png/jpg/pdf
+    dict_input["show"] = True/False (default, True) to show
+    dict_input["widget"] = True/False (default, True) widget mit Zeitspannenupdate
+    dict_input["plot"] = plot_dict["title"] = text
+                         plot_dict["xlabel"]   = "xname""
+                         plot_dict["ylabel"]   = "yname"
+                         plot_dict["legend"] = "best", "upper left","upper center","upper right","center left","center","center right","lower left","lower center","lower right"
+                         plot_dict["x"] = np.array([x1,x2, ...])
+                         plot_dict["y"]   = np.array([val1,val2, ...])
+                         plot_dict["color"]   = 'k', (default,'b', 'g', 'r', 'c', 'm', 'y', 'k', 'w', ...)
+                         plot_dict["label"]    = 'barxy' (default)
 
+    """
+    def __init__(self, dict_input):
+        """
+        """
+        self.status = hdef.OKAY
+        self.errtext = ""
+
+        # Check dictionary plot from input
+        #---------------------------------
+        self.dict_input = dict_input
+        self.plot_dict = dict_input["plot"]
+
+        if "color" not in self.plot_dict.keys():
+            self.plot_dict["color"] = 'k'
+        # end if
+        if "label" not in self.plot_dict.keys():
+            self.plot_dict["label"] = 'barxy'
+        # end if
+
+        plt.bar(self.plot_dict["x"],self.plot_dict["y"], color=self.plot_dict["color"], label=self.plot_dict["label"])
+
+
+        if "xlabel" in self.plot_dict.keys():
+            plt.xlabel(self.plot_dict["xlabel"])
+        if "ylabel" in self.plot_dict.keys():
+            plt.ylabel(self.plot_dict["ylabel"])
+
+        if "title" in self.plot_dict.keys():
+            plt.title(self.plot_dict["title"])
+
+        if "legend" in self.plot_dict.keys():
+            plt.legend(loc=self.plot_dict["legend"])
+
+        return
+    # end def
+    def run(self):
+
+        if len(self.dict_input["plotfile"]) > 0:
+            plt.savefig(self.dict_input["plotfile"])
+        # end if
+
+        if self.dict_input["show"]:
+            plt.show()
+        else:
+            plt.close('all')
+        # end if
+        return
+    # end def
+# end class
 ###########################################################################
 # testen mit main
 ###########################################################################

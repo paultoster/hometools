@@ -143,3 +143,60 @@ def build_median_zins_curve(np_dyears_array,np_value_array):
 
     return (median_zins,np_median_zins_curve_array)
 # end def
+def build_klassen_einteilung(np_array,delta):
+    """
+    
+    :param np_array: 
+    :return: (np_klassen_schwerpunkt_array,np_klassen_haeufigkeit_array)
+    """
+    (ymin,ymax) = build_klassen_min_max(np_array,delta)
+
+    liste = [ymin]
+    while liste[-1] < ymax:
+        liste.append(liste[-1]+delta)
+    # end if
+    if liste[-1] > ymax:
+        del liste[-1]
+        liste[-1] = ymax
+    # end if
+
+    np_klassen_grenzen_array = np.array(liste)
+    np_klassen_haeufigkeit_array, _ = np.histogram(np_array, bins=np_klassen_grenzen_array)
+
+
+    np_klassen_schwerpunkt_array = np.array([])
+    for i in range(1, np_klassen_grenzen_array.shape[0]):
+        np_klassen_schwerpunkt_array = np.append(np_klassen_schwerpunkt_array,
+                                                 0.5 * (np_klassen_grenzen_array[i] + np_klassen_grenzen_array[i - 1]))
+    # end for
+
+    return (np_klassen_schwerpunkt_array,np_klassen_haeufigkeit_array)
+# end def
+def build_klassen_min_max(np_array,delta):
+    """
+    Bilde im Raster von delta val_min und val_max, so dass val_max-vel_min ein vielfaches von delta ist
+    :param np_array:
+    :param delta:
+    :return:
+    """
+
+    y0 = np.min(np_array)
+    y1 = np.max(np_array)
+    dy = np.abs(delta)
+    if dy > 0.0000001:
+        n0 = np.floor(y0/dy)
+        n1 = np.ceil(y1/dy)
+
+        if n0 == n1:
+            n0 = n0 - 1
+            n1 = n1 + 1
+        # end if
+        ymin = n0*dy
+        ymax = n1*dy
+    else:
+        ymin = 0.
+        ymax = 0.
+    # end if
+    return (ymin,ymax)
+# end def
+

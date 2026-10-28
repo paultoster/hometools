@@ -173,10 +173,14 @@ class WPErg:
         # Depot verläufe und WP-Verläüfe
         np_data_obj = self.do_depot_trace_und_wp_verlauf(np_data_obj)
 
+        # Häufigkeitsverteilung der Deals
+        np_data_obj = self.do_wp_deal_verlauf(np_data_obj)
+
         # Plotten
         self.do_plot_euro(np_data_obj)
         self.do_plot_prozent(np_data_obj)
         self.do_plot_wp_verlauf(np_data_obj)
+        self.do_plot_wp_deal_haeufigkeit_plot(np_data_obj)
 
         # Speichere array-datei
         np_data_obj.save()
@@ -457,6 +461,33 @@ class WPErg:
             np_data_obj.add_signal(np_roh_kurs_array, f"np_wp_rohkurs_{isin}_array")
         return np_data_obj
     # end def
+    def do_wp_deal_verlauf(self,np_data_obj):
+        """
+
+        :param np_data_obj:
+        :return: np_data_obj = self.do_wp_deal_verlauf(np_data_obj)
+        """
+        # Bringe alle einzelne isin Verläufe in ein array
+        if len(np_data_obj.np_depot_wp_isin_array):
+
+            np_depot_relvk_array = np.array([],dtype=np.float64)
+            np_depot_relvkmax_array = np.array([],dtype=np.float64)
+
+            for isin in np_data_obj.np_depot_wp_isin_array:
+                np_depot_relvk_array = np.concatenate((np_depot_relvk_array,getattr(np_data_obj, f"np_depot_relvk_{isin}_array")*100.))
+                np_depot_relvkmax_array = np.concatenate((np_depot_relvkmax_array,getattr(np_data_obj, f"np_depot_relvkmax_{isin}_array")*100.))
+            # end for
+
+            (np_kl_relvk_schw_array,np_kl_relvk_haeuf_array) = hnpcalc.build_klassen_einteilung(np_depot_relvk_array, 10.)
+            (np_kl_relvkmax_schw_array,np_kl_relvkmax_haeuf_array) = hnpcalc.build_klassen_einteilung(np_depot_relvkmax_array, 10.)
+
+            np_data_obj.add_signal(np_kl_relvk_schw_array, "np_kl_relvk_schw_array")
+            np_data_obj.add_signal(np_kl_relvk_haeuf_array, "np_kl_relvk_haeuf_array")
+            np_data_obj.add_signal(np_kl_relvkmax_schw_array, "np_kl_relvkmax_schw_array")
+            np_data_obj.add_signal(np_kl_relvkmax_haeuf_array, "np_kl_relvkmax_haeuf_array")
+        # end if
+        return np_data_obj
+    # end if
     def do_plot_euro(self,np_data_obj):
 
 
@@ -656,6 +687,60 @@ class WPErg:
         obj = sgui.matplot_date_data(dict_input)
         return
     # end def
+    def do_plot_wp_deal_haeufigkeit_plot(self,np_data_obj):
+        """
+
+        :param np_data_obj:
+        :return:
+        """
+        if hasattr(np_data_obj, "np_kl_relvk_schw_array") and hasattr(np_data_obj, "np_kl_relvk_haeuf_array"):
+
+
+            plotfilename = os.path.join(self.ErgPath,"erg_plot_wp_deal_haeuf_relvk.png")
+
+            ddict = {}
+            ddict["x"] = getattr(np_data_obj, "np_kl_relvk_schw_array")
+            ddict["y"] = getattr(np_data_obj, "np_kl_relvk_haeuf_array")
+            ddict["color"] = "k"
+            ddict["label"] = "relvk"
+            ddict["title"] = f"{self.Parobj.SimName} H-Verteilung Kurs Verkauf/Kauf"
+            ddict["xlabel"] = "Prozent %"
+            ddict["ylabel"] = "n"
+
+            # ddict["legend"] = "best"
+
+
+            dict_input = {}
+            dict_input["plot"] = ddict
+            dict_input["show"] = False
+            dict_input["plotfile"] = plotfilename
+
+            obj1 = sgui.matplot_bar(dict_input)
+        # end if
+
+        if hasattr(np_data_obj, "np_kl_relvkmax_schw_array") and hasattr(np_data_obj, "np_kl_relvkmax_haeuf_array"):
+
+            plotfilename = os.path.join(self.ErgPath, "erg_plot_wp_deal_haeuf_relvkmax.png")
+
+            ddict = {}
+            ddict["x"] = getattr(np_data_obj, "np_kl_relvkmax_schw_array")
+            ddict["y"] = getattr(np_data_obj, "np_kl_relvkmax_haeuf_array")
+            ddict["color"] = "k"
+            ddict["label"] = "relvkmax"
+            ddict["title"] = f"{self.Parobj.SimName} H-Verteilung Kurs (Verkauf-Kauf)/(Max-Kauf)"
+            ddict["xlabel"] = "Prozent %"
+            ddict["ylabel"] = "n"
+            # ddict["legend"] = "best"
+
+            dict_input = {}
+            dict_input["plot"] = ddict
+            dict_input["show"] = False
+            dict_input["plotfile"] = plotfilename
+
+            obj1 = sgui.matplot_bar(dict_input)
+        # end if
+        return
+    # end def
     def write_md_pdf(self,np_data_obj):
 
 
@@ -797,6 +882,11 @@ class WPErg:
         # end for
         mdobj.add_table(headers, rows)
         mdobj.add_paragraph("---")
+
+        plotfilename = os.path.join(self.ErgPath, "erg_plot_wp_deal_haeuf_relvk.png")
+        mdobj.add_image(plotfilename, "WP Häufigkeit Verkauf/Kauf-Kurs")
+        plotfilename = os.path.join(self.ErgPath, "erg_plot_wp_deal_haeuf_relvkmax.png")
+        mdobj.add_image(plotfilename, "WP Häufigkeit (Verkauf-Kauf)/(Max-Kauf)-Kurs")
 
         mdobj.add_paragraph("---")
         # Plots von WPs
