@@ -481,10 +481,15 @@ class WPErg:
             (np_kl_relvk_schw_array,np_kl_relvk_haeuf_array) = hnpcalc.build_klassen_einteilung(np_depot_relvk_array, 10.)
             (np_kl_relvkmax_schw_array,np_kl_relvkmax_haeuf_array) = hnpcalc.build_klassen_einteilung(np_depot_relvkmax_array, 10.)
 
+            relvk_mean = np.mean(np_depot_relvk_array)
+            relvkmax_mean = np.mean(np_depot_relvkmax_array)
+
             np_data_obj.add_signal(np_kl_relvk_schw_array, "np_kl_relvk_schw_array")
             np_data_obj.add_signal(np_kl_relvk_haeuf_array, "np_kl_relvk_haeuf_array")
             np_data_obj.add_signal(np_kl_relvkmax_schw_array, "np_kl_relvkmax_schw_array")
             np_data_obj.add_signal(np_kl_relvkmax_haeuf_array, "np_kl_relvkmax_haeuf_array")
+            np_data_obj.add_signal(relvk_mean, "relvk_mean")
+            np_data_obj.add_signal(relvkmax_mean, "relvkmax_mean")
         # end if
         return np_data_obj
     # end if
@@ -707,8 +712,15 @@ class WPErg:
             ddict["xlabel"] = "Prozent %"
             ddict["ylabel"] = "n"
 
-            # ddict["legend"] = "best"
+            if hasattr(np_data_obj, "relvk_mean"):
+                ddict["xline"] = getattr(np_data_obj, "relvk_mean")
+                ddict["xline_color"] = 'r'
+                ddict["xline_linewidth"] = 5
+                ddict["xline_linestyle"] = '--'
+                ddict["xline_label"] = 'mean'
 
+                ddict["legend"] = "best"
+            # end if
 
             dict_input = {}
             dict_input["plot"] = ddict
@@ -730,7 +742,15 @@ class WPErg:
             ddict["title"] = f"{self.Parobj.SimName} H-Verteilung Kurs (Verkauf-Kauf)/(Max-Kauf)"
             ddict["xlabel"] = "Prozent %"
             ddict["ylabel"] = "n"
-            # ddict["legend"] = "best"
+            if hasattr(np_data_obj, "relvkmax_mean"):
+                ddict["xline"] = getattr(np_data_obj, "relvkmax_mean")
+                ddict["xline_color"] = 'r'
+                ddict["xline_linewidth"] = 5
+                ddict["xline_linestyle"] = '--'
+                ddict["xline_label"] = 'mean'
+
+                ddict["legend"] = "best"
+            # end if
 
             dict_input = {}
             dict_input["plot"] = ddict

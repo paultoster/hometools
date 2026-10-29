@@ -1962,6 +1962,11 @@ def matplot_bar(ddict_inp):
                          ddict["y"]   = np.array([val1,val2, ...])
                          ddict["color"]   = 'k', (default,'b', 'g', 'r', 'c', 'm', 'y', 'k', 'w', ...)
                          ddict["label"]    = 'barxy' (default)
+                         ddict["xline"]    = value wie etwa mean-Wert
+                         ddict["xline_color"]   = 'k', (default,'b', 'g', 'r', 'c', 'm', 'y', 'k', 'w', ...)
+                         ddict["xline_linewidth"]    = 1 (default)
+                         ddict["xline_linestyle"]    = '-' (default, '--', '-.', ':', '')
+                         ddict["xline_label"]    = 'xline' (default)
     """
     obj = smatplot_class.maplot_bar_class(ddict_inp)
     if obj.status == hdef.OKAY:

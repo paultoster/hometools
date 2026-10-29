@@ -237,6 +237,11 @@ class maplot_bar_class:
                          plot_dict["y"]   = np.array([val1,val2, ...])
                          plot_dict["color"]   = 'k', (default,'b', 'g', 'r', 'c', 'm', 'y', 'k', 'w', ...)
                          plot_dict["label"]    = 'barxy' (default)
+                         plot_dict["xline"]    = value wie etwa mean-Wert
+                         plot_dict["xline_color"]   = 'k', (default,'b', 'g', 'r', 'c', 'm', 'y', 'k', 'w', ...)
+                         plot_dict["xline_linewidth"]    = 1 (default)
+                         plot_dict["xline_linestyle"]    = '-' (default, '--', '-.', ':', '')
+                         plot_dict["xline_label"]    = 'xline' (default)
 
     """
     def __init__(self, dict_input):
@@ -259,6 +264,26 @@ class maplot_bar_class:
 
         plt.bar(self.plot_dict["x"],self.plot_dict["y"], color=self.plot_dict["color"], label=self.plot_dict["label"])
 
+        if "xline_color" not in self.plot_dict.keys():
+            self.plot_dict["xline_color"] = 'k'
+        # end if
+        if "xline_linewidth" not in self.plot_dict.keys():
+            self.plot_dict["xline_linewidth"] = 1
+        # end if
+        if "xline_linestyle" not in self.plot_dict.keys():
+            self.plot_dict["xline_linestyle"] = '-'
+        # end if
+        if "xline_label" not in self.plot_dict.keys():
+            self.plot_dict["xline_label"] = 'xline'
+        # end if
+
+        if "xline" in self.plot_dict.keys():
+            plt.axvline(self.plot_dict["xline"],
+                        color=self.plot_dict["xline_color"],
+                        linestyle=self.plot_dict["xline_linestyle"],
+                        linewidth=self.plot_dict["xline_linewidth"],
+                        label=self.plot_dict["xline_label"])
+        # end if
 
         if "xlabel" in self.plot_dict.keys():
             plt.xlabel(self.plot_dict["xlabel"])

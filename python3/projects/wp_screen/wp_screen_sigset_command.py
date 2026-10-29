@@ -155,7 +155,7 @@ def sigset_edit_command(rd, index):
 
     wp_screen_sigset.sigset_dict_read(rd)
 
-    if get_status() != hdef.OKAY:
+    if wp_screen_sigset.get_status() != hdef.OKAY:
         return
 
 

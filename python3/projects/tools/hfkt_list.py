@@ -77,6 +77,7 @@
 
  liste = erase_from_list(liste,index_list)
  liste = erase_from_list_by_value(list_in,list_cntrl,erase_not_in_search=0)
+ liste = begrenze_liste_auf_nmax(liste,n)
  
  list_moved =  list_move_items(list_in,index_liste,index_end = -1):
                 list_move_items(list_in,[0,1,2,10,12])    moves index 0,1,2,10,12 to new list
@@ -132,7 +133,7 @@ liste_out = recalc_integer_liste(liste,start_with_one=True):
 
 
 '''
-
+import inspect
 # from tkinter import *
 # from tkinter.constants import *
 # import tkinter.filedialog
@@ -163,6 +164,7 @@ if (t_path == os.getcwd()):
     
     import hfkt_str as hstr
     import hfkt_np_fkt as hnp_fkt
+    import hfkt_tvar as htvar
 else:
     p_list = os.path.normpath(t_path).split(os.sep)
     if (len(p_list) > 1): p_list = p_list[: -1]
@@ -172,6 +174,7 @@ else:
     
     from tools import hfkt_str as hstr
     from tools import hfkt_np_fkt as hnp_fkt
+    from tools import hfkt_tvar as htvar
 
 # endif--------------------------------------------------------------------------
 
@@ -517,6 +520,14 @@ def erase_from_list_by_value(list_in, list_cntrl, erase_not_in_search=0):
 
 
 # end def
+def begrenze_liste_auf_nmax(liste,n):
+
+    if n < len(liste):
+        return liste[0:n]
+    else:
+        return liste
+    # end if
+# end def
 def list_move_items(list_in, index_liste, index_end=-1):
     """
       list_moved = list_move_items(list_in,[0,1,2,10,12])    moves index 0,1,2,10,12 to new list
@@ -824,6 +835,373 @@ def recalc_integer_liste(liste,start_with_one=True):
     liste    = np_array.tolist()
     return liste
 # end def
+class HandleDictListe:
+    def __init__(self, obj):
+        self.set_liste(obj)
+        self.iterindex = 0
+        return
+    # end def
+    def __iter__(self):
+        self.iterindex = 0
+        return self
+    def __next__(self):
+        if self.iterindex < len(self.DictList):
+            item = self.DictList[self.iterindex]
+            self.iterindex += 1
+            return item
+        else:
+            raise StopIteration
+    # end def
+    def set_liste(self,obj):
+        if isinstance(obj, list):
+            self.DictList = obj
+        elif isinstance(obj, htvar.TTable):
+            (self.DictList, _) = htvar.get_dict_list_from_table(obj)
+        else:
+            raise Exception("HandleDictListe: init obj does nott fit")
+        # end if
+        return
+    # end def
+    def erase_dict_by_index(self,index):
+        """
+        Lösche dict raus del self.DictList[index]
+        :param index:
+        :return:
+        """
+
+        if isinstance(index,list):
+            index_liste = index
+        else:
+            index_liste = [index]
+        # end if
+
+        index_liste.sort(reverse=True)
+
+        for index in index_liste:
+            if index < len(self.DictList):
+                del self.DictList[index]
+            else:
+                raise Exception(f"HandleDictListe: erase_dict_by_index {index = } zu groß ")
+            # end if
+        # end for
+        return
+    # end def
+    def erase_dict_by_value(self,key,value):
+        """
+        Lösche dict mit einem bestimmten Wert self.DictList[index] == value
+        :param value:
+        :return:
+        """
+        if isinstance(value,list):
+            value_liste = value
+        else:
+            value_liste = [value]
+        # end if
+
+        index_liste = []
+        for i,ddict in enumerate(self.DictList):
+            if key in ddict.keys():
+                if ddict[key] in value_liste:
+                    index_liste.append(i)
+                # end if
+            # end if
+        # end for
+        index_liste = sorted(index_liste,reverse=True)
+        for index in index_liste:
+            self.erase_dict_by_index(index)
+        # end if
+        return
+    # end def
+    def add_dict(self,ddict):
+        self.DictList.append(ddict)
+        return
+    # end def
+    def add_item_to_dict(self,key,value,index_liste=None):
+        """
+        Fügt zu allen oder der ausgewählten indexliste dicts in der Liste das item hinzu
+        :param value:
+        :param index_liste:  ("IMDEPOT",False,"ISIN",liste_isin_im_depot,True)
+        :return:
+        """
+        if index_liste == None:
+            index_liste = list(range(len(self.DictList)))
+        # end if
+
+        for index in index_liste:
+            if index < len(self.DictList):
+                self.DictList[index][key] = value
+            # end if
+        # end for
+        return
+    # end def
+    def set_value(self,index,key,value):
+        """
+        setzt einen Wert für self.DictList[index][key] == value
+        index kann auch liste sein
+        :param index:
+        :param key:
+        :param value:
+        :return: self.set_value(index,key,value)
+        :return: self.set_value(index_liste,key,value)
+        """
+        if isinstance(index,list):
+            index_liste = index
+        else:
+            index_liste = [index]
+        # end if
+
+        for index in index_liste:
+            while index+1 > len(self.DictList):
+                self.DictList.append({})
+            # end while
+            self.DictList[index][key] = value
+        # end for
+    def set_item_to_dict(self,key,value,keysuch=None,valuesuch=None):
+        """
+        Fügt zu allen oder der ausgewählten indexliste dicts in der Liste das item hinzu
+        :param value:
+        :param index_liste:
+        :return: self.set_item_to_dict(key,value,index)
+        :return: self.set_item_to_dict(key,value,index_liste)
+        :return: self.set_item_to_dict(key,value,keysuch,valuesuch)
+        """
+        if (keysuch is not None) and (valuesuch is not None): # sucht den index
+
+            index_liste = self.get_index_list_items_eq(keysuch,valuesuch)
+        elif keysuch is not None:  # liste ist vorgegeben
+
+            if isinstance(keysuch,list):
+                index_liste = keysuch
+            else:
+                index_liste = [keysuch]
+            # end
+        else: # alle
+            index_liste = list(range(len(self.DictList)))
+        # end if
+
+        for index in index_liste:
+            if index < len(self.DictList):
+                self.DictList[index][key] = value
+            # end if
+        # end for
+        return
+    # end def
+    def get_value(self,index, key):
+        """
+        gebe den Wert eine dict in Liste zurück self.DictList[index][key]
+        :param index:
+        :param key:
+        :return: value = self.get_value(index,key)
+        :return: value_liste = self.get_value(index_liste,key)
+        """
+        if isinstance(index, list):
+            flag = True
+            index_liste = index
+        else:
+            flag = False
+            index_liste = [index]
+        # end if
+        value_liste = []
+        for index in index_liste:
+            if index < len(self.DictList):
+                if key in self.DictList[index].keys():
+                    value_liste.append(self.DictList[index][key])
+            # end if
+        # end for
+
+        if flag:
+            return value_liste
+        elif len(value_liste) == 0:
+            return None
+        else:
+            return value_liste[0]
+        # end if
+    # end def
+    def get_dict(self,index):
+        """
+        gebe den Wert eine dict in Liste zurück self.DictList[index][key]
+        :param index:
+
+        :return: ddict = self.get_dict(index)
+        :return: ddict_liste = self.get_dict(index_liste)
+        """
+        if isinstance(index, list):
+            flag = True
+            index_liste = index
+        else:
+            flag = False
+            index_liste = [index]
+        # end if
+        dict_liste = []
+        for index in index_liste:
+            if index < len(self.DictList):
+                    dict_liste.append(self.DictList[index])
+            # end if
+        # end for
+
+        if flag:
+            return dict_liste
+        elif len(dict_liste) == 0:
+            return None
+        else:
+            return dict_liste[0]
+        # end if
+    # end def
+    def get_obj_items_eq(self,key,value):
+        """
+        erstellt eine neue Klasse mit den Eigenschaft self.DictList[index][key] == value
+        :param key:
+        :param value:
+        :return: HandleDictListe = self.get_all_items_eq(key,value)
+        :return: HandleDictListe = self.get_all_items_eq(key,value_liste)
+        """
+        if isinstance(value, list):
+            value_liste = value
+        else:
+            value_liste = [value]
+        # end if
+
+        obj = HandleDictListe([])
+        for value in value_liste:
+            for ddict in self.DictList:
+                if (key in ddict.keys()) and (ddict[key] == value):
+                    obj.add_dict(ddict)
+                # end if
+            # end for
+        # end for
+        return obj
+    # end def
+    def get_index_list_items_eq(self,key,value,key2=None,value2=None,type="u"):
+        """
+        gebe eine index_liste mit allen werte die self.DictList[index][key] == value
+        :param key:
+        :param value:
+        :return: index_liste = self.get_index_list_items_eq(key,value)
+        :return: index_liste = self.get_index_list_items_eq(key,value_liste)
+        :return: index_liste = self.get_index_list_items_eq(key1,value1,key2,value2) und
+        :return: index_liste = self.get_index_list_items_eq(key1,value1,key2,value2,type='u'/'o')
+        """
+        if isinstance(value, list):
+            value_liste = value
+        else:
+            value_liste = [value]
+        # end if
+        index_liste = []
+        for value in value_liste:
+            for index,ddict in enumerate(self.DictList):
+                if (key in ddict.keys()) and (ddict[key] == value):
+                    index_liste.append(index)
+                # end if
+            # end for
+        # end for
+        if (key2 is not None) and (value2 is not None):
+            index_proof_liste = index_liste
+            index_liste = []
+            if isinstance(value2, list):
+                value2_liste = value2
+            else:
+                value2_liste = [value2]
+            # end if
+            for value2 in value2_liste:
+                for index,ddict in enumerate(self.DictList):
+                    if (key2 in ddict.keys()) and (ddict[key2] == value2):
+                        if type[0] == 'u': # und
+                            if index in index_proof_liste:
+                                index_liste.append(index)
+                            # end if
+                        else: # oder
+                            if index not in index_proof_liste:
+                                index_liste.append(index)
+                            # end if
+                        # end if
+                    # end if
+                # end for
+            # end for
+        # end if
+        return index_liste
+    # end def
+    def get_index_list_items_gt(self,key,value):
+        """
+        gebe eine index_liste mit allen werte die self.DictList[index][key] > value
+        :param key:
+        :param value:
+        :return: index_liste = self.get_index_list_items_gt(key,value)
+        :return: index_liste = self.get_index_list_items_gt(key,value_liste)
+        """
+        if isinstance(value, list):
+            value_liste = value
+        else:
+            value_liste = [value]
+        # end if
+        index_liste = []
+        for value in value_liste:
+            for index,ddict in enumerate(self.DictList):
+                if (key in ddict.keys()) and (ddict[key] > value):
+                    index_liste.append(index)
+                # end if
+            # end for
+        return index_liste
+    # end def
+    def berechne_anzahl_mit_value(self,key,value):
+        """
+        berechne anzahl der in der Liste mit dem self.DictList[i][key] == value
+        :param key:
+        :param value:
+        :return:
+        """
+        index_liste = self.get_index_list_items_gt( key, value)
+
+        return len(index_liste)
+    # end def
+    def sor_by_item(self,key,aufsteigend=1):
+        """
+        sortiert nach den Werten vom aufsteigend=1/0
+        :param aufsteigend:
+        :return:
+        """
+        lliste = []
+        for index, ddict in enumerate(self.DictList):
+            if key in ddict.keys():
+                lliste.append([index,ddict[key]])
+            # end if
+        # end for
+        lliste = sort_list_of_list(lliste, 1, aufsteigend=aufsteigend)
+
+        dictList = [None]*len(self.DictList)
+        for index,liste in enumerate(lliste):
+            i = liste[0]
+            dictList[index] = self.DictList[i]
+        # end for
+        for i,ddict in enumerate(dictList):
+            if ddict is None:
+                dictList[i] = self.DictList[i]
+            # end if
+        # end for
+        self.DictList = dictList
+        return
+    # end def
+    def begrenze_liste_auf_nmax(self,nmax):
+
+        self.DictList = begrenze_liste_auf_nmax(self.DictList,nmax)
+        return
+    # end def
+    def begrenze_liste_auf_nmax_gebe_rest_als_obj(self,nmax):
+        """
+        begrenzt eigene Liste und gibt den Rest aus obj zurück
+        :param nmax:
+        :return:
+        """
+        obj = HandleDictListe([])
+        if nmax < len(self.DictList):
+            obj.set_list(self.DictList[nmax:])
+
+            self.DictList = self.DictList[0:nmax]
+        # end id
+        return obj
+    # end def
+# end class
+
+
 ###########################################################################
 # testen mit main
 ###########################################################################

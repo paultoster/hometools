@@ -9,7 +9,7 @@ if (tools_path not in sys.path):
 import tools.hfkt_def as hdef
 import tools.hfkt_tvar as htvar
 import tools.hfkt_type as htype
-# import tools.hfkt_np_calc as hnpcalc
+import tools.hfkt_list as hlist
 
 import konto_verrechnung_class
 import konto_zins_class
@@ -140,14 +140,14 @@ class WPData:
             # end if
 
             # Liste mit den screnner Ergebnissen
-            self.WPScreDictList = []
+            self.WPScreDictListObj = hlist.HandleDictListe([])
 
             # dict mit isin-Kurswerten
 
             self.WPISINKursDict = {}
 
-            self.AnteilDepotAufteilung = 1.
-            self.AnzahlDepotAufteilung = 1
+            self.AnzahlDepotAufteilung = self.Parobj.NAuswahlWPGruppe * self.Parobj.NAuswahlWP
+            self.AnteilDepotAufteilung = 1. / max(1, self.AnzahlDepotAufteilung)
         # end if
 
         return
@@ -181,32 +181,33 @@ class WPData:
         """
         pruef_dat = htype.type_transform_direct(self.AktDat_datetime, "datetimeclass", "dat")
         ttable = self.WPscrefunc.build_scre_rawtable(self.Parobj.sim_scre_name,pruef_dat,self.Parobj.WPExistDays)
-        (self.WPScreDictList, _) = htvar.get_dict_list_from_table(ttable)
+
+        self.WPScreDictListObj.set_liste(ttable)
 
         self.WPISINKursDict = {}
-        for scredict in self.WPScreDictList:
+        for scredict in self.WPScreDictListObj:
             self.WPISINKursDict[scredict["ISIN"]] = scredict["KURS"]
         # end for
 
         return
     # end class
-    def bildeAufteilungWps(self,anzahlWPs, anzahlSollKauf):
-        """
-        Berechnet self.AnzahlDepotAufteilung und self.AnteilDepotAufteilung
-
-        :param anzahlWPs:
-        :param anzahlSollKauf:
-        :return:
-        """
-
-        # Depotaufteilung nach vorgabe, begrenzr ducrh die Anzahl von vorhandenen WP und zu kaufender zu dieser Zeit
-        #------------------------------------------------------------------------------------------
-        self.AnzahlDepotAufteilung = min(self.Parobj.NAuswahlWPGruppe * self.Parobj.NAuswahlWP,
-                                         anzahlWPs + anzahlSollKauf)
-        self.AnteilDepotAufteilung = 1. / max(1, self.AnzahlDepotAufteilung)
-
-        return
-    # end def
+    # def bildeAufteilungWps(self,anzahlWPs, anzahlSollKauf):
+    #     """
+    #     Berechnet self.AnzahlDepotAufteilung und self.AnteilDepotAufteilung
+    #
+    #     :param anzahlWPs:
+    #     :param anzahlSollKauf:
+    #     :return:
+    #     """
+    #
+    #     # Depotaufteilung nach vorgabe, begrenzr ducrh die Anzahl von vorhandenen WP und zu kaufender zu dieser Zeit
+    #     #------------------------------------------------------------------------------------------
+    #     self.AnzahlDepotAufteilung = min(self.Parobj.NAuswahlWPGruppe * self.Parobj.NAuswahlWP,
+    #                                      anzahlWPs + anzahlSollKauf)
+    #     self.AnteilDepotAufteilung = 1. / max(1, self.AnzahlDepotAufteilung)
+    #
+    #     return
+    # # end def
     def getMinMaxFromWP(self,isin,datstart_datetime,datend_datetime):
         """
 

@@ -16,14 +16,14 @@
 PARAM_LLIST = [
 ("StartDat_str",           "Beginn der Simulation (01.01.2000)",{"type":"datStrP"}),
 ("EndDat_str",             "Ende der Simulation  (31.10.2015)",{"type":"datStrP"}),
-("ErsterTagPruefung",      "Erste Prüfung der Strategie kann Wochentag oder ein Tag (Mo,Di,Mi,Do,Fr,Sa,So, 1 ... (30,31))",{"wert":["Mo","Di","Do","Fr","Sa","So"],"type":"int"}),
-("WiederholTagPruefung",   "Wiederholtag zu Prüfung ist Wochentag oder Monatsdatume  (Mo,Di,Mi,Do,Fr,Sa,So, 1 ... (30,31))",{"wert":["Mo","Di","Do","Fr","Sa","So"],"type":"int"}),
-("ErsterTagErgebnis",       "Erste Ergebnisausgabe (Zwischenergebnis) der Strategie kann Wochentag oder ein Tag (Mo,Di,Mi,Do,Fr,Sa,So, 1 ... (30,31))",{"wert":["Mo","Di","Do","Fr","Sa","So"],"type":"int"}),
-("WiederholTagErgebnis",    "Wiederholtag Ergebinsausgabe ist Wochentag oder Monatsdatume  (Mo,Di,Mi,Do,Fr,Sa,So, 1 ... (30,31))",{"wert":["Mo","Di","Do","Fr","Sa","So"],"type":"int"}),
+("ErsterTagPruefung",      "Erste Prüfung der Strategie kann Wochentag oder ein Tag (Mo,Di,Mi,Do,Fr,Sa,So, 1 ... (30,31))",{"wert":["Mo","Di","Do","Fr","Sa","So"],"type":["int","str"]}),
+("WiederholTagPruefung",   "Wiederholtag zu Prüfung ist Wochentag oder Monatsdatume  (Mo,Di,Mi,Do,Fr,Sa,So, 1 ... (30,31))",{"wert":["Mo","Di","Do","Fr","Sa","So"],"type":["int","str"]}),
+("ErsterTagErgebnis",       "Erste Ergebnisausgabe (Zwischenergebnis) der Strategie kann Wochentag oder ein Tag (Mo,Di,Mi,Do,Fr,Sa,So, 1 ... (30,31))",{"wert":["Mo","Di","Do","Fr","Sa","So"],"type":["int","str"]}),
+("WiederholTagErgebnis",    "Wiederholtag Ergebinsausgabe ist Wochentag oder Monatsdatume  (Mo,Di,Mi,Do,Fr,Sa,So, 1 ... (30,31))",{"wert":["Mo","Di","Do","Fr","Sa","So"],"type":["int","str"]}),
 ("StartCash",               "Startkapital in Euro  (10,000,00 )",{"type":"euroStrK"}),
 ("ZinsKontoPruefung",       "Soll verbleibender Cash auf Zinskonto gelegt werden  (True/False, bool)",{"type":"bool"}),
-("ErsterTagZinsAbrechnung", "Erste Zinsabrechnung der Strategie kann Wochentag oder ein Tag (Mo,Di,Mi,Do,Fr,Sa,So, 1 ... (30,31))",{"wert":["Mo","Di","Do","Fr","Sa","So"],"type":"int"}),
-("WiederholTagZinsAbrechnung", "Wiederholtag Ergebinsausgabe ist Wochentag oder Monatsdatume  (Mo,Di,Mi,Do,Fr,Sa,So, 1 ... (30,31))",{"wert":["Mo","Di","Do","Fr","Sa","So"],"type":"int"}),
+("ErsterTagZinsAbrechnung", "Erste Zinsabrechnung der Strategie kann Wochentag oder ein Tag (Mo,Di,Mi,Do,Fr,Sa,So, 1 ... (30,31))",{"wert":["Mo","Di","Do","Fr","Sa","So"],"type":["int","str"]}),
+("WiederholTagZinsAbrechnung", "Wiederholtag Ergebinsausgabe ist Wochentag oder Monatsdatume  (Mo,Di,Mi,Do,Fr,Sa,So, 1 ... (30,31))",{"wert":["Mo","Di","Do","Fr","Sa","So"],"type":["int","str"]}),
 ("ErtragsSteuerAnteil",     "Steueranteil an einem Gewinn oder Zinsertrag (28.,float)",{"type":"float"}),
 ("WPKostenFest",            "Feste Kosten bei WP-Handel an einem Gewinn  (4.,euro)",{"type":"euroStrK"}),
 ("WPKostenAnteil",           "Kostenanteil bei WP-Handel an einem Gewinn  (0.,float)",{"type":"float"}),
@@ -35,6 +35,7 @@ PARAM_LLIST = [
 ("NAuswahlWPGruppe",        "Anzahl WP aus Anzahl Katlaog-Gruppen  (1, int)",{"type":"int"}),
 ("NAuswahlWP",              "Anzahl WP aus Liste pro Katlaog-Gruppe  (1, int)",{"type":"int"}),
 ("WPExistDays",             "Anzahl Tage, die das entsprechende WP schon besteht, Daten hat  (1, int)",{"type":"int"}),
+("WPTriggerVerkauf",        "Wann soll verkauft werden.'Vsig': nur nach Verkaufssignal , 'Vsig+Rank': Auch zusätzlich nach rang  ",{"wert":["Vsig","Vsig+Rank"],"type":"str"}),
 ("ParameterVariation",      "Beschreibung  (parallel, format)",{"wert":["parallel"]}),
 
 
@@ -280,31 +281,121 @@ def par_liste_pruefung_inhalt(mobj, par_liste):
             key = liste[0]
             ddict = liste[2]
 
-            okay = hdef.NOT_OKAY
-
-            if len(ddict) == 0:
-                okay = hdef.OKAY
-
+            type_proof = False
+            wert_proof = False
             if "type" in ddict.keys():
-                (okay, wert) = htype.type_proof(pdict[key],ddict["type"])
-                if ("wert" not in ddict.keys()) and (okay != hdef.OKAY):
+                type = ddict["type"]
+                if isinstance(type,list):
+                    type_list = type
+                else:
+                    type_list = [type]
+                # end if
+                type_proof = True
+                type_ergebnis = None
+                okayt = hdef.NOT_OKAY
+                for type in type_list:
+                    if type == "str":
+                        if isinstance(pdict[key],str):
+                            okayt = hdef.OKAY
+                            type_ergebnis = type
+                            break
+                        # end if
+                    elif type == "int":
+                        if isinstance(pdict[key],int):
+                            okayt = hdef.OKAY
+                            type_ergebnis = type
+                            break
+                        # end if
+                    elif type == "float":
+                        if isinstance(pdict[key],float):
+                            okayt = hdef.OKAY
+                            type_ergebnis = type
+                            break
+                        # end if
+                    else:
+                        (okayt, wert) = htype.type_proof(pdict[key],type)
+                        if okayt == hdef.OKAY:
+                            type_ergebnis = type
+                            break
+                    # end if
+                # end for
+            # end if
+            if "wert" in ddict.keys():
+                wert_proof = True
+
+
+                wert = ddict["wert"]
+                if isinstance(wert,list):
+                    wert_list = wert
+                else:
+                    wert_list = [wert]
+                # end if
+
+                okayw = hdef.NOT_OKAY
+                if type_ergebnis == "str":
+
+                    if len([wert for wert in wert_list if isinstance(wert,str) ]) > 0:
+                        for wert in wert_list:
+                            if  pdict[key] == wert:
+                                okayw = hdef.OKAY
+                                break
+                            # end if
+                        # end for
+                    else:
+                        okayw = hdef.OKAY
+                    # end if
+                elif type_ergebnis == "int":
+
+                    if len([wert for wert in wert_list if isinstance(wert, int)]) > 0:
+                        for wert in wert_list:
+                            if pdict[key] == wert:
+                                okayw = hdef.OKAY
+                                break
+                            # end if
+                        # end for
+                    else:
+                        okayw = hdef.OKAY
+                    # end if
+                elif type_ergebnis == "float":
+
+                    if len([wert for wert in wert_list if isinstance(wert, int)]) > 0:
+                        for wert in wert_list:
+                            if pdict[key] == wert:
+                                okayw = hdef.OKAY
+                                break
+                            # end if
+                        # end for
+                    else:
+                        okayw = hdef.OKAY
+                    # end if
+                else:
+                    for wert in wert_list:
+                        if pdict[key] == wert:
+                            okayw = hdef.OKAY
+                            break
+                        # end if
+                    # end for
+                # end if
+            # end if
+
+            if type_proof :
+                if okayt != hdef.OKAY:
                     mobj.status = hdef.NOT_OKAY
                     mobj.errtext = f"par_liste_pruefung_inhalt: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} ist nicht vom type: {ddict["type"]}"
                     return
                 # end if
             # end if
-            if okay != hdef.OKAY:
-                if "wert" in ddict.keys():
-                    if pdict[key] not in ddict["wert"]:
-                        mobj.status = hdef.NOT_OKAY
-                        mobj.errtext = f"par_liste_pruefung_inhalt: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} ist nicht in der Werte-Liste: {ddict["wert"]}"
-                        return
-                    # end if
-                else:
+            if wert_proof :
+                if okayw != hdef.OKAY:
                     mobj.status = hdef.NOT_OKAY
-                    mobj.errtext = f"par_liste_pruefung_inhalt: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} promblematisch kein: ddict[\"wert\"] oder ddict[\"type\"]"
+                    mobj.errtext = f"par_liste_pruefung_inhalt: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} ist nicht in der Werte-Liste: {ddict["wert"]}"
                     return
                 # end if
+            # end if
+            if not type_proof and not wert_proof:
+                mobj.status = hdef.NOT_OKAY
+                mobj.errtext = f"par_liste_pruefung_inhalt: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} promblematisch kein: ddict[\"wert\"] oder ddict[\"type\"]"
+                return
             # end if
         # end for
     # end for

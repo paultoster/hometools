@@ -535,15 +535,17 @@ def edit_price_volume(wb_obj):
                      "proof one-isin",
                      "proof all-isin",
                      "plot isin",
+                     "move",
                      "ende"]
-    i_abfrage_ende = 7
     i_abfrage_update_isin = 0
     i_abfrage_update_all = 1
     i_abfrage_ariva_power_automate = 2
     i_backup = 3
     i_abfrage_proof_one_isin = 4
     i_abfrage_proof_all_isin = 5
-    # i_plot_isin = 6
+    i_plot_isin = 6
+    # i_abfrage_move = 7
+    i_abfrage_ende = 8
     runflag = True
 
     while (runflag):
@@ -680,7 +682,7 @@ def edit_price_volume(wb_obj):
                 runflag = False
             # end if
 
-        else: # i_plot_isin
+        elif indexAbfrage == i_plot_isin:
             if index < 0:
                 wb_obj.log.write_info("C Keine isin ausgewählt")
                 runflag = True
@@ -709,6 +711,23 @@ def edit_price_volume(wb_obj):
                     errtext = ""
                     runflag = False
                 # end if
+            # end if
+        else: # indexAbfrage == i_abfrage_move
+
+            if index < 0:
+                wb_obj.log.write_info("C Keine isin ausgewählt")
+                runflag = True
+            else:
+
+                isin = isin_liste[index]
+                wpname = isin_wpname_liste[index]
+
+                wb_obj.log.write_info(f"WP move price volume data isin: {isin} Name: {wpname}")
+                (status, errtext) = wb_obj.make_backup_price_volumen([isin],True)
+                if status != hdef.OKAY:
+                    return (status, errtext, infotext)
+                runflag = True
+
         # end if
     # end while
     return (status, errtext, infotext)
