@@ -56,6 +56,7 @@ def plotdef_start(rd):
 
     return
 def plotdef_set(rd):
+
     # Signalset-Liste Json-Liste einladen
     if rd.plot["plotdef_liste_jsonobj"] is None:
         rd.plot["plotdef_liste_filename"] = os.path.join(rd.ini["store_path"],
@@ -70,6 +71,9 @@ def plotdef_set(rd):
         rd.plot["plotdef_liste"] = []
         rd.plot["plotdef_liste_jsonobj"].reset_status()
     elif rd.plot["plotdef_liste_jsonobj"].get_status() != hdef.OKAY:
+        global STATUS, ERRTEXT
+        STATUS = hdef.NOT_OKAY
+        ERRTEXT = rd.plot["plotdef_liste_jsonobj"].get_errtext()
         rd.log.write_err(rd.plot["plotdef_liste_jsonobj"].get_errtext(), screen=rd.par.LOG_SCREEN_OUT)
         rd.plot["plotdef_liste_jsonobj"].reset_status()
         return

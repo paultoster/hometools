@@ -152,7 +152,7 @@ def build_all_diagram_data(rd,plotdef_werte_dict_list,np_data_obj,scre,scre_dict
             if not np_data_obj.exist_signal_as_nparray(plotdef_werte_dict["signal"]):
                 STATUS = hdef.NOT_OKAY
                 ERRTEXT = f"plotdef: screen definition {scre}: in position {i} of plotdef_dict {scre_dict[rd.par.SCRE_PLOTDEF]} is signal: {plotdef_werte_dict['signal']} not available"
-                return
+                return (plotdef_werte_dict_list,max_subplot,nrows)
             # end if
 
             plotdef_werte_dict["y"]    = np_data_obj.get_signal(plotdef_werte_dict["signal"])

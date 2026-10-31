@@ -149,6 +149,12 @@ def scre_edit_command(rd, index):
     runflag = True
     while (runflag):
 
+        if STATUS != hdef.OKAY:
+
+            sgui.anzeige_text(ERRTEXT, textcolor='red')
+            reset_status()
+        # end if
+
         ddict = copy.copy(rd.scre["scre_dict"])
 
         (ddict_mod, changed_key_liste,index_abfrage) = wp_screen_gui.scre_dict_abfrage(rd.gui, ddict,
@@ -156,7 +162,6 @@ def scre_edit_command(rd, index):
                                                                               abfrage_liste=abfrage_liste)
 
         if (wp_screen_gui.get_status() != hdef.OK):
-            global STATUS, ERRTEXT
             STATUS = wp_screen_gui.get_status()
             ERRTEXT = wp_screen_gui.get_errtext()
             wp_screen_gui.reset_status()
@@ -192,6 +197,13 @@ def scre_edit_command(rd, index):
 
             katalog = wp_screen_katalog_command.get_katalog_auswahl(rd)
 
+            if wp_screen_katalog_command.get_status() != hdef.OKAY:
+                STATUS = wp_screen_katalog_command.get_status()
+                ERRTEXT = wp_screen_katalog_command.get_errtext()
+                wp_screen_katalog_command.reset_status()
+                runflag = True
+            # end if
+
             if katalog != None:
                 rd.scre["scre_dict"][rd.par.SCRE_KATALOG] = katalog
                 wp_screen_scre.scre_dict_save(rd)
@@ -202,6 +214,13 @@ def scre_edit_command(rd, index):
         elif index_abfrage == index_sigset:
 
             sigset = wp_screen_sigset.get_sigset_auswahl(rd)
+
+            if wp_screen_sigset.get_status() != hdef.OKAY:
+                STATUS = wp_screen_sigset.get_status()
+                ERRTEXT = wp_screen_sigset.get_errtext()
+                wp_screen_sigset.reset_status()
+                runflag = True
+            # end if
 
             if sigset != None:
                 rd.scre["scre_dict"][rd.par.SCRE_SIGSET] = sigset
@@ -214,6 +233,13 @@ def scre_edit_command(rd, index):
 
             tab = wp_screen_tab.get_tab_auswahl(rd)
 
+            if wp_screen_tab.get_status() != hdef.OKAY:
+                STATUS = wp_screen_tab.get_status()
+                ERRTEXT = wp_screen_tab.get_errtext()
+                wp_screen_tab.reset_status()
+                runflag = True
+            # end if
+
             if tab != None:
                 rd.scre["scre_dict"][rd.par.SCRE_TAB] = tab
                 wp_screen_scre.scre_dict_save(rd)
@@ -225,6 +251,14 @@ def scre_edit_command(rd, index):
         elif index_abfrage == index_plotdef:
 
             plotdef = wp_screen_plotdef_command.get_plotdef_auswahl(rd)
+
+            if wp_screen_plotdef_command.get_status() != hdef.OKAY:
+                STATUS = wp_screen_plotdef_command.get_status()
+                ERRTEXT = wp_screen_plotdef_command.get_errtext()
+                wp_screen_plotdef_command.reset_status()
+                runflag = True
+            # end if
+
 
             if plotdef != None:
                 rd.scre["scre_dict"][rd.par.SCRE_PLOTDEF] = plotdef

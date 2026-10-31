@@ -28,7 +28,6 @@ PARAM_LLIST = [
 ("WPKostenFest",            "Feste Kosten bei WP-Handel an einem Gewinn  (4.,euro)",{"type":"euroStrK"}),
 ("WPKostenAnteil",           "Kostenanteil bei WP-Handel an einem Gewinn  (0.,float)",{"type":"float"}),
 ("WPKostenMax",            "Maximaler Kostenanteil bei WP-Handel an einem Gewinn  (40.,euro)",{"type":"euroStrK"}),
-("SimName",                 "Name der Simulation  (TestLauf, str)",{"type":"str"}),
 ("ScreKat",                 "wp_screen: Die zu betrachtenden WPs in Gruppen als ScreKat ('{'Tagesgeld':['ezbleitzins']}', json von dict)",{"type":"str"}),
 ("ScreSig",                  "wp_screen: Signal set als dict, json von dict)",{"type":"str"}),
 ("SreTab",                  "wp_screen: Tabellen set als dict, json von dict)",{"type":"str"}),
@@ -40,6 +39,7 @@ PARAM_LLIST = [
 
 
 ]
+# ("SimName",                 "Name der Simulation  (TestLauf, str)",{"type":"str"}),
 
 import copy
 import os, sys
@@ -58,6 +58,7 @@ if (tools_path not in sys.path):
 
 import tools.hfkt_def as hdef
 import tools.hfkt_type as htype
+import tools.hfkt_file_path as hfp
 
 
 PARAMETERFILE = ""
@@ -99,6 +100,10 @@ def set_param(mobj,param_filename):
     (par_dict,platzhalter_dict_liste) = build_par_liste_sep_platzh(mobj,par_raw_dict)
 
     par_liste_pruefung_existenz(mobj,par_dict)
+    if mobj.status != hdef.OKAY:
+        return (None,None)
+
+    par_liste_set_simname(mobj,par_dict)
     if mobj.status != hdef.OKAY:
         return (None,None)
 
@@ -200,6 +205,21 @@ def par_liste_pruefung_existenz(mobj,par_dict):
             return
         # end if
     # end for
+
+    return
+# end def
+def par_liste_set_simname(mobj, pardict):
+    """ Bilde Simulationsname
+    :param mobj:"""
+
+    global PARAMETERFILE
+
+    (_, fbody, _) = hfp.get_pfe(PARAMETERFILE)
+
+    if fbody.find("wp_test_") != -1:  # Correct
+        fbody = fbody.replace("wp_test_","")
+
+    pardict["SimName"] = fbody
 
     return
 # end def

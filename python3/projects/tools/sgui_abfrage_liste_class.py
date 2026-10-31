@@ -83,7 +83,7 @@ class abfrage_liste_class:
         self.GUI_GEOMETRY_HEIGHT = sdef.GUI_GEOMETRY_HEIGHT_BASE
         self.GUI_GEOMETRY_POSX = 0
         self.GUI_GEOMETRY_POSY = 0
-        
+        self.flag_mainloop = False
         # liste in string-liste wandeln
         index = 0
         for item in liste:
@@ -151,6 +151,7 @@ class abfrage_liste_class:
         # --------------
         # self.createMenu()
         self.makeListGui()
+
         return
     # end def
     def run(self):

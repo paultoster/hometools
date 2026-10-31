@@ -180,13 +180,15 @@ class WPData:
         :return:
         """
         pruef_dat = htype.type_transform_direct(self.AktDat_datetime, "datetimeclass", "dat")
-        ttable = self.WPscrefunc.build_scre_rawtable(self.Parobj.sim_scre_name,pruef_dat,self.Parobj.WPExistDays)
 
-        self.WPScreDictListObj.set_liste(ttable)
+        if self.Parobj.DepotKontoPruefung:
+            ttable = self.WPscrefunc.build_scre_rawtable(self.Parobj.sim_scre_name,pruef_dat,self.Parobj.WPExistDays)
 
-        self.WPISINKursDict = {}
-        for scredict in self.WPScreDictListObj:
-            self.WPISINKursDict[scredict["ISIN"]] = scredict["KURS"]
+            self.WPScreDictListObj.set_liste(ttable)
+
+            self.WPISINKursDict = {}
+            for scredict in self.WPScreDictListObj:
+                self.WPISINKursDict[scredict["ISIN"]] = scredict["KURS"]
         # end for
 
         return

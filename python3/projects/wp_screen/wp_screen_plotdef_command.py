@@ -382,6 +382,14 @@ def get_plotdef_auswahl(rd):
 
     wp_screen_plotdef.plotdef_set(rd)
 
+    if wp_screen_plotdef.get_status() != hdef.OKAY:
+        global STATUS, ERRTEXT
+        STATUS = wp_screen_plotdef.get_status()
+        ERRTEXT = wp_screen_plotdef.get_errtext()
+        wp_screen_plotdef.reset_status()
+        return None
+    # end if
+
     (index, _) = wp_screen_gui.listen_abfrage(rd.gui, rd.plot["plotdef_liste"], auswahl_title="Auswahl Plotdef-Set")
 
     if index >= 0:

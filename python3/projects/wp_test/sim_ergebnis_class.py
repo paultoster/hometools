@@ -903,10 +903,13 @@ class WPErg:
         mdobj.add_table(headers, rows)
         mdobj.add_paragraph("---")
 
+
         plotfilename = os.path.join(self.ErgPath, "erg_plot_wp_deal_haeuf_relvk.png")
-        mdobj.add_image(plotfilename, "WP Häufigkeit Verkauf/Kauf-Kurs")
+        if os.path.isfile(plotfilename):
+            mdobj.add_image(plotfilename, "WP Häufigkeit Verkauf/Kauf-Kurs")
         plotfilename = os.path.join(self.ErgPath, "erg_plot_wp_deal_haeuf_relvkmax.png")
-        mdobj.add_image(plotfilename, "WP Häufigkeit (Verkauf-Kauf)/(Max-Kauf)-Kurs")
+        if os.path.isfile(plotfilename):
+            mdobj.add_image(plotfilename, "WP Häufigkeit (Verkauf-Kauf)/(Max-Kauf)-Kurs")
 
         mdobj.add_paragraph("---")
         # Plots von WPs
