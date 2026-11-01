@@ -287,6 +287,23 @@ class WPKontoZins:
         """
         return self.KontoDataSet.get_data_set_to_store_ttable()
     # end def
+    def holeLetztenDatenEintrag(self):
+
+        if self.KontoDataSet.get_n_data() > 0:
+
+            tliste = self.KontoDataSet.get_one_data_set_tlist(self.KontoDataSet.get_n_data() - 1,
+                                                              self.Header_liste,
+                                                              self.Type_liste)
+
+        else:
+
+            tliste = None
+        # en dif
+
+        return tliste
+    # end def
+
+
 # end class
 
 

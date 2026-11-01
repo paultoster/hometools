@@ -986,6 +986,41 @@ class HandleDictListe:
         # end for
         return
     # end def
+    def get_value_from_dict(self,key,keysuch=None,valuesuch=None):
+        """
+        Sucht zu allen oder der ausgewählten indexliste dicts in der Liste den value
+        :param index_liste:
+        :return: self.set_item_to_dict(key,value,index)
+        :return: self.set_item_to_dict(key,value,index_liste)
+        :return: self.set_item_to_dict(key,value,keysuch,valuesuch)
+        """
+        if (keysuch is not None) and (valuesuch is not None): # sucht den index
+
+            index_liste = self.get_index_list_items_eq(keysuch,valuesuch)
+        elif keysuch is not None:  # liste ist vorgegeben
+
+            if isinstance(keysuch,list):
+                index_liste = keysuch
+            else:
+                index_liste = [keysuch]
+            # end
+        else: # alle
+            index_liste = list(range(len(self.DictList)))
+        # end if
+
+        value_liste = []
+        for index in index_liste:
+            if index < len(self.DictList):
+                value_liste.append(self.DictList[index][key])
+            # end if
+        # end for
+        if len(index_liste) == 1:
+            return value_liste[0]
+        elif len(index_liste) == 0:
+            return None
+        else:
+            return value_liste
+    # end def
     def get_value(self,index, key):
         """
         gebe den Wert eine dict in Liste zurück self.DictList[index][key]

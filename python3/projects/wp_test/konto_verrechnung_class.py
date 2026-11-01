@@ -226,4 +226,23 @@ class WPKontoVerrechnung:
         """
         return self.KontoDataSet.get_data_set_to_store_ttable()
     # end def
+    def holeLetztenDatenEintrag(self):
+        """
+
+        :return: tlist
+        """
+
+        if self.KontoDataSet.get_n_data() > 0:
+
+            tliste = self.KontoDataSet.get_one_data_set_tlist(self.KontoDataSet.get_n_data() - 1,
+                                                              self.HEADER_LISTE,
+                                                              self.TYPE_LISTE)
+
+        else:
+
+            tliste = None
+        # en dif
+
+        return tliste
+    # end def
 # end class

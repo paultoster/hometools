@@ -79,8 +79,8 @@ class WPErg:
 
         status = hfp.build_path(self.ErgPath)
         if status != hdef.OKAY:
-            self.status = hdef.NOT_OKAY
-            self.errtext = f"Pfad: {self.ErgPath} konnte nicht erstellt werden"
+            self.Parobj.status = hdef.NOT_OKAY
+            self.Parobj.errtext = f"Pfad: {self.ErgPath} konnte nicht erstellt werden"
             return
         # end if
 
@@ -100,22 +100,22 @@ class WPErg:
                                 self.Parobj.SimName + ".yaml")
         self.ParYamlObj = hio.DataYaml(self.ParYamlFilename)
         if self.ParYamlObj.get_status() != hdef.OKAY:
-            self.status = hdef.NOT_OKAY
-            self.errtext = f"File : {self.ParYamlFilename} konnte nicht erstellt werden errtext: {self.ParYamlObj.get_errtext()}"
+            self.Parobj.status = hdef.NOT_OKAY
+            self.Parobj.errtext = f"File : {self.ParYamlFilename} konnte nicht erstellt werden errtext: {self.ParYamlObj.get_errtext()}"
             return
         # end if
 
         self.ParYamlObj.set_data(vars(self.Parobj))
         if self.ParYamlObj.get_status() != hdef.OKAY:
-            self.status = hdef.NOT_OKAY
-            self.errtext = f"File : {self.ParYamlFilename} konnte nicht erstellt werden errtext: {self.ParYamlObj.get_errtext()}"
+            self.Parobj.status = hdef.NOT_OKAY
+            self.Parobj.errtext = f"File : {self.ParYamlFilename} konnte nicht erstellt werden errtext: {self.ParYamlObj.get_errtext()}"
             return
         # end if
 
         self.ParYamlObj.save()
         if self.ParYamlObj.get_status() != hdef.OKAY:
-            self.status = hdef.NOT_OKAY
-            self.errtext = f"File : {self.ParYamlFilename} konnte nicht erstellt werden errtext: {self.ParYamlObj.get_errtext()}"
+            self.Parobj.status = hdef.NOT_OKAY
+            self.Parobj.errtext = f"File : {self.ParYamlFilename} konnte nicht erstellt werden errtext: {self.ParYamlObj.get_errtext()}"
             return
         # end if
 
@@ -123,6 +123,7 @@ class WPErg:
         self.ParKontoSteuerCsvFilename = os.path.join(self.ErgPath, "konto_steuer.csv")
         self.ParKontoVerrechnungCsvFilename = os.path.join(self.ErgPath, "konto_verrechnung.csv")
         self.ParKontoZinsCsvFilename = os.path.join(self.ErgPath, "konto_zins.csv")
+        self.ParProtokolCsvFilename = os.path.join(self.ErgPath, "pruefung_protokoll.csv")
 
         return
     def update(self,ZwischenErgebnisFlag=True):
@@ -248,24 +249,24 @@ class WPErg:
         ttable = self.KontoObj.ErstelleSteuerTabelle()
         status =  htvar.write_table_to_csv(ttable,self.ParKontoSteuerCsvFilename)
         if status != hdef.OKAY:
-            self.status = hdef.NOT_OKAY
-            self.errtext = f"File : {self.ParKontoSteuerCsvFilename} konnte nicht erstellt werden"
+            self.Parobj.status = hdef.NOT_OKAY
+            self.Parobj.errtext = f"File : {self.ParKontoSteuerCsvFilename} konnte nicht erstellt werden"
             return
         # end if
 
         ttable = self.KontoObj.ErstelleTabelleKontoVerrechnung()
         status =  htvar.write_table_to_csv(ttable,self.ParKontoVerrechnungCsvFilename)
         if status != hdef.OKAY:
-            self.status = hdef.NOT_OKAY
-            self.errtext = f"File : {self.ParKontoVerrechnungCsvFilename} konnte nicht erstellt werden"
+            self.Parobj.status = hdef.NOT_OKAY
+            self.Parobj.errtext = f"File : {self.ParKontoVerrechnungCsvFilename} konnte nicht erstellt werden"
             return
         # end if
 
         ttable = self.KontoObj.ErstelleTabelleKontoZins()
         status =  htvar.write_table_to_csv(ttable,self.ParKontoZinsCsvFilename)
         if status != hdef.OKAY:
-            self.status = hdef.NOT_OKAY
-            self.errtext = f"File : {self.ParKontoZinsCsvFilename} konnte nicht erstellt werden"
+            self.Parobj.status = hdef.NOT_OKAY
+            self.Parobj.errtext = f"File : {self.ParKontoZinsCsvFilename} konnte nicht erstellt werden"
             return
         # end if
 
@@ -279,8 +280,8 @@ class WPErg:
 
             status =  htvar.write_table_to_csv(ttable,filename)
             if status != hdef.OKAY:
-                self.status = hdef.NOT_OKAY
-                self.errtext = f"File : {filename} konnte nicht erstellt werden"
+                self.Parobj.status = hdef.NOT_OKAY
+                self.Parobj.errtext = f"File : {filename} konnte nicht erstellt werden"
                 return
             # end if
         # end for
@@ -293,11 +294,20 @@ class WPErg:
 
             status =  htvar.write_table_to_csv(ttable,filename)
             if status != hdef.OKAY:
-                self.status = hdef.NOT_OKAY
-                self.errtext = f"File : {filename} konnte nicht erstellt werden"
+                self.Parobj.status = hdef.NOT_OKAY
+                self.Parobj.errtext = f"File : {filename} konnte nicht erstellt werden"
                 return
             # end if
         # end for
+
+        #Protokolldaten
+        ttable = self.KontoObj.ErstelleTabelleProtokoll()
+        status =  htvar.write_table_to_csv(ttable,self.ParProtokolCsvFilename)
+        if status != hdef.OKAY:
+            self.Parobj.status = hdef.NOT_OKAY
+            self.Parobj.errtext = f"File : {self.ParProtokolCsvFilename} konnte nicht erstellt werden"
+            return
+        # end if
 
         return
     # end def

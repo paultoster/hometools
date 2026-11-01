@@ -29,6 +29,7 @@ class WPPruef:
         self.DataObj = dataobj
         self.KontoObj = kontoobj
 
+        self.WPscreDictListObj =  None
         self.WPObjListe = []
         self.WPObjLooserListe = []
 
@@ -36,6 +37,8 @@ class WPPruef:
     def update(self):
 
         if self.Parobj.DepotKontoPruefung:
+
+            self.WPscreDictListObj = copy.copy(self.DataObj.WPScreDictListObj)
 
             self.pruefe_verkauf()
             if self.Parobj.status != hdef.OKAY:
@@ -70,6 +73,9 @@ class WPPruef:
                 return
             # end if
         # end if
+
+        self.KontoObj.schreibeProtokollNachPrüfung()
+
         return
     # end def
     def pruefe_verkauf(self):
@@ -80,17 +86,17 @@ class WPPruef:
 
         liste_isin_im_depot = self.KontoObj.bildeAktivesDepotISINListe()
 
-        verkaufs_index_liste = self.DataObj.WPScreDictListObj.get_obj_items_eq("ISIN", liste_isin_im_depot).get_index_list_items_gt("VERKAUFEN",0)
+        verkaufs_index_liste = self.WPscreDictListObj.get_obj_items_eq("ISIN", liste_isin_im_depot).get_index_list_items_gt("VERKAUFEN",0)
 
         # Verkaufen und aus liste löschen
         for index in reversed(verkaufs_index_liste):
 
-            self.KontoObj.verkaufeAusDepot(self.DataObj.WPScreDictListObj.get_value(index,"ISIN"),
-                                           self.DataObj.WPScreDictListObj.get_value(index,"KURS"),
+            self.KontoObj.verkaufeAusDepot(self.WPscreDictListObj.get_value(index,"ISIN"),
+                                           self.WPscreDictListObj.get_value(index,"KURS"),
                                            anzahl = None)
             if self.Parobj.status != hdef.OKAY:
                 return
-            self.DataObj.WPScreDictListObj.erase_dict_by_index(index)
+            self.WPscreDictListObj.erase_dict_by_index(index)
 
         # end for
 
@@ -118,24 +124,22 @@ class WPPruef:
             # end for
         # end for
 
-        wpObj = copy.copy(self.DataObj.WPScreDictListObj)
-
         # Add Gruppe zu WPScreDictListObj
-        wpObj.add_item_to_dict("GRUPPE", "")
+        self.WPscreDictListObj.add_item_to_dict("GRUPPE", "")
         for grup in gruppen_liste:
-            wpObj.set_item_to_dict("GRUPPE", grup, "ISIN", depot_gruppen_isin_dict[grup])
+            self.WPscreDictListObj.set_item_to_dict("GRUPPE", grup, "ISIN", depot_gruppen_isin_dict[grup])
         # # end for
 
         # die vom Depot mit "IMDEPOT" kennzeichnen (für Verkauf)
-        wpObj.add_item_to_dict("IMDEPOT", False)
-        wpObj.set_item_to_dict("IMDEPOT", True, "ISIN", liste_isin_im_depot)
+        self.WPscreDictListObj.add_item_to_dict("IMDEPOT", False)
+        self.WPscreDictListObj.set_item_to_dict("IMDEPOT", True, "ISIN", liste_isin_im_depot)
 
         # werfe alle nicht kaufen raus die nicht im Depot sind
-        index_liste = wpObj.get_index_list_items_eq("KAUFEN", 0, "IMDEPOT", False)
-        wpObj.erase_dict_by_index(index_liste)
+        index_liste = self.WPscreDictListObj.get_index_list_items_eq("KAUFEN", 0, "IMDEPOT", False)
+        self.WPscreDictListObj.erase_dict_by_index(index_liste)
 
         # Aufteilen in die Gruppen
-        WPObj_liste = [wpObj.get_obj_items_eq("ISIN", self.Parobj.ScreKat[grup]) for grup in gruppen_liste]
+        WPObj_liste = [self.WPscreDictListObj.get_obj_items_eq("ISIN", self.Parobj.ScreKat[grup]) for grup in gruppen_liste]
 
         # Sortieren nach RANKING kleinster nach vorne
         WPObj_liste = self.sort_WPObj_liste_by_ranking(WPObj_liste)

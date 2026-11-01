@@ -8,7 +8,7 @@ if (tools_path not in sys.path):
 # endif
 
 import tools.hfkt_def as hdef
-import tools.hfkt_tvar as htvar
+# import tools.hfkt_tvar as htvar
 # import tools.hfkt_np_calc as hnpcalc
 import tools.hfkt_data_set as hdset
 
@@ -575,4 +575,23 @@ class WPKontoDepot:
     def getRohKursVerlauf(self,isin):
         return self.Dataobj.getRohKursVerlauf(isin, self.Parobj.StartDat_datetime, self.Parobj.EndDat_datetime)
 
+    def holeLetztenDatenEintrag(self,isin):
+        """
+        gibt für isin die Letzte Aktion zurrück
+        :param isin:
+        :return: tliste = self.holeLetztenDatenEintrag(isin)
+        """
+        if self.DepotDict[isin].get_n_data() > 0:
+
+            tliste = self.DepotDict[isin].get_one_data_set_tlist(self.DepotDict[isin].get_n_data()-1,
+                                                        self.HEADER_LISTE,
+                                                        self.TYPE_LISTE)
+
+        else:
+
+            tliste = None
+        # en dif
+
+        return tliste
+    # end def
 # end class

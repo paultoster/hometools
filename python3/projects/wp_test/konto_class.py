@@ -13,6 +13,7 @@ import tools.hfkt_data_set as hdset
 # import tools.hfkt_log as hlog
 import tools.hfkt_type as htype
 # import tools.hfkt_np_calc as hnpcalc
+import tools.hfkt_tvar as htvar
 
 import konto_verrechnung_class
 import konto_zins_class
@@ -74,6 +75,29 @@ class WPKonto:
     TYPE_KOSTEN_STORE_WERT = "euroStrK"
     TYPE_KOSTEN_STORE_SUMME = "euroStrK"
     TYPE_KOSTEN_STORE_LISTE = [TYPE_KOSTEN_STORE_DATUM, TYPE_KOSTEN_STORE_AKTION, TYPE_KOSTEN_STORE_WERT, TYPE_KOSTEN_STORE_SUMME]
+
+    NAME_PROTOKOLL_TAB_DATUM  = "Datum"
+    NAME_PROTOKOLL_TAB_AKTION = "Comment"
+    NAME_PROTOKOLL_TAB_WERT   = "Wert"
+    HEADER_PROTOKOLL_TAB_LISTE = [NAME_PROTOKOLL_TAB_DATUM,
+                               NAME_PROTOKOLL_TAB_AKTION,
+                               NAME_PROTOKOLL_TAB_WERT]
+
+
+    TYPE_PROTOKOLL_TAB_DATUM = "datetimeclass"
+    TYPE_PROTOKOLL_TAB_AKTION = "str"
+    TYPE_PROTOKOLL_TAB_WERT = "cent"
+    TYPE_PROTOKOLL_TAB_LISTE = [TYPE_PROTOKOLL_TAB_DATUM,
+                                TYPE_PROTOKOLL_TAB_AKTION,
+                                TYPE_PROTOKOLL_TAB_WERT]
+
+    TYPE_PROTOKOLL_STORE_DATUM = "datStrP"
+    TYPE_PROTOKOLL_STORE_AKTION = "str"
+    TYPE_PROTOKOLL_STORE_WERT = "euroStrK"
+    TYPE_PROTOKOLL_STORE_LISTE = [TYPE_PROTOKOLL_STORE_DATUM,
+                                  TYPE_PROTOKOLL_STORE_AKTION,
+                                  TYPE_PROTOKOLL_STORE_WERT]
+
 
     def __init__(self,parobj,dataobj) -> None:
 
@@ -140,6 +164,13 @@ class WPKonto:
             self.KostenDataSet.reset_status()
             return
         # end if
+
+        # ProtokollTabelle
+        #-----------------
+        self.ProtokollDataSet = hdset.DataSet("Protokolltabelle")
+        self.ProtokollDataSet.set_definition_list(self.HEADER_PROTOKOLL_TAB_LISTE,
+                                              self.TYPE_PROTOKOLL_TAB_LISTE,
+                                              self.TYPE_PROTOKOLL_STORE_LISTE)
 
         return
     # end def
@@ -742,4 +773,203 @@ class WPKonto:
     def getRohKursVerlauf(self,isin):
         return self.KontoDepot.getKursVerlauf(isin)
 
+    def schreibeProtokollNachPrüfung(self):
+        """
+        Geht durch alle Konten und Depot  und vermerkt Deot und Kontenbewegung
+        :return:
+        """
+
+        ctext = "Protokollausgabe"
+        data_set_liste = [self.DataObj.AktDat_datetime, ctext, 0]
+
+        status = self.ProtokollDataSet.add_data_set_liste(data_set_liste,
+                                                          self.HEADER_PROTOKOLL_TAB_LISTE,
+                                                          self.TYPE_PROTOKOLL_TAB_LISTE)
+        if status != hdef.OKAY:
+            self.Parobj.status = hdef.NOT_OKAY
+            self.Parobj.errtext = self.ProtokollDataSet.get_errtext()
+            self.ProtokollDataSet.reset_status()
+            return
+        # end if
+
+
+        # letzte Depotaktivität
+        isin_liste = self.KontoDepot.bildeListeAktiveISINs()
+
+        for isin in isin_liste:
+
+            data_set_liste = self.berechneProtokollListeDEpot(isin)
+
+            status = self.ProtokollDataSet.add_data_set_liste(data_set_liste,
+                                                       self.HEADER_PROTOKOLL_TAB_LISTE,
+                                                       self.TYPE_PROTOKOLL_TAB_LISTE)
+            if status != hdef.OKAY:
+                self.Parobj.status = hdef.NOT_OKAY
+                self.Parobj.errtext = self.ProtokollDataSet.get_errtext()
+                self.ProtokollDataSet.reset_status()
+                return
+            # end if
+        # end for
+
+        # Zinsen
+        data_set_liste = self.berechneProtokollListeZinsKonto()
+
+        status = self.ProtokollDataSet.add_data_set_liste(data_set_liste,
+                                                          self.HEADER_PROTOKOLL_TAB_LISTE,
+                                                          self.TYPE_PROTOKOLL_TAB_LISTE)
+        if status != hdef.OKAY:
+            self.Parobj.status = hdef.NOT_OKAY
+            self.Parobj.errtext = self.ProtokollDataSet.get_errtext()
+            self.ProtokollDataSet.reset_status()
+            return
+        # end if
+
+        # Verrechnung
+        data_set_liste = self.berechneProtokollListeVerrechnungsKonto()
+
+        status = self.ProtokollDataSet.add_data_set_liste(data_set_liste,
+                                                          self.HEADER_PROTOKOLL_TAB_LISTE,
+                                                          self.TYPE_PROTOKOLL_TAB_LISTE)
+        if status != hdef.OKAY:
+            self.Parobj.status = hdef.NOT_OKAY
+            self.Parobj.errtext = self.ProtokollDataSet.get_errtext()
+            self.ProtokollDataSet.reset_status()
+            return
+        # end if
+
+        return
+    # end def
+    def berechneProtokollListeDEpot(self,isin):
+        """
+
+        :param isin:
+        :return: liste
+        """
+
+        tliste = self.KontoDepot.holeLetztenDatenEintrag(isin)
+
+        datum = htvar.get_val_from_list(tliste,
+                                        self.KontoDepot.NAME_DATUM,
+                                        self.KontoDepot.TYPE_DATUM)
+        anzahl = htvar.get_val_from_list(tliste,
+                                         self.KontoDepot.NAME_ANZAHL,
+                                         self.KontoDepot.TYPE_ANZAHL)
+        summe = htvar.get_val_from_list(tliste,
+                                        self.KontoDepot.NAME_SUMMEANZAHL,
+                                        self.KontoDepot.TYPE_SUMMEANZAHL)
+
+        kurs = self.DataObj.WPScreDictListObj.get_value_from_dict("KURS",
+                                                                  "ISIN",
+                                                                  isin)
+
+        if datum == self.DataObj.AktDat_datetime:
+
+            if anzahl > 0:
+
+                ctext = f"WPkaufe:{anzahl}"
+                wert_cent = int(kurs * anzahl * 100. + 0.5)
+            else:
+                ctext = f"WPverk:{-anzahl}"
+                wert_cent = int(kurs * (-anzahl) * 100. + 0.5)
+            # end if
+        else:
+
+            ctext = f"WPhalten {summe}"
+            wert_cent = int(kurs * summe * 100. + 0.5)
+        # end if
+
+        ctext = f"{ctext} {isin} {self.KontoDepot.getWPName(isin)}"
+
+        liste = [self.DataObj.AktDat_datetime, ctext, wert_cent]
+
+        return liste
+    # end def
+    def berechneProtokollListeZinsKonto(self):
+        """
+        :return: liste
+        :return:
+        """
+        # Zinskontoaktion
+        tliste = self.KontoZins.holeLetztenDatenEintrag()
+
+        datum = htvar.get_val_from_list(tliste,
+                                        self.KontoZins.NAME_DATUM,
+                                        self.KontoZins.TYPE_DATUM)
+        wert = htvar.get_val_from_list(tliste,
+                                         self.KontoZins.NAME_WERT,
+                                         self.KontoZins.TYPE_WERT)
+        summe = htvar.get_val_from_list(tliste,
+                                        self.KontoZins.NAME_SUMME,
+                                        self.KontoZins.TYPE_SUMME)
+
+        if datum == self.DataObj.AktDat_datetime:
+
+            if wert > 0:
+
+                ctext = f"ZinsEinzahl:{wert}"
+                wert_cent = wert
+            else:
+                ctext = f"ZinsAuszahl:{-wert}"
+                wert_cent = -wert
+            # end if
+        else:
+
+            ctext = f"ZinsHalten {summe}"
+            wert_cent = summe
+        # end if
+
+        ctext = f"{ctext}"
+
+        liste = [self.DataObj.AktDat_datetime, ctext, wert_cent]
+
+        return liste
+    # end def
+    def berechneProtokollListeVerrechnungsKonto(self):
+        """
+
+        :return:
+        """
+        # Zinskontoaktion
+        tliste = self.KontoVerrechnung.holeLetztenDatenEintrag()
+
+        datum = htvar.get_val_from_list(tliste,
+                                        self.KontoVerrechnung.NAME_DATUM,
+                                        self.KontoVerrechnung.TYPE_DATUM)
+        wert = htvar.get_val_from_list(tliste,
+                                         self.KontoVerrechnung.NAME_WERT,
+                                         self.KontoVerrechnung.TYPE_WERT)
+        summe = htvar.get_val_from_list(tliste,
+                                        self.KontoVerrechnung.NAME_SUMME,
+                                        self.KontoVerrechnung.TYPE_SUMME)
+
+        if datum == self.DataObj.AktDat_datetime:
+
+            if wert > 0:
+
+                ctext = f"VerrechnungEinzahl:{wert}"
+                wert_cent = wert
+            else:
+                ctext = f"VerrechnungAuszahl:{-wert}"
+                wert_cent = -wert
+            # end if
+        else:
+
+            ctext = f"VerrechnungHalten {summe}"
+            wert_cent = summe
+        # end if
+
+        ctext = f"{ctext}"
+
+        liste = [self.DataObj.AktDat_datetime, ctext, wert_cent]
+
+        return liste
+    # end def
+    def ErstelleTabelleProtokoll(self):
+        """
+
+        :return: ttable
+        """
+
+        return self.ProtokollDataSet.get_data_set_to_store_ttable()
+    # end def
 # end class
