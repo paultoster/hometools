@@ -862,6 +862,9 @@ class HandleDictListe:
         # end if
         return
     # end def
+    def get_len_of_liste(self):
+        return len(self.DictList)
+    # end def
     def erase_dict_by_index(self,index):
         """
         Lösche dict raus del self.DictList[index]

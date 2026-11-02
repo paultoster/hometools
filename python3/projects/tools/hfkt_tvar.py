@@ -202,7 +202,7 @@ def build_val(name: str,val: any,type: str,type_store: str=None):
         # end if
     # end if
 # end def
-def build_list(names: list, vals: list, types: list, types_store: list=None):
+def build_list(names: list, vals: list, types: list, types_store: list=None, units: list=None):
     '''
     
     :param names:
@@ -221,6 +221,8 @@ def build_list(names: list, vals: list, types: list, types_store: list=None):
     nnames = [None for i in range(n)]
     vvals =  [None for i in range(n)]
     ttypes =  [None for i in range(n)]
+    uunits =  [None for i in range(n)]
+
     if types_store is None: # proof
         
         for i in range(n):
@@ -234,6 +236,8 @@ def build_list(names: list, vals: list, types: list, types_store: list=None):
             else:
                 vvals[i] = wert
                 ttypes[i] = types[i]
+                if units is not None:
+                    uunits[i] = units[i]
             # end if
         # rnf for
         
@@ -250,9 +254,12 @@ def build_list(names: list, vals: list, types: list, types_store: list=None):
             else:
                 vvals[i] = wert
                 ttypes[i] = types_store[i]
+                if units is not None:
+                    uunits[i] = units[i]
+
             # end if
     # end if
-    return TList(names=nnames,vals=vvals,types=ttypes)
+    return TList(names=nnames,vals=vvals,types=ttypes,units=uunits)
 # end def
 def build_default_list(names: list,types: list):
     '''
@@ -279,9 +286,9 @@ def build_empty_table(names: list, types:list, types_store:list=None):
              obj = hfkt_tvar.build_empty_table(names,table,types,types_store)
     """
 
-    return build_table(names,[], types, types_store)
+    return build_table(names,[], types, types_store,units=None)
 # end def
-def build_table(names: list, table: list, types:list, types_store:list=None):
+def build_table(names: list, table: list, types:list, types_store:list=None,units=None):
     '''
     
     :param names:
@@ -290,14 +297,15 @@ def build_table(names: list, table: list, types:list, types_store:list=None):
     :param types_store:
     :return: obj = hfkt_tvar.build_table(names,table,types)
              obj = hfkt_tvar.build_table(names,table,types,types_store)
+             obj = hfkt_tvar.build_table(names,table,types,types_store,units)
     '''
     
     ntable = len(table)
     if ntable == 0:
         if types_store is None:
-            return TTable(names=names, table=[], types=types)
+            return TTable(names=names, table=[], types=types, units=units)
         else:
-            return TTable(names=names, table=[], types=types_store)
+            return TTable(names=names, table=[], types=types_store, units=units)
         raise Exception(
             f"Error build_table: table is empty")
     # end if
@@ -310,6 +318,7 @@ def build_table(names: list, table: list, types:list, types_store:list=None):
     nnames = [None for i in range(n)]
     ttable = []
     ttypes = [None for i in range(n)]
+    uunits = [None for i in range(n)]
     if types_store is None:  # proof
         
         # first row of table:
@@ -326,6 +335,8 @@ def build_table(names: list, table: list, types:list, types_store:list=None):
             else:
                 vvals[i] = wert
                 ttypes[i] = types[i]
+                if units is not None:
+                    uunits[i] = units[i]
             # end if
         # end for
         ttable.append(vvals)
@@ -361,6 +372,8 @@ def build_table(names: list, table: list, types:list, types_store:list=None):
             else:
                 vvals[i] = wert
                 ttypes[i] = types_store[i]
+                if units is not None:
+                    uunits[i] = units[i]
             # end if
         # end ofr
         ttable.append(vvals)
@@ -380,7 +393,7 @@ def build_table(names: list, table: list, types:list, types_store:list=None):
             # end ofr
         # end for
     # end if
-    return TTable(names=nnames, table=ttable, types=ttypes)
+    return TTable(names=nnames, table=ttable, types=ttypes, units=uunits)
 # end def
 def build_table_from_list(tlist,types_store= None):
     '''
@@ -1136,7 +1149,7 @@ def transform_icol_list(tlist,new_name_list):
         vals_new.append(vals[i])
     # end for
     
-    return build_list(new_name_list, vals_new, types_new,units_new)
+    return build_list(new_name_list, vals_new, types_new,types_store=None,units=units_new)
 # end def
 def transform_type_list(tlist,new_type_list):
     '''
@@ -1192,7 +1205,7 @@ def transform_icol_table(ttable,new_name_list):
         table_new.append(vals_new)
     # end for
     
-    return build_table(new_name_list,table_new,types_new,units_new)
+    return build_table(new_name_list,table_new,types_new,None,units_new)
 # end def
 def transform_type_table(ttable,new_type_list):
     '''
@@ -1437,7 +1450,12 @@ def save(t: TVal|TList|TTable,filename:str):
 # end def
 def table_has_units(ttable):
 
+    if ttable.units is None:
+        return False
     for unit in ttable.units:
+        if unit is None:
+            return False
+        # end if
         if len(unit) > 0:
             return True
         # end if

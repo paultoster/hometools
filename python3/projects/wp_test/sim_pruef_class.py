@@ -148,6 +148,15 @@ class WPPruef:
         # Aufteilen in die Gruppen
         WPObj_liste = [self.WPscreDictListObj.get_obj_items_eq("ISIN", self.Parobj.ScreKat[grup]) for grup in gruppen_liste]
 
+        # Gruppen ohne ISINs rausschmeissen
+        WPObj_liste_neu = []
+        for wpobj in WPObj_liste:
+            if wpobj.get_len_of_liste() > 0:
+                WPObj_liste_neu.append(wpobj)
+            # end if
+        # end for
+        WPObj_liste = WPObj_liste_neu
+
         # Sortieren nach RANKING kleinster nach vorne
         WPObj_liste = self.sort_WPObj_liste_by_ranking(WPObj_liste)
 
@@ -232,7 +241,11 @@ class WPPruef:
             WPObj_liste[i].sor_by_item("RANKING")
             lliste.append([i, WPObj_liste[i].get_value(0, "RANKING")])
         # end for
-        lliste = hlist.sort_list_of_list(lliste, 1)
+        try:
+            lliste = hlist.sort_list_of_list(lliste, 1)
+        except:
+            a = 0
+
         obj2List = [None] * len(WPObj_liste)
         for index,liste in enumerate(lliste):
             i = liste[0]
@@ -304,7 +317,7 @@ class WPPruef:
 
             for brliste in BestRang_lliste:
 
-                if icount <= n:
+                if icount < n:
                     WPObj_liste_neu.append(WPObj_liste[brliste[0]])
                 else:
                     WPObj_looser_liste.append(WPObj_liste[brliste[0]])

@@ -243,7 +243,11 @@ class WPErg:
         start_time = time.perf_counter()
 
         # Zielgröße für Minimum
-        ziel_value = 1./single_data_obj.median_zins/100. + single_data_obj.median_std
+        if hasattr(single_data_obj,"median_zins") and hasattr(single_data_obj,"median_std"):
+            ziel_value = 1./single_data_obj.median_zins/100. + single_data_obj.median_std
+        else:
+            ziel_value = 0.
+        # end if
         single_data_obj.add_signal(ziel_value, "ziel_value")
 
 
@@ -933,7 +937,11 @@ class WPErg:
                  htype.type_transform_direct(single_data_obj.relvkmax_mean, "float", "percentStr")],
                 ["AnzahlDealsGesamt",
                  htype.type_transform_direct(single_data_obj.anzahl_deals_gesamt, "int", "int")],
+                ["ziel_value",
+                 getattr(single_data_obj, "ziel_value")],
                 ]
+
+
 
         mdobj.add_table(headers, rows)
         mdobj.add_paragraph("---")
@@ -1030,11 +1038,18 @@ class WPErg:
         mdobj.add_paragraph("---")
         # Plots von WPs
         rows = []
-        headers = ["isin","name","deals"]
+        headers = ["isin","name","deals","start"]
+
+
         for i,isin in np.ndenumerate(np_data_obj.np_depot_wp_isin_array):
+
+            name_dat_array = f"np_wp_dat_{isin}_array"
+            np_dat_array   = getattr(np_data_obj, name_dat_array)
+
             rows.append([isin,
                          np_data_obj.np_depot_wp_namen_array[i[0]],
-                         np_data_obj.np_depot_anzahl_deals_isin_array[i[0]]])
+                         np_data_obj.np_depot_anzahl_deals_isin_array[i[0]],
+                         htype.type_transform_direct(np_dat_array[0], "dat", "datStrP")])
         # end ofr
 
         mdobj.add_table(headers, rows)
