@@ -79,24 +79,30 @@ class WPKonto:
     NAME_PROTOKOLL_TAB_DATUM  = "Datum"
     NAME_PROTOKOLL_TAB_AKTION = "Comment"
     NAME_PROTOKOLL_TAB_WERT   = "Wert"
+    NAME_PROTOKOLL_TAB_SUMME   = "Summe"
     HEADER_PROTOKOLL_TAB_LISTE = [NAME_PROTOKOLL_TAB_DATUM,
-                               NAME_PROTOKOLL_TAB_AKTION,
-                               NAME_PROTOKOLL_TAB_WERT]
+                                  NAME_PROTOKOLL_TAB_AKTION,
+                                  NAME_PROTOKOLL_TAB_WERT,
+                                  NAME_PROTOKOLL_TAB_SUMME]
 
 
     TYPE_PROTOKOLL_TAB_DATUM = "datetimeclass"
     TYPE_PROTOKOLL_TAB_AKTION = "str"
     TYPE_PROTOKOLL_TAB_WERT = "cent"
+    TYPE_PROTOKOLL_TAB_SUMME = "cent"
     TYPE_PROTOKOLL_TAB_LISTE = [TYPE_PROTOKOLL_TAB_DATUM,
                                 TYPE_PROTOKOLL_TAB_AKTION,
-                                TYPE_PROTOKOLL_TAB_WERT]
+                                TYPE_PROTOKOLL_TAB_WERT,
+                                TYPE_PROTOKOLL_TAB_SUMME]
 
     TYPE_PROTOKOLL_STORE_DATUM = "datStrP"
     TYPE_PROTOKOLL_STORE_AKTION = "str"
     TYPE_PROTOKOLL_STORE_WERT = "euroStrK"
+    TYPE_PROTOKOLL_STORE_SUMME = "euroStrK"
     TYPE_PROTOKOLL_STORE_LISTE = [TYPE_PROTOKOLL_STORE_DATUM,
                                   TYPE_PROTOKOLL_STORE_AKTION,
-                                  TYPE_PROTOKOLL_STORE_WERT]
+                                  TYPE_PROTOKOLL_STORE_WERT,
+                                  TYPE_PROTOKOLL_STORE_SUMME]
 
 
     def __init__(self,parobj,dataobj) -> None:
@@ -760,6 +766,10 @@ class WPKonto:
 
         return
     # end def
+    def getListeKaufDatum(self,isin,type):
+        return self.KontoDepot.getListeKaufDatum(isin,type)
+    def getListeVerkaufDatum(self,isin,type):
+        return self.KontoDepot.getListeVerkaufDatum(isin,type)
     def getListeRelVKDepot(self,isin):
         return self.KontoDepot.getListeRelVK(isin)
     # end de
@@ -780,7 +790,7 @@ class WPKonto:
         """
 
         ctext = "Protokollausgabe"
-        data_set_liste = [self.DataObj.AktDat_datetime, ctext, 0]
+        data_set_liste = [self.DataObj.AktDat_datetime, ctext, 0,0]
 
         status = self.ProtokollDataSet.add_data_set_liste(data_set_liste,
                                                           self.HEADER_PROTOKOLL_TAB_LISTE,
@@ -794,20 +804,37 @@ class WPKonto:
 
 
         # letzte Depotaktivität
-        isin_liste = self.KontoDepot.bildeListeAktiveISINs()
+        isin_liste = self.KontoDepot.bildeListeGesamtISINs()
 
         for isin in isin_liste:
 
-            data_set_liste = self.berechneProtokollListeDEpot(isin)
+            tliste = self.KontoDepot.holeLetztenDatenEintrag(isin)
 
-            status = self.ProtokollDataSet.add_data_set_liste(data_set_liste,
-                                                       self.HEADER_PROTOKOLL_TAB_LISTE,
-                                                       self.TYPE_PROTOKOLL_TAB_LISTE)
-            if status != hdef.OKAY:
-                self.Parobj.status = hdef.NOT_OKAY
-                self.Parobj.errtext = self.ProtokollDataSet.get_errtext()
-                self.ProtokollDataSet.reset_status()
-                return
+            anzahl = htvar.get_val_from_list(tliste,
+                                             self.KontoDepot.NAME_ANZAHL,
+                                             self.KontoDepot.TYPE_ANZAHL)
+            summe = htvar.get_val_from_list(tliste,
+                                            self.KontoDepot.NAME_SUMMEANZAHL,
+                                            self.KontoDepot.TYPE_SUMMEANZAHL)
+            datum = htvar.get_val_from_list(tliste,
+                                            self.KontoDepot.NAME_DATUM,
+                                            self.KontoDepot.TYPE_DATUM)
+
+            if (anzahl != 0) or (summe != 0):
+
+                data_set_liste = self.berechneProtokollListeDEpot(isin,anzahl,summe,datum)
+
+
+
+                status = self.ProtokollDataSet.add_data_set_liste(data_set_liste,
+                                                           self.HEADER_PROTOKOLL_TAB_LISTE,
+                                                           self.TYPE_PROTOKOLL_TAB_LISTE)
+                if status != hdef.OKAY:
+                    self.Parobj.status = hdef.NOT_OKAY
+                    self.Parobj.errtext = self.ProtokollDataSet.get_errtext()
+                    self.ProtokollDataSet.reset_status()
+                    return
+                # end if
             # end if
         # end for
 
@@ -839,26 +866,35 @@ class WPKonto:
 
         return
     # end def
-    def berechneProtokollListeDEpot(self,isin):
+    def berechneProtokollListeDEpot(self,isin,anzahl,summe,datum):
         """
 
         :param isin:
         :return: liste
         """
 
-        tliste = self.KontoDepot.holeLetztenDatenEintrag(isin)
-
-        datum = htvar.get_val_from_list(tliste,
-                                        self.KontoDepot.NAME_DATUM,
-                                        self.KontoDepot.TYPE_DATUM)
-        anzahl = htvar.get_val_from_list(tliste,
-                                         self.KontoDepot.NAME_ANZAHL,
-                                         self.KontoDepot.TYPE_ANZAHL)
-        summe = htvar.get_val_from_list(tliste,
-                                        self.KontoDepot.NAME_SUMMEANZAHL,
-                                        self.KontoDepot.TYPE_SUMMEANZAHL)
+        # tliste = self.KontoDepot.holeLetztenDatenEintrag(isin)
+        #
+        # datum = htvar.get_val_from_list(tliste,
+        #                                 self.KontoDepot.NAME_DATUM,
+        #                                 self.KontoDepot.TYPE_DATUM)
+        # anzahl = htvar.get_val_from_list(tliste,
+        #                                  self.KontoDepot.NAME_ANZAHL,
+        #                                  self.KontoDepot.TYPE_ANZAHL)
+        # summe = htvar.get_val_from_list(tliste,
+        #                                 self.KontoDepot.NAME_SUMMEANZAHL,
+        #                                 self.KontoDepot.TYPE_SUMMEANZAHL)
 
         kurs = self.DataObj.WPScreDictListObj.get_value_from_dict("KURS",
+                                                                  "ISIN",
+                                                                  isin)
+        rank = self.DataObj.WPScreDictListObj.get_value_from_dict("RANKING",
+                                                                  "ISIN",
+                                                                  isin)
+        kauf = self.DataObj.WPScreDictListObj.get_value_from_dict("KAUFEN",
+                                                                  "ISIN",
+                                                                  isin)
+        vkauf = self.DataObj.WPScreDictListObj.get_value_from_dict("VERKAUFEN",
                                                                   "ISIN",
                                                                   isin)
 
@@ -866,21 +902,24 @@ class WPKonto:
 
             if anzahl > 0:
 
-                ctext = f"WPkaufe:{anzahl}"
+                ctext = f"Kaufen n{anzahl}/r{rank}/k{kauf}/v{vkauf}"
                 wert_cent = int(kurs * anzahl * 100. + 0.5)
+                wert_summe = int(kurs * summe * 100. + 0.5)
             else:
-                ctext = f"WPverk:{-anzahl}"
+                ctext = f"Verkaufen n{-anzahl}/r{rank}/k{kauf}/v{vkauf}"
                 wert_cent = int(kurs * (-anzahl) * 100. + 0.5)
+                wert_summe = int(kurs * summe * 100. + 0.5)
             # end if
         else:
 
-            ctext = f"WPhalten {summe}"
-            wert_cent = int(kurs * summe * 100. + 0.5)
+            ctext = f"Halten n{summe}/r{rank}/k{kauf}/v{vkauf}"
+            wert_cent = 0
+            wert_summe = int(kurs * summe * 100. + 0.5)
         # end if
 
         ctext = f"{ctext} {isin} {self.KontoDepot.getWPName(isin)}"
 
-        liste = [self.DataObj.AktDat_datetime, ctext, wert_cent]
+        liste = [self.DataObj.AktDat_datetime, ctext, wert_cent,wert_summe]
 
         return liste
     # end def
@@ -906,21 +945,18 @@ class WPKonto:
 
             if wert > 0:
 
-                ctext = f"ZinsEinzahl:{wert}"
-                wert_cent = wert
+                ctext = f"ZinsEinzahl:"
             else:
-                ctext = f"ZinsAuszahl:{-wert}"
-                wert_cent = -wert
+                ctext = f"ZinsAuszahl:"
             # end if
         else:
 
-            ctext = f"ZinsHalten {summe}"
-            wert_cent = summe
+            ctext = f"ZinsHalten"
         # end if
 
         ctext = f"{ctext}"
 
-        liste = [self.DataObj.AktDat_datetime, ctext, wert_cent]
+        liste = [self.DataObj.AktDat_datetime, ctext, wert, summe]
 
         return liste
     # end def
@@ -946,21 +982,18 @@ class WPKonto:
 
             if wert > 0:
 
-                ctext = f"VerrechnungEinzahl:{wert}"
-                wert_cent = wert
+                ctext = f"VerrechnungEinzahl:"
             else:
-                ctext = f"VerrechnungAuszahl:{-wert}"
-                wert_cent = -wert
+                ctext = f"VerrechnungAuszahl:"
             # end if
         else:
 
-            ctext = f"VerrechnungHalten {summe}"
-            wert_cent = summe
+            ctext = f"VerrechnungHalten"
         # end if
 
         ctext = f"{ctext}"
 
-        liste = [self.DataObj.AktDat_datetime, ctext, wert_cent]
+        liste = [self.DataObj.AktDat_datetime, ctext, wert, summe]
 
         return liste
     # end def

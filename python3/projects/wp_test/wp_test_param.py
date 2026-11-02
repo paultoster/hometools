@@ -63,7 +63,46 @@ import tools.hfkt_file_path as hfp
 
 PARAMETERFILE = ""
 
+import os
+import yaml
 
+
+def yaml_include(loader, node):
+    """Constructor für das !include Tag.
+    Löst Pfade relativ zur aktuellen YAML-Datei auf.
+    """
+    # Holt den Dateinamen aus dem YAML-Knoten
+    filename = loader.construct_scalar(node)
+
+    # Ermittelt das Verzeichnis der aktuellen Haupt-YAML-Datei
+    base_dir = os.path.dirname(loader.name) if loader.name else os.getcwd()
+    full_path = os.path.join(base_dir, filename)
+
+    with open(full_path, 'r', encoding='utf-8') as f:
+        # Nutzt safe_load, um Sicherheitsrisiken zu vermeiden
+        return yaml.safe_load(f)
+
+
+# Registriert das !include Tag für den SafeLoader
+yaml.add_constructor('!include', yaml_include, Loader=yaml.SafeLoader)
+
+
+# class Loader(yaml.SafeLoader):
+#
+#     def __init__(self, stream):
+#
+#         self._root = os.path.split(stream.name)[0]
+#
+#         super(Loader, self).__init__(stream)
+#
+#     def include(self, node):
+#
+#         filename = os.path.join(self._root, self.construct_scalar(node))
+#
+#         with open(filename, 'r') as f:
+#             return yaml.load(f, Loader)
+#
+# Loader.add_constructor('!include', Loader.include)
 
 def set_param(mobj,param_filename):
     """
@@ -91,7 +130,15 @@ def set_param(mobj,param_filename):
         where = f" at line {mark.line + 1}, column {mark.column + 1}" if mark else ""
         mobj.status = hdef.NOT_OKAY
         mobj.errtext = f"invalid YAML in {path}{where}: {getattr(exc, 'problem', exc)}"
+        return (None, None)
     # end try
+
+    if "database" in par_raw_dict.keys():
+        for key in par_raw_dict["database"].keys():
+            par_raw_dict[key] = par_raw_dict["database"][key]
+        # end of
+        del par_raw_dict["database"]
+    # end if
 
     par_liste = []
 

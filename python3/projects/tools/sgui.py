@@ -1819,6 +1819,50 @@ def abfrage_file(file_types="*.*", comment=None, start_dir=None, default_extensi
 
 
 # enddef
+def abfrage_files(file_types="*.*", comment=None, start_dir=None, default_extension=None, file_names=None):
+    """
+    filename = abfrage_file (FileSelectBox) um ein bestehendes Fiele einzuladen mit folgenden Parameter
+    file_types = ["*.c","*.h"]      Filetypen (auch feste namen möglich "abc.py")
+    comment    = "Suche Datei"  Windows Leisten text
+    start_dir  = "d:\\abc"	Anfangspfad
+    default_extension = "txt"
+    file_names = ["C-Files","H-Files"]
+
+    """
+    ##    root = tkinter.ttk.Tk()
+    ##    f = SFileSelectBox(root,file_types,comment,start_dir)
+    ##    f.mainloop()
+    ##    f.destroy()
+    ##    return f.SELECTED_FILE
+
+    if (default_extension and h.such(default_extension, ".", "vs") != 0):
+        default_extension = "." + default_extension
+
+    if (isinstance(file_types, str)):
+        file_types = [file_types]
+
+    format_liste = []
+    if (file_names and isinstance(file_names, str)):
+        file_names = [file_names]
+    for i in range(len(file_types)):
+        if (file_names and i < len(file_names)):
+            format_liste.append([file_types[i], file_names[i]])
+        else:
+            format_liste.append((file_types[i], file_types[i]))
+
+    root = tkinter.Tk()
+    names = tkinter.filedialog.askopenfilenames(master=root,
+                                              defaultextension=default_extension,
+                                              filetypes=format_liste,
+                                              initialdir=start_dir,
+                                              title=comment)
+    root.destroy()
+    names = [h.change(name, "/", os.sep) for name in names]
+
+    return names
+
+
+# enddef
 def radiobutton_dialog(auswahl_liste,title="Auswahl"):
     """
     Auswahl is auswahl_liste[index], wenn index != -1 Cancel)

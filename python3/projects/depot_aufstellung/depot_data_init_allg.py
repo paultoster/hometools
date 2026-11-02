@@ -12,7 +12,7 @@ if (tools_path not in sys.path):
 import tools.hfkt_def as hdef
 # import tools.hfkt_type as htype
 import tools.hfkt_pickle as hpickle
-# import tools.hfkt_tvar as htvar
+import tools.hfkt_io as hio
 
 
 import wp_abfrage.wp_base as wp_base
@@ -105,7 +105,7 @@ def read(rd):
     # ----------------------------------------
     if os.path.isfile(rd.ini.ddict[rd.par.INI_KONTO_KAT_JSON_FILE_NAME]):
         
-        allg.kat_json_obj = hpickle.DataJson(rd.ini.ddict[rd.par.INI_KONTO_KAT_JSON_FILE_NAME])
+        allg.kat_json_obj = hio.DataJson(rd.ini.ddict[rd.par.INI_KONTO_KAT_JSON_FILE_NAME])
         
         if rd.ini.ddict[rd.par.INI_DATA_PICKLE_MAKE_BACKUP]:
             path_backup = rd.ini.ddict[rd.par.INI_BACKUP_PATH]

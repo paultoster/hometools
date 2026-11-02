@@ -1,4 +1,5 @@
 import os, sys, copy
+import datetime
 
 t_path, _ = os.path.split(__file__)
 tools_path = t_path + "\\.."
@@ -38,7 +39,10 @@ class WPPruef:
 
         if self.Parobj.DepotKontoPruefung:
 
-            self.WPscreDictListObj = copy.copy(self.DataObj.WPScreDictListObj)
+            self.WPscreDictListObj = copy.deepcopy(self.DataObj.WPScreDictListObj)
+
+            if self.DataObj.AktDat_datetime == datetime.datetime(2024, 6, 27, 0, 0):
+                a = 0
 
             self.pruefe_verkauf()
             if self.Parobj.status != hdef.OKAY:
@@ -86,20 +90,22 @@ class WPPruef:
 
         liste_isin_im_depot = self.KontoObj.bildeAktivesDepotISINListe()
 
-        verkaufs_index_liste = self.WPscreDictListObj.get_obj_items_eq("ISIN", liste_isin_im_depot).get_index_list_items_gt("VERKAUFEN",0)
+        verkaufs_index_liste = self.WPscreDictListObj.get_index_list_items_gt("VERKAUFEN", 0,"ISIN",liste_isin_im_depot)
+
 
         # Verkaufen und aus liste löschen
-        for index in reversed(verkaufs_index_liste):
+        for index in verkaufs_index_liste:
+
 
             self.KontoObj.verkaufeAusDepot(self.WPscreDictListObj.get_value(index,"ISIN"),
                                            self.WPscreDictListObj.get_value(index,"KURS"),
                                            anzahl = None)
             if self.Parobj.status != hdef.OKAY:
                 return
-            self.WPscreDictListObj.erase_dict_by_index(index)
-
         # end for
-
+        for index in reversed(verkaufs_index_liste):
+            self.WPscreDictListObj.erase_dict_by_index(index)
+        # end for
         return
     # end def
     def pruefe_verbleib(self):
@@ -116,7 +122,8 @@ class WPPruef:
         for grup in gruppen_liste:
             depot_gruppen_isin_dict[grup] = []
             depot_gruppen_anzahl_dict[grup] = 0
-            for isin in liste_isin_im_depot:
+            for isin in self.Parobj.ScreKat[grup]:
+            # for isin in liste_isin_im_depot:
                 if isin in self.Parobj.ScreKat[grup]:
                     depot_gruppen_isin_dict[grup].append(isin)
                     depot_gruppen_anzahl_dict[grup] += 1
@@ -147,7 +154,9 @@ class WPPruef:
         # Gruppenaufteilung
         # jetz muss geschaut werden, wieviele in der jeweiligen Gruppe investiert sind, da smuss von NAuswahlWPGruppe abgezogen werden
         # d.h. Aufteilen
-        (WPObj_liste,WPObj_looser_liste) = self.gruppen_begrenzungs_aufteilung(WPObj_liste,self.Parobj.NAuswahlWPGruppe)
+        (WPObj_liste,WPObj_looser_liste) = self.gruppen_begrenzungs_aufteilung(WPObj_liste,
+                                                                               self.Parobj.NAuswahlWPGruppe,
+                                                                               depot_gruppen_isin_dict)
 
 
         # Aufteilung innerhalb der Gruppe
@@ -236,7 +245,10 @@ class WPPruef:
         # end for
         return obj2List
     # end def
-    def gruppen_begrenzungs_aufteilung(self,WPObj_liste,nmax):
+    def gruppen_begrenzungs_aufteilung(self,
+                                       WPObj_liste,
+                                       nmax,
+                                       depot_gruppen_isin_dict):
 
         # if nmax < len(obj_liste):
         #     obj_looser_liste = obj_liste[nmax:]
@@ -247,23 +259,60 @@ class WPPruef:
         # return (obj_liste,obj_looser_liste)
         WPObj_liste_neu = []
         WPObj_looser_liste = []
-        ngruppen = 0
-        for wpobj in WPObj_liste:
 
+
+
+        ngruppen = len(depot_gruppen_isin_dict.keys())
+
+
+        if ngruppen == nmax:
+            WPObj_liste_neu = WPObj_liste
+            WPObj_looser_liste = []
+        else:
+
+            # alle die im Depot sind bleiben
             if self.Parobj.WPTriggerVerkauf == "Vsig":
-                anzahl = wpobj.berechne_anzahl_mit_value("IMDEPOT", True)
-            else:
-                anzahl = 0
-            # end if
-            n = max(0,nmax - anzahl)
 
-            if n > 0 and ngruppen < self.Parobj.NAuswahlWPGruppe:
-                WPObj_liste_neu.append(wpobj)
+                n = nmax
+                index_liste = []
+                for i,wpobj in enumerate(WPObj_liste):
+
+                    anzahl = wpobj.berechne_anzahl_mit_value("IMDEPOT", True)
+
+                    if anzahl > 0:
+                        WPObj_liste_neu.append(wpobj)
+                        index_liste.append(i)
+                        n -= 1
+                    # end if
+                # end for
+                for i in sorted(index_liste,reverse=True):
+                    del WPObj_liste[i]
+                # end for
             else:
-                WPObj_looser_liste.append(wpobj)
+                n = nmax
             # end if
-            ngruppen += 1
-        # end for
+
+            # BestRangliste von jeder gruppe
+            BestRang_lliste = [(0,0)] * len(WPObj_liste)
+            icount = 0
+            for i, wpobj in enumerate(WPObj_liste):
+                wpobj.sor_by_item("RANKING")
+                BestRang_lliste[i] = (i,wpobj.get_value(0, "RANKING"))
+            # end for
+
+            BestRang_lliste = hlist.sort_list_of_list(BestRang_lliste, 1)
+
+            for brliste in BestRang_lliste:
+
+                if icount <= n:
+                    WPObj_liste_neu.append(WPObj_liste[brliste[0]])
+                else:
+                    WPObj_looser_liste.append(WPObj_liste[brliste[0]])
+                # end if
+
+                icount += 1
+            # end if
+        # end if
         WPObj_liste = WPObj_liste_neu
         return (WPObj_liste, WPObj_looser_liste)
     # end def

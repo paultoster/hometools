@@ -1,4 +1,4 @@
-import os, sys, math
+import os, sys, time
 
 import numpy as np
 
@@ -19,6 +19,7 @@ import tools.hfkt_np_fkt as hnpfkt
 import tools.hfkt_type as htype
 import tools.hfkt_tvar as htvar
 import tools.sgui as sgui
+import tools.hfkt_single_dataclass as hsdclass
 
 class WPErg:
     """
@@ -87,6 +88,9 @@ class WPErg:
         # np_data-File
         self.NpDataFilename = os.path.join(self.ErgPath,
                                 self.Parobj.np_datei_name + ".joblib")
+        self.SingeDataFilename = os.path.join(self.ErgPath,
+                                self.Parobj.single_datei_name + ".joblib")
+
         # np_data-File
         self.PlotEuroFilename = os.path.join(self.ErgPath,
                                 self.Parobj.plot_euro_datei_name + ".png")
@@ -153,46 +157,129 @@ class WPErg:
     # end def
     def erstelleErgebnisse(self):
 
+        # numpy-Dateset anlegen
+        np_data_obj = hnpclass.NpDataHandlingClass(self.NpDataFilename)
+        single_data_obj = hsdclass.SingleDataHandlingClass(self.SingeDataFilename)
+
+        single_data_obj.add_signal(self.Parobj.SimName, "sim_name")
+        single_data_obj.add_signal(self.ErgPath, "erg_path")
+
+        print(f"Starte Trace Tabelle !!!")
+        start_time = time.perf_counter()
+
         # erstelle Trace jeden deals zur Auswertung
         self.KontoObj.bildeDepotTraceTabelle()
 
+        end_time = time.perf_counter()
+        print(f"End Trace Tabelle: {end_time - start_time:.6f} Sekunden")
+        print(f"Starte cash, steuer und kosten !!!")
+        start_time = time.perf_counter()
+
         # cash, steuer und kosten in arrays
-        np_data_obj = self.do_np_data()
+        np_data_obj = self.do_np_data(np_data_obj)
+
+        end_time = time.perf_counter()
+        print(f"End cash, steuer und kosten: {end_time - start_time:.6f} Sekunden")
+        print(f"Starte Konto-Tabellen aus !!!")
+        start_time = time.perf_counter()
 
         # gebe Konto-Tabellen aus
         self.do_csv_output_konto_data()
 
+        end_time = time.perf_counter()
+        print(f"End Konto-Tabellen aus: {end_time - start_time:.6f} Sekunden")
+        print(f"Starte Zinskurve !!!")
+        start_time = time.perf_counter()
+
         # Bilde Zinskurve mean und median
-        np_data_obj = self.do_zins_curve(np_data_obj)
+        (np_data_obj,single_data_obj) = self.do_zins_curve(np_data_obj,single_data_obj)
+
+        end_time = time.perf_counter()
+        print(f"End Zinskurve: {end_time - start_time:.6f} Sekunden")
+        print(f"Starte Schwankung und min/max-abweichung !!!")
+        start_time = time.perf_counter()
 
         # Schaue auf Schwankung und min/max-abweichung
-        np_data_obj = self.do_std_min_max(np_data_obj)
+        single_data_obj = self.do_std_min_max(np_data_obj,single_data_obj)
+
+        end_time = time.perf_counter()
+        print(f"End Schwankung und min/max-abweichung: {end_time - start_time:.6f} Sekunden")
+        print(f"Starte Änderung Jahr für Jahr auf !!!")
+        start_time = time.perf_counter()
 
         # Gib Änderung Jahr für Jahr auf
         np_data_obj = self.do_change_year_by_year(np_data_obj)
 
+        end_time = time.perf_counter()
+        print(f"End Änderung Jahr für Jahr auf: {end_time - start_time:.6f} Sekunden")
+        print(f"Starte Depot verläufe und WP-Verläüfe !!!")
+        start_time = time.perf_counter()
+
         # Depot verläufe und WP-Verläüfe
         np_data_obj = self.do_depot_trace_und_wp_verlauf(np_data_obj)
 
+        end_time = time.perf_counter()
+        print(f"End Depot verläufe und WP-Verläüfe: {end_time - start_time:.6f} Sekunden")
+        print(f"Starte Häufigkeitsverteilung der Deals !!!")
+        start_time = time.perf_counter()
+
         # Häufigkeitsverteilung der Deals
-        np_data_obj = self.do_wp_deal_verlauf(np_data_obj)
+        (np_data_obj,single_data_obj) = self.do_wp_deal_verlauf(np_data_obj,single_data_obj)
+
+        end_time = time.perf_counter()
+        print(f"End Häufigkeitsverteilung der Deals: {end_time - start_time:.6f} Sekunden")
+        print(f"Starte Plotten !!!")
+        start_time = time.perf_counter()
 
         # Plotten
-        self.do_plot_euro(np_data_obj)
-        self.do_plot_prozent(np_data_obj)
+        self.do_plot_euro(np_data_obj,single_data_obj)
+        self.do_plot_prozent(np_data_obj,single_data_obj)
         self.do_plot_wp_verlauf(np_data_obj)
-        self.do_plot_wp_deal_haeufigkeit_plot(np_data_obj)
+        self.do_plot_wp_deal_haeufigkeit_plot(np_data_obj,single_data_obj)
+
+        end_time = time.perf_counter()
+        print(f"End Plotten: {end_time - start_time:.6f} Sekunden")
+        print(f"Starte Speichern !!!")
+        start_time = time.perf_counter()
+
+        # Zielgröße für Minimum
+        ziel_value = 1./single_data_obj.median_zins/100. + single_data_obj.median_std
+        single_data_obj.add_signal(ziel_value, "ziel_value")
+
 
         # Speichere array-datei
         np_data_obj.save()
+        ddict = {"np_dat_array":"datStrP",
+                 "np_dyears_array":"float",
+                 "np_cash_array":"euroStrK",
+                 "np_steuer_array":"euroStrK",
+                 "np_kosten_array":"euroStrK",
+                 "np_zins_array":"percentStr",
+                 "np_cash_mean_zins_array":"euroStrK",
+                 "np_cash_median_zins_array":"euroStrK",
+                 "np_years_dat_array":"datStrP",
+                 "np_years_cash_array":"euroStrK",
+                 "np_years_steuer_array":"euroStrK",
+                 "np_years_kosten_array":"euroStrK",
+                 }
+        # np_data_obj.save_to_csv(ddict)
+        single_data_obj.save()
+        single_data_obj.save_to_json()
+
+        end_time = time.perf_counter()
+        print(f"End Speichern: {end_time - start_time:.6f} Sekunden")
+        print(f"Starte Schreibe Ergebnis in md-File und bilde pdf !!!")
+        start_time = time.perf_counter()
 
         # Schreibe Ergebnis in md-File und bilde pdf
-        self.write_md_pdf(np_data_obj)
+        self.write_md_pdf(np_data_obj,single_data_obj)
 
+        end_time = time.perf_counter()
+        print(f"End Schreibe Ergebnis in md-File und bilde pdf: {end_time - start_time:.6f} Sekunden")
 
         return
     # end def
-    def do_np_data(self):
+    def do_np_data(self,np_data_obj):
         """
 
         :return: np_data_obj
@@ -203,8 +290,6 @@ class WPErg:
         # Dateiname array
         # ----------------
 
-        # numpy-Dateset anlegen
-        np_data_obj = hnpclass.NpDataHandlingClass(self.NpDataFilename)
 
         # Arrays aus Tabelle
         dat_liste = self.ErgDataSet.get_row_list_of_header(self.NAME_ERG_TAB_DATUM,
@@ -229,15 +314,6 @@ class WPErg:
         np_data_obj.add_signal(np_kosten_array, "np_kosten_array")
         np_data_obj.add_signal(np_zins_array, "np_zins_array")
 
-        # Datei speichern joblib und csv
-        np_data_obj.save()
-        ddict = {"np_dat_array":"datStrP",
-                 "np_dyears_array":"float",
-                 "np_cash_array":"euroStrK",
-                 "np_steuer_array":"euroStrK",
-                 "np_kosten_array":"euroStrK",
-                 "np_zins_array":"percentStr"}
-        np_data_obj.save_to_csv(ddict)
 
         return np_data_obj
     # end def
@@ -247,7 +323,7 @@ class WPErg:
         :return:
         """
         ttable = self.KontoObj.ErstelleSteuerTabelle()
-        status =  htvar.write_table_to_csv(ttable,self.ParKontoSteuerCsvFilename)
+        status =  htvar.write_table_to_excel(ttable,self.ParKontoSteuerCsvFilename)
         if status != hdef.OKAY:
             self.Parobj.status = hdef.NOT_OKAY
             self.Parobj.errtext = f"File : {self.ParKontoSteuerCsvFilename} konnte nicht erstellt werden"
@@ -255,7 +331,7 @@ class WPErg:
         # end if
 
         ttable = self.KontoObj.ErstelleTabelleKontoVerrechnung()
-        status =  htvar.write_table_to_csv(ttable,self.ParKontoVerrechnungCsvFilename)
+        status =  htvar.write_table_to_excel(ttable,self.ParKontoVerrechnungCsvFilename)
         if status != hdef.OKAY:
             self.Parobj.status = hdef.NOT_OKAY
             self.Parobj.errtext = f"File : {self.ParKontoVerrechnungCsvFilename} konnte nicht erstellt werden"
@@ -263,7 +339,7 @@ class WPErg:
         # end if
 
         ttable = self.KontoObj.ErstelleTabelleKontoZins()
-        status =  htvar.write_table_to_csv(ttable,self.ParKontoZinsCsvFilename)
+        status =  htvar.write_table_to_excel(ttable,self.ParKontoZinsCsvFilename)
         if status != hdef.OKAY:
             self.Parobj.status = hdef.NOT_OKAY
             self.Parobj.errtext = f"File : {self.ParKontoZinsCsvFilename} konnte nicht erstellt werden"
@@ -278,7 +354,7 @@ class WPErg:
             filename = os.path.join(self.ErgPath, f"konto_depot_{isin}.csv")
             ttable   = self.KontoObj.ErstelleTabelleKontoDepot(isin)
 
-            status =  htvar.write_table_to_csv(ttable,filename)
+            status =  htvar.write_table_to_excel(ttable,filename)
             if status != hdef.OKAY:
                 self.Parobj.status = hdef.NOT_OKAY
                 self.Parobj.errtext = f"File : {filename} konnte nicht erstellt werden"
@@ -292,7 +368,7 @@ class WPErg:
             filename = os.path.join(self.ErgPath, f"konto_depot_trace_{isin}.csv")
             ttable   = self.KontoObj.ErstelleTabelleKontoDepotTrace(isin)
 
-            status =  htvar.write_table_to_csv(ttable,filename)
+            status =  htvar.write_table_to_excel(ttable,filename)
             if status != hdef.OKAY:
                 self.Parobj.status = hdef.NOT_OKAY
                 self.Parobj.errtext = f"File : {filename} konnte nicht erstellt werden"
@@ -302,7 +378,7 @@ class WPErg:
 
         #Protokolldaten
         ttable = self.KontoObj.ErstelleTabelleProtokoll()
-        status =  htvar.write_table_to_csv(ttable,self.ParProtokolCsvFilename)
+        status =  htvar.write_table_to_excel(ttable,self.ParProtokolCsvFilename)
         if status != hdef.OKAY:
             self.Parobj.status = hdef.NOT_OKAY
             self.Parobj.errtext = f"File : {self.ParProtokolCsvFilename} konnte nicht erstellt werden"
@@ -311,7 +387,9 @@ class WPErg:
 
         return
     # end def
-    def do_zins_curve(self,np_data_obj):
+    def do_zins_curve(self,
+                      np_data_obj,
+                      single_data_obj):
         """
         np_data_obj = self.do_zins_curve(np_data_obj)
 
@@ -329,14 +407,14 @@ class WPErg:
                                                                   np_data_obj.np_cash_array)
 
         np_data_obj.add_signal(np_cash_mean_zins_array, "np_cash_mean_zins_array")
-        np_data_obj.add_signal(mean_zins, "mean_zins")
+        single_data_obj.add_signal(mean_zins, "mean_zins")
         np_data_obj.add_signal(np_cash_median_zins_array, "np_cash_median_zins_array")
-        np_data_obj.add_signal(median_zins, "median_zins")
+        single_data_obj.add_signal(median_zins, "median_zins")
 
 
-        return np_data_obj
+        return (np_data_obj,single_data_obj)
     # end def
-    def do_std_min_max(self,np_data_obj):
+    def do_std_min_max(self,np_data_obj,single_data_obj):
 
         Cash0 = np_data_obj.np_cash_array[0]
         if abs(Cash0) < 0.000001:
@@ -383,24 +461,24 @@ class WPErg:
         index = np.argmax(np_diff_array)
         median_diff_max = np_diff_array[index]
 
-        np_data_obj.add_signal(gesamt_delta_cash, "gesamt_delta_cash")
-        np_data_obj.add_signal(gesamt_rel_delta_cash, "gesamt_rel_delta_cash")
-        np_data_obj.add_signal(gesamt_steuer, "gesamt_steuer")
-        np_data_obj.add_signal(gesamt_rel_steuer, "gesamt_rel_steuer")
-        np_data_obj.add_signal(gesamt_kosten, "gesamt_kosten")
-        np_data_obj.add_signal(gesamt_rel_kosten, "gesamt_rel_kosten")
+        single_data_obj.add_signal(gesamt_delta_cash, "gesamt_delta_cash")
+        single_data_obj.add_signal(gesamt_rel_delta_cash, "gesamt_rel_delta_cash")
+        single_data_obj.add_signal(gesamt_steuer, "gesamt_steuer")
+        single_data_obj.add_signal(gesamt_rel_steuer, "gesamt_rel_steuer")
+        single_data_obj.add_signal(gesamt_kosten, "gesamt_kosten")
+        single_data_obj.add_signal(gesamt_rel_kosten, "gesamt_rel_kosten")
 
-        np_data_obj.add_signal(mean_std, "mean_std")
-        np_data_obj.add_signal(mean_neg_std, "mean_neg_std")
-        np_data_obj.add_signal(mean_diff_min, "mean_diff_min")
-        np_data_obj.add_signal(mean_diff_max, "mean_diff_max")
+        single_data_obj.add_signal(mean_std, "mean_std")
+        single_data_obj.add_signal(mean_neg_std, "mean_neg_std")
+        single_data_obj.add_signal(mean_diff_min, "mean_diff_min")
+        single_data_obj.add_signal(mean_diff_max, "mean_diff_max")
 
-        np_data_obj.add_signal(median_std, "median_std")
-        np_data_obj.add_signal(median_neg_std, "median_neg_std")
-        np_data_obj.add_signal(median_diff_min, "median_diff_min")
-        np_data_obj.add_signal(median_diff_max, "median_diff_max")
+        single_data_obj.add_signal(median_std, "median_std")
+        single_data_obj.add_signal(median_neg_std, "median_neg_std")
+        single_data_obj.add_signal(median_diff_min, "median_diff_min")
+        single_data_obj.add_signal(median_diff_max, "median_diff_max")
 
-        return np_data_obj
+        return single_data_obj
     # end def
     def do_change_year_by_year(self,np_data_obj):
         """
@@ -453,6 +531,12 @@ class WPErg:
 
         for isin in isin_liste:
 
+            liste = self.KontoObj.getListeKaufDatum(isin,"datStrP")
+            np_data_obj.add_signal(np.array(liste), f"np_depot_datumk_{isin}_array")
+
+            liste = self.KontoObj.getListeVerkaufDatum(isin,"datStrP")
+            np_data_obj.add_signal(np.array(liste), f"np_depot_datumv_{isin}_array")
+
             liste = self.KontoObj.getListeRelVKDepot(isin)
             np_data_obj.add_signal(np.array(liste), f"np_depot_relvk_{isin}_array")
 
@@ -471,7 +555,7 @@ class WPErg:
             np_data_obj.add_signal(np_roh_kurs_array, f"np_wp_rohkurs_{isin}_array")
         return np_data_obj
     # end def
-    def do_wp_deal_verlauf(self,np_data_obj):
+    def do_wp_deal_verlauf(self,np_data_obj,single_data_obj):
         """
 
         :param np_data_obj:
@@ -482,28 +566,39 @@ class WPErg:
 
             np_depot_relvk_array = np.array([],dtype=np.float64)
             np_depot_relvkmax_array = np.array([],dtype=np.float64)
+            np_depot_anzahl_deals_isin_array =  np.zeros(len(np_data_obj.np_depot_wp_isin_array),dtype=np.int64)
 
-            for isin in np_data_obj.np_depot_wp_isin_array:
-                np_depot_relvk_array = np.concatenate((np_depot_relvk_array,getattr(np_data_obj, f"np_depot_relvk_{isin}_array")*100.))
-                np_depot_relvkmax_array = np.concatenate((np_depot_relvkmax_array,getattr(np_data_obj, f"np_depot_relvkmax_{isin}_array")*100.))
+            for i,isin in enumerate(np_data_obj.np_depot_wp_isin_array):
+                np_depot_anzahl_deals_isin_array[i] = len(getattr(np_data_obj, f"np_depot_relvk_{isin}_array"))
+                np_depot_relvk_array = np.concatenate((np_depot_relvk_array,getattr(np_data_obj, f"np_depot_relvk_{isin}_array")))
+                np_depot_relvkmax_array = np.concatenate((np_depot_relvkmax_array,getattr(np_data_obj, f"np_depot_relvkmax_{isin}_array")))
             # end for
 
-            (np_kl_relvk_schw_array,np_kl_relvk_haeuf_array) = hnpcalc.build_klassen_einteilung(np_depot_relvk_array, 10.)
-            (np_kl_relvkmax_schw_array,np_kl_relvkmax_haeuf_array) = hnpcalc.build_klassen_einteilung(np_depot_relvkmax_array, 10.)
+            (np_kl_relvk_schw_array,np_kl_relvk_haeuf_array) = hnpcalc.build_klassen_einteilung(np_depot_relvk_array, 0.1)
+            (np_kl_relvkmax_schw_array,np_kl_relvkmax_haeuf_array) = hnpcalc.build_klassen_einteilung(np_depot_relvkmax_array, 0.1)
 
             relvk_mean = np.mean(np_depot_relvk_array)
             relvkmax_mean = np.mean(np_depot_relvkmax_array)
+            anzahl_deals_gesamt = np.sum(np_depot_anzahl_deals_isin_array)
 
             np_data_obj.add_signal(np_kl_relvk_schw_array, "np_kl_relvk_schw_array")
             np_data_obj.add_signal(np_kl_relvk_haeuf_array, "np_kl_relvk_haeuf_array")
             np_data_obj.add_signal(np_kl_relvkmax_schw_array, "np_kl_relvkmax_schw_array")
             np_data_obj.add_signal(np_kl_relvkmax_haeuf_array, "np_kl_relvkmax_haeuf_array")
-            np_data_obj.add_signal(relvk_mean, "relvk_mean")
-            np_data_obj.add_signal(relvkmax_mean, "relvkmax_mean")
+            np_data_obj.add_signal(np_depot_anzahl_deals_isin_array, "np_depot_anzahl_deals_isin_array")
+            single_data_obj.add_signal(relvk_mean, "relvk_mean")
+            single_data_obj.add_signal(relvkmax_mean, "relvkmax_mean")
+            single_data_obj.add_signal(anzahl_deals_gesamt, "anzahl_deals_gesamt")
+        else:
+            single_data_obj.add_signal(0.0, "relvk_mean")
+            single_data_obj.add_signal(0.0, "relvkmax_mean")
+            single_data_obj.add_signal(0, "anzahl_deals_gesamt")
         # end if
-        return np_data_obj
+        return (np_data_obj,single_data_obj)
     # end if
-    def do_plot_euro(self,np_data_obj):
+    def do_plot_euro(self,
+                     np_data_obj,
+                     single_data_obj):
 
 
 
@@ -523,7 +618,7 @@ class WPErg:
         dict_data2["linewidth"] = 1
         dict_data2["linestyle"] = "-"
         dict_data2["marker"] = ""
-        dict_data2["label"] = "cash_mzins_" +  "%.2f" % (float(np_data_obj.mean_zins) * 100) + "%"
+        dict_data2["label"] = "cash_mzins_" +  "%.2f" % (float(single_data_obj.mean_zins) * 100) + "%"
 
         dict_data3 = {}
         dict_data3["xdat"] = np_data_obj.np_dat_array
@@ -532,7 +627,7 @@ class WPErg:
         dict_data3["linewidth"] = 1
         dict_data3["linestyle"] = "-"
         dict_data3["marker"] = ""
-        dict_data3["label"] = "cash_medzins_" +  "%.2f" % (float(np_data_obj.median_zins) * 100) + "%"
+        dict_data3["label"] = "cash_medzins_" +  "%.2f" % (float(single_data_obj.median_zins) * 100) + "%"
 
         dict_subplot1 = {}
         dict_subplot1["name"] = "Cash"
@@ -565,7 +660,9 @@ class WPErg:
 
         return
     # end def
-    def do_plot_prozent(self, np_data_obj):
+    def do_plot_prozent(self,
+                        np_data_obj,
+                        single_data_obj):
 
         B0 = np_data_obj.np_cash_array[0]
         dict_data1 = {}
@@ -584,7 +681,7 @@ class WPErg:
         dict_data2["linewidth"] = 1
         dict_data2["linestyle"] = "-"
         dict_data2["marker"] = ""
-        dict_data2["label"] = "cash_mzins_" + "%.2f" % (float(np_data_obj.mean_zins) * 100) + "%"
+        dict_data2["label"] = "cash_mzins_" + "%.2f" % (float(single_data_obj.mean_zins) * 100) + "%"
 
         dict_data3 = {}
         dict_data3["xdat"] = np_data_obj.np_dat_array
@@ -593,7 +690,7 @@ class WPErg:
         dict_data3["linewidth"] = 1
         dict_data3["linestyle"] = "-"
         dict_data3["marker"] = ""
-        dict_data3["label"] = "cash_medzins_" + "%.2f" % (float(np_data_obj.median_zins) * 100) + "%"
+        dict_data3["label"] = "cash_medzins_" + "%.2f" % (float(single_data_obj.median_zins) * 100) + "%"
 
         dict_subplot1 = {}
         dict_subplot1["name"] = "Cash"
@@ -702,7 +799,7 @@ class WPErg:
         obj = sgui.matplot_date_data(dict_input)
         return
     # end def
-    def do_plot_wp_deal_haeufigkeit_plot(self,np_data_obj):
+    def do_plot_wp_deal_haeufigkeit_plot(self,np_data_obj,single_data_obj):
         """
 
         :param np_data_obj:
@@ -714,7 +811,7 @@ class WPErg:
             plotfilename = os.path.join(self.ErgPath,"erg_plot_wp_deal_haeuf_relvk.png")
 
             ddict = {}
-            ddict["x"] = getattr(np_data_obj, "np_kl_relvk_schw_array")
+            ddict["x"] = getattr(np_data_obj, "np_kl_relvk_schw_array")*100.
             ddict["y"] = getattr(np_data_obj, "np_kl_relvk_haeuf_array")
             ddict["color"] = "k"
             ddict["label"] = "relvk"
@@ -723,7 +820,7 @@ class WPErg:
             ddict["ylabel"] = "n"
 
             if hasattr(np_data_obj, "relvk_mean"):
-                ddict["xline"] = getattr(np_data_obj, "relvk_mean")
+                ddict["xline"] = getattr(single_data_obj, "relvk_mean")*100.
                 ddict["xline_color"] = 'r'
                 ddict["xline_linewidth"] = 5
                 ddict["xline_linestyle"] = '--'
@@ -745,15 +842,15 @@ class WPErg:
             plotfilename = os.path.join(self.ErgPath, "erg_plot_wp_deal_haeuf_relvkmax.png")
 
             ddict = {}
-            ddict["x"] = getattr(np_data_obj, "np_kl_relvkmax_schw_array")
+            ddict["x"] = getattr(np_data_obj, "np_kl_relvkmax_schw_array")*100.
             ddict["y"] = getattr(np_data_obj, "np_kl_relvkmax_haeuf_array")
             ddict["color"] = "k"
             ddict["label"] = "relvkmax"
             ddict["title"] = f"{self.Parobj.SimName} H-Verteilung Kurs (Verkauf-Kauf)/(Max-Kauf)"
             ddict["xlabel"] = "Prozent %"
             ddict["ylabel"] = "n"
-            if hasattr(np_data_obj, "relvkmax_mean"):
-                ddict["xline"] = getattr(np_data_obj, "relvkmax_mean")
+            if hasattr(single_data_obj, "relvkmax_mean"):
+                ddict["xline"] = getattr(single_data_obj, "relvkmax_mean")*100.
                 ddict["xline_color"] = 'r'
                 ddict["xline_linewidth"] = 5
                 ddict["xline_linestyle"] = '--'
@@ -771,7 +868,9 @@ class WPErg:
         # end if
         return
     # end def
-    def write_md_pdf(self,np_data_obj):
+    def write_md_pdf(self,
+                     np_data_obj,
+                     single_data_obj):
 
 
         mdobj = hio.MDBuild(self.MdFilename)
@@ -797,38 +896,45 @@ class WPErg:
         #----------
         headers = ["Ergebnis", "Wert"]
         rows = [["DeltaCash",
-                 htype.type_transform_direct(np_data_obj.gesamt_delta_cash,"cent", "euroStrK")+" €"],
+                 htype.type_transform_direct(single_data_obj.gesamt_delta_cash,"cent", "euroStrK")+" €"],
                 ["RelDeltaCash",
-                 htype.type_transform_direct(np_data_obj.gesamt_rel_delta_cash, "float", "percentStr")],
+                 htype.type_transform_direct(single_data_obj.gesamt_rel_delta_cash, "float", "percentStr")],
                 ["Steuer",
-                 htype.type_transform_direct(np_data_obj.gesamt_steuer, "cent", "euroStrK") + " €"],
+                 htype.type_transform_direct(single_data_obj.gesamt_steuer, "cent", "euroStrK") + " €"],
                 ["RelSteuer",
-                 htype.type_transform_direct(np_data_obj.gesamt_rel_steuer, "float", "percentStr")],
+                 htype.type_transform_direct(single_data_obj.gesamt_rel_steuer, "float", "percentStr")],
                 ["Kosten",
-                 htype.type_transform_direct(np_data_obj.gesamt_kosten, "cent", "euroStrK") + " €"],
+                 htype.type_transform_direct(single_data_obj.gesamt_kosten, "cent", "euroStrK") + " €"],
                 ["RelKosten",
-                 htype.type_transform_direct(np_data_obj.gesamt_rel_kosten, "float", "percentStr")],
+                 htype.type_transform_direct(single_data_obj.gesamt_rel_kosten, "float", "percentStr")],
                 ["ZinsMean",
-                 htype.type_transform_direct(np_data_obj.mean_zins,"float", "percentStr")],
+                 htype.type_transform_direct(single_data_obj.mean_zins,"float", "percentStr")],
                 ["MeanSTD",
-                 htype.type_transform_direct(np_data_obj.mean_std,"float", "percentStr")],
+                 htype.type_transform_direct(single_data_obj.mean_std,"float", "percentStr")],
                 ["MeanNegSTD",
-                 htype.type_transform_direct(np_data_obj.mean_neg_std,"float", "percentStr")],
+                 htype.type_transform_direct(single_data_obj.mean_neg_std,"float", "percentStr")],
                 ["MeanDiffMin",
-                 htype.type_transform_direct(np_data_obj.mean_diff_min, "float", "percentStr")],
+                 htype.type_transform_direct(single_data_obj.mean_diff_min, "float", "percentStr")],
                 ["MeanDiffMax",
-                 htype.type_transform_direct(np_data_obj.mean_diff_max, "float", "percentStr")],
+                 htype.type_transform_direct(single_data_obj.mean_diff_max, "float", "percentStr")],
                 ["ZinsMedian",
-                 htype.type_transform_direct(np_data_obj.median_zins, "float", "percentStr")],
+                 htype.type_transform_direct(single_data_obj.median_zins, "float", "percentStr")],
                 ["MedianSTD",
-                 htype.type_transform_direct(np_data_obj.median_std,"float", "percentStr")],
+                 htype.type_transform_direct(single_data_obj.median_std,"float", "percentStr")],
                 ["MedianNegSTD",
-                 htype.type_transform_direct(np_data_obj.median_neg_std, "float", "percentStr")],
+                 htype.type_transform_direct(single_data_obj.median_neg_std, "float", "percentStr")],
                 ["MedianDiffMin",
-                 htype.type_transform_direct(np_data_obj.median_diff_min, "float", "percentStr")],
+                 htype.type_transform_direct(single_data_obj.median_diff_min, "float", "percentStr")],
                 ["MedianDiffMax",
-                 htype.type_transform_direct(np_data_obj.median_diff_max, "float", "percentStr")],
+                 htype.type_transform_direct(single_data_obj.median_diff_max, "float", "percentStr")],
+                ["RelVKMean",
+                 htype.type_transform_direct(single_data_obj.relvk_mean, "float", "percentStr")],
+                ["RelVKMaxMean",
+                 htype.type_transform_direct(single_data_obj.relvkmax_mean, "float", "percentStr")],
+                ["AnzahlDealsGesamt",
+                 htype.type_transform_direct(single_data_obj.anzahl_deals_gesamt, "int", "int")],
                 ]
+
         mdobj.add_table(headers, rows)
         mdobj.add_paragraph("---")
 
@@ -916,30 +1022,72 @@ class WPErg:
 
         plotfilename = os.path.join(self.ErgPath, "erg_plot_wp_deal_haeuf_relvk.png")
         if os.path.isfile(plotfilename):
-            mdobj.add_image(plotfilename, "WP Häufigkeit Verkauf/Kauf-Kurs")
+            mdobj.add_image(plotfilename, f"WP Häufigkeit Verkauf/Kauf-Kurs n:{single_data_obj.anzahl_deals_gesamt}")
         plotfilename = os.path.join(self.ErgPath, "erg_plot_wp_deal_haeuf_relvkmax.png")
         if os.path.isfile(plotfilename):
-            mdobj.add_image(plotfilename, "WP Häufigkeit (Verkauf-Kauf)/(Max-Kauf)-Kurs")
+            mdobj.add_image(plotfilename, f"WP Häufigkeit (Verkauf-Kauf)/(Max-Kauf)-Kurs n:{single_data_obj.anzahl_deals_gesamt}")
 
         mdobj.add_paragraph("---")
         # Plots von WPs
         rows = []
-        headers = ["isin","name"]
+        headers = ["isin","name","deals"]
         for i,isin in np.ndenumerate(np_data_obj.np_depot_wp_isin_array):
-            rows.append([isin,np_data_obj.np_depot_wp_namen_array[i[0]]])
+            rows.append([isin,
+                         np_data_obj.np_depot_wp_namen_array[i[0]],
+                         np_data_obj.np_depot_anzahl_deals_isin_array[i[0]]])
         # end ofr
 
         mdobj.add_table(headers, rows)
         mdobj.add_paragraph("---")
 
+
+        nisin = len(np_data_obj.np_depot_wp_isin_array)
+
+        if nisin:
+            mdobj.add_paragraph('<p style="page-break-after: always;"></p>')
+
         # Plots von WPs
-        for isin in np_data_obj.np_depot_wp_isin_array:
+        for i,isin in np.ndenumerate(np_data_obj.np_depot_wp_isin_array):
 
             bodyname = f"erg_plot_wp_{isin}"
             filename = os.path.join(self.ErgPath, bodyname + ".png")
-            mdobj.add_image(filename, f"WPVerlaf {isin}")
-        # end for
+            mdobj.add_image(filename, f"{isin} {np_data_obj.np_depot_wp_namen_array[i[0]]}")
 
+            mdobj.add_paragraph(f"{isin} {np_data_obj.np_depot_wp_namen_array[i[0]]}:")
+
+            name_datumk_str_array =  f"np_depot_datumk_{isin}_array"
+            name_datumv_str_array =  f"np_depot_datumv_{isin}_array"
+            name_relvk_array      =  f"np_depot_relvk_{isin}_array"
+            name_relvkmax_array   =  f"np_depot_relvkmax_{isin}_array"
+
+            np_datumk_str_array = getattr(np_data_obj, name_datumk_str_array)
+            np_datumv_str_array = getattr(np_data_obj, name_datumv_str_array)
+            np_relvk_array      = getattr(np_data_obj, name_relvk_array)
+            np_relvkmax_array      = getattr(np_data_obj, name_relvkmax_array)
+
+            headers = ["Kaufdatum", "Verkaufdatum","RelVK","RelVKMax"]
+
+            rows = []
+
+            for j,datumk_str in np.ndenumerate(np_datumk_str_array):
+
+                line = [datumk_str,
+                        np_datumv_str_array[j[0]],
+                        np_relvk_array[j[0]],
+                        np_relvkmax_array[j[0]]]
+                rows.append(line)
+            # end for
+
+            if len(rows) == 0:
+                rows.append(["","","",""])
+
+            mdobj.add_table(headers, rows)
+            mdobj.add_paragraph("---")
+
+            if i[0]+1 < nisin:
+                mdobj.add_paragraph('<p style="page-break-after: always;"></p>')
+
+        # end for
 
         mdobj.write()
 
@@ -948,7 +1096,4 @@ class WPErg:
         return
     # end def
 # end class
-        np_data_obj.add_signal(np.array(dat_secs_liste), "")
-        np_data_obj.add_signal(np.array(cash_liste), "")
-        np_data_obj.add_signal(np.array(steuer_liste), "np_years_steuer_array")
-        np_data_obj.add_signal(np.array(kosten_liste), "np_years_kosten_array")
+

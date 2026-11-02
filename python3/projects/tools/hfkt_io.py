@@ -114,6 +114,7 @@ from markdownmaker.markdownmaker import (
 import json
 import yaml
 import pathlib
+import openpyxl
 
 #-------------------------------------------------------------------------------
 t_path, _ = os.path.split(__file__)
@@ -862,6 +863,190 @@ def write_csv_file_ttable(file_name,ttable,delim=";"):
     '''
     
     return write_csv_file_header_data(file_name,ttable.names,ttable.table,delim)
+# end def
+
+def write_excel_file_header_data(file_name,csv_header,csv_data):
+    """
+    Write Data into excel-File
+    :param file_name:
+    :param csv_header:f
+    :param csv_data:
+    :return:
+    """
+
+    (path, fbody, ext) = hfp.get_pfe(file_name)
+    file_name = hfp.set_pfe(path, fbody, "xlsx")
+
+    max_col_wdth = 120
+
+    workbook = openpyxl.Workbook()
+
+    worksheet = workbook.active
+
+    # Übersichtsdaten von allen  WPs
+    worksheet.title = fbody
+
+    ft = openpyxl.styles.fonts.Font(bold=True)
+    al = openpyxl.styles.Alignment(horizontal='right',wrap_text=True)
+
+    borded_dashed = openpyxl.styles.Side(style='dashed')
+
+    bd = openpyxl.styles.Border(top=borded_dashed, left=borded_dashed, right=borded_dashed, bottom=borded_dashed)
+    row_num = 0
+    for i, header in enumerate(csv_header):
+        worksheet[htype.excel_calc_alph_num(row_num, i)] = header
+        worksheet[htype.excel_calc_alph_num(row_num, i)].font = ft
+        worksheet[htype.excel_calc_alph_num(row_num, i)].alignment = al
+        worksheet[htype.excel_calc_alph_num(row_num, i)].border = bd
+    # end if
+
+    for irow, data_liste in enumerate(csv_data):
+        row_num += 1
+        for icol, data in enumerate(data_liste):
+            worksheet[htype.excel_calc_alph_num(row_num, icol)] = data
+            color = "00FFFFFF" # color = htype.get_excel_color_by_index(0)
+            fill = openpyxl.styles.PatternFill(start_color=color, end_color=color, fill_type="solid")
+            worksheet[htype.excel_calc_alph_num(row_num, icol)].fill = fill
+            worksheet[htype.excel_calc_alph_num(row_num, icol)].alignment = al
+            worksheet[htype.excel_calc_alph_num(row_num, icol)].border = bd
+            # end for
+    # end for
+
+    # Adjust column widths
+    for col in worksheet.columns:
+        max_length = max(len(str(cell.value or "")) for cell in col)
+        max_length = min(max_length,max_col_wdth)
+        col_letter = openpyxl.utils.get_column_letter(col[0].column)
+        worksheet.column_dimensions[col_letter].width = max_length + 5
+    # end for
+
+    workbook.save(file_name)
+
+    status = hdef.OKAY
+
+    return status
+
+
+# end def
+def write_excel_file_ttable(file_name, ttable):
+    ''' Write DAta with ttable from hfkt_tvar
+
+    '''
+
+    return write_excel_file_header_data(file_name, ttable.names, ttable.table)
+
+
+# end def
+def write_excel_file_header_units_data(file_name, csv_header, csv_units, csv_data, delim=";"):
+    ''' Write DAta with
+        csv_header = ['name1','name2',...]
+        csv_units  = [unit1,unit2,...]
+        csv_data   = [[val_name1_zeile1,val_name2_zeile1,...],[val_name1_zeile2,val_name2_zeile2,...],...]
+        in file as
+
+        name1;name2
+        val_name1_zeile1;val_name2_zeile1
+        val_name1_zeile2;val_name2_zeile2
+
+        return hdef.OK/NOT_OKAY
+
+    '''
+    (path, fbody, ext) = hfp.get_pfe(file_name)
+    file_name = hfp.set_pfe(path, fbody, "xlsx")
+
+    max_col_wdth = 120
+
+    workbook = openpyxl.Workbook()
+
+    worksheet = workbook.active
+
+    # Übersichtsdaten von allen  WPs
+    worksheet.title = fbody
+
+    ft = openpyxl.styles.fonts.Font(bold=True)
+    al = openpyxl.styles.Alignment(horizontal='right',wrap_text=True)
+
+    borded_dashed = openpyxl.styles.Side(style='dashed')
+
+    bd = openpyxl.styles.Border(top=borded_dashed, left=borded_dashed, right=borded_dashed, bottom=borded_dashed)
+
+    row_num = 0
+    for i, header in enumerate(csv_header):
+        worksheet[htype.excel_calc_alph_num(row_num, i)] = header
+        worksheet[htype.excel_calc_alph_num(row_num, i)].font = ft
+        worksheet[htype.excel_calc_alph_num(row_num, i)].alignment = al
+        worksheet[htype.excel_calc_alph_num(row_num, i)].border = bd
+    # end if
+
+    row_num += 1
+    for i, unit in enumerate(csv_units):
+        worksheet[htype.excel_calc_alph_num(row_num, i)] = unit
+        worksheet[htype.excel_calc_alph_num(row_num, i)].font = ft
+        worksheet[htype.excel_calc_alph_num(row_num, i)].alignment = al
+        worksheet[htype.excel_calc_alph_num(row_num, i)].border = bd
+    # end if
+
+    for irow, data_liste in enumerate(csv_data):
+        row_num += 1
+        for icol, data in enumerate(data_liste):
+            worksheet[htype.excel_calc_alph_num(row_num, icol)] = data
+            color = "00FFFFFF" # color = htype.get_excel_color_by_index(0)
+            fill = openpyxl.styles.PatternFill(start_color=color, end_color=color, fill_type="solid")
+            worksheet[htype.excel_calc_alph_num(row_num, icol)].fill = fill
+            worksheet[htype.excel_calc_alph_num(row_num, icol)].alignment = al
+            worksheet[htype.excel_calc_alph_num(row_num, icol)].border = bd
+            # end for
+    # end for
+
+    # Adjust column widths
+    for col in worksheet.columns:
+        max_length = max(len(str(cell.value or "")) for cell in col)
+        max_length = min(max_length,max_col_wdth)
+        col_letter = openpyxl.utils.get_column_letter(col[0].column)
+        worksheet.column_dimensions[col_letter].width = max_length + 5
+    # end for
+
+    workbook.save(file_name)
+
+    status = hdef.OKAY
+
+    return status
+
+
+    with open(file_name, 'w') as f:
+
+        n = len(csv_header)
+        for i in range(n):
+            f.write(str(csv_header[i]))
+            if (i + 1 < n):
+                f.write(delim)
+            else:
+                f.write("\n")
+            # end if
+        # end for
+        n = len(csv_units)
+        for i in range(n):
+            f.write(str(csv_units[i]))
+            if (i + 1 < n):
+                f.write(delim)
+            else:
+                f.write("\n")
+            # end if
+        # end ofr
+        for line in csv_data:
+            n = len(line)
+            for i in range(n):
+                f.write(str(line[i]))
+                if (i + 1 < n):
+                    f.write(delim)
+                else:
+                    f.write("\n")
+                # end if
+            # end for
+        # end for
+    return hdef.OK
+# end def
+
 # end def
 
 def read_ascii_build_list_of_lines(file_name):

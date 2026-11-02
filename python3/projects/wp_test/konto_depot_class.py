@@ -539,7 +539,9 @@ class WPKontoDepot:
                     (kursmin, kursmax) =  self.Dataobj.getMinMaxFromWP(isin, kaufdat_datetime, verkaufdat_datetime)
 
                     relVK =   kursverkauf/max(0.0001,kurskauf)
-                    relVMax = (kursverkauf-kurskauf)/max(0.0001,(kursmax - kurskauf))
+
+                    # auf -100 % begrenzen, da negativ sehr groß werden kann und < -100 nicht interessiert
+                    relVMax = max(-1.,(kursverkauf-kurskauf)/max(0.0001,(kursmax - kurskauf)))
 
                     data_set_liste = [kaufdat_datetime,
                                      verkaufdat_datetime,
@@ -559,6 +561,14 @@ class WPKontoDepot:
             # end while
         # end for
         return
+    # end def
+    def getListeKaufDatum(self,isin,type):
+        liste = self.DepotTraceDict[isin].get_row_list_of_header(self.NAME_DATUMK,type)
+        return liste
+    # end def
+    def getListeVerkaufDatum(self,isin,type):
+        liste = self.DepotTraceDict[isin].get_row_list_of_header(self.NAME_DATUMV,type)
+        return liste
     # end def
     def getListeRelVK(self,isin):
         liste = self.DepotTraceDict[isin].get_row_list_of_header(self.NAME_RELVK)

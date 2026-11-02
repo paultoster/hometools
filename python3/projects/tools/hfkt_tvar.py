@@ -1372,6 +1372,40 @@ def write_table_to_csv(ttable,filename):
 
     return status
 # end def
+def write_table_to_excel(ttable,filename):
+    """
+
+    :param ttable:
+    :param filename:
+    :return: status = write_table_to_excel(ttable,filename)
+    """
+
+
+    csv_data = []
+    for row in ttable.table:
+        csv_row = []
+        for icol,_ in enumerate(ttable.names):
+
+            if icol < len(row):
+                (status,strval) = htype.type_transform(row[icol],ttable.types[icol],"str")
+                if status != hdef.OKAY:
+                    strval = "NN"
+                # end if
+            else:
+                strval = "NN"
+            # end if
+            csv_row.append(strval)
+        # end ofr
+        csv_data.append(csv_row)
+    # end for
+
+    if table_has_units(ttable):
+        status = hio.write_excel_file_header_units_data(filename, ttable.names,ttable.units, csv_data)
+    else:
+        status = hio.write_excel_file_header_data(filename, ttable.names, csv_data)
+
+    return status
+# end def
 def save(t: TVal|TList|TTable,filename:str):
     """
     return (status,errtext) = save(ttable,filename)

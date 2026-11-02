@@ -1114,7 +1114,7 @@ class HandleDictListe:
         :return: index_liste = self.get_index_list_items_eq(key,value)
         :return: index_liste = self.get_index_list_items_eq(key,value_liste)
         :return: index_liste = self.get_index_list_items_eq(key1,value1,key2,value2) und
-        :return: index_liste = self.get_index_list_items_eq(key1,value1,key2,value2,type='u'/'o')
+        :return: index_liste = self.get_index_list_items_eq(key1,value1,key2,value2,type='u'/'o') und/oder
         """
         if isinstance(value, list):
             value_liste = value
@@ -1153,15 +1153,17 @@ class HandleDictListe:
                 # end for
             # end for
         # end if
-        return index_liste
+        return sorted(index_liste)
     # end def
-    def get_index_list_items_gt(self,key,value):
+    def get_index_list_items_gt(self,key,value,key2=None,value2=None,type="u"):
         """
-        gebe eine index_liste mit allen werte die self.DictList[index][key] > value
+        gebe eine index_liste mit allen werte die self.DictList[index][key] > value ( und self.DictList[index][key2] == value2 )
         :param key:
         :param value:
         :return: index_liste = self.get_index_list_items_gt(key,value)
         :return: index_liste = self.get_index_list_items_gt(key,value_liste)
+        :return: index_liste = self.get_index_list_items_gt(key1,value1,key2,value2) und
+        :return: index_liste = self.get_index_list_items_gt(key1,value1,key2,value2,type='u'/'o') und/oder
         """
         if isinstance(value, list):
             value_liste = value
@@ -1175,8 +1177,56 @@ class HandleDictListe:
                     index_liste.append(index)
                 # end if
             # end for
-        return index_liste
+        # end for
+        if (key2 is not None) and (value2 is not None):
+            index_proof_liste = index_liste
+            index_liste = []
+            if isinstance(value2, list):
+                value2_liste = value2
+            else:
+                value2_liste = [value2]
+            # end if
+            for value2 in value2_liste:
+                for index,ddict in enumerate(self.DictList):
+                    if (key2 in ddict.keys()) and (ddict[key2] == value2):
+                        if type[0] == 'u': # und
+                            if index in index_proof_liste:
+                                index_liste.append(index)
+                            # end if
+                        else: # oder
+                            if index not in index_proof_liste:
+                                index_liste.append(index)
+                            # end if
+                        # end if
+                    # end if
+                # end for
+            # end for
+        # end if
+        return sorted(index_liste)
     # end def
+
+    # def get_index_list_items_gt(self,key,value):
+    #     """
+    #     gebe eine index_liste mit allen werte die self.DictList[index][key] > value
+    #     :param key:
+    #     :param value:
+    #     :return: index_liste = self.get_index_list_items_gt(key,value)
+    #     :return: index_liste = self.get_index_list_items_gt(key,value_liste)
+    #     """
+    #     if isinstance(value, list):
+    #         value_liste = value
+    #     else:
+    #         value_liste = [value]
+    #     # end if
+    #     index_liste = []
+    #     for value in value_liste:
+    #         for index,ddict in enumerate(self.DictList):
+    #             if (key in ddict.keys()) and (ddict[key] > value):
+    #                 index_liste.append(index)
+    #             # end if
+    #         # end for
+    #     return index_liste
+    # # end def
     def berechne_anzahl_mit_value(self,key,value):
         """
         berechne anzahl der in der Liste mit dem self.DictList[i][key] == value
@@ -1184,7 +1234,7 @@ class HandleDictListe:
         :param value:
         :return:
         """
-        index_liste = self.get_index_list_items_gt( key, value)
+        index_liste = self.get_index_list_items_eq( key, value)
 
         return len(index_liste)
     # end def
@@ -1228,7 +1278,7 @@ class HandleDictListe:
         """
         obj = HandleDictListe([])
         if nmax < len(self.DictList):
-            obj.set_list(self.DictList[nmax:])
+            obj.set_liste(self.DictList[nmax:])
 
             self.DictList = self.DictList[0:nmax]
         # end id
