@@ -820,7 +820,9 @@ class WPKonto:
                                             self.KontoDepot.NAME_DATUM,
                                             self.KontoDepot.TYPE_DATUM)
 
-            if (anzahl != 0) or (summe != 0):
+            # Wenn summe != 0 dann ist was im depot
+            # Wenn summe == 0 dann nur zum aktuellen datum
+            if (summe != 0) or (datum == self.DataObj.AktDat_datetime):
 
                 data_set_liste = self.berechneProtokollListeDEpot(isin,anzahl,summe,datum)
 

@@ -41,8 +41,8 @@ class WPPruef:
 
             self.WPscreDictListObj = copy.deepcopy(self.DataObj.WPScreDictListObj)
 
-            if self.DataObj.AktDat_datetime == datetime.datetime(2024, 6, 27, 0, 0):
-                a = 0
+            # if self.DataObj.AktDat_datetime == datetime.datetime(2020, 8, 13, 0, 0):
+            #     a = 0
 
             self.pruefe_verkauf()
             if self.Parobj.status != hdef.OKAY:

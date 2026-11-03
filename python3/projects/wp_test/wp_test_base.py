@@ -12,23 +12,11 @@ import tools.hfkt_log as hlog
 import tools.hfkt_ini as hini
 # import tools.hfkt_type as htype
 
+import wp_test_def as wpdef
 import wp_screen.wp_screen_base as wp_screen_base
 import wp_test_param
 import sim_class
 
-INI_DICT_PROOF_LISTE =   [("store_path", "str"),
-                          ("wpscre_func_ini_file_name","str"),
-                          ("tage_pro_jahr","int","int",365.25),
-                          ("ergebnis_path_pre_name","str","str","erg_"),
-                          ("np_datei_name","str","str","np_erg_array"),
-                          ("single_datei_name","str","str","single_erg_array"),
-                          ("plot_euro_datei_name","str","str","erg_plot_euro"),
-                          ("plot_prozent_datei_name","str","str","erg_plot_prozent"),
-                          ("md_datei_name","str","str","erg_gesamt"),
-                          ("sim_screkat_name","str","str","SIM"),
-                          ("sim_scresig_name","str","str","SIM"),
-                          ("sim_scretab_name","str","str","SIM"),
-                          ("sim_scre_name","str","str","SIM")]
 
 class WPTest:
     """
@@ -51,7 +39,7 @@ class WPTest:
         self.log_file_name = self.log.get_logfilename()
 
         # ini
-        self.ini = hini.get_tomlib_ini_dict(ini_filename, INI_DICT_PROOF_LISTE)
+        self.ini = hini.get_tomlib_ini_dict(ini_filename, wpdef.INI_DICT_PROOF_LISTE)
 
         # Parameter
         # ---------

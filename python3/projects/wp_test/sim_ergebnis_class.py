@@ -11,6 +11,7 @@ if (tools_path not in sys.path):
 import tools.hfkt_def as hdef
 import tools.hfkt_data_set as hdset
 import tools.hfkt_date_time as hdt
+import tools.hfkt_dict as hdict
 import tools.hfkt_io as hio
 import tools.hfkt_file_path as hfp
 import tools.hfkt_np_dataclass as hnpclass
@@ -243,8 +244,8 @@ class WPErg:
         start_time = time.perf_counter()
 
         # Zielgröße für Minimum
-        if hasattr(single_data_obj,"median_zins") and hasattr(single_data_obj,"median_std"):
-            ziel_value = 1./single_data_obj.median_zins/100. + single_data_obj.median_std
+        if hasattr(single_data_obj,"mean_zins") and hasattr(single_data_obj,"mean_diff_min"):
+            ziel_value = 1./single_data_obj.mean_zins/100. + abs(single_data_obj.mean_diff_min)
         else:
             ziel_value = 0.
         # end if
@@ -1038,7 +1039,7 @@ class WPErg:
         mdobj.add_paragraph("---")
         # Plots von WPs
         rows = []
-        headers = ["isin","name","deals","start"]
+        headers = ["isin","gruppe","name","deals","start"]
 
 
         for i,isin in np.ndenumerate(np_data_obj.np_depot_wp_isin_array):
@@ -1046,7 +1047,18 @@ class WPErg:
             name_dat_array = f"np_wp_dat_{isin}_array"
             np_dat_array   = getattr(np_data_obj, name_dat_array)
 
+            gruppe = hdict.find_value_in_dict_liste(self.Parobj.ScreKat, isin)
+
+            if isinstance(gruppe,list):
+                tgruppe = gruppe[0]
+            elif gruppe is None:
+                tgruppe = "-"
+            else:
+                tgruppe = gruppe
+            # end if
+
             rows.append([isin,
+                         tgruppe,
                          np_data_obj.np_depot_wp_namen_array[i[0]],
                          np_data_obj.np_depot_anzahl_deals_isin_array[i[0]],
                          htype.type_transform_direct(np_dat_array[0], "dat", "datStrP")])

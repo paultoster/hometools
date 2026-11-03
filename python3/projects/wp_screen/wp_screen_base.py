@@ -320,7 +320,10 @@ class WPScreen:
 
         return
     # end def
-    def build_scre_sigset(self,scre_name,end_dat=None):
+    def build_scre_sigset(self,
+                          scre_name,
+                          end_dat=None,
+                          build_always_new_sigset=False):
         """
 
         """
@@ -348,7 +351,7 @@ class WPScreen:
             # end if
         # end fi
 
-        wp_screen_scre.scre_build_sigset(self, scre_name, self.scre["scre_dict"])
+        wp_screen_scre.scre_build_sigset(self, scre_name, self.scre["scre_dict"],build_always_new_sigset)
         if wp_screen_scre.get_status() != hdef.OKAY:
             self.status = hdef.NOT_OKAY
             self.errtext = f"Error wp_screen_base.build_scre_sigset({scre_name}) errtext = {wp_screen_scre.get_errtext()}"

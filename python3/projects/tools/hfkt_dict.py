@@ -44,6 +44,24 @@ key = find_first_key_dict_value(ddict,value) if not in value = None
     (state,errtext,dict_list) = transform_llist_and_header_in_dictlist(header,data)
 
     transform lliste mit Header in liste mit dict
+------------------------------------------------------------------------------------------------------------------------
+    None = find_value_in_dict_liste(dict_list,value_search)
+    key = find_value_in_dict_liste(dict_list,value_search)
+    key_liste = find_value_in_dict_liste(dict_list,value_search)
+
+    finde in dictionary mit einer Liste oder ohne den wert und gebe key zurück
+
+    ddict = {"a":[1,2,3],"b":[4,5,6],"c":7} , value = 7
+
+    return key = "c"
+
+    wenn mehrere, dann liste
+
+    ddict = {"a":[1,2,3],"b":[4,2,6],"c":2} , value = 7
+
+    return key = ["a","b","c"]
+
+    wenn nicht gefunden dann return None
 
 """
 import os
@@ -416,4 +434,55 @@ def transform_llist_and_header_in_dictlist(header,data):
         dict_list.append(ddict)
     # end for
     return (status,errtext,dict_list)
+
+def find_value_in_dict_liste(dict_list,value_search):
+    """
+    finde in dictionary mit einer Liste oder ohne den wert und gebe key zurück
+
+    ddict = {"a":[1,2,3],"b":[4,5,6],"c":7} , value = 7
+
+    return key = "c"
+
+    wenn mehrere, dann liste
+
+    ddict = {"a":[1,2,3],"b":[4,2,6],"c":2} , value = 7
+
+    return key = ["a","b","c"]
+
+    wenn nicht gefunden dann return None
+
+    :param dict_list:
+    :param value_search:
+    :return:
+    """
+
+    liste = []
+    for key, value in dict_list.items():
+
+        if isinstance(value, list):
+            flag = False
+            for item in value:
+                if item == value_search:
+                    flag = True
+                    break
+                # end if
+            # end for
+            if flag:
+                liste.append(key)
+            # endif
+        else:
+            if value == value_search:
+                liste.append(key)
+            # end if
+        # end if
+    # end for
+
+    if len(liste) == 0:
+        return None
+    elif len(liste) == 1:
+        return liste[0]
+    else:
+        return liste
+    # end if
+# end def
 

@@ -36,8 +36,7 @@ PARAM_LLIST = [
 ("WPExistDays",             "Anzahl Tage, die das entsprechende WP schon besteht, Daten hat  (1, int)",{"type":"int"}),
 ("WPTriggerVerkauf",        "Wann soll verkauft werden.'Vsig': nur nach Verkaufssignal , 'Vsig+Rank': Auch zusätzlich nach rang  ",{"wert":["Vsig","Vsig+Rank"],"type":"str"}),
 ("ParameterVariation",      "Beschreibung  (parallel, format)",{"wert":["parallel"]}),
-
-
+("WPBuildSigSetNew",        "Soll immer eine neue DatenBasis geniert werden (zeitaufwendig)  (True/False, bool)", {"type": "bool"}),
 ]
 # ("SimName",                 "Name der Simulation  (TestLauf, str)",{"type":"str"}),
 

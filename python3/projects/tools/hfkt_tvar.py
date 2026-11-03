@@ -77,6 +77,7 @@ index  = find_value_in_list_list(tlist,val)                    index = None if n
 index  = find_value_in_list_list(tlist,val,type)
 ttable = add_table_to_table(table,tableadd)
 status = write_table_to_csv(ttable,filename)
+status = write_table_to_excel(ttable,filename)
 flag   = table_has_units(ttable)
 
 """
@@ -391,6 +392,7 @@ def build_table(names: list, table: list, types:list, types_store:list=None,unit
                     ttypes[i] = types_store[i]
                 # end if
             # end ofr
+            ttable.append(vvals)
         # end for
     # end if
     return TTable(names=nnames, table=ttable, types=ttypes, units=uunits)

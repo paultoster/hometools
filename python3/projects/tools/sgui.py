@@ -452,7 +452,7 @@ def abfrage_sheet(ddict_inp):
 # return ddict_out
 # mit
 # ddict_out["data_set"]                     return modified data set
-# dindex of ddict_inp["abfrage_liste"] if clicked otherwise -1
+# ddict_out["index_abfrage"] dindex of ddict_inp["abfrage_liste"] if clicked otherwise -1
 # ddict_out["irow_select"]                  selcted row if click otherwise -1
 # ddict_out["status"]                       status
 # ddict_out["errtext"]                      errtext

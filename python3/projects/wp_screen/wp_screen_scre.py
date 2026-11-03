@@ -164,7 +164,10 @@ def scre_dict_save(rd):
         return
     return
 # end def
-def scre_build_sigset(rd,scre,scre_dict):
+def scre_build_sigset(rd,
+                      scre,
+                      scre_dict,
+                      build_always_new_sigset=False):
 
     global STATUS, ERRTEXT
 
@@ -191,9 +194,9 @@ def scre_build_sigset(rd,scre,scre_dict):
 
         rd.scre["scre_isin_dataclass_filename_dict"][isin] = wp_screen_scre_build_signal.get_dataclass_filename(rd, scre, isin)
 
-        if not wp_screen_scre_build_signal.proof_if_data_uptodate(rd,scre,isin):
+        if (not wp_screen_scre_build_signal.proof_if_data_uptodate(rd,scre,isin)) or build_always_new_sigset:
 
-            time.sleep(5)
+            # time.sleep(5)
 
             wp_screen_scre_build_signal.scre_build_signal(rd, scre,isin, sigset_werte_dict_liste)
 

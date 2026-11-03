@@ -1,0 +1,13 @@
+INI_DICT_PROOF_LISTE =   [("store_path", "str"),
+                          ("wpscre_func_ini_file_name","str"),
+                          ("tage_pro_jahr","int","int",365.25),
+                          ("ergebnis_path_pre_name","str","str","erg_"),
+                          ("np_datei_name","str","str","np_erg_array"),
+                          ("single_datei_name","str","str","single_erg_array"),
+                          ("plot_euro_datei_name","str","str","erg_plot_euro"),
+                          ("plot_prozent_datei_name","str","str","erg_plot_prozent"),
+                          ("md_datei_name","str","str","erg_gesamt"),
+                          ("sim_screkat_name","str","str","SIM"),
+                          ("sim_scresig_name","str","str","SIM"),
+                          ("sim_scretab_name","str","str","SIM"),
+                          ("sim_scre_name","str","str","SIM")]
