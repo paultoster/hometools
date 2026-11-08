@@ -7,7 +7,7 @@ if (tools_path not in sys.path):
     sys.path.append(tools_path)
 # endif
 
-import wp_screen.wp_screen_gui as wp_screen_gui
+# import wp_screen.wp_screen_gui as wp_screen_gui
 import wp_screen.wp_screen_sigset_check as wp_screen_sigset_check
 import wp_screen.wp_screen_sigset_command as wp_screen_sigset_command
 
@@ -106,20 +106,6 @@ def sigset_dict_read(rd):
 #-----------------------------------------------------------
 # Externe Funktionen
 #------------------------------------------------------------
-def get_sigset_auswahl(rd):
-    sigset_set(rd)
-
-    (index, _) = wp_screen_gui.listen_abfrage(rd.gui, rd.sig["sigset_liste"], auswahl_title="Auswahl Siganl-Set")
-
-    if index >= 0:
-        sigset = rd.sig["sigset_liste"][index]
-
-    else:
-        sigset = None
-    # end if
-
-    return sigset
-# end def
 def exist_sigset(rd,sigset):
     if sigset in rd.sig["sigset_liste"]:
         return True

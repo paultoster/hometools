@@ -66,6 +66,7 @@ def bilde_tabelle(list_dict,liste_json_files):
              ("mean_zins","float","percentStr"),
              ("median_zins","float","percentStr"),
              ("gesamt_rel_delta_cash","float","percentStr"),
+             ("gesamt_rel_delta_cash_pyear","float","percentStr","0"),
              ("gesamt_rel_steuer","float","percentStr"),
              ("gesamt_rel_kosten","float","percentStr"),
              ("mean_std","float","percentStr"),
@@ -75,12 +76,22 @@ def bilde_tabelle(list_dict,liste_json_files):
              ("relvk_mean","float","percentStr"),
              ("relvkmax_mean","float","percentStr"),
              ("anzahl_deals_gesamt","int","int"),
-             ]
+             ("tage_gesamt","int","int","0"),
+             ("start_dat_str", "str", "str","-"),
+             ("end_dat_str", "str", "str", "-"),
+             ("dyears", "float", "floatStr", "0"),
+              ]
     data_table = [None]*len(list_dict)
     headers = []
     types = []
     types_store = []
-    for (name, type,type_store) in lliste:
+    for liste in lliste:
+
+        if len(liste) == 3:
+            (name, type,type_store) = liste
+            default = None
+        else:
+            (name, type, type_store,default) = liste
 
         headers.append(name)
         types.append(type)
@@ -88,17 +99,27 @@ def bilde_tabelle(list_dict,liste_json_files):
 
 
         for i,ddict in enumerate(list_dict):
+
+            data_set = data_table[i]
             if name in ddict.keys():
-                data_set = data_table[i]
                 if data_set is None:
                     data_set = [ddict[name]]
                 else:
                     data_set.append(ddict[name])
                 # end if
-                data_table[i] = data_set
+            elif default is not None:
+                if data_set is None:
+                    data_set = [default]
+                else:
+                    data_set.append(default)
+                # end if
+
             else:
                 raise Exception(f"Datei {liste_json_files[i]} kann der Name {name} nicht gefunden werden.")
             # end if
+
+            data_table[i] = data_set
+
         # end ofr
     # end dofr
 

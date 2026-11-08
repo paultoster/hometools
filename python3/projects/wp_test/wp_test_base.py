@@ -12,10 +12,10 @@ import tools.hfkt_log as hlog
 import tools.hfkt_ini as hini
 # import tools.hfkt_type as htype
 
-import wp_test_def as wpdef
+import wp_test.wp_test_def as wpdef
 import wp_screen.wp_screen_base as wp_screen_base
-import wp_test_param
-import sim_class
+import wp_test.wp_test_param as wp_test_param
+import wp_test.sim_class as sim_class
 
 
 class WPTest:
@@ -23,11 +23,14 @@ class WPTest:
 
     """
 
-    def __init__(self,param_filename:str,ini_filename:str,log_obj=None) -> None:
+    def __init__(self,ini_filename:str,log_obj=None) -> None:
 
         self.status = hdef.OKAY
         self.errtext = ""
         self.infotext = ""
+
+        self.par_struct_liste = []
+        self.comment_struct = None
 
         # Log-File start
         # ---------------
@@ -41,14 +44,6 @@ class WPTest:
         # ini
         self.ini = hini.get_tomlib_ini_dict(ini_filename, wpdef.INI_DICT_PROOF_LISTE)
 
-        # Parameter
-        # ---------
-        (self.par_struct_liste,self.comment_struct) = wp_test_param.set_param(self,param_filename)
-
-        if self.status != hdef.OKAY:
-            self.log.write_err(self.errtext)
-            return
-        # end if
 
         # wp_screen
         # ----------
@@ -62,7 +57,6 @@ class WPTest:
             self.wpscrefunc.reset_status()
             return
         # end if
-
 
         return
     # end def
@@ -81,7 +75,28 @@ class WPTest:
         self.infotext = ""
         return
     # end def
+    def set_param(self,param_filename:str=None,par_struct_liste:list=None):
 
+        if (param_filename is None) and (par_struct_liste is None):
+            raise Exception(f"param_filename and par_struct_liste are both None")
+        # end if
+
+        if param_filename is not None:
+            # Parameter
+            # ---------
+            (self.par_struct_liste,self.comment_struct) = wp_test_param.set_param(self,param_filename)
+
+            if self.status != hdef.OKAY:
+                self.log.write_err(self.errtext)
+                return
+            # end if
+
+        else:
+            self.par_struct_liste = par_struct_liste
+
+        # end if
+        return
+    # end if
     def run(self):
         self.reset_status()
 
@@ -150,5 +165,9 @@ class WPTest:
             if self.status != hdef.OKAY:
                 return
 
+
+
     # end def
+    def get_ferror(self):
+        return self.Simobj.get_ferror()
 # end class

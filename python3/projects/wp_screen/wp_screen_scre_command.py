@@ -11,7 +11,9 @@ if (tools_path not in sys.path):
 import wp_screen.wp_screen_gui as wp_screen_gui
 import wp_screen.wp_screen_katalog_command as wp_screen_katalog_command
 import wp_screen.wp_screen_sigset as wp_screen_sigset
+import wp_screen.wp_screen_sigset_command as wp_screen_sigset_command
 import wp_screen.wp_screen_tab as wp_screen_tab
+import wp_screen.wp_screen_tab_command as wp_screen_tab_command
 import wp_screen.wp_screen_plotdef_command as wp_screen_plotdef_command
 # import wp_screen_scre_build_signal
 # import wp_screen_scre_build_fmttab
@@ -213,7 +215,7 @@ def scre_edit_command(rd, index):
             # end if
         elif index_abfrage == index_sigset:
 
-            sigset = wp_screen_sigset.get_sigset_auswahl(rd)
+            sigset = wp_screen_sigset_command.get_sigset_auswahl(rd)
 
             if wp_screen_sigset.get_status() != hdef.OKAY:
                 STATUS = wp_screen_sigset.get_status()
@@ -231,7 +233,7 @@ def scre_edit_command(rd, index):
             # end if
         elif index_abfrage == index_tab:
 
-            tab = wp_screen_tab.get_tab_auswahl(rd)
+            tab = wp_screen_tab_command.get_tab_auswahl(rd)
 
             if wp_screen_tab.get_status() != hdef.OKAY:
                 STATUS = wp_screen_tab.get_status()
@@ -344,6 +346,13 @@ def scre_show_screen(rd,index):
     rd.scre["scre"] = rd.scre["scre_liste"][index]
     wp_screen_scre.scre_dict_read(rd)
     if get_status() != hdef.OKAY:
+        return
+
+    # 0. Check sigliste against tabliste
+    if not wp_screen_scre.check_sigset_against_tabset(rd,rd.scre["scre"],rd.scre["scre_dict"]):
+        STATUS = hdef.NOT_OKAY
+        ERRTEXT = f"scre_show_screen build: Error in check_sigset_against_tabset \n errtext = {wp_screen_scre.get_errtext()}"
+        wp_screen_scre.reset_status()
         return
 
     # 1. build alll signals

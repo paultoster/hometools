@@ -37,12 +37,15 @@ PARAM_LLIST = [
 ("WPTriggerVerkauf",        "Wann soll verkauft werden.'Vsig': nur nach Verkaufssignal , 'Vsig+Rank': Auch zusätzlich nach rang  ",{"wert":["Vsig","Vsig+Rank"],"type":"str"}),
 ("ParameterVariation",      "Beschreibung  (parallel, format)",{"wert":["parallel"]}),
 ("WPBuildSigSetNew",        "Soll immer eine neue DatenBasis geniert werden (zeitaufwendig)  (True/False, bool)", {"type": "bool"}),
+("BildeAusgabe",            "Soll die ausgabe geniert werden geniert werden (zeitaufwendig)  (True/False, bool)", {"type": "bool"}),
+
 ]
 # ("SimName",                 "Name der Simulation  (TestLauf, str)",{"type":"str"}),
 
-import copy
+# import copy
 import os, sys
 import yaml
+import yaml_include
 import copy
 import json
 from types import SimpleNamespace
@@ -58,34 +61,62 @@ if (tools_path not in sys.path):
 import tools.hfkt_def as hdef
 import tools.hfkt_type as htype
 import tools.hfkt_file_path as hfp
+import tools.hfkt_list as hlist
 
 
 PARAMETERFILE = ""
 
-import os
-import yaml
 
 
-def yaml_include(loader, node):
-    """Constructor für das !include Tag.
-    Löst Pfade relativ zur aktuellen YAML-Datei auf.
-    """
-    # Holt den Dateinamen aus dem YAML-Knoten
-    filename = loader.construct_scalar(node)
-
-    # Ermittelt das Verzeichnis der aktuellen Haupt-YAML-Datei
-    base_dir = os.path.dirname(loader.name) if loader.name else os.getcwd()
-    full_path = os.path.join(base_dir, filename)
-
-    with open(full_path, 'r', encoding='utf-8') as f:
-        # Nutzt safe_load, um Sicherheitsrisiken zu vermeiden
-        return yaml.safe_load(f)
-
-
-# Registriert das !include Tag für den SafeLoader
-yaml.add_constructor('!include', yaml_include, Loader=yaml.SafeLoader)
-
-
+# def yaml_include(loader, node):
+#     """Constructor für das !include Tag.
+#     Löst Pfade relativ zur aktuellen YAML-Datei auf.
+#     """
+#     # Holt den Dateinamen aus dem YAML-Knoten
+#     filename = loader.construct_scalar(node)
+#
+#     # Ermittelt das Verzeichnis der aktuellen Haupt-YAML-Datei
+#     base_dir = os.path.dirname(loader.name) if loader.name else os.getcwd()
+#     full_path = os.path.join(base_dir, filename)
+#
+#     with open(full_path, 'r', encoding='utf-8') as f:
+#         # Nutzt safe_load, um Sicherheitsrisiken zu vermeiden
+#         return yaml.safe_load(f)
+#
+#
+# # Registriert das !include Tag für den SafeLoader
+# yaml.add_constructor('!include', yaml_include, Loader=yaml.SafeLoader)
+#
+#
+# class UniqueIncludeLoader(yaml.SafeLoader):
+#     """Ein SafeLoader, der die Basis-Struktur der Hauptdatei kennt,
+#
+#     um relative Pfade für !include korrekt aufzulösen.
+#     """
+#
+#     def __init__(self, stream):
+#         # Den Pfad der aktuell gelesenen Datei speichern
+#         self._root = os.path.dirname(stream.name) if hasattr(stream, 'name') else os.getcwd()
+#         super().__init__(stream)
+#
+#
+# def include_constructor(loader: UniqueIncludeLoader, node: yaml.Node):
+#     """Konstruktor, der den !include-Tag verarbeitet."""
+#     # Den angegebenen Dateinamen aus dem YAML-Knoten extrahieren
+#     filename = loader.construct_scalar(node)
+#
+#     # Absoluten Pfad basierend auf der Ursprungsdatei erstellen
+#     full_path = os.path.normpath(os.path.join(loader._root, filename))
+#
+#     # Die inkludierte Datei mit demselben Loader-Typ laden (erlaubt verschachtelte Includes)
+#     with open(full_path, 'r', encoding='utf-8') as f:
+#         return yaml.load(f, Loader=UniqueIncludeLoader)
+#
+#
+# # Den Konstruktor an unseren benutzerdefinierten Loader binden
+# yaml.add_constructor('!include', include_constructor, Loader=UniqueIncludeLoader)
+#
+#
 # class Loader(yaml.SafeLoader):
 #
 #     def __init__(self, stream):
@@ -102,48 +133,28 @@ yaml.add_constructor('!include', yaml_include, Loader=yaml.SafeLoader)
 #             return yaml.load(f, Loader)
 #
 # Loader.add_constructor('!include', Loader.include)
-
-def set_param(mobj,param_filename):
-    """
-
-    "param_struct_liste,comment_struct" = set_param(mobj,param_filename)
-
-    :param mobj:          contains infos and status,errtext, etc
-    :param param_filename:  Parameterfile
-    :return: param_struct_liste,comment_struct    List mit Parameter-sets und ein comment-set
-    """
-
-    par_liste = []
+def get_split_param_dicts(mobj,param_filename):
 
     global PARAMETERFILE
     PARAMETERFILE = param_filename
 
     # Einlesen der yaml-Datei
     #-------------------------
-    path = Path(param_filename)
-    try:
-        par_raw_dict = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
-        print(par_raw_dict)
-    except yaml.YAMLError as exc:
-        mark = getattr(exc, "problem_mark", None)
-        where = f" at line {mark.line + 1}, column {mark.column + 1}" if mark else ""
-        mobj.status = hdef.NOT_OKAY
-        mobj.errtext = f"invalid YAML in {path}{where}: {getattr(exc, 'problem', exc)}"
-        return (None, None)
-    # end try
-
-    if "database" in par_raw_dict.keys():
-        for key in par_raw_dict["database"].keys():
-            par_raw_dict[key] = par_raw_dict["database"][key]
-        # end of
-        del par_raw_dict["database"]
-    # end if
-
-    par_liste = []
+    par_raw_dict = read_yaml(mobj,param_filename)
+    if mobj.status != hdef.OKAY:
+        return (None,None)
 
     # Auftrennen von platzhalter Parmeter und eigentlichen Parameter
     #---------------------------------------------------------------
     (par_dict,platzhalter_dict_liste) = build_par_liste_sep_platzh(mobj,par_raw_dict)
+    if mobj.status != hdef.OKAY:
+        return (None,None)
+
+    return (par_dict,platzhalter_dict_liste)
+# end def
+def get_par_struct_liste(mobj,par_dict,platzhalter_dict_liste):
+
+    global PARAMETERFILE
 
     par_liste_pruefung_existenz(mobj,par_dict)
     if mobj.status != hdef.OKAY:
@@ -171,6 +182,58 @@ def set_param(mobj,param_filename):
 
     return (par_struct_liste,comment_struct)
 # end def
+def set_param(mobj,param_filename):
+    """
+
+    "param_struct_liste,comment_struct" = set_param(mobj,param_filename)
+
+    :param mobj:          contains infos and status,errtext, etc
+    :param param_filename:  Parameterfile
+    :return: param_struct_liste,comment_struct    List mit Parameter-sets und ein comment-set
+    """
+
+    # Einlesen der yaml-Datei
+    # und Auftrennen von platzhalter Parmeter und eigentlichen Parameter
+    #-------------------------------------------------------------------
+    (par_dict, platzhalter_dict_liste) = get_split_param_dicts(mobj,param_filename)
+
+    if mobj.status != hdef.OKAY:
+        return (None,None)
+
+    (par_struct_liste,comment_struct) = get_par_struct_liste(mobj, par_dict, platzhalter_dict_liste)
+
+    if mobj.status != hdef.OKAY:
+        return (None,None)
+
+    return (par_struct_liste,comment_struct)
+
+# end def
+def read_yaml(mobj,param_filename):
+
+    path = Path(param_filename)
+
+    yaml.add_constructor("!include", yaml_include.Constructor(), yaml.Loader)
+
+    try:
+        par_raw_dict = yaml.load(path.read_text(encoding="utf-8"), yaml.Loader) or {}
+        print(par_raw_dict)
+    except yaml.YAMLError as exc:
+        mark = getattr(exc, "problem_mark", None)
+        where = f" at line {mark.line + 1}, column {mark.column + 1}" if mark else ""
+        mobj.status = hdef.NOT_OKAY
+        mobj.errtext = f"invalid YAML in {path}{where}: {getattr(exc, 'problem', exc)}"
+        return (None, None)
+    # end try
+
+    if "database" in par_raw_dict.keys():
+        for key in par_raw_dict["database"].keys():
+            par_raw_dict[key] = par_raw_dict["database"][key]
+        # end of
+        del par_raw_dict["database"]
+    # end if
+
+    return par_raw_dict
+# end def
 def build_par_liste_sep_platzh(mobj,par_raw_dict):
     """
 
@@ -190,41 +253,11 @@ def build_par_liste_sep_platzh(mobj,par_raw_dict):
 
         if key.find("par_") == 0:
 
-            key2 = "type"
-            if key2 not in par_raw_dict[key]:
-                mobj.status = hdef.NOT_OKAY
-                mobj.errtext = f"build_par_liste_sep_platzh: In File {PARAMETERFILE} ist für Parameter {key} kein Unterparameter: {key2} definiert"
+            platzhalter_dict = get_platzhalter_dict(mobj,par_raw_dict[key],key)
+            if mobj.status != hdef.OKAY:
                 return (None,None)
-            # end if
 
-            if par_raw_dict[key][key2] == "liste":
-                key3 = "liste"
-                if key3 not in par_raw_dict[key]:
-                    mobj.status = hdef.NOT_OKAY
-                    mobj.errtext = f"build_par_liste_sep_platzh: In File {PARAMETERFILE} ist für Parameter {key} kein Unterparameter: {key3} definiert"
-                    return (None, None)
-                # end if
-                if not isinstance(par_raw_dict[key][key3],list):
-                    mobj.status = hdef.NOT_OKAY
-                    mobj.errtext = f"build_par_liste_sep_platzh: In File {PARAMETERFILE} ist für Parameter {key} ist  Unterparameter: {key3} keine Liste"
-                    return (None, None)
-                # end if
-            else:
-                mobj.status = hdef.NOT_OKAY
-                mobj.errtext = f"build_par_liste_sep_platzh: In File {PARAMETERFILE} ist für Parameter {key} mit Unterparameter: {key2} nicht korrekt definiert"
-                return (None, None)
-            # end if
-
-            key2 = "format"
-            if key2 not in par_raw_dict[key]:
-                par_raw_dict[key][key2] = "str"  # default
-            # end if
-            platzh = key[4:]
-            type   = par_raw_dict[key][key2]
-            liste  = par_raw_dict[key][key3]
-            n      = len(liste)
-            format = par_raw_dict[key][key2]
-            platzhalter_dict_liste.append({"name":platzh,"type": type,"liste":liste,"n":n,"format":format})
+            platzhalter_dict_liste.append(platzhalter_dict)
         else:
             par_dict[key] = par_raw_dict[key]
         # end if
@@ -232,6 +265,125 @@ def build_par_liste_sep_platzh(mobj,par_raw_dict):
 
     return (par_dict,platzhalter_dict_liste)
 # end def
+def get_platzhalter_dict(mobj,platzhalter_raw_dict,key):
+
+
+    key1 = "platzhalter"
+    if key1 not in platzhalter_raw_dict:
+        mobj.status = hdef.NOT_OKAY
+        mobj.errtext = f"get_platzhalter_dict: In File {PARAMETERFILE} ist für Parameter {key} kein Unterparameter: {key1} definiert"
+        return None
+    # end if
+
+    key2 = "type"
+    if key2 not in platzhalter_raw_dict:
+        mobj.status = hdef.NOT_OKAY
+        mobj.errtext = f"get_platzhalter_dict: In File {PARAMETERFILE} ist für Parameter {key} kein Unterparameter: {key2} definiert"
+        return None
+    # end if
+
+    if platzhalter_raw_dict[key2] == "liste":
+        key3 = "liste"
+        if key3 not in platzhalter_raw_dict:
+            mobj.status = hdef.NOT_OKAY
+            mobj.errtext = f"get_platzhalter_dict: In File {PARAMETERFILE} ist für Parameter {key} kein Unterparameter: {key3} definiert"
+            return None
+        # end if
+        if not isinstance(platzhalter_raw_dict[key3], list):
+            mobj.status = hdef.NOT_OKAY
+            mobj.errtext = f"get_platzhalter_dict: In File {PARAMETERFILE} ist für Parameter {key} ist  Unterparameter: {key3} keine Liste"
+            return None
+        # end if
+
+        key4 = "delta"
+        if key4 not in platzhalter_raw_dict:
+            platzhalter_raw_dict[key4] = None
+        key5 = "minvalue"
+        if key5 not in platzhalter_raw_dict:
+            platzhalter_raw_dict[key5] = None  # default
+        # end if
+
+        key6 = "maxvalue"
+        if key6 not in platzhalter_raw_dict:
+            platzhalter_raw_dict[key6] = None  # default
+        # end if
+
+    elif platzhalter_raw_dict[key2] == "delta":
+
+        key4 = "delta"
+        if key4 not in platzhalter_raw_dict:
+            mobj.status = hdef.NOT_OKAY
+            mobj.errtext = f"get_platzhalter_dict: In File {PARAMETERFILE} ist für Parameter {key} kein Unterparameter: {key4} definiert"
+            return None
+        # end if
+        if not isinstance(platzhalter_raw_dict[key4], (int, float)):
+            mobj.status = hdef.NOT_OKAY
+            mobj.errtext = f"get_platzhalter_dict: In File {PARAMETERFILE} ist für Parameter {key} ist  Unterparameter: {key4} kein int oder float"
+            return None
+        # end if
+
+        key5 = "minvalue"
+        if key5 not in platzhalter_raw_dict:
+            mobj.status = hdef.NOT_OKAY
+            mobj.errtext = f"get_platzhalter_dict: In File {PARAMETERFILE} ist für Parameter {key} kein Unterparameter: {key5} definiert"
+            return None
+        # end if
+        if not isinstance(platzhalter_raw_dict[key5], (int, float)):
+            mobj.status = hdef.NOT_OKAY
+            mobj.errtext = f"get_platzhalter_dict: In File {PARAMETERFILE} ist für Parameter {key} ist  Unterparameter: {key5} kein int oder float"
+            return None
+        # end if
+
+        key6 = "maxvalue"
+        if key6 not in platzhalter_raw_dict:
+            mobj.status = hdef.NOT_OKAY
+            mobj.errtext = f"get_platzhalter_dict: In File {PARAMETERFILE} ist für Parameter {key} kein Unterparameter: {key6} definiert"
+            return None
+        # end if
+        if not isinstance(platzhalter_raw_dict[key6], (int, float)):
+            mobj.status = hdef.NOT_OKAY
+            mobj.errtext = f"get_platzhalter_dict: In File {PARAMETERFILE} ist für Parameter {key} ist  Unterparameter: {key6} kein int oder float"
+            return None
+        # end if
+
+        key3 = "liste"
+        platzhalter_raw_dict[key3] = hlist.build_aequidistant_liste(platzhalter_raw_dict[key5],
+                                                                 platzhalter_raw_dict[key6],
+                                                                 platzhalter_raw_dict[key4])
+
+    else:
+        mobj.status = hdef.NOT_OKAY
+        mobj.errtext = f"get_platzhalter_dict: In File {PARAMETERFILE} ist für Parameter {key} mit Unterparameter: {key2} nicht korrekt definiert"
+        return None
+    # end if
+
+    key7 = "format"
+    if key7 not in platzhalter_raw_dict:
+        platzhalter_raw_dict[key7] = "str"  # default
+    # end if
+
+    key8 = "format_value"
+    if key8 not in platzhalter_raw_dict:
+        platzhalter_raw_dict[key8] = "str"  # default
+    # end if
+
+    platzh = platzhalter_raw_dict[key1]
+    type = platzhalter_raw_dict[key2]
+    liste = platzhalter_raw_dict[key3]
+    n = len(liste)
+    delta = platzhalter_raw_dict[key4]
+    minvalue = platzhalter_raw_dict[key5]
+    maxvalue = platzhalter_raw_dict[key6]
+    format = platzhalter_raw_dict[key7]
+    format_value = platzhalter_raw_dict[key8]
+
+    platzhalter_dict = {"name": platzh, "type": type, "liste": liste, "n": n,
+                       "delta": delta, "minvalue": minvalue, "maxvalue": maxvalue,
+                       "format": format, "format_value": format_value, }
+
+    return platzhalter_dict
+# end def
+
 def par_liste_pruefung_existenz(mobj,par_dict):
     """
         Es werden alle keys geprüft und der Inhalt zur Parameterbestimmung
@@ -306,14 +458,14 @@ def build_par_liste_ersetze_platzh(mobj,par_dict,platzhalter_dict_liste):
                 for key in par_dict_i.keys():
                     if isinstance(par_dict_i[key],str):
                         value = par_dict_i[key]
-                        searchstr = "@"+pdict["name"]+"@"
+                        searchstr = pdict["name"]
                         i0 = value.find(searchstr)
                         if i0 > -1:
 
                             if (pdict["format"] == "int") or (pdict["format"] == "float"):
                                 value = pdict["akt"]
                             else:
-                                value = value.replace(searchstr,pdict["akt"])
+                                value = value.replace(searchstr,str(pdict["akt"]))
                             # end if
 
                             par_dict_i[key] = value

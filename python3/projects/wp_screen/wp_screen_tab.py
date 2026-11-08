@@ -7,7 +7,7 @@ if (tools_path not in sys.path):
     sys.path.append(tools_path)
 # endif
 
-import wp_screen.wp_screen_gui as wp_screen_gui
+# import wp_screen.wp_screen_gui as wp_screen_gui
 import wp_screen.wp_screen_tab_check as wp_screen_tab_check
 import wp_screen.wp_screen_tab_command as wp_screen_tab_command
 
@@ -109,21 +109,6 @@ def tab_dict_read(rd):
 #-----------------------------------------------------------
 # Externe Funktionen
 #------------------------------------------------------------
-def get_tab_auswahl(rd):
-
-    tab_set(rd)
-
-    (index, _) = wp_screen_gui.listen_abfrage(rd.gui, rd.tab["tab_liste"], auswahl_title="Auswahl Tabellen-Set")
-
-    if index >= 0:
-        tab = rd.tab["tab_liste"][index]
-
-    else:
-        tab = None
-    # end if
-
-    return tab
-# end def
 def exist_tab(rd,tab):
     if tab in rd.tab["tab_liste"]:
         return True

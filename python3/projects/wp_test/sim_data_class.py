@@ -7,12 +7,9 @@ if (tools_path not in sys.path):
 # endif
 
 import tools.hfkt_def as hdef
-import tools.hfkt_tvar as htvar
+# import tools.hfkt_tvar as htvar
 import tools.hfkt_type as htype
 import tools.hfkt_list as hlist
-
-import konto_verrechnung_class
-import konto_zins_class
 
 class WPData:
     """

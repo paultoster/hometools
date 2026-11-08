@@ -12,12 +12,12 @@ import tools.hfkt_log as hlog
 import tools.hfkt_type as htype
 import tools.hfkt_np_calc as hnpcalc
 
-import sim_par_class
-import konto_class
-import trigger_datum_class
-import sim_data_class
-import sim_pruef_class
-import sim_ergebnis_class
+import wp_test.sim_par_class as sim_par_class
+import wp_test.konto_class as konto_class
+import wp_test.trigger_datum_class as trigger_datum_class
+import wp_test.sim_data_class as sim_data_class
+import wp_test.sim_pruef_class as sim_pruef_class
+import wp_test.sim_ergebnis_class as sim_ergebnis_class
 
 class WPSim:
     """
@@ -201,4 +201,8 @@ class WPSim:
 
         return
     # end def
+    def get_ferror(self):
+        return self.ErgebnisObj.get_ferror()
+    # end def
+
 

@@ -1,0 +1,239 @@
+import os, sys
+import copy, random
+import datetime
+
+from win32comext.mapi.mapi import fnevCriticalError
+
+t_path, _ = os.path.split(__file__)
+tools_path = t_path + "\\.."
+if (tools_path not in sys.path):
+    sys.path.append(tools_path)
+# endif
+
+import tools.hfkt_def as hdef
+import tools.hfkt_log as hlog
+import tools.hfkt_ini as hini
+import tools.hfkt_list as hlist
+import tools.hfkt_io as hio
+import tools.hfkt_file_path as hfp
+
+
+import wp_test.wp_test_base as wp_test_base
+import wp_test.wp_test_param as wp_test_param
+
+COUNTER = 0
+INI_DICT_PROOF_LISTE =   [("store_path", "str"),
+                          ("wptest_func_ini_file_name","str")]
+
+class WPOpt:
+    """
+
+    """
+
+    def __init__(self, param_filename: str, ini_filename: str, log_obj=None) -> None:
+
+        self.status = hdef.OKAY
+        self.errtext = ""
+        self.infotext = ""
+
+        # Log-File start
+        # ---------------
+        if log_obj is None:
+            self.log = hlog.log(consol_func=True, log_window=False)
+        else:
+            self.log = log_obj
+        # end if
+        self.log_file_name = self.log.get_logfilename()
+
+        # ini
+        self.ini = hini.get_tomlib_ini_dict(ini_filename, INI_DICT_PROOF_LISTE)
+
+        if self.status != hdef.OKAY:
+            self.log.write_err(self.errtext)
+            return
+        # end if
+
+        # wp_screen
+        # ----------
+        self.wptestfunc = wp_test_base.WPTest(ini_filename=self.ini["wptest_func_ini_file_name"],
+                                              log_obj=self.log)
+
+        if self.wptestfunc.get_status() != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = self.wptestfunc.get_errtext()
+            self.log.write_err(self.errtext)
+            self.wptestfunc.reset_status()
+            return
+        # end if
+
+        # Parameter par_dict und platzhalter
+        # ---------
+        self.param_filename = param_filename
+        (self.par_dict, self.platzhalter_dict_liste) = wp_test_param.get_split_param_dicts(self, param_filename)
+
+        if self.status != hdef.OKAY:
+            self.log.write_err(self.errtext)
+            return
+
+        # Teste Parameter Set
+        #---------------------
+        (par_struct_liste,comment_struct) = wp_test_param.get_par_struct_liste(self, self.par_dict, self.platzhalter_dict_liste)
+        if self.status != hdef.OKAY:
+            self.log.write_err(self.errtext)
+            return
+        # end if
+
+        return
+    # end def
+    def run_opt(self):
+
+        def cal_cost_function(x):
+            global COUNTER
+
+            # set value
+            platzhalter_dict_liste = copy.copy(self.platzhalter_dict_liste)
+            for i in range(len(x)):
+                platzhalter_dict_liste[i]["liste"] = [x[i]]
+                platzhalter_dict_liste[i]["n"] = 1
+            # end ofr
+
+            # Teste Parameter Set
+            #---------------------
+            (par_struct_liste,comment_struct) = wp_test_param.get_par_struct_liste(self, self.par_dict, platzhalter_dict_liste)
+            if self.status != hdef.OKAY:
+                raise Exception(self.errtext)
+            # end if
+
+            self.wptestfunc.set_param(par_struct_liste=par_struct_liste)
+
+            if self.wptestfunc.get_status() != hdef.OKAY:
+                raise Exception(self.wptestfunc.get_errtext())
+            # end if
+
+            self.wptestfunc.run()
+
+            if self.wptestfunc.get_status() != hdef.OKAY:
+                raise Exception(self.wptestfunc.get_errtext())
+            # end if
+
+            ferror = self.wptestfunc.get_ferror()
+            COUNTER += 1
+
+            print(f"Running search: n: {COUNTER} ferror: {ferror}")
+
+            return ferror
+        # end def
+
+        global COUNTER
+        COUNTER = 0
+
+        # Ausgabe abstellen
+        self.par_dict["BildeAusgabe"] = False
+
+        # Liste mit allen permutierenden Werten erstellen
+        xsearch_lliste = []
+        for ddict in self.platzhalter_dict_liste:
+            xsearch_lliste.append(ddict["liste"])
+        # end for
+
+        # Eine art Protokollfile erstellen
+        #---------------------------------
+        filename = os.path.join(self.ini["store_path"],datetime.datetime.now().strftime("Opt_%Y%m%d_%H%M.json"))
+        jsonobj = hio.DataJson(filename)
+
+        # Suche nach besten Wert mit Liste
+        #----------------------------------
+        xfound_liste = self.search_minimum(xsearch_lliste,cal_cost_function,jsonobj)
+
+        # gefundener wert in die Platzhalterliste schreiben
+        #--------------------------------------------------
+        for i in range(len(xfound_liste)):
+            self.platzhalter_dict_liste[i]["value_min"] = xfound_liste[i]
+        # end for
+
+        # Parameterfile umbenennen und die neuen Werte reinschreiben
+        #----------------------------------------------------------
+        wp_test_param_filename = self.bilde_paramfile_mit_ergebnis()
+
+        # Neuen Parameter Set einlesen
+        #-----------------------------
+        (par_struct_liste,comment_struct) = wp_test_param.set_param(self, wp_test_param_filename)
+        if self.status != hdef.OKAY:
+            raise Exception(self.errtext)
+        # end if
+
+        self.wptestfunc.set_param(par_struct_liste=par_struct_liste)
+
+        # run final calculation mit ergebnis
+        self.wptestfunc.run()
+
+        if self.wptestfunc.get_status() != hdef.OKAY:
+            raise Exception(self.wptestfunc.get_errtext())
+        # end if
+
+        return
+    # end def
+    def search_minimum(self,xsearch_lliste,func,jsonobj):
+        """ search with xsearch_liste
+        xsearch_lliste: all lists from self.platzhalter_dict_liste put into llist
+        """
+
+        # Bilde Permutation von allen einzel listen
+        search_lliste = hlist.build_permutation_llist_from_llist(xsearch_lliste,1)
+
+        n = len(search_lliste)
+
+        for i in range(n):
+
+            result = func(search_lliste[i][:-1])
+
+            search_lliste[i][-1] = result
+
+            jsonobj.save(search_lliste)
+
+        # end ofr
+        for i in reversed(range(n)):
+            if search_lliste[i][-1] is None:
+                print(f"Weglöschen wegen None: {search_lliste[i]}")
+                del search_lliste[i][-1]
+            # end if
+        # end for
+
+        index = len(search_lliste[0])-1
+
+        sort_lliste = hlist.sort_list_of_list(search_lliste, index)
+
+        return sort_lliste[0][:-1]
+    # end def
+    def bilde_paramfile_mit_ergebnis(self):
+
+
+
+        # lese inhalt des Parameterfiles
+        (okay, data) = hio.read_ascii(file_name=self.param_filename)
+
+        # Ersetze Platzhalter mit Ergebnis
+        for platzhalter_dict in self.platzhalter_dict_liste:
+
+           data = data.replace(platzhalter_dict["name"],str(platzhalter_dict["value_min"]))
+
+        # end for
+
+        # Ersetze "par_" zu "nopar_" to take out parameter replacemant
+        data = data.replace("par_","nopar_")
+
+        # modify parameter name
+        (path, fbody, ext) = hfp.get_pfe(self.param_filename)
+
+        fbody = fbody.replace("wp_opt","wp_test_opt")
+        wp_test_param_filename = hfp.set_pfe(path,fbody,ext)
+
+        okay = hio.write_ascii(wp_test_param_filename, data,preferred_encoding="utf-8")
+
+        if okay != hdef.OKAY:
+            print(data)
+            raise Exception(f"hio.write_ascii({wp_test_param_filename}, data)")
+        # end if
+
+        return wp_test_param_filename
+# end class

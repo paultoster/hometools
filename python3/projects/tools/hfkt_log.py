@@ -22,9 +22,24 @@ import subprocess
 import socket
 # import time
 
-from . import hfkt_def as hdef
-from . import hfkt as h
-from . import hfkt_file_path as hfp
+
+t_path, _ = os.path.split(__file__)
+if (t_path == os.getcwd()):
+
+    import hfkt_def as hdef
+    import hfkt as h
+    import hfkt_tvar as htvar
+else:
+    p_list = os.path.normpath(t_path).split(os.sep)
+    if (len(p_list) > 1): p_list = p_list[: -1]
+    t_path = ""
+    for i, item in enumerate(p_list): t_path += item + os.sep
+    if (os.path.normpath(t_path) not in sys.path): sys.path.append(t_path)
+
+    from tools import hfkt_def as hdef
+    from tools import hfkt as h
+    from tools import hfkt_file_path as hfp
+
 
 # -------------------------------------------------------------------------------
 # t_path, _ = os.path.split(__file__)

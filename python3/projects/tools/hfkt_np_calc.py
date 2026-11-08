@@ -115,23 +115,40 @@ def build_median_zins_curve(np_dyears_array,np_value_array):
 
         ferror = 0.0
         for i, dy in np.ndenumerate(np_dy_array):
-            zinseszins = np_val_array[0] * math.pow(max(0.0,mean_zins + 1.0), dy)
-            diff       = zinseszins - np_val_array[i]
+            if mean_zins < 0.0:
+                zinseszins = np_val_array[0] * math.pow(max(0.0,1.0+mean_zins), dy)
+            else:
+                zinseszins = np_val_array[0] * math.pow(max(0.0,mean_zins + 1.0), dy)
+            # end if
+            diff       = zinseszins - np.float64(np_val_array[i])
             ferror += diff
-        # end for
 
         return ferror
     # end def
 
     # Startpunkt
-    Kn_K0 = np_value_array[-1] / np_value_array[0]
-    years = np_dyears_array[-1]
-    zins_fact = math.pow(Kn_K0, 1. / years)
-    median_zins = zins_fact - 1.
+    median_zins_max = 0.0
+    median_zins_min = 0.0
+    for i, dy in np.ndenumerate(np_dyears_array):
+        if np_dyears_array[i] > 0.001:
+            Kn_K0 = np_value_array[i] / np_value_array[0]
+            median_zins_raw = math.pow(Kn_K0, 1. / np_dyears_array[i]) - 1.
+            if median_zins_raw < median_zins_min:
+                median_zins_min = median_zins_raw
+            # end if
+            if median_zins_raw > median_zins_max:
+                median_zins_max = median_zins_raw
+            # end if
+        # end if
+    # end for
+    # Kn_K0 = np_value_array[-1] / np_value_array[0]
+    # years = np_dyears_array[-1]
+    # zins_fact = math.pow(Kn_K0, 1. / years)
+    # median_zins = zins_fact - 1.
 
     result = scipy.optimize.root_scalar(build_median_zins_curve_function,
                                         args=(np_dyears_array,np_value_array),
-                                        bracket=(0, median_zins*100)
+                                        bracket=(median_zins_min, median_zins_max)
                                         )
     median_zins = result.root
     zins_fact = median_zins + 1.

@@ -21,7 +21,7 @@
                                                                                 Rückgabe der Liste
  def get_size_of_dir(Path,size=0): Gibt Größe des gesamten Unterverzeichnispfad an
  def join(part0="",part1="",part2="",part3="",part4="",part5=""):Setzt Dateiname zusammen
- (path,fbody,ext) = get_pfe(full_file): Gibt Pfad,Filebody und Extension zurück
+ (path,fbody,ext) = get_pfe(full_file) Gibt Pfad,Filebody und Extension zurück
  fullfilename = set_pfe(path,filebody,ext)
  fullfilename = set_pfe(path,filename)
  fullfilename = reset_ext(fullfilename_in,ext)

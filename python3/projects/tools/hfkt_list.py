@@ -132,6 +132,8 @@ liste_out = recalc_integer_liste(liste,start_with_one=True):
                                     liste_in = [4,2,1,0] => liste_out = [3,2,1,0]
 
 
+liste_out = build_aequidistant_liste(x0,x1,xdelta)   von x0 bis x1 in xdelta-Schritten
+
 '''
 import inspect
 # from tkinter import *
@@ -835,6 +837,104 @@ def recalc_integer_liste(liste,start_with_one=True):
     liste    = np_array.tolist()
     return liste
 # end def
+def build_aequidistant_liste(x0,x1,xdelta):
+    """
+    Bilde Liste von x0 bis x1 in xdelta-Schritten
+    :param x0:
+    :param x1:
+    :param xdelta:
+    :return: liste_out = build_aequidistant_liste(x0,x1,xdelta)
+    """
+
+    if x0 == x1:
+        liste_out = [x0]
+    else:
+        if x0 > x1:
+            delta = -abs(xdelta)
+        else:
+            delta = abs(xdelta)
+        # end if
+        x = x0
+        liste_out = [x]
+        while True:
+
+            x += delta
+            if x >= x1:
+                liste_out.append(x1)
+                break
+            else:
+                liste_out.append(x)
+            # end if
+        # end while
+    # end if
+
+    return liste_out
+# end def
+def build_permutation_llist_from_llist(lliste,length_list_add=0):
+    """
+
+    Bilet alle permutationen aus den Unterlisten. Mit length_list_add wird der Unterliste vergrößert
+    z.B. length_list_add = 2  lliste= [[1,2],[30,40]]
+
+    => llist_out = [[1,30,None,None],
+                    [1,40,None,None],
+                    [2,30,None,None],
+                    [2,40,None,None]]
+
+
+    :param lliste:
+    :param length_list:
+    :return: llist_out = build_permutation_llist_from_llist(lliste,length_list)
+    """
+
+    n = len(lliste)
+    n_liste = [len(liste) for liste in lliste]
+
+    n_out = 1
+    for nn in n_liste:
+        n_out *= nn
+    # end for
+
+    m_out = n + length_list_add
+
+    liste_out = [[None for _ in range(m_out)] for _ in range(n_out)]
+
+    for i in range(n):
+
+        ka = n_liste[i]
+
+        kb = build_prod_liste(n_liste[i+1:])
+
+        if i == 0:
+            kc = 1
+        else:
+            kc = build_prod_liste(n_liste[0:i])
+        # end if
+
+        liste1 = []
+        for j in range(ka):
+
+            liste2 = [lliste[i][j]]*kb
+            liste1 += liste2
+        # end for
+        liste3 = []
+        for j in range(kc):
+            liste3 += liste1
+        # end for
+
+        for j,item in enumerate(liste3):
+            liste_out[j][i] = item
+        # end for
+    # end for
+    return liste_out
+# end def
+def build_prod_liste(nliste):
+    prod = 1
+    for n in nliste:
+        prod *= n
+    # end for
+    return prod
+# end def
 class HandleDictListe:
     def __init__(self, obj):
         self.set_liste(obj)
@@ -1307,11 +1407,13 @@ if __name__ == '__main__':
     # print(sort_list_of_dict(lliste, 'age', aufsteigend=1))
     # print(sort_list_of_dict(lliste, 'age', aufsteigend=0))
 
-    liste = [1,1,5,6,3,3,4,5]
+    lliste = [["a1","a2","a3","a4"],["b1","b2","b3"],["c1","c2","c3"],["d1","d2"]]
 
-    liste_out = recalc_integer_liste(liste)
+    lliste_out = build_permutation_llist_from_llist(lliste,2)
 
-    print(liste)
-    print(liste_out)
+    print(lliste)
+    for item in lliste_out:
+        print(item)
+    # end for
 
     print("ende")

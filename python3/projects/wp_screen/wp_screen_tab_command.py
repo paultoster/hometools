@@ -1,5 +1,6 @@
 
 import os, sys, copy
+import json
 
 t_path, _ = os.path.split(__file__)
 tools_path = t_path + "\\.."
@@ -366,4 +367,41 @@ def tab_edit_hilfe(rd):
 
     wp_screen_gui.anzeige_text(rd.gui, infotext, "Hilfe syntax tab")
     return
+# end def
+def get_tab_auswahl(rd):
+
+    wp_screen_tab.tab_set(rd)
+
+    if wp_screen_tab.get_status() != hdef.OKAY:
+        global STATUS, ERRTEXT
+        STATUS = wp_screen_tab.get_status()
+        ERRTEXT = wp_screen_tab.get_errtext()
+        wp_screen_tab.reset_status()
+        return None
+    # end if
+
+    abfrage_liste = ["select", "show", "ende"]
+
+    while True:
+        (index, indexAbfrage) = wp_screen_gui.listen_abfrage(rd.gui,
+                                                             rd.tab["tab_liste"],
+                                                             auswahl_title="Auswahl Tabellen-Set",
+                                                             abfrage_liste=abfrage_liste)
+
+        if (index < 0) or (indexAbfrage == 2):
+            return None
+        elif indexAbfrage == 0:
+            if index >= 0:
+                tab = rd.tab["tab_liste"][index]
+                return tab
+            # end if
+        else:
+            if index >= 0:
+                tab = rd.tab["tab_liste"][index]
+                tab_dict = wp_screen_tab.get_tab_dict(rd, tab)
+                texteingabe = json.dumps(tab_dict, indent=2)
+                wp_screen_gui.anzeige_text(rd.gui, texteingabe, title=None, textcolor='black')
+            # end if
+        # end if
+    # end while
 # end def

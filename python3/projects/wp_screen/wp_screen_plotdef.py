@@ -124,6 +124,10 @@ def get_plotdef_dict(rd, plotdef):
 
     plotdef_set(rd)
 
+    if get_status() != hdef.OKAY:
+        return None
+    # end if
+
     if plotdef in rd.plot["plotdef_liste"]:
 
         rd.plot["plotdef"] = plotdef

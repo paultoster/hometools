@@ -22,7 +22,15 @@ for param_filename in param_filenames:
     if param_filename is None or param_filename == "":
         exit(0)
     # end if
-    wpobj = wp_test_base.WPTest(param_filename=param_filename,ini_filename=ini_filename)
+    wpobj = wp_test_base.WPTest(ini_filename=ini_filename)
+
+    if wpobj.status != hdef.OKAY:
+        # print(wpobj.errtext)
+        exit(1)
+    # end if
+
+    # Parameter
+    wpobj.set_param(param_filename=param_filename)
 
     if wpobj.status != hdef.OKAY:
         # print(wpobj.errtext)

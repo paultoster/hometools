@@ -46,6 +46,7 @@ class WPKontoDepot:
 
     NAME_DATUMK      = "DatumK"
     NAME_DATUMV      = "DatumV"
+    NAME_DAYS        = "Days"
     NAME_ANZAHL      = "Anzahl"
     NAME_KURSK       = "KursK"
     NAME_KURSV       = "KursV"
@@ -53,10 +54,11 @@ class WPKontoDepot:
     NAME_KURSMIN     = "KursMin"
     NAME_RELVK       = "RelVK"
     NAME_RELVMAX     = "RelVMax"
-    HEADER_TRACE_LISTE = [NAME_DATUMK, NAME_DATUMV,NAME_ANZAHL, NAME_KURSK,NAME_KURSV, NAME_KURSMAX,NAME_KURSMIN,NAME_RELVK,NAME_RELVMAX]
+    HEADER_TRACE_LISTE = [NAME_DATUMK, NAME_DATUMV,NAME_DAYS, NAME_ANZAHL, NAME_KURSK,NAME_KURSV, NAME_KURSMAX,NAME_KURSMIN,NAME_RELVK,NAME_RELVMAX]
 
     TYPE_DATUMK      = "datetimeclass"
     TYPE_DATUMV      = "datetimeclass"
+    TYPE_DAYS        = "int"
     TYPE_ANZAHL      = "int"
     TYPE_KURSK       = "float"
     TYPE_KURSV       = "float"
@@ -64,10 +66,11 @@ class WPKontoDepot:
     TYPE_KURSMIN     = "float"
     TYPE_RELVK       = "float"
     TYPE_RELVMAX     = "float"
-    TYPE_TRACE_LISTE = [TYPE_DATUMK, TYPE_DATUMV, TYPE_ANZAHL, TYPE_KURSK,TYPE_KURSV, TYPE_KURSMAX,TYPE_KURSMIN,TYPE_RELVK,TYPE_RELVMAX]
+    TYPE_TRACE_LISTE = [TYPE_DATUMK, TYPE_DATUMV, TYPE_DAYS, TYPE_ANZAHL, TYPE_KURSK,TYPE_KURSV, TYPE_KURSMAX,TYPE_KURSMIN,TYPE_RELVK,TYPE_RELVMAX]
 
     TYPE_STORE_DATUMK      = "datStrP"
     TYPE_STORE_DATUMV      = "datStrP"
+    TYPE_STORE_DAYS        = "int"
     TYPE_STORE_ANZAHL      = "int"
     TYPE_STORE_KURSK       = "euroStrK"
     TYPE_STORE_KURSV       = "euroStrK"
@@ -75,7 +78,7 @@ class WPKontoDepot:
     TYPE_STORE_KURSMIN     = "euroStrK"
     TYPE_STORE_RELVK       = "percentStr"
     TYPE_STORE_RELVMAX     = "percentStr"
-    TYPE_STORE_TRACE_LISTE = [TYPE_STORE_DATUMK, TYPE_STORE_DATUMV, TYPE_STORE_ANZAHL,TYPE_STORE_KURSK,TYPE_STORE_KURSV, TYPE_STORE_KURSMAX,TYPE_STORE_KURSMIN,TYPE_STORE_RELVK,TYPE_STORE_RELVMAX]
+    TYPE_STORE_TRACE_LISTE = [TYPE_STORE_DATUMK, TYPE_STORE_DATUMV, TYPE_STORE_DAYS, TYPE_STORE_ANZAHL,TYPE_STORE_KURSK,TYPE_STORE_KURSV, TYPE_STORE_KURSMAX,TYPE_STORE_KURSMIN,TYPE_STORE_RELVK,TYPE_STORE_RELVMAX]
 
 
     def __init__(self,parobj,datobj,name) -> None:
@@ -521,6 +524,10 @@ class WPKontoDepot:
                     kaufdat_datetime = list_dat_datetime[istart]
                     verkaufdat_datetime = list_dat_datetime[iend]
 
+                    delta = verkaufdat_datetime - kaufdat_datetime
+
+                    tage = delta.days
+
                     kurskauf = list_kurs[istart]
                     kursverkauf = list_kurs[iend]
 
@@ -545,6 +552,7 @@ class WPKontoDepot:
 
                     data_set_liste = [kaufdat_datetime,
                                      verkaufdat_datetime,
+                                     tage,
                                      anzahl,
                                      kurskauf,
                                      kursverkauf,
@@ -568,6 +576,10 @@ class WPKontoDepot:
     # end def
     def getListeVerkaufDatum(self,isin,type):
         liste = self.DepotTraceDict[isin].get_row_list_of_header(self.NAME_DATUMV,type)
+        return liste
+    # end def
+    def getListeTage(self,isin):
+        liste = self.DepotTraceDict[isin].get_row_list_of_header(self.NAME_DAYS)
         return liste
     # end def
     def getListeRelVK(self,isin):

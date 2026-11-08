@@ -7,13 +7,10 @@ if (tools_path not in sys.path):
 # endif
 
 import tools.hfkt_def as hdef
-import tools.hfkt_log as hlog
+# import tools.hfkt_log as hlog
 import tools.hfkt_type as htype
-import tools.hfkt_np_calc as hnpcalc
+# import tools.hfkt_np_calc as hnpcalc
 
-import konto_class
-import trigger_datum_class
-import sim_data_class
 
 class WPSimPar:
     """

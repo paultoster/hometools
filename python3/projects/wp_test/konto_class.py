@@ -1,6 +1,5 @@
 import os, sys
 
-from hfkt_tvar import transform_icol_table
 
 t_path, _ = os.path.split(__file__)
 tools_path = t_path + "\\.."
@@ -15,9 +14,9 @@ import tools.hfkt_type as htype
 # import tools.hfkt_np_calc as hnpcalc
 import tools.hfkt_tvar as htvar
 
-import konto_verrechnung_class
-import konto_zins_class
-import konto_depot_class
+import wp_test.konto_verrechnung_class as konto_verrechnung_class
+import wp_test.konto_zins_class as konto_zins_class
+import wp_test.konto_depot_class as konto_depot_class
 
 
 class WPKonto:
@@ -768,11 +767,16 @@ class WPKonto:
     # end def
     def getListeKaufDatum(self,isin,type):
         return self.KontoDepot.getListeKaufDatum(isin,type)
+    # end def
     def getListeVerkaufDatum(self,isin,type):
         return self.KontoDepot.getListeVerkaufDatum(isin,type)
+    # end def
     def getListeRelVKDepot(self,isin):
         return self.KontoDepot.getListeRelVK(isin)
     # end de
+    def getListeTage(self, isin):
+        return self.KontoDepot.getListeTage(isin)
+    # end def
     def getListeRelVMaxDepot(self,isin):
         return self.KontoDepot.getListeRelVMax(isin)
     # end de

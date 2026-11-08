@@ -1,5 +1,6 @@
 
 import os, sys, copy
+import json
 
 t_path, _ = os.path.split(__file__)
 tools_path = t_path + "\\.."
@@ -364,3 +365,41 @@ def sigset_edit_hilfe(rd):
 
     wp_screen_gui.anzeige_text(rd.gui, infotext, "Hilfe syntax sigset")
     return
+def get_sigset_auswahl(rd):
+
+    wp_screen_sigset.sigset_set(rd)
+
+    if wp_screen_sigset.get_status() != hdef.OKAY:
+        global STATUS, ERRTEXT
+        STATUS = wp_screen_sigset.get_status()
+        ERRTEXT = wp_screen_sigset.get_errtext()
+        wp_screen_sigset.reset_status()
+        return None
+    # end if
+
+
+    abfrage_liste = ["select", "show", "ende"]
+
+    while True:
+        (index, indexAbfrage) = wp_screen_gui.listen_abfrage(rd.gui,
+                                                             rd.sig["sigset_liste"],
+                                                             auswahl_title="Auswahl Siganl-Set",
+                                                             abfrage_liste=abfrage_liste)
+        if (index < 0) or (indexAbfrage == 2):
+            return None
+        elif indexAbfrage == 0:
+
+            if index >= 0:
+                sigset = rd.sig["sigset_liste"][index]
+                return sigset
+            # end if
+        else:
+            if index >= 0:
+                sigset = rd.sig["sigset_liste"][index]
+                sigset_dict = wp_screen_sigset.get_sigset_dict(rd, sigset)
+                texteingabe = json.dumps(sigset_dict, indent=2)
+                wp_screen_gui.anzeige_text(rd.gui, texteingabe, title=None, textcolor='black')
+            # end if
+        # end if
+    # end while
+# end def

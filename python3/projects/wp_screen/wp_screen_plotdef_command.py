@@ -1,5 +1,6 @@
 
 import os, sys, copy
+import json
 
 t_path, _ = os.path.split(__file__)
 tools_path = t_path + "\\.."
@@ -390,16 +391,32 @@ def get_plotdef_auswahl(rd):
         return None
     # end if
 
-    (index, _) = wp_screen_gui.listen_abfrage(rd.gui, rd.plot["plotdef_liste"], auswahl_title="Auswahl Plotdef-Set")
+    abfrage_liste = ["select", "show", "ende"]
 
-    if index >= 0:
-        plotdef = rd.plot["plotdef_liste"][index]
+    while True:
 
-    else:
-        plotdef = None
-    # end if
+        (index, indexAbfrage) = wp_screen_gui.listen_abfrage(rd.gui,
+                                                             rd.plot["plotdef_liste"],
+                                                             auswahl_title="Auswahl Plotdef-Set",
+                                                             abfrage_liste=abfrage_liste)
 
-    return plotdef
+        if (index < 0) or (indexAbfrage == 2):
+            return None
+        elif indexAbfrage == 0:
+            if index >= 0:
+                plotdef = rd.plot["plotdef_liste"][index]
+                return plotdef
+            # end if
+        else:
+            if index >= 0:
+                plotdef = rd.plot["plotdef_liste"][index]
+                plotdef_dict = wp_screen_plotdef.get_plotdef_dict(rd, plotdef)
+                texteingabe = json.dumps(plotdef_dict, indent=2)
+                wp_screen_gui.anzeige_text(rd.gui, texteingabe, title=None, textcolor='black')
+            # end if
+        # end if
+    # end while
+
 
 # end def
 

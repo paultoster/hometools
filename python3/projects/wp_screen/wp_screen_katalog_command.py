@@ -2,6 +2,7 @@
 
 
 import os, sys
+import json
 
 t_path, _ = os.path.split(__file__)
 tools_path = t_path + "\\.."
@@ -42,16 +43,39 @@ def get_katalog_auswahl(rd):
 
     wp_screen_katalog.katalog_set(rd)
 
-    (index, _) = wp_screen_gui.listen_abfrage(rd.gui, rd.kat["katalog_liste"], auswahl_title="Auswahl Katalog")
-
-    if index >= 0:
-        katalog = rd.kat["katalog_liste"][index]
-
-    else:
-        katalog = None
+    if wp_screen_katalog.get_status() != hdef.OKAY:
+        global STATUS, ERRTEXT
+        STATUS = wp_screen_katalog.get_status()
+        ERRTEXT = wp_screen_katalog.get_errtext()
+        wp_screen_katalog.reset_status()
+        return None
     # end if
 
-    return katalog
+    abfrage_liste = ["select","show","ende"]
+
+    while True:
+
+        (index, indexAbfrage) = wp_screen_gui.listen_abfrage(rd.gui, rd.kat["katalog_liste"],
+                                                             auswahl_title="Auswahl Katalog",
+                                                             abfrage_liste=abfrage_liste)
+
+
+        if (index < 0) or (indexAbfrage == 2):
+            return None
+        elif indexAbfrage == 0:
+            if index >= 0:
+                katalog = rd.kat["katalog_liste"][index]
+                return katalog
+            # end if
+        else:
+            if index >= 0:
+                katalog = rd.kat["katalog_liste"][index]
+                katalog_dict = wp_screen_katalog.get_katalog_gruppe_isin_dict(rd, katalog)
+                texteingabe = json.dumps(katalog_dict, indent=2)
+                wp_screen_gui.anzeige_text(rd.gui, texteingabe, title=None, textcolor='black')
+            # end if
+        # end if
+    # end while
 # end def
 def katalog_command(rd):
 

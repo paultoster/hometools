@@ -598,7 +598,6 @@ def scre_get_array_from_sigset(rd,
     """
     :param rd:
     :param scre:
-    :param scre_dict:
     :param sig_name:
     :param datstart:
     :param datend:
@@ -653,7 +652,6 @@ def scre_get_min_max_from_sigset(rd,
     """
     :param rd:
     :param scre:
-    :param scre_dict:
     :param sig_name:
     :param datstart:
     :param datend:
@@ -676,6 +674,59 @@ def scre_get_min_max_from_sigset(rd,
 
     return (valmin,valmax)
 # end def
+def check_sigset_against_tabset(rd,
+                                scre,
+                                scre_dict):
+
+    global STATUS, ERRTEXT, INFOTEXT
+    sigset = scre_dict[rd.par.SCRE_SIGSET]
+    tab = scre_dict[rd.par.SCRE_TAB]
+
+    sigset_dict = wp_screen_sigset.get_sigset_dict(rd,sigset)
+    tab_dict = wp_screen_tab.get_tab_dict(rd,tab)
+
+    (status, infotext, sigset_werte_dict_liste) = wp_screen_sigset.get_sigset_werte_dict_liste(rd, sigset_dict)
+    if status != hdef.OKAY:
+        STATUS = hdef.NOT_OKAY
+        ERRTEXT = infotext
+        return hdef.NOT_OKAY
+    # end if
+
+    (status, infotext, tab_werte_dict_liste) = wp_screen_tab.get_tab_werte_dict_liste(rd, tab_dict)
+    if status != hdef.OKAY:
+        STATUS = hdef.NOT_OKAY
+        ERRTEXT = infotext
+        return hdef.NOT_OKAY
+    # end if
+
+    for tab_werte_dict in tab_werte_dict_liste:
+
+        if tab_werte_dict["section"] == "sig":
+
+            flag = False
+            if tab_werte_dict["name"] == rd.par.SIG_STORE_DATUM:
+                flag = True
+            else:
+                for sigset_werte_dict in sigset_werte_dict_liste:
+
+                    if tab_werte_dict["name"] == sigset_werte_dict["signal"]:
+                        flag = True
+                        break
+                    # end if
+                # end for
+            # rnf if
+            if not flag:
+                STATUS = hdef.NOT_OKAY
+                ERRTEXT = f"check_sigset_against_tabset: error screener: {scre}: tabedefinition: {tab} hat spalte: {tab_werte_dict["spalte"]}, aber in sigset: {sigset} ist das signal nicht zu finden"
+                return hdef.NOT_OKAY
+            # end if
+        # end if
+    # end for
+
+    return hdef.OKAY
+# end
+
+
 
 
 

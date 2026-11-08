@@ -1,4 +1,4 @@
-import os, sys, time
+import os, sys
 
 import numpy as np
 
@@ -130,6 +130,9 @@ class WPErg:
         self.ParKontoZinsCsvFilename = os.path.join(self.ErgPath, "konto_zins.csv")
         self.ParProtokolCsvFilename = os.path.join(self.ErgPath, "pruefung_protokoll.csv")
 
+
+        self.FError = 1e6
+
         return
     def update(self,ZwischenErgebnisFlag=True):
 
@@ -156,6 +159,9 @@ class WPErg:
 
         return
     # end def
+    def get_ferror(self):
+        return self.FError
+    # end if
     def erstelleErgebnisse(self):
 
         # numpy-Dateset anlegen
@@ -164,123 +170,80 @@ class WPErg:
 
         single_data_obj.add_signal(self.Parobj.SimName, "sim_name")
         single_data_obj.add_signal(self.ErgPath, "erg_path")
+        single_data_obj.add_signal(self.Parobj.StartDat_str, "start_dat_str")
+        single_data_obj.add_signal(self.Parobj.EndDat_str, "end_dat_str")
 
-        print(f"Starte Trace Tabelle !!!")
-        start_time = time.perf_counter()
+
+
 
         # erstelle Trace jeden deals zur Auswertung
         self.KontoObj.bildeDepotTraceTabelle()
 
-        end_time = time.perf_counter()
-        print(f"End Trace Tabelle: {end_time - start_time:.6f} Sekunden")
-        print(f"Starte cash, steuer und kosten !!!")
-        start_time = time.perf_counter()
-
         # cash, steuer und kosten in arrays
         np_data_obj = self.do_np_data(np_data_obj)
 
-        end_time = time.perf_counter()
-        print(f"End cash, steuer und kosten: {end_time - start_time:.6f} Sekunden")
-        print(f"Starte Konto-Tabellen aus !!!")
-        start_time = time.perf_counter()
+        single_data_obj.add_signal(np_data_obj.np_dyears_array[-1], "dyears")
+
 
         # gebe Konto-Tabellen aus
-        self.do_csv_output_konto_data()
-
-        end_time = time.perf_counter()
-        print(f"End Konto-Tabellen aus: {end_time - start_time:.6f} Sekunden")
-        print(f"Starte Zinskurve !!!")
-        start_time = time.perf_counter()
+        if self.Parobj.BildeAusgabe:
+            self.do_csv_output_konto_data()
 
         # Bilde Zinskurve mean und median
         (np_data_obj,single_data_obj) = self.do_zins_curve(np_data_obj,single_data_obj)
 
-        end_time = time.perf_counter()
-        print(f"End Zinskurve: {end_time - start_time:.6f} Sekunden")
-        print(f"Starte Schwankung und min/max-abweichung !!!")
-        start_time = time.perf_counter()
-
         # Schaue auf Schwankung und min/max-abweichung
         single_data_obj = self.do_std_min_max(np_data_obj,single_data_obj)
-
-        end_time = time.perf_counter()
-        print(f"End Schwankung und min/max-abweichung: {end_time - start_time:.6f} Sekunden")
-        print(f"Starte Änderung Jahr für Jahr auf !!!")
-        start_time = time.perf_counter()
 
         # Gib Änderung Jahr für Jahr auf
         np_data_obj = self.do_change_year_by_year(np_data_obj)
 
-        end_time = time.perf_counter()
-        print(f"End Änderung Jahr für Jahr auf: {end_time - start_time:.6f} Sekunden")
-        print(f"Starte Depot verläufe und WP-Verläüfe !!!")
-        start_time = time.perf_counter()
-
         # Depot verläufe und WP-Verläüfe
         np_data_obj = self.do_depot_trace_und_wp_verlauf(np_data_obj)
-
-        end_time = time.perf_counter()
-        print(f"End Depot verläufe und WP-Verläüfe: {end_time - start_time:.6f} Sekunden")
-        print(f"Starte Häufigkeitsverteilung der Deals !!!")
-        start_time = time.perf_counter()
 
         # Häufigkeitsverteilung der Deals
         (np_data_obj,single_data_obj) = self.do_wp_deal_verlauf(np_data_obj,single_data_obj)
 
-        end_time = time.perf_counter()
-        print(f"End Häufigkeitsverteilung der Deals: {end_time - start_time:.6f} Sekunden")
-        print(f"Starte Plotten !!!")
-        start_time = time.perf_counter()
-
         # Plotten
-        self.do_plot_euro(np_data_obj,single_data_obj)
-        self.do_plot_prozent(np_data_obj,single_data_obj)
-        self.do_plot_wp_verlauf(np_data_obj)
-        self.do_plot_wp_deal_haeufigkeit_plot(np_data_obj,single_data_obj)
-
-        end_time = time.perf_counter()
-        print(f"End Plotten: {end_time - start_time:.6f} Sekunden")
-        print(f"Starte Speichern !!!")
-        start_time = time.perf_counter()
+        if self.Parobj.BildeAusgabe:
+            self.do_plot_euro(np_data_obj,single_data_obj)
+            self.do_plot_prozent(np_data_obj,single_data_obj)
+            self.do_plot_wp_verlauf(np_data_obj)
+            self.do_plot_wp_deal_haeufigkeit_plot(np_data_obj,single_data_obj)
+        # end if
 
         # Zielgröße für Minimum
         if hasattr(single_data_obj,"mean_zins") and hasattr(single_data_obj,"mean_diff_min"):
-            ziel_value = 1./single_data_obj.mean_zins/100. + abs(single_data_obj.mean_diff_min)
-        else:
-            ziel_value = 0.
+            self.FError = 1./single_data_obj.mean_zins/100. + abs(single_data_obj.mean_diff_min)
         # end if
-        single_data_obj.add_signal(ziel_value, "ziel_value")
+        single_data_obj.add_signal(self.FError, "ziel_value")
 
 
         # Speichere array-datei
-        np_data_obj.save()
-        ddict = {"np_dat_array":"datStrP",
-                 "np_dyears_array":"float",
-                 "np_cash_array":"euroStrK",
-                 "np_steuer_array":"euroStrK",
-                 "np_kosten_array":"euroStrK",
-                 "np_zins_array":"percentStr",
-                 "np_cash_mean_zins_array":"euroStrK",
-                 "np_cash_median_zins_array":"euroStrK",
-                 "np_years_dat_array":"datStrP",
-                 "np_years_cash_array":"euroStrK",
-                 "np_years_steuer_array":"euroStrK",
-                 "np_years_kosten_array":"euroStrK",
-                 }
-        # np_data_obj.save_to_csv(ddict)
-        single_data_obj.save()
-        single_data_obj.save_to_json()
-
-        end_time = time.perf_counter()
-        print(f"End Speichern: {end_time - start_time:.6f} Sekunden")
-        print(f"Starte Schreibe Ergebnis in md-File und bilde pdf !!!")
-        start_time = time.perf_counter()
+        if self.Parobj.BildeAusgabe:
+            np_data_obj.save()
+            ddict = {"np_dat_array":"datStrP",
+                     "np_dyears_array":"float",
+                     "np_cash_array":"euroStrK",
+                     "np_steuer_array":"euroStrK",
+                     "np_kosten_array":"euroStrK",
+                     "np_zins_array":"percentStr",
+                     "np_cash_mean_zins_array":"euroStrK",
+                     "np_cash_median_zins_array":"euroStrK",
+                     "np_years_dat_array":"datStrP",
+                     "np_years_cash_array":"euroStrK",
+                     "np_years_steuer_array":"euroStrK",
+                     "np_years_kosten_array":"euroStrK",
+                     }
+            # np_data_obj.save_to_csv(ddict)
+            single_data_obj.save()
+            single_data_obj.save_to_json()
+        # end if
 
         # Schreibe Ergebnis in md-File und bilde pdf
-        self.write_md_pdf(np_data_obj,single_data_obj)
-
-        end_time = time.perf_counter()
-        print(f"End Schreibe Ergebnis in md-File und bilde pdf: {end_time - start_time:.6f} Sekunden")
+        if self.Parobj.BildeAusgabe:
+            self.write_md_pdf(np_data_obj,single_data_obj)
+        # end if
 
         return
     # end def
@@ -432,6 +395,9 @@ class WPErg:
         gesamt_kosten = np_data_obj.np_kosten_array[-1]
         gesamt_rel_kosten = gesamt_kosten/Cash0
 
+        gesamt_delta_cash_pyear = gesamt_delta_cash/single_data_obj.dyears
+        gesamt_rel_delta_cash_pyear = gesamt_rel_delta_cash/single_data_obj.dyears
+
         np_diff_array = np.array(
             [(cash-zins)/cash for (cash,zins) in zip(np_data_obj.np_cash_array,np_data_obj.np_cash_mean_zins_array) if abs(cash) > 0.1 ]
         )
@@ -467,7 +433,9 @@ class WPErg:
         median_diff_max = np_diff_array[index]
 
         single_data_obj.add_signal(gesamt_delta_cash, "gesamt_delta_cash")
+        single_data_obj.add_signal(gesamt_delta_cash_pyear, "gesamt_delta_cash_pyear")
         single_data_obj.add_signal(gesamt_rel_delta_cash, "gesamt_rel_delta_cash")
+        single_data_obj.add_signal(gesamt_rel_delta_cash_pyear, "gesamt_rel_delta_cash_pyear")
         single_data_obj.add_signal(gesamt_steuer, "gesamt_steuer")
         single_data_obj.add_signal(gesamt_rel_steuer, "gesamt_rel_steuer")
         single_data_obj.add_signal(gesamt_kosten, "gesamt_kosten")
@@ -542,6 +510,9 @@ class WPErg:
             liste = self.KontoObj.getListeVerkaufDatum(isin,"datStrP")
             np_data_obj.add_signal(np.array(liste), f"np_depot_datumv_{isin}_array")
 
+            liste = self.KontoObj.getListeTage(isin)
+            np_data_obj.add_signal(np.array(liste), f"np_depot_tage_{isin}_array")
+
             liste = self.KontoObj.getListeRelVKDepot(isin)
             np_data_obj.add_signal(np.array(liste), f"np_depot_relvk_{isin}_array")
 
@@ -572,9 +543,11 @@ class WPErg:
             np_depot_relvk_array = np.array([],dtype=np.float64)
             np_depot_relvkmax_array = np.array([],dtype=np.float64)
             np_depot_anzahl_deals_isin_array =  np.zeros(len(np_data_obj.np_depot_wp_isin_array),dtype=np.int64)
+            np_depot_tage_isin_array =  np.zeros(len(np_data_obj.np_depot_wp_isin_array),dtype=np.int64)
 
             for i,isin in enumerate(np_data_obj.np_depot_wp_isin_array):
                 np_depot_anzahl_deals_isin_array[i] = len(getattr(np_data_obj, f"np_depot_relvk_{isin}_array"))
+                np_depot_tage_isin_array[i] = np.sum(getattr(np_data_obj, f"np_depot_tage_{isin}_array")) / len(getattr(np_data_obj, f"np_depot_tage_{isin}_array"))
                 np_depot_relvk_array = np.concatenate((np_depot_relvk_array,getattr(np_data_obj, f"np_depot_relvk_{isin}_array")))
                 np_depot_relvkmax_array = np.concatenate((np_depot_relvkmax_array,getattr(np_data_obj, f"np_depot_relvkmax_{isin}_array")))
             # end for
@@ -585,19 +558,23 @@ class WPErg:
             relvk_mean = np.mean(np_depot_relvk_array)
             relvkmax_mean = np.mean(np_depot_relvkmax_array)
             anzahl_deals_gesamt = np.sum(np_depot_anzahl_deals_isin_array)
+            tage_gesamt = np.sum(np_depot_tage_isin_array)/len(np_depot_tage_isin_array)
 
             np_data_obj.add_signal(np_kl_relvk_schw_array, "np_kl_relvk_schw_array")
             np_data_obj.add_signal(np_kl_relvk_haeuf_array, "np_kl_relvk_haeuf_array")
             np_data_obj.add_signal(np_kl_relvkmax_schw_array, "np_kl_relvkmax_schw_array")
             np_data_obj.add_signal(np_kl_relvkmax_haeuf_array, "np_kl_relvkmax_haeuf_array")
             np_data_obj.add_signal(np_depot_anzahl_deals_isin_array, "np_depot_anzahl_deals_isin_array")
+            np_data_obj.add_signal(np_depot_tage_isin_array, "np_depot_tage_isin_array")
             single_data_obj.add_signal(relvk_mean, "relvk_mean")
             single_data_obj.add_signal(relvkmax_mean, "relvkmax_mean")
             single_data_obj.add_signal(anzahl_deals_gesamt, "anzahl_deals_gesamt")
+            single_data_obj.add_signal(tage_gesamt, "tage_gesamt")
         else:
             single_data_obj.add_signal(0.0, "relvk_mean")
             single_data_obj.add_signal(0.0, "relvkmax_mean")
             single_data_obj.add_signal(0, "anzahl_deals_gesamt")
+            single_data_obj.add_signal(0, "tage_gesamt")
         # end if
         return (np_data_obj,single_data_obj)
     # end if
@@ -904,6 +881,8 @@ class WPErg:
                  htype.type_transform_direct(single_data_obj.gesamt_delta_cash,"cent", "euroStrK")+" €"],
                 ["RelDeltaCash",
                  htype.type_transform_direct(single_data_obj.gesamt_rel_delta_cash, "float", "percentStr")],
+                ["RelDeltaCashPYear",
+                 htype.type_transform_direct(single_data_obj.gesamt_rel_delta_cash_pyear, "float", "percentStr")],
                 ["Steuer",
                  htype.type_transform_direct(single_data_obj.gesamt_steuer, "cent", "euroStrK") + " €"],
                 ["RelSteuer",
@@ -938,6 +917,8 @@ class WPErg:
                  htype.type_transform_direct(single_data_obj.relvkmax_mean, "float", "percentStr")],
                 ["AnzahlDealsGesamt",
                  htype.type_transform_direct(single_data_obj.anzahl_deals_gesamt, "int", "int")],
+                ["TageGehaltenDurchschnitt",
+                 htype.type_transform_direct(single_data_obj.tage_gesamt, "int", "int")],
                 ["ziel_value",
                  getattr(single_data_obj, "ziel_value")],
                 ]
@@ -1039,7 +1020,7 @@ class WPErg:
         mdobj.add_paragraph("---")
         # Plots von WPs
         rows = []
-        headers = ["isin","gruppe","name","deals","start"]
+        headers = ["isin","grup","name","deals","start","tage"]
 
 
         for i,isin in np.ndenumerate(np_data_obj.np_depot_wp_isin_array):
@@ -1057,11 +1038,12 @@ class WPErg:
                 tgruppe = gruppe
             # end if
 
-            rows.append([isin,
-                         tgruppe,
+            rows.append([f"{isin}/{tgruppe}",
+                         "",
                          np_data_obj.np_depot_wp_namen_array[i[0]],
                          np_data_obj.np_depot_anzahl_deals_isin_array[i[0]],
-                         htype.type_transform_direct(np_dat_array[0], "dat", "datStrP")])
+                         htype.type_transform_direct(np_dat_array[0], "dat", "datStrP"),
+                         np_data_obj.np_depot_tage_isin_array[i[0]] ])
         # end ofr
 
         mdobj.add_table(headers, rows)
@@ -1084,15 +1066,17 @@ class WPErg:
 
             name_datumk_str_array =  f"np_depot_datumk_{isin}_array"
             name_datumv_str_array =  f"np_depot_datumv_{isin}_array"
+            name_tage_array   =  f"np_depot_tage_{isin}_array"
             name_relvk_array      =  f"np_depot_relvk_{isin}_array"
             name_relvkmax_array   =  f"np_depot_relvkmax_{isin}_array"
 
             np_datumk_str_array = getattr(np_data_obj, name_datumk_str_array)
             np_datumv_str_array = getattr(np_data_obj, name_datumv_str_array)
+            np_tage_array = getattr(np_data_obj, name_tage_array)
             np_relvk_array      = getattr(np_data_obj, name_relvk_array)
             np_relvkmax_array      = getattr(np_data_obj, name_relvkmax_array)
 
-            headers = ["Kaufdatum", "Verkaufdatum","RelVK","RelVKMax"]
+            headers = ["Kaufdatum", "Verkaufdatum","Tage","RelVK","RelVKMax"]
 
             rows = []
 
@@ -1100,8 +1084,9 @@ class WPErg:
 
                 line = [datumk_str,
                         np_datumv_str_array[j[0]],
-                        np_relvk_array[j[0]],
-                        np_relvkmax_array[j[0]]]
+                        np_tage_array[j[0]],
+                        f'{np_relvk_array[j[0]]:.2f}',
+                        f'{np_relvkmax_array[j[0]]:.2f}']
                 rows.append(line)
             # end for
 

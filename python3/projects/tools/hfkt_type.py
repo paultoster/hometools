@@ -571,6 +571,8 @@ def type_proof(wert_in, type):
         return type_proof_cent(wert_in)
     elif type == "percentStr":
         return type_proof_percentStr(wert_in)
+    elif type == "floatStr":
+        return type_proof_floatStr(wert_in)
     else:
         return (hdef.NOT_OKAY, None)
     # endif
@@ -1662,6 +1664,38 @@ def type_proof_percentStr(wert_in):
 
 
 # end def
+def type_proof_floatStr(wert_in):
+    '''
+
+    :param wert_in:
+    :return:
+    '''
+    # (okay, wert) = type_proof_string(wert_in)
+    if isinstance(wert_in, str):
+        wert = wert_in
+        try:
+            value = float(wert_in)
+            okay  = hdef.OKAY
+        except:
+            okay = hdef.NOT_OKAY
+        # end try
+        if okay != hdef.OKAY:
+            wert = None
+        elif isinstance(wert_in, (float, np.float32, np.float64)):
+            wert = ("%.2f" % (float(wert_in) * 100.))
+            okay = hdef.OKAY
+        elif isinstance(wert_in, (int, np.int8, np.int16, np.int32, np.int64)):
+            wert = ("%.2f" % (float(wert_in) * 100.))
+            okay = hdef.OKAY
+        # end if
+    else:
+        okay = hdef.NOT_OKAY
+        wert = None
+    # end if
+    return (okay, wert)
+
+
+# end def
 def type_convert_euro_to_cent(wert_euro,delim=",", thousandsign="."):
     '''
     string_euro_in_int_cent(wert_euro, delim=delim, thousandsign=thousandsign)
@@ -1746,6 +1780,7 @@ def type_transform(wert_in: any, type_in: str | list, type_out: str | list):
     "euroStrK": string mit Komma Trennung ('.' 1000er)   10,34
     "cent": int
     "percentStr"
+    "floatStr"  string mit 2 Stellen
 
     (okay,wert) = type_transform(wert_in, type_in, type_out) Prüft den Wert auf seine
     '''
@@ -2229,7 +2264,9 @@ def  type_transform_float(wert_in,type_out):
     '''
     (okay, wert) = type_proof(wert_in, "float")
     if( okay == hdef.OKAY):
-        if (type_out == "euro"):
+        if type_out == "floatStr":
+            wert_out = f'{wert:.2f}'
+        elif (type_out == "euro"):
             wert_out = wert
         elif  (type_out == "int") or (type_out == "cent"):
             wert_out = int((wert*100.)+0.5)
@@ -2355,7 +2392,7 @@ def type_transform_percentStr(wert_in, type_out):
             if len(wert) == 0:
                 wert = "0.0"
             # end if
-            (okay, wert_out) = type_transform(wert, "str", "float")
+            (okay, wert_out) = type_transform(wert, "str", "int")
             if okay == hdef.OKAY:
                 wert_out = int(wert_out/100.)
         elif type_out == "float":
@@ -2369,6 +2406,40 @@ def type_transform_percentStr(wert_in, type_out):
         else:
             wert_out = None
             raise Exception(f"type_transform_percentStr: In type_transform_int ist type_out: {type_out} nicht möglich")
+        # end if
+    else:
+        wert_out = None
+    # end if
+    return (okay,wert_out)
+# end def
+def type_transform_floatStr(wert_in, type_out):
+    '''
+
+    :param wert_in:
+    :param type_out:
+    :return: (okay, wert_out) = type_transform_floatStr(wert_in, type_out):
+    '''
+    (okay, wert) = type_proof(wert_in, "floatStr")
+    if okay == hdef.OKAY:
+        if type_out == "str":
+            wert_out = wert
+        elif type_out == "int":
+            if len(wert) == 0:
+                wert = "0.0"
+            # end if
+            (okay, wert_out) = type_transform(wert, "str", "int")
+            if okay == hdef.OKAY:
+                wert_out = int(wert_out/100.)
+        elif type_out == "float":
+            if len(wert) == 0:
+                wert = "0.0"
+            # end if
+            (okay,wert_out) = type_transform(wert,"str","float")
+            if okay == hdef.OKAY:
+                wert_out = float(wert_out/100.)
+        else:
+            wert_out = None
+            raise Exception(f"type_transform_floatStr: In type_transform_int ist type_out: {type_out} nicht möglich")
         # end if
     else:
         wert_out = None
@@ -2582,8 +2653,7 @@ def get_excel_color_by_index(index):
 # testen mit main
 ###########################################################################
 if __name__ == '__main__':
-    alphanum = excel_calc_aplph_num(1, 1)
-    
+
     (okay, wert) = type_transform("-380,14", "euroStrK", "cent")
     
     wert = numeric_string_to_float("154.372,55",delim=",",thousandsign=".")

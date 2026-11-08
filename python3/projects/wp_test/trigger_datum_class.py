@@ -9,10 +9,8 @@ if (tools_path not in sys.path):
 
 import tools.hfkt_def as hdef
 import tools.hfkt_date_time as hdt
-import tools.hfkt_type as htype
-import tools.hfkt_np_calc as hnpcalc
-
-import konto_class
+# import tools.hfkt_type as htype
+# import tools.hfkt_np_calc as hnpcalc
 
 
 class WPTriggerDatum:
