@@ -10,6 +10,8 @@ Minimumsaufgabe mit den Methoden:
 from dataclasses import dataclass
 import os, sys, copy, time
 import numpy as np
+import scipy
+import math
 
 # -------------------------------------------------------------------------------
 t_path, _ = os.path.split(__file__)
@@ -173,15 +175,19 @@ class OptNlinNbegrenzt():
     # end def
     def check_opt(self):
 
+        self.opt.eps = 2.2204e-16
 
         if not hasattr(self.opt, 'x0'):
             self.status = hdef.NOT_OKAY
             self.errtext = f"Kein x0 gesetzt"
             return
-        elif not isinstance(self.opt.x0,list):
+        elif not isinstance(self.opt.x0,(list,np.ndarray)):
             self.status = hdef.NOT_OKAY
-            self.errtext = f"x0 ist nicht als Liste gesetzt"
+            self.errtext = f"x0 ist nicht als Liste oder ndarray gesetzt"
             return
+        # end if
+        if isinstance(self.opt.x0,list):
+            self.opt.x0 = np.array(self.opt.x0)
         # end if
 
 
@@ -339,7 +345,7 @@ class OptNlinNbegrenzt():
 
         # Anzahl der Variablen
         self.opt.n = len(self.opt.x0)
-        self.opt.xs = self.opt.x0
+        self.opt.xs = np.copy(self.opt.x0)
 
         if not hasattr(self.opt, 'func') :
             raise Exception('Functioncall opt.func  (f=funx(x)) not defined in option-structure')
@@ -384,19 +390,69 @@ class OptNlinNbegrenzt():
                     self.opt.use_H_func = 0
                 # end if
             # end if
-
+        else:
+            self.opt.use_H_func = 0
         # end if
+
+        if hasattr(self.opt, 'x_int_def'):
+
+            if self.opt.type != self.TYPE_STEILSTER_ABSTIEG:
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"Wenn x_int_def definiert (integer Rechnung) dann self.opt.type = TYPE_STEILSTER_ABSTIEG {self.TYPE_STEILSTER_ABSTIEG} sein"
+                return
+            # end if
+
+            self.opt.int_def_dict_list = []
+            self.opt.int_def_flag = True
+            self.opt.int_sk = np.copy(self.opt.x0) * 0.0
+            self.opt.int_erg_lliste = []
+            self.opt.int_erg_lliste_df = []
+
+            if len(self.opt.x_int_def) != self.opt.n:
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"len(self.opt.x_int_def) != self.opt.n, n = {self.opt.n}  x_int_def: {self.opt.x_int_def}"
+                return
+            # end if
+            for i in range(self.opt.n):
+
+                x_def = self.opt.x_int_def[i]
+                if len(x_def) < 2:
+                    self.status = hdef.NOT_OKAY
+                    self.errtext = f"Definition self.opt.x_int_def[{i}] hat zu wenig members"
+                    return
+                # end if
+
+                type = x_def[0]
+
+                if type not in ["int","float"]:
+                    self.status = hdef.NOT_OKAY
+                    self.errtext = f"Definition self.opt.x_int_def[{i}][0] musss 'int' oder 'float' sein "
+                    return
+
+                res  = x_def[1]
+
+                self.opt.int_def_dict_list.append({"type":type,"res":res,"x":0.0,"intx":0,"rest":0.0})
+            # end if
+        else:
+            self.opt.int_def_flag = False
+        # end if
+
+
 
         return
     # end def
     def check_functions(self):
 
-        self.opt.xs = self.opt.x0
+        self.opt.xs = np.copy(self.opt.x0)
 
         # Function
         #---------
         try:
-            self.opt.f = self.opt.func(self.opt.xs)
+            if self.opt.int_def_flag:
+                self.opt.f = self.func_integer()
+            else:
+                self.opt.f = self.opt.func(self.opt.xs)
+            # end if
         except:
             self.status = hdef.NOT_OKAY
             self.errtext = f"Die Funktion opt.func(opt.x0) kann nicht ausgeführt werden"
@@ -407,7 +463,10 @@ class OptNlinNbegrenzt():
         #----------
         if (self.opt.use_df_func):
             try:
-                self.opt.df = self.opt.dfunc(self.opt.xs)
+                if self.opt.int_def_flag:
+                    self.opt.df = self.dfunc_integer()
+                else:
+                    self.opt.df = self.opt.dfunc(self.opt.xs)
             except:
                 self.status = hdef.NOT_OKAY
                 self.errtext = f"Die Ableitung opt.dfunc(opt.x0) kann nicht ausgeführt werden"
@@ -419,29 +478,59 @@ class OptNlinNbegrenzt():
                 self.errtext = f"Länge Ergbnisvektor der Ableitungsfunktion opt.dfunc ist nicht gleich n={self.opt.n} (aus opt.x0)"
                 return
             # end if
+        else:
+            if self.opt.int_def_flag:
+                self.opt.df = self.optnlin_nbegrenzt_build_df_int()
+            else:
+                self.opt.df = self.optnlin_nbegrenzt_build_df()
         # end if
 
-        # Hesse-Matrix
-        #-------------
-        if self.opt.use_H_func == 1:
-            try:
-                self.opt.H0 = self.opt.Hfunc(self.opt.x0)
-            except:
-                self.status = hdef.NOT_OKAY
-                self.errtext = f"Die Hesse-Matrix opt.Hfunc(opt.x0) kann nicht ausgeführt werden"
-                return
-            finally:
-                pass
-            n,m = self.opt.H0.shape
-            if ((n != self.opt.n) or (m != self.opt.n)):
-                self.status = hdef.NOT_OKAY
-                self.errtext = f"Länge Ergbnismatrix der Hessefunktion opt.Hfunc ist nicht gleich n={self.opt.n} ({n}x{m}) (aus opt.x0)"
-                return
+        # B0/H0 BFGS-Verfahren und Trust-Region
+        if ((self.opt.type == self.TYPE_QUASI_NEWTON) or
+            (self.opt.type == self.TYPE_TRUST_REGION) or
+            (self.opt.type == self.TYPE_QUASI_NEWTON_PENALITY)):
+
+            # Hesse-Matrix
+            #-------------
+            if self.opt.use_H_func == 1:
+                try:
+                    self.opt.H0 = self.opt.Hfunc(self.opt.x0)
+                except:
+                    self.status = hdef.NOT_OKAY
+                    self.errtext = f"Die Hesse-Matrix opt.Hfunc(opt.x0) kann nicht ausgeführt werden"
+                    return
+                finally:
+                    pass
+                n,m = self.opt.H0.shape
+                if (n != self.opt.n) or (m != self.opt.n):
+                    self.status = hdef.NOT_OKAY
+                    self.errtext = f"Länge Ergbnismatrix der Hessefunktion opt.Hfunc ist nicht gleich n={self.opt.n} ({n}x{m}) (aus opt.x0)"
+                    return
+                # end if
+
+                self.opt.B0 = np.linalg.inv(self.opt.H0)
+            else:
+
+                if hasattr(self.opt, 'H0'):
+                    self.opt.B0 = np.linalg.inv(self.opt.H0)
+                else:
+                    (H0, B0) = self.optnlin_nbegrenzt_build_H0()
+                    self.opt.H0 = copy.copy(H0)
+                    self.opt.B0 = copy.copy(B0)
+                # end if
             # end if
 
-            self.opt.B0 = np.invert(self.opt.H0)
-
+            # B0 prüfen
+            try:
+                R,p = scipy.linalg.cho_factor(self.opt.B0)
+                if p != False:
+                    self.opt.B0 = np.eye(self.opt.n)
+                # end if
+            except:
+                self.opt.B0 = np.eye(self.opt.n)
+            # end try
         # end if
+
 
         return
     # end def
@@ -464,23 +553,26 @@ class OptNlinNbegrenzt():
 
         if self.status != hdef.OKAY:
             self.opt.status = self.status
-            self.errtext = self.errtext
-            return None
+            self.opt.errtext = self.errtext
+            return self.opt
 
         self.check_functions()
 
         if self.status != hdef.OKAY:
             self.opt.status = self.status
-            self.errtext = self.errtext
-            return None
+            self.opt.errtext = self.errtext
+            return self.opt
 
         # Ausführen:
         start_real = time.perf_counter()
 
         match self.opt.type:
             case self.TYPE_STEILSTER_ABSTIEG:
+                if self.opt.int_def_flag:
 
-                self.steilsterAbstieg()
+                    self.steilsterAbstiegInteger()
+                else:
+                    self.steilsterAbstieg()
 
             case self.TYPE_QUASI_NEWTON:
 
@@ -502,9 +594,9 @@ class OptNlinNbegrenzt():
 
         end_real = time.perf_counter()
         self.opt.calc_time = end_real - start_real
-
+        self.log.write_info(f"Rechenzeit calc_time = {self.opt.calc_time} sec")
         self.opt.status = self.status
-        self.errtext = self.errtext
+        self.opt.errtext = self.errtext
 
         return self.opt
     # end def
@@ -539,36 +631,39 @@ class OptNlinNbegrenzt():
             if (self.opt.k < 10) or (np.mod(self.opt.k, kout) == 0):
 
                 self.log.write_info("k = %i f = %20.5g err = %20.5g sigma = %20.5g" % (self.opt.k, self.opt.f, self.opt.df_norm, sigmak))
-                for ii in np.arange(1, self.opt.n + 1).reshape(-1):
-                    self.log.write_info("x%i = %g"%(ii, self.opt.xs[ii]))
-                self.log.write_info('\n')
+                for ii in range(self.opt.n):
+                    self.log.write_info("x%i = %g" % (ii, self.opt.xs[ii]))
+                # end for
             # end if
 
             self.opt.k = self.opt.k + 1
             sk = self.opt.df * (- 1.0)
 
             # Armaijo-Regel
-            if (self.opt.stype == 0):
+            if self.opt.stype == 0:
                 sigmak = self.optnlin_nbegrenzt_Armijo( sk)
             else:
                 sigmak = self.optnlin_nbegrenzt_PowellWolfe( sk)
-            if (not self.opt.okay):
-                return opt
+            # end if
+
+            if self.status != hdef.OKAY:
+                return
             self.opt.xs = self.opt.xs + sigmak * sk
             self.opt.f = self.opt.func(self.opt.xs)
-            if (self.opt.use_df_func):
+            if self.opt.use_df_func:
                 self.opt.df = self.opt.dfunc(self.opt.xs)
             else:
                 self.opt.df = self.optnlin_nbegrenzt_build_df()
+            # end def
             self.opt.df_norm = np.linalg.norm(self.opt.df)
             if (self.opt.df_norm <= self.opt.err):
                 findflag = 1
 
         self.log.write_info("> k = %i f = %20.5g err = %20.5g sigma = %20.5g"% ( self.opt.k, self.opt.f, self.opt.df_norm, sigmak) )
-        for i in np.arange(1, self.opt.n + 1).reshape(-1):
+        for i in range(self.opt.n):
             self.log.write_info("x%s = %f" % ( str(i), self.opt.xs[i]))
 
-        if (self.opt.k >= self.opt.kmax):
+        if self.opt.k >= self.opt.kmax:
             self.opt.okay = 0
             self.opt.inform = 2
             self.opt.errtext = 'steilster Abstieg: maximale Anzahl der Interationen erreicht'
@@ -576,12 +671,198 @@ class OptNlinNbegrenzt():
         return
 
     # end def
+    def steilsterAbstiegInteger(self):
+
+        self.log.write_info('Methode steilsten Abstieg für Integer Größen')
+        if self.opt.stype == 0:
+            self.log.write_info(' mit Armaijo-Regel (Schrittweitensteuerung)\n')
+        else:
+            self.log.write_info(' mit Powell-Wolfe (Schrittweitensteuerung)\n')
+
+        # Zähler Iteration
+        self.opt.k = 0
+        self.opt.inform = 0
+
+        # Ausgabezähler
+        kout = np.round(self.opt.kmax / 100)
+        if (kout == 0):
+            kout = 1
+
+        # Betrag der Ableitung aus Startwert
+        self.opt.df_norm = np.linalg.norm(self.opt.df)
+        if (self.opt.df_norm <= self.opt.err):
+            findflag = 1
+        else:
+            findflag = 0
+
+        sigmak = 0.0
+        while ((self.opt.k < self.opt.kmax) and not findflag):
+
+            # Anzeige
+            if (self.opt.k < 10) or (np.mod(self.opt.k, kout) == 0):
+
+                self.log.write_info("k = %i f = %20.5g err = %20.5g sigma = %20.5g" % (self.opt.k, self.opt.f, self.opt.df_norm, sigmak))
+                for ii in range(self.opt.n):
+                    self.log.write_info("x%i = %g" % (ii, self.opt.xs[ii]))
+                # end for
+            # end if
+
+            self.opt.k = self.opt.k + 1
+
+            # Abstiegsrichtung
+            sk = self.opt.df * (- 1.0)
+
+            self.opt.int_sk = np.copy(sk)
+
+            # Armaijo-Regel
+            if self.opt.stype == 0:
+                sigmak = self.optnlin_nbegrenzt_Armijo( sk)
+            else:
+                sigmak = self.optnlin_nbegrenzt_PowellWolfe( sk)
+            # end if
+
+            if self.status != hdef.OKAY:
+                return
+            self.opt.xs = self.opt.xs + sigmak * sk
+            self.opt.f = self.func_integer()
+
+            if self.opt.use_df_func:
+                self.opt.df = self.dfunc_integer()
+            else:
+                self.opt.df = self.optnlin_nbegrenzt_build_df_int()
+            # end def
+            self.opt.df_norm = np.linalg.norm(self.opt.df)
+            if (self.opt.df_norm <= self.opt.err):
+                findflag = 1
+
+            # seacrh if twice same result
+            if self.exist_double_values_in_result_liste():
+                findflag = 1
+
+        self.find_and_set_fmin_value()
+
+        self.log.write_info("> k = %i f = %20.5g err = %20.5g sigma = %20.5g"% ( self.opt.k, self.opt.f, self.opt.df_norm, sigmak) )
+        for i in range(self.opt.n):
+            self.log.write_info("x%s = %f" % ( str(i), self.opt.xs[i]))
+
+        if self.opt.k >= self.opt.kmax:
+            self.opt.okay = 0
+            self.opt.inform = 2
+            self.opt.errtext = 'steilster Abstieg: maximale Anzahl der Interationen erreicht'
+        # end if
+        return
+
+    # end def
+    def BFGS(self):
+
+        self.log.write_info('Methode Quasi-Newton-Verfahren')
+        if self.opt.type == 4:
+            self.log.write_info(' mit Straffunktion')
+
+        if self.opt.stype == 0:
+            self.log.write_info(' mit Armaijo-Regel (Schrittweitensteuerung)\n')
+        else:
+            self.log.write_info(' mit Powell-Wolfe (Schrittweitensteuerung)\n')
+
+        # Zähler Iteration
+        self.opt.k = 0
+        self.opt.inform = 0
+        # Ausgabez�hler
+        kout = np.round(self.opt.kmax / 100)
+        if (kout == 0):
+            kout = 1
+
+        # Betrag der Ableitung aus Startwert
+        self.opt.df_norm = np.linalg.norm(self.opt.df)
+        if (self.opt.df_norm <= self.opt.err):
+            findflag = 1
+        else:
+            findflag = 0
+
+        sigmak = 0.0
+        self.opt.Bk = np.copy(self.opt.B0)
+        while ((self.opt.k < self.opt.kmax) and not findflag):
+
+            # Anzeige
+            if ((self.opt.k < 10) or (np.mod(self.opt.k, kout) == 0)):
+
+                self.log.write_info("k = %i f = %20.5g err = %20.5g sigma = %20.5g" % (self.opt.k, self.opt.f, self.opt.df_norm, sigmak))
+                for ii in range(self.opt.n):
+                    self.log.write_info('x%i = %g;' % ( ii, self.opt.xs[ii]))
+
+            self.opt.k = self.opt.k + 1
+
+            # Suchrichtung
+            sk = - np.matmul(self.opt.Bk , self.opt.df)
+
+            # Armaijo-Regel
+            if (self.opt.stype == 0):
+                sigmak = self.optnlin_nbegrenzt_Armijo_BFGS(sk)
+            else:
+                sigmak = self.optnlin_nbegrenzt_PowellWolfe_BFGS(sk)
+            # end if
+            if self.status != hdef.OKAY:
+                return
+            # end if
+
+            # Differenzbildung alter Wert
+            self.opt.xs_last = np.copy(self.opt.xs)
+            self.opt.df_last = np.copy(self.opt.df)
+            self.opt.xs = self.opt.xs + sigmak * sk
+            self.opt.f = self.optnlin_nbegrenzt_BFGS_func(self.opt.xs)
+            if (self.opt.use_df_func):
+                self.opt.df = self.opt.dfunc(self.opt.xs)
+            else:
+                self.opt.df = self.optnlin_nbegrenzt_build_df()
+            self.opt.df_norm = np.linalg.norm(self.opt.df)
+            if (self.opt.df_norm <= self.opt.err):
+                findflag = 1
+            else:
+                if (self.opt.use_df_func):
+                    self.opt.Hk = self.opt.Hfunc(self.opt.xs)
+                    R, p = scipy.linalg.cho_factor(self.opt.Hk)
+                    if (p != 0):
+                        self.opt.status = hdef.NOT_OKAY
+                        self.errtext    = "Quasi-Newton Matrix Bk = inv(Hk) singular"
+                        self.opt.inform = 6
+                        return
+                    else:
+                        self.opt.Bk = np.linalg.inv(self.opt.Hk)
+                else:
+                    # Differenzbildung mit neuem Wert
+                    dk = self.opt.xs - self.opt.xs_last
+                    yk = self.opt.df - self.opt.df_last
+                    # Berechnung Bk
+                    dBy = dk - np.matmul(self.opt.Bk , yk)
+                    dy = np.dot(dk , yk)
+                    if (np.abs(dy) < 1e-16):
+                        self.status = hdef.NOT_OKAY
+                        self.errtext = "Quasi-Newton Matrix Bk = inv(Hk) singular"
+                        self.opt.inform = 6
+                        return
+                    # dy = eps * sign(dy);
+                    B1 = (np.outer(dBy , dk) + np.outer(dk , dBy)) / dy
+                    b  = (np.dot(dBy,yk)/dy/dy)*dk
+                    B2 = np.outer(b , dk)
+                    self.opt.Bk = self.opt.Bk + B1 - B2
+
+        self.log.write_info( '=> k = %i f = %20.5g err = %20.5g sigma = %20.5g' % (self.opt.k, self.opt.f, self.opt.df_norm, sigmak))
+        for i in range(self.opt.n):
+            self.log.write_info(  "x%s = %f" % ( str(i), self.opt.xs[i]))
+
+        if (self.opt.k >= self.opt.kmax):
+            self.status = hdef.NOT_OKAY
+            self.opt.inform = 2
+            self.errtext = 'Quasi-Newton maximale Anzahl der Interationen erreicht'
+        # end if
+        return
+
     def optnlin_nbegrenzt_Armijo(self,sk):
         i = 0
-        fac = self.opt.gamma * (np.transpose(self.opt.df) * sk)
+        fac = self.opt.gamma * np.matmul(np.transpose(self.opt.df) , sk)
         sigmak = 1.0
         delta = (self.opt.func(self.opt.xs + sigmak * sk) - self.opt.f)
-        val = sigmak * self.opt.gamma * (np.transpose(self.opt.df) * sk)
+        val = sigmak * self.opt.gamma * np.matmul(np.transpose(self.opt.df) , sk)
         while ((delta > val) and i < 100):
 
             i = i + 1
@@ -603,7 +884,7 @@ class OptNlinNbegrenzt():
             if 1 == (sw):
                 sigmak = 1.0
                 delta = (self.opt.func(self.opt.xs + sigmak * sk) - self.opt.f)
-                val = sigmak * self.opt.gamma * (np.transpose(self.opt.df) * sk)
+                val = sigmak * self.opt.gamma * np.matmul(np.transpose(self.opt.df) , sk)
                 if (delta <= val):
                     sw = 3
                 else:
@@ -613,12 +894,12 @@ class OptNlinNbegrenzt():
                     i = 0
                     sigmam = 2 ** - (i + 1)
                     delta = (self.opt.func(self.opt.xs + sigmam * sk) - self.opt.f)
-                    val = sigmam * self.opt.gamma * (np.transpose(self.opt.df) * sk)
+                    val = sigmam * self.opt.gamma * np.matmul(np.transpose(self.opt.df) , sk)
                     while (delta > val and i < 100):
                         i = i + 1
                         sigmam = 2 ** - (i + 1)
                         delta = (self.opt.func(self.opt.xs + sigmam * sk) - self.opt.f)
-                        val = sigmam * self.opt.gamma * (np.transpose(self.opt.df) * sk)
+                        val = sigmam * self.opt.gamma * np.matmul(np.transpose(self.opt.df) , sk)
 
                     if (i >= 100):
                         self.okay = 0
@@ -631,8 +912,8 @@ class OptNlinNbegrenzt():
                         if (self.opt.use_df_func):
                             val1 = np.transpose(self.opt.dfunc(self.opt.xs + sigmak * sk)) * sk
                         else:
-                            val1 = np.transpose(self.optnlin_nbegrenzt_build_df(self.opt.xs + sigmak * sk)) * sk
-                        val2 = self.opt.eta * (np.transpose(self.opt.df) * sk)
+                            val1 = np.matmul(np.transpose(self.optnlin_nbegrenzt_build_df(self.opt.xs + sigmak * sk)) , sk)
+                        val2 = self.opt.eta * np.matmul(np.transpose(self.opt.df) , sk)
                         if (val1 >= val2):
                             sw = 6
                         else:
@@ -642,12 +923,12 @@ class OptNlinNbegrenzt():
                             i = 0
                             sigmap = 2 ** (i + 1)
                             delta = (self.opt.func(self.opt.xs + sigmap * sk) - self.opt.f)
-                            val = sigmap * self.opt.gamma * (np.transpose(self.opt.df) * sk)
+                            val = sigmap * self.opt.gamma * np.matmul(np.transpose(self.opt.df) , sk)
                             while (delta <= val and i < 100):
                                 i = i + 1
                                 sigmap = 2 ** (i + 1)
                                 delta = (self.opt.func(self.opt.xs + sigmap * sk) - self.opt.f)
-                                val = sigmap * self.opt.gamma * (np.transpose(self.opt.df) * sk)
+                                val = sigmap * self.opt.gamma * np.matmul(np.transpose(self.opt.df) , sk)
 
                             if (i >= 100):
                                 self.okay = 0
@@ -661,17 +942,17 @@ class OptNlinNbegrenzt():
                                 sigmak = sigmam
                                 if (self.opt.use_df_func):
                                     v = self.opt.dfunc(self.opt.xs + sigmak * sk)
-                                    val1 = np.transpose(v) * sk
+                                    val1 = np.matmul(np.transpose(v) , sk)
                                 else:
                                     v = self.optnlin_nbegrenzt_build_df(self.opt.xs + sigmak * sk)
-                                    val1 = np.transpose(v) * sk
-                                val2 = self.opt.eta * (np.transpose(self.opt.df) * sk)
+                                    val1 = np.matmul(np.transpose(v) , sk)
+                                val2 = self.opt.eta * np.matmul(np.transpose(self.opt.df) , sk)
                                 while (val1 < val2 and i < 100):
 
                                     i = i + 1
                                     sigmak = (sigmam + sigmap) * 0.5
                                     delta = (self.opt.func(self.opt.xs + sigmak * sk) - self.opt.f)
-                                    val = sigmak * self.opt.gamma * (np.transpose(self.opt.df) * sk)
+                                    val = sigmak * self.opt.gamma * np.matmul(np.transpose(self.opt.df) , sk)
                                     if (delta <= val):
                                         sigmam = sigmak
                                     else:
@@ -679,11 +960,11 @@ class OptNlinNbegrenzt():
                                     sigmak = sigmam
                                     if (self.opt.use_df_func):
                                         v = self.opt.dfunc(self.opt.xs + sigmak * sk)
-                                        val1 = np.transpose(v) * sk
+                                        val1 = np.matmul(np.transpose(v) , sk)
                                     else:
                                         v = self.optnlin_nbegrenzt_build_df(self.opt.xs + sigmak * sk)
-                                        val1 = np.transpose(v) * sk
-                                    val2 = self.opt.eta * (np.transpose(self.opt.df) * sk)
+                                        val1 = np.matmul(np.transpose(v) , sk)
+                                    val2 = self.opt.eta * np.matmul(np.transpose(self.opt.df) , sk)
 
                                 if (i >= 100):
                                     self.opt.okay = 0
@@ -694,9 +975,129 @@ class OptNlinNbegrenzt():
 
         return sigmak
     # end def
+    def optnlin_nbegrenzt_Armijo_BFGS(self, sk=None):
+        i = 0
+        fac = opt.gamma * np.matmul(np.transpose(self.opt.df) , sk)
+        sigmak = 1.0
+        delta = (self.optnlin_nbegrenzt_BFGS_func(self.opt.xs + sigmak * sk) - self.opt.f)
+        val = sigmak * opt.gamma * np.matmul(np.transpose(self.opt.df) , sk)
+
+        while ((delta > val) and i < 100):
+            i = i + 1
+            sigmak = sigmak * self.opt.beta
+            delta = (self.optnlin_nbegrenzt_BFGS_func(self.opt.xs + sigmak * sk) - self.opt.f)
+            val = sigmak * fac
+
+        if (i >= 100):
+            self.status = hdef.NOT_OKAY
+            self.errtext = 'Schrittweitensteuerung Armijo-Regel > 100 Iterationen'
+
+        return sigmak
+
+    def optnlin_nbegrenzt_PowellWolfe_BFGS(self, sk=None):
+
+        sigmak = 0.0
+        sw = 1
+        while (sw < 6):
+
+            if 1 == (sw):
+                sigmak = 1.0
+                delta = (self.optnlin_nbegrenzt_BFGS_func(self.opt.xs + sigmak * sk) - self.opt.f)
+                val = sigmak * self.opt.gamma * np.matmul(np.transpose(self.opt.df) , sk)
+                if (delta <= val):
+                    sw = 3
+                else:
+                    sw = 2
+            else:
+                if 2 == (sw):
+                    i = 0
+                    sigmam = 2 ** (- (i + 1))
+                    delta = (self.optnlin_nbegrenzt_BFGS_func(self.opt.xs + sigmam * sk) - self.opt.f)
+                    val = sigmam * self.opt.gamma * np.matmul(np.transpose(self.opt.df) , sk)
+                    while (delta > val and i < 100):
+                        i = i + 1
+                        sigmam = 2 ** (- (i + 1))
+                        delta = (self.optnlin_nbegrenzt_BFGS_func(self.opt.xs + sigmam * sk) - self.opt.f)
+                        val = sigmam * self.opt.gamma * np.matmul(np.transpose(self.opt.df) , sk)
+
+                    if (i >= 100):
+                        self.status = hdef.NOT_OKAY
+                        self.errtext = 'Schrittweitensteuerung(2) Powell-Wolfe-Regel > 100 Iterationen'
+                        return sigmak
+                    sigmap = 2.0 * sigmam
+                    sw = 5
+                else:
+                    if 3 == (sw):
+                        if (self.opt.use_df_func):
+                            val1 = np.matmul(np.transpose(self.opt.dfunc(self.opt.xs + sigmak * sk)) , sk)
+                        else:
+                            val1 = np.matmul(np.transpose(self.optnlin_nbegrenzt_build_df(self.opt.xs + sigmak * sk)) , sk)
+                        val2 = opt.eta * np.matmul(np.transpose(self.opt.df) , sk)
+                        if val1 >= val2:
+                            sw = 6
+                        else:
+                            sw = 4
+                    else:
+                        if 4 == sw:
+                            i = 0
+                            sigmap = 2 ** (i + 1)
+                            delta = (self.optnlin_nbegrenzt_BFGS_func(self.opt.xs + sigmap * sk) - self.opt.f)
+                            val = sigmap * opt.gamma * np.matmul(np.transpose(self.opt.df) , sk)
+                            while (delta <= val and i < 100):
+                                i = i + 1
+                                sigmap = 2 ** (i + 1)
+                                delta = (self.optnlin_nbegrenzt_BFGS_func(self.opt.xs + sigmap * sk) - self.opt.f)
+                                val = sigmap * opt.gamma * np.matmul(np.transpose(self.opt.df) , sk)
+
+                            if (i >= 100):
+                                self.status = hdef.NOT_OKAY
+                                self.errtext = 'Schrittweitensteuerung(4) Powell-Wolfe-Regel > 100 Iterationen'
+                                return sigmak
+                            sigmam = 0.5 * sigmap
+                            sw = 5
+                        else:
+                            if 5 == (sw):
+                                i = 0
+                                sigmak = sigmam
+                                if (self.opt.use_df_func):
+                                    v = self.opt.dfunc(self.opt.xs + sigmak * sk)
+                                    val1 = np.matmul(np.transpose(v) , sk)
+                                else:
+                                    v = self.optnlin_nbegrenzt_build_df(self.opt.xs + sigmak * sk)
+                                    val1 = np.matmul(np.transpose(v) , sk)
+                                val2 = opt.eta * np.matmul(np.transpose(self.opt.df) , sk)
+                                while (val1 < val2 and i < 100):
+
+                                    i = i + 1
+                                    sigmak = (sigmam + sigmap) * 0.5
+                                    delta = (self.optnlin_nbegrenzt_BFGS_func(self.opt.xs + sigmak * sk) - self.opt.f)
+                                    val = sigmak * opt.gamma * np.matmul(np.transpose(self.opt.df) , sk)
+                                    if (delta <= val):
+                                        sigmam = sigmak
+                                    else:
+                                        sigmap = sigmak
+                                    sigmak = sigmam
+                                    if (self.opt.use_df_func):
+                                        v = self.opt.dfunc(self.opt.xs + sigmak * sk)
+                                        val1 = np.matmul(np.transpose(v) , sk)
+                                    else:
+                                        v = self.optnlin_nbegrenzt_build_df(self.opt.xs + sigmak * sk)
+                                        val1 = np.matmul(np.transpose(v) , sk)
+                                    val2 = opt.eta * np.matmul(np.transpose(self.opt.df) , sk)
+
+                                if (i >= 100):
+                                    self.status = hdef.NOT_OKAY
+                                    self.errtext = 'Schrittweitensteuerung(5) Powell-Wolfe-Regel > 100 Iterationen'
+                                    return sigmak
+                                sigmak = sigmam
+                                sw = 6
+        # end while
+        return sigmak
+    # end def
     def optnlin_nbegrenzt_build_df(self, xs=None):
 
-        df = self.opt.xs * 0.0
+
+        df = np.copy(self.opt.xs) * 0.0   # np.array([0.0 for i in range(len(self.opt.xs))])
 
         if xs is None:
             f0 = self.opt.f
@@ -705,63 +1106,330 @@ class OptNlinNbegrenzt():
             f0 = self.opt.func(xs)
             x0 = xs
 
-        for i in np.arange(1, self.opt.n + 1).reshape(-1):
-            x = x0
-            dx = np.sqrt(1e-16 * np.amax(np.abs(x(i)), 1e-05))
-            x[i] = x(i) + dx
+        for i in range(self.opt.n):
+            x = np.copy(x0)
+            dx = np.sqrt(self.opt.eps * max(abs(x[i]), 1e-05))
+            x[i] = x[i] + dx
             f = self.opt.func(x)
             df[i] = (f - f0) / dx
 
         return df
     # end def
-    def BFGS(self):
-        pass
-        return
+    def optnlin_nbegrenzt_BFGS_func(self, xs=None):
+
+        f = self.opt.func(xs)
+
+        if (self.opt.flag_penality):
+            for i in range(self.opt.n):
+                if (xs[i] > self.opt.P[i].xmax):
+                    d = (xs[i] - self.opt.P[i].xmax) / self.opt.P[i].dxP
+                    f = f * (self.opt.Penality * (d ** 6) + 1.0)
+                else:
+                    if (xs[i] < self.opt.P[i].xmin):
+                        d = (self.opt.P[i].xmin - xs[i]) / self.opt.P[i].dxP
+                        f = f * (self.opt.Penality * (d ** 6) + 1.0)
+
+        return f
     # end def
+    def optnlin_nbegrenzt_build_H0(self):
+
+
+        H0 = np.eye(self.opt.n)
+        B0 = np.copy(H0)
+        if opt.use_df_func:
+
+            for i in range(self.opt.n):
+                x = np.copy(self.opt.x0)
+                dx = np.sqrt(1e-16 * max(abs(x[i]), 1e-05))
+                df1 = self.opt.df[i]
+                x[i] = x[i] + dx
+                df = self.opt.dfunc(x)
+                df2 = df[i]
+                H0[i, i] = (df2 - df1) / dx
+                B0[i, i] = 1 / not_zero(H0[i, i])
+            # end for
+        else:
+            for i in range(self.opt.n):
+                x = np.copy(self.opt.x0)
+                f0 = self.opt.f
+                dx = np.sqrt(self.opt.eps * max(abs(x[i]), 1e-05))
+                x[i] = x[i] + dx
+                f1 = self.opt.func(x)
+                df1 = (f1 - f0) / dx
+                x[i] = x[i] + dx
+                f2 = self.opt.func(x)
+                df2 = (f2 - f1) / dx
+                H0[i, i] = (df2 - df1) / dx
+                B0[i, i] = 1. / not_zero(H0[i, i])
+            # end ofr
+        # end if
+        return H0, B0
+
     def TrustRegion(self):
-        pass
+        self.status = hdef.NOT_OKAY
+        self.errtext = 'TrustRegion nicht implementiert'
         return
     # end def
     def TrustRegionWedge(self):
-        pass
+        self.status = hdef.NOT_OKAY
+        self.errtext = 'TrustRegionWedge nicht implementiert'
         return
     # end def
+    def func_integer(self):
+
+        xs = self.build_integer_xs()
+
+        f = self.opt.func(xs)
+
+        self.add_f_xs_liste(f)
+
+        return f
+    # end def
+    def func_integer_df(self,idf):
 
 
+        # Bilde zum speichern die Liste mit integerwerten
+        int_liste = []
+        for i in range(self.opt.n):
+            int_liste.append(self.opt.int_def_dict_list[i]["intx"])
+        # end for
+
+        # modifiziere für idf
+        int_liste[idf] += 1
+
+        # Bilde x-Vektor
+        x0 = np.copy(self.opt.xs)
+        x0[idf] = int_liste[idf] * self.opt.int_def_dict_list[idf]["res"]
+
+        dx = self.opt.int_def_dict_list[idf]["res"]
+        f1 = self.opt.func(x0)
+
+        self.add_f1_x0_liste2(int_liste,f1)
+
+        return (f1, dx)
+    # end def
+    def dfunc_integer(self):
+        xs = self.build_integer_xs()
+        df = self.opt.dfunc(xs)
+        return df
+    # end def
+    def optnlin_nbegrenzt_build_df_int(self):
+
+
+        df = np.copy(self.opt.xs) * 0.0   # np.array([0.0 for i in range(len(self.opt.xs))])
+
+        # f0 wird von der letzen Berechnung genommen
+        f0 = self.opt.int_erg_lliste[-1][-1]
+
+        for i in range(self.opt.n):
+
+            (f1,dx) = self.func_integer_df(i)
+
+            df[i] = (f1 - f0) / dx
+        # end for
+        return df
+    # end def
+    def exist_double_values_in_result_liste(self):
+
+        n = len(self.opt.int_erg_lliste)
+        if n:
+            for i in range(n):
+
+                liste = self.opt.int_erg_lliste[i]
+                nliste = len(liste)
+                liste = liste[0:nliste-1]
+
+                for j in range(i+1,n):
+                    liste1 = self.opt.int_erg_lliste[j][0:nliste-1]
+
+                    if liste == liste1:
+                        return True
+                    # end if
+                # end for
+            # end for
+        # end if
+        return False
+    # end def
+    def find_and_set_fmin_value(self):
+
+        if len(self.opt.int_erg_lliste):
+
+            # search in int_erg_lliste for Minimum
+            fmin = self.opt.int_erg_lliste[0][-1]
+            imin = 0
+            for i,liste in enumerate(self.opt.int_erg_lliste):
+                if liste[-1] < fmin:
+                    fmin = liste[-1]
+                    imin = i
+                # end if
+            # end for
+
+            flag = False
+            for i, liste in enumerate(self.opt.int_erg_lliste_df):
+                if liste[-1] < fmin:
+                    fmin = liste[-1]
+                    imin = i
+                    flag = True
+                # end if
+            # end for
+
+            if flag:
+                self.log.write_info(f"Found Minimum in df-Calculation")
+            # end if
+
+            self.opt.f = fmin
+            for i in range(self.opt.n):
+                if flag:
+                    self.opt.xs[i] = self.opt.int_erg_lliste_df[imin][i] * self.opt.int_def_dict_list[i]["res"]
+                else:
+                    self.opt.xs[i] = self.opt.int_erg_lliste[imin][i] * self.opt.int_def_dict_list[i]["res"]
+            # end if
+        # end if
+        return
+    # end def
+    def build_integer_xs(self):
+
+        xs = np.copy(self.opt.xs)
+        for i,ddict in enumerate(self.opt.int_def_dict_list):
+
+            (x,rest,intx) = bilde_int_mit_res(self.opt.xs[i],ddict["res"])
+
+            if rest != 0.0:
+                if self.opt.xs[i] >= 0.0:
+                    if self.opt.int_sk[i] >= 0.0:
+                        intx += 1
+                        x    =  ddict["res"] * intx
+                        rest =  self.opt.xs[i] - x
+                    # end if
+                else:
+                    if self.opt.int_sk[i] < 0.0:
+                        intx -= 1
+                        x    = ddict["res"] * intx
+                        rest = self.opt.xs[i] - x
+                    # end if
+                # end if
+            # end if
+
+            ddict["x"] = x
+            ddict["intx"] = intx
+            ddict["rest"] = rest
+
+            xs[i] = x
+
+            self.opt.int_def_dict_list[i] = ddict
+        # end if
+
+        return xs
+    # end def
+    def add_f_xs_liste(self,f):
+
+        liste = []
+        for i in range(self.opt.n):
+            liste.append(self.opt.int_def_dict_list[i]["intx"])
+        # end if
+        liste.append(f)
+
+        self.opt.int_erg_lliste.append(liste)
+        return
+    # end def
+    def add_f1_x0_liste2(self,xint_liste,f1):
+
+        liste = []
+        for i in range(self.opt.n):
+            liste.append(xint_liste[i])
+        # end if
+        liste.append(f1)
+
+        self.opt.int_erg_lliste_df.append(liste)
+        return
+    # end def
+# end class
+def bilde_int_mit_res(x_in,res):
+
+    (rest,xint) = math.modf(x_in/res)
+
+    rest *= res
+    intx = int(xint)
+    x    = xint * res
+    return (x,rest,intx)
+# end def
+def not_zero(val,eps=1e-16):
+
+    if val >= 0.0:
+        val = max(eps,val)
+    else:
+        val = min(-eps,val)
+    # end if
+
+    return val
+# end def
 
 if __name__ == '__main__':
 
+
+    par1 = 4.
+    par2 = 2.
     def funcRosenbrock(x):
 
-        f = 100.0 * (x[1] - x[0] * x[0]) ** 2 + (1.0 - x[0]) ** 2
-
+        # f = 100.0 * (x[1] - x[0] * x[0]) ** 2 + (1.0 - x[0]) ** 2
+        f = math.pow((par1-x[0]) , 2.0) + math.pow((par2-x[1]) , 2.0)
         return f
+    # end def
+    def diffRosenbrock(x):
+
+        df = np.copy(x) * 0.0   # np.array([0.0 for x in range(len(x))])
+
+        # df[0] = -400.0 * x[0] * (x[1] - x[0] * x[0]) - 2.0 * (1.0 - x[0])
+        # df[1] = 200.0 * (x[1]-x[0] * x[0])
+
+        df[0] = - 2. * (par1 - x[0])
+        df[1] = - 2. * (par2 - x[1])
+
+        return df
+    # end def
+    def HRosenbrock(x):
+
+        H = np.eye(len(x))
+
+        # H[0,0] = -400.0 * (x[1] - 3 * x[0] * x[0]) + 2.0
+        # H[0,1] = -400.0 * x[0]
+        # H[1,0] = -400.0 * x[0]
+        # H[1,1] = 200.0
+
+        H[0, 0] = + 2.
+        H[0, 1] = 0.0
+        H[1, 0] = 0.0
+        H[1, 1] = 2.
+
+        return H
     # end def
 
     opt = DataOpt("test")
 
-    opt.type  = 1              # 0: Methode des steilsten Abstiegs
+    opt.type  = 0              # 0: Methode des steilsten Abstiegs
                                # 1: BFGS-Verfahren (Quasi-Newton-Verfahren) mit
                                #    Powell-Wolfe-Regel
                                # 2: Trust-Region
                                # 3: Trust-Region-Wedge
                                # Methode des steilsten Abstiegs:
-    opt.stype = 0              # 0: Schrittweiten Regelung nach Armijo-Regel
+    # opt.stype = 0              # 0: Schrittweiten Regelung nach Armijo-Regel
                                # 1: Schrittweiten Regelung nach Powell-Wolfe
-    opt.use_df_func = 0          # Soll Ableitung aus der Funktion berechnet werden
-    opt.use_H_func  = 0
+    # opt.use_df_func = 0          # Soll Ableitung aus der Funktion berechnet werden
+    # opt.use_H_func  = 0
 
-    opt.beta  = 0.5            # Armijo-Regel 0 < beta < 1  skaliert Schrittweite
-    opt.gamma = 1e-4           # Armijo-Regel,Powell-Wolfe-Regel 0 < gamma < 1 skaliert Gradienten
-    opt.eta   = 0.9            # Powell-Wolfe-Regel gamma < eta < 1 skaliert Gradienten gröber
+    # opt.beta  = 0.5            # Armijo-Regel 0 < beta < 1  skaliert Schrittweite
+    # opt.gamma = 1e-4           # Armijo-Regel,Powell-Wolfe-Regel 0 < gamma < 1 skaliert Gradienten
+    # opt.eta   = 0.9            # Powell-Wolfe-Regel gamma < eta < 1 skaliert Gradienten gröber
 
 
-    opt.delta0   = 1.            # opt.deltaT0   Trust-Region Startwert für Trust-Region-Radius
-    opt.deltamin = 1e-3         # opt.deltaTmin Trust-Region minimal Trust-Region-Radius
+    opt.kmax  = 100
+    opt.err   = 1e-5
 
-    opt.kmax  = 100000
-    opt.err   = 1e-3
+    opt.x_int_def = [["float",0.1],["float",0.01]]
 
 
     obj = OptNlinNbegrenzt()
-    erg = obj.optimize(opt,[-1.2,1.0],funcRosenbrock)
+    erg = obj.optimize(opt,[0.0,0.0],funcRosenbrock)
+
+    if erg.status != hdef.OKAY:
+        print(erg.errtext)
