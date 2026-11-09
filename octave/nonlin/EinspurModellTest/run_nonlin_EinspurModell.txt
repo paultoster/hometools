@@ -1,0 +1,30 @@
+Methode Quasi-Newton-Verfahren mit Powell-Wolfe (Schrittweitensteuerung)
+k = 0 f =               1.3723 err =          3.8929e-005 sigma =                    0
+k = 1 f =               1.2717 err =          6.0625e-005 sigma =          2.6844e+008
+k = 2 f =               1.2248 err =          3.6293e-005 sigma =                    1
+k = 3 f =               1.2243 err =          3.8461e-005 sigma =                    1
+k = 4 f =               1.2243 err =          3.8246e-005 sigma =                    1
+k = 5 f =               1.2243 err =          3.8234e-005 sigma =                   16
+k = 6 f =               1.2243 err =           3.832e-005 sigma =                   64
+k = 7 f =               1.2243 err =          3.7084e-005 sigma =                  128
+k = 8 f =               1.2242 err =          3.7662e-005 sigma =                    1
+k = 9 f =                1.224 err =          3.8238e-005 sigma =                    1
+k = 10 f =               1.2234 err =          3.9237e-005 sigma =                    1
+k = 11 f =               1.2219 err =          4.0402e-005 sigma =                    1
+k = 12 f =               1.2182 err =          4.1365e-005 sigma =                    1
+k = 13 f =               1.2099 err =          4.0351e-005 sigma =                    1
+k = 14 f =               1.1952 err =          3.3476e-005 sigma =                    1
+k = 15 f =               1.1787 err =            1.85e-005 sigma =                    1
+k = 16 f =               1.1705 err =          4.8279e-006 sigma =                    1
+> k = 17 f =               1.1692 err =           9.284e-007 sigma =                    1
+x1 = 207365.427036
+x2 = 193820.899588
+x3 = 4192.344418
+Methode Quasi-Newton-Verfahren mit Powell-Wolfe (Schrittweitensteuerung)
+k = 0 f =          4.4381e+055 err =          1.3957e+054 sigma =                    0
+Schrittweitensteuerung(2) Powell-Wolfe-Regel > 100 IterationenMethode Quasi-Newton-Verfahren mit Powell-Wolfe (Schrittweitensteuerung)
+k = 0 f =          3.8825e+051 err =          1.0664e+050 sigma =                    0
+Schrittweitensteuerung(2) Powell-Wolfe-Regel > 100 IterationenMethode Quasi-Newton-Verfahren mit Powell-Wolfe (Schrittweitensteuerung)
+Methode Quasi-Newton-Verfahren mit Powell-Wolfe (Schrittweitensteuerung)
+Methode Quasi-Newton-Verfahren mit Powell-Wolfe (Schrittweitensteuerung)
+Methode Quasi-Newton-Verfahren mit Powell-Wolfe (Schrittweitensteuerung)

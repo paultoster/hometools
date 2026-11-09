@@ -1,0 +1,4 @@
+Index 1(27) itype:1 
+#################################################
+Methode steilsten Abstieg mit Armaijo-Regel (Schrittweitensteuerung)
+k = 0 f =             0.063677 err =              0.08518 sigma =                    0

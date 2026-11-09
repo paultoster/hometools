@@ -1,0 +1,131 @@
+File 00Readme - Readme file of the Matlab implementation of the  
+Wedge method for derivative free optimization described in
+
+Wedge Trust Region Methods For Derivative Free Optimization
+M. Marazzi and J. Nocedal, Technical Report OTC 2000/10,
+Northwestern University, Evanston, Illinois, October 2000.
+(To appear in Mathematical Programming.)
+
+Specs file setSpecs.m
+--------------------- 
+This file sets the specs to its default values. Here we explain a 
+few non-immediate variables.
+
+nRunsOptn:
+There is certain degree of randomness in the initial set 
+of sample points (and hence, in the output). Therefore there will 
+be variations in the results. We recommend that each problem be 
+run a number of times. The default is to run a problem 5 times, 
+if nRunsOptn = 'Var'. If only one run is desired, set nRunsOptn 
+= 'One'.
+
+AlgOptn:
+To run the linear or the quadratic versions of the algorithm, set 
+AlgOptn = 'Linear' or 'Quadra' respectively.
+
+Defining a problem
+------------------
+The user has to supply the files 
+
+user_ufn.m     defines the objective function
+user_unames.m  defines the problem name
+user_usetup.m  defines the starting point
+
+(These files are analogous to the ones supplied by the CUTE 
+test suite.)
+
+An example of these files is supplied.
+
+To run the algorithm, start a Matlab session, and at the Matlab
+prompt say "driver". The output files <problem_name>.out and 
+<problem_name>.sum will be generated. The output can also go
+to the screen, and this is governed through the variable 
+iPrint in the specs file. At the end of this file a sample output
+is included.
+
+Fortran subroutine
+------------------
+The algorithm uses the Fortran subroutine gqtpar.f (by More' and 
+Sorensen) from Minpack to solve the trust region subproblem. 
+A so-called gateway function (or wrapper) gqtparg.f is supplied 
+so that gqtpar.f can be called from Matlab. The user has to generate 
+the architecture-dependent mex-file gqtpar.mex* (the extension depends 
+on the architecture, e.g. gqtpar.mexsol for Solaris) by saying
+
+fmex gqtpar.f gqtparg.f
+
+at the Unix prompt. The above command may be system dependent. If this
+doesn't work, you will have to see your Matlab documentation on mex-files.
+
+Marcelo Marazzi, 4-Sep-2001
+marcelo.marazzi@ual.com
+
+------------------------------ sample output -------------------------------------
+Method: Wedge 04-Sep-2001
+
+Problem: POWELL-E
+
+Initial function value f =  4.00e+00
+------- Switched x1 
+
+ iter  nf     f         Delta     type    wedge    gamma    theta     tr     ||g||
+-----------------------------------------------------------------------------------
+   0    6  2.87500e+00  1.00e+00           
+   1    7  7.38338e-01  2.00e+00    OK     Inac   4.0e-01   0.0e+00   AC   9.43e+00
+   2    8  7.38338e-01  1.00e+00  Rej      Inac   4.0e-01   0.0e+00   AC   2.12e+01
+   3    9  7.38338e-01  5.00e-01  Rej+     Inac   4.0e-01   0.0e+00   AC   2.12e+01
+   4   10  7.38338e-01  2.50e-01  Rej+     Inac   4.0e-01   0.0e+00   AC   1.49e+01
+   5   11  7.06399e-01  2.50e-01    OK   ActRed   2.4e-01   5.2e-03   IN   9.94e+00
+   6   12  5.30092e-01  2.50e-01    OK   ActRed   6.2e-03   5.2e-03   IN   5.87e+00
+   7   13  5.30092e-01  1.25e-01  Rej+     Inac   6.2e-03   0.0e+00   AC   2.22e+01
+   8   14  5.30092e-01  6.25e-02  Rej+     Inac   6.2e-03   0.0e+00   AC   1.84e+00
+   9   15  4.96085e-01  6.25e-02    OK     Inac   6.2e-03   0.0e+00   IN   5.07e-01
+  10   16  4.28213e-01  1.25e-01    OK     Inac   6.2e-03   0.0e+00   AC   1.43e+00
+  11   17  3.30464e-01  2.50e-01    OK     Inac   6.2e-03   0.0e+00   AC   1.25e+00
+  12   18  2.22230e-01  5.00e-01    OK     Inac   6.2e-03   0.0e+00   AC   1.03e+00
+  13   19  2.22230e-01  1.60e-02  Rej+     Inac   6.2e-03   0.0e+00   IN   9.71e-02
+  14   20  1.85754e-01  3.20e-02    OK     Inac   6.2e-03   0.0e+00   AC   9.39e+00
+  15   21  1.78870e-01  3.20e-02    OK   ActRed   6.5e-04   5.2e-03   IN   5.63e-01
+  16   22  1.78870e-01  1.60e-02  Rej+     Inac   6.5e-04   0.0e+00   AC   3.46e+00
+  17   23  1.51375e-01  3.20e-02    OK     Inac   6.5e-04   0.0e+00   AC   2.26e+00
+  18   24  1.26507e-01  6.40e-02    OK     Inac   6.5e-04   0.0e+00   AC   1.31e+00
+  19   25  1.00451e-01  1.28e-01    OK     Inac   6.5e-04   0.0e+00   AC   5.12e-01
+ iter  nf     f         Delta     type    wedge    gamma    theta     tr     ||g||
+-----------------------------------------------------------------------------------
+  21   27  3.28217e-02  5.12e-01    OK     Inac   6.5e-04   0.0e+00   AC   2.64e-01
+  22   28  3.28217e-02  2.56e-01  Rej      Inac   6.5e-04   0.0e+00   AC   1.09e+01
+  23   29  3.28217e-02  1.28e-01  Rej+     Inac   6.5e-04   0.0e+00   AC   1.09e+01
+  24   30  3.28217e-02  6.40e-02  Rej+     Inac   6.5e-04   0.0e+00   AC   6.84e+00
+  25   31  9.27106e-03  1.28e-01    OK     Inac   6.5e-04   0.0e+00   AC   3.70e+00
+  26   32  9.27106e-03  6.40e-02  Rej+     Inac   6.5e-04   0.0e+00   AC   9.48e-01
+  27   33  9.27106e-03  9.09e-03  Rej+     Inac   6.5e-04   0.0e+00   IN   1.91e-01
+  28   34  7.65879e-03  1.82e-02    OK     Inac   6.5e-04   0.0e+00   AC   2.43e-01
+  29   35  5.45205e-03  3.64e-02    OK     Inac   6.5e-04   0.0e+00   AC   4.16e-01
+  30   36  4.26454e-03  3.64e-02    OK     Inac   6.5e-04   0.0e+00   IN   9.41e-02
+  31   37  2.23824e-03  7.27e-02    OK     Inac   6.5e-04   0.0e+00   AC   1.53e-01
+  32   38  2.55499e-04  7.27e-02    OK   ActRed   2.1e-04   5.2e-03   IN   6.07e-02
+  33   39  2.55499e-04  3.64e-02  Rej+     Inac   2.1e-04   0.0e+00   AC   3.99e-01
+  34   40  1.22629e-05  3.64e-02    OK     Inac   2.1e-04   0.0e+00   IN   8.95e-02
+  35   41  5.53939e-06  3.64e-02    OK     Inac   2.1e-04   0.0e+00   IN   3.62e-02
+  36   42  4.50051e-06  3.64e-02    OK     Inac   2.1e-04   0.0e+00   IN   3.90e-03
+  37   43  4.66829e-08  3.64e-02    OK   ActRed   5.1e-05   5.2e-03   IN   8.82e-03
+  38   44  5.55187e-09  3.64e-02    OK     Inac   5.1e-05   0.0e+00   IN   2.04e-03
+  39   45  5.08442e-09  3.64e-02    OK   ActRed   2.7e-05   5.2e-03   IN   1.05e-03
+ iter  nf     f         Delta     type    wedge    gamma    theta     tr     ||g||
+-----------------------------------------------------------------------------------
+  41   47  8.35654e-14  3.64e-02    OK     Inac   3.3e-06   0.0e+00   IN   7.94e-05
+  42   48  7.27272e-15  3.64e-02    OK   ActRed   2.8e-06   5.2e-03   IN   4.20e-06
+  43   49  4.62677e-17  3.64e-02    OK   ActRed   1.3e-07   5.2e-03   IN   1.45e-07
+  44   50  5.61229e-23  3.64e-02    OK   ActRed   1.5e-08   5.2e-03   IN   9.68e-08
+  45   51  1.53548e-24  3.64e-02    OK   ActRed   2.8e-09   5.2e-03   IN   4.10e-11
+  46   52  1.90375e-26  3.64e-02    OK   ActRed   2.7e-11   5.2e-03   IN   2.90e-12
+  47   53  1.23260e-31  3.64e-02    OK     Inac   2.7e-11   0.0e+00   IN   1.95e-12
+  48   54  1.23260e-31  2.12e-18  Rej+   ActRed   8.3e-14   5.2e-03   IN   4.30e-16
+
+STOP: Trust region radius < DeltaTol =  2.22e-15
+
+
+
+
+
+

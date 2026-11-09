@@ -1,0 +1,603 @@
+function [x,redf,par,iter,z,infoval] = gqtpar(n,A,b,delta,rtol,atol,maxit,par)
+%
+% [x,redf,par,iter,z,infoval] = gqtpar(A,b,delta,rtol,atol,maxit,par)
+% by More' and Sorensen from Minpack.
+%
+%     Given an n by n symmetric matrix A, an n-vector b, and a
+%     positive number delta, this subroutine determines a vector
+%     x which minimizes the quadratic function
+%
+%           f(x) = (x,Ax)/2 + (b,x)
+%
+%     subject to the constraint
+%
+%           norm(x) .le. delta.
+%
+%     The norm is the Euclidean norm and (u,v) is the inner
+%     product between vectors u and v.
+%
+%       A is an n by n array. On input the full upper triangle must
+%         contain the full upper triangle of the symmetric matrix A.
+%         On output the array contains the matrix A.
+%
+%       b is an input array of length n which must contain the
+%         elements of the vector b.
+%       delta is a positive input variable which specifies an upper
+%         bound on the euclidean norm of x.
+%
+%       rtol is a positive input variable which specifies the
+%         relative accuracy desired in the solution. If xsol is the
+%         solution and redf(x) is the reduction in the objective
+%         function at x, then termination occurs when
+%
+%               norm(x) .le. (1 + rtol)*delta
+%
+%               redf(x)  .ge. ((1 - rtol)**2)*redf(xsol)
+%
+%       atol is a nonnegative input variable which specifies the
+%         absolute accuracy desired in the solution. If xsol is the
+%         solution and redf(x) is the reduction in the objective
+%         function at x, then termination occurs when
+%
+%               norm(x) .le. (1 - rtol)*delta
+%
+%               max(redf(x),redf(xsol)) .le. atol
+%
+%       maxit is a positive integer input variable which specifies
+%         the maximum number of iterations.
+%
+%       par is a nonnegative variable. On input par contains an
+%         initial estimate of the Lagrange multiplier corresponding
+%         to the constraint norm(x) .le. delta.  On output par
+%         contains the final estimate of this multiplier.
+%
+%       infoval is an integer output variable set as follows.
+%
+%         infoval = 1   The reduction redf has the relative accuracy
+%                    specified by rtol.
+%
+%         infoval = 2   The reduction redf has the absolute accuracy
+%                    specified by atol.
+%
+%         infoval = 3   Rounding errors prevent further progress.
+%
+%         infoval = 4   Number of iterations has reached maxit.
+%
+%       x is an output array of length n which contains the final
+%         estimate of the solution vector.
+%
+%       redf is an output variable which contains the reduction in
+%         the objective function at the output x.
+%
+%       iter is a nonnegative integer output variable set to the
+%         number of iterations.
+%
+%       z is an output array of length n which contains the final
+%          estimate of a direction of negative curvature.
+%
+%
+%     Initialization.
+%
+% [x,redf,par,iter,z,infoval] = gqtpar(A,b,delta,rtol,atol,maxit,par)
+  parf   = 0.0;
+  xnorm  = 0.0;
+  rxnorm = 0.0;
+  rednc  = 0;
+  x      = zeros(n,1);
+  z      = zeros(n,1);
+  wa1    = zeros(n,1);
+  wa2    = zeros(n,1);
+  for j=1:n
+    wa1(j) = A(j,j);
+    for i=j+1:n
+      A(i,j) = A(j,i);
+    end
+  end
+%
+%     Calculate the l1-norm of A and the l2-norm of b.
+%
+  anorm = 0.0;
+  for j = 1:n
+    temp = 0.0;
+    for i = 1:n
+      temp = temp + abs(A(i,j));
+    end
+    wa2(j) = temp - abs(wa1(j));
+    anorm  = max(anorm,temp);
+  end
+  bnorm = norm(b);
+%
+%     Calculate a lower bound, pars, for the domain of the problem.
+%     Also calculate an upper bound, paru, and a lower bound, parl,
+%     for the Lagrange multiplier.
+%
+  pars = -anorm;
+  parl = -anorm;
+  paru = -anorm;
+  for j = 1:n
+    pars = max(pars,-wa1(j));
+    parl = max(parl,wa1(j)+wa2(j));
+    paru = max(paru,-wa1(j)+wa2(j));
+  end
+  parl = max([0.0,bnorm/delta-parl,pars]);
+  paru = max(0.0,bnorm/delta+paru);
+%
+%     If the input par lies outside of the interval (parl,paru),
+%     set par to the closer endpoint.
+%
+  par = max(par,parl);
+  par = min(par,paru);
+%
+%     Special case: parl = paru.
+%
+  paru = max(paru,(1+rtol)*parl);
+%
+%     Beginning of an iteration.
+%
+  infoval = 0;
+  for iter = 1:maxit
+%
+%        Safeguard par.
+%
+    if( (par <= pars) && (paru > 0.0) )
+      par = max(0.001,sqrt(parl/paru))*paru;
+    end
+%
+%        Attempt to compute the Cholesky factorization.
+%
+    for j = 1:n
+      for i = 1:j-1
+        A(i,j) = A(j,i);
+      end
+      A(j,j) = wa1(j) + par;
+    end
+    [wa2,nrank] =  gqtpar_chfac(n,A,wa2);
+%
+%        Compute an approximate solution x.
+%
+    if( nrank == n ) 
+      parf   = par;
+      wa2    = gqtpar_rsol(n,A,b,2);
+      rxnorm = norm(wa2);
+      x = gqtpar_rsol(n,A,wa2,1);
+      for i = 1:n
+        x(i) = -x(i);
+      end
+      xnorm = norm(x);
+%
+%     Convergence test.
+%
+      if( (abs(xnorm-delta) <= rtol*delta) ...
+        || (par == 0.0) ...
+        && (xnorm <= ((1+rtol)*delta)) ) 
+        infoval = 1;
+      end
+%
+%     Compute a direction of negative curvature and
+%     use this information to improve pars.
+%
+      [rznorm,z] = gqtpar_estsv(n,A);
+      pars       = max(pars,par-rznorm^2);
+%
+%     Compute a negative curvature solution of the form
+%     x + alpha*z where norm(x + alpha*z) = delta.
+%
+      rednc = 0;
+      if( xnorm <= delta) % then
+        prod = 0.0;
+        for i = 1:n
+          prod = prod + z(i)*(x(i)/delta);
+        end
+        temp   = (delta - xnorm)*((delta + xnorm)/delta);
+        alpha  = temp/(abs(prod) + sqrt(prod^2 + temp/delta));
+        rznorm = alpha*rznorm;
+        alpha  = sign(prod)*abs(alpha);
+        if( ((rznorm/delta)^2 + par*(xnorm/delta)^2) <= par )
+          rednc = 1;
+        end
+%
+%       Convergence tests.
+%
+        if( ((rznorm/delta)^2) <= (rtol*(2.0-rtol)*(par + (rxnorm/delta)^2)) ) % then
+          infoval = 1;
+        elseif(  ((par + (rxnorm/delta)^2)/2) <= ((atol/delta)/delta) ...
+               && (iter ~= 1) ) % then
+          if( infoval ~= 1),infoval = 2;end
+        end
+      end
+%
+%     Compute the Newton correction parc to par.
+%
+      if( xnorm == 0.0 ) % then
+        parc = -par;
+      else
+        for j = 1:n
+          wa2(j) = x(j)/xnorm;
+        end
+        wa2  = gqtpar_rsol(n,A,lda,wa2,2);
+        temp = norm(wa2);
+        parc = (((xnorm - delta)/delta)/temp)/temp;
+      end
+%
+%     Update parl or paru.
+%
+      if( xnorm > delta ),parl = max(parl,par);end
+      if( xnorm < delta ),paru = min(paru,par);end
+%
+%   Use the rank information from the Cholesky decomposition.
+%
+    else % if( nrank == n )
+      temp = gqtpar_enorm(nrank+1,wa2);
+      parc = -(A(nrank+1,nrank+1)/temp)/temp;
+      pars = max(pars,par+parc);
+
+%     Modify paru to guarantee that nrank = n.
+
+      paru = max(paru,(1+2*rtol)*pars);
+    end
+%
+%   Use pars to update parl.
+%
+    parl = max(parl,pars);
+%
+%   Termination tests.
+%
+    if( infoval == 0 ) % then
+      if( iter == maxit ),infoval = 4;end
+      if( (paru - pars) <= (rtol*(2-rtol)*pars) ),infoval = 3;end
+      if( paru == 0.0 ),infoval = 2;end
+    end
+%
+%   If exiting, store the best approximation and
+%   restore the upper triangle of A.
+%
+    if( infoval ~= 0 ) % then
+      par  = parf;
+      redf = (rxnorm^2 + (par*xnorm)*xnorm)/2.;
+      if( rednc ) % then
+        redf = ((rxnorm^2 + (par*delta)*delta) - rznorm^2)/2.;
+        for i = 1:n
+          x(i) = x(i) + alpha*z(i);
+        end
+      end
+      for j = 1:n
+        for i = 1:j-1
+          A(i,j) = A(j,i);
+        end
+        A(j,j) = wa1(j);
+      end
+      return
+    end
+%
+%   Compute an improved estimate for par.
+%
+    par = max(parl,par+parc);
+%
+%   End of an iteration.
+%
+  end % for iter = 1:maxiter
+
+end
+function [z,infoval] = gqtpar_chfac(n,a,z)
+%     integer n,lda,infoval
+%     double precision a(lda,n),z(n)
+%     **********
+%
+%     Subroutine chfac
+%
+%     Given an n by n symmetric matrix A, this subroutine computes
+%     a modified Cholesky decomposition for A.
+%
+%     If the Cholesky decompositon of A exists then this subroutine
+%     computes an upper triangular matrix R (the Cholesky factor)
+%     such that
+%
+%                T
+%           A = R R
+%
+%     If the Cholesky decomposition of A does not exist, then there
+%     is a largest leading submatrix of A which is not positive
+%     definite. This subroutine computes a Cholesky decompositon of
+%     this submatrix, and a direction z of negative curvature for A.
+%     Thus, (z,Az) is not positive, where (x,y) is the inner product
+%     between vectors x and y.
+%
+%     The subroutine statement is
+%
+%       subroutine chfac(n,a,lda,z,infoval)
+%
+%     where
+%
+%       n is a positive integer input variable set to the order of A.
+%
+%       a is an n by n array. On input the full upper triangle must
+%         contain the full upper triangle of the matrix A. If the
+%         Cholesky decomposition exists, then on output the full
+%         upper triangle contains the full upper triangle of the
+%         matrix R. Otherwise, on output the first infoval columns in
+%         the full upper triangle contains the full upper triangle
+%         of the Cholesky factor for the order infoval leading
+%         submatrix of A.
+%
+%       lda is a positive integer input variable not less than n
+%         which specifies the leading dimension of the array a.
+%
+%       z is an output array of length n. If A does not have a
+%         Cholesky decomposition then z is a vector such that
+%         (z,Az) is not positive. Otherwise, z is not referenced.
+%
+%       infoval is an integer output variable which specifies the
+%         order of the largest leading submatrix of A which is
+%         positive definite. If no leading submatrix is positive
+%         definite, then infoval = 0.
+%
+%     Subprograms called
+%
+%       Fortran-supplied ... sqrt
+%
+%       Minpack-supplied ... rsol
+%
+%     Argonne National Laboratory. Minpack Project. January 1984.
+%
+%     **********
+%       integer i,j,k
+%       double precision sum1,sum2
+%
+%     Factorization of A.
+%
+  for j = 1:n
+    sum2 = 0.0;
+    for i = 1:j-1
+      sum1 = 0.0;
+      for k = 1:i-1
+        sum1 = sum1 + a(k,j)*a(k,i);
+      end
+      a(i,j) = (a(i,j) - sum1)/a(i,i);
+      sum2 = sum2 + a(i,j)^2;
+    end
+%
+%   If it is not possible to complete the factorization then
+%   compute a direction of negative curvature and terminate.
+%
+    if( a(j,j) > sum2 ) % then
+      a(j,j) = sqrt(a(j,j)-sum2);
+    else
+      a(j,j) = a(j,j) - sum2;
+      infoval = j - 1;
+      z    = gqtpar_rsol(infoval,a,a(1,j),1);
+      z(j) = -1.0;
+      for i = j+1:n
+        z(i) = 0.0;
+      end
+      return;
+    end
+  end
+  infoval = n;
+%
+%     Last card of subroutine chfac.
+%
+end
+function x = gqtpar_rsol(n,r,b,job)
+%       integer n,ldr,job
+%       double precision r(ldr,n),b(n),x(n)
+%     **********
+%
+%     Subroutine rsol
+%
+%     Given an n by n upper triangular matrix R and an n-vector b,
+%     this subroutine solves the system Rx = b if job = 1 and the
+%     system (R transpose)x = b if job = 2. It is assumed that R
+%     is nonsingular.
+%
+%     The subroutine statement is
+%
+%       subroutine rsol(n,r,ldr,b,x,job)
+%
+%     where
+%
+%       n is a positive integer input variable set to the order of R.
+%
+%       r is an n by n input array. The full upper triangle must
+%         contain the full upper triangle of the matrix R.
+%         The strict lower triangle is not referenced.
+%
+%       ldr is a positive integer input variable not less than n
+%         which specifies the leading dimension of the array r.
+%
+%       b is an input array of length n which must contain the
+%         elements of the vector b.
+%
+%       x is an output array of length n. If job = 1 then x contains
+%         the solution to the system Rx = b, while if job = 2 the x
+%         contains the solution to the system (R transpose)x = b.
+%
+%       job is a positive input variable. The system Rx = b is solved
+%         if job = 1, and (R transpose)x = b is solved if job = 2.
+%
+%     Argonne National Laboratory. Minpack Project. January 1984.
+%
+%     **********
+%       integer i,j
+%       double precision sum,temp
+%
+%     Solve Rx = b.
+%
+  x = zeros(n,1);
+  if( job == 1 ) % then
+    for i = 1:n
+      x(i) = b(i);
+    end
+    for j = n:-1:1
+      x(j) = x(j)/r(j,j);
+      temp = x(j);
+      for i = 1:j-1
+        x(i) = x(i) - r(i,j)*temp;
+      end
+    end
+%
+%     Solve (R transpose)x = b.
+%
+  elseif (job == 2) % then
+    for j = 1:n
+      sum = b(j);
+      for i = 1:j-1
+        sum = sum - r(i,j)*x(i);
+      end
+      x(j) = sum/r(j,j);
+    end
+  end
+%
+%     Last card of subroutine rsol.
+%
+end
+function [svmin,z] = gqtpar_estsv(n,r)
+%       integer n,ldr
+%       double precision svmin
+%       double precision r(ldr,n),z(n)
+%     **********
+%
+%     Subroutine estsv
+%
+%     Given an n by n upper triangular matrix R, this subroutine
+%     estimates the smallest singular value and the associated
+%     singular vector of R.
+%
+%     In the algorithm a vector e is selected so that the solution y
+%     to the system (R transpose)y = e is large. The choice of sign
+%     for the components of e cause maximal local growth in the
+%     components of y as the forward substitution proceeds.
+%     The vector z is the solution of the system Rz = y, and the
+%     estimate svmin is enorm(y)/enorm(z).
+%
+%     The subroutine statement is
+%
+%       subroutine estsv(n,r,ldr,svmin,z)
+%
+%     where
+%
+%       n is a positive integer input variable set to the order of R.
+%
+%       r is an n by n input array. The full upper triangle must
+%         contain the full upper triangle of the matrix R.
+%         The strict lower triangle is not referenced.
+%
+%       ldr is a positive integer input variable not less than n
+%         which specifies the leading dimension of the array r.
+%
+%       svmin is a nonnegative output variable which contains an
+%         estimate for the smallest singular value of R.
+%
+%       z is an output array of length n which defines a singular
+%         vector associated with the estimate svmin. On output
+%         enorm(Rz) = svmin and enorm(z) = 1.
+%
+%     Subprograms called
+%
+%       Minpack-supplied ... enorm
+%
+%       Fortran-supplied ... abs,sign
+%
+%     Argonne National Laboratory. Minpack Project. January 1984.
+%
+%     **********
+%       integer i,j
+%       double precision e,s,sm,temp,w,wm,ynorm,znorm
+%       double precision gqtpar_enorm
+  z = zeros(n,1);
+%
+% This choice of e makes the algorithm scale invariant.
+%
+  e = abs(r(1,1));
+  if (e == 0.0) % then
+    svmin = 0.0;
+    z(1)  = 1.0;
+    return;
+  end
+%
+%     Solve (R transpose)y = e.
+%
+  for i = 1:n
+    e = gqtpar_sign(e,-z(i));
+%
+%   Scale y. The factor of 0.01 reduces the number of scalings.
+%
+    if( abs(e-z(i)) > abs(r(i,i)) ) % then
+      temp = min(0.01,abs(r(i,i))/abs(e-z(i)));
+      for j = 1:n
+        z(j) = temp*z(j);
+      end
+      e = temp*e;
+    end
+%
+%   Determine the two possible choices of y(i).
+%
+    if( r(i,i) == 0.0 ) % then
+      w  = 1.0;
+      wm = 1.0;
+    else
+      w  =  (e - z(i))/r(i,i);
+      wm =  -(e + z(i))/r(i,i);
+    end
+%
+%   Choose y(i) based on the predicted value
+%   of y(j) for j = i+1,...,n.
+%
+    s  = abs(e-z(i));
+    sm = abs(e+z(i));
+    for j = i+1:n
+      sm   = sm + abs(z(j)+wm*r(i,j));
+      z(j) = z(j) + w*r(i,j);
+      s = s + abs(z(j));
+    end
+    if (s < sm) % then
+      temp = wm - w;
+      w = wm;
+      for j = i+1:n
+        z(j) = z(j) + temp*r(i,j);
+      end
+    end
+    z(i) = w;
+  end
+  ynorm = norm(z);
+%
+%     Solve Rz = y.
+%
+  for j = n:-1:1
+%
+% Scale z.
+%
+    if( abs(z(j)) > abs(r(j,j)) ) % then
+      temp = min(0.01,abs(r(j,j))/abs(z(j)));
+      for i = 1:n
+        z(i) = temp*z(i);
+      end
+      ynorm = temp*ynorm;
+    end
+    if( r(j,j) == 0.0 ) % then
+      z(j) = 1.0;
+    else
+      z(j) = z(j)/r(j,j);
+    end
+    temp = z(j);
+    for i = 1:j-1
+      z(i) = z(i) - temp*r(i,j);
+    end
+  end
+%
+%     Compute svmin and normalize z.
+%
+  znorm = norm(z);
+  svmin = ynorm/znorm;
+  for i = 1:n
+    z(i) = z(i)/znorm;
+  end
+end
+function val = gqtpar_sign(val,signval)
+
+  if( val >= 0.0 )
+    if( signval < 0.0 )
+      val = -val;
+      
+       
+  else
+  end
