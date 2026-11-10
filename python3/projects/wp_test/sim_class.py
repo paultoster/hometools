@@ -27,7 +27,16 @@ class WPSim:
     def __init__(self,
                  wpscrefunc,
                  parstruct,
-                 ) -> None:
+                 log_obj=None) -> None:
+
+        # Log-File start
+        # ---------------
+        if log_obj is None:
+            self.log = hlog.log(consol_func=True, log_window=False)
+        else:
+            self.log = log_obj
+        # end if
+        self.log_file_name = self.log.get_logfilename()
 
         self.Parobj = sim_par_class.WPSimPar(parstruct)
 
@@ -152,7 +161,7 @@ class WPSim:
 
             # Zinsabrechnung
             if zinsabrechnungTrigger:
-                print(f"zinsTrigger: {self.DataObj.AktDat_datetime.strftime("%d.%m.%Y,}")}")
+                print(f"          zinsTrigger: {self.DataObj.AktDat_datetime.strftime("%d.%m.%Y,}")}")
 
                 self.KontoObj.MacheZinsAbrechnung()
 
@@ -162,7 +171,7 @@ class WPSim:
 
             # Pruefen
             if pruefTrigger:
-                print(f"pruefTrigger: {self.DataObj.AktDat_datetime.strftime("%d.%m.%Y,}")}")
+                print(f"          pruefTrigger: {self.DataObj.AktDat_datetime.strftime("%d.%m.%Y,}")}")
 
                 if self.DataObj.AktDat_datetime.year >= 2010:
                     a = 0
@@ -183,7 +192,7 @@ class WPSim:
             # Ergebnis
             #-----------
             if ergebnisTrigger:
-                print(f"{self.Parobj.SimName} ergebnisTrigger: {self.DataObj.AktDat_datetime.strftime("%d.%m.%Y,}")}")
+                print(f"          {self.Parobj.SimName} ergebnisTrigger: {self.DataObj.AktDat_datetime.strftime("%d.%m.%Y,}")}")
                 self.ErgebnisObj.update()
                 self.ErgebnisDatumtObj.setNextTriggerDay()
             # end if

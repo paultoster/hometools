@@ -12,6 +12,7 @@ import os, sys, copy, time
 import numpy as np
 import scipy
 import math
+import datetime
 
 # -------------------------------------------------------------------------------
 t_path, _ = os.path.split(__file__)
@@ -19,6 +20,8 @@ if (t_path == os.getcwd()):
 
     import hfkt_log as hlog
     import hfkt_def as hdef
+    import hfkt_io as hio
+    import hfkt_file_path as hfp
 else:
     p_list = os.path.normpath(t_path).split(os.sep)
     if (len(p_list) > 1): p_list = p_list[: -1]
@@ -28,7 +31,8 @@ else:
 
     from tools import hfkt_log as hlog
     from tools import hfkt_def as hdef
-
+    from tools import hfkt_io as hio
+    from tools import hfkt_file_path as hfp
 @dataclass
 class XType():
     name: str
@@ -408,6 +412,12 @@ class OptNlinNbegrenzt():
             self.opt.int_erg_lliste = []
             self.opt.int_erg_lliste_df = []
 
+            if hasattr(self.opt, 'int_json_file'):
+                self.opt.int_jsonobj  = hio.DataJson(hfp.add_to_filebody("int_erg_lliste_",self.opt.int_json_file,""))
+            else:
+                self.opt.int_jsonobj = None
+            # end if
+
             if len(self.opt.x_int_def) != self.opt.n:
                 self.status = hdef.NOT_OKAY
                 self.errtext = f"len(self.opt.x_int_def) != self.opt.n, n = {self.opt.n}  x_int_def: {self.opt.x_int_def}"
@@ -415,23 +425,58 @@ class OptNlinNbegrenzt():
             # end if
             for i in range(self.opt.n):
 
-                x_def = self.opt.x_int_def[i]
-                if len(x_def) < 2:
+                x_def_dict = self.opt.x_int_def[i]
+
+                key = "format"
+                if key not in x_def_dict.keys():
                     self.status = hdef.NOT_OKAY
-                    self.errtext = f"Definition self.opt.x_int_def[{i}] hat zu wenig members"
+                    self.errtext = f"Definition dict von self.opt.x_int_def[{i}] enthält kein key= {key}"
                     return
                 # end if
 
-                type = x_def[0]
+                format = x_def_dict[key]
 
-                if type not in ["int","float"]:
+                if format not in ["int","float"]:
                     self.status = hdef.NOT_OKAY
-                    self.errtext = f"Definition self.opt.x_int_def[{i}][0] musss 'int' oder 'float' sein "
+                    self.errtext = f"Definition self.opt.x_int_def[{i}]{'format':val} musss 'int' oder 'float' sein "
                     return
 
-                res  = x_def[1]
+                key = "res"
+                if key not in x_def_dict.keys():
+                    self.status = hdef.NOT_OKAY
+                    self.errtext = f"Definition dict von self.opt.x_int_def[{i}] enthält kein key= {key}"
+                    return
+                # end if
 
-                self.opt.int_def_dict_list.append({"type":type,"res":res,"x":0.0,"intx":0,"rest":0.0})
+                res  = x_def_dict[key]
+
+                key = "xmin"
+                if key in x_def_dict.keys():
+
+                    (xmin, rest, intxmin) = bilde_int_mit_res(x_def_dict[key],res)
+
+                else:
+                    xmin = None
+                    intxmin = None
+                # end if
+
+                key = "xmax"
+                if key in x_def_dict.keys():
+
+                    (xmax, rest, intxmax) = bilde_int_mit_res(x_def_dict[key], res)
+
+                else:
+                    xmax = None
+                    intxmax = None
+                # end if
+
+                self.opt.int_def_dict_list.append({"format":format,
+                                                   "res":res,
+                                                   "xmin":xmin,
+                                                   "intxmin":intxmin,
+                                                   "xmax":xmax,
+                                                   "intxmax":intxmax,
+                                                   "x":0.0,"intx":0,"rest":0.0})
             # end if
         else:
             self.opt.int_def_flag = False
@@ -443,7 +488,11 @@ class OptNlinNbegrenzt():
     # end def
     def check_functions(self):
 
-        self.opt.xs = np.copy(self.opt.x0)
+        if self.opt.int_def_flag:
+            self.opt.xs = self.set_xmin_xmax(np.copy(self.opt.x0))
+        else:
+            self.opt.xs = np.copy(self.opt.x0)
+        # end if
 
         # Function
         #---------
@@ -723,7 +772,10 @@ class OptNlinNbegrenzt():
 
             if self.status != hdef.OKAY:
                 return
-            self.opt.xs = self.opt.xs + sigmak * sk
+
+            self.opt.xs = self.set_xmin_xmax(self.opt.xs + sigmak * sk)
+
+            # self.opt.xs = self.opt.xs + sigmak * sk
             self.opt.f = self.func_integer()
 
             if self.opt.use_df_func:
@@ -1195,14 +1247,23 @@ class OptNlinNbegrenzt():
         # end for
 
         # modifiziere für idf
-        int_liste[idf] += 1
+
+        if (self.opt.int_def_dict_list[idf]["intxmax"] is not None) and \
+           ((int_liste[idf]+1) > self.opt.int_def_dict_list[idf]["intxmax"]):
+                int_liste[idf] -= 1
+                dx = -self.opt.int_def_dict_list[idf]["res"]
+        else:
+            int_liste[idf] += 1
+            dx = self.opt.int_def_dict_list[idf]["res"]
+        # end if
+
 
         # Bilde x-Vektor
-        x0 = np.copy(self.opt.xs)
-        x0[idf] = int_liste[idf] * self.opt.int_def_dict_list[idf]["res"]
+        x1 = np.copy(self.opt.xs)
+        x1[idf] = int_liste[idf] * self.opt.int_def_dict_list[idf]["res"]
 
-        dx = self.opt.int_def_dict_list[idf]["res"]
-        f1 = self.opt.func(x0)
+
+        f1 = self.opt.func(x1)
 
         self.add_f1_x0_liste2(int_liste,f1)
 
@@ -1287,6 +1348,24 @@ class OptNlinNbegrenzt():
         # end if
         return
     # end def
+    def set_xmin_xmax(self,xs):
+
+        for i in range(self.opt.n):
+
+            if self.opt.int_def_dict_list[i]["xmin"] is not None:
+                if xs[i] < self.opt.int_def_dict_list[i]["xmin"]:
+                    xs[i] = self.opt.int_def_dict_list[i]["xmin"]
+                # end if
+            # end if
+
+            if self.opt.int_def_dict_list[i]["xmax"] is not None:
+                if xs[i] > self.opt.int_def_dict_list[i]["xmax"]:
+                    xs[i] = self.opt.int_def_dict_list[i]["xmax"]
+                # end if
+            # end if
+        # end for
+        return xs
+    # end def
     def build_integer_xs(self):
 
         xs = np.copy(self.opt.xs)
@@ -1330,6 +1409,10 @@ class OptNlinNbegrenzt():
         liste.append(f)
 
         self.opt.int_erg_lliste.append(liste)
+
+        if self.opt.int_jsonobj is not None:
+            self.add_to_json_output("fun",liste)
+        # end if
         return
     # end def
     def add_f1_x0_liste2(self,xint_liste,f1):
@@ -1341,6 +1424,30 @@ class OptNlinNbegrenzt():
         liste.append(f1)
 
         self.opt.int_erg_lliste_df.append(liste)
+
+        if self.opt.int_jsonobj is not None:
+            self.add_to_json_output("dfun",liste)
+        # end if
+
+        return
+    # end def
+    def add_to_json_output(self,name,liste):
+
+        if self.opt.int_jsonobj.exist_file():
+            lliste = self.opt.int_jsonobj.read_and_get_data()
+        else:
+            lliste = []
+        # end if
+
+        new_liste = copy.copy(liste)
+        for i in range(self.opt.n):
+            new_liste[i] = new_liste[i] * self.opt.int_def_dict_list[i]["res"]
+        # end if
+
+        lliste.append([name]+new_liste)
+
+        self.opt.int_jsonobj.save(lliste)
+
         return
     # end def
 # end class
@@ -1425,11 +1532,13 @@ if __name__ == '__main__':
     opt.kmax  = 100
     opt.err   = 1e-5
 
-    opt.x_int_def = [["float",0.1],["float",0.01]]
+    opt.x_int_def = [{"format":"float","res":0.1,"xmin":3.0},
+                     {"format":"float","res":0.01}]
+    opt.int_json_file = datetime.datetime.now().strftime("%Y%m%d_%H%M.json")
 
 
     obj = OptNlinNbegrenzt()
-    erg = obj.optimize(opt,[0.0,0.0],funcRosenbrock)
+    erg = obj.optimize(opt,[10.0,0.0],funcRosenbrock)
 
     if erg.status != hdef.OKAY:
         print(erg.errtext)

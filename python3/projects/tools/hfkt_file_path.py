@@ -22,10 +22,13 @@
  def get_size_of_dir(Path,size=0): Gibt Größe des gesamten Unterverzeichnispfad an
  def join(part0="",part1="",part2="",part3="",part4="",part5=""):Setzt Dateiname zusammen
  (path,fbody,ext) = get_pfe(full_file) Gibt Pfad,Filebody und Extension zurück
+ fbody            = get_fbody(full_file) Gibt Pfad,Filebody und Extension zurück
  fullfilename = set_pfe(path,filebody,ext)
  fullfilename = set_pfe(path,filename)
  fullfilename = reset_ext(fullfilename_in,ext)
  fullfilename = reset_filename(fullfilename_in,filename,filename_w_ext=True)
+ fullfilename = add_to_filebody(fullfilename_in,add_name)
+
 
  leaves_path_name = get_path_leaves(full_path_name,root_path_name)
  status = merge_path_leaves(root_path_name,leaves_path_name)   status = hedf.OKAY
@@ -462,6 +465,15 @@ def get_pfe(full_file):
     
     return path, fbody, ext
 # end def
+def get_fbody(full_file):
+    """
+
+    :param full_file:
+    :return: fbody
+    """
+    (_, fbody, _) = get_pfe(full_file)
+    return fbody
+# end def
 def reset_ext(fullfilename_in,ext):
     """
     fullfilename = reset_ext(fullfilename_in,ext)
@@ -484,9 +496,17 @@ def reset_filename(fullfilename_in,filename,filename_w_ext=True):
         return set_pfe(dir_in, filebody, ext)
     else:
         return set_pfe(dir_in, filebody, ext_in)
-
-
-
+def add_to_filebody(add_front_name,fullfilename_in,add_name_back=""):
+    """
+    aus adda_name_front = "" , fullfilename_in = "D:\\abc\\name.txt" und adda_name_back = "_2" wird
+    fullfilename = "D:\\abc\\name_2.txt"
+    :param fullfilename_in:
+    :param add_name:
+    :return: fullfilename = add_to_filebody(add_front_name,fullfilename_in,add_name)
+    """
+    (path, fbody, extension) = get_pfe(fullfilename_in)
+    return  set_pfe(path, add_front_name+fbody+add_name_back, extension)
+# end def
 # def set_pfe(p="", b="", e=""):
 #     """
 #

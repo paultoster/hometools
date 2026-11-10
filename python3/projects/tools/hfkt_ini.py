@@ -47,6 +47,28 @@ else:
 
 # endif--------------------------------------------------------------------------
 
+STATUS = hdef.OKAY
+ERRTEXT = ""
+INFOTEXT = ""
+
+
+def get_status():
+    global STATUS
+    return STATUS
+def get_errtext():
+    global ERRTEXT
+    return ERRTEXT
+def get_infotext():
+    global INFOTEXT
+    return INFOTEXT
+def reset_status():
+    global STATUS
+    global ERRTEXT
+    global INFOTEXT
+    STATUS = hdef.OKAY
+    ERRTEXT = ""
+    INFOTEXT = ""
+# end def
 
 def readini(ini_file, dliste=None):
     out = None
@@ -185,6 +207,7 @@ def get_tomlib_ini_dict(ini_filename: str, ini_dict_proof_liste: list):
 
     '''
 
+    global STATUS,ERRTEXT
 
     if (not os.path.isfile(ini_filename)):
         STATUS = hdef.NOT_OKAY

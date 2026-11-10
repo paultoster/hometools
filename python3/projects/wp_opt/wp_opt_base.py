@@ -16,6 +16,7 @@ import tools.hfkt_ini as hini
 import tools.hfkt_list as hlist
 import tools.hfkt_io as hio
 import tools.hfkt_file_path as hfp
+import tools.hfkt_optimize as hopt
 
 
 import wp_test.wp_test_base as wp_test_base
@@ -25,6 +26,40 @@ COUNTER = 0
 INI_DICT_PROOF_LISTE =   [("store_path", "str"),
                           ("wptest_func_ini_file_name","str")]
 
+def build_log_file_name(store_path,parametername,act_time_str):
+    """
+
+    :param store_path:
+    :param parametername:
+    :return: log_file = build_log_file_name(store_path,parametername)
+    """
+
+
+    p = os.path.join(store_path,"log_"+parametername)
+    if not os.path.exists(p):
+        os.makedirs(p)
+    # end if
+
+    log_file = os.path.join(p,"log_"+parametername+"_"+act_time_str+".log")
+    return log_file
+# end if
+def build_json_file_name(store_path,pre_name,parametername,act_time_str):
+    """
+
+    :param store_path:
+    :param parametername:
+    :return: log_file = build_log_file_name(store_path,parametername)
+    """
+
+
+    p = os.path.join(store_path,"log_"+parametername)
+    if not os.path.exists(p):
+        os.makedirs(p)
+    # end if
+
+    json_file = os.path.join(p,pre_name+"_"+parametername+"_"+act_time_str+".json")
+    return json_file
+# end if
 class WPOpt:
     """
 
@@ -36,17 +71,39 @@ class WPOpt:
         self.errtext = ""
         self.infotext = ""
 
+        (path, fbody, extension) = hfp.get_pfe(param_filename)
+        fbody = fbody.replace("wp_opt_", "")
+        fbody = fbody.replace("wp_test_", "")
+
+        self.param_filename = param_filename
+        self.param_name = fbody
+        self.param_path = path
+
+        self.act_time_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+
+        # ini
+        self.ini = hini.get_tomlib_ini_dict(ini_filename, INI_DICT_PROOF_LISTE)
+
+        if hini.get_status() != hdef.OKAY:
+            self.status = hdef.OKAY
+            self.errtext = hini.get_errtext()
+            hini.reset_status()
+            print(self.errtext)
+            return
+        # end if
+
         # Log-File start
         # ---------------
         if log_obj is None:
-            self.log = hlog.log(consol_func=True, log_window=False)
+            log_file = build_log_file_name(self.ini["store_path"],self.param_name,self.act_time_str)
+            self.log = hlog.log(log_file=log_file,consol_func=True, log_window=False)
         else:
             self.log = log_obj
         # end if
         self.log_file_name = self.log.get_logfilename()
 
-        # ini
-        self.ini = hini.get_tomlib_ini_dict(ini_filename, INI_DICT_PROOF_LISTE)
+        self.log.write_info(f"wp_opt_base: Start run parameterset: {self.param_name} acttime: {self.act_time_str}")
+
 
         if self.status != hdef.OKAY:
             self.log.write_err(self.errtext)
@@ -68,8 +125,7 @@ class WPOpt:
 
         # Parameter par_dict und platzhalter
         # ---------
-        self.param_filename = param_filename
-        (self.par_dict, self.platzhalter_dict_liste) = wp_test_param.get_split_param_dicts(self, param_filename)
+        (self.par_dict, self.platzhalter_dict_liste) = wp_test_param.get_split_param_dicts(self, self.param_filename)
 
         if self.status != hdef.OKAY:
             self.log.write_err(self.errtext)
@@ -77,7 +133,7 @@ class WPOpt:
 
         # Teste Parameter Set
         #---------------------
-        (par_struct_liste,comment_struct) = wp_test_param.get_par_struct_liste(self, self.par_dict, self.platzhalter_dict_liste)
+        (_,_) = wp_test_param.get_par_struct_liste(self, self.par_dict, self.platzhalter_dict_liste)
         if self.status != hdef.OKAY:
             self.log.write_err(self.errtext)
             return
@@ -95,6 +151,8 @@ class WPOpt:
             for i in range(len(x)):
                 platzhalter_dict_liste[i]["liste"] = [x[i]]
                 platzhalter_dict_liste[i]["n"] = 1
+
+                self.log.write_info("cal_cost_function start:x%s = %f" % (str(i), x[i]))
             # end ofr
 
             # Teste Parameter Set
@@ -119,7 +177,7 @@ class WPOpt:
             ferror = self.wptestfunc.get_ferror()
             COUNTER += 1
 
-            print(f"Running search: n: {COUNTER} ferror: {ferror}")
+            self.log.write_info(f"cal_cost_function end: n: {COUNTER} ferror: {ferror}")
 
             return ferror
         # end def
@@ -136,14 +194,20 @@ class WPOpt:
             xsearch_lliste.append(ddict["liste"])
         # end for
 
-        # Eine art Protokollfile erstellen
-        #---------------------------------
-        filename = os.path.join(self.ini["store_path"],datetime.datetime.now().strftime("Opt_%Y%m%d_%H%M.json"))
-        jsonobj = hio.DataJson(filename)
 
         # Suche nach besten Wert mit Liste
         #----------------------------------
-        xfound_liste = self.search_minimum(xsearch_lliste,cal_cost_function,jsonobj)
+        xfound_liste = self.search_in_grid(xsearch_lliste,cal_cost_function)
+
+        # gefundener wert in die Platzhalterliste schreiben
+        #--------------------------------------------------
+        for i in range(len(xfound_liste)):
+            self.platzhalter_dict_liste[i]["value_min"] = xfound_liste[i]
+        # end for
+
+        # Suche nach besten Wert mit Optimieren
+        #----------------------------------
+        xfound_liste = self.search_by_optimize(cal_cost_function)
 
         # gefundener wert in die Platzhalterliste schreiben
         #--------------------------------------------------
@@ -173,10 +237,15 @@ class WPOpt:
 
         return
     # end def
-    def search_minimum(self,xsearch_lliste,func,jsonobj):
+    def search_in_grid(self,xsearch_lliste,func):
         """ search with xsearch_liste
         xsearch_lliste: all lists from self.platzhalter_dict_liste put into llist
         """
+
+        # Eine art Protokollfile erstellen
+        #---------------------------------
+        filename = build_json_file_name(self.ini["store_path"], "search",self.param_name,self.act_time_str)
+        jsonobj = hio.DataJson(filename)
 
         # Bilde Permutation von allen einzel listen
         search_lliste = hlist.build_permutation_llist_from_llist(xsearch_lliste,1)
@@ -205,6 +274,51 @@ class WPOpt:
 
         return sort_lliste[0][:-1]
     # end def
+    def search_by_optimize(self,func):
+
+        # Startvektor
+        x0_liste = []
+        x_int_def_liste = []
+        for platzhalter_dict in self.platzhalter_dict_liste:
+            x0_liste.append(float(platzhalter_dict["value_min"]))
+
+            xmin = platzhalter_dict["minvalue"]
+            xmax = platzhalter_dict["maxvalue"]
+            format = platzhalter_dict["format_value"]
+            if format == "int":
+                res = 1.
+            else:
+                res = 0.001
+            # end if
+            ddict = {"format":format,"res":res,"xmin":xmin,"xmax":xmax}
+            x_int_def_liste.append(ddict)
+        # end for
+
+        opt = hopt.DataOpt("wp_opt")
+
+        opt.type = 0  # 0: Methode des steilsten Abstiegs
+        opt.kmax = 100
+        opt.err = 1e-2
+        opt.x_int_def = x_int_def_liste
+        opt.int_json_file = build_json_file_name(self.ini["store_path"], "opt",self.param_name,self.act_time_str)
+
+
+        obj = hopt.OptNlinNbegrenzt(self.log)
+        erg = obj.optimize(opt, x0_liste, func)
+
+        if erg.status != hdef.OKAY:
+            print(erg)
+            raise Exception(f"{erg.errtext}")
+        # end if
+
+        xfound_liste = []
+        for i in range(erg.n):
+            xfound_liste.append(float(erg.xs[i]))
+        # end for
+
+        return xfound_liste
+
+    # end def
     def bilde_paramfile_mit_ergebnis(self):
 
 
@@ -222,11 +336,7 @@ class WPOpt:
         # Ersetze "par_" zu "nopar_" to take out parameter replacemant
         data = data.replace("par_","nopar_")
 
-        # modify parameter name
-        (path, fbody, ext) = hfp.get_pfe(self.param_filename)
-
-        fbody = fbody.replace("wp_opt","wp_test_opt")
-        wp_test_param_filename = hfp.set_pfe(path,fbody,ext)
+        wp_test_param_filename = hfp.set_pfe(self.param_path,"wp_test_opt_"+self.param_name,"yaml")
 
         okay = hio.write_ascii(wp_test_param_filename, data,preferred_encoding="utf-8")
 

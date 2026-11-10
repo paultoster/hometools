@@ -120,7 +120,7 @@ class WPTest:
 
             # Init Simulation
             #----------------
-            self.Simobj = sim_class.WPSim(self.wpscrefunc,parstruct)
+            self.Simobj = sim_class.WPSim(self.wpscrefunc,parstruct,self.log)
 
             if self.Simobj.get_status() != hdef.OKAY:
                 self.status = hdef.NOT_OKAY

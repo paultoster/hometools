@@ -101,27 +101,29 @@ class WPErg:
                                 self.Parobj.md_datei_name + ".md")
 
         # Bilde schreibe Parameterfile
-        self.ParYamlFilename = os.path.join(self.ErgPath,
-                                self.Parobj.SimName + ".yaml")
-        self.ParYamlObj = hio.DataYaml(self.ParYamlFilename)
-        if self.ParYamlObj.get_status() != hdef.OKAY:
-            self.Parobj.status = hdef.NOT_OKAY
-            self.Parobj.errtext = f"File : {self.ParYamlFilename} konnte nicht erstellt werden errtext: {self.ParYamlObj.get_errtext()}"
-            return
-        # end if
+        if self.Parobj.BildeAusgabe:
+            self.ParYamlFilename = os.path.join(self.ErgPath,
+                                    self.Parobj.SimName + ".yaml")
+            self.ParYamlObj = hio.DataYaml(self.ParYamlFilename)
+            if self.ParYamlObj.get_status() != hdef.OKAY:
+                self.Parobj.status = hdef.NOT_OKAY
+                self.Parobj.errtext = f"File : {self.ParYamlFilename} konnte nicht erstellt werden errtext: {self.ParYamlObj.get_errtext()}"
+                return
+            # end if
 
-        self.ParYamlObj.set_data(vars(self.Parobj))
-        if self.ParYamlObj.get_status() != hdef.OKAY:
-            self.Parobj.status = hdef.NOT_OKAY
-            self.Parobj.errtext = f"File : {self.ParYamlFilename} konnte nicht erstellt werden errtext: {self.ParYamlObj.get_errtext()}"
-            return
-        # end if
+            self.ParYamlObj.set_data(vars(self.Parobj))
+            if self.ParYamlObj.get_status() != hdef.OKAY:
+                self.Parobj.status = hdef.NOT_OKAY
+                self.Parobj.errtext = f"File : {self.ParYamlFilename} konnte nicht erstellt werden errtext: {self.ParYamlObj.get_errtext()}"
+                return
+            # end if
 
-        self.ParYamlObj.save()
-        if self.ParYamlObj.get_status() != hdef.OKAY:
-            self.Parobj.status = hdef.NOT_OKAY
-            self.Parobj.errtext = f"File : {self.ParYamlFilename} konnte nicht erstellt werden errtext: {self.ParYamlObj.get_errtext()}"
-            return
+            self.ParYamlObj.save()
+            if self.ParYamlObj.get_status() != hdef.OKAY:
+                self.Parobj.status = hdef.NOT_OKAY
+                self.Parobj.errtext = f"File : {self.ParYamlFilename} konnte nicht erstellt werden errtext: {self.ParYamlObj.get_errtext()}"
+                return
+            # end if
         # end if
 
         # kONTO-bEWEGUNG CSV-fILE
