@@ -1451,15 +1451,31 @@ class OptNlinNbegrenzt():
         n = len(self.opt.int_func_lliste)
         if n > 1:
             liste_proof = self.opt.int_func_lliste[-1]
+            fmin_proof        = liste_proof[-1]
             liste_proof = liste_proof[0:self.opt.n]
+            ifound = None
             for i in range(n-1):
 
                 liste = self.opt.int_func_lliste[i]
                 liste = liste[0:self.opt.n]
                 if liste == liste_proof:
-                    return True
+                    ifound = i
                 # end if
             # end for
+
+            # 2. proof
+            if ifound is not None:
+                for i in range(n - 1):
+                    liste = self.opt.int_func_lliste[i]
+                    fmin = liste[-1]
+                    if i != ifound:
+                        if fmin < fmin_proof: # Es gibt noch einen kleineren Wert
+                            return False
+                        # end if
+                    # end if
+                # end for
+                return True
+            # end if
         # end if
         return False
     # end def
@@ -1723,7 +1739,7 @@ if __name__ == '__main__':
 
 
     obj = OptNlinNbegrenzt()
-    erg = obj.optimize(opt,[0.0,0.0],funcRosenbrock)
+    erg = obj.optimize(opt,[10.0,10.0],funcRosenbrock)
 
     if erg.status != hdef.OKAY:
         print(erg.errtext)
