@@ -1,6 +1,6 @@
 import os, sys
 import copy, random
-import datetime
+import datetime, time
 
 from win32comext.mapi.mapi import fnevCriticalError
 
@@ -80,6 +80,11 @@ class WPOpt:
         self.param_path = path
 
         self.act_time_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        # Ausführen:
+        self.start_time_perf = time.perf_counter()
+        self.end_time_perf = 0.0
+        self.search_in_grid_time_perf = 0
+        self.search_by_optimize_time_perf = 0.0
 
         # ini
         self.ini = hini.get_tomlib_ini_dict(ini_filename, INI_DICT_PROOF_LISTE)
@@ -149,7 +154,11 @@ class WPOpt:
             # set value
             platzhalter_dict_liste = copy.copy(self.platzhalter_dict_liste)
             for i in range(len(x)):
-                platzhalter_dict_liste[i]["liste"] = [x[i]]
+                if platzhalter_dict_liste[i]["format_value"] == "int":
+                    platzhalter_dict_liste[i]["liste"] = [int(x[i])]
+                else:
+                    platzhalter_dict_liste[i]["liste"] = [x[i]]
+                # end if
                 platzhalter_dict_liste[i]["n"] = 1
 
                 self.log.write_info("cal_cost_function start:x%s = %f" % (str(i), x[i]))
@@ -205,6 +214,10 @@ class WPOpt:
             self.platzhalter_dict_liste[i]["value_min"] = xfound_liste[i]
         # end for
 
+        # Zeit Stoppen
+        self.search_in_grid_time_perf = time.perf_counter()
+        self.log.write_info(f"Rechenzeit search_in_grid calc_time = {self.search_in_grid_time_perf- self.start_time_perf} sec")
+
         # Suche nach besten Wert mit Optimieren
         #----------------------------------
         xfound_liste = self.search_by_optimize(cal_cost_function)
@@ -214,6 +227,10 @@ class WPOpt:
         for i in range(len(xfound_liste)):
             self.platzhalter_dict_liste[i]["value_min"] = xfound_liste[i]
         # end for
+
+        # Zeit Stoppen
+        self.search_by_optimize_time_perf = time.perf_counter()
+        self.log.write_info(f"Rechenzeit search_in_grid calc_time = {self.search_by_optimize_time_perf-self.search_in_grid_time_perf} sec")
 
         # Parameterfile umbenennen und die neuen Werte reinschreiben
         #----------------------------------------------------------
@@ -234,6 +251,11 @@ class WPOpt:
         if self.wptestfunc.get_status() != hdef.OKAY:
             raise Exception(self.wptestfunc.get_errtext())
         # end if
+
+        # Zeit Stoppen
+        self.end_time_perf = time.perf_counter()
+        self.log.write_info(f"Rechenzeit last calulation calc_time = {self.end_time_perf-self.search_by_optimize_time_perf} sec")
+        self.log.write_info(f"Rechenzeit gesamt {self.param_name} calc_time = {self.end_time_perf-self.start_time_perf} sec")
 
         return
     # end def

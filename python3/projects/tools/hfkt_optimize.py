@@ -409,8 +409,11 @@ class OptNlinNbegrenzt():
             self.opt.int_def_dict_list = []
             self.opt.int_def_flag = True
             self.opt.int_sk = np.copy(self.opt.x0) * 0.0
+
+            # sammelt alle Ergebnisse um Rechenzeit zu sparen
             self.opt.int_erg_lliste = []
-            self.opt.int_erg_lliste_df = []
+            # sammelt nur die im Hauptmodul errechneten Funtionswerte, damit wird auf doppelt gesucht
+            self.opt.int_func_lliste = []
 
             if hasattr(self.opt, 'int_json_file'):
                 self.opt.int_jsonobj  = hio.DataJson(hfp.add_to_filebody("int_erg_lliste_",self.opt.int_json_file,""))
@@ -498,7 +501,7 @@ class OptNlinNbegrenzt():
         #---------
         try:
             if self.opt.int_def_flag:
-                self.opt.f = self.func_integer()
+                self.opt.f = self.func_integer(self.opt.xs)
             else:
                 self.opt.f = self.opt.func(self.opt.xs)
             # end if
@@ -513,7 +516,7 @@ class OptNlinNbegrenzt():
         if (self.opt.use_df_func):
             try:
                 if self.opt.int_def_flag:
-                    self.opt.df = self.dfunc_integer()
+                    self.opt.df = self.dfunc_integer(self.opt.xs)
                 else:
                     self.opt.df = self.opt.dfunc(self.opt.xs)
             except:
@@ -529,7 +532,7 @@ class OptNlinNbegrenzt():
             # end if
         else:
             if self.opt.int_def_flag:
-                self.opt.df = self.optnlin_nbegrenzt_build_df_int()
+                self.opt.df = self.optnlin_nbegrenzt_build_df_int(self.opt.xs,self.opt.f)
             else:
                 self.opt.df = self.optnlin_nbegrenzt_build_df()
         # end if
@@ -612,8 +615,6 @@ class OptNlinNbegrenzt():
             self.opt.errtext = self.errtext
             return self.opt
 
-        # Ausführen:
-        start_real = time.perf_counter()
 
         match self.opt.type:
             case self.TYPE_STEILSTER_ABSTIEG:
@@ -641,9 +642,6 @@ class OptNlinNbegrenzt():
                 self.BFGS()
         # end match
 
-        end_real = time.perf_counter()
-        self.opt.calc_time = end_real - start_real
-        self.log.write_info(f"Rechenzeit calc_time = {self.opt.calc_time} sec")
         self.opt.status = self.status
         self.opt.errtext = self.errtext
 
@@ -747,13 +745,16 @@ class OptNlinNbegrenzt():
         sigmak = 0.0
         while ((self.opt.k < self.opt.kmax) and not findflag):
 
-            # Anzeige
-            if (self.opt.k < 10) or (np.mod(self.opt.k, kout) == 0):
+            if self.opt.k >= 5:
+                a = 0
 
-                self.log.write_info("k = %i f = %20.5g err = %20.5g sigma = %20.5g" % (self.opt.k, self.opt.f, self.opt.df_norm, sigmak))
-                for ii in range(self.opt.n):
-                    self.log.write_info("x%i = %g" % (ii, self.opt.xs[ii]))
-                # end for
+            # Anzeige
+            # if (self.opt.k < 10) or (np.mod(self.opt.k, kout) == 0):
+
+            self.log.write_info("k = %i f = %20.5g err = %20.5g sigma = %20.5g" % (self.opt.k, self.opt.f, self.opt.df_norm, sigmak))
+            for ii in range(self.opt.n):
+                self.log.write_info("x%i = %g" % (ii, self.opt.xs[ii]))
+            # end for
             # end if
 
             self.opt.k = self.opt.k + 1
@@ -765,9 +766,9 @@ class OptNlinNbegrenzt():
 
             # Armaijo-Regel
             if self.opt.stype == 0:
-                sigmak = self.optnlin_nbegrenzt_Armijo( sk)
+                sigmak = self.optnlin_nbegrenzt_Armijo_int( sk)
             else:
-                sigmak = self.optnlin_nbegrenzt_PowellWolfe( sk)
+                sigmak = self.optnlin_nbegrenzt_PowellWolfe_int( sk)
             # end if
 
             if self.status != hdef.OKAY:
@@ -776,12 +777,13 @@ class OptNlinNbegrenzt():
             self.opt.xs = self.set_xmin_xmax(self.opt.xs + sigmak * sk)
 
             # self.opt.xs = self.opt.xs + sigmak * sk
-            self.opt.f = self.func_integer()
+            self.opt.f = self.func_integer(self.opt.xs)
+            self.add_func_ergebnisse( self.opt.xs, self.opt.f)
 
             if self.opt.use_df_func:
                 self.opt.df = self.dfunc_integer()
             else:
-                self.opt.df = self.optnlin_nbegrenzt_build_df_int()
+                self.opt.df = self.optnlin_nbegrenzt_build_df_int(self.opt.xs,self.opt.f)
             # end def
             self.opt.df_norm = np.linalg.norm(self.opt.df)
             if (self.opt.df_norm <= self.opt.err):
@@ -962,10 +964,11 @@ class OptNlinNbegrenzt():
                 else:
                     if 3 == (sw):
                         if (self.opt.use_df_func):
-                            val1 = np.transpose(self.opt.dfunc(self.opt.xs + sigmak * sk)) * sk
+                            val1 = np.dot( (self.opt.dfunc(self.opt.xs + sigmak * sk)) , sk)
                         else:
-                            val1 = np.matmul(np.transpose(self.optnlin_nbegrenzt_build_df(self.opt.xs + sigmak * sk)) , sk)
-                        val2 = self.opt.eta * np.matmul(np.transpose(self.opt.df) , sk)
+                            val1 = np.dot((self.optnlin_nbegrenzt_build_df(self.opt.xs + sigmak * sk)) , sk)
+                        # end if
+                        val2 = self.opt.eta * np.dot(self.opt.df , sk)
                         if (val1 >= val2):
                             sw = 6
                         else:
@@ -1027,12 +1030,162 @@ class OptNlinNbegrenzt():
 
         return sigmak
     # end def
+    def optnlin_nbegrenzt_Armijo_int(self,sk):
+        i = 0
+        fac = self.opt.gamma * np.dot(self.opt.df , sk)
+        sigmak = 1.0
+        xs = np.copy(self.opt.xs + sigmak * sk)
+        xs = self.set_xmin_xmax(xs)
+        f  = self.func_integer(xs)
+        delta = f - self.opt.f
+        val = sigmak * self.opt.gamma * np.dot(self.opt.df , sk)
+        while ((delta > val) and i < 10):
+
+            i = i + 1
+            sigmak = sigmak * self.opt.beta
+            xs = np.copy(self.opt.xs + sigmak * sk)
+            xs = self.set_xmin_xmax(xs)
+            f = self.func_integer(xs)
+            delta = f - self.opt.f
+            val = sigmak * fac
+
+
+        if (i >= 10):
+            self.opt.okay = 0
+            self.opt.errtext = 'Schrittweitensteuerung Armijo-Regel > 10 Iterationen'
+
+        return sigmak
+    # end def
+    def optnlin_nbegrenzt_PowellWolfe_int(self,sk):
+        sw = 1
+        while (sw < 6):
+
+            if 1 == (sw):
+                sigmak = 1.0
+                xs = np.copy(self.opt.xs + sigmak * sk)
+                xs = self.set_xmin_xmax(xs)
+                f = self.func_integer(xs)
+                delta = f - self.opt.f
+                val = sigmak * self.opt.gamma * np.dot(self.opt.df , sk)
+                if (delta <= val):
+                    sw = 3
+                else:
+                    sw = 2
+            else:
+                if 2 == (sw):
+                    i = 0
+                    sigmam = 2 ** - (i + 1)
+                    xs = np.copy(self.opt.xs + sigmam * sk)
+                    xs = self.set_xmin_xmax(xs)
+                    f = self.func_integer(xs)
+                    delta = f - self.opt.f
+                    val = sigmam * self.opt.gamma * np.dot(self.opt.df , sk)
+                    while (delta > val and i < 100):
+                        i = i + 1
+                        sigmam = 2 ** - (i + 1)
+                        xs = np.copy(self.opt.xs + sigmam * sk)
+                        xs = self.set_xmin_xmax(xs)
+                        f = self.func_integer(xs)
+                        delta = f - self.opt.f
+                        val = sigmam * self.opt.gamma * np.dot(self.opt.df , sk)
+
+                    if (i >= 100):
+                        self.okay = 0
+                        self.errtext = 'Schrittweitensteuerung(2) Powell-Wolfe-Regel > 100 Iterationen'
+                        return sigmak
+                    sigmap = 2.0 * sigmam
+                    sw = 5
+                else:
+                    if 3 == (sw):
+                        xs = np.copy(self.opt.xs + sigmak * sk)
+                        xs = self.set_xmin_xmax(xs)
+                        if self.opt.use_df_func:
+                            df = self.dfunc_integer(xs)
+                        else:
+                            df = self.optnlin_nbegrenzt_build_df_int(xs,self.opt.f)
+                        # end def
+                        val1 = np.dot(df, sk)
+                        val2 = self.opt.eta * np.dot(self.opt.df , sk)
+                        if (val1 >= val2):
+                            sw = 6
+                        else:
+                            sw = 4
+                    else:
+                        if 4 == (sw):
+                            i = 0
+                            sigmap = 2 ** (i + 1)
+                            xs = np.copy(self.opt.xs + sigmap * sk)
+                            xs = self.set_xmin_xmax(xs)
+                            f = self.func_integer(xs)
+                            delta = f - self.opt.f
+                            val = sigmap * self.opt.gamma * np.dot(self.opt.df , sk)
+                            while (delta <= val and i < 100):
+                                i = i + 1
+                                sigmap = 2 ** (i + 1)
+                                xs = np.copy(self.opt.xs + sigmap * sk)
+                                xs = self.set_xmin_xmax(xs)
+                                f = self.func_integer(xs)
+                                delta = f - self.opt.f
+                                val = sigmap * self.opt.gamma * np.dot(self.opt.df , sk)
+
+                            if (i >= 100):
+                                self.okay = 0
+                                self.errtext = 'Schrittweitensteuerung(4) Powell-Wolfe-Regel > 100 Iterationen'
+                                return opt, sigmak
+                            sigmam = 0.5 * sigmap
+                            sw = 5
+                        else:
+                            if 5 == (sw):
+                                i = 0
+                                sigmak = sigmam
+                                xs = np.copy(self.opt.xs + sigmak * sk)
+                                xs = self.set_xmin_xmax(xs)
+                                if self.opt.use_df_func:
+                                    df = self.dfunc_integer(xs)
+                                else:
+                                    df = self.optnlin_nbegrenzt_build_df_int(xs, self.opt.f)
+                                # end def
+                                val1 = np.dot(df, sk)
+                                val2 = self.opt.eta * np.dot(self.opt.df , sk)
+                                while (val1 < val2 and i < 100):
+
+                                    i = i + 1
+                                    sigmak = (sigmam + sigmap) * 0.5
+                                    xs = np.copy(self.opt.xs + sigmak * sk)
+                                    xs = self.set_xmin_xmax(xs)
+                                    f = self.func_integer(xs)
+                                    delta = f - self.opt.f
+                                    val = sigmak * self.opt.gamma * np.dot(self.opt.df , sk)
+                                    if (delta <= val):
+                                        sigmam = sigmak
+                                    else:
+                                        sigmap = sigmak
+                                    sigmak = sigmam
+                                    xs = np.copy(self.opt.xs + sigmak * sk)
+                                    xs = self.set_xmin_xmax(xs)
+                                    if self.opt.use_df_func:
+                                        df = self.dfunc_integer(xs)
+                                    else:
+                                        df = self.optnlin_nbegrenzt_build_df_int(xs, self.opt.f)
+                                    # end def
+                                    val1 = np.dot(df, sk)
+                                    val2 = self.opt.eta * np.dot(self.opt.df , sk)
+
+                                if (i >= 100):
+                                    self.opt.okay = 0
+                                    self.opt.errtext = 'Schrittweitensteuerung(5) Powell-Wolfe-Regel > 100 Iterationen'
+                                    return opt, sigmak
+                                sigmak = sigmam
+                                sw = 6
+
+        return sigmak
+    # end def
     def optnlin_nbegrenzt_Armijo_BFGS(self, sk=None):
         i = 0
-        fac = opt.gamma * np.matmul(np.transpose(self.opt.df) , sk)
+        fac = opt.gamma * np.dot(self.opt.df , sk)
         sigmak = 1.0
         delta = (self.optnlin_nbegrenzt_BFGS_func(self.opt.xs + sigmak * sk) - self.opt.f)
-        val = sigmak * opt.gamma * np.matmul(np.transpose(self.opt.df) , sk)
+        val = sigmak * opt.gamma * np.dot(self.opt.df , sk)
 
         while ((delta > val) and i < 100):
             i = i + 1
@@ -1055,7 +1208,7 @@ class OptNlinNbegrenzt():
             if 1 == (sw):
                 sigmak = 1.0
                 delta = (self.optnlin_nbegrenzt_BFGS_func(self.opt.xs + sigmak * sk) - self.opt.f)
-                val = sigmak * self.opt.gamma * np.matmul(np.transpose(self.opt.df) , sk)
+                val = sigmak * self.opt.gamma * np.dot(self.opt.df , sk)
                 if (delta <= val):
                     sw = 3
                 else:
@@ -1065,12 +1218,12 @@ class OptNlinNbegrenzt():
                     i = 0
                     sigmam = 2 ** (- (i + 1))
                     delta = (self.optnlin_nbegrenzt_BFGS_func(self.opt.xs + sigmam * sk) - self.opt.f)
-                    val = sigmam * self.opt.gamma * np.matmul(np.transpose(self.opt.df) , sk)
+                    val = sigmam * self.opt.gamma * np.dot(self.opt.df , sk)
                     while (delta > val and i < 100):
                         i = i + 1
                         sigmam = 2 ** (- (i + 1))
                         delta = (self.optnlin_nbegrenzt_BFGS_func(self.opt.xs + sigmam * sk) - self.opt.f)
-                        val = sigmam * self.opt.gamma * np.matmul(np.transpose(self.opt.df) , sk)
+                        val = sigmam * self.opt.gamma * np.dot(self.opt.df , sk)
 
                     if (i >= 100):
                         self.status = hdef.NOT_OKAY
@@ -1081,10 +1234,10 @@ class OptNlinNbegrenzt():
                 else:
                     if 3 == (sw):
                         if (self.opt.use_df_func):
-                            val1 = np.matmul(np.transpose(self.opt.dfunc(self.opt.xs + sigmak * sk)) , sk)
+                            val1 = np.dot(self.opt.dfunc(self.opt.xs + sigmak * sk) , sk)
                         else:
-                            val1 = np.matmul(np.transpose(self.optnlin_nbegrenzt_build_df(self.opt.xs + sigmak * sk)) , sk)
-                        val2 = opt.eta * np.matmul(np.transpose(self.opt.df) , sk)
+                            val1 = np.dot(self.optnlin_nbegrenzt_build_df(self.opt.xs + sigmak * sk) , sk)
+                        val2 = opt.eta * np.dot(self.opt.df , sk)
                         if val1 >= val2:
                             sw = 6
                         else:
@@ -1094,12 +1247,12 @@ class OptNlinNbegrenzt():
                             i = 0
                             sigmap = 2 ** (i + 1)
                             delta = (self.optnlin_nbegrenzt_BFGS_func(self.opt.xs + sigmap * sk) - self.opt.f)
-                            val = sigmap * opt.gamma * np.matmul(np.transpose(self.opt.df) , sk)
+                            val = sigmap * opt.gamma * np.dot(self.opt.df , sk)
                             while (delta <= val and i < 100):
                                 i = i + 1
                                 sigmap = 2 ** (i + 1)
                                 delta = (self.optnlin_nbegrenzt_BFGS_func(self.opt.xs + sigmap * sk) - self.opt.f)
-                                val = sigmap * opt.gamma * np.matmul(np.transpose(self.opt.df) , sk)
+                                val = sigmap * opt.gamma * np.dot(self.opt.df , sk)
 
                             if (i >= 100):
                                 self.status = hdef.NOT_OKAY
@@ -1113,17 +1266,17 @@ class OptNlinNbegrenzt():
                                 sigmak = sigmam
                                 if (self.opt.use_df_func):
                                     v = self.opt.dfunc(self.opt.xs + sigmak * sk)
-                                    val1 = np.matmul(np.transpose(v) , sk)
+                                    val1 = np.dot(v , sk)
                                 else:
                                     v = self.optnlin_nbegrenzt_build_df(self.opt.xs + sigmak * sk)
-                                    val1 = np.matmul(np.transpose(v) , sk)
-                                val2 = opt.eta * np.matmul(np.transpose(self.opt.df) , sk)
+                                    val1 = np.dot(v , sk)
+                                val2 = opt.eta * np.dot(self.opt.df , sk)
                                 while (val1 < val2 and i < 100):
 
                                     i = i + 1
                                     sigmak = (sigmam + sigmap) * 0.5
                                     delta = (self.optnlin_nbegrenzt_BFGS_func(self.opt.xs + sigmak * sk) - self.opt.f)
-                                    val = sigmak * opt.gamma * np.matmul(np.transpose(self.opt.df) , sk)
+                                    val = sigmak * opt.gamma * np.dot(self.opt.df , sk)
                                     if (delta <= val):
                                         sigmam = sigmak
                                     else:
@@ -1131,11 +1284,11 @@ class OptNlinNbegrenzt():
                                     sigmak = sigmam
                                     if (self.opt.use_df_func):
                                         v = self.opt.dfunc(self.opt.xs + sigmak * sk)
-                                        val1 = np.matmul(np.transpose(v) , sk)
+                                        val1 = np.dot(v , sk)
                                     else:
                                         v = self.optnlin_nbegrenzt_build_df(self.opt.xs + sigmak * sk)
-                                        val1 = np.matmul(np.transpose(v) , sk)
-                                    val2 = opt.eta * np.matmul(np.transpose(self.opt.df) , sk)
+                                        val1 = np.dot(v , sk)
+                                    val2 = opt.eta * np.dot(self.opt.df , sk)
 
                                 if (i >= 100):
                                     self.status = hdef.NOT_OKAY
@@ -1227,19 +1380,22 @@ class OptNlinNbegrenzt():
         self.errtext = 'TrustRegionWedge nicht implementiert'
         return
     # end def
-    def func_integer(self):
+    def func_integer(self,xs_in,fname="fun"):
 
-        xs = self.build_integer_xs()
+        (xs,intx_liste) = self.build_integer_xs(xs_in)
 
-        f = self.opt.func(xs)
-
-        self.add_f_xs_liste(f)
-
+        (flag,f) = self.search_in_old_results(intx_liste)
+        if flag:
+            return f
+        else:
+            f = self.opt.func(xs)
+            self.add_f_xs_liste(f,fname)
+        # end if
         return f
     # end def
-    def func_integer_df(self,idf):
+    def func_integer_df(self,idf,xs_in):
 
-
+        _ = self.build_integer_xs( xs_in)
         # Bilde zum speichern die Liste mit integerwerten
         int_liste = []
         for i in range(self.opt.n):
@@ -1259,32 +1415,31 @@ class OptNlinNbegrenzt():
 
 
         # Bilde x-Vektor
-        x1 = np.copy(self.opt.xs)
+        x1 = np.copy(xs_in)
         x1[idf] = int_liste[idf] * self.opt.int_def_dict_list[idf]["res"]
 
+        f1 = self.func_integer(x1,"dfun")
 
-        f1 = self.opt.func(x1)
-
-        self.add_f1_x0_liste2(int_liste,f1)
+        # self.add_f1_x0_liste2(int_liste,f1)
 
         return (f1, dx)
     # end def
-    def dfunc_integer(self):
-        xs = self.build_integer_xs()
+    def dfunc_integer(self,xs_in):
+        xs = self.build_integer_xs(xs_in)
         df = self.opt.dfunc(xs)
         return df
     # end def
-    def optnlin_nbegrenzt_build_df_int(self):
+    def optnlin_nbegrenzt_build_df_int(self,xs_in,f0):
 
 
         df = np.copy(self.opt.xs) * 0.0   # np.array([0.0 for i in range(len(self.opt.xs))])
 
         # f0 wird von der letzen Berechnung genommen
-        f0 = self.opt.int_erg_lliste[-1][-1]
+        # f0 = self.opt.int_erg_lliste[-1][-1]
 
         for i in range(self.opt.n):
 
-            (f1,dx) = self.func_integer_df(i)
+            (f1,dx) = self.func_integer_df(i,xs_in)
 
             df[i] = (f1 - f0) / dx
         # end for
@@ -1292,21 +1447,18 @@ class OptNlinNbegrenzt():
     # end def
     def exist_double_values_in_result_liste(self):
 
-        n = len(self.opt.int_erg_lliste)
-        if n:
-            for i in range(n):
+        # Vergleiche letzen Wert mit dem Rest
+        n = len(self.opt.int_func_lliste)
+        if n > 1:
+            liste_proof = self.opt.int_func_lliste[-1]
+            liste_proof = liste_proof[0:self.opt.n]
+            for i in range(n-1):
 
-                liste = self.opt.int_erg_lliste[i]
-                nliste = len(liste)
-                liste = liste[0:nliste-1]
-
-                for j in range(i+1,n):
-                    liste1 = self.opt.int_erg_lliste[j][0:nliste-1]
-
-                    if liste == liste1:
-                        return True
-                    # end if
-                # end for
+                liste = self.opt.int_func_lliste[i]
+                liste = liste[0:self.opt.n]
+                if liste == liste_proof:
+                    return True
+                # end if
             # end for
         # end if
         return False
@@ -1325,25 +1477,25 @@ class OptNlinNbegrenzt():
                 # end if
             # end for
 
-            flag = False
-            for i, liste in enumerate(self.opt.int_erg_lliste_df):
-                if liste[-1] < fmin:
-                    fmin = liste[-1]
-                    imin = i
-                    flag = True
-                # end if
-            # end for
-
-            if flag:
-                self.log.write_info(f"Found Minimum in df-Calculation")
-            # end if
+            # flag = False
+            # for i, liste in enumerate(self.opt.int_erg_lliste_df):
+            #     if liste[-1] < fmin:
+            #         fmin = liste[-1]
+            #         imin = i
+            #         flag = True
+            #     # end if
+            # # end for
+            #
+            # if flag:
+            #     self.log.write_info(f"Found Minimum in df-Calculation")
+            # # end if
 
             self.opt.f = fmin
             for i in range(self.opt.n):
-                if flag:
-                    self.opt.xs[i] = self.opt.int_erg_lliste_df[imin][i] * self.opt.int_def_dict_list[i]["res"]
-                else:
-                    self.opt.xs[i] = self.opt.int_erg_lliste[imin][i] * self.opt.int_def_dict_list[i]["res"]
+                # if flag:
+                #     self.opt.xs[i] = self.opt.int_erg_lliste_df[imin][i] * self.opt.int_def_dict_list[i]["res"]
+                # else:
+                self.opt.xs[i] = self.opt.int_erg_lliste[imin][i] * self.opt.int_def_dict_list[i]["res"]
             # end if
         # end if
         return
@@ -1366,12 +1518,13 @@ class OptNlinNbegrenzt():
         # end for
         return xs
     # end def
-    def build_integer_xs(self):
+    def build_integer_xs(self,xs_in):
 
-        xs = np.copy(self.opt.xs)
+        xs = np.copy(xs_in)
+        intx_liste = []
         for i,ddict in enumerate(self.opt.int_def_dict_list):
 
-            (x,rest,intx) = bilde_int_mit_res(self.opt.xs[i],ddict["res"])
+            (x,rest,intx) = bilde_int_mit_res(xs_in[i],ddict["res"])
 
             if rest != 0.0:
                 if self.opt.xs[i] >= 0.0:
@@ -1389,48 +1542,79 @@ class OptNlinNbegrenzt():
                 # end if
             # end if
 
-            ddict["x"] = x
+            ddict["x"]    = x
             ddict["intx"] = intx
             ddict["rest"] = rest
 
-            xs[i] = x
+            self.log.write_info(f"build_integer_xs: xs{i} => x:{ddict["x"]} intx:{ddict["intx"]} rest:{ddict["rest"]}")
 
+            xs[i] = x
+            intx_liste.append(intx)
             self.opt.int_def_dict_list[i] = ddict
         # end if
 
-        return xs
+        return (xs,intx_liste)
     # end def
-    def add_f_xs_liste(self,f):
+    def search_in_old_results(self,intx_liste):
+        flag = False
+        f = None
+
+        for liste in self.opt.int_erg_lliste:
+            count = 0
+            for i in range(self.opt.n):
+                if liste[i] == intx_liste[i]:
+                    count += 1
+                # end if
+            # end for
+            if count == self.opt.n:
+                flag = True
+                f = liste[-1]
+                break
+            # end if
+        # end for
+
+        return (flag,f)
+    # end def
+    def add_func_ergebnisse(self,xs_in,f):
+
+        (_, intx_liste) = self.build_integer_xs(xs_in)
+        intx_liste.append(f)
+        self.opt.int_func_lliste.append(intx_liste)
+        return
+    # end def
+    def add_f_xs_liste(self,f,fname):
 
         liste = []
         for i in range(self.opt.n):
-            liste.append(self.opt.int_def_dict_list[i]["intx"])
+            liste.append(int(self.opt.int_def_dict_list[i]["intx"]))
         # end if
         liste.append(f)
 
         self.opt.int_erg_lliste.append(liste)
 
         if self.opt.int_jsonobj is not None:
-            self.add_to_json_output("fun",liste)
+            self.log.write_info(f"Adding Ergebnis {fname} to liste")
+            self.add_to_json_output(fname,liste)
         # end if
         return
     # end def
-    def add_f1_x0_liste2(self,xint_liste,f1):
-
-        liste = []
-        for i in range(self.opt.n):
-            liste.append(xint_liste[i])
-        # end if
-        liste.append(f1)
-
-        self.opt.int_erg_lliste_df.append(liste)
-
-        if self.opt.int_jsonobj is not None:
-            self.add_to_json_output("dfun",liste)
-        # end if
-
-        return
-    # end def
+    # def add_f1_x0_liste2(self,xint_liste,f1):
+    #
+    #     liste = []
+    #     for i in range(self.opt.n):
+    #         liste.append(int(xint_liste[i]))
+    #     # end if
+    #     liste.append(f1)
+    #
+    #     self.opt.int_erg_lliste_df.append(liste)
+    #
+    #     if self.opt.int_jsonobj is not None:
+    #         self.log.write_info(f"Adding Ergebnis 'dfun' to liste")
+    #         self.add_to_json_output("dfun",liste)
+    #     # end if
+    #
+    #     return
+    # # end def
     def add_to_json_output(self,name,liste):
 
         if self.opt.int_jsonobj.exist_file():
@@ -1453,7 +1637,8 @@ class OptNlinNbegrenzt():
 # end class
 def bilde_int_mit_res(x_in,res):
 
-    (rest,xint) = math.modf(x_in/res)
+    val = x_in/res
+    (rest,xint) = math.modf(val)
 
     rest *= res
     intx = int(xint)
@@ -1538,7 +1723,7 @@ if __name__ == '__main__':
 
 
     obj = OptNlinNbegrenzt()
-    erg = obj.optimize(opt,[10.0,0.0],funcRosenbrock)
+    erg = obj.optimize(opt,[0.0,0.0],funcRosenbrock)
 
     if erg.status != hdef.OKAY:
         print(erg.errtext)
