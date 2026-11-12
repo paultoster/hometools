@@ -738,6 +738,7 @@ class OptNlinNbegrenzt():
         # Betrag der Ableitung aus Startwert
         self.opt.df_norm = np.linalg.norm(self.opt.df)
         if (self.opt.df_norm <= self.opt.err):
+            self.log.write_info(f'MinValue found by df_norm = {self.opt.df_norm}')
             findflag = 1
         else:
             findflag = 0
@@ -787,10 +788,12 @@ class OptNlinNbegrenzt():
             # end def
             self.opt.df_norm = np.linalg.norm(self.opt.df)
             if (self.opt.df_norm <= self.opt.err):
+                self.log.write_info(f'MinValue found by df_norm = {self.opt.df_norm}')
                 findflag = 1
 
             # seacrh if twice same result
             if self.exist_double_values_in_result_liste():
+                self.log.write_info(f'MinValue found by double value')
                 findflag = 1
 
         self.find_and_set_fmin_value()

@@ -24,7 +24,8 @@ import wp_test.wp_test_param as wp_test_param
 
 COUNTER = 0
 INI_DICT_PROOF_LISTE =   [("store_path", "str"),
-                          ("wptest_func_ini_file_name","str")]
+                          ("wptest_func_ini_file_name","str"),
+                          ("no_grid_search","int")]
 
 def build_log_file_name(store_path,parametername,act_time_str):
     """
@@ -203,10 +204,33 @@ class WPOpt:
             xsearch_lliste.append(ddict["liste"])
         # end for
 
+        if self.ini["no_grid_search"] > 0:
 
-        # Suche nach besten Wert mit Liste
-        #----------------------------------
-        xfound_liste = self.search_in_grid(xsearch_lliste,cal_cost_function)
+            self.log.write_info("run_opt no_grid_search-------------------------------------------" )
+            self.log.write_info("-----------------------------------------------------------------------" )
+
+            xfound_liste = []
+            for ddict in self.platzhalter_dict_liste:
+
+                if "value_start" not in ddict.keys():
+                    raise Exception(f"Platzhalter hat kein 'value_start' nicht gefunden. ddict= {ddict}")
+                elif ddict["value_start"] is None:
+                    raise Exception(f"Platzhalter hat kein 'value_start' nicht gesetzt. ddict= {ddict}")
+                else:
+                    xfound_liste.append(float(ddict["value_start"]))
+                # end if
+            # end for
+        else:
+            self.log.write_info("run_opt start:grid_search-------------------------------------------" )
+            self.log.write_info("-----------------------------------------------------------------------" )
+            # Suche nach besten Wert mit Liste
+            #----------------------------------
+            xfound_liste = self.search_in_grid(xsearch_lliste,cal_cost_function)
+
+            self.search_in_grid_time_perf = time.perf_counter()
+            self.log.write_info(f"Rechenzeit search_in_grid calc_time = {self.search_in_grid_time_perf- self.start_time_perf} sec")
+        # end if
+
 
         # gefundener wert in die Platzhalterliste schreiben
         #--------------------------------------------------
@@ -215,11 +239,12 @@ class WPOpt:
         # end for
 
         # Zeit Stoppen
-        self.search_in_grid_time_perf = time.perf_counter()
-        self.log.write_info(f"Rechenzeit search_in_grid calc_time = {self.search_in_grid_time_perf- self.start_time_perf} sec")
+
+        self.log.write_info("run_opt start:optimize-------------------------------------------------")
+        self.log.write_info("-----------------------------------------------------------------------")
 
         # Suche nach besten Wert mit Optimieren
-        #----------------------------------
+        #--------------------------------------
         xfound_liste = self.search_by_optimize(cal_cost_function)
 
         # gefundener wert in die Platzhalterliste schreiben
@@ -230,7 +255,10 @@ class WPOpt:
 
         # Zeit Stoppen
         self.search_by_optimize_time_perf = time.perf_counter()
-        self.log.write_info(f"Rechenzeit search_in_grid calc_time = {self.search_by_optimize_time_perf-self.search_in_grid_time_perf} sec")
+        self.log.write_info(f"Rechenzeit search_by_optimize calc_time = {self.search_by_optimize_time_perf-self.search_in_grid_time_perf} sec")
+
+        self.log.write_info("run_opt start:calc optimized  value------------------------------------")
+        self.log.write_info("-----------------------------------------------------------------------")
 
         # Parameterfile umbenennen und die neuen Werte reinschreiben
         #----------------------------------------------------------
@@ -320,7 +348,7 @@ class WPOpt:
 
         opt.type = 0  # 0: Methode des steilsten Abstiegs
         opt.kmax = 100
-        opt.err = 1e-2
+        opt.err = 1e-5
         opt.x_int_def = x_int_def_liste
         opt.int_json_file = build_json_file_name(self.ini["store_path"], "opt",self.param_name,self.act_time_str)
 
@@ -351,8 +379,11 @@ class WPOpt:
         # Ersetze Platzhalter mit Ergebnis
         for platzhalter_dict in self.platzhalter_dict_liste:
 
-           data = data.replace(platzhalter_dict["name"],str(platzhalter_dict["value_min"]))
-
+            if platzhalter_dict["format_value"] == "int":
+                data = data.replace(platzhalter_dict["name"],str(int(platzhalter_dict["value_min"])))
+            else:
+                data = data.replace(platzhalter_dict["name"], str(platzhalter_dict["value_min"]))
+            # end if
         # end for
 
         # Ersetze "par_" zu "nopar_" to take out parameter replacemant

@@ -197,6 +197,9 @@ class WPErg:
         # Schaue auf Schwankung und min/max-abweichung
         single_data_obj = self.do_std_min_max(np_data_obj,single_data_obj)
 
+        # Maximale Abweichung nach unten (drawdown) bezogen auf die jeweilige Vergangenheit
+        single_data_obj = self.do_max_draw_down(np_data_obj,single_data_obj)
+
         # Gib Änderung Jahr für Jahr auf
         np_data_obj = self.do_change_year_by_year(np_data_obj)
 
@@ -215,10 +218,17 @@ class WPErg:
         # end if
 
         # Zielgröße für Minimum
-        if hasattr(single_data_obj,"mean_zins") and hasattr(single_data_obj,"mean_diff_min"):
-            self.FError = 1./single_data_obj.mean_zins/100. + abs(single_data_obj.mean_diff_min)
+        if hasattr(single_data_obj,"mean_zins") and hasattr(single_data_obj,"max_drawdown_rel_cash"):
+            delta = abs(single_data_obj.mean_zins + 1.)   # ist - (-1), Verschiebung wegen negativen Zinsen
+                                                          # Aber dann zur Sicherheit der Absolutwert
+            self.FError = (1./delta * self.Parobj.GewichtungZinsMax
+                           + abs(single_data_obj.max_drawdown_rel_cash) * (1.0-self.Parobj.GewichtungZinsMax))
+            print(
+                f"FError: {self.FError}, mean_zins: {single_data_obj.mean_zins}, max_drawdown_rel_cash: {single_data_obj.max_drawdown_rel_cash}")
         # end if
         single_data_obj.add_signal(self.FError, "ziel_value")
+
+
 
 
         # Speichere array-datei
@@ -260,10 +270,8 @@ class WPErg:
         # Dateiname array
         # ----------------
 
-
         # Arrays aus Tabelle
-        dat_liste = self.ErgDataSet.get_row_list_of_header(self.NAME_ERG_TAB_DATUM,
-                                                                "dat")
+        dat_liste = self.ErgDataSet.get_row_list_of_header(self.NAME_ERG_TAB_DATUM,"dat")
         dyears_float_liste = hdt.calc_datetime_to_dyears_float_liste(self.ErgDataSet.get_row_list_of_header(self.NAME_ERG_TAB_DATUM))
         cash_liste = self.ErgDataSet.get_row_list_of_header(self.NAME_ERG_TAB_CASH)
         stuer_liste = self.ErgDataSet.get_row_list_of_header(self.NAME_ERG_TAB_STEUER)
@@ -276,6 +284,8 @@ class WPErg:
         np_steur_array = np.array(stuer_liste)
         np_kosten_array = np.array(kosten_liste)
         np_zins_array = np.array(zins_liste)
+
+
 
         np_data_obj.add_signal(np_dat_array, "np_dat_array")
         np_data_obj.add_signal(np_dyears_float_liste, "np_dyears_array")
@@ -382,6 +392,8 @@ class WPErg:
         single_data_obj.add_signal(median_zins, "median_zins")
 
 
+
+
         return (np_data_obj,single_data_obj)
     # end def
     def do_std_min_max(self,np_data_obj,single_data_obj):
@@ -455,6 +467,23 @@ class WPErg:
 
         return single_data_obj
     # end def
+    def do_max_draw_down(self,np_data_obj,single_data_obj):
+
+        (max_drawdown_cash,
+         max_drawdown_dyear) = hnpcalc.find_max_drawdown(np_data_obj.np_dyears_array,
+                                                              np_data_obj.np_cash_array)
+
+        Cash0 = np_data_obj.np_cash_array[0]
+        if abs(Cash0) < 0.000001:
+            Cash0 = 0.000001
+        # end if
+        single_data_obj.add_signal(max_drawdown_cash, "max_drawdown_cash")
+        single_data_obj.add_signal(max_drawdown_dyear, "max_drawdown_dyear")
+        single_data_obj.add_signal(max_drawdown_cash/Cash0, "max_drawdown_rel_cash")
+
+        return single_data_obj
+    # end def
+
     def do_change_year_by_year(self,np_data_obj):
         """
         np_data_obj = self.do_change_year_by_year(np_data_obj)
@@ -893,6 +922,8 @@ class WPErg:
                  htype.type_transform_direct(single_data_obj.gesamt_kosten, "cent", "euroStrK") + " €"],
                 ["RelKosten",
                  htype.type_transform_direct(single_data_obj.gesamt_rel_kosten, "float", "percentStr")],
+                ["DJahre",
+                 f"{single_data_obj.dyears:.2f}"],
                 ["ZinsMean",
                  htype.type_transform_direct(single_data_obj.mean_zins,"float", "percentStr")],
                 ["MeanSTD",
@@ -913,6 +944,10 @@ class WPErg:
                  htype.type_transform_direct(single_data_obj.median_diff_min, "float", "percentStr")],
                 ["MedianDiffMax",
                  htype.type_transform_direct(single_data_obj.median_diff_max, "float", "percentStr")],
+                ["MaxDrawdownCash",
+                 htype.type_transform_direct(single_data_obj.max_drawdown_cash, "cent", "euroStrK")+"€"],
+                ["MaxDrawdownRel",
+                 htype.type_transform_direct(single_data_obj.max_drawdown_rel_cash, "float", "percentStr")],
                 ["RelVKMean",
                  htype.type_transform_direct(single_data_obj.relvk_mean, "float", "percentStr")],
                 ["RelVKMaxMean",
@@ -920,9 +955,9 @@ class WPErg:
                 ["AnzahlDealsGesamt",
                  htype.type_transform_direct(single_data_obj.anzahl_deals_gesamt, "int", "int")],
                 ["TageGehaltenDurchschnitt",
-                 htype.type_transform_direct(single_data_obj.tage_gesamt, "int", "int")],
+                 f"{single_data_obj.tage_gesamt:.2f}"],
                 ["ziel_value",
-                 getattr(single_data_obj, "ziel_value")],
+                 f"{single_data_obj.ziel_value:.3f}"],
                 ]
 
 
@@ -1093,8 +1128,13 @@ class WPErg:
             # end for
 
             if len(rows) == 0:
-                rows.append(["","","",""])
-
+                line = ["","","","",""]
+            else:
+                line = ["mean","",
+                        np.mean(np_tage_array),
+                        f'{np.mean(np_relvk_array):.2f}',
+                        f'{np.mean(np_relvkmax_array):.2f}']
+            rows.append(line)
             mdobj.add_table(headers, rows)
             mdobj.add_paragraph("---")
 

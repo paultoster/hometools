@@ -38,7 +38,7 @@ PARAM_LLIST = [
 ("ParameterVariation",      "Beschreibung  (parallel, format)",{"wert":["parallel"]}),
 ("WPBuildSigSetNew",        "Soll immer eine neue DatenBasis geniert werden (zeitaufwendig)  (True/False, bool)", {"type": "bool"}),
 ("BildeAusgabe",            "Soll die ausgabe geniert werden geniert werden (zeitaufwendig)  (True/False, bool)", {"type": "bool"}),
-
+("GewichtungZinsMax",       "Gewichtung von zins_mean für den Fehler, max_drawdown wird (1-GewichtungZinsMax) gewichtet  (0.5,float)", {"type": "float","max":1.0,"min":0.0}),
 ]
 # ("SimName",                 "Name der Simulation  (TestLauf, str)",{"type":"str"}),
 
@@ -168,7 +168,7 @@ def get_par_struct_liste(mobj,par_dict,platzhalter_dict_liste):
     if mobj.status != hdef.OKAY:
         return (None,None)
 
-    par_liste_pruefung_inhalt(mobj, par_liste)
+    par_liste = par_liste_pruefung_inhalt(mobj, par_liste)
     if mobj.status != hdef.OKAY:
         return (None,None)
 
@@ -367,6 +367,12 @@ def get_platzhalter_dict(mobj,platzhalter_raw_dict,key):
         platzhalter_raw_dict[key8] = "str"  # default
     # end if
 
+    key9 = "value_start"
+    if key8 not in platzhalter_raw_dict:
+        platzhalter_raw_dict[key9] = None
+    # end if
+
+
     platzh = platzhalter_raw_dict[key1]
     type = platzhalter_raw_dict[key2]
     liste = platzhalter_raw_dict[key3]
@@ -376,10 +382,11 @@ def get_platzhalter_dict(mobj,platzhalter_raw_dict,key):
     maxvalue = platzhalter_raw_dict[key6]
     format = platzhalter_raw_dict[key7]
     format_value = platzhalter_raw_dict[key8]
+    value_start = platzhalter_raw_dict[key9]
 
     platzhalter_dict = {"name": platzh, "type": type, "liste": liste, "n": n,
                        "delta": delta, "minvalue": minvalue, "maxvalue": maxvalue,
-                       "format": format, "format_value": format_value, }
+                       "format": format, "format_value": format_value,"value_start": value_start }
 
     return platzhalter_dict
 # end def
@@ -493,7 +500,7 @@ def par_liste_pruefung_inhalt(mobj, par_liste):
     """
     global PARAMETERFILE
 
-    for pdict in par_liste:
+    for ipdict,pdict in enumerate(par_liste):
 
         for liste in PARAM_LLIST:
             key = liste[0]
@@ -596,29 +603,57 @@ def par_liste_pruefung_inhalt(mobj, par_liste):
                 # end if
             # end if
 
+            if "max" in ddict.keys():
+                max_proof = True
+                maxvalue = ddict["max"]
+
+                if type_ergebnis == "float":
+                    if pdict[key] > maxvalue:
+                        par_liste[ipdict][key] = maxvalue
+                    # end if
+                elif type_ergebnis == "int":
+                    if pdict[key] > int(maxvalue):
+                        par_liste[ipdict][key] = int(maxvalue)
+                    # end if
+                # end if
+            # end if
+            if "min" in ddict.keys():
+                min_proof = True
+                minvalue = ddict["min"]
+
+                if type_ergebnis == "float":
+                    if pdict[key] < minvalue:
+                        par_liste[ipdict][key] = minvalue
+                    # end if
+                elif type_ergebnis == "int":
+                    if pdict[key] < int(minvalue):
+                        par_liste[ipdict][key] = int(minvalue)
+                    # end if
+                # end if
+            # end if
             if type_proof :
                 if okayt != hdef.OKAY:
                     mobj.status = hdef.NOT_OKAY
                     mobj.errtext = f"par_liste_pruefung_inhalt: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} ist nicht vom type: {ddict["type"]}"
-                    return
+                    return par_liste
                 # end if
             # end if
             if wert_proof :
                 if okayw != hdef.OKAY:
                     mobj.status = hdef.NOT_OKAY
                     mobj.errtext = f"par_liste_pruefung_inhalt: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} ist nicht in der Werte-Liste: {ddict["wert"]}"
-                    return
+                    return par_liste
                 # end if
             # end if
             if not type_proof and not wert_proof:
                 mobj.status = hdef.NOT_OKAY
                 mobj.errtext = f"par_liste_pruefung_inhalt: In File {PARAMETERFILE} ist Parameter {key} = {pdict[key]} promblematisch kein: ddict[\"wert\"] oder ddict[\"type\"]"
-                return
+                return par_liste
             # end if
         # end for
     # end for
 
-    return
+    return par_liste
 # end def
 def build_par_liste_konvertieren(mobj, par_liste):
     """

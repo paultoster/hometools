@@ -16,27 +16,28 @@ import wp_opt_base
 ini_filename   = 'D:/data/wp/wp_opt/wp_opt.ini'
 start_path     = 'D:/data/wp/wp_test'
 
-param_filename = sgui.abfrage_file( file_types="*.yaml",
+param_filenames = sgui.abfrage_files( file_types="*.yaml",
                                     comment="Waehle Yaml-Parameter Datei",
                                     start_dir=start_path)
+for param_filename in param_filenames:
+    if param_filename is None or param_filename == "":
+        exit(0)
+    # end if
 
-if param_filename is None or param_filename == "":
-    exit(0)
-# end if
+    wpobj = wp_opt_base.WPOpt(param_filename=param_filename,ini_filename=ini_filename)
 
-wpobj = wp_opt_base.WPOpt(param_filename=param_filename,ini_filename=ini_filename)
+    if wpobj.status != hdef.OKAY:
+        print(wpobj.errtext)
+        exit(1)
+    # end if
 
-if wpobj.status != hdef.OKAY:
-    print(wpobj.errtext)
-    exit(1)
-# end if
+    wpobj.run_opt()
 
-wpobj.run_opt()
-
-if wpobj.status != hdef.OKAY:
-    print(wpobj.errtext)
-    exit(1)
-# end if
+    if wpobj.status != hdef.OKAY:
+        print(wpobj.errtext)
+        exit(1)
+    # end if
+# end for
 
 
 
