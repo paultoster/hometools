@@ -195,6 +195,38 @@ def del_sigsetname(rd,sigsetname):
     # end if
     return
 # end def
+def copy_sigset_sigset_dict(rd, sigset_from, sigset_to):
+
+    # Hole dict von sigset_from
+    # ------------------------
+    rd.sig["sigset"] = sigset_from
+    sigset_dict_read(rd)
+    if STATUS != hdef.OKAY:
+        return
+
+    # Kopiere dict
+    # -------------
+    sigset_dict_to = copy.copy(rd.sig["sigset_dict"])
+
+    # Leg neues dict-File an und hole leeres dict
+    # --------------------------------------------
+    rd.sig["sigset"] = add_sigsetname(rd, sigset_to)
+    sigset_dict_read(rd)
+
+    # Kopiere dict
+    # -------------
+    rd.sig["sigset_dict"] = sigset_dict_to
+
+    # Speichere dict
+    # ---------------
+    rd.sig["sigset_dict_jsonobj"].save(sigset_dict_to)
+
+    return
+
+
+# end def
+
+
 def modify_dict(rd, dict_mod):
     """
     :param rd:

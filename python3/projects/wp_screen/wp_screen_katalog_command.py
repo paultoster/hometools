@@ -16,6 +16,7 @@ import wp_screen.wp_screen_katalog as wp_screen_katalog
 import tools.hfkt_def as hdef
 import tools.hfkt_type as htype
 import tools.hfkt_tvar as htvar
+import tools.sgui as sgui
 
 STATUS   = hdef.OKAY
 ERRTEXT  = ""
@@ -40,18 +41,24 @@ def reset_status():
     INFOTEXT = ""
 # end def
 def get_katalog_auswahl(rd):
-
+    global STATUS, ERRTEXT
     wp_screen_katalog.katalog_set(rd)
 
     if wp_screen_katalog.get_status() != hdef.OKAY:
-        global STATUS, ERRTEXT
+
         STATUS = wp_screen_katalog.get_status()
         ERRTEXT = wp_screen_katalog.get_errtext()
         wp_screen_katalog.reset_status()
         return None
     # end if
 
-    abfrage_liste = ["select","show","ende"]
+    abfrage_liste = ["select","show","copy","modify(dict)","ende"]
+
+    i_select = 0
+    i_show = 1
+    i_copy = 2
+    i_modify = 3
+    i_ende = 4
 
     while True:
 
@@ -60,19 +67,58 @@ def get_katalog_auswahl(rd):
                                                              abfrage_liste=abfrage_liste)
 
 
-        if (index < 0) or (indexAbfrage == 2):
+        if (index < 0) or (indexAbfrage == i_ende):
             return None
-        elif indexAbfrage == 0:
+        elif indexAbfrage == i_select:
             if index >= 0:
                 katalog = rd.kat["katalog_liste"][index]
                 return katalog
             # end if
-        else:
+        elif indexAbfrage == i_show:
             if index >= 0:
                 katalog = rd.kat["katalog_liste"][index]
                 katalog_dict = wp_screen_katalog.get_katalog_gruppe_isin_dict(rd, katalog)
                 texteingabe = json.dumps(katalog_dict, indent=2)
                 wp_screen_gui.anzeige_text(rd.gui, texteingabe, title=None, textcolor='black')
+            # end if
+        elif indexAbfrage == i_copy:
+            if index >= 0:
+                katalog = rd.kat["katalog_liste"][index]
+                liste_abfrage = ["newkatalogname"]
+                liste_vorgabe = [katalog]
+                title = "Copy Katalog-Name "
+                (liste_ergebnis, status) = wp_screen_gui.eingabe_n_zeilen(rd.gui, liste_abfrage,
+                                                                          liste_vorgabe=liste_vorgabe, title=title)
+                if (status != hdef.OKAY) or (liste_ergebnis == []):
+                    return None
+
+                text = liste_ergebnis[0]
+                # entfernt Leerzeichen, Tabulator (\t), Zeilenumbrüche (\n), geschützte Leerzeichen (\xa0)
+                katalog_new = "".join(text.split()).replace(" ", "")
+
+                if katalog_new in rd.kat["katalog_liste"]:
+                    t = f"copyname: {katalog_new}  ist bereits in Liste {rd.kat["katalog_liste"]} "
+                    rd.log.write_err(t, screen=rd.par.LOG_SCREEN_OUT)
+                    sgui.anzeige_text(t, textcolor='red')
+                else:
+                    wp_screen_katalog.copy_katalog_katalog_dict(rd, katalog, katalog_new)
+                # end if
+        else: # i_modify
+            if index >= 0:
+                rd.kat["katalog"] = rd.kat["katalog_liste"][index]
+                wp_screen_katalog.katalog_gruppe_isin_dict_read(rd)
+                if wp_screen_katalog.get_status() != hdef.OKAY:
+
+                    STATUS = wp_screen_katalog.get_status()
+                    ERRTEXT = wp_screen_katalog.get_errtext()
+                    wp_screen_katalog.reset_status()
+                    return None
+                # end if
+
+                katalog_gruppe_isin_dict_modify(rd)
+                if get_status() != hdef.OKAY:
+                    return None
+                # end if
             # end if
         # end if
     # end while

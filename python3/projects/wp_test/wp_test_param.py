@@ -368,8 +368,13 @@ def get_platzhalter_dict(mobj,platzhalter_raw_dict,key):
     # end if
 
     key9 = "value_start"
-    if key8 not in platzhalter_raw_dict:
+    if key9 not in platzhalter_raw_dict:
         platzhalter_raw_dict[key9] = None
+    # end if
+
+    key10 = "ferror_start"
+    if key10 not in platzhalter_raw_dict:
+        platzhalter_raw_dict[key10] = None
     # end if
 
 
@@ -383,10 +388,12 @@ def get_platzhalter_dict(mobj,platzhalter_raw_dict,key):
     format = platzhalter_raw_dict[key7]
     format_value = platzhalter_raw_dict[key8]
     value_start = platzhalter_raw_dict[key9]
+    ferror_start = platzhalter_raw_dict[key10]
 
     platzhalter_dict = {"name": platzh, "type": type, "liste": liste, "n": n,
                        "delta": delta, "minvalue": minvalue, "maxvalue": maxvalue,
-                       "format": format, "format_value": format_value,"value_start": value_start }
+                       "format": format, "format_value": format_value,
+                        "value_start": value_start,"ferror_start": ferror_start }
 
     return platzhalter_dict
 # end def

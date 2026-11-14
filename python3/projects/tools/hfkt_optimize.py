@@ -194,6 +194,10 @@ class OptNlinNbegrenzt():
             self.opt.x0 = np.array(self.opt.x0)
         # end if
 
+        if not hasattr(self.opt, 'f0'):
+            self.opt.f0 = None
+        # end if
+
 
         if not hasattr(self.opt, 'type'):
             self.status = hdef.NOT_OKAY
@@ -501,7 +505,12 @@ class OptNlinNbegrenzt():
         #---------
         try:
             if self.opt.int_def_flag:
-                self.opt.f = self.func_integer(self.opt.xs)
+
+                if self.opt.f0 is not None:
+                    self.opt.f = self.func_integer(self.opt.xs,fname = "fun",f_in=self.opt.f0)
+                else:
+                    self.opt.f = self.func_integer(self.opt.xs)
+                # end if
             else:
                 self.opt.f = self.opt.func(self.opt.xs)
             # end if
@@ -693,7 +702,7 @@ class OptNlinNbegrenzt():
                 sigmak = self.optnlin_nbegrenzt_PowellWolfe( sk)
             # end if
 
-            if self.status != hdef.OKAY:
+            if self.opt.okay != hdef.OKAY:
                 return
             self.opt.xs = self.opt.xs + sigmak * sk
             self.opt.f = self.opt.func(self.opt.xs)
@@ -1039,9 +1048,9 @@ class OptNlinNbegrenzt():
         sigmak = 1.0
         xs = np.copy(self.opt.xs + sigmak * sk)
         xs = self.set_xmin_xmax(xs)
-        f  = self.func_integer(xs)
-        delta = f - self.opt.f
-        val = sigmak * self.opt.gamma * np.dot(self.opt.df , sk)
+        f0  = self.func_integer(xs)
+        delta = f0 - self.opt.f
+        val = sigmak * fac
         while ((delta > val) and i < 10):
 
             i = i + 1
@@ -1052,11 +1061,39 @@ class OptNlinNbegrenzt():
             delta = f - self.opt.f
             val = sigmak * fac
 
+        if (i < 10):
+            return sigmak
+        # end if
 
-        if (i >= 10):
-            self.opt.okay = 0
-            self.opt.errtext = 'Schrittweitensteuerung Armijo-Regel > 10 Iterationen'
+        i = 0
+        # fac = self.opt.gamma * np.dot(self.opt.df , sk)
+        sigmak = 1.0
+        xs = np.copy(self.opt.xs + sigmak * sk)
+        xs = self.set_xmin_xmax(xs)
+        xlast = np.copy(xs)
+        # f0  = self.func_integer(xs)
+        delta = f0 - self.opt.f
+        val = sigmak * fac
+        while ((delta > val) and i < 100):
 
+            i = i + 1
+            sigmak = sigmak / self.opt.beta
+            xs = np.copy(self.opt.xs + sigmak * sk)
+            xs = self.set_xmin_xmax(xs)
+            f = self.func_integer(xs)
+            delta = f - self.opt.f
+            # val = sigmak * fac
+            if np.array_equal(xs,xlast): # Vektor ist irgenwo am limit
+                break
+            else:
+                xlast = np.copy(xs)
+            # end if
+        # end if
+
+        if (i >= 100):
+            self.status = hdef.NOT_OKAY
+            self.errtext = 'Schrittweitensteuerung Armijo-Regel > 10 Iterationen'
+        # end if
         return sigmak
     # end def
     def optnlin_nbegrenzt_PowellWolfe_int(self,sk):
@@ -1383,16 +1420,23 @@ class OptNlinNbegrenzt():
         self.errtext = 'TrustRegionWedge nicht implementiert'
         return
     # end def
-    def func_integer(self,xs_in,fname="fun"):
+    def func_integer(self,xs_in,fname="fun",f_in= None):
 
         (xs,intx_liste) = self.build_integer_xs(xs_in)
 
-        (flag,f) = self.search_in_old_results(intx_liste)
-        if flag:
-            return f
+        if f_in is not None:
+
+            f = f_in
+            self.add_f_xs_liste(f, fname)
         else:
-            f = self.opt.func(xs)
-            self.add_f_xs_liste(f,fname)
+
+            (flag,f) = self.search_in_old_results(intx_liste)
+            if flag:
+                return f
+            else:
+                f = self.opt.func(xs)
+                self.add_f_xs_liste(f,fname)
+            # end if
         # end if
         return f
     # end def

@@ -13,7 +13,7 @@ import wp_screen.wp_screen_sigset as wp_screen_sigset
 import wp_screen.wp_screen_sigset_check as wp_screen_sigset_check
 
 import tools.hfkt_def as hdef
-# import tools.hfkt_pickle as hfkt_pickle
+import tools.sgui as sgui
 # import tools.hfkt_tvar as htvar
 # import tools.hfkt_type as htype
 
@@ -378,28 +378,75 @@ def get_sigset_auswahl(rd):
     # end if
 
 
-    abfrage_liste = ["select", "show", "ende"]
+    abfrage_liste = ["select", "show", "copy", "modify","ende"]
+
+    i_select = 0
+    i_show = 1
+    i_copy = 2
+    i_modify = 3
+    i_ende = 4
 
     while True:
         (index, indexAbfrage) = wp_screen_gui.listen_abfrage(rd.gui,
                                                              rd.sig["sigset_liste"],
                                                              auswahl_title="Auswahl Siganl-Set",
                                                              abfrage_liste=abfrage_liste)
-        if (index < 0) or (indexAbfrage == 2):
+        if (index < 0) or (indexAbfrage == i_ende):
             return None
-        elif indexAbfrage == 0:
+        elif indexAbfrage == i_select:
 
             if index >= 0:
                 sigset = rd.sig["sigset_liste"][index]
                 return sigset
             # end if
-        else:
+        elif indexAbfrage == i_show:
             if index >= 0:
                 sigset = rd.sig["sigset_liste"][index]
                 sigset_dict = wp_screen_sigset.get_sigset_dict(rd, sigset)
                 texteingabe = json.dumps(sigset_dict, indent=2)
                 wp_screen_gui.anzeige_text(rd.gui, texteingabe, title=None, textcolor='black')
             # end if
+        elif indexAbfrage == i_copy:
+            if index >= 0:
+                sigset = rd.sig["sigset_liste"][index]
+                liste_abfrage = ["newsigsetname"]
+                liste_vorgabe = [sigset]
+                title = "Copy Sigset-Name "
+                (liste_ergebnis, status) = wp_screen_gui.eingabe_n_zeilen(rd.gui, liste_abfrage,
+                                                                          liste_vorgabe=liste_vorgabe, title=title)
+                if (status != hdef.OKAY) or (liste_ergebnis == []):
+                    return None
+
+                text = liste_ergebnis[0]
+                # entfernt Leerzeichen, Tabulator (\t), Zeilenumbrüche (\n), geschützte Leerzeichen (\xa0)
+                sigset_new = "".join(text.split()).replace(" ", "")
+
+                if sigset_new in rd.sig["sigset_liste"]:
+                    t = f"copyname: {sigset_new}  ist bereits in Liste {rd.kat["katalog_liste"]} "
+                    rd.log.write_err(t, screen=rd.par.LOG_SCREEN_OUT)
+                    sgui.anzeige_text(t, textcolor='red')
+                else:
+                    wp_screen_sigset.copy_sigset_sigset_dict(rd, sigset, sigset_new)
+                # end if
+            # end if
+        else: # i_modify
+            if index >= 0:
+                rd.sig["sigset"] = rd.sig["sigset_liste"][index]
+                wp_screen_sigset.sigset_dict_read(rd)
+                if wp_screen_sigset.get_status() != hdef.OKAY:
+
+                    STATUS = wp_screen_sigset.get_status()
+                    ERRTEXT = wp_screen_sigset.get_errtext()
+                    wp_screen_sigset.reset_status()
+                    return None
+                # end if
+
+                sigset_edit_modify(rd)
+                if get_status() != hdef.OKAY:
+                    return None
+                # end if
+            # end if
+
         # end if
     # end while
 # end def

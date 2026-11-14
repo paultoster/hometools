@@ -216,32 +216,25 @@ def build_klassen_min_max(np_array,delta):
     # end if
     return (ymin,ymax)
 # end def
-def find_max_drawdown(np_dyears_array,np_value_array):
+def calc_drawdown(np_value_array):
     """
 
     :param np_dyears_array:
     :param np_value_array:
-    :return: (max_drawdown_cash,
-              max_drawdown_dyear) = hnpcalc.find_max_drawdown(np_data_obj.np_dyears_array,
-                                                              np_data_obj.np_cash_array)
+    :return: (np_array_drawdown_value) = hnpcalc.calc_drawdown(np_data_obj.np_cash_array)
     """
 
-    max_drawdown_cash = 0.0
-    max_drawdown_dyear = 0.0
-
+    np_array_drawdown_value = np.array(np_value_array)*0.0
+    value0 = np_value_array[0]
     for index in range(1,len(np_value_array)):
 
-        if index > 0:
-
-            delta = np.max(np_value_array[0:index]) - np_value_array[index]
-
-            if delta > max_drawdown_cash:
-                max_drawdown_cash = delta
-                max_drawdown_dyear = np_dyears_array[index]
-            # end if
+        if np_value_array[index] < value0:
+            np_array_drawdown_value[index] = np_value_array[index] - value0
+        else:
+            value0 = np_value_array[index]
         # end if
     # end for
-    return (max_drawdown_cash,max_drawdown_dyear)
+    return np_array_drawdown_value
 # end def
 
 

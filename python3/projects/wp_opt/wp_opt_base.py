@@ -210,6 +210,7 @@ class WPOpt:
             self.log.write_info("-----------------------------------------------------------------------" )
 
             xfound_liste = []
+            ferror = None
             for ddict in self.platzhalter_dict_liste:
 
                 if "value_start" not in ddict.keys():
@@ -218,6 +219,8 @@ class WPOpt:
                     raise Exception(f"Platzhalter hat kein 'value_start' nicht gesetzt. ddict= {ddict}")
                 else:
                     xfound_liste.append(float(ddict["value_start"]))
+                    if ("ferror_start" in ddict.keys()) and (ddict["ferror_start"] is not None):
+                        ferror = float(ddict["ferror_start"])
                 # end if
             # end for
         else:
@@ -225,7 +228,7 @@ class WPOpt:
             self.log.write_info("-----------------------------------------------------------------------" )
             # Suche nach besten Wert mit Liste
             #----------------------------------
-            xfound_liste = self.search_in_grid(xsearch_lliste,cal_cost_function)
+            (xfound_liste,ferror) = self.search_in_grid(xsearch_lliste,cal_cost_function)
 
             self.search_in_grid_time_perf = time.perf_counter()
             self.log.write_info(f"Rechenzeit search_in_grid calc_time = {self.search_in_grid_time_perf- self.start_time_perf} sec")
@@ -236,6 +239,7 @@ class WPOpt:
         #--------------------------------------------------
         for i in range(len(xfound_liste)):
             self.platzhalter_dict_liste[i]["value_min"] = xfound_liste[i]
+            self.platzhalter_dict_liste[i]["ferror_min"] = ferror
         # end for
 
         # Zeit Stoppen
@@ -290,6 +294,7 @@ class WPOpt:
     def search_in_grid(self,xsearch_lliste,func):
         """ search with xsearch_liste
         xsearch_lliste: all lists from self.platzhalter_dict_liste put into llist
+        return (xfound_liste,ferror) = self.search_in_grid(xsearch_lliste,func)
         """
 
         # Eine art Protokollfile erstellen
@@ -322,15 +327,17 @@ class WPOpt:
 
         sort_lliste = hlist.sort_list_of_list(search_lliste, index)
 
-        return sort_lliste[0][:-1]
+        return (sort_lliste[0][:-1],sort_lliste[0][-1])
     # end def
     def search_by_optimize(self,func):
 
         # Startvektor
         x0_liste = []
         x_int_def_liste = []
+        f0 = None
         for platzhalter_dict in self.platzhalter_dict_liste:
             x0_liste.append(float(platzhalter_dict["value_min"]))
+            f0 = platzhalter_dict["ferror_min"]
 
             xmin = platzhalter_dict["minvalue"]
             xmax = platzhalter_dict["maxvalue"]
@@ -349,9 +356,10 @@ class WPOpt:
         opt.type = 0  # 0: Methode des steilsten Abstiegs
         opt.kmax = 100
         opt.err = 1e-5
+        opt.beta = 0.75
         opt.x_int_def = x_int_def_liste
         opt.int_json_file = build_json_file_name(self.ini["store_path"], "opt",self.param_name,self.act_time_str)
-
+        opt.f0 = f0
 
         obj = hopt.OptNlinNbegrenzt(self.log)
         erg = obj.optimize(opt, x0_liste, func)

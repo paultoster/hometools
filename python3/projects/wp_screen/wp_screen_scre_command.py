@@ -54,13 +54,14 @@ def scre_command(rd):
 
 
     auswahl_title = "Screen-Namen editieren"
-    abfrage_liste = ["edit(values)","add", "delete", "rename","build","ende"]
+    abfrage_liste = ["edit(values)","add", "delete", "rename","copy","build","ende"]
     i_edit = 0
     i_add = 1
     i_delete = 2
     i_rename = 3
-    i_build = 4
-    i_ende = 5
+    i_copy = 4
+    i_build = 5
+    i_ende = 6
 
     runflag = True
 
@@ -100,6 +101,14 @@ def scre_command(rd):
                 sgui.anzeige_text(t, textcolor='orange')
             else:
                 scre_rename(rd, index)
+            # end if
+        elif indexAbfrage == i_copy:
+            if (index < 0) or (index >= n_auswahl_liste):
+                t = "scre_command copy: index out of range or not set"
+                rd.log.write_err(t, screen=rd.par.LOG_SCREEN_OUT)
+                sgui.anzeige_text(t, textcolor='orange')
+            else:
+                scre_copy(rd, index)
             # end if
         else: # indexAbfrage == i_build:
 
@@ -332,6 +341,34 @@ def scre_rename(rd, index):
     # end if
     return
 # end def
+def scre_copy(rd, index):
+    liste_abfrage = ["newscrename"]
+    title = "Copy Screen-Name "
+    liste_vorgabe = [rd.scre["scre_liste"][index]]
+
+    runflag = True
+    while runflag:
+        (liste_ergebnis, status) = wp_screen_gui.eingabe_n_zeilen(rd.gui, liste_abfrage,
+                                                                liste_vorgabe=liste_vorgabe, title=title)
+
+        if (status != hdef.OKAY) or (liste_ergebnis == []):
+            return
+
+        text = liste_ergebnis[0]
+        # entfernt Leerzeichen, Tabulator (\t), Zeilenumbrüche (\n), geschützte Leerzeichen (\xa0)
+        scre = "".join(text.split()).replace(" ", "")
+
+        if scre in rd.scre["scre_liste"]:
+            t = f"copyname: {scre}  ist bereits in Liste {rd.scre["scre_liste"]} "
+            rd.log.write_err(t, screen=rd.par.LOG_SCREEN_OUT)
+            sgui.anzeige_text(t, textcolor='red')
+        else:
+            wp_screen_scre.copy_screname_screliste(rd, rd.scre["scre_liste"][index],scre)
+            runflag = False
+        # end if
+    return
+
+
 def scre_show_screen(rd,index):
     """
     :param rd:

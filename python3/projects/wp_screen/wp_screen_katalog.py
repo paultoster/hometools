@@ -1,7 +1,7 @@
 
-import os, sys
+import os, sys, copy
 
-from win32cryptcon import CRYPT_UNICODE_NAME_ENCODE_DISABLE_CHECK_TYPE_FLAG
+# from win32cryptcon import CRYPT_UNICODE_NAME_ENCODE_DISABLE_CHECK_TYPE_FLAG
 
 t_path, _ = os.path.split(__file__)
 tools_path = t_path + "\\.."
@@ -244,6 +244,32 @@ def del_katalogname(rd,katalogname):
         del rd.kat["katalog_liste"][index]
         rd.kat["katalog_liste_jsonobj"].save(rd.kat["katalog_liste"])
     # end if
+    return
+# end def
+def copy_katalog_katalog_dict(rd, katalog_from, katalog_to):
+
+    # Hole dict von scre_from
+    #------------------------
+    rd.kat["katalog"] = katalog_from
+    katalog_gruppe_isin_dict_read(rd)
+
+    # Kopiere dict
+    #-------------
+    katalog_dict_to = copy.copy(rd.kat["katalog_gruppe_isin_dict"])
+
+    # Leg neues dict-File an und hole leeres dict
+    #--------------------------------------------
+    rd.kat["katalog"] = add_katalogname(rd,katalog_to)
+    katalog_gruppe_isin_dict_read(rd)
+
+    # Kopiere dict
+    #-------------
+    rd.kat["katalog_gruppe_isin_dict"]  = katalog_dict_to
+
+    # Speichere dict
+    #---------------
+    rd.kat["katalog_gruppe_isin_dict_jsonobj"].save(katalog_dict_to)
+
     return
 # end def
 def modify_gruppe_isin_dict(rd, ddict_mod):

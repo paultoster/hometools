@@ -485,6 +485,19 @@ def get_npar_signal(rd, werte_dict, np_data_obj):
                 ERRTEXT = f"Der 2. Parameter von fkt: {rd.par.SIG_NPAR_BEDINGUNGOR}({content[0:-1]}) ist nicht bekannt"
                 return (success, np_data_obj)
             # end if
+        case rd.par.SIG_TYPE_NPAR_MINDISTGMMA:
+
+            signal = werte_dict["par1"]
+            nEMAs  = werte_dict["par2"]
+            EMAmin = werte_dict["par3"]
+            deltaEMA = werte_dict["par4"]
+            (success_sub, np_mindistgmma_array) = build_signal_mindistgmma(rd, signal,nEMAs,EMAmin,deltaEMA, np_data_obj)
+            if STATUS != hdef.OKAY:
+                return (success, np_data_obj)
+
+            if success_sub:
+                np_data_obj.add_signal(np_mindistgmma_array, werte_dict["signal"])
+                success = True
     # end match
 
     if success:
@@ -901,6 +914,35 @@ def build_signal_bedingungor(rd, signal_liste,np_data_obj):
         success = True
 
     return (success, np_bedignungor_array)
+# end def
+def build_signal_mindistgmma(rd, signal,nEMAs,EMAmin,deltaEMA, np_data_obj):
+    """
+    (success_sub, np_mindistgmma_array) = build_signal_mindistgmma(rd, signal,nEMAs,EMAmin,deltaEMA, np_data_obj)
+    """
+    global STATUS, ERRTEXT
+    np_mindistgmma_array = None
+    success = False
+
+    if not hasattr(np_data_obj, signal):
+        STATUS = hdef.NOT_OKAY
+        ERRTEXT = f"Signal {signal} nicht bekannt im erstellten Datensatz !!"
+        return (success,  np_mindistgmma_array)
+    # end if
+
+    if nEMAs < 2:
+        nEMAs = 2
+    # end if
+    if EMAmin < 1:
+        EMAmin = 1
+    # end if
+    if deltaEMA < 1:
+        deltaEMA = 1
+    # end if
+    np_minditgmma_array = hnpfkt.mindistgmma( getattr(np_data_obj, signal),nEMAs,EMAmin,deltaEMA )
+
+    success = True
+
+    return (success, np_minditgmma_array)
 # end def
 def get_dataclass_filename(rd,scre,isin):
 

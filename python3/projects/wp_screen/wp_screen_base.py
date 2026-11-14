@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, datetime
 
 t_path, _ = os.path.split(__file__)
 tools_path = t_path + "\\.."
@@ -24,6 +24,23 @@ import tools.sgui as sgui
 import tools.sgui_protocol_class as sgui_prot
 
 
+def build_log_file_name(store_path,parametername,act_time_str):
+    """
+
+    :param store_path:
+    :param parametername:
+    :return: log_file = build_log_file_name(store_path,parametername)
+    """
+
+
+    p = os.path.join(store_path,"log_"+parametername)
+    if not os.path.exists(p):
+        os.makedirs(p)
+    # end if
+
+    log_file = os.path.join(p,"log_"+parametername+"_"+act_time_str+".log")
+    return log_file
+# end if
 
 class WPScreen:
     """
@@ -35,6 +52,8 @@ class WPScreen:
         self.status = hdef.OKAY
         self.errtext = ""
         self.infotext = ""
+
+        self.act_time_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 
         self.kat: dict = {
                     "katalog_liste": [],
@@ -93,25 +112,30 @@ class WPScreen:
         # gui
         self.gui = sgui_prot.SguiProtocol()
 
-        # Log-File start ---------------
-        if log_obj is None:
-            self.log = hlog.log(consol_func=True, log_window=False)
-        else:
-            self.log = log_obj
-        # end if
-        self.log_file_name = self.log.get_logfilename()
-
         # Parameter
         self.par = wp_screen_param.Param()
 
         # ini
         self.ini = wp_screen_ini.get_tomlib_ini_dict(ini_filename, self.par.INI_DICT_PROOF_LISTE)
 
-        if wp_screen_ini.get_status() != hdef.OK:
-            self.log.write_e(wp_screen_ini.get_errtext(), screen=1)
+        if wp_screen_ini.get_status() != hdef.OKAY:
+            self.status = hdef.OKAY
+            self.errtext = wp_screen_ini.get_errtext()
             wp_screen_ini.reset_status()
+            print(self.errtext)
             return
         # end if
+
+        # Log-File start ---------------
+        if log_obj is None:
+            log_file = build_log_file_name(self.ini["store_path"], "wp_screen", self.act_time_str)
+            self.log = hlog.log(log_file=log_file, consol_func=True, log_window=False)
+        else:
+            self.log = log_obj
+        # end if
+        self.log_file_name = self.log.get_logfilename()
+
+
 
         # wp_abfrage
         self.wpfunc = wp_abfrage_base.WPData(ini_filename=self.ini["wp_func_ini_file_name"],

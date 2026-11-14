@@ -1,5 +1,5 @@
 
-import os, sys, time
+import os, sys, copy
 
 import numpy as np
 
@@ -81,6 +81,9 @@ def scre_set(rd):
         rd.scre["scre_liste_jsonobj"].reset_status()
         rd.scre["scre_liste"] = []
     elif rd.scre["scre_liste_jsonobj"].get_status() != hdef.OKAY:
+        global STATUS, ERRTEXT
+        STATUS = rd.scre["scre_liste_jsonobj"].get_status()
+        ERRTEXT = rd.scre["scre_liste_jsonobj"].get_errtext()
         rd.log.write_err(rd.scre["scre_liste_jsonobj"].get_errtext(), screen=rd.par.LOG_SCREEN_OUT)
         rd.scre["scre_liste_jsonobj"].reset_status()
         return
@@ -457,7 +460,33 @@ def add_screname(rd,screname):
 
     return scre
 # end def
+def copy_screname_screliste(rd,scre_from,scre_to):
 
+    # Hole dict von scre_from
+    #------------------------
+    rd.scre["scre"] = scre_from
+    scre_dict_read(rd)
+
+    # Kopiere dict
+    #-------------
+    scre_dict_to = copy.copy(rd.scre["scre_dict"])
+
+    # Leg neues dict-File an und hole leeres dict
+    #--------------------------------------------
+    scre = add_screname(rd,scre_to)
+    rd.scre["scre"] = scre_to
+    scre_dict_read(rd)
+
+    # Kopiere dict
+    #-------------
+    rd.scre["scre_dict"] = scre_dict_to
+
+    # Speichere dict
+    #---------------
+    scre_dict_save(rd)
+
+    return
+# end if
 def modify_dict(rd, dict_mod):
     """
     :param rd:

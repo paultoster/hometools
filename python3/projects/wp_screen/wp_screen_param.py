@@ -39,6 +39,8 @@ class Param:
     SIG_NPAR_BEDINGUNG = "bedingung"
     SIG_NPAR_BEDINGUNGNAND = "bedingungnand"
     SIG_NPAR_BEDINGUNGOR = "bedingungor"
+    SIG_NPAR_MINDISTGMMA = "mindistgmma"
+
 
     SIG_TYPE_NULL    = 0
     SIG_TYPE_COMMENT = 1
@@ -62,6 +64,7 @@ class Param:
     SIG_TYPE_NPAR_BEDINGUNG = 19
     SIG_TYPE_NPAR_BEDINGUNGNAND = 20
     SIG_TYPE_NPAR_BEDINGUNGOR = 21
+    SIG_TYPE_NPAR_MINDISTGMMA = 22
 
     SIG_STORE_DATUM = "Datum"
     SIG_STORE_GRAD  = "grad"

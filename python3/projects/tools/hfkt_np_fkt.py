@@ -55,7 +55,7 @@ def ema(np_array: np.ndarray, k:int):
     exponential moving avarge
     :param np_array:
     :param k:
-    :return: np_sma_array (copy) = sma(np_arry,k)
+    :return: np_sma_array (copy) = ema(np_arry,k)
     """
     np_ema_array = np.zeros(np_array.shape)
     n = len(np_array)
@@ -415,6 +415,63 @@ def bedingungor(np_dat_array_liste,np_array_liste):
     # end for
 
     return (status,errtext,np_dat_array,np_bedignungor_array)
+# end def
+def mindistgmma( np_dat_array,nEMAs,EMAmin,deltaEMA ):
+    """
+    (Gruppy Multiple Moving Average) EMA auf das signal n: anzahl der EMAs,
+    EMAmin: kleinste Zahl für EMA z.B. 3, deltaEMA: Abstand zum nächsten EMA z.B. 5,
+    Ergebnis: kleinster Abstand postiv in Prozent, wenn alle geordnet steigen, nicht überlappen, bzw.
+    negativ wenn alle geordnet fallen, nicht überlappen, ansonsten null
+
+    (np_minditgmma_array) = hnpfkt.mindistgmma( np_dat_array,nEMAs,EMAmin,deltaEMA )
+    """
+    np_array_liste = [None]*nEMAs
+    k = EMAmin
+    for i in range(nEMAs):
+
+        np_array_liste.append(ema(np_dat_array, k))
+        k += deltaEMA
+    # end for
+
+    n = len(np_dat_array)
+
+    np_minditgmma_array = np.zeros(n, dtype=np.float64)
+
+    for i in range(n):
+
+        flag = False
+        delta_min = 0.
+        for j in range(1,nEMAs):
+
+            delta = np_array_liste[j][i] - np_array_liste[j - 1][i]
+
+            if j == 1:
+                delta_min = delta
+                if delta >= 0.0:
+                    flag = 1
+                else:
+                    flag = -1
+                # end if
+            elif flag == 1:
+                if delta < 0.0:
+                    delta_min = 0.
+                    break
+                else:
+                    delta_min = min(delta_min,delta)
+                # endif
+            else:
+                if delta >= 0.0:
+                    delta_min = 0.
+                    break
+                else:
+                    delta_min = max(delta_min,delta)
+                # endif
+            # end if
+
+            np_minditgmma_array[i] = delta_min/np_array_liste[nEMAs-1][i]
+        # end for
+    # end for
+    return np_minditgmma_array
 # end def
 # def bilde_gleiche_basis(np_dat1_array,np1_array,np_dat2_array,np2_array):
 #     """

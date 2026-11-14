@@ -99,6 +99,8 @@ class WPErg:
                                 self.Parobj.plot_prozent_datei_name + ".png")
         self.MdFilename = os.path.join(self.ErgPath,
                                 self.Parobj.md_datei_name + ".md")
+        self.PlotDrawdownFilename = os.path.join(self.ErgPath,
+                                self.Parobj.plot_drawdown_datei_name + ".png")
 
         # Bilde schreibe Parameterfile
         if self.Parobj.BildeAusgabe:
@@ -198,7 +200,7 @@ class WPErg:
         single_data_obj = self.do_std_min_max(np_data_obj,single_data_obj)
 
         # Maximale Abweichung nach unten (drawdown) bezogen auf die jeweilige Vergangenheit
-        single_data_obj = self.do_max_draw_down(np_data_obj,single_data_obj)
+        (np_data_obj,single_data_obj) = self.do_max_draw_down(np_data_obj,single_data_obj)
 
         # Gib Änderung Jahr für Jahr auf
         np_data_obj = self.do_change_year_by_year(np_data_obj)
@@ -215,6 +217,7 @@ class WPErg:
             self.do_plot_prozent(np_data_obj,single_data_obj)
             self.do_plot_wp_verlauf(np_data_obj)
             self.do_plot_wp_deal_haeufigkeit_plot(np_data_obj,single_data_obj)
+            self.do_plot_drawdown(np_data_obj,single_data_obj)
         # end if
 
         # Zielgröße für Minimum
@@ -469,21 +472,24 @@ class WPErg:
     # end def
     def do_max_draw_down(self,np_data_obj,single_data_obj):
 
-        (max_drawdown_cash,
-         max_drawdown_dyear) = hnpcalc.find_max_drawdown(np_data_obj.np_dyears_array,
-                                                              np_data_obj.np_cash_array)
+        np_array_drawdown_cash = hnpcalc.calc_drawdown(np_data_obj.np_cash_array)
 
         Cash0 = np_data_obj.np_cash_array[0]
         if abs(Cash0) < 0.000001:
             Cash0 = 0.000001
         # end if
-        single_data_obj.add_signal(max_drawdown_cash, "max_drawdown_cash")
-        single_data_obj.add_signal(max_drawdown_dyear, "max_drawdown_dyear")
-        single_data_obj.add_signal(max_drawdown_cash/Cash0, "max_drawdown_rel_cash")
 
-        return single_data_obj
+        imin = np.argmin(np_array_drawdown_cash)
+
+        np_data_obj.add_signal(np_array_drawdown_cash, "np_array_drawdown_cash")
+        np_data_obj.add_signal(np_array_drawdown_cash/Cash0, "np_array_drawdown_rel")
+
+        single_data_obj.add_signal(np_array_drawdown_cash[imin], "max_drawdown_cash")
+        single_data_obj.add_signal(np_data_obj.np_dat_array[imin], "max_drawdown_dat")
+        single_data_obj.add_signal(np_array_drawdown_cash[imin]/Cash0, "max_drawdown_rel_cash")
+
+        return (np_data_obj,single_data_obj)
     # end def
-
     def do_change_year_by_year(self,np_data_obj):
         """
         np_data_obj = self.do_change_year_by_year(np_data_obj)
@@ -881,6 +887,69 @@ class WPErg:
         # end if
         return
     # end def
+    def do_plot_drawdown(self,
+                     np_data_obj,
+                     single_data_obj):
+
+
+
+        dict_data1 = {}
+        dict_data1["xdat"] = np_data_obj.np_dat_array
+        dict_data1["y"] = np_data_obj.np_array_drawdown_cash/100.
+        dict_data1["color"] = "k"
+        dict_data1["linewidth"] = 1
+        dict_data1["linestyle"] = "-"
+        dict_data1["marker"] = ""
+        dict_data1["label"] = "drawdown cash"
+
+        dict_subplot1 = {}
+        dict_subplot1["name"] = "drawdown cash"
+        dict_subplot1["title"] = "Ergebnis in Euro"
+        dict_subplot1["xlabel"] = "Date"
+        dict_subplot1["ylabel"] = "€"
+        dict_subplot1["legend"] = "best"
+        dict_subplot1["data_list"] = [dict_data1]
+
+        dict_data2 = {}
+        dict_data2["xdat"] = np_data_obj.np_dat_array
+        dict_data2["y"] = np_data_obj.np_array_drawdown_rel*100.
+        dict_data2["color"] = "k"
+        dict_data2["linewidth"] = 1
+        dict_data2["linestyle"] = "-"
+        dict_data2["marker"] = ""
+        dict_data2["label"] = "drawdown rel"
+
+        dict_subplot2 = {}
+        dict_subplot2["name"] = "drawdown rel"
+        dict_subplot2["title"] = "Ergebnis in Prozent"
+        dict_subplot2["xlabel"] = "Date"
+        dict_subplot2["ylabel"] = "%"
+        dict_subplot2["legend"] = "best"
+        dict_subplot2["data_list"] = [dict_data2]
+
+        ddict = {}
+        ddict["rows"] = 2
+        ddict["cols"] = 1
+        ddict["sharex"] = False
+        ddict["sharey"] = False
+        ddict["width"] = 30
+        ddict["height"] = 20
+        ddict["title"] = self.Parobj.SimName
+        ddict["title_add_date_range"] = True
+
+        ddict["subplot_list"] = [dict_subplot1,dict_subplot2]
+
+        dict_input = {}
+        dict_input["plot"] = ddict
+        dict_input["widget"] = False
+        dict_input["show"] = False
+        dict_input["plotfile"] = self.PlotDrawdownFilename
+
+        obj = sgui.matplot_date_data(dict_input)
+
+
+        return
+    # end def
     def write_md_pdf(self,
                      np_data_obj,
                      single_data_obj):
@@ -948,6 +1017,8 @@ class WPErg:
                  htype.type_transform_direct(single_data_obj.max_drawdown_cash, "cent", "euroStrK")+"€"],
                 ["MaxDrawdownRel",
                  htype.type_transform_direct(single_data_obj.max_drawdown_rel_cash, "float", "percentStr")],
+                ["MaxDrawdownDate",
+                 htype.type_transform_direct(single_data_obj.max_drawdown_dat, "dat", "datStrP")],
                 ["RelVKMean",
                  htype.type_transform_direct(single_data_obj.relvk_mean, "float", "percentStr")],
                 ["RelVKMaxMean",
@@ -1053,6 +1124,9 @@ class WPErg:
         plotfilename = os.path.join(self.ErgPath, "erg_plot_wp_deal_haeuf_relvkmax.png")
         if os.path.isfile(plotfilename):
             mdobj.add_image(plotfilename, f"WP Häufigkeit (Verkauf-Kauf)/(Max-Kauf)-Kurs n:{single_data_obj.anzahl_deals_gesamt}")
+        plotfilename = self.PlotDrawdownFilename
+        if os.path.isfile(plotfilename):
+            mdobj.add_image(plotfilename, f"WP Drawdown  max:{single_data_obj.max_drawdown_cash} e")
 
         mdobj.add_paragraph("---")
         # Plots von WPs

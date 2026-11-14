@@ -196,10 +196,9 @@ def check_content_npar_tuple(par,fkt,content,signaldef_liste,werte_dict):
     global INFOTEXT
     global ZEILE
 
-    if fkt == par.SIG_NPAR_BEDINGUNG:
+    sig_list = content.split(',')
 
-        sig_list = content.split(',')
-
+    if fkt == par.SIG_NPAR_MINDISTGMMA:
         if len(sig_list) > 5:
             INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({content})\") sind mehr als 5 Parameter gefunden worden!!!"
             return hdef.NOT_OKAY
@@ -211,117 +210,97 @@ def check_content_npar_tuple(par,fkt,content,signaldef_liste,werte_dict):
             werte_dict["par2"] = ""
             werte_dict["par3"] = ""
             werte_dict["par4"] = ""
-            werte_dict["par5"] = ""
-            for i,sig in enumerate(sig_list):
+        # end if
+        for i, sig in enumerate(sig_list):
 
-                sig = hstr.elim_ae_liste(sig, [" ", "\t"])
+            sig = hstr.elim_ae_liste(sig, [" ", "\t"])
 
+            if i == 0:
                 if sig not in signaldef_liste:
                     INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({content})\") ist erster Parameter signal = {sig} nicht davor definiert worden "
                     return hdef.NOT_OKAY
                 # end if
-
-                if i == 0:
-                    werte_dict["par1"] = sig
-                elif i == 1:
-                    werte_dict["par2"] = sig
-                elif i == 2:
-                    werte_dict["par3"] = sig
-                elif i == 3:
-                    werte_dict["par4"] = sig
-                elif i == 4:
-                    werte_dict["par5"] = sig
-                # end if
-            # end for
-            werte_dict["type"] = par.SIG_TYPE_NPAR_BEDINGUNG
-            werte_dict["fkt"] = par.SIG_NPAR_BEDINGUNG
-        # end if
-
-    elif fkt == par.SIG_NPAR_BEDINGUNGNAND:
-
-        sig_list = content.split(',')
-
-        if len(sig_list) > 5:
-            INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({content})\") sind mehr als 5 Parameter gefunden worden!!!"
-            return hdef.NOT_OKAY
-        elif len(sig_list) == 0:
-            INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({content})\") sind kein Parameter gefunden worden!!!"
-            return hdef.NOT_OKAY
-        else:
-            werte_dict["par1"] = ""
-            werte_dict["par2"] = ""
-            werte_dict["par3"] = ""
-            werte_dict["par4"] = ""
-            werte_dict["par5"] = ""
-            for i, sig in enumerate(sig_list):
-
-                sig = hstr.elim_ae_liste(sig, [" ", "\t"])
-
-                if sig not in signaldef_liste:
-                    INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({content})\") ist erster Parameter signal = {sig} nicht davor definiert worden "
+            else:
+                # Test integer Wert
+                try:
+                    sig = int(sig)
+                except:
+                    INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({werte_dict["par1"]},{werte_dict["par2"]},{werte_dict["par3"]},{werte_dict["par4"]})\") ist {i+2} Parameter ist kein Integer "
                     return hdef.NOT_OKAY
-                # end if
+                # end try
+            # end if
 
-                if i == 0:
-                    werte_dict["par1"] = sig
-                elif i == 1:
-                    werte_dict["par2"] = sig
-                elif i == 2:
-                    werte_dict["par3"] = sig
-                elif i == 3:
-                    werte_dict["par4"] = sig
-                elif i == 4:
-                    werte_dict["par5"] = sig
-                # end if
-            # end for
-            werte_dict["type"] = par.SIG_TYPE_NPAR_BEDINGUNGNAND
-            werte_dict["fkt"] = par.SIG_NPAR_BEDINGUNGNAND
-        # end if
-    elif fkt == par.SIG_NPAR_BEDINGUNGOR:
+            if i == 0:
+                werte_dict["par1"] = sig
+            elif i == 1:
+                werte_dict["par2"] = sig
+            elif i == 2:
+                werte_dict["par3"] = sig
+            elif i == 3:
+                werte_dict["par4"] = sig
+            # end if
 
-        sig_list = content.split(',')
+            werte_dict["type"] = par.SIG_TYPE_NPAR_MINDISTGMMA
 
-        if len(sig_list) > 5:
-            INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({content})\") sind mehr als 5 Parameter gefunden worden!!!"
-            return hdef.NOT_OKAY
-        elif len(sig_list) == 0:
-            INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({content})\") sind kein Parameter gefunden worden!!!"
-            return hdef.NOT_OKAY
-        else:
-            werte_dict["par1"] = ""
-            werte_dict["par2"] = ""
-            werte_dict["par3"] = ""
-            werte_dict["par4"] = ""
-            werte_dict["par5"] = ""
-            for i, sig in enumerate(sig_list):
+            werte_dict["fkt"] = par.SIG_NPAR_MINDISTGMMA
 
-                sig = hstr.elim_ae_liste(sig, [" ", "\t"])
-
-                if sig not in signaldef_liste:
-                    INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({content})\") ist erster Parameter signal = {sig} nicht davor definiert worden "
-                    return hdef.NOT_OKAY
-                # end if
-
-                if i == 0:
-                    werte_dict["par1"] = sig
-                elif i == 1:
-                    werte_dict["par2"] = sig
-                elif i == 2:
-                    werte_dict["par3"] = sig
-                elif i == 3:
-                    werte_dict["par4"] = sig
-                elif i == 4:
-                    werte_dict["par5"] = sig
-                # end if
-            # end for
-            werte_dict["type"] = par.SIG_TYPE_NPAR_BEDINGUNGOR
-            werte_dict["fkt"] = par.SIG_NPAR_BEDINGUNGOR
-        # end if
     else:
 
-        INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({content})\") ist Parameter Funktion:{fkt} nicht definiert"
-        return hdef.NOT_OKAY
-    # end if
+        if len(sig_list) > 5:
+            INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({content})\") sind mehr als 5 Parameter gefunden worden!!!"
+            return hdef.NOT_OKAY
+        elif len(sig_list) == 0:
+            INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({content})\") sind kein Parameter gefunden worden!!!"
+            return hdef.NOT_OKAY
+        else:
+            werte_dict["par1"] = ""
+            werte_dict["par2"] = ""
+            werte_dict["par3"] = ""
+            werte_dict["par4"] = ""
+            werte_dict["par5"] = ""
+            for i, sig in enumerate(sig_list):
+
+                sig = hstr.elim_ae_liste(sig, [" ", "\t"])
+
+                if sig not in signaldef_liste:
+                    INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({content})\") ist erster Parameter signal = {sig} nicht davor definiert worden "
+                    return hdef.NOT_OKAY
+                # end if
+
+                if i == 0:
+                    werte_dict["par1"] = sig
+                elif i == 1:
+                    werte_dict["par2"] = sig
+                elif i == 2:
+                    werte_dict["par3"] = sig
+                elif i == 3:
+                    werte_dict["par4"] = sig
+                elif i == 4:
+                    werte_dict["par5"] = sig
+                # end if
+            # end for
+            if fkt == par.SIG_NPAR_BEDINGUNG:
+
+                werte_dict["type"] = par.SIG_TYPE_NPAR_BEDINGUNG
+                werte_dict["fkt"] = par.SIG_NPAR_BEDINGUNG
+            # end if
+
+            elif fkt == par.SIG_NPAR_BEDINGUNGNAND:
+
+                werte_dict["type"] = par.SIG_TYPE_NPAR_BEDINGUNGNAND
+                werte_dict["fkt"] = par.SIG_NPAR_BEDINGUNGNAND
+            # end if
+            elif fkt == par.SIG_NPAR_BEDINGUNGOR:
+
+                werte_dict["type"] = par.SIG_TYPE_NPAR_BEDINGUNGOR
+                werte_dict["fkt"] = par.SIG_NPAR_BEDINGUNGOR
+            else:
+
+                INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({content})\") ist Parameter Funktion:{fkt} nicht definiert"
+                return hdef.NOT_OKAY
+            # end if
+        # end if
+
     return hdef.OKAY
 # end def
 def check_content_1par(par,content,signaldef_liste,werte_dict):
@@ -604,8 +583,13 @@ def hilfe(rd):
                                                           Jedes Signal wird auf null geprüft.
                                                           Wenn Signal int ist (SignalName8)  True(1) : signal > 0, False(0) : signal <= 0
                                                           Wenn Signal float ist (SignalName5) True(1) : signal > 0.0, False(0) : signal <= 0.0
-
                                                           alle signale werden verodert True(1) = signal1 > 0 or signal2 > 0 ...
+
+    SignalName11 = mindistgmma(SignalName8,n,EMAmin,deltaEMA)  (Gruppy Multiple Moving Average) EMA auf das signal n: anzahl der EMAs,
+                                                          EMAmin: kleinste Zahl für EMA z.B. 3, deltaEMA: Abstand zum nächsten EMA z.B. 5,
+                                                          Ergebnis: kleinster Abstand postiv in Prozent, wenn alle geordnet steigen, nicht überlappen, bzw.
+                                                          negativ wenn alle geordnet fallen, nicht überlappen, ansonsten null
+
 
     :param rd:
     :return: infotext = hilfe(rd)
@@ -665,6 +649,10 @@ def hilfe(rd):
             case 15:
                 val1 = f"{rd.par.SIG_NPAR_BEDINGUNGOR}(signal1,signal2, ...)"
                 val2 = f"Vergleicht jedes Signal auf > null (müssen definiert sein und max 5) und verodert alle Ergebnisse, Ergebnis: 0/1 pro Punkt"
+            case 16:
+                val1 = f"{rd.par.SIG_NPAR_MINDISTGMMA}(signal,n,EMAmin,deltaEMA)"
+                val2 = f"(Gruppy Multiple Moving Average) EMA auf das signal n: anzahl der EMAs, EMAmin: kleinste Zahl für EMA z.B. 3, deltaEMA: Abstand zum nächsten EMA z.B. 5, Ergebnis: kleinster Abstand postiv in Prozent, wenn alle geordnet steigen, bzw. negativ wenn alle geordnet fallen, ansonsten null "
+
             case _:
                 val1 = ""
                 val2 = ""

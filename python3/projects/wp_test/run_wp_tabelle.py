@@ -64,6 +64,7 @@ def bilde_tabelle(list_dict,liste_json_files):
     lliste = [("sim_name","str","str"),
              ("ziel_value","float","float"),
              ("mean_zins","float","percentStr"),
+             ("max_drawdown_rel_cash", "float", "percentStr", "0"),
              ("median_zins","float","percentStr"),
              ("gesamt_rel_delta_cash","float","percentStr"),
              ("gesamt_rel_delta_cash_pyear","float","percentStr","0"),
@@ -80,6 +81,7 @@ def bilde_tabelle(list_dict,liste_json_files):
              ("start_dat_str", "str", "str","-"),
              ("end_dat_str", "str", "str", "-"),
              ("dyears", "float", "floatStr", "0"),
+             ("max_drawdown_dat", "dat", "datStrP", 0),
               ]
     data_table = [None]*len(list_dict)
     headers = []
