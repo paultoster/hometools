@@ -555,6 +555,9 @@ class WPErg:
 
             liste = self.KontoObj.getListeRelVMaxDepot(isin)
             np_data_obj.add_signal(np.array(liste), f"np_depot_relvkmax_{isin}_array")
+
+            liste = self.KontoObj.getListeUmsatzDepot(isin)
+            np_data_obj.add_signal(np.array(liste), f"np_depot_umsatz_{isin}_array")
         # end for
 
         # WP Verlauf
@@ -579,14 +582,18 @@ class WPErg:
 
             np_depot_relvk_array = np.array([],dtype=np.float64)
             np_depot_relvkmax_array = np.array([],dtype=np.float64)
+            np_depot_umsatz_array = np.array([],dtype=np.int64)
             np_depot_anzahl_deals_isin_array =  np.zeros(len(np_data_obj.np_depot_wp_isin_array),dtype=np.int64)
-            np_depot_tage_isin_array =  np.zeros(len(np_data_obj.np_depot_wp_isin_array),dtype=np.int64)
+            np_depot_tage_isin_array = np.zeros(len(np_data_obj.np_depot_wp_isin_array), dtype=np.int64)
+
 
             for i,isin in enumerate(np_data_obj.np_depot_wp_isin_array):
                 np_depot_anzahl_deals_isin_array[i] = len(getattr(np_data_obj, f"np_depot_relvk_{isin}_array"))
                 np_depot_tage_isin_array[i] = np.sum(getattr(np_data_obj, f"np_depot_tage_{isin}_array")) / len(getattr(np_data_obj, f"np_depot_tage_{isin}_array"))
                 np_depot_relvk_array = np.concatenate((np_depot_relvk_array,getattr(np_data_obj, f"np_depot_relvk_{isin}_array")))
                 np_depot_relvkmax_array = np.concatenate((np_depot_relvkmax_array,getattr(np_data_obj, f"np_depot_relvkmax_{isin}_array")))
+                np_depot_umsatz_array = np.concatenate((np_depot_umsatz_array,
+                                                        getattr(np_data_obj, f"np_depot_umsatz_{isin}_array")))
             # end for
 
             (np_kl_relvk_schw_array,np_kl_relvk_haeuf_array) = hnpcalc.build_klassen_einteilung(np_depot_relvk_array, 0.1)
@@ -596,6 +603,7 @@ class WPErg:
             relvkmax_mean = np.mean(np_depot_relvkmax_array)
             anzahl_deals_gesamt = np.sum(np_depot_anzahl_deals_isin_array)
             tage_gesamt = np.sum(np_depot_tage_isin_array)/len(np_depot_tage_isin_array)
+            umsatz_gesamt = np.sum(np_depot_umsatz_array)
 
             np_data_obj.add_signal(np_kl_relvk_schw_array, "np_kl_relvk_schw_array")
             np_data_obj.add_signal(np_kl_relvk_haeuf_array, "np_kl_relvk_haeuf_array")
@@ -607,11 +615,13 @@ class WPErg:
             single_data_obj.add_signal(relvkmax_mean, "relvkmax_mean")
             single_data_obj.add_signal(anzahl_deals_gesamt, "anzahl_deals_gesamt")
             single_data_obj.add_signal(tage_gesamt, "tage_gesamt")
+            single_data_obj.add_signal(umsatz_gesamt, "umsatz_gesamt")
         else:
             single_data_obj.add_signal(0.0, "relvk_mean")
             single_data_obj.add_signal(0.0, "relvkmax_mean")
             single_data_obj.add_signal(0, "anzahl_deals_gesamt")
             single_data_obj.add_signal(0, "tage_gesamt")
+            single_data_obj.add_signal(0, "umsatz_gesamt")
         # end if
         return (np_data_obj,single_data_obj)
     # end if
@@ -1131,13 +1141,13 @@ class WPErg:
         mdobj.add_paragraph("---")
         # Plots von WPs
         rows = []
-        headers = ["isin","grup","name","deals","start","tage"]
+        headers = ["isin","grup","name","deals","umsatz","tage"]
 
 
         for i,isin in np.ndenumerate(np_data_obj.np_depot_wp_isin_array):
 
-            name_dat_array = f"np_wp_dat_{isin}_array"
-            np_dat_array   = getattr(np_data_obj, name_dat_array)
+            name_umsatz_array = f"np_depot_umsatz_{isin}_array"
+            np_umsatz_array   = getattr(np_data_obj, name_umsatz_array)
 
             gruppe = hdict.find_value_in_dict_liste(self.Parobj.ScreKat, isin)
 
@@ -1153,7 +1163,7 @@ class WPErg:
                          "",
                          np_data_obj.np_depot_wp_namen_array[i[0]],
                          np_data_obj.np_depot_anzahl_deals_isin_array[i[0]],
-                         htype.type_transform_direct(np_dat_array[0], "dat", "datStrP"),
+                         htype.type_transform_direct(np.sum(np_umsatz_array), "cent", "euroStrK"),
                          np_data_obj.np_depot_tage_isin_array[i[0]] ])
         # end ofr
 
@@ -1177,17 +1187,19 @@ class WPErg:
 
             name_datumk_str_array =  f"np_depot_datumk_{isin}_array"
             name_datumv_str_array =  f"np_depot_datumv_{isin}_array"
-            name_tage_array   =  f"np_depot_tage_{isin}_array"
+            name_tage_array       =  f"np_depot_tage_{isin}_array"
             name_relvk_array      =  f"np_depot_relvk_{isin}_array"
             name_relvkmax_array   =  f"np_depot_relvkmax_{isin}_array"
+            name_umsatz_array     = f"np_depot_umsatz_{isin}_array"
 
             np_datumk_str_array = getattr(np_data_obj, name_datumk_str_array)
             np_datumv_str_array = getattr(np_data_obj, name_datumv_str_array)
-            np_tage_array = getattr(np_data_obj, name_tage_array)
+            np_tage_array       = getattr(np_data_obj, name_tage_array)
             np_relvk_array      = getattr(np_data_obj, name_relvk_array)
-            np_relvkmax_array      = getattr(np_data_obj, name_relvkmax_array)
+            np_relvkmax_array   = getattr(np_data_obj, name_relvkmax_array)
+            np_umsatz_array     = getattr(np_data_obj, name_umsatz_array)
 
-            headers = ["Kaufdatum", "Verkaufdatum","Tage","RelVK","RelVKMax"]
+            headers = ["Kaufdatum", "Verkaufdatum","Tage","RelVK","RelVKMax","Umsatz"]
 
             rows = []
 
@@ -1197,17 +1209,19 @@ class WPErg:
                         np_datumv_str_array[j[0]],
                         np_tage_array[j[0]],
                         f'{np_relvk_array[j[0]]:.2f}',
-                        f'{np_relvkmax_array[j[0]]:.2f}']
+                        f'{np_relvkmax_array[j[0]]:.2f}',
+                        f'{htype.type_transform_direct(np_umsatz_array[j[0]], "cent", "euroStrK")}']
                 rows.append(line)
             # end for
 
             if len(rows) == 0:
-                line = ["","","","",""]
+                line = ["","","","","",""]
             else:
                 line = ["mean","",
                         np.mean(np_tage_array),
                         f'{np.mean(np_relvk_array):.2f}',
-                        f'{np.mean(np_relvkmax_array):.2f}']
+                        f'{np.mean(np_relvkmax_array):.2f}',
+                        f'{htype.type_transform_direct(np.mean(np_umsatz_array), "cent", "euroStrK")}']
             rows.append(line)
             mdobj.add_table(headers, rows)
             mdobj.add_paragraph("---")

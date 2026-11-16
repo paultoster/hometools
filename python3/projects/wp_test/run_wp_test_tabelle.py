@@ -131,24 +131,25 @@ def bilde_tabelle(list_dict,liste_json_files):
 
     return ttable
 
-# ini-Datei lesen
-ini = hini.get_tomlib_ini_dict(ini_filename, wpdef.INI_DICT_PROOF_LISTE)
+def run_wp_test_tabelle():
+    # ini-Datei lesen
+    ini = hini.get_tomlib_ini_dict(ini_filename, wpdef.INI_DICT_PROOF_LISTE)
 
-# json-Files
-liste_json_files = suche_alle_yamls_files(ini)
-# liste mit dictionaries
-list_dict = read_all_jsons(liste_json_files)
-# Sortiere liste:
-list_dict = sort_list_dict(list_dict,"ziel_value",True)
-# Bilde eine Tabelle
-ttable = bilde_tabelle(list_dict,liste_json_files)
+    # json-Files
+    liste_json_files = suche_alle_yamls_files(ini)
+    # liste mit dictionaries
+    list_dict = read_all_jsons(liste_json_files)
+    # Sortiere liste:
+    list_dict = sort_list_dict(list_dict,"ziel_value",True)
+    # Bilde eine Tabelle
+    ttable = bilde_tabelle(list_dict,liste_json_files)
 
-ddict_inp = {"ttable": ttable}
-ddict_inp["title"] = 'Zusammengefasste Ergenisse'
-ddict_inp["abfrage_liste"] = ["okay","excel"]
-ddict_out = sgui.abfrage_sheet(ddict_inp)
+    ddict_inp = {"ttable": ttable}
+    ddict_inp["title"] = 'Zusammengefasste Ergenisse'
+    ddict_inp["abfrage_liste"] = ["okay","excel"]
+    ddict_out = sgui.abfrage_sheet(ddict_inp)
 
-if ddict_out["index_abfrage"] == 1:
-    status = hfkt_tvar.write_table_to_excel(ttable, excel_filename)
-    os.startfile(excel_filename)
+    if ddict_out["index_abfrage"] == 1:
+        status = hfkt_tvar.write_table_to_excel(ttable, excel_filename)
+        os.startfile(excel_filename)
 

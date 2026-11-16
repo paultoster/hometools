@@ -21,27 +21,31 @@ class WPKontoDepot:
     NAME_KURS        = "Kurs"
     NAME_ANZAHL      = "Anzahl"
     NAME_SUMMEANZAHL = "SummeAnzahl"
-    HEADER_LISTE = [NAME_DATUM, NAME_AKTION, NAME_KURS,NAME_ANZAHL, NAME_SUMMEANZAHL]
+    NAME_NETTO       = "Netto"
+    HEADER_LISTE = [NAME_DATUM, NAME_AKTION, NAME_KURS,NAME_ANZAHL, NAME_SUMMEANZAHL,NAME_NETTO]
 
     ICOL_DATUM = HEADER_LISTE.index(NAME_DATUM)
     ICOL_AKTION = HEADER_LISTE.index(NAME_AKTION)
     ICOL_KURS = HEADER_LISTE.index(NAME_KURS)
     ICOL_ANZAHL = HEADER_LISTE.index(NAME_ANZAHL)
     ICOL_SUMMEANZAHL = HEADER_LISTE.index(NAME_SUMMEANZAHL)
+    ICOL_NETTO = HEADER_LISTE.index(NAME_NETTO)
 
     TYPE_DATUM = "datetimeclass"
     TYPE_AKTION = "str"
     TYPE_KURS = "float"
     TYPE_ANZAHL = "int"
     TYPE_SUMMEANZAHL = "int"
-    TYPE_LISTE = [TYPE_DATUM, TYPE_AKTION, TYPE_KURS, TYPE_ANZAHL,TYPE_SUMMEANZAHL]
+    TYPE_NETTO = "cent"
+    TYPE_LISTE = [TYPE_DATUM, TYPE_AKTION, TYPE_KURS, TYPE_ANZAHL,TYPE_SUMMEANZAHL,TYPE_NETTO]
 
     TYPE_STORE_DATUM = "datStrP"
     TYPE_STORE_AKTION = "str"
     TYPE_STORE_KURS = "euroStrK"
     TYPE_STORE_ANZAHL = "int"
     TYPE_STORE_SUMMEANZAHL = "int"
-    TYPE_STORE_LISTE = [TYPE_STORE_DATUM, TYPE_STORE_AKTION, TYPE_STORE_KURS,TYPE_STORE_ANZAHL, TYPE_STORE_SUMMEANZAHL]
+    TYPE_STORE_NETTO = "euroStrK"
+    TYPE_STORE_LISTE = [TYPE_STORE_DATUM, TYPE_STORE_AKTION, TYPE_STORE_KURS,TYPE_STORE_ANZAHL, TYPE_STORE_SUMMEANZAHL,TYPE_STORE_NETTO]
 
 
     NAME_DATUMK      = "DatumK"
@@ -54,7 +58,8 @@ class WPKontoDepot:
     NAME_KURSMIN     = "KursMin"
     NAME_RELVK       = "RelVK"
     NAME_RELVMAX     = "RelVMax"
-    HEADER_TRACE_LISTE = [NAME_DATUMK, NAME_DATUMV,NAME_DAYS, NAME_ANZAHL, NAME_KURSK,NAME_KURSV, NAME_KURSMAX,NAME_KURSMIN,NAME_RELVK,NAME_RELVMAX]
+    NAME_UMSATZ      = "Umsatz"
+    HEADER_TRACE_LISTE = [NAME_DATUMK, NAME_DATUMV,NAME_DAYS, NAME_ANZAHL, NAME_KURSK,NAME_KURSV, NAME_KURSMAX,NAME_KURSMIN,NAME_RELVK,NAME_RELVMAX,NAME_UMSATZ]
 
     TYPE_DATUMK      = "datetimeclass"
     TYPE_DATUMV      = "datetimeclass"
@@ -66,7 +71,8 @@ class WPKontoDepot:
     TYPE_KURSMIN     = "float"
     TYPE_RELVK       = "float"
     TYPE_RELVMAX     = "float"
-    TYPE_TRACE_LISTE = [TYPE_DATUMK, TYPE_DATUMV, TYPE_DAYS, TYPE_ANZAHL, TYPE_KURSK,TYPE_KURSV, TYPE_KURSMAX,TYPE_KURSMIN,TYPE_RELVK,TYPE_RELVMAX]
+    TYPE_UMSATZ      = "cent"
+    TYPE_TRACE_LISTE = [TYPE_DATUMK, TYPE_DATUMV, TYPE_DAYS, TYPE_ANZAHL, TYPE_KURSK,TYPE_KURSV, TYPE_KURSMAX,TYPE_KURSMIN,TYPE_RELVK,TYPE_RELVMAX,TYPE_UMSATZ]
 
     TYPE_STORE_DATUMK      = "datStrP"
     TYPE_STORE_DATUMV      = "datStrP"
@@ -78,7 +84,8 @@ class WPKontoDepot:
     TYPE_STORE_KURSMIN     = "euroStrK"
     TYPE_STORE_RELVK       = "percentStr"
     TYPE_STORE_RELVMAX     = "percentStr"
-    TYPE_STORE_TRACE_LISTE = [TYPE_STORE_DATUMK, TYPE_STORE_DATUMV, TYPE_STORE_DAYS, TYPE_STORE_ANZAHL,TYPE_STORE_KURSK,TYPE_STORE_KURSV, TYPE_STORE_KURSMAX,TYPE_STORE_KURSMIN,TYPE_STORE_RELVK,TYPE_STORE_RELVMAX]
+    TYPE_STORE_UMSATZ      = "euroStrK"
+    TYPE_STORE_TRACE_LISTE = [TYPE_STORE_DATUMK, TYPE_STORE_DATUMV, TYPE_STORE_DAYS, TYPE_STORE_ANZAHL,TYPE_STORE_KURSK,TYPE_STORE_KURSV, TYPE_STORE_KURSMAX,TYPE_STORE_KURSMIN,TYPE_STORE_RELVK,TYPE_STORE_RELVMAX,TYPE_STORE_UMSATZ]
 
 
     def __init__(self,parobj,datobj,name) -> None:
@@ -104,7 +111,7 @@ class WPKontoDepot:
 
         # Anfangswert setzen
         #-------------------
-        data_set_liste = [self.Parobj.StartDat_datetime, "Anfangswert",0.0, 0,0]
+        data_set_liste = [self.Parobj.StartDat_datetime, "Anfangswert",0.0, 0,0,0]
         status = dataset.add_data_set_liste(data_set_liste, self.HEADER_LISTE, self.TYPE_LISTE)
 
         if status != hdef.OKAY:
@@ -167,11 +174,15 @@ class WPKontoDepot:
         # end if
 
 
+        # Umsatz
+        # ======
+        (belastung_c, kosten_c) = self.bestimmePreisUndKosten(kurs_euro, anzahl)
+
         # summe bilden:
         #--------------
         summe += anzahl
 
-        data_set_liste = [aktdat_datetime,aktion,kurs_euro,anzahl,summe]
+        data_set_liste = [aktdat_datetime,aktion,kurs_euro,anzahl,summe,-belastung_c]
 
         status = self.DepotDict[isin].add_data_set_liste(data_set_liste,self.HEADER_LISTE, self.TYPE_LISTE)
 
@@ -187,13 +198,8 @@ class WPKontoDepot:
             self.DepotDict[isin].mache_sondereintrag()
         # end if
 
-        # Umsatz
-        # ======
-        (belastung_c, kosten_c) = self.bestimmePreisUndKosten(kurs_euro, anzahl)
 
         return (belastung_c,kosten_c)
-
-        return anzahl
     # end def
     def bestimmePreisUndKosten(self,kurs_euro,anzahl):
         """
@@ -297,7 +303,7 @@ class WPKontoDepot:
 
         # Eintrag in Tabelle
         #-------------------
-        data_set_liste = [aktdat_datetime,aktion,kurs_euro,-anzahl,summe]
+        data_set_liste = [aktdat_datetime,aktion,kurs_euro,-anzahl,summe,gutschrift_c]
 
         status = self.DepotDict[isin].add_data_set_liste(data_set_liste,self.HEADER_LISTE, self.TYPE_LISTE)
 
@@ -480,6 +486,7 @@ class WPKontoDepot:
             list_dat_datetime = self.DepotDict[isin].get_row_list_of_header(self.NAME_DATUM)
             list_anzahl       = self.DepotDict[isin].get_row_list_of_header(self.NAME_ANZAHL)
             list_kurs         = self.DepotDict[isin].get_row_list_of_header(self.NAME_KURS)
+            list_netto        = self.DepotDict[isin].get_row_list_of_header(self.NAME_NETTO)
 
 
             nloopmax = len(list_anzahl)*3
@@ -531,6 +538,20 @@ class WPKontoDepot:
                     kurskauf = list_kurs[istart]
                     kursverkauf = list_kurs[iend]
 
+                    netto_start = list_netto[istart]
+                    netto_end = list_netto[iend]
+
+                    anteil_kauf = float(anzahl)/float(list_anzahl[istart])
+                    anteil_verkauf = float(anzahl)/float(-list_anzahl[iend])
+
+                    netto_anteil_start = int(netto_start * anteil_kauf + 0.5)
+                    netto_anteil_end   = int(netto_end * anteil_verkauf + 0.5)
+
+                    umsatz_c = netto_anteil_end + netto_anteil_start
+
+                    list_netto[istart] -= netto_anteil_start
+                    list_netto[iend] -= netto_anteil_end
+
                     # Anzahl austragen
                     list_anzahl[istart] -= anzahl
                     if list_anzahl[istart] < 0:
@@ -559,7 +580,8 @@ class WPKontoDepot:
                                      kursmax,
                                      kursmin,
                                      relVK,
-                                     relVMax]
+                                     relVMax,
+                                     umsatz_c]
 
                     self.DepotTraceDict[isin].add_data_set_liste(data_set_liste,
                                                                  self.HEADER_TRACE_LISTE,
@@ -588,6 +610,10 @@ class WPKontoDepot:
     # end def
     def getListeRelVMax(self, isin):
         liste = self.DepotTraceDict[isin].get_row_list_of_header(self.NAME_RELVMAX)
+        return liste
+    # end def
+    def getListeUmsatz(self, isin):
+        liste = self.DepotTraceDict[isin].get_row_list_of_header(self.NAME_UMSATZ)
         return liste
     # end def
     def getDatumKursVerlauf(self,isin):

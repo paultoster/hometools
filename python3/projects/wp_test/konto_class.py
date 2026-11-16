@@ -780,6 +780,9 @@ class WPKonto:
     def getListeRelVMaxDepot(self,isin):
         return self.KontoDepot.getListeRelVMax(isin)
     # end de
+    def getListeUmsatzDepot(self,isin):
+        return self.KontoDepot.getListeUmsatz(isin)
+    # end de
     def getDatumKursVerlauf(self,isin):
         return self.KontoDepot.getDatumKursVerlauf(isin)
     def getKursVerlauf(self,isin):
