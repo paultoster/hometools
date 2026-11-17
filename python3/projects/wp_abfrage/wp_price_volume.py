@@ -26,7 +26,7 @@ def update_last_price_volume_isin(wp_obj, isin_basic_dict, isin):
     errtext = ""
 
     wp_obj.log.write_info("Bestimme letzen aktiven Handelstag:")
-    last_active_dat_timestamp = wp_fkt.letzter_beendeter_handelstag_timestamp(wp_obj.base_ddict["boerse"])
+    last_active_dat_timestamp = wp_fkt.letzter_beendeter_handelstag_timestamp(wp_obj.ini["boerse"])
     datStrLast = htype.type_transform_direct(last_active_dat_timestamp,"dat","datStrP")
     print(f"letzen aktiver Handelstag: {datStrLast}")
     first_active_dat_time_list = wp_obj.basic_dict["price_volumen_first_dat "]
@@ -69,8 +69,8 @@ def proof_date_in_price_volume_data(wp_obj, isin):
     last_stored_dat_time_list = [ 31,12,1999,0,0,0]
 
     # Gibt es bereits eine Datei
-    if wp_storage.price_volume_storage_exist(isin, wp_obj.base_ddict):
-        data_df = wp_storage.read_parquet(isin, wp_obj.base_ddict)
+    if wp_storage.price_volume_storage_exist(isin, wp_obj.ini):
+        data_df = wp_storage.read_parquet(isin, wp_obj.ini)
 
     # end if
 
@@ -91,11 +91,11 @@ def proof_date_in_price_volume_data(wp_obj, isin):
 #         raise Exception(f"Das Datum konnte nicht gewandlt werden: {last_active_dat_time_list = }")
 #     # end if
 #
-#     (status,errtext,csv_datei) = wp_playwright.get_price_volume_data(wp_obj.base_ddict["ariva_user"],
-#                                                                      wp_obj.base_ddict["ariva_pw"],
-#                                                                      wp_obj.base_ddict["ariva_timeout_playright"],
+#     (status,errtext,csv_datei) = wp_playwright.get_price_volume_data(wp_obj.ini["ariva_user"],
+#                                                                      wp_obj.ini["ariva_pw"],
+#                                                                      wp_obj.ini["ariva_timeout_playright"],
 #                                                                      isin,
-#                                                                      wp_obj.base_ddict["price_volumen_first_dat"],
+#                                                                      wp_obj.ini["price_volumen_first_dat"],
 #                                                                      datStrLast)
 
 def read_price_volume_data_from_yf(wp_obj,par,isin_basic_dict, isin, last_stored_dat_time_list,last_active_dat_time_list):

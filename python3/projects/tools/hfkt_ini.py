@@ -177,7 +177,7 @@ def writeini(ini_file_name, out):
 
 
 # enddef
-def get_tomlib_ini_dict(ini_filename: str, ini_dict_proof_liste: list):
+def get_tomlib_ini_dict(ini_filename: str, ini_dict_proof_liste: list=None):
     '''
 
     Beispiel ini_filename:
@@ -215,7 +215,7 @@ def get_tomlib_ini_dict(ini_filename: str, ini_dict_proof_liste: list):
         return {}
         # read ini-file
     else:
-        INI_FILE_NAME = ini_filename
+
         try:
             with open(ini_filename, "rb") as f:
                 ddict = tomllib.load(f)
@@ -226,12 +226,101 @@ def get_tomlib_ini_dict(ini_filename: str, ini_dict_proof_liste: list):
         # endtry
         # endif
 
-    (status, errtext, base_dict) = hdict.proof_transform_ddict(ddict, ini_dict_proof_liste)
-    if status != hdef.OKAY:
-        STATUS = hdef.NOT_OKAY
-        ERRTEXT = errtext
-        return base_dict
+    if ini_dict_proof_liste is None:
+        base_dict = ddict
+    else:
+        (status, errtext, base_dict) = hdict.proof_transform_ddict(ddict, ini_dict_proof_liste)
+        if status != hdef.OKAY:
+            STATUS = hdef.NOT_OKAY
+            ERRTEXT = errtext
+            return base_dict
+        # end if
     # end if
 
     return base_dict
 # end def
+def get_section_of_ini_file(ini_file: str,section:str=None,platzhalter_liste: list=None,ini_dict_proof_liste: list=None):
+    """
+
+    Suche aus ini_file die vorgegebene section und ersetzte alles aus der Platzhalterliste (muss Faktor von zwei sein,
+    erster Wert Platzhalter z.B. @platz@ zweiter Wert was eingesetzt wird , alles strings
+
+     Wenn proofliste gesetzt wird das dict geprüft
+
+    Beispiel ini_dict_proof_liste
+
+      INI_DICT_PROOF_LISTE = [("konto_auswert_jahr", "int"),
+                              ("konto_auswert_path", "str","str","./auswert"),
+                              ("konto_auswert_konto_names", "list"),
+                              ("ing_bank_giro.iban", "str"),
+                              ("ing_bank_giro.iban", "str"),
+                              ]
+
+    :param ini_file:
+    :param platzhalter_liste:
+    :param ini_dict_proof_liste:
+    :return: ini_dict
+
+    """
+    global STATUS, ERRTEXT
+
+    ddict = get_tomlib_ini_dict(ini_file)
+
+    if STATUS != hdef.OKAY:
+        return ddict
+
+    if section is not None:
+
+        ddict1 = {}
+        for key in ddict.keys():
+            if not isinstance(ddict[key],dict):
+                ddict1[key] = ddict[key]
+            # end if
+        # end for
+
+        if section in ddict.keys():
+            ddict1.update(ddict[section])
+        else:
+            STATUS = hdef.NOT_OKAY
+            ERRTEXT = f"get_section_of_ini_file: Bei lesen {ini_file} kann die section: {section} nicht gefunden werden"
+            return ddict1
+        # end if
+        ddict = ddict1
+    # end if
+
+    if platzhalter_liste is not None:
+
+        n = len(platzhalter_liste)
+        m = int(n/2)
+        if m*2 != n:
+            STATUS = hdef.NOT_OKAY
+            ERRTEXT = f"get_section_of_ini_file: Bei lesen {ini_file} ist die platzhalter_liste hat eine ungerade Anzahl muss gerade sein (@platzh@,str_wert)"
+            return ddict
+        #e nd if
+        for key in ddict.keys():
+
+            for i in range(m):
+                platzhalter = platzhalter_liste[2*i]
+                ersatz      = platzhalter_liste[2*i+1]
+
+                if isinstance(ddict[key],str):
+                    ddict[key] = ddict[key].replace(platzhalter,ersatz)
+                # end if
+            # end for
+        # end for
+    # end if
+
+    if ini_dict_proof_liste is not None:
+
+        (status, errtext, ddict) = hdict.proof_transform_ddict(ddict, ini_dict_proof_liste)
+        if status != hdef.OKAY:
+            STATUS = hdef.NOT_OKAY
+            ERRTEXT = errtext
+            return ddict
+        # end if
+    # end if
+
+    return ddict
+# end def
+
+

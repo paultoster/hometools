@@ -27,12 +27,12 @@ def process_akt(wb_obj,indice):
 
     np_obj = wp_bearbeit.read_indice_np_data(wb_obj,indice)
     if (np_obj is None) or np_obj.is_empty():
-        last_dat = htype.type_transform_direct(wb_obj.base_ddict["price_volumen_first_dat"], "datStrP", "dat")
+        last_dat = htype.type_transform_direct(wb_obj.ini["price_volumen_first_dat"], "datStrP", "dat")
     else:
         (_,last_dat) = np_obj.get_first_last_dat("dat")
 
     # Was ist der letzte aktuelle Handelsdatum
-    end_dat = wp_fkt.letzter_beendeter_handelstag_timestamp(wb_obj.base_ddict["boerse"])
+    end_dat = wp_fkt.letzter_beendeter_handelstag_timestamp(wb_obj.ini["boerse"])
     np_obj_new = wp_bearbeit.build_indice_np_obj(wb_obj,indice)
     (status, errtext, np_obj_new) = wp_yfinance.get_indice_data(wb_obj,np_obj_new,last_dat,end_dat,indice)
 

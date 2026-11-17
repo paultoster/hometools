@@ -120,9 +120,18 @@ flag = is_dat_list_a_to_b(a_dat_list, b_dat_list,sign) a_dat_list:  (12,05,1959)
                                                              weekday = "Mo"
                                                              => dat_datetime = 2023-10-16 00:00:00
 
+ dat_datetime = get_last_weekday(last_dat_datetime,weekday)  sucht den nächsten Wochentag > last_dat (datetime-class)
+                                                             last_dat_datetime = datetime.datetime.strptime("12.10.2023", "%d.%m.%Y")
+                                                             weekday = "Mo"
+                                                             => dat_datetime = 2023-10-16 00:00:00
+
  dat_datetime = get_next_datumday(last_dat_datetime,datumday)  sucht den nächsten Datumstag > last_dat (datetime-class)
                                                              last_dat_datetime = datetime.datetime.strptime("12.10.2023", "%d.%m.%Y")
-                                                             weekday = 16
+                                                             datumday = 16
+                                                             => dat_datetime = 2023-10-16 00:00:00
+ dat_datetime = get_last_datumday(last_dat_datetime,datumday)  sucht den nächsten Datumstag > last_dat (datetime-class)
+                                                             last_dat_datetime = datetime.datetime.strptime("12.10.2023", "%d.%m.%Y")
+                                                             datumday = 16
                                                              => dat_datetime = 2023-10-16 00:00:00
 
 
@@ -131,10 +140,11 @@ import time
 import datetime
 import calendar
 import math
-import re
 # from sys import excepthook
 from typing import Any
 import dateparser
+import re
+
 
 import os
 
@@ -2147,13 +2157,59 @@ def get_next_weekday(last_dat_datetime,weekday):
         d += datetime.timedelta(days=1)
     return d
 # end def
+def get_last_weekday(dat_datetime,weekday):
+    """
+    sucht den vorhergehenden Wochentag < dat (datetime-class)
+    dat_datetime = datetime.datetime.strptime("12.10.2023", "%d.%m.%Y")
+    weekday = "Mo"
+    => dat_datetime = 2023-10-09 00:00:00
+
+    dat_datetime = get_last_weekday(dat_datetime,weekday)
+
+    :param dat_datetime:
+    :param weekday:
+    :return: dat_datetime
+    """
+
+    if isinstance(weekday, int):
+        number = weekday
+        if (number < 0) or (number > 6):
+            raise Exception(f"get_next_weekday: Unknown weekday {weekday} (0:Mo - 6:So)")
+    else:
+        match weekday.lower():
+
+            case "mo":
+                number = 0
+            case "di":
+                number = 1
+            case "mi":
+                number = 2
+            case "do":
+                number = 3
+            case "fr":
+                number = 4
+            case "sa":
+                number = 5
+            case "so":
+                number = 6
+            case _:
+                raise Exception(f"get_next_weekday: Unknown weekday {weekday}")
+        # end matsch
+    # end if
+
+    # Einen Tag vor
+    d = dat_datetime - datetime.timedelta(days=1)
+    while d.weekday() != number:
+        d -= datetime.timedelta(days=1)
+    return d
+# end def
 def get_next_datumday(last_dat_datetime, datumday):
     """
     dat_datetime = get_next_datumday(last_dat_datetime, datumday)
 
     sucht den nächsten Datumstag > last_dat(datetime-class )
         last_dat_datetime = datetime.datetime.strptime("12.10.2023", "%d.%m.%Y")
-        weekday = 16
+        datumday = 16
         = > dat_datetime = 2023-10-16 00:00: 00
 
     :param last_dat_datetime:
@@ -2179,6 +2235,39 @@ def get_next_datumday(last_dat_datetime, datumday):
                 break
             # end if
             d += datetime.timedelta(days=1)
+        # end while
+    # end if
+
+    return d
+# end def
+def get_last_datumday(dat_datetime, datumday):
+    """
+    dat_datetime = get_next_datumday(dat_datetime, datumday)
+
+    sucht den nächsten Datumstag > last_dat(datetime-class )
+        dat_datetime = datetime.datetime.strptime("12.10.2023", "%d.%m.%Y")
+        datumday = 16
+        = > dat_datetime = 2023-10-16 00:00: 00
+
+    :param dat_datetime:
+    :param datumday:
+    :return:
+    """
+    # Einen Tag vor
+    d = dat_datetime - datetime.timedelta(days=1)
+
+    if d.day == datumday: # ist exakt der Tag
+        pass
+    elif datumday > d.day: # Der Tag liegt im vorhergehenden Monat
+        if d.month == 1:
+            d = datetime.datetime(year=d.year-1, month=12, day=datumday)
+        else:
+            d = datetime.datetime(year=d.year, month=d.month-1, day=datumday)
+        # end if
+    else: # Der Tag liegt im aktuellen Monat zurück
+        d -= datetime.timedelta(days=1)
+        while d.day != datumday:
+            d -= datetime.timedelta(days=1)
         # end while
     # end if
 

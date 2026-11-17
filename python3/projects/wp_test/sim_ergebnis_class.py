@@ -79,12 +79,13 @@ class WPErg:
                                     self.Parobj.ergebnis_path_pre_name +
                                     self.Parobj.SimName)
 
-        status = hfp.build_path(self.ErgPath)
-        if status != hdef.OKAY:
-            self.Parobj.status = hdef.NOT_OKAY
-            self.Parobj.errtext = f"Pfad: {self.ErgPath} konnte nicht erstellt werden"
-            return
-        # end if
+        if self.Parobj.BildeAusgabe:
+            status = hfp.build_path(self.ErgPath)
+            if status != hdef.OKAY:
+                self.Parobj.status = hdef.NOT_OKAY
+                self.Parobj.errtext = f"Pfad: {self.ErgPath} konnte nicht erstellt werden"
+                return
+            # end if
 
         # np_data-File
         self.NpDataFilename = os.path.join(self.ErgPath,

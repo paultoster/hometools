@@ -125,51 +125,51 @@ def wp_search_wkn_html(wkn,wkn_isin_n_times,wkn_isin_sleep_time):
     # end while
     return (status,errtext,isin)
 # end def
-# def wp_add_wkn_isin(wkn, isin, base_ddict):
+# def wp_add_wkn_isin(wkn, isin, ini):
 #     '''
 #
 #     :param wpn:
-#     :param base_ddict:
-#     :return: (status,errtext,isin) = wp_search_wkn_html(wkn,base_ddict)
+#     :param ini:
+#     :return: (status,errtext,isin) = wp_search_wkn_html(wkn,ini)
 #     '''
 #     status = hdef.OKAY
 #     errtext = ""
-#     flag_json = base_ddict["use_json"] == 2
+#     flag_json = ini["use_json"] == 2
 #
-#     (status, errtext,wkn_isin_dict) = wp_storage.read_dict(base_ddict["wkn_isin_filename"],
+#     (status, errtext,wkn_isin_dict) = wp_storage.read_dict(ini["wkn_isin_filename"],
 #                                                            flag_json,
 #                                                            "",
-#                                                            base_ddict["store_path"])
+#                                                            ini["store_path"])
 #
 #     wkn_isin_dict[wkn] = isin
 #
-#     wp_storage.save_dict_file_pickle(wkn_isin_dict, base_ddict["wkn_isin_filename"], base_ddict)
-#     if base_ddict["use_json"] == 1:  # write json
-#         wp_storage.save_dict_file_json(wkn_isin_dict, base_ddict["wkn_isin_filename"], base_ddict)
+#     wp_storage.save_dict_file_pickle(wkn_isin_dict, ini["wkn_isin_filename"], ini)
+#     if ini["use_json"] == 1:  # write json
+#         wp_storage.save_dict_file_json(wkn_isin_dict, ini["wkn_isin_filename"], ini)
 #     # end if
 #
 #     return (status, errtext)
 #
-def wp_search_wpname(wpname, base_ddict):
+def wp_search_wpname(wpname, ini):
     '''
 
     :param wpname:
-    :param base_ddict:
-    :return:  (status, errtext, isin) = wp_wkn.wp_search_wpname(wpname,base_ddict)
+    :param ini:
+    :return:  (status, errtext, isin) = wp_wkn.wp_search_wpname(wpname,ini)
     '''
     status = hdef.OKAY
     errtext = ""
-    flag_json = base_ddict["use_json"] == 2
-    (status, errtext,wpname_isin_dict) = wp_storage.read_dict(base_ddict["wpname_isin_filename"],
+    flag_json = ini["use_json"] == 2
+    (status, errtext,wpname_isin_dict) = wp_storage.read_dict(ini["wpname_isin_filename"],
                                                               flag_json,
                                                               "",
-                                                              base_ddict["store_path"])
+                                                              ini["store_path"])
     
     if wpname in wpname_isin_dict.keys():
-        if base_ddict["use_json"] == 1:  # write json
-            wp_storage.save_dict_file_json(wpname_isin_dict, base_ddict["wpname_isin_filename"],base_ddict)
-        elif base_ddict["use_json"] == 2:  # read json
-            wp_storage.save_dict_file_pickle(wpname_isin_dict, base_ddict["wpname_isin_filename"], base_ddict)
+        if ini["use_json"] == 1:  # write json
+            wp_storage.save_dict_file_json(wpname_isin_dict, ini["wpname_isin_filename"],ini)
+        elif ini["use_json"] == 2:  # read json
+            wp_storage.save_dict_file_pickle(wpname_isin_dict, ini["wpname_isin_filename"], ini)
         # end if
         isin = wpname_isin_dict[wpname]
         if isin == WKN_NOT_FOUND:

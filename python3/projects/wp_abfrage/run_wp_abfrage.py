@@ -500,7 +500,7 @@ def make_backup_build_new_dir(wb_obj):
 
     status = hdef.OKAY
     errtext = ""
-    backup_dir = os.path.join(wb_obj.base_ddict["store_path"],
+    backup_dir = os.path.join(wb_obj.ini["store_path"],
                             hdate.get_name_by_dat_time("backup_basic_infos_", ""))
 
 
@@ -968,7 +968,7 @@ def edit_indices(wb_obj):
                 wb_obj.log.write_info("Download XML unter dem Chart")
 
                 # Abfrage xml-File
-                xmlfilename = sgui.abfrage_file(file_types="*.xml",comment=f"Wähle eine xml-Datei von EZB für Indice {indice}",start_dir=wb_obj.base_ddict["store_path"])
+                xmlfilename = sgui.abfrage_file(file_types="*.xml",comment=f"Wähle eine xml-Datei von EZB für Indice {indice}",start_dir=wb_obj.ini["store_path"])
                 if len(xmlfilename) > 0 :
                     # Einlesen xml-File
                     (status, errtext) = wb_obj.process_indice_ezb_xml(xmlfilename,indice)
@@ -987,7 +987,7 @@ def edit_indices(wb_obj):
 
 
             # Abfrage csv-File
-            csvfilename = sgui.abfrage_file(file_types="*.csv",comment=f"Wähle die csv-Datei von EZB für den leitzins",start_dir=wb_obj.base_ddict["store_path"])
+            csvfilename = sgui.abfrage_file(file_types="*.csv",comment=f"Wähle die csv-Datei von EZB für den leitzins",start_dir=wb_obj.ini["store_path"])
             if len(csvfilename) > 0 :
                 # Einlesen csv-File
                 (status, errtext) = wb_obj.process_indice_ezb_leitzins_csv(csvfilename)

@@ -2,7 +2,6 @@
 class Param:
     INI_DICT_PROOF_LISTE = [("store_path", "str"),
                             ("katalog_liste_file_name", "str", "str", "katalog_liste"),
-                            ("wp_func_ini_file_name","str"),
                             ("katalog_gruppe_isin_dict_pre_file_name", "str", "str", "katalog_gruppe_isin_dict_"),
                             ("sigset_liste_file_name", "str", "str", "sigset_liste"),
                             ("sigset_dict_pre_file_name", "str", "str", "sigset_dict_"),

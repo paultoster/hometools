@@ -1,5 +1,6 @@
 import os, sys
 import copy
+import datetime
 
 t_path, _ = os.path.split(__file__)
 tools_path = t_path + "\\.."
@@ -17,13 +18,46 @@ import wp_screen.wp_screen_base as wp_screen_base
 import wp_test.wp_test_param as wp_test_param
 import wp_test.sim_class as sim_class
 
+def build_log_file_name(store_path,parametername,act_time_str):
+    """
 
+    :param store_path:
+    :param parametername:
+    :return: log_file = build_log_file_name(store_path,parametername)
+    """
+
+
+    p = os.path.join(store_path,"log_"+parametername)
+    if not os.path.exists(p):
+        os.makedirs(p)
+    # end if
+
+    log_file = os.path.join(p,"log_"+parametername+"_"+act_time_str+".log")
+    return log_file
+# end if
+def build_log_file_name(store_path,parametername,act_time_str):
+    """
+
+    :param store_path:
+    :param parametername:
+    :return: log_file = build_log_file_name(store_path,parametername)
+    """
+
+
+    p = os.path.join(store_path,"log_"+parametername)
+    if not os.path.exists(p):
+        os.makedirs(p)
+    # end if
+
+    log_file = os.path.join(p,"log_"+parametername+"_"+act_time_str+".log")
+    return log_file
+# end if
 class WPTest:
     """
 
     """
 
-    def __init__(self,ini_filename:str,log_obj=None) -> None:
+    def __init__(self,base_path:str,log_obj=None) -> None:
 
         self.status = hdef.OKAY
         self.errtext = ""
@@ -32,22 +66,35 @@ class WPTest:
         self.par_struct_liste = []
         self.comment_struct = None
 
+        self.act_time_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        self.ini_file     = os.path.join(base_path,"wp.ini")
+
+        # ini
+        self.ini = hini.get_section_of_ini_file(self.ini_file,"wp_test",("@base_path@",base_path),wpdef.INI_DICT_PROOF_LISTE)
+
+        if hini.get_status() != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"WPTest: ini-error: {hini.get_errtext()}"
+            hini.reset_status()
+            print(self.errtext)
+            return
+        # end if
+
         # Log-File start
         # ---------------
         if log_obj is None:
+            log_file = build_log_file_name(self.ini["store_path"], "wp_test", self.act_time_str)
             self.log = hlog.log(consol_func=True, log_window=False)
         else:
             self.log = log_obj
         # end if
         self.log_file_name = self.log.get_logfilename()
 
-        # ini
-        self.ini = hini.get_tomlib_ini_dict(ini_filename, wpdef.INI_DICT_PROOF_LISTE)
 
 
         # wp_screen
         # ----------
-        self.wpscrefunc = wp_screen_base.WPScreen(ini_filename=self.ini["wpscre_func_ini_file_name"],
+        self.wpscrefunc = wp_screen_base.WPScreen(base_path=base_path,
                                                   log_obj=self.log)
 
         if self.wpscrefunc.get_status() != hdef.OKAY:

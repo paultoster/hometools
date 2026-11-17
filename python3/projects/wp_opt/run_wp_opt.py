@@ -13,8 +13,9 @@ import tools.sgui as sgui
 import wp_opt_base
 
 # param_filename = 'D:/data/wp/wp_test/wp_test_TagesgeldSimulation.yaml'
-ini_filename   = 'D:/data/wp/wp_opt/wp_opt.ini'
-start_path     = 'D:/data/wp/wp_test'
+
+base_path      = 'D:/data/wp'
+start_path     = os.path.join(base_path,'wp_test')
 
 param_filenames = sgui.abfrage_files( file_types="*.yaml",
                                     comment="Waehle Yaml-Parameter Datei",
@@ -24,7 +25,7 @@ for param_filename in param_filenames:
         exit(0)
     # end if
 
-    wpobj = wp_opt_base.WPOpt(param_filename=param_filename,ini_filename=ini_filename)
+    wpobj = wp_opt_base.WPOpt(param_filename=param_filename,base_path=base_path)
 
     if wpobj.status != hdef.OKAY:
         print(wpobj.errtext)
@@ -37,6 +38,8 @@ for param_filename in param_filenames:
         print(wpobj.errtext)
         exit(1)
     # end if
+
+    del wpobj
 # end for
 
 

@@ -242,7 +242,7 @@ def build_ariva_isin_csv_liste(wb_obj,isin_ariva_liste):
     """
         build isin-Liste für Power Act als csv-Datei
 
-        Schreibt in wb_obj.base_ddict["avira_price_isin_liste_csv_filebasename"} mit dem Pfad wb_obj.base_ddict["avira_price_volume_csv_store_path"]
+        Schreibt in wb_obj.ini["avira_price_isin_liste_csv_filebasename"} mit dem Pfad wb_obj.ini["avira_price_volume_csv_store_path"]
 
     """
     status = hdef.OKAY
@@ -251,8 +251,8 @@ def build_ariva_isin_csv_liste(wb_obj,isin_ariva_liste):
 
     if len(isin_ariva_liste) > 0:
 
-        filename = os.path.join(wb_obj.base_ddict["avira_price_volume_csv_store_path"],
-                                wb_obj.base_ddict["avira_price_isin_liste_csv_filebasename"]+".csv")
+        filename = os.path.join(wb_obj.ini["avira_price_volume_csv_store_path"],
+                                wb_obj.ini["avira_price_isin_liste_csv_filebasename"]+".csv")
 
         isin_ariva_lliste = [[item] for item in isin_ariva_liste]
         status = hio.write_csv_file_header_data(filename, ["isin"], isin_ariva_lliste, delim=";")
@@ -273,12 +273,12 @@ def build_ariva_isin_csv_liste(wb_obj,isin_ariva_liste):
 def update_ariva_csv_download(wb_obj):
     """
         updated prive-volumen aus csv-Daten
-        a) ariva-Daten  csv-Datei ist aufgevaut:  wb_obj.base_ddict["avira_price_volume_csv_pre_fie_name"]
+        a) ariva-Daten  csv-Datei ist aufgevaut:  wb_obj.ini["avira_price_volume_csv_pre_fie_name"]
                                                   + wkn
-                                                  + wb_obj.base_ddict["avira_price_volume_csv_post_fie_name"].csv
+                                                  + wb_obj.ini["avira_price_volume_csv_post_fie_name"].csv
 
-        wb_obj.base_ddict["avira_price_volume_csv_delete"] = 1 löscht Datei nach einlesen
-        wb_obj.base_ddict["avira_price_volume_csv_is_master"] = 1 nimmt alle Daten aus csv und füllt Datenbestand auf
+        wb_obj.ini["avira_price_volume_csv_delete"] = 1 löscht Datei nach einlesen
+        wb_obj.ini["avira_price_volume_csv_is_master"] = 1 nimmt alle Daten aus csv und füllt Datenbestand auf
 
     """
 
@@ -315,21 +315,21 @@ def get_csv_ariva_csv_dict_wkn_filename(wb_obj):
     csv_dict_wkn_filename = {}
 
     file_liste = []
-    file_liste = hfp.get_liste_of_subdir_files(wb_obj.base_ddict["avira_price_volume_csv_store_path"],
+    file_liste = hfp.get_liste_of_subdir_files(wb_obj.ini["avira_price_volume_csv_store_path"],
                                                liste=file_liste,
                                                search_ext="csv")
 
     for filename in file_liste:
         (path,fbody,ext) = hfp.get_pfe(filename)
-        index = hstr.such(fbody, wb_obj.base_ddict["avira_price_volume_csv_pre_file_name"])
+        index = hstr.such(fbody, wb_obj.ini["avira_price_volume_csv_pre_file_name"])
 
 
         if index == 0:
-            index = hstr.such(fbody, wb_obj.base_ddict["avira_price_volume_csv_post_file_name"])
+            index = hstr.such(fbody, wb_obj.ini["avira_price_volume_csv_post_file_name"])
 
-            if index == (len(fbody) - len(wb_obj.base_ddict["avira_price_volume_csv_post_file_name"])):
+            if index == (len(fbody) - len(wb_obj.ini["avira_price_volume_csv_post_file_name"])):
 
-                wkn = fbody[len(wb_obj.base_ddict["avira_price_volume_csv_pre_file_name"]):index]
+                wkn = fbody[len(wb_obj.ini["avira_price_volume_csv_pre_file_name"]):index]
                 csv_dict_wkn_filename[wkn] = filename
             # end if
         # end if
@@ -378,7 +378,7 @@ def read_csv_ariva_file(wb_obj,csv_file,wkn):
         if status != hdef.OKAY:
             return (status, errtext, infotext)
 
-        if wb_obj.base_ddict["avira_price_volume_csv_delete"] > 0:
+        if wb_obj.ini["avira_price_volume_csv_delete"] > 0:
             wb_obj.log.write_info(f"Delete file from Disc: {csv_file} ")
             hfp.remove_file(csv_file)
         # end if
@@ -545,7 +545,7 @@ def proof_is_upgedated(wb_obj,wp_dict):
 
 
     # Was ist der letzte aktuelle Handelsdatum
-    end_dat_timestamp = wp_fkt.letzter_beendeter_handelstag_timestamp(wb_obj.base_ddict["boerse"])
+    end_dat_timestamp = wp_fkt.letzter_beendeter_handelstag_timestamp(wb_obj.ini["boerse"])
     end_display_dat = htype.type_transform_direct(end_dat_timestamp, "dat", "datStrP")
     end_dat = htype.type_transform_direct(end_display_dat, "datStrP", "dat")
 
@@ -557,7 +557,7 @@ def proof_is_upgedated(wb_obj,wp_dict):
         wp_dict["first_dat"] = -1
         wp_dict["last_dat"] = -1
 
-        wp_dict["start_dat"]         = htype.type_transform_direct(wb_obj.base_ddict["price_volumen_first_dat"], "datStrP", "dat")
+        wp_dict["start_dat"]         = htype.type_transform_direct(wb_obj.ini["price_volumen_first_dat"], "datStrP", "dat")
         wp_dict["start_display_dat"] = htype.type_transform_direct(wp_dict["start_dat"] , "dat", "datStrP")
 
         wp_dict["updated"] = False
@@ -569,7 +569,7 @@ def proof_is_upgedated(wb_obj,wp_dict):
         (wp_dict["first_dat"],wp_dict["last_dat"]) = wp_dict["np_obj"].get_first_last_dat("dat")
 
         if wp_dict["last_dat"] < 0:
-            start_dat = htype.type_transform_direct(wb_obj.base_ddict["price_volumen_first_dat"], "datStrP", "dat")
+            start_dat = htype.type_transform_direct(wb_obj.ini["price_volumen_first_dat"], "datStrP", "dat")
         else:
             start_dat = wp_dict["last_dat"]
 
@@ -616,7 +616,7 @@ def get_update_dict_values(wb_obj, wp_dict):
     halfrange = 12 * 60 * 60
 
     # # erstes Datum zum Suchen aus ini
-    # start_dat_ini_file = htype.type_transform_direct(wb_obj.base_ddict["price_volumen_first_dat"], "datStrP", "dat")
+    # start_dat_ini_file = htype.type_transform_direct(wb_obj.ini["price_volumen_first_dat"], "datStrP", "dat")
     # # Erscheinungsdatum des wp
     # if len(wp_dict["start_dat_str"]) == 0:
     #     start_dat_wp = start_dat_ini_file
@@ -636,7 +636,7 @@ def get_update_dict_values(wb_obj, wp_dict):
     # # end if
 
     if wp_dict["last_dat"] < 0:
-        start_dat = htype.type_transform_direct(wb_obj.base_ddict["price_volumen_first_dat"], "datStrP", "dat")
+        start_dat = htype.type_transform_direct(wb_obj.ini["price_volumen_first_dat"], "datStrP", "dat")
     else:
         start_dat = wp_dict["last_dat"]
 
@@ -657,7 +657,7 @@ def get_update_dict_values(wb_obj, wp_dict):
     wp_dict["start_display_dat"] = start_display_dat
 
     # Was ist der letzte aktuelle Handelsdatum
-    end_dat_timestamp = wp_fkt.letzter_beendeter_handelstag_timestamp(wb_obj.base_ddict["boerse"])
+    end_dat_timestamp = wp_fkt.letzter_beendeter_handelstag_timestamp(wb_obj.ini["boerse"])
     end_display_dat = htype.type_transform_direct(end_dat_timestamp, "dat", "datStrP")
     end_dat = htype.type_transform_direct(end_display_dat, "datStrP", "dat")
 
@@ -886,7 +886,7 @@ def get_new_price_vol_from_eodhd(wb_obj,  wp_dict):
 
         wb_obj.log.write_info(f"start: {wp_dict['start_display_dat']}, end: {wp_dict['end_display_dat']}")
 
-        (flag_avail, symbol, exchange, currency, infotext) = wp_eodhd.is_info_available(isin, wb_obj.base_ddict["eodhd_key"])
+        (flag_avail, symbol, exchange, currency, infotext) = wp_eodhd.is_info_available(isin, wb_obj.ini["eodhd_key"])
         if len(infotext) > 0:
             wb_obj.log.write_info(infotext)
         # end if
@@ -898,7 +898,7 @@ def get_new_price_vol_from_eodhd(wb_obj,  wp_dict):
             (status, errtext, infotext, np_obj_eodhd) = wp_eodhd.get_price_volume_data(symbol,
                                                                                     exchange,
                                                                                     currency,
-                                                                                    wb_obj.base_ddict["eodhd_key"],
+                                                                                    wb_obj.ini["eodhd_key"],
                                                                                     wp_dict["start_dat"],
                                                                                     wp_dict["end_dat"],
                                                                                     np_obj)
@@ -1019,9 +1019,9 @@ def get_new_price_vol_from_ariva(wb_obj,  wp_dict_liste):
             wp_dict_liste[i] = wp_dict
         # end for
         (status,errtext,wp_dict_liste) = wp_pw.get_ariva_price_volume_data(wp_dict_liste,
-                                                                           wb_obj.base_ddict["ariva_user"],
-                                                                           wb_obj.base_ddict["ariva_pw"],
-                                                                           wb_obj.base_ddict["ariva_timeout_s"],
+                                                                           wb_obj.ini["ariva_user"],
+                                                                           wb_obj.ini["ariva_pw"],
+                                                                           wb_obj.ini["ariva_timeout_s"],
                                                                            wb_obj.log)
         if status != hdef.OKAY:
             return (status, errtext, wp_dict_liste)
@@ -1066,9 +1066,9 @@ def get_new_price_vol_from_onvista(wb_obj, wp_dict_liste):
             wp_dict_liste[i] = wp_dict
         # end for
         (status, errtext, wp_dict_liste) = wp_pw.get_onvista_price_volume_data(wp_dict_liste,
-                                                                             wb_obj.base_ddict["onvista_user"],
-                                                                             wb_obj.base_ddict["onvista_pw"],
-                                                                             wb_obj.base_ddict["onvista_timeout_s"],
+                                                                             wb_obj.ini["onvista_user"],
+                                                                             wb_obj.ini["onvista_pw"],
+                                                                             wb_obj.ini["onvista_timeout_s"],
                                                                              wb_obj.log)
 
         if status != hdef.OKAY:
@@ -1112,7 +1112,7 @@ def get_new_price_vol_from_ariva_csv_file(wb_obj,  wp_dict, csv_file):
     (status, errtext, infotext, np_obj_csv) = wp_bearb.get_price_volume_data_from_ariva_csv_file(
         wb_obj,
         csv_file,
-        wb_obj.base_ddict["avira_price_volume_csv_trennzeichen"],
+        wb_obj.ini["avira_price_volume_csv_trennzeichen"],
         isin,
         wp_dict)
 
@@ -1318,7 +1318,7 @@ def merge_ariva_csv_and_update_file(wb_obj, wp_dict):
 
             (first_dat_before_merge, _) = wp_dict["np_obj"].get_first_last_dat("dat")
 
-            if wb_obj.base_ddict["avira_price_volume_csv_is_master"] > 0:
+            if wb_obj.ini["avira_price_volume_csv_is_master"] > 0:
                 (status, errtext, np_obj) = merge_np_data(wb_obj,wp_dict["np_obj"], wp_dict["np_obj_new"],wp_dict["isin"],flag_take_new=True)
             else:
                 (status, errtext, np_obj) = merge_np_data(wb_obj,wp_dict["np_obj"], wp_dict["np_obj_new"],wp_dict["isin"],flag_take_new=False)
@@ -1570,8 +1570,8 @@ def get_exist_filenames(wp_obj, isin_input):
     filename_list = []
     for isin in isin_input:
 
-        file_name = wp_storage.build_file_name_joblib(wp_obj.base_ddict["price_volumen_pre_file_name"] + isin,
-                                                    wp_obj.base_ddict["store_path"])
+        file_name = wp_storage.build_file_name_joblib(wp_obj.ini["price_volumen_pre_file_name"] + isin,
+                                                    wp_obj.ini["store_path"])
         if os.path.isfile(file_name):
             filename_list.append(file_name)
         # end if

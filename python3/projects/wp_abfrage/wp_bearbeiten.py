@@ -64,8 +64,8 @@ def build_price_volumen_np_obj(wb_obj,isin):
 # end def
 def build_price_volumen_filename(wb_obj,isin):
 
-    file_name = wp_storage.build_file_name_joblib(wb_obj.base_ddict["price_volumen_pre_file_name"] + isin,
-                                                wb_obj.base_ddict["store_path"])
+    file_name = wp_storage.build_file_name_joblib(wb_obj.ini["price_volumen_pre_file_name"] + isin,
+                                                wb_obj.ini["store_path"])
     return file_name
 # end def
 def read_indice_np_data(wb_obj,indice):
@@ -91,8 +91,8 @@ def build_indice_np_obj(wb_obj,indice):
 # end def
 def build_indice_filename(wb_obj,indice):
 
-    file_name = wp_storage.build_file_name_joblib(wb_obj.base_ddict["indices_pre_file_name"] + indice,
-                                                wb_obj.base_ddict["store_path"])
+    file_name = wp_storage.build_file_name_joblib(wb_obj.ini["indices_pre_file_name"] + indice,
+                                                wb_obj.ini["store_path"])
     return file_name
 # end def
 # old definition
@@ -106,10 +106,10 @@ def build_indice_filename(wb_obj,indice):
 #     errtext = ""
 #
 #     # Gibt es bereits eine Datei
-#     file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["price_volumen_pre_file_name"] + isin,
-#                                                 wb_obj.base_ddict["store_path"])
+#     file_name = wp_storage.build_file_name_json(wb_obj.ini["price_volumen_pre_file_name"] + isin,
+#                                                 wb_obj.ini["store_path"])
 #
-#     formatpj = int(wb_obj.base_ddict["price_volumen_use_format"] / 10)
+#     formatpj = int(wb_obj.ini["price_volumen_use_format"] / 10)
 #     flag = wp_storage.np_obj_storage_exist(file_name, formatpj)
 #
 #     # Wenn ja lese Datei ein
@@ -140,10 +140,10 @@ def build_indice_filename(wb_obj,indice):
 #     if wp_base_indices.is_indices_name(wb_obj, indice):
 #
 #         # Hole korrekte Datumsreihe:
-#         file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["indices_pre_file_name"] + indice,
-#                                                     wb_obj.base_ddict["store_path"])
+#         file_name = wp_storage.build_file_name_json(wb_obj.ini["indices_pre_file_name"] + indice,
+#                                                     wb_obj.ini["store_path"])
 #
-#         formatpj = int(wb_obj.base_ddict["usdeuro_use_format"]/10)
+#         formatpj = int(wb_obj.ini["usdeuro_use_format"]/10)
 #
 #         flag = wp_storage.np_obj_storage_exist(file_name, formatpj)
 #
@@ -167,7 +167,7 @@ def make_backup_build_new_dir_price_volume(wb_obj):
     status = hdef.OKAY
     errtext = ""
 
-    backup_dir = os.path.join(wb_obj.base_ddict["store_path"],
+    backup_dir = os.path.join(wb_obj.ini["store_path"],
                             hdate.get_name_by_dat_time("price_volume_", ""))
 
 
@@ -192,7 +192,7 @@ def make_backup_build_new_dir_indice(wb_obj):
     status = hdef.OKAY
     errtext = ""
 
-    backup_dir = os.path.join(wb_obj.base_ddict["store_path"],
+    backup_dir = os.path.join(wb_obj.ini["store_path"],
                             hdate.get_name_by_dat_time("indice_", ""))
 
 

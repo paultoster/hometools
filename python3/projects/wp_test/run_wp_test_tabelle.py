@@ -16,8 +16,7 @@ import tools.sgui as sgui
 
 import wp_test_def as wpdef
 
-ini_filename   = 'D:/data/wp/wp_test/wp_test.ini'
-excel_filename = 'D:/data/wp/wp_test/wp_test_zusammenfassung.xlsx'
+BASE_PATH   = 'D:/data/wp'
 
 def suche_alle_yamls_files(ini):
 
@@ -131,9 +130,16 @@ def bilde_tabelle(list_dict,liste_json_files):
 
     return ttable
 
-def run_wp_test_tabelle():
+def run_wp_test_tabelle(base_path):
+
+    ini_filename = os.path.join(base_path,'wp.ini')
+    excel_filename = 'D:/data/wp/wp_test/wp_test_zusammenfassung.xlsx'
+
     # ini-Datei lesen
-    ini = hini.get_tomlib_ini_dict(ini_filename, wpdef.INI_DICT_PROOF_LISTE)
+    ini = hini.get_section_of_ini_file(ini_filename, "wp_test", ("@base_path@", base_path), wpdef.INI_DICT_PROOF_LISTE)
+
+    # excel-Filename
+    excel_filename = os.path.join(ini["store_path"],'wp_test_zusammenfassung.xlsx')
 
     # json-Files
     liste_json_files = suche_alle_yamls_files(ini)
@@ -153,3 +159,5 @@ def run_wp_test_tabelle():
         status = hfkt_tvar.write_table_to_excel(ttable, excel_filename)
         os.startfile(excel_filename)
 
+    return
+# end def

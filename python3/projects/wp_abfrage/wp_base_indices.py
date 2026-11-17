@@ -141,8 +141,8 @@ def get_exist_filenames(wp_obj, indice_liste):
     filename_list = []
     for indice in indice_liste:
 
-        file_name = wp_storage.build_file_name_joblib(wp_obj.base_ddict["indices_pre_file_name"] + indice,
-                                                    wp_obj.base_ddict["store_path"])
+        file_name = wp_storage.build_file_name_joblib(wp_obj.ini["indices_pre_file_name"] + indice,
+                                                    wp_obj.ini["store_path"])
         if os.path.isfile(file_name):
             filename_list.append(file_name)
         # end if

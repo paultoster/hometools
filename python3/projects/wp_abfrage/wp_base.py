@@ -1,6 +1,6 @@
 import os, sys, time
 import tomllib
-import pandas as pd
+import datetime
 
 
 t_path, _ = os.path.split(__file__)
@@ -24,6 +24,7 @@ import tools.hfkt_def as hdef
 import tools.hfkt_dict as hdict
 import tools.hfkt_type as htype
 import tools.hfkt_log as hlog
+import tools.hfkt_ini as hini
 
 INI_DICT_PROOF_LISTE = [("store_path", "str"),
                         ("basic_info_pre_file_name", "str","str","wp_basic_info_data_"),
@@ -105,6 +106,23 @@ class WPParam:
                           INDICES_GBPEURO_NAME,
                           INDICES_EZB_LEITZINS_NAME]
 # end class
+def build_log_file_name(store_path,parametername,act_time_str):
+    """
+
+    :param store_path:
+    :param parametername:
+    :return: log_file = build_log_file_name(store_path,parametername)
+    """
+
+
+    p = os.path.join(store_path,"log_"+parametername)
+    if not os.path.exists(p):
+        os.makedirs(p)
+    # end if
+
+    log_file = os.path.join(p,"log_"+parametername+"_"+act_time_str+".log")
+    return log_file
+# end def
 class WPData:
     '''
     Basis Funktion:
@@ -124,44 +142,42 @@ class WPData:
     self.check_isin_input(isin_input)
     ini_filename
     '''
-    def __init__(self,ini_filename:str,log_obj=None) -> None:
-
-        self.par =  WPParam()
-
-        if (not os.path.isfile(ini_filename)):
-            self.status = hdef.NOT_OKAY
-            self.errtext = f"ini_file_name = {ini_filename} does not exist !!!!"
-            return
-        
-        # read ini-file
-        else:
-            self.ini_file_name = ini_filename
-            try:
-                with open(ini_filename, "rb") as f:
-                    ddict = tomllib.load(f)
-            except Exception as e:
-                self.errtext = f"tomllib: Bei lesen {ini_filename} gibt Fehler: {e.args[0]}"
-                self.status = hdef.NOT_OKAY
-                return
-            # endtry
-        # endif
-        if log_obj is None:
-            self.log = hlog.log(consol_func=True, log_window=False)
-        else:
-            self.log = log_obj
-        # end if
-        self.log_file_name = self.log.get_logfilename()
-
-        (self.status, self.errtext, self.base_ddict) = hdict.proof_transform_ddict(ddict,INI_DICT_PROOF_LISTE)
-        if self.status != hdef.OK:
-            return
-        # endif
+    def __init__(self,base_path:str,log_obj=None) -> None:
 
         self.status = hdef.OKAY
         self.errtext = ""
         self.infotext = ""
 
-        (self.status,self.errtext) = wp_fkt.check_store_path(self.base_ddict["store_path"])
+        self.act_time_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        self.ini_file = os.path.join(base_path, "wp.ini")
+
+        # Parameter
+        self.par =  WPParam()
+
+        # Ini
+        self.ini = hini.get_section_of_ini_file(self.ini_file, "wp_abfrage",
+                                                ("@base_path@", base_path),
+                                                INI_DICT_PROOF_LISTE)
+
+        if hini.get_status() != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"WPData: ini-error: {hini.get_errtext()}"
+            hini.reset_status()
+            print(self.errtext)
+            return
+        # end if
+
+        if log_obj is None:
+            log_file = build_log_file_name(self.ini["store_path"], "wp_abfrage", self.act_time_str)
+            self.log = hlog.log(log_file=log_file,consol_func=True, log_window=False)
+        else:
+            self.log = log_obj
+        # end if
+        self.log_file_name = self.log.get_logfilename()
+
+
+
+        (self.status,self.errtext) = wp_fkt.check_store_path(self.ini["store_path"])
     # end def
     def get_status(self):
         return self.status
@@ -315,7 +331,7 @@ class WPData:
     #     :param wpname:
     #     :return:
     #     '''
-    #     (self.status, self.errtext) = wp_wkn.wp_add_wkn_isin(wkn, isin, self.base_ddict)
+    #     (self.status, self.errtext) = wp_wkn.wp_add_wkn_isin(wkn, isin, self.ini)
     #
     #     if self.status != hdef.OKAY:
     #         print(f"set_wkn_isin not working errtext: {self.errtext}")

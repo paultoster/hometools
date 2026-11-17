@@ -65,6 +65,14 @@ def scre_start(rd):
 
     return
 # end def
+def get_scre_name_list(rd):
+
+    scre_set(rd)
+    if get_status() != hdef.OKAY:
+        return rd.scre["scre_liste"]
+    # end if
+    return rd.scre["scre_liste"]
+# end def
 def scre_set(rd):
     # Signalset-Liste Json-Liste einladen
     if rd.scre["scre_liste_jsonobj"] is None:
@@ -203,7 +211,7 @@ def scre_build_sigset(rd,
 
             wp_screen_scre_build_signal.scre_build_signal(rd, scre,isin, sigset_werte_dict_liste)
 
-            rd.log.write_info(f"{i+1}/{n}: Update sigset for isin = {isin}, {wp_screen_scre_build_signal.get_infotext()}",
+            rd.log.write_info(f"{i+1}/{n}: Update sigset for scre: {scre}, isin: {isin}, {wp_screen_scre_build_signal.get_infotext()}",
                               screen=rd.par.LOG_SCREEN_OUT)
 
             if wp_screen_scre_build_signal.get_status() != hdef.OKAY:
@@ -214,7 +222,7 @@ def scre_build_sigset(rd,
             # end if
             wp_screen_scre_build_signal.reset_status()
         else:
-            rd.log.write_info(f"{i+1}/{n}: No Update sigset for isin = {isin}",screen=rd.par.LOG_SCREEN_OUT)
+            rd.log.write_info(f"{i+1}/{n}: No Update sigset for scre: {scre}, isin: {isin}",screen=rd.par.LOG_SCREEN_OUT)
         # end if
     # end for
 

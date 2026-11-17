@@ -13,9 +13,9 @@ import tools.sgui as sgui
 import wp_test_base
 
 # param_filename = 'D:/data/wp/wp_test/wp_test_TagesgeldSimulation.yaml'
-ini_filename   = 'D:/data/wp/wp_test/wp_test.ini'
 
-def run_wp_test_yaml():
+
+def run_wp_test_yaml(base_path):
 
 
     param_filenames = sgui.abfrage_files( file_types="*.yaml", comment="Waehle Parameter Datei", start_dir='D:/data/wp/wp_test')
@@ -25,7 +25,7 @@ def run_wp_test_yaml():
         if param_filename is None or param_filename == "":
             exit(0)
         # end if
-        wpobj = wp_test_base.WPTest(ini_filename=ini_filename)
+        wpobj = wp_test_base.WPTest(base_path=base_path)
 
         if wpobj.status != hdef.OKAY:
             # print(wpobj.errtext)
@@ -46,6 +46,8 @@ def run_wp_test_yaml():
             # print(wpobj.errtext)
             exit(1)
         # end if
+
+        del wpobj
     # end for
     print("alles okay!!!")
 # end def

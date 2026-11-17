@@ -431,6 +431,9 @@ def par_liste_set_simname(mobj, pardict):
     if fbody.find("wp_test_") != -1:  # Correct
         fbody = fbody.replace("wp_test_","")
 
+    if fbody.find("wp_opt_") != -1:  # Correct
+        fbody = fbody.replace("wp_opt_","")
+
     pardict["SimName"] = fbody
 
     return

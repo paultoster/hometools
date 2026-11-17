@@ -24,7 +24,6 @@ import wp_test.wp_test_param as wp_test_param
 
 COUNTER = 0
 INI_DICT_PROOF_LISTE =   [("store_path", "str"),
-                          ("wptest_func_ini_file_name","str"),
                           ("no_grid_search","int")]
 
 def build_log_file_name(store_path,parametername,act_time_str):
@@ -66,7 +65,7 @@ class WPOpt:
 
     """
 
-    def __init__(self, param_filename: str, ini_filename: str, log_obj=None) -> None:
+    def __init__(self, param_filename: str, base_path: str, log_obj=None) -> None:
 
         self.status = hdef.OKAY
         self.errtext = ""
@@ -81,18 +80,22 @@ class WPOpt:
         self.param_path = path
 
         self.act_time_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        self.ini_file = os.path.join(base_path, "wp.ini")
+
         # Ausführen:
         self.start_time_perf = time.perf_counter()
         self.end_time_perf = 0.0
         self.search_in_grid_time_perf = 0
         self.search_by_optimize_time_perf = 0.0
 
-        # ini
-        self.ini = hini.get_tomlib_ini_dict(ini_filename, INI_DICT_PROOF_LISTE)
+        # Ini
+        self.ini = hini.get_section_of_ini_file(self.ini_file, "wp_opt",
+                                                ("@base_path@", base_path),
+                                                INI_DICT_PROOF_LISTE)
 
         if hini.get_status() != hdef.OKAY:
-            self.status = hdef.OKAY
-            self.errtext = hini.get_errtext()
+            self.status = hdef._NOT_OKAY
+            self.errtext = f"WPOpt: ini-error: {hini.get_errtext()}"
             hini.reset_status()
             print(self.errtext)
             return
@@ -118,7 +121,7 @@ class WPOpt:
 
         # wp_screen
         # ----------
-        self.wptestfunc = wp_test_base.WPTest(ini_filename=self.ini["wptest_func_ini_file_name"],
+        self.wptestfunc = wp_test_base.WPTest(base_path=base_path,
                                               log_obj=self.log)
 
         if self.wptestfunc.get_status() != hdef.OKAY:

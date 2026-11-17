@@ -1,5 +1,4 @@
 INI_DICT_PROOF_LISTE =   [("store_path", "str"),
-                          ("wpscre_func_ini_file_name","str"),
                           ("tage_pro_jahr","int","int",365.25),
                           ("ergebnis_path_pre_name","str","str","erg_"),
                           ("np_datei_name","str","str","np_erg_array"),

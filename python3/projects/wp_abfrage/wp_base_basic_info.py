@@ -43,8 +43,8 @@ def get_isin_wpname_dict(wb_obj) -> (int, str, dict):
 
     :return: (status, errtext, wpname_isin_dict) = get_isin_wpname_dict(wb_obj)
     '''
-    file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["wpname_isin_filename"],
-                                                wb_obj.base_ddict["store_path"])
+    file_name = wp_storage.build_file_name_json(wb_obj.ini["wpname_isin_filename"],
+                                                wb_obj.ini["store_path"])
 
     format = 2  # 1: pickle, 2: json
     (status, errtext, wpname_isin_dict) = wp_storage.read_dict(file_name, format)
@@ -59,8 +59,8 @@ def save_isin_wpname(wb_obj, isin,wpname ):
     :return: (status, errtext) = wp_base_basic_info.save_isin_wpname(self, isin,wpname )
     """
 
-    file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["wpname_isin_filename"],
-                                                wb_obj.base_ddict["store_path"])
+    file_name = wp_storage.build_file_name_json(wb_obj.ini["wpname_isin_filename"],
+                                                wb_obj.ini["store_path"])
 
     format = 2  # 1: pickle, 2: json
     (status, errtext, wpname_isin_dict) = wp_storage.read_dict(file_name, format)
@@ -97,7 +97,7 @@ def get(wb_obj, isin_input: str|list) -> (int,str,dict|list):
     errtext = ""
 
     # -----------------------------------------------------------
-    # check ISIN input build wb_obj.base_ddict["isin_list"]
+    # check ISIN input build wb_obj.ini["isin_list"]
     # -----------------------------------------------------------
     (status, errtext,isin_input_is_list, isin_list) \
         = wp_fkt.check_isin_input(isin_input)
@@ -203,8 +203,8 @@ def  get_from_file(wb_obj,isin):
     if isin == "IE0003UVYC20":
         stoppp=0
     # end if
-    file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["basic_info_pre_file_name"] + isin,
-                                                wb_obj.base_ddict["store_path"])
+    file_name = wp_storage.build_file_name_json(wb_obj.ini["basic_info_pre_file_name"] + isin,
+                                                wb_obj.ini["store_path"])
 
     formatpj = 2
 
@@ -246,13 +246,13 @@ def get_exist_filenames(wb_obj, isin_input):
         isin_input = [isin_input]
     # end if
 
-    file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["wpname_isin_filename"],
-                                                wb_obj.base_ddict["store_path"])
+    file_name = wp_storage.build_file_name_json(wb_obj.ini["wpname_isin_filename"],
+                                                wb_obj.ini["store_path"])
 
     filename_list = [file_name]
     for isin in isin_input:
-        file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["basic_info_pre_file_name"] + isin,
-                                                    wb_obj.base_ddict["store_path"])
+        file_name = wp_storage.build_file_name_json(wb_obj.ini["basic_info_pre_file_name"] + isin,
+                                                    wb_obj.ini["store_path"])
         if os.path.isfile(file_name):
             filename_list.append(file_name)
         # end if
@@ -305,7 +305,7 @@ def save(wb_obj, isin_input, basic_info_dict):
     """
 
     # -----------------------------------------------------------
-    # check ISIN input build self.base_ddict["isin_list"]
+    # check ISIN input build self.ini["isin_list"]
     # -----------------------------------------------------------
     (status, errtext, isin_input_is_list, isin_list) = wp_fkt.check_isin_input(isin_input)
 
@@ -331,8 +331,8 @@ def save(wb_obj, isin_input, basic_info_dict):
 
     for i, isin in enumerate(isin_list):
 
-        file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["basic_info_pre_file_name"] + isin,
-                                                    wb_obj.base_ddict["store_path"])
+        file_name = wp_storage.build_file_name_json(wb_obj.ini["basic_info_pre_file_name"] + isin,
+                                                    wb_obj.ini["store_path"])
         formatpj = 2
         (status, errtext,_) = wp_storage.save_dict(basic_info_dict_list[i],
                                                  file_name,
@@ -346,8 +346,8 @@ def save(wb_obj, isin_input, basic_info_dict):
         if status == hdef.OKAY:
             (status, errtext,_) = wp_storage.update_isin_name_dict(isin,
                                                                  basic_info_dict_list[i]["name"],
-                                                                 wb_obj.base_ddict["wpname_isin_filename"],
-                                                                 wb_obj.base_ddict["store_path"])
+                                                                 wb_obj.ini["wpname_isin_filename"],
+                                                                 wb_obj.ini["store_path"])
         # end if
     # end for
 
@@ -360,17 +360,17 @@ def process_isin_from_wkn(wb_obj, wkn):
     :param wkn:
     :return:  (status, errtext, isin) = process_isin_from_wkn(wb_obj,wkn)
     """
-    wpname_isin_filename = wp_storage.build_file_name_json( wb_obj.base_ddict["wpname_isin_filename"],
-                                                wb_obj.base_ddict["store_path"])
+    wpname_isin_filename = wp_storage.build_file_name_json( wb_obj.ini["wpname_isin_filename"],
+                                                wb_obj.ini["store_path"])
 
     formatpj = 2
     (status, errtext, isin,isin_dict_exists) = wp_wkn.wp_search_wkn(wkn,
                                                    wpname_isin_filename,
                                                    formatpj,
-                                                   wb_obj.base_ddict["basic_info_pre_file_name"],
-                                                   wb_obj.base_ddict["store_path"],
-                                                   wb_obj.base_ddict["wkn_isin_n_times"],
-                                                   wb_obj.base_ddict["wkn_isin_sleep_time"])
+                                                   wb_obj.ini["basic_info_pre_file_name"],
+                                                   wb_obj.ini["store_path"],
+                                                   wb_obj.ini["wkn_isin_n_times"],
+                                                   wb_obj.ini["wkn_isin_sleep_time"])
     if status != hdef.OKAY:
         # print(f"get_isin_from_wkn not working errtext: {errtext}")
         isin = ""
@@ -391,8 +391,8 @@ def find_wpname(wb_obj, comment):
     :param comment:
     :return: (status, errtext, isin) = find_wpname(wb_obj, comment)
     """
-    wpname_isin_filename = wp_storage.build_file_name_json( wb_obj.base_ddict["wpname_isin_filename"],
-                                                wb_obj.base_ddict["store_path"])
+    wpname_isin_filename = wp_storage.build_file_name_json( wb_obj.ini["wpname_isin_filename"],
+                                                wb_obj.ini["store_path"])
 
     formatpj = 2
     (status, errtext, isin) = wp_wkn.wp_search_wpname_in_comment(comment,
@@ -430,8 +430,8 @@ def process_isin_w_wpname_wkn(wb_obj,isin,wpname,wkn):
         info_dict["wkn"] = wkn
     # end if
     if flag:
-        file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["basic_info_pre_file_name"] + isin,
-                                                    wb_obj.base_ddict["store_path"])
+        file_name = wp_storage.build_file_name_json(wb_obj.ini["basic_info_pre_file_name"] + isin,
+                                                    wb_obj.ini["store_path"])
         formatpj = 2
         (status, errtext,_) = wp_storage.save_dict(info_dict,file_name, formatpj)
     # end if
@@ -544,8 +544,8 @@ def update_isin(wb_obj,isin, flag_update_all):
     # end if
 
     if flag:
-        file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["basic_info_pre_file_name"] + isin,
-                                                    wb_obj.base_ddict["store_path"])
+        file_name = wp_storage.build_file_name_json(wb_obj.ini["basic_info_pre_file_name"] + isin,
+                                                    wb_obj.ini["store_path"])
         formatpj = 2
         (status, errtext,_) = wp_storage.save_dict(info_dict, file_name, formatpj)
     # end if
@@ -572,8 +572,8 @@ def updat_first_last(wp_obj, isin, first_dat_str,last_dat_str):
     info_dict["last_dat_str"] = last_dat_str
 
 
-    file_name = wp_storage.build_file_name_json(wp_obj.base_ddict["basic_info_pre_file_name"] + isin,
-                                                wp_obj.base_ddict["store_path"])
+    file_name = wp_storage.build_file_name_json(wp_obj.ini["basic_info_pre_file_name"] + isin,
+                                                wp_obj.ini["store_path"])
     formatpj = 2
     wp_obj.log.write_info(f"Speichere info-dict")
     (status, errtext,_) = wp_storage.save_dict(info_dict, file_name, formatpj)

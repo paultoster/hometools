@@ -1656,7 +1656,7 @@ class DataYaml:
 
             try:
                 self.data = yaml.safe_load(self.path.read_text(encoding="utf-8")) or {}
-                print(self.data)
+                #print(self.data)
             except yaml.YAMLError as exc:
                 mark = getattr(exc, "problem_mark", None)
                 where = f" at line {mark.line + 1}, column {mark.column + 1}" if mark else ""

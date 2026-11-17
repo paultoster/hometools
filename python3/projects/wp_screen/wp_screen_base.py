@@ -7,7 +7,6 @@ if (tools_path not in sys.path):
 # endif
 
 import wp_screen.wp_screen_param as wp_screen_param
-import wp_screen.wp_screen_ini as wp_screen_ini
 # import wp_screen_gui as wp_screen_gui
 import wp_screen.wp_screen_katalog as wp_screen_katalog
 import wp_screen.wp_screen_sigset as wp_screen_sigset
@@ -20,6 +19,7 @@ import wp_abfrage.wp_base as wp_abfrage_base
 
 import tools.hfkt_def as hdef
 import tools.hfkt_log as hlog
+import tools.hfkt_ini as hini
 import tools.sgui as sgui
 import tools.sgui_protocol_class as sgui_prot
 
@@ -40,20 +40,18 @@ def build_log_file_name(store_path,parametername,act_time_str):
 
     log_file = os.path.join(p,"log_"+parametername+"_"+act_time_str+".log")
     return log_file
-# end if
-
+# end def
 class WPScreen:
     """
 
     """
 
-    def __init__(self,ini_filename:str,log_obj=None) -> None:
+    def __init__(self,base_path:str,log_obj=None) -> None:
 
         self.status = hdef.OKAY
         self.errtext = ""
         self.infotext = ""
 
-        self.act_time_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 
         self.kat: dict = {
                     "katalog_liste": [],
@@ -109,22 +107,27 @@ class WPScreen:
                     "plotdef_werte_dict_liste": {},
                     "plotdef_signaldef_liste": {}   }
 
-        # gui
-        self.gui = sgui_prot.SguiProtocol()
+        self.act_time_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        self.ini_file = os.path.join(base_path, "wp.ini")
 
         # Parameter
         self.par = wp_screen_param.Param()
 
-        # ini
-        self.ini = wp_screen_ini.get_tomlib_ini_dict(ini_filename, self.par.INI_DICT_PROOF_LISTE)
+        # Ini
+        self.ini = hini.get_section_of_ini_file(self.ini_file, "wp_screen", ("@base_path@", base_path),
+                                                self.par.INI_DICT_PROOF_LISTE)
 
-        if wp_screen_ini.get_status() != hdef.OKAY:
-            self.status = hdef.OKAY
-            self.errtext = wp_screen_ini.get_errtext()
-            wp_screen_ini.reset_status()
+        if hini.get_status() != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"WPScreen: ini-error: {hini.get_errtext()}"
+            hini.reset_status()
             print(self.errtext)
             return
         # end if
+
+        # Gui
+        self.gui = sgui_prot.SguiProtocol()
+
 
         # Log-File start ---------------
         if log_obj is None:
@@ -138,8 +141,16 @@ class WPScreen:
 
 
         # wp_abfrage
-        self.wpfunc = wp_abfrage_base.WPData(ini_filename=self.ini["wp_func_ini_file_name"],
-                                   log_obj=self.log)
+        self.wpfunc = wp_abfrage_base.WPData(base_path=base_path,
+                                             log_obj=self.log)
+
+        if self.wpfunc.get_status() != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = self.wpfunc.get_errtext()
+            self.wpfunc.reset_status()
+            print(self.errtext)
+            return
+        # end if
 
         # setup katalog
         self.katalog_set()
@@ -344,27 +355,53 @@ class WPScreen:
 
         return
     # end def
-    def build_scre_sigset(self,
-                          scre_name,
+    def execute_update_scre_sigset(self,
+                          scre_name=None,
                           end_dat=None,
-                          build_always_new_sigset=False):
+                          build_always_new_sigset=False,
+                          no_scre_name=None):
         """
 
         """
-        wp_screen_scre.setup_scre_name(self,scre_name)
-
-
-        if wp_screen_scre.get_status() != hdef.OKAY:
-            self.status = hdef.NOT_OKAY
-            self.errtext = f"Error wp_screen_base.setup_scre_name({scre_name}) errtext = {wp_screen_scre.get_errtext()}"
-            self.log.write_err(self.errtext, screen=self.par.LOG_SCREEN_OUT)
-            wp_screen_scre.reset_status()
-            return
+        if scre_name is None:
+            scre_name_liste = wp_screen_scre.get_scre_name_list(self)
+            if wp_screen_scre.get_status() != hdef.OKAY:
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"Error wp_screen_base.setup_scre_name({scre_name}) errtext = {wp_screen_scre.get_errtext()}"
+                self.log.write_err(self.errtext, screen=self.par.LOG_SCREEN_OUT)
+                wp_screen_scre.reset_status()
+                return
+            # end if
+        elif isinstance(scre_name, list):
+            scre_name_liste = scre_name
+        else:
+            scre_name_liste = [scre_name]
         # end if
 
-        if end_dat is not None:
+        if no_scre_name is not None:
+            if isinstance(no_scre_name, list):
+                no_scre_name_liste = no_scre_name
+            else:
+                no_scre_name_liste = [no_scre_name]
+            # end if
 
-            wp_screen_scre.proof_end_dat_of_wp(self,scre_name, self.scre["scre_dict"],end_dat)
+            for no_scre_name in no_scre_name_liste:
+                n = len(scre_name_liste)
+                for i,scre_name in enumerate(reversed(scre_name_liste)):
+                    j = n-i-1
+                    if no_scre_name == scre_name:
+                        del scre_name_liste[j]
+                    # end if
+                # end for
+            # end for
+        # end if
+
+
+
+
+        for scre_name in scre_name_liste:
+
+            wp_screen_scre.setup_scre_name(self,scre_name)
 
             if wp_screen_scre.get_status() != hdef.OKAY:
                 self.status = hdef.NOT_OKAY
@@ -373,16 +410,29 @@ class WPScreen:
                 wp_screen_scre.reset_status()
                 return
             # end if
-        # end fi
 
-        wp_screen_scre.scre_build_sigset(self, scre_name, self.scre["scre_dict"],build_always_new_sigset)
-        if wp_screen_scre.get_status() != hdef.OKAY:
-            self.status = hdef.NOT_OKAY
-            self.errtext = f"Error wp_screen_base.build_scre_sigset({scre_name}) errtext = {wp_screen_scre.get_errtext()}"
-            self.log.write_err(self.errtext, screen=self.par.LOG_SCREEN_OUT)
-            wp_screen_scre.reset_status()
-            return
-        # end if
+            if end_dat is not None:
+
+                wp_screen_scre.proof_end_dat_of_wp(self,scre_name, self.scre["scre_dict"],end_dat)
+
+                if wp_screen_scre.get_status() != hdef.OKAY:
+                    self.status = hdef.NOT_OKAY
+                    self.errtext = f"Error wp_screen_base.setup_scre_name({scre_name}) errtext = {wp_screen_scre.get_errtext()}"
+                    self.log.write_err(self.errtext, screen=self.par.LOG_SCREEN_OUT)
+                    wp_screen_scre.reset_status()
+                    return
+                # end if
+            # end fi
+
+            wp_screen_scre.scre_build_sigset(self, scre_name, self.scre["scre_dict"],build_always_new_sigset)
+            if wp_screen_scre.get_status() != hdef.OKAY:
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"Error wp_screen_base.build_scre_sigset({scre_name}) errtext = {wp_screen_scre.get_errtext()}"
+                self.log.write_err(self.errtext, screen=self.par.LOG_SCREEN_OUT)
+                wp_screen_scre.reset_status()
+                return
+            # end if
+        # end for
 
         return
     # end def
@@ -514,3 +564,39 @@ class WPScreen:
         # end if
         return (valmin,valmax)
     # end def
+    def execute_WP_update(self):
+        """
+        run WP update inclusive indices
+        """
+
+
+        (status, errtext, infotext) = self.wpfunc.update_indices()
+
+        if len(infotext):
+            self.infotext = f"Info wb_obj.update_indices() \n infotext = {infotext}"
+            self.log.write_info(self.infotext)
+        # end if
+
+        if status != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"Error wb_obj.update_indices() \n errtext = {errtext}"
+            self.log.write_err(self.errtext)
+        # end if
+
+        (status, errtext, infotext) = self.wpfunc.update_price_volume()
+
+        if len(infotext):
+            self.infotext = f"Info wb_obj.update_price_volume() \n infotext = {infotext}"
+            self.log.write_info(self.infotext)
+        # end if
+
+        if status != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"Error wb_obj.update_price_volume() \n errtext = {errtext}"
+            sgui.anzeige_text(self.errtext, textcolor='red')
+            self.log.write_err(self.errtext)
+        # end if
+
+        return
+    # end def
+

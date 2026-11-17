@@ -131,8 +131,8 @@ def update_isin_name_dict(isin, wpname, file_name, formatpj):
 
     :param isin:
     :param wpname:
-    :param base_ddict:
-    :return: (status, errtext,filename) = update_isin_name_dict(isin,info_dict["name"],base_ddict)
+    :param ini:
+    :return: (status, errtext,filename) = update_isin_name_dict(isin,info_dict["name"],ini)
     '''
 
     if info_storage_eixst(file_name, formatpj):
@@ -233,17 +233,17 @@ def save_np_obj(np_obj,file_name,formatpj):
 # def read_wpname_isin_dict(wpname_isin_filename,store_path):
 #     '''
 #
-#     :param base_ddict:
+#     :param ini:
 #     :return:
 #     '''#
 #     status = hdef.OKAY
 #     errtext = ""
 #
-#     # file_name_pckl = build_file_name_pickle(base_ddict["wpname_isin_filename"], base_ddict)
+#     # file_name_pckl = build_file_name_pickle(ini["wpname_isin_filename"], ini)
 #     file_name_json = build_file_name_json(wpname_isin_filename, store_path)
 #
 #     # Use always json
-#     # if (base_ddict["use_json"] == 2):  # read json
+#     # if (ini["use_json"] == 2):  # read json
 #
 #     if (os.path.isfile(file_name_json)):
 #         (status, errtext, wpname_dict) = read_json(file_name_json)
@@ -269,7 +269,7 @@ def build_file_name_pickle(body, store_path):
     '''
 
     :param isin:
-    :param base_ddict:
+    :param ini:
     :return: file_name
     '''
     return os.path.join(store_path, body + ".pkl")
@@ -278,7 +278,7 @@ def build_file_name_json(body,store_path):
     '''
 
     :param isin:
-    :param base_ddict:
+    :param ini:
     :return: file_name
     '''
     return os.path.join(store_path, body+".json")

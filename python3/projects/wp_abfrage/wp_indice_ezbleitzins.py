@@ -34,12 +34,12 @@ def process_akt(wb_obj):
     #--------------------------
     np_obj = wp_bearbeit.read_indice_np_data(wb_obj,wb_obj.par.INDICES_EZB_LEITZINS_NAME)
     if (np_obj is None) or np_obj.is_empty():
-        lastdat = htype.type_transform_direct(wb_obj.base_ddict["price_volumen_first_dat"], "datStrP", "dat")
+        lastdat = htype.type_transform_direct(wb_obj.ini["price_volumen_first_dat"], "datStrP", "dat")
     else:
         (firstdat,lastdat) = np_obj.get_first_last_dat("dat")
 
     # Was ist der letzte aktuelle Handelsdatum
-    end_dat = wp_fkt.letzter_beendeter_handelstag_timestamp(wb_obj.base_ddict["boerse"])
+    end_dat = wp_fkt.letzter_beendeter_handelstag_timestamp(wb_obj.ini["boerse"])
 
     # Neuer Datensatz bis aktuellem Datum:
     #-------------------------------------
@@ -109,7 +109,7 @@ def update_with_np_obj_new(wb_obj,np_obj,np_obj_new):
     """
 
     :param np_obj_new: dataclass
-    :return:  (status,errtext) = obj.set_usdeuro_course(np_obj_new,HEADER_DATUM_NAME,HEADER_USDEURO_NAME,base_ddict)
+    :return:  (status,errtext) = obj.set_usdeuro_course(np_obj_new,HEADER_DATUM_NAME,HEADER_USDEURO_NAME,ini)
     """
 
     status = hdef.OKAY

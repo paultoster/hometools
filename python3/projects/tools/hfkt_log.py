@@ -88,7 +88,7 @@ class log:
         self.logfile_out_flag = False
         self.log_message = []
 
-        print(__file__)
+        # print(__file__)
 
         # Logfile-Name
         # -------------

@@ -124,7 +124,8 @@ class WPData:
 
             # Bilde alle Signale und lege sie in Dateien ab
             end_dat = htype.type_transform_direct(self.Parobj.EndDat_datetime,"datetimeclass", "dat")
-            self.WPscrefunc.build_scre_sigset(self.Parobj.sim_scre_name,end_dat,self.Parobj.WPBuildSigSetNew)
+
+            self.WPscrefunc.execute_update_scre_sigset(self.Parobj.sim_scre_name,end_dat,self.Parobj.WPBuildSigSetNew)
             if self.WPscrefunc.get_status() != hdef.OKAY:
                 self.Parobj.status = hdef.NOT_OKAY
                 self.Parobj.errtext = self.WPscrefunc.get_errtext()

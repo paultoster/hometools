@@ -119,8 +119,8 @@ def get_active_katalog_dict(wb_obj) -> (int, str, dict):
                            'katalog2': {'isina':['depot1','depot2',...], 'isinb':['depot2','depot3',...], ...},
     '''
 
-    file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["active_katalog_filename"],
-                                                wb_obj.base_ddict["store_path"])
+    file_name = wp_storage.build_file_name_json(wb_obj.ini["active_katalog_filename"],
+                                                wb_obj.ini["store_path"])
 
     format = 2  # 1: pickle, 2: json
     (status, errtext, active_katalog_dict) = wp_storage.read_dict(file_name, format)
@@ -139,8 +139,8 @@ def save_active_katalog_dict(wb_obj, active_katalog_dict ):
     :return: (status, errtext) = save_active_katalog_dict(wb_obj, active_katalog_dict )
     """
 
-    file_name = wp_storage.build_file_name_json(wb_obj.base_ddict["active_katalog_filename"],
-                                                wb_obj.base_ddict["store_path"])
+    file_name = wp_storage.build_file_name_json(wb_obj.ini["active_katalog_filename"],
+                                                wb_obj.ini["store_path"])
 
     format = 2  # 1: pickle, 2: json
 
