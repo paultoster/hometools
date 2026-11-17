@@ -2,7 +2,7 @@ import os, sys
 import copy, random
 import datetime, time
 
-from win32comext.mapi.mapi import fnevCriticalError
+# from win32comext.mapi.mapi import fnevCriticalError
 
 t_path, _ = os.path.split(__file__)
 tools_path = t_path + "\\.."
