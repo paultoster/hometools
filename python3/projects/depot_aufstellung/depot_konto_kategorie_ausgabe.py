@@ -135,7 +135,12 @@ def excel_auswertung(rd):
     
     return status
 # end def
-def bilde_ods_File(file_name, ttable_ueberblick,index_ttable_ueberblick,kat_liste,ttable_einzel_liste,ttable_color_index_liste):
+def bilde_ods_File(file_name,
+                   ttable_ueberblick,
+                   index_ttable_ueberblick,
+                   kat_liste,
+                   ttable_einzel_liste,
+                   ttable_color_index_liste):
     '''
     
     :param file_name:
@@ -215,7 +220,10 @@ def bilde_ods_File(file_name, ttable_ueberblick,index_ttable_ueberblick,kat_list
             row_num += 1
             for icol,data in enumerate(data_liste):
                 worksheet[htype.excel_calc_alph_num(row_num, icol)] = data
-                color = htype.get_excel_color_by_index(ttable_color_index.table[irow][icol])
+                try:
+                    color = htype.get_excel_color_by_index(ttable_color_index.table[irow][icol])
+                except:
+                    a = 0
                 fill = openpyxl.styles.PatternFill(start_color=color, end_color=color, fill_type="solid")
                 worksheet[htype.excel_calc_alph_num(row_num, icol)].fill = fill
                 worksheet[htype.excel_calc_alph_num(row_num, icol)].alignment = al

@@ -10,7 +10,7 @@
     <content url="file://$MODULE_DIR$/../wp_abfrage">
       <excludeFolder url="file://$MODULE_DIR$/../wp_abfrage/.venv" />
     </content>
-    <orderEntry type="jdk" jdkName="D:\tools\hometools\python3\projects\depot_aufstellung\.venv" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="C:\Python315\python.exe" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PyDocumentationSettings">

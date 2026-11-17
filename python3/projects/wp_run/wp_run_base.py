@@ -67,7 +67,7 @@ class WPRun:
         # Log-File start
         # ---------------
         if log_obj is None:
-            log_file = build_log_file_name(self.ini["store_path"], "wp_test", self.act_time_str)
+            log_file = build_log_file_name(self.ini["store_path"], "wp_run", self.act_time_str)
             self.log = hlog.log(log_file=log_file,consol_func=True, log_window=False)
         else:
             self.log = log_obj

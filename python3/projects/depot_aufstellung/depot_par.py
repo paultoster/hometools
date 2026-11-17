@@ -61,7 +61,7 @@ class Parameter:
     INI_IBAN_LIST_FILE_NAME: str = "iban_list_file_name"
     INI_KONTO_KAT_JSON_FILE_NAME:str = "konto_kat_json_file_name"
     INI_KONTO_KAT_JSON_FILE_MAKE_BACKUP:str = "konto_kat_json_file_make_backup"
-    INI_WP_FUNC_INI_FILE_NAME: str = "wp_func_ini_file_name"
+    INI_WP_FUNC_BASE_PATH: str = "wp_func_base_path"
     INI_PROTOCOL_TYPE_NAME: str = "protocol_type"
     INI_PROTOCOL_TYPE_NO: int = 0
     INI_PROTOCOL_TYPE_SAVE: int = 1
@@ -82,7 +82,7 @@ class Parameter:
                            ,(INI_IBAN_LIST_FILE_NAME,"str")
                            ,(INI_KONTO_KAT_JSON_FILE_NAME,"str","str","")
                            ,(INI_KONTO_KAT_JSON_FILE_MAKE_BACKUP,"int","int",0)
-                           ,(INI_WP_FUNC_INI_FILE_NAME,"str")
+                           ,(INI_WP_FUNC_BASE_PATH,"str")
                            ,(INI_PROTOCOL_TYPE_NAME,"str")
                            ,(INI_PROTOCOL_FILE_NAME,"str")
                            ,(INI_KONTO_AUSWERTUNG_JAHR_NAME,"yearStr","yearStr","2026")

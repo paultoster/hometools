@@ -258,6 +258,35 @@ class KatDataClass:
         
         return wert
     # end def
+    def get_sumwert_bis_monat(self, month, type_out):
+        '''
+
+        :param type_out:
+        :return: wert = self.get_sumwert_monat(month,type_out)
+        '''
+
+        i = min(max(month - 1, 0), 12)
+        if self.katzeit == self.TYPE_MONAT:
+            sumwert = sum(self.sumwert_monat_liste[:i+1])
+            (okay, wert) = htype.type_transform(sumwert, "cent", type_out)
+            if okay != hdef.OKAY:
+                raise Exception(
+                    f"get_sumwert_monat_liste:  Fehler transform self.sumwert_monat_liste[{i}] = <{self.sumwert_monat_liste[i]}> von type: <{"cent"}> in type {type_out} wandeln !!!!!!")
+            # end if
+        else:
+            sumwert = self.sumwert_monat_mittel * (i+1)
+            (okay, sumwert_bis_monat_mittel) = htype.type_transform(sumwert, "cent", type_out)
+            if okay != hdef.OKAY:
+                raise Exception(
+                    f"get_sumwert_monat_liste:  Fehler transform self.sumwert_monat_mittel = <{self.sumwert_monat_mittel}> von type: <{"cent"}> in type {type_out} wandeln !!!!!!")
+            # end if
+            wert = sumwert_bis_monat_mittel
+
+        # end if
+
+        return wert
+
+    # end def
     def is_sumwert_monat_gemittelt(self):
         return self.katzeit == self.TYPE_JAHR
     # end def
@@ -607,9 +636,25 @@ class KategorieAuswertungClass:
                 month = month_list[section[0]]
                 iinsert = section[1]+1
                 
+                wert = self.kat_data_obj_dict[kat].get_sumwert_bis_monat(month, "euroStrK")
+
+                vals = ["SummeBisMonat", "", "", "", wert]
+
+                tlist = htvar.build_list(header_liste, vals, type_liste)
+
+                # if self.kat_data_obj_dict[kat].is_sumwert_monat_gemittelt():
+                #     tlist.vals[3] = (htype.get_MonthName_from_MonthInt(1)
+                #                      + " - "
+                #                      + htype.get_MonthName_from_MonthInt(12))
+                # else:
+                #     tlist.vals[3] = htype.get_MonthName_from_MonthInt(month)
+                # # end if
+
+                ttable = htvar.insert_list_to_table(ttable, tlist, iinsert)
+
                 wert = self.kat_data_obj_dict[kat].get_sumwert_monat(month, "euroStrK")
                 
-                vals = ["Summe","","","",wert]
+                vals = ["SummeMonat","","","",wert]
                 
                 tlist = htvar.build_list(header_liste,vals,type_liste)
                 
@@ -623,11 +668,15 @@ class KategorieAuswertungClass:
                 
                 ttable = htvar.insert_list_to_table(ttable, tlist, iinsert)
 
+
                 vals = [0, 0, 0, 0, 0]
                 tlist = htvar.build_list(header_liste, vals, type_index_liste)
                 ttable_color_index = htvar.insert_list_to_table(ttable_color_index, tlist, iinsert)
 
-                
+                vals = [0, 0, 0, 0, 0]
+                tlist = htvar.build_list(header_liste, vals, type_index_liste)
+                ttable_color_index = htvar.insert_list_to_table(ttable_color_index, tlist, iinsert)
+
             # end for
             
             # Summe
