@@ -35,7 +35,36 @@ BOTTOM_DEFAULT = 0.1
 TOP_DEFAULT = 0.85
 TOP_NO_WIDGET_DEFAULT = 0.90
 
+def get_colors_list(nowhitecolors=True,nmax=100):
+    colors = matplotlib.colors.cnames
 
+    base_liste = ['black', 'red', 'blue', 'green', 'cyan', 'magenta', 'yellow']
+    colors_base = {key: colors[key] for key in base_liste}
+
+    if nowhitecolors:
+        nogo_liste = ['aliceblue', 'antiquewhite', 'azure', 'beige', 'bisque',
+                      'burlywood', 'cornsilk', 'floralwhite', 'ghostwhite', 'honeydew',
+                      'ivory', 'lavenderblush', 'lightyellow', 'linen', 'mintcream',
+                      'moccasin', 'oldlace', 'papayawhip', 'seashell', 'snow',
+                      'white', 'whitesmoke', 'aqua', 'aquamarine', 'mistyrose'] + base_liste
+    else:
+        nogo_liste = base_liste
+    # END IF
+
+    colors = {key: value for (key, value) in colors.items() if key not in nogo_liste}
+
+    colors = dict(colors_base, **colors)
+
+    names = list(colors)
+
+    while len(names) < nmax:
+        names += names
+    # end if
+
+    return names
+
+
+# end if
 def check_dict_plot(dict_input):
     """
     Plotten eine Diagramms mit mehreren zeitreihen

@@ -2056,6 +2056,8 @@ def matplot_date_data(ddict_inp):
 
     return ddict_out
 # end def
+def matplot_get_colors_list(nowhitecolors=True,nmax=100):
+    return smatplot_class.matplot_fkt.get_colors_list(nowhitecolors=nowhitecolors,nmax=nmax)
 def matplot_bar(ddict_inp):
     """
     matplot_date_data(ddict_inp)

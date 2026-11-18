@@ -68,14 +68,14 @@ def get_np_arrays(index_liste,liste_joblib_files,simname_list):
     return np_data_obj_liste
 # end def
 def do_plot(np_data_obj_liste):
-
+    cnames = sgui.matplot_get_colors_list(nmax = len(np_data_obj_liste))
     data_dict_list = []
-    for np_data_obj in np_data_obj_liste:
+    for i,np_data_obj in  enumerate(np_data_obj_liste):
         B0 = np_data_obj.np_cash_array[0]
         dict_data = {}
         dict_data["xdat"] = np_data_obj.np_dat_array
         dict_data["y"] = (np_data_obj.np_cash_array-B0)/B0 * 100.
-        dict_data["color"] = "k"
+        dict_data["color"] = cnames[i]
         dict_data["linewidth"] = 1
         dict_data["linestyle"] = "-"
         dict_data["marker"] = ""
