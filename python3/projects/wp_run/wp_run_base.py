@@ -13,6 +13,7 @@ import tools.hfkt_log as hlog
 import tools.hfkt_ini as hini
 import tools.hfkt_io as hio
 import tools.hfkt_date_time as hdt
+import copy_backup.copy_backup as copy_backup
 
 import wp_screen.wp_screen_base as wp_screen_base
 
@@ -124,7 +125,7 @@ class WPRun:
         self.log.write_info(f"UpdateWP: {self.yaml_dict["UpdateWP"]}", screen=1)
         self.log.write_info(f"UpdateScreen: {self.yaml_dict["UpdateScreen"]}", screen=1)
 
-        if  self.yaml_dict["UpdateWP"] or self.yaml_dict["UpdateScreen"]:
+        if  self.yaml_dict["UpdateWP"] or self.yaml_dict["UpdateScreen"] or self.yaml_dict["UpdateSave"]:
 
             (trigger,act_datetime) = self.triggerNextDate()
 
@@ -167,6 +168,10 @@ class WPRun:
 
             if trigger:
                 self.yaml_dict["LastUpdate"] = act_datetime.strftime("%d.%m.%Y")
+
+            if self.yaml_dict["UpdateSave"]:
+                self.updateSaveData()
+            # end if
 
         return
     # end def
@@ -229,3 +234,57 @@ class WPRun:
                 print("Execution failed:", e, file=sys.stderr)
             # end try
         # end if
+        return
+    # end def
+    def updateSaveData(self):
+
+
+        # wp_abfrage
+        #-----------
+
+        ddict = {}
+
+        # Quellpafad
+        ddict[copy_backup.NAME_SOURCE_PATH] = "D:\\data\\wp\\wp_abfrage"
+        # Zielpfad
+        ddict[copy_backup.NAME_TARGET_PATH] = os.path.join("X:\\Samsung-SSD850EVO1TB-01\\wp_datenpool",f"wp_abfrage_{self.act_time_str}")
+        # Ausschlusspfade
+        # ddict[copy_backup.NAME_EXCLUDE_ABS_PATH_LIST] = ["data/SmartSwitch"]
+        # ddict[copy_backup.NAME_EXCLUDE_REL_PATH_LIST] = ["$RECYCLE.BIN"]
+        # Ausschlussextensions
+        ddict[copy_backup.NAME_EXCLUDE_EXT_LIST] = [".obj", "bak"]
+        ddict[copy_backup.NAME_EXACT_COPY_FLAG] = 0
+
+        # ddict[copy_backup.NAME_COPY_ALWAYS_FILE_LIST] = ["pdata"]
+
+        copyobj = copy_backup.copybackup(ddict)
+        if (copyobj.STATUS == copy_backup.OKAY):
+            copyobj.make_backup()
+        # end if
+
+        # wp_abfrage
+        #-----------
+
+        ddict = {}
+
+        # Quellpafad
+        ddict[copy_backup.NAME_SOURCE_PATH] = "D:\\data\\wp\\wp_screen"
+        # Zielpfad
+        ddict[copy_backup.NAME_TARGET_PATH] = os.path.join("X:\\Samsung-SSD850EVO1TB-01\\wp_datenpool",f"wp_screen_{self.act_time_str}")
+        # Ausschlusspfade
+        # ddict[copy_backup.NAME_EXCLUDE_ABS_PATH_LIST] = ["data/SmartSwitch"]
+        # ddict[copy_backup.NAME_EXCLUDE_REL_PATH_LIST] = ["$RECYCLE.BIN"]
+        # Ausschlussextensions
+        ddict[copy_backup.NAME_EXCLUDE_EXT_LIST] = [".obj", "bak"]
+        ddict[copy_backup.NAME_EXACT_COPY_FLAG] = 0
+
+        # ddict[copy_backup.NAME_COPY_ALWAYS_FILE_LIST] = ["pdata"]
+
+        copyobj = copy_backup.copybackup(ddict)
+        if (copyobj.STATUS == copy_backup.OKAY):
+            copyobj.make_backup()
+        # end if
+
+        return
+    # end def
+# end class

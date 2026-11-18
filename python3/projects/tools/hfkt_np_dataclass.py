@@ -33,11 +33,12 @@ class NpDataClass:
         pass
 # end class
 class NpDataHandlingClass:
-    def __init__(self,filename=None) -> None:
+    def __init__(self,filename=None,name="") -> None:
 
         self.status = hdef.OKAY
         self.errtext = ""
         self.infotext = ""
+        self.name = name
 
         self.TYPE_NDARRAY = TYPE_NDARRAY
         self.TYPE_STR = TYPE_STR
@@ -68,7 +69,9 @@ class NpDataHandlingClass:
         self.status = hdef.OKAY
         self.errtext = ""
         self.infotext = ""
-
+    def get_name(self):
+        return self.name
+    # end def
     def add_signal(self,signal,signal_name):
 
         self.del_signal(signal_name)

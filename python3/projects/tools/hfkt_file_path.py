@@ -27,7 +27,7 @@
  fullfilename = set_pfe(path,filename)
  fullfilename = reset_ext(fullfilename_in,ext)
  fullfilename = reset_filename(fullfilename_in,filename,filename_w_ext=True)
- fullfilename = add_to_filebody(fullfilename_in,add_name)
+ fullfilename = add_to_filebody(add_front,fullfilename_in,add_back)
 
 
  leaves_path_name = get_path_leaves(full_path_name,root_path_name)

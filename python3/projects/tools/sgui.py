@@ -1870,7 +1870,7 @@ def radiobutton_dialog(auswahl_liste,title="Auswahl"):
     root = tkinter.Tk()
     root.title(title)
 
-    auswahl = tkinter.StringVar(value="")
+    auswahl = tkinter.StringVar()
 
     tkinter.Label(root, text="Bitte auswählen:").pack(padx=10, pady=10)
 
@@ -1879,10 +1879,10 @@ def radiobutton_dialog(auswahl_liste,title="Auswahl"):
             root,
             text=str(wert),
             variable=auswahl,
-            value=i,
+            value=str(wert),
         ).pack(anchor="w", padx=20)
 
-    auswahl.set(0)
+    auswahl.set(auswahl_liste[0])
 
     def ok():
         root.quit()
@@ -1891,10 +1891,75 @@ def radiobutton_dialog(auswahl_liste,title="Auswahl"):
 
     root.mainloop()
 
-    index = auswahl.get()
+    wert = auswahl.get()
+    #print(f"wert = {wert}")
+    index = auswahl_liste.index(wert)
+    #print(f"index = {index}")
     root.destroy()
 
     return int(index)
+#end if
+def checkbutton_dialog(auswahl_liste,title="Auswahl",nrows=10):
+    """
+    Auswahl is auswahl_liste[index], wenn index != -1 Cancel)
+    """
+    root = tkinter.Tk()
+    root.title(title)
+
+    tkinter.Label(root, text="Bitte auswählen:").pack(padx=10, pady=10)
+    def ok():
+        root.quit()
+
+    tkinter.Button(root, text="OK", command=ok).pack(pady=10)
+
+
+    n = len(auswahl_liste)
+    frame_list = []
+    n_frame_list = []
+    while (n > 0):
+        frame = tkinter.Frame(root)
+        frame.pack(side=tkinter.LEFT,expand=tkinter.TRUE,fill=tkinter.BOTH)
+        frame_list.append(frame)
+        n_frame_list.append(len(frame_list)*nrows)
+        n -= nrows
+    # end while
+
+
+    intVar_list = []
+
+    for i, wert in enumerate(auswahl_liste):
+
+        for j,nframe in enumerate(n_frame_list):
+
+            if i < nframe:
+                break
+            # end if
+        # end if
+        intVar_list.append(tkinter.IntVar())
+        checkb = tkinter.Checkbutton(
+            frame_list[j],
+            text=str(wert),
+            variable=intVar_list[i],
+            onvalue=1,
+            offvalue=0,
+        )
+        checkb.pack(anchor="w", padx=10, pady=0)
+
+
+
+
+    root.mainloop()
+
+    index_liste = []
+    for i,ivar in enumerate(intVar_list):
+        #print(ivar.get())
+        if ivar.get() == 1:
+            index_liste.append(i)
+        # end if
+    # end ofr
+    root.destroy()
+
+    return index_liste
 #end if
 def plot_mit_radiobuttons(ddict_inp):
     """

@@ -12,17 +12,25 @@ import tools.sgui as sgui
 
 import run_wp_test_yaml
 import run_wp_test_tabelle
+import run_wp_test_plot
 
 BASE_PATH   = 'D:/data/wp'
 
-auswahl_liste = ["yaml", "tabelle"]
+auswahl_liste = ["yaml", "tabelle","plot"]
 i_yaml = 0
 i_tabelle = 1
+i_plot = 2
 index = sgui.radiobutton_dialog(auswahl_liste, title="Welche Auswertung soll laufen")
+print(f"index_out = {index}")
 if index == -1:
     exit(1)
 elif index == i_yaml:
+    print("yaml")
     run_wp_test_yaml.run_wp_test_yaml(BASE_PATH)
-else:
+elif index == i_tabelle:
+    print("tabelle")
     run_wp_test_tabelle.run_wp_test_tabelle(BASE_PATH)
+else:
+    print("plot")
+    run_wp_test_plot.run_wp_test_plot(BASE_PATH)
 # ed if
