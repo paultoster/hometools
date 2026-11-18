@@ -100,7 +100,11 @@ class WPRun:
         return
     # end def
     def last(self):
+
+        self.log.write_info(f"save self.yamlobj", screen=1)
         self.yamlobj.save(self.yaml_dict)
+
+        self.log.write_info(f"close self.log", screen=1)
         self.log.close()
     # end def
     def run(self):
@@ -116,6 +120,9 @@ class WPRun:
         return
     # end def
     def run_WP_Screen(self):
+
+        self.log.write_info(f"UpdateWP: {self.yaml_dict["UpdateWP"]}", screen=1)
+        self.log.write_info(f"UpdateScreen: {self.yaml_dict["UpdateScreen"]}", screen=1)
 
         if  self.yaml_dict["UpdateWP"] or self.yaml_dict["UpdateScreen"]:
 
@@ -183,7 +190,12 @@ class WPRun:
 
         if act_datetime >= next_update_datetime:
 
+            self.log.write_info(f"trigger = True da act_datetime:{act_datetime.strftime('%d.%m.%Y')} >= next_update_datetime {next_update_datetime.strftime('%d.%m.%Y')}", screen=1)
+
             trigger = True
+        else:
+            self.log.write_info(f"trigger = False da act_datetime:{act_datetime.strftime('%d.%m.%Y')} < next_update_datetime {next_update_datetime.strftime('%d.%m.%Y')}", screen=1)
+
         # end if
 
         return (trigger,act_datetime)
@@ -200,6 +212,7 @@ class WPRun:
             yamlsd_dict = {"ShutdownAtEnd":False}
         # end if
 
+        self.log.write_info(f"ShutdownAtEnd: {yamlsd_dict["ShutdownAtEnd"]}", screen=1)
 
         if yamlsd_dict["ShutdownAtEnd"]:
 
