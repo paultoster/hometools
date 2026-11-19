@@ -21,9 +21,9 @@ import wp_screen.wp_screen_scre as wp_screen_scre
 import wp_screen.wp_screen_scre_plot as wp_screen_scre_plot
 
 import tools.hfkt_def as hdef
-import tools.hfkt_pickle as hfkt_pickle
+import tools.hfkt_file_path as hfp
 import tools.sgui as sgui
-import tools.hfkt_tvar as htvar
+# import tools.hfkt_tvar as htvar
 # import tools.hfkt_type as htype
 
 
@@ -101,6 +101,12 @@ def scre_command(rd):
                 sgui.anzeige_text(t, textcolor='orange')
             else:
                 scre_rename(rd, index)
+                if STATUS != hdef.OKAY and ERRTEXT != "":
+                    t = f"scre_command rename: {ERRTEXT}"
+                    rd.log.write_err(t, screen=rd.par.LOG_SCREEN_OUT)
+                    sgui.anzeige_text(t, textcolor='orange')
+                    reset_status()
+                # end if
             # end if
         elif indexAbfrage == i_copy:
             if (index < 0) or (index >= n_auswahl_liste):
@@ -322,9 +328,10 @@ def scre_del(rd,index):
 # end def
 def scre_rename(rd, index):
 
+    alter_name = rd.scre["scre_liste"][index]
     liste_abfrage = ["screname"]
     title = "Umbenennen Screen-Name "
-    liste_vorgabe = [rd.scre["scre_liste"][index]]
+    liste_vorgabe = [alter_name]
     (liste_ergebnis, status) = wp_screen_gui.eingabe_n_zeilen(rd.gui, liste_abfrage,
                                                               liste_vorgabe=liste_vorgabe, title=title)
 
@@ -333,10 +340,20 @@ def scre_rename(rd, index):
 
     text = liste_ergebnis[0]
     # entfernt Leerzeichen, Tabulator (\t), Zeilenumbrüche (\n), geschützte Leerzeichen (\xa0)
-    scre = "".join(text.split()).replace(" ", "")
+    neuer_name = "".join(text.split()).replace(" ", "")
 
-    if scre != rd.scre["scre_liste"][index]:
-        rd.scre["scre_liste"][index] = scre
+    if neuer_name != rd.scre["scre_liste"][index]:
+        alter_file_name = wp_screen_scre.scre_dict_set_filename(rd, alter_name)
+        neuer_file_name = wp_screen_scre.scre_dict_set_filename(rd, neuer_name)
+
+        status = hfp.rename_file(alter_file_name,neuer_file_name)
+        if status != hdef.OKAY:
+            global STATUS, ERRTEXT
+            STATUS = hdef.NOT_OKAY
+            ERRTEXT = f"Datei {alter_file_name} konnte nicht in {neuer_file_name} umbenannt werden"
+            return
+        # end if
+        rd.scre["scre_liste"][index] = neuer_name
         rd.scre["scre_liste_jsonobj"].save(rd.scre["scre_liste"])
     # end if
     return

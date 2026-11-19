@@ -880,7 +880,19 @@ def make_backup_file(fullfilename, backup_dir,no_act_date=False):
     
     return (flag, errtext)
 
+def rename_file(s_file_name,t_file_name,allways_flag=False):
+    """
+    Nennt um s_file_name => t_file_name
+    """
+    if os.path.isfile(s_file_name):
 
+        if allways_flag or (not os.path.isfile(t_file_name)):
+            os.rename(s_file_name, t_file_name)
+            return OK
+        # end if
+    # end if
+    return NOT_OK
+# end def
 def move_file(s_filename, targetdir):
     """
       verschiebt s_filename nach target-path

@@ -51,6 +51,7 @@ class WPRun:
         self.infotext = ""
 
         self.act_time_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        self.act_time_datetime = datetime.datetime.now()
         self.ini_file = os.path.join(base_path, "wp.ini")
 
         # Ini
@@ -128,7 +129,7 @@ class WPRun:
 
         if  self.yaml_dict["UpdateWP"] or self.yaml_dict["UpdateScreen"] or self.yaml_dict["UpdateSave"]:
 
-            (trigger,act_datetime) = self.triggerNextDate()
+            trigger = self.triggerNextDate()
 
             if self.yaml_dict["UpdateWP"] and trigger:
 
@@ -168,7 +169,7 @@ class WPRun:
             # end if
 
             if trigger:
-                self.yaml_dict["LastUpdate"] = act_datetime.strftime("%d.%m.%Y")
+                self.yaml_dict["LastUpdate"] = self.act_time_datetime.strftime("%d.%m.%Y")
 
             if self.yaml_dict["UpdateSave"]:
                 self.backupData()
@@ -182,29 +183,43 @@ class WPRun:
         :return: self.next_date_datetime = self.triggerNextDate()
         """
         trigger = False
-        act_datetime = datetime.datetime.now()
+
+
+        yamlsdobj = hio.DataYaml(self.ini["steuer_file_name"])
+
+        if yamlsdobj.exist_file():
+            yamlsd_dict = yamlsdobj.read_and_get_data()
+        else:
+            yamlsd_dict = {"TriggerAlways": False}
+        # end if
+
+        if yamlsd_dict.get("TriggerAlways"):
+            return  trigger
+        # end if
 
         key = "LastUpdate"
         if key in self.yaml_dict.keys():
             last_update_datetime = datetime.datetime.strptime(self.yaml_dict[key] , "%d.%m.%Y")
         else:
-            exact_act_datetime = datetime.datetime(act_datetime.year,act_datetime.month,act_datetime.day)
+            exact_act_datetime = datetime.datetime(self.act_time_datetime.year,
+                                                   self.act_time_datetime.month,
+                                                   self.act_time_datetime.day)
             last_update_datetime = hdt.get_last_weekday(exact_act_datetime,self.yaml_dict["UpdateTag"])
         # end if
 
         next_update_datetime = hdt.get_next_weekday(last_update_datetime, self.yaml_dict["UpdateTag"])
 
-        if act_datetime >= next_update_datetime:
+        if self.act_time_datetime >= next_update_datetime:
 
-            self.log.write_info(f"trigger = True da act_datetime:{act_datetime.strftime('%d.%m.%Y')} >= next_update_datetime {next_update_datetime.strftime('%d.%m.%Y')}", screen=1)
+            self.log.write_info(f"trigger = True da act_datetime:{self.act_time_datetime.strftime('%d.%m.%Y')} >= next_update_datetime {next_update_datetime.strftime('%d.%m.%Y')}", screen=1)
 
             trigger = True
         else:
-            self.log.write_info(f"trigger = False da act_datetime:{act_datetime.strftime('%d.%m.%Y')} < next_update_datetime {next_update_datetime.strftime('%d.%m.%Y')}", screen=1)
+            self.log.write_info(f"trigger = False da act_datetime:{self.act_time_datetime.strftime('%d.%m.%Y')} < next_update_datetime {next_update_datetime.strftime('%d.%m.%Y')}", screen=1)
 
         # end if
 
-        return (trigger,act_datetime)
+        return trigger
     # end def
 
     def run_Shutdown(self):
@@ -214,13 +229,23 @@ class WPRun:
 
         if yamlsdobj.exist_file():
             yamlsd_dict = yamlsdobj.read_and_get_data()
+            if "ShutdownAtEnd" not in yamlsd_dict.keys():
+                yamlsd_dict["ShutdownAtEnd"] = False
+            # end if
+            if "ShutdownBeforeHour" not in yamlsd_dict.keys():
+                yamlsd_dict["ShutdownBeforeHour"] = 0
+            # end if
         else:
-            yamlsd_dict = {"ShutdownAtEnd":False}
+            yamlsd_dict = {"ShutdownAtEnd":False,"ShutdownBeforeHour":0}
         # end if
 
-        self.log.write_info(f"ShutdownAtEnd: {yamlsd_dict["ShutdownAtEnd"]}", screen=1)
 
-        if yamlsd_dict["ShutdownAtEnd"]:
+
+        self.log.write_info(f"ShutdownAtEnd: {yamlsd_dict["ShutdownAtEnd"]}", screen=1)
+        self.log.write_info(f"ShutdownBeforeHour: {yamlsd_dict["ShutdownBeforeHour"]}", screen=1)
+        self.log.write_info(f"ActTimeHour: {self.act_time_datetime.hour}", screen=1)
+
+        if yamlsd_dict["ShutdownAtEnd"] and (self.act_time_datetime.hour < yamlsd_dict["ShutdownBeforeHour"]):
 
             self.last()
 

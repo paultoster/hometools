@@ -120,14 +120,16 @@ def scre_check_changes(rd, ddict):
 
     return flag
 # end def
+def scre_dict_set_filename(rd,scre):
+    return os.path.join(rd.ini["store_path"],rd.ini["scre_dict_pre_file_name"] + scre + ".json")
+# end def
 def scre_dict_read(rd):
     """
 
     :param rd:
     :return: scre_dict_read(rd)
     """
-    rd.scre["scre_dict_filename"] = os.path.join(rd.ini["store_path"],
-                            rd.ini["scre_dict_pre_file_name"] + rd.scre["scre"] + ".json")
+    rd.scre["scre_dict_filename"] = scre_dict_set_filename(rd,rd.scre["scre"])
 
     if rd.scre["scre_dict_jsonobj"] is not None:
         del rd.scre["scre_dict_jsonobj"]
