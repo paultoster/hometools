@@ -18,6 +18,7 @@ import copy_backup.copy_backup as copy_backup
 import wp_screen.wp_screen_base as wp_screen_base
 
 INI_DICT_PROOF_LISTE =   [("store_path", "str"),
+                          ("backup_path","str"),
                           ("steuer_file_name","str"),
                           ("parameter_file_name","str")]
 
@@ -170,7 +171,7 @@ class WPRun:
                 self.yaml_dict["LastUpdate"] = act_datetime.strftime("%d.%m.%Y")
 
             if self.yaml_dict["UpdateSave"]:
-                self.updateSaveData()
+                self.backupData()
             # end if
 
         return
@@ -236,7 +237,7 @@ class WPRun:
         # end if
         return
     # end def
-    def updateSaveData(self):
+    def backupData(self):
 
 
         # wp_abfrage
@@ -245,9 +246,9 @@ class WPRun:
         ddict = {}
 
         # Quellpafad
-        ddict[copy_backup.NAME_SOURCE_PATH] = "D:\\data\\wp\\wp_abfrage"
+        ddict[copy_backup.NAME_SOURCE_PATH] = os.path.join(self.ini["base_path"],"wp_abfrage")
         # Zielpfad
-        ddict[copy_backup.NAME_TARGET_PATH] = os.path.join("X:\\Samsung-SSD850EVO1TB-01\\wp_datenpool",f"wp_abfrage_{self.act_time_str}")
+        ddict[copy_backup.NAME_TARGET_PATH] = os.path.join(self.ini["backup_path"],f"wp_abfrage_{self.act_time_str}")
         # Ausschlusspfade
         # ddict[copy_backup.NAME_EXCLUDE_ABS_PATH_LIST] = ["data/SmartSwitch"]
         # ddict[copy_backup.NAME_EXCLUDE_REL_PATH_LIST] = ["$RECYCLE.BIN"]
@@ -268,9 +269,9 @@ class WPRun:
         ddict = {}
 
         # Quellpafad
-        ddict[copy_backup.NAME_SOURCE_PATH] = "D:\\data\\wp\\wp_screen"
+        ddict[copy_backup.NAME_SOURCE_PATH] = os.path.join(self.ini["base_path"],"wp_screen")
         # Zielpfad
-        ddict[copy_backup.NAME_TARGET_PATH] = os.path.join("X:\\Samsung-SSD850EVO1TB-01\\wp_datenpool",f"wp_screen_{self.act_time_str}")
+        ddict[copy_backup.NAME_TARGET_PATH] = os.path.join(self.ini["backup_path"],f"wp_screen_{self.act_time_str}")
         # Ausschlusspfade
         # ddict[copy_backup.NAME_EXCLUDE_ABS_PATH_LIST] = ["data/SmartSwitch"]
         # ddict[copy_backup.NAME_EXCLUDE_REL_PATH_LIST] = ["$RECYCLE.BIN"]

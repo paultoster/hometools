@@ -61,7 +61,7 @@ def sort_list_dict(list_dict,keyname,aufsteigend=True):
 def bilde_tabelle(list_dict,liste_json_files):
 
     lliste = [("sim_name","str","str"),
-             ("ziel_value","float","float"),
+             ("ziel_value","float","floatStr"),
              ("mean_zins","float","percentStr"),
              ("max_drawdown_rel_cash", "float", "percentStr", "0"),
              ("median_zins","float","percentStr"),

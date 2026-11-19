@@ -1809,6 +1809,8 @@ def type_transform(wert_in: any, type_in: str | list, type_out: str | list):
         (okay, wert_out) = type_transform_bool(wert_in, type_out)
     elif type_in == "float":
         (okay, wert_out) = type_transform_float(wert_in, type_out)
+    elif type_in == "floatStr":
+        (okay, wert_out) = type_transform_floatStr(wert_in, type_out)
     elif type_in == "euro":
         (okay, wert_out) = type_transform_euro(wert_in, type_out)
     elif type_in == "euroStrK":
@@ -2257,6 +2259,41 @@ def  type_transform_bool(wert_in,type_out):
     return (okay,wert_out)
 # end def
 def  type_transform_float(wert_in,type_out):
+    '''
+    :param wert_in:
+    :param type_out:
+    :return: (okay, wert_out) =  type_transform_dat_int(wert_in,type_out)
+    '''
+    (okay, wert) = type_proof(wert_in, "float")
+    if( okay == hdef.OKAY):
+        if type_out == "floatStr":
+            wert_out = f'{wert:.2f}'
+        elif (type_out == "euro"):
+            wert_out = wert
+        elif  (type_out == "int") or (type_out == "cent"):
+            wert_out = int((wert*100.)+0.5)
+        elif type_out == "str":
+            (okay, wert_out) = type_proof(wert, "str")
+        elif type_out == "euroStrK":
+            (okay, wert_out) = type_proof(wert, "euro")
+            if okay == hdef.OKAY:
+                wert_out = num_euro_in_euroStr(wert_out)
+            # end if
+        elif type_out == "list":
+            wert_out = [wert]
+        elif (type_out == "listStr") or (type_out == "list_str") :
+            wert_out = [str(wert)]
+        elif type_out == "percentStr":
+            wert_out = ("%.2f" % (float(wert) * 100.)) + "%"
+        else:
+            raise Exception(f"In type_transform_int ist type_out: {type_out} nicht möglich")
+        # end if
+    else:
+        wert_out = wert
+    # end if
+    return (okay,wert_out)
+# end def
+def  type_transform_floatStr(wert_in,type_out):
     '''
     :param wert_in:
     :param type_out:
