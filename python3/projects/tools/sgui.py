@@ -2089,6 +2089,17 @@ def matplot_bar(ddict_inp):
 
     del obj
     return ddict_out
+def get_tkinter_color_hexcode(color_name):
+    root = Tk.Tk()
+    r16, g16, b16 = root.winfo_rgb(color_name)
+    root.withdraw()
+    root.destroy()
+
+    r8 = r16 // 256
+    g8 = g16 // 256
+    b8 = b16 // 256
+    return f"#{r8:02x}{g8:02x}{b8:02x}"
+# end def
 if __name__ == '__main__':
     
     """

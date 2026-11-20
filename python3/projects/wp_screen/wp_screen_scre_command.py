@@ -23,7 +23,7 @@ import wp_screen.wp_screen_scre_plot as wp_screen_scre_plot
 import tools.hfkt_def as hdef
 import tools.hfkt_file_path as hfp
 import tools.sgui as sgui
-# import tools.hfkt_tvar as htvar
+import tools.hfkt_io as hio
 # import tools.hfkt_type as htype
 
 
@@ -442,9 +442,10 @@ def scre_show_screen(rd,index):
     rd.log.write_info(f"Reine CPU-Prozesszeit: {end_cpu - start_cpu:.6f} Sekunden", screen=rd.par.LOG_SCREEN_OUT)
     rd.log.write_info(f"Echte vergangene Zeit: {end_real - start_real:.6f} Sekunden", screen=rd.par.LOG_SCREEN_OUT)
 
-    abfrage_liste = ["plot","ende"]
+    abfrage_liste = ["plot","excel","ende"]
     index_plot = 0
-    index_ende = 1
+    index_excel = 1
+    index_ende = 2
 
     runflag = True
     while runflag:
@@ -463,7 +464,7 @@ def scre_show_screen(rd,index):
 
         if (indexAbfrage < 0) or (indexAbfrage == index_ende):
             runflag = False
-        else: # indexAbfrage == index_plot
+        elif indexAbfrage == index_plot:
             if index < 0:
                 rd.log.write_info("Keine wp ausgewählt")
                 runflag = True
@@ -485,6 +486,54 @@ def scre_show_screen(rd,index):
                     rd.log.write_info(t)
                 # end if
                 runflag = True
+        else: # indexAbfrage == index_excel
+
+            print(rd.scre["ttable"].table)
+            print(rd.scre["ttable"].n)
+            print(rd.scre["color_dict_liste"])
+
+            color_table = []
+            for irow,data_liste in enumerate(rd.scre["ttable"].table):
+
+                row_color_dict_liste = []
+                for ddict in rd.scre["color_dict_liste"]:
+                    if ddict["row"] == irow:
+                        row_color_dict_liste.append(ddict)
+                    # end if
+                # end dfor
+
+                color_liste = []
+                for icol in range(len(data_liste)):
+
+                    nflag = True
+                    for ddict in row_color_dict_liste:
+                        if ddict["col"] == icol:
+                            nflag = False
+                            color = sgui.get_tkinter_color_hexcode(ddict["bg"])
+                            break
+                        # end if
+                    # end ofr
+                    if nflag:
+                        color = '#ffffff' # white
+                    # end if
+
+                    color_liste.append(color)
+
+                # end ofr
+
+                color_table.append(color_liste)
+            # end for
+
+            excel_filename = os.path.join(rd.ini["store_path"],rd.scre["scre"] + '.xlsx')
+            status = hio.write_excel_file_ttable(excel_filename,rd.scre["ttable"],color_table)
+
+            if status != hdef.OKAY:
+                STATUS = hdef.NOT_OKAY
+                ERRTEXT = f"Excelfile: {excel_filename} konnte nicht erstellt werden"
+                runflag = False
+            else:
+                runflag = True
+                os.startfile(excel_filename)
         # end if
     # end while
     return

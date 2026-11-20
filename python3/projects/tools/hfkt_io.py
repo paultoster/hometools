@@ -865,7 +865,7 @@ def write_csv_file_ttable(file_name,ttable,delim=";"):
     return write_csv_file_header_data(file_name,ttable.names,ttable.table,delim)
 # end def
 
-def write_excel_file_header_data(file_name,csv_header,csv_data):
+def write_excel_file_header_data(file_name,csv_header,csv_data,csv_bg_color_data=None):
     """
     Write Data into excel-File
     :param file_name:
@@ -902,9 +902,19 @@ def write_excel_file_header_data(file_name,csv_header,csv_data):
 
     for irow, data_liste in enumerate(csv_data):
         row_num += 1
+
+        if csv_bg_color_data is not None:
+            if irow < len(csv_bg_color_data):
+                bg_color_liste = csv_bg_color_data[irow]
+            # end if
         for icol, data in enumerate(data_liste):
             worksheet[htype.excel_calc_alph_num(row_num, icol)] = data
-            color = "00FFFFFF" # color = htype.get_excel_color_by_index(0)
+            if (csv_bg_color_data is not None) and (icol < len(bg_color_liste)):
+                color = "00" + bg_color_liste[icol].lstrip("#")
+            else:
+                color = "00FFFFFF"  # white
+            # end if
+
             fill = openpyxl.styles.PatternFill(start_color=color, end_color=color, fill_type="solid")
             worksheet[htype.excel_calc_alph_num(row_num, icol)].fill = fill
             worksheet[htype.excel_calc_alph_num(row_num, icol)].alignment = al
@@ -928,12 +938,12 @@ def write_excel_file_header_data(file_name,csv_header,csv_data):
 
 
 # end def
-def write_excel_file_ttable(file_name, ttable):
+def write_excel_file_ttable(file_name, ttable,csv_bg_color_data=None):
     ''' Write DAta with ttable from hfkt_tvar
 
     '''
 
-    return write_excel_file_header_data(file_name, ttable.names, ttable.table)
+    return write_excel_file_header_data(file_name, ttable.names, ttable.table,csv_bg_color_data)
 
 
 # end def
