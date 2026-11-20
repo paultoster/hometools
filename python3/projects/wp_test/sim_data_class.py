@@ -146,6 +146,8 @@ class WPData:
 
             self.AnzahlDepotAufteilung = self.Parobj.NAuswahlWPGruppe * self.Parobj.NAuswahlWP
             self.AnteilDepotAufteilung = 1. / max(1, self.AnzahlDepotAufteilung)
+
+            self.StartCashDepotAnteil_cent =  int(self.Parobj.StartCash_cent * self.AnteilDepotAufteilung + 0.5)
         # end if
 
         return

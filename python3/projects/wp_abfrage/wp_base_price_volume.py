@@ -47,88 +47,123 @@ def update(wb_obj,isin_liste):
 
     for i,info_dict in enumerate(isin_info_dict_liste):
 
-        wp_dict = copy.copy(info_dict)
-
-        wp_dict["i"] = i
-        wp_dict["n"] = len(isin_info_dict_liste)
-
-        wb_obj.log.write_info("")
-
-        t = f"Update: {wp_dict['isin']}, Name: {wp_dict['name']} "
-        while len(t) < 80:
-            t += "=="
-        wb_obj.log.write_info(t)
-
-        wp_dict["np_obj"] = wp_bearb.read_price_volumen_np_data(wb_obj,wp_dict["isin"])
-
-        (status,errtext,wp_dict) = proof_is_upgedated(wb_obj,wp_dict)
-        if status != hdef.OKAY:
-            return (status, errtext, infotext)
-        # end if
-
-        if wp_dict["updated"]:
-            t=f"!Ist up to date  "
-        else:
-            t=f"!Start update  "
-        # end if
-        while len(t) < 80:
-            t += "=="
-        wb_obj.log.write_info(t)
-
-        # 1. eodhd
-        #----------------------------------------------------------------------------------------
-        if not wp_dict["updated"]:
-            (status, errtext, infotext0,wp_dict) = update_start_to_end_dat_eodhd(wb_obj, wp_dict)
-            if len(infotext0) != 0:
-                wb_obj.log.write_info(f"end-of-day-hd: {infotext0}")
-                infotext = infotext + "\n" + infotext0
-            # end if
-            if status != hdef.OKAY:
-                return (status, errtext,infotext)
-            # end if
-        # end if
-
-        # 2. Yahoo
-        #-----------------------------------------------------------------------------------------
-        if not wp_dict["updated"]:
-            (status, errtext, infotext0,wp_dict) = update_start_to_end_dat_yahoo(wb_obj, wp_dict)
-            if len(infotext0) != 0:
-                wb_obj.log.write_info(f"yahoo: {infotext0}")
-                infotext = infotext + "\n" + infotext0
-            # end if
-            if status != hdef.OKAY:
-                return (status, errtext,infotext)
-            # end if
-
-            # Da bei Yahoo nicht immer alle Daten. z.B. letzte Datum kommt, wird hier nochmal geprüft
-            (status, errtext, wp_dict) = proof_is_upgedated(wb_obj, wp_dict)
+        flag_okay = False
+        ndurchlauf = 3
+        for j in range(ndurchlauf):
+            wp_dict = copy.copy(info_dict)
+            wp_dict["i"] = i
+            wp_dict["n"] = len(isin_info_dict_liste)
+            (status, errtext, infotext,wp_dict) = update_isin(wb_obj,wp_dict)
             if status != hdef.OKAY:
                 return (status, errtext, infotext)
-            # end if
-        # end if
 
-        # 3. ariva_requests
-        #-------------------------------------------------------------------------------------------------
-        # Den Ariva request nur durchführen, wenn bereits Daten angelegt sind, Hier bekomme ich nur ein Monat aktuell
-        # dannn würden die historischen Daten fehlen
-        if not wp_dict["updated"]:
-            if not wp_bearb.exist_price_volumen_np_data(wb_obj, wp_dict["isin"]):
-                wb_obj.log.write_info(f"ariva-requests: Es wird kein request ausgeführt, da noch keine historischen Daten gefunden (eodhd und yahoo failed)\n Bitte mit Ariva händisch ausführen")
-            else:
-                (status, errtext, infotext0,wp_dict) = update_start_to_end_dat_ariva_requests(wb_obj, wp_dict)
-                if len(infotext0) != 0:
-                    wb_obj.log.write_info(f"ariva-requests: {infotext0}")
-                    infotext = infotext + "\n" + infotext0
-                # end if
+            if wp_dict["updated"] and (wp_dict["update_type"]!= "file"):
+
+                (status, errtext, infotext) = proof(wb_obj, [wp_dict["isin"]])
                 if status != hdef.OKAY:
-                    return (status, errtext,infotext)
-                # end if
+                    return (status, errtext, infotext)
+                if len(infotext) == 0:
+                    flag_okay = True
+                    wb_obj.log.write_info(
+                        f"update: isin {wp_dict["isin"]} Proofed !!! Durchlauf {j+1} von {ndurchlauf}")
+                    break
+                else:
+                    wb_obj.log.write_info(f"update: isin {wp_dict["isin"]} Problem: {infotext} Durchlauf {j+1} von {ndurchlauf}")
+                # endif
+            else:
+                flag_okay = True
             # end if
-        # end if
+            if not flag_okay:
+                status = hdef.NOT_OKAY
+                errtext = f"update: isin: {wp_dict["isin"]} is not proofed: {infotext}"
+                return (status, errtext, infotext)
+            # end if
+        # end for
 
     # end for
     wb_obj.log.write_info(tt)
     return (status,errtext,infotext)
+# end if
+def update_isin(wb_obj,wp_dict):
+    """
+    update einzelene ISIN
+    """
+    infotext = ""
+    wb_obj.log.write_info("")
+
+    t = f"Update: {wp_dict['isin']}, Name: {wp_dict['name']} "
+    while len(t) < 80:
+        t += "=="
+    wb_obj.log.write_info(t)
+
+    wp_dict["np_obj"] = wp_bearb.read_price_volumen_np_data(wb_obj, wp_dict["isin"])
+
+    (status, errtext, wp_dict) = proof_is_upgedated(wb_obj, wp_dict)
+    if status != hdef.OKAY:
+        return (status, errtext, infotext,wp_dict)
+    # end if
+
+    if wp_dict["updated"]:
+        t = f"!Ist up to date  "
+    else:
+        t = f"!Start update  "
+    # end if
+    while len(t) < 80:
+        t += "=="
+    wb_obj.log.write_info(t)
+
+    # 1. eodhd
+    # ----------------------------------------------------------------------------------------
+    if not wp_dict["updated"]:
+        (status, errtext, infotext0, wp_dict) = update_start_to_end_dat_eodhd(wb_obj, wp_dict)
+        if len(infotext0) != 0:
+            wb_obj.log.write_info(f"end-of-day-hd: {infotext0}")
+            infotext = infotext + "\n" + infotext0
+        # end if
+        if status != hdef.OKAY:
+            return (status, errtext, infotext,wp_dict)
+        # end if
+    # end if
+
+    # 2. Yahoo
+    # -----------------------------------------------------------------------------------------
+    if not wp_dict["updated"]:
+        (status, errtext, infotext0, wp_dict) = update_start_to_end_dat_yahoo(wb_obj, wp_dict)
+        if len(infotext0) != 0:
+            wb_obj.log.write_info(f"yahoo: {infotext0}")
+            infotext = infotext + "\n" + infotext0
+        # end if
+        if status != hdef.OKAY:
+            return (status, errtext, infotext,wp_dict)
+        # end if
+
+        # Da bei Yahoo nicht immer alle Daten. z.B. letzte Datum kommt, wird hier nochmal geprüft
+        (status, errtext, wp_dict) = proof_is_upgedated(wb_obj, wp_dict)
+        if status != hdef.OKAY:
+            return (status, errtext, infotext,wp_dict)
+        # end if
+    # end if
+
+    # 3. ariva_requests
+    # -------------------------------------------------------------------------------------------------
+    # Den Ariva request nur durchführen, wenn bereits Daten angelegt sind, Hier bekomme ich nur ein Monat aktuell
+    # dannn würden die historischen Daten fehlen
+    if not wp_dict["updated"]:
+        if not wp_bearb.exist_price_volumen_np_data(wb_obj, wp_dict["isin"]):
+            wb_obj.log.write_info(
+                f"ariva-requests: Es wird kein request ausgeführt, da noch keine historischen Daten gefunden (eodhd und yahoo failed)\n Bitte mit Ariva händisch ausführen")
+        else:
+            (status, errtext, infotext0, wp_dict) = update_start_to_end_dat_ariva_requests(wb_obj, wp_dict)
+            if len(infotext0) != 0:
+                wb_obj.log.write_info(f"ariva-requests: {infotext0}")
+                infotext = infotext + "\n" + infotext0
+            # end if
+            if status != hdef.OKAY:
+                return (status, errtext, infotext,wp_dict)
+            # end if
+        # end if
+    # end if
+    return (status, errtext, infotext,wp_dict)
 # end if
 def proof(wb_obj,isin_liste):
     """
@@ -150,7 +185,9 @@ def proof(wb_obj,isin_liste):
         wp_dict["i"] = i
         wp_dict["n"] = n
 
-        wp_dict["np_obj"] = wp_bearb.read_price_volumen_np_data(wp_dict["isin"])
+        print(wp_dict)
+
+        wp_dict["np_obj"] = wp_bearb.read_price_volumen_np_data(wb_obj,wp_dict["isin"])
 
         wp_dict["changed"] = False
 
@@ -1599,10 +1636,13 @@ def proof_date_in_np_obj(wb_obj,wp_dict):
     else:
 
         # Schaue nach den nan in Datensatz
-        flag = wp_dict["np_obj"].interpolate_nan_items()
+        type = wp_dict["np_obj"].interpolate_nan_items()
 
-        if flag:
+        if type == 1:
             infotext = f"{infotext}\nisin={wp_dict['isin']}: np_obj wurden nans interpoliert ]"
+            wp_dict["changed"] = True
+        elif type == 2:
+            infotext = f"{infotext}\nisin={wp_dict['isin']}: np_obj wurden nans am Ende weggenommen ]"
             wp_dict["changed"] = True
         # end if
 

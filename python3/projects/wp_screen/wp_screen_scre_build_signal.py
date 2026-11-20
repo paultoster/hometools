@@ -61,6 +61,14 @@ def scre_build_signal(rd,scre, isin,sigset_werte_dict_liste):
         return
     # end if
 
+    type = np_isin_obj.interpolate_nan_items()
+
+    if type != 0:
+        STATUS = hdef.NOT_OKAY
+        ERRTEXT = f"scre_build_signal: Für {isin = } hat np_isin_obj ein oder mehrere Nans in der Datei"
+        return
+
+
     # Datum in np_data_obj schreiben
     if not hnpfkt.is_monoton_steigend(np_isin_obj.dat_np_array):
         STATUS = hdef.NOT_OKAY

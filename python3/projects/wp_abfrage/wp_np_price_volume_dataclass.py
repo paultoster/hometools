@@ -316,7 +316,7 @@ class NpPriceVolumeClass:
             # end for
             for i,j in reversed(index_pair_list):
 
-                Flag = True
+                flag = True
                 if (i == 0) and (n>1): # Wert von i=1 nehmen
 
                     if j == 0: # date

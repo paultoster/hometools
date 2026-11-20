@@ -194,7 +194,7 @@ class WPRun:
         # end if
 
         if yamlsd_dict.get("TriggerAlways"):
-            return  trigger
+            return  True
         # end if
 
         key = "LastUpdate"

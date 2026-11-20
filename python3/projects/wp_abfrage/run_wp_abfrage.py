@@ -22,12 +22,12 @@ from wp_abfrage import wp_bearbeiten
 from wp_abfrage import wp_storage
 
 
-INT_FILENAME = "D:/data/wp/wp_store/wp_abfrage.ini"
+BASE_PATH = "D:/data/wp"
 
-wb_obj = wp_base.WPData(INT_FILENAME)
+wb_obj = wp_base.WPData(BASE_PATH)
 
 if wb_obj.status != hdef.OKAY:
-    print(f"Error build wp_base.WPData({INT_FILENAME}) errtext = {wb_obj.errtext}")
+    print(f"Error build wp_base.WPData({BASE_PATH}) errtext = {wb_obj.errtext}")
     exit(1)
 # end if
 

@@ -218,6 +218,11 @@ class WPPruef:
 
         anlage_summe_c = int(summe_cash_cent * self.DataObj.AnteilDepotAufteilung + 0.5)
 
+        if self.Parobj.InvestMaxStartwert:
+            anlage_summe_c = min(anlage_summe_c,self.DataObj.StartCashDepotAnteil_cent)
+        # end if
+
+
         # WPObjListe Liste durchgehen und die noch nicht gekauften kaufen
         for wpobj in self.WPObjListe:
 

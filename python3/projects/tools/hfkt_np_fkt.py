@@ -118,8 +118,10 @@ def filtfilt(np_array,N,Wn):
     Wn = max(0.0000001,min(Wn,0.999999999))
 
     b, a = signal.butter(N, Wn)
-
-    np_filtfilt_array = signal.filtfilt(b, a, np_array, method='gust')
+    try:
+        np_filtfilt_array = signal.filtfilt(b, a, np_array, method='gust')
+    except:
+        a = 0
 
     return np_filtfilt_array
 # end if

@@ -582,11 +582,13 @@ class WPData:
         status = hdef.OKAY
         errtext = ""
 
-        if isin == None:
+        if isin is None:
             (self.status,self.errtext, isin_liste) = self.get_basic_info_isin_liste()
             if self.status != hdef.OKAY:
                 return (self.status,self.errtext,self.infotext)
             # end if
+        elif isinstance(isin,list):
+            isin_liste = isin
         else:
             isin_liste = [isin]
         # end if
@@ -622,6 +624,8 @@ class WPData:
             if self.status != hdef.OKAY:
                 return (self.status,self.errtext,self.infotext)
             # end if
+        elif isinstance(isin, list):
+            isin_liste = isin
         else:
             isin_liste = [isin]
         # end if

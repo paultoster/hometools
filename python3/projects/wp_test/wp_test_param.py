@@ -39,6 +39,7 @@ PARAM_LLIST = [
 ("WPBuildSigSetNew",        "Soll immer eine neue DatenBasis geniert werden (zeitaufwendig)  (True/False, bool)", {"type": "bool"}),
 ("BildeAusgabe",            "Soll die ausgabe geniert werden geniert werden (zeitaufwendig)  (True/False, bool)", {"type": "bool"}),
 ("GewichtungZinsMax",       "Gewichtung von zins_mean für den Fehler, max_drawdown wird (1-GewichtungZinsMax) gewichtet  (0.5,float)", {"type": "float","max":1.0,"min":0.0}),
+("InvestMaxStartwert",      "Es soll nur bis maximal der Startkapitalhöhe entspr. der Aufteilung investiert werden (True/False, bool)", {"type": "bool"},False),
 ]
 # ("SimName",                 "Name der Simulation  (TestLauf, str)",{"type":"str"}),
 
@@ -156,7 +157,7 @@ def get_par_struct_liste(mobj,par_dict,platzhalter_dict_liste):
 
     global PARAMETERFILE
 
-    par_liste_pruefung_existenz(mobj,par_dict)
+    par_dict = par_liste_pruefung_existenz(mobj,par_dict)
     if mobj.status != hdef.OKAY:
         return (None,None)
 
@@ -412,13 +413,17 @@ def par_liste_pruefung_existenz(mobj,par_dict):
     for liste in PARAM_LLIST:
         key = liste[0]
         if key not in par_dict:
-            mobj.status = hdef.NOT_OKAY
-            mobj.errtext = f"par_liste_erste_pruefung: In File {PARAMETERFILE} fehlt Parameter {key}"
-            return
+            if len(liste) >= 4:
+                par_dict[key] = liste[3]
+            else:
+                mobj.status = hdef.NOT_OKAY
+                mobj.errtext = f"par_liste_erste_pruefung: In File {PARAMETERFILE} fehlt Parameter {key}"
+                return
+            # endif
         # end if
     # end for
 
-    return
+    return par_dict
 # end def
 def par_liste_set_simname(mobj, pardict):
     """ Bilde Simulationsname

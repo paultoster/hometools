@@ -298,9 +298,12 @@ class NpPriceVolumeClass(NpBaseClass):
     # end def
     def interpolate_nan_items(self):
         """
-        flag = self.interpolate_nan_items()
+        type = self.interpolate_nan_items()
+        type = 0 no manipulation
+        type = 1 intepolation
+        type = 2 Daten am Ende wegnehmen
         """
-        flag = False
+        type = 0
         if hasattr(self, 'dat_np_array') and (len(self.dat_np_array) > 0):
 
             n = len(self.dat_np_array)
@@ -318,9 +321,9 @@ class NpPriceVolumeClass(NpBaseClass):
             # end for
             for i,j in reversed(index_pair_list):
 
-                Flag = True
-                if (i == 0) and (n>1): # Wert von i=1 nehmen
 
+                if (i == 0) and (n>1): # Wert von i=1 nehmen
+                    type = 1
                     if j == 0: # date
                         self.dat_np_array[i] = wp_fkt.naechster_handelstag_timestamp(self.dat_np_array[i+1], vorwaerts=False)
                     else:
@@ -331,6 +334,7 @@ class NpPriceVolumeClass(NpBaseClass):
 
                 elif (i == n-1): # letzen Wert weglöschen
 
+                    type = 2
                     self.dat_np_array = np.delete(self.dat_np_array, i)
                     self.start_np_array = np.delete(self.start_np_array, i)
                     self.high_np_array = np.delete(self.high_np_array, i)
@@ -341,7 +345,7 @@ class NpPriceVolumeClass(NpBaseClass):
                         break
                     # end if
                 else: # ansonsten interpolieren
-
+                    type = 1
                     if j == 0: # date
                         self.dat_np_array[i] = wp_fkt.naechster_handelstag_timestamp(self.dat_np_array[i - 1],
                                                                                     vorwaerts=True)
@@ -353,7 +357,7 @@ class NpPriceVolumeClass(NpBaseClass):
                 # end if
             # end for
         # end if
-        return flag
+        return type
     # end def
     def interpolate_Ausreisser(self):
         """
