@@ -325,6 +325,16 @@ class WPData:
 
         return (self.status,isin)
     # end def
+    def delete_basic_info(self,isin):
+        """
+
+        """
+        (self.status, self.errtext) = wp_base_basic_info.delete_basic_info(self,isin)
+
+
+        return (self.status, self.errtext)
+    # end if
+
     # def set_wkn_isin(self, wkn, isin):
     #     '''
     #

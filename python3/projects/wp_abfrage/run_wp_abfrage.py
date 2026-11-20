@@ -256,8 +256,29 @@ def edit_basic_info(wb_obj):
 
             runflag = True
         elif indexAbfrage == i_abfrage_delete:
-            wb_obj.log.write_info("delete ist noch nicht programmiert")
-            runflag = True
+            if index < 0:
+                wb_obj.log.write_info("Keine isin ausgewählt")
+                runflag = True
+            else:
+
+                # Bearbeite basic infos von isin
+                isin = isin_liste[index]
+                wpname = isin_wpname_liste[index]
+                wb_obj.log.write_info(f"Delete isin: {isin} Name: {wpname}")
+
+
+                flag = sgui.abfrage_janein(f"Soll wirklich {isin = } und name {wpname} aus basic_info gelöscht werden",
+                                                "Löschen ja/nein")
+
+                if flag:
+                    (status, errtext) = wb_obj.delete_basic_info(isin)
+                    if status != hdef.OKAY:
+                        return (status, errtext)
+                # end if
+
+                runflag = True
+            # end if
+
         elif indexAbfrage == i_abfrage_update_empty:
             (status, errtext) = wb_obj.update_all_basic_infos(False)
             if status != hdef.OKAY:

@@ -321,15 +321,25 @@ class NpPriceVolumeClass:
 
                     if j == 0: # date
                         self.dat_np_array[i] = wp_fkt.naechster_handelstag_timestamp(self.dat_np_array[i+1], vorwaerts=False)
+                        t = f"interpolate_nan_items: suche davor liegenden timestamp dat_np_array[{i}+1]={self.dat_np_array[i+1]} =>{self.dat_np_array[i]}"
+                        # print(t)
+                        self.infotext += "\n" + t
                     else:
                         np_array = getattr(self, self.np_name_list[j])
                         np_array[i] = np_array[i+1]
                         setattr(self,self.np_name_list[j],np_array)
+                        t = f"interpolate_nan_items: ersetzt mir dem Nachbarn dat_np_array[{i}+1]={np_array[i+1]}"
+                        # print(t)
+                        self.infotext += "\n" + t
                     # end if
 
                 elif (i > n - 1):
                     pass
                 elif (i == n - 1):  # letzen Wert weglöschen
+
+                    t = f"interpolate_nan_items: löscht letzten Wert weg dat_np_array[{i}]={self.end_np_array[i]}"
+                    # print(t)
+                    self.infotext += "\n" + t
 
                     self.dat_np_array = np.delete(self.dat_np_array, i)
                     self.start_np_array = np.delete(self.start_np_array, i)
@@ -346,10 +356,17 @@ class NpPriceVolumeClass:
                     if j == 0: # date
                         self.dat_np_array[i] = wp_fkt.naechster_handelstag_timestamp(self.dat_np_array[i - 1],
                                                                                     vorwaerts=True)
+                        t = f"interpolate_nan_items: suche dahinter liegenden timestamp dat_np_array[{i}-1]={self.dat_np_array[i - 1]} => {self.dat_np_array[i]}"
+                        # print(t)
+                        self.infotext += "\n" + t
                     else:
                         np_array = getattr(self, self.np_name_list[j])
                         np_array[i] = (np_array[i+1]+np_array[i-1])/2.
                         setattr(self, self.np_name_list[j], np_array)
+
+                        t = f"interpolate_nan_items: intepoliert Wert weg {self.np_name_list[j]}[{i}]={np_array[i]}"
+                        # print(t)
+                        self.infotext += "\n" + t
                     # end if
                 # end if
             # end for
@@ -392,7 +409,7 @@ class NpPriceVolumeClass:
 
                     np_array = getattr(self, name_list[j])
                     t = f"interpolate_Ausreisser: np_ob.{name_list[j]}[0] = {np_array[0]} => {np_array[1]} gesetzt"
-                    print(t)
+                    #print(t)
                     self.infotext += "\n" + t
                     np_array[i] = np_array[i + 1]
                     setattr(self, name_list[j], np_array)
@@ -403,7 +420,7 @@ class NpPriceVolumeClass:
 
                     np_array = getattr(self, name_list[j])
                     t = f"interpolate_Ausreisser: np_ob.{name_list[j]}[{i}] = {np_array[i]} am Ende löschen"
-                    print(t)
+                    #print(t)
                     self.infotext += "\n" + t
 
                     self.dat_np_array = np.delete(self.dat_np_array, i)
@@ -423,7 +440,7 @@ class NpPriceVolumeClass:
                     np_array = getattr(self, name_list[j])
 
                     t = f"interpolate_Ausreisser: np_ob.{name_list[j]}[{i}] = {np_array[i]} => {(np_array[i - 1] + np_array[i + 1]) / 2. * fac}"
-                    print(t)
+                    # print(t)
                     self.infotext += "\n" + t
 
                     np_array[i] = (np_array[i - 1] + np_array[i + 1]) / 2. * fac

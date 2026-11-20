@@ -53,6 +53,8 @@ def update(wb_obj,isin_liste):
             wp_dict = copy.copy(info_dict)
             wp_dict["i"] = i
             wp_dict["n"] = len(isin_info_dict_liste)
+            if wp_dict["isin"] == "LU1230136894":
+                a = 0
             (status, errtext, infotext,wp_dict) = update_isin(wb_obj,wp_dict)
             if status != hdef.OKAY:
                 return (status, errtext, infotext)
@@ -185,7 +187,7 @@ def proof(wb_obj,isin_liste):
         wp_dict["i"] = i
         wp_dict["n"] = n
 
-        print(wp_dict)
+        # print(wp_dict)
 
         wp_dict["np_obj"] = wp_bearb.read_price_volumen_np_data(wb_obj,wp_dict["isin"])
 
@@ -199,10 +201,11 @@ def proof(wb_obj,isin_liste):
 
         if wp_dict["changed"]:
             np_obj = wp_dict["np_obj"]
+            infotext += "\n" + f"save {np_obj.get_filename()} "
             np_obj.save()
             tt = np_obj.get_infotext()
             if len(tt):
-                wb_obj.log.write_info(tt)
+                infotext += "\n" + tt
             # end if
             wp_dict["changed"] = False
 
@@ -1629,6 +1632,9 @@ def proof_date_in_np_obj(wb_obj,wp_dict):
     wb_obj.log.write_info(f"WP proof np_obj:  isin: {wp_dict['isin']} wkn: {wp_dict['wkn']} name: {wp_dict['name']}")
     wp_dict["changed"] = False
 
+    # if wp_dict['isin'] == "LU0292104469":
+    #    a = 0
+
     if wp_dict["np_obj"] is None:
 
         infotext = f"{infotext}\nisin={wp_dict['isin']},wkn={wp_dict['wkn']}: np_obj ist None => d.h. nicht vorhanden"
@@ -1637,6 +1643,12 @@ def proof_date_in_np_obj(wb_obj,wp_dict):
 
         # Schaue nach den nan in Datensatz
         type = wp_dict["np_obj"].interpolate_nan_items()
+        tt = wp_dict["np_obj"].get_infotext()
+        if len(tt):
+            #wb_obj.log.write_info(tt)
+            infotext += "\n" + tt
+        # end if
+        wp_dict["np_obj"].reset_status()
 
         if type == 1:
             infotext = f"{infotext}\nisin={wp_dict['isin']}: np_obj wurden nans interpoliert ]"
@@ -1655,9 +1667,10 @@ def proof_date_in_np_obj(wb_obj,wp_dict):
             wp_dict["changed"] = True
         # end if
         if len(tt):
-            wb_obj.log.write_info(tt)
+            #wb_obj.log.write_info(tt)
             infotext += "\n" + tt
         # end if
+        wp_dict["np_obj"].reset_status()
 
     # end if
     return (status, errtext, infotext,wp_dict)

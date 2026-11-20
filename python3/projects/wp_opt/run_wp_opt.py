@@ -43,11 +43,5 @@ for param_filename in param_filenames:
 # end for
 
 
-
-if wpobj.status != hdef.OKAY:
-    # print(wpobj.errtext)
-    exit(1)
-# end if
-
 print("alles okay!!!")
 

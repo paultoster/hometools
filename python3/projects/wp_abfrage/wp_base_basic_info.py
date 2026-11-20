@@ -437,6 +437,23 @@ def process_isin_w_wpname_wkn(wb_obj,isin,wpname,wkn):
     # end if
     return (status,errtext)
 # end def
+def delete_basic_info(wb_obj,isin):
+
+    (status ,errtext ,wpname_isin_dict) = get_isin_wpname_dict(wb_obj)
+
+    if isin in wpname_isin_dict.keys():
+
+        del wpname_isin_dict[isin]
+
+        file_name = wp_storage.build_file_name_json(wb_obj.ini["wpname_isin_filename"],
+                                                    wb_obj.ini["store_path"])
+
+        format = 2  # 1: pickle, 2: json
+        (status, errtext, _) = wp_storage.save_dict(wpname_isin_dict, file_name, format)
+    # endif
+
+    return (status,errtext)
+# end if
 def update_info_dict_with_new_defaults(info_dict):
     '''
 
