@@ -343,6 +343,23 @@ def get_2par_signal(rd, werte_dict, np_data_obj):
                 ERRTEXT = f"Der 2. Parameter von fkt: {rd.par.SIG_2PAR_PERFORMANCE}({signame},{points}) ist nicht bekannt"
                 return
             # end if
+        case rd.par.SIG_TYPE_2PAR_LOGPERFORMANCE:
+
+            signame = werte_dict["par1"]
+            points = werte_dict["par2"]
+
+            (success_sub, np_performance_array) = build_signal_logperformance(rd, signame, points, np_data_obj)
+            if STATUS != hdef.OKAY:
+                return
+
+            if success_sub:
+                np_data_obj.add_signal(np_performance_array, werte_dict["signal"])
+                success = True
+            else:
+                STATUS = hdef.NOT_OKAY
+                ERRTEXT = f"Der 2. Parameter von fkt: {rd.par.SIG_2PAR_PERFORMANCE}({signame},{points}) ist nicht bekannt"
+                return
+            # end if
     # end match
 
     if success:
@@ -709,6 +726,27 @@ def build_signal_performance(rd, signame, points, np_data_obj):
 
         np_array     = getattr(np_data_obj, signame)
         np_performance_array  = hnpfkt.performance(np_array,points,float(rd.par.SIG_ANZAHL_HANDELSTAGE_PRO_JAHR))
+        success = True
+    else:
+        STATUS = hdef.NOT_OKAY
+        ERRTEXT = f"Signal {signame} nicht bekannt im erstellten Datensatz !!"
+        return (success, np_performance_array)
+    # end if
+    return (success, np_performance_array)
+# end def
+def build_signal_logperformance(rd, signame, points, np_data_obj):
+    """
+        (success_sub, np_performance_array) = build_signal_logperformance(rd, signame, points, np_data_obj)
+    """
+    global STATUS, ERRTEXT
+
+    success = False
+    np_performance_array = None
+
+    if hasattr(np_data_obj, signame):
+
+        np_array     = getattr(np_data_obj, signame)
+        np_performance_array  = hnpfkt.logperformance(np_array,points,float(rd.par.SIG_ANZAHL_HANDELSTAGE_PRO_JAHR))
         success = True
     else:
         STATUS = hdef.NOT_OKAY

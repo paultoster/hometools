@@ -10,9 +10,10 @@ if (tools_path not in sys.path):
 # endif
 
 import wp_screen.wp_screen_katalog_command as wp_screen_katalog_command
+import wp_screen.wp_screen_scre as wp_screen_scre
 
 import tools.hfkt_def as hdef
-import tools.hfkt_pickle as hfkt_pickle
+import tools.hfkt_file_path as hfp
 import tools.hfkt_io as hio
 import tools.hfkt_list as hlist
 import tools.hfkt_type as htype
@@ -78,6 +79,17 @@ def katalog_set(rd):
         return
     # end if
     return
+def get_katalog_dict(rd, katalog):
+    if katalog in rd.kat["katalog_liste"]:
+
+        rd.kat["katalog"] = katalog
+        katalog_gruppe_isin_dict_read(rd)
+    else:
+        rd.kat["katalog_gruppe_isin_dict"] = {}
+    # end if
+    return rd.kat["katalog_gruppe_isin_dict"]
+# end def
+
 def katalog_gruppe_isin_dict_read(rd):
     """
 
@@ -246,6 +258,36 @@ def del_katalogname(rd,katalogname):
     # end if
     return
 # end def
+def rename_katalog_katalog_dict(rd, katalog_from, katalog_to):
+
+    # Hole dict von lkatalog_from
+    # ------------------------
+    rd.kat["katalog"] = katalog_from
+    katalog_gruppe_isin_dict_read(rd)
+    if STATUS != hdef.OKAY:
+        return
+
+    katalog_jsonobj_old = copy.copy(rd.kat["katalog_gruppe_isin_dict_jsonobj"])
+
+    # copy sigset
+    copy_katalog_katalog_dict(rd, katalog_from, katalog_to)
+    if STATUS != hdef.OKAY:
+        return
+
+    # delete old plotdefdict and plotdef and file
+    del_katalogname(rd, katalog_from)
+    old_file_name = katalog_jsonobj_old.get_filename()
+    del katalog_jsonobj_old
+    hfp.remove_file(old_file_name)
+
+    wp_screen_scre.rename_items(rd, rd.par.SCRE_KATALOG, katalog_from, katalog_to)
+
+    return
+
+
+# end def
+
+
 def copy_katalog_katalog_dict(rd, katalog_from, katalog_to):
 
     # Hole dict von scre_from

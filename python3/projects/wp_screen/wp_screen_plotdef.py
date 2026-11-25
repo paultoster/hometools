@@ -1,5 +1,5 @@
 
-import os, sys
+import os, sys, copy
 
 t_path, _ = os.path.split(__file__)
 tools_path = t_path + "\\.."
@@ -10,10 +10,11 @@ if (tools_path not in sys.path):
 # import wp_screen_gui
 import wp_screen.wp_screen_plotdef_command as wp_screen_plotdef_command
 import wp_screen.wp_screen_plotdef_check as wp_screen_plotdef_check
+import wp_screen.wp_screen_scre as wp_screen_scre
 
 import tools.hfkt_def as hdef
 import tools.hfkt_io as hio
-# import tools.hfkt_list as hlist
+import tools.hfkt_file_path as hfp
 # import tools.hfkt_type as htype
 
 STATUS   = hdef.OKAY
@@ -163,4 +164,119 @@ def get_plotdef_werte_dict_liste(rd, plotdef_dict):
     # end dif
 
     return rd.plot["plotdef_werte_dict_liste"]
+# end def
+def add_plotdef_name(rd,text):
+
+    # entfernt Leerzeichen, Tabulator (\t), Zeilenumbrüche (\n), geschützte Leerzeichen (\xa0)
+    plotdefname = "".join(text.split()).replace(" ", "")
+
+    if plotdefname not in rd.plot["plotdef_liste"]:
+        rd.log.write_info(f"{plotdefname = } wurde der plotdef_liste hinzugefügt")
+    else:
+        rd.log.write_info(f"{plotdefname = } gibt es schon in Liste")
+        return None
+    # end if
+
+    rd.plot["plotdef_liste"].append(plotdefname)
+
+    rd.plot["plotdef_liste_jsonobj"].save(rd.plot["plotdef_liste"])
+
+    return plotdefname
+# end def
+def del_plotdef_name(rd,plotdefname):
+
+    if plotdefname in rd.plot["plotdef_liste"]:
+        index = rd.plot["plotdef_liste"].index(plotdefname)
+        del rd.plot["plotdef_liste"][index]
+        rd.plot["plotdef_liste_jsonobj"].save(rd.plot["plotdef_liste"])
+    # end if
+    return
+# end def
+def modify_dict(rd, dict_mod):
+    """
+    :param rd:
+    :param dict_mod:
+    :return:
+    """
+
+    global STATUS, ERRTEXT
+
+    # Check modified dictionary
+    (status,infotext) = wp_screen_plotdef_check.check(rd,dict_mod)
+
+    if status != hdef.OKAY:
+        STATUS = hdef.NOT_OKAY
+        ERRTEXT = f"wp_screen_plotdef_check.check: Mit dict: {dict_mod} => {infotext = }"
+        return
+    # end if
+
+    rd.plot["plotdef_dict"] = dict_mod
+    rd.plot["plotdef_dict_jsonobj"].save(rd.plot["plotdef_dict"])
+    if rd.plot["plotdef_dict_jsonobj"].get_status() != hdef.OKAY:
+        STATUS = rd.plot["plotdef_dict_jsonobj"].get_status()
+        ERRTEXT = rd.plot["plotdef_dict_jsonobj"].get_errtext()
+        rd.plot["plotdef_dict_jsonobj"].reset_status()
+        return
+    # end if
+
+    return
+# end def
+def rename_plotdef_plotdef_dict(rd, plotdef_old, plotdef_new):
+
+    # Hole dict von sigset_from
+    # ------------------------
+    rd.plot["plotdef"] = plotdef_old
+    plotdef_dict_read(rd)
+    if STATUS != hdef.OKAY:
+        return
+
+    plotdef_jsonobj_old = copy.copy(rd.plot["plotdef_dict_jsonobj"])
+
+    # copy sigset
+    copy_plotdef_plotdef_dict(rd, plotdef_old, plotdef_new)
+    if STATUS != hdef.OKAY:
+        return
+
+    # delete old plotdefdict and plotdef and file
+    del_plotdef_name(rd, plotdef_old)
+    old_file_name = plotdef_jsonobj_old.get_filename()
+    del plotdef_jsonobj_old
+    hfp.remove_file(old_file_name)
+
+    wp_screen_scre.rename_items(rd, rd.par.SCRE_PLOTDEF, plotdef_old, plotdef_new)
+
+    return
+# end def
+def copy_plotdef_plotdef_dict(rd, plotdef_from,plotdef_to):
+
+    # Hole dict von tab_from
+    # ------------------------
+    rd.plot["plotdef"] = plotdef_from
+    plotdef_dict_read(rd)
+    if STATUS != hdef.OKAY:
+        return
+
+    # Kopiere dict
+    # -------------
+    plotdef_dict_to = copy.copy(rd.plot["plotdef_dict"])
+
+    # Leg neues dict-File an und hole leeres dict
+    # --------------------------------------------
+    rd.plot["plotdef"] = add_plotdef_name(rd, plotdef_to)
+    if rd.plot["plotdef"] == None:
+        return
+    plotdef_dict_read(rd)
+    if STATUS != hdef.OKAY:
+        return
+
+    # Kopiere dict
+    # -------------
+    rd.plot["plotdef_dict"] = plotdef_dict_to
+
+    # Speichere dict
+    # ---------------
+    rd.plot["plotdef_dict_jsonobj"].save(plotdef_dict_to)
+
+    return
+
 # end def

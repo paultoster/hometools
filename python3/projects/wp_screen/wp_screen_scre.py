@@ -13,7 +13,7 @@ import wp_screen.wp_screen_gui as wp_screen_gui
 import wp_screen.wp_screen_katalog as wp_screen_katalog
 import wp_screen.wp_screen_sigset as wp_screen_sigset
 import wp_screen.wp_screen_tab as wp_screen_tab
-import wp_screen.wp_screen_plotdef as wp_screen_plotdef_command
+import wp_screen.wp_screen_plotdef as wp_screen_plotdef
 import wp_screen.wp_screen_scre_command as wp_screen_scre_command
 import wp_screen.wp_screen_scre_build_signal as wp_screen_scre_build_signal
 import wp_screen.wp_screen_scre_build_fmttab as wp_screen_scre_build_fmttab
@@ -206,6 +206,14 @@ def scre_build_sigset(rd,
 
 
         rd.scre["scre_isin_dataclass_filename_dict"][isin] = wp_screen_scre_build_signal.get_dataclass_filename(rd, scre, isin)
+
+        rd.log.write_info(
+            f"{i + 1}/{n}: Start sigset for scre: {scre}, isin: {isin}, {wp_screen_scre_build_signal.get_infotext()}",
+            screen=rd.par.LOG_SCREEN_OUT)
+
+        if isin == "JE00B1VS3W29":
+            a = 0
+
 
         if (not wp_screen_scre_build_signal.proof_if_data_uptodate(rd,scre,isin)) or build_always_new_sigset:
 
@@ -764,7 +772,24 @@ def check_sigset_against_tabset(rd,
 
     return hdef.OKAY
 # end
+def rename_items(rd,key,old_name,new_name):
 
+    global STATUS, ERRTEXT, INFOTEXT
+
+    scre_set(rd)
+
+    for scre in rd.scre["scre_liste"]:
+
+        rd.scre["scre"] = scre
+        scre_dict_read(rd)
+
+        if rd.scre["scre_dict"][key] == old_name:
+            rd.scre["scre_dict"][key] = new_name
+            scre_dict_save(rd)
+        # end if
+    # end for
+    return
+# end def
 
 
 

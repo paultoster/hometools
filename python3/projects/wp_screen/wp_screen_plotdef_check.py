@@ -70,7 +70,7 @@ def check(rd,ddict):
     # end for
     rd.plot["plotdef_signaldef_liste"] = plotdef_liste
 
-    return
+    return (hdef.OKAY,"")
 # end def
 def check_content(rd,content,werte_dict):
 
@@ -82,13 +82,15 @@ def check_content(rd,content,werte_dict):
     tupel_liste = re.findall(muster, t.replace(" ", ""))
 
     # default-Werte
-    key_liste = ["subplot", "height_rows", "color", "linewidth","linestyle", "marker"]
+    key_liste = ["subplot", "height_rows", "color", "linewidth","linestyle", "marker","fac","unit"]
     werte_dict["subplot"] = 1
     werte_dict["height_rows"] = 1
     werte_dict["color"] = "k"
     werte_dict["linewidth"] = 1
     werte_dict["linestyle"] = '-'
     werte_dict["marker"] = "None"
+    werte_dict["fac"] = 1.0
+    werte_dict["unit"] = ""
 
     if len(tupel_liste) == 0:
 
@@ -158,6 +160,10 @@ def check_content_tuple(par,sig_name,item_list,werte_dict,key_liste):
                 werte_dict[key_liste[index]] = str(wert)
             elif index == 5:
                 werte_dict[key_liste[index]] = str(wert)
+            elif index == 6:
+                werte_dict[key_liste[index]] = float(wert)
+            elif index == 7:
+                werte_dict[key_liste[index]] = str(wert)
             # zur Sicherheit
             else:
                 werte_dict[key_liste[index]] = str(wert)
@@ -197,6 +203,12 @@ def hilfe(rd):
             case 6:
                 val1 = "SignalName(marker='')"
                 val2 = "marker (default=''), '.', 'o', 'd', 'v', '^', '>', '<', ..."
+            case 7:
+                val1 = "SignalName(fac=100.)"
+                val2 = "scale y-Signal (default=1.0)"
+            case 8:
+                val1 = "SignalName(unit='%')"
+                val2 = "unit to show (default='')"
             case _:
                 pass
         # end match

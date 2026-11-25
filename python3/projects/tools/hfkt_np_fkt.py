@@ -1,6 +1,7 @@
 import numpy as np
 import datetime
 import os, sys
+import math
 from scipy import signal
 
 t_path, _ = os.path.split(__file__)
@@ -103,6 +104,44 @@ def performance(np_array: np.ndarray, npoints:int,grad_faktor:float):
         np_ferformance_array[i] = rel_anstieg
     # end for
     return np_ferformance_array
+# end def
+def logperformance(np_array: np.ndarray, npoints:int,grad_faktor:float):
+    """
+    relative Performance von aktuell zu npoints-Werte davor in Logarithmus gerechnet
+    Bilde den relativen Anstieg bezogen auf den Mittelwert von y0 und y1 multipliziert mit grad_faktor
+    Mit dem Mittelwert bekommt man so eine relativer Anstieg, ansonsten wäre es € pro Einheit
+    damit wird es auf einen anderen Zeitraum gerechnet (Tageschart, grad_faktor = 252 => Jahres Anstieg relativ )
+    :param np_array:
+    :param npoints:
+    :return: np_performance_array
+    """
+    np_logperform_array = np.zeros(np_array.shape)
+    n = len(np_array)
+    npoints = max(npoints,2)
+
+    for i in  range(n):
+
+        if i == 0:
+
+            rel_anstieg = 0.0
+        else:
+
+            ny = min(npoints,i+1)
+
+            y0 = np_array[i-ny+1]
+            y1 = np_array[i]
+
+            try:
+                rel_anstieg = math.log(y1/y0) / float(ny-1) * grad_faktor
+            except:
+                rel_anstieg = 0.
+            # end try
+
+                # end if
+
+        np_logperform_array[i] = rel_anstieg
+    # end for
+    return np_logperform_array
 # end def
 def filtfilt(np_array,N,Wn):
     """
@@ -431,7 +470,7 @@ def mindistgmma( np_dat_array,nEMAs,EMAmin,deltaEMA ):
     k = EMAmin
     for i in range(nEMAs):
 
-        np_array_liste.append(ema(np_dat_array, k))
+        np_array_liste[i] = ema(np_dat_array, k)
         k += deltaEMA
     # end for
 
@@ -445,7 +484,7 @@ def mindistgmma( np_dat_array,nEMAs,EMAmin,deltaEMA ):
         delta_min = 0.
         for j in range(1,nEMAs):
 
-            delta = np_array_liste[j][i] - np_array_liste[j - 1][i]
+            delta = np_array_liste[j - 1][i] - np_array_liste[j][i]
 
             if j == 1:
                 delta_min = delta
@@ -469,9 +508,8 @@ def mindistgmma( np_dat_array,nEMAs,EMAmin,deltaEMA ):
                     delta_min = max(delta_min,delta)
                 # endif
             # end if
-
-            np_minditgmma_array[i] = delta_min/np_array_liste[nEMAs-1][i]
         # end for
+        np_minditgmma_array[i] = delta_min / np_array_liste[nEMAs - 1][i]
     # end for
     return np_minditgmma_array
 # end def

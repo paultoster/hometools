@@ -219,7 +219,7 @@ def plotdef_dict_abfrage(gui, ddict, title = None,abfrage_liste=None):
 
 # end def
 
-def plotdef_dict_modify(gui, tab, ddict):
+def plotdef_dict_modify(gui, plotdef, ddict):
     '''
 
     :param gui:
@@ -227,10 +227,23 @@ def plotdef_dict_modify(gui, tab, ddict):
     :param isin_liste:
     :return: isin_list_mod = katalog_isin_liste_modify(gui, katalog, isin_liste)
     '''
-    title = f"Von Tabellendef: {tab} TabellenSpaltenNamen-dict editieren"
+    title = f"Von Tabellendef: {plotdef} TabellenSpaltenNamen-dict editieren"
     sigset_dict_mod = gui.modify_variable(ddict, title)
 
     return sigset_dict_mod
+# end def
+def scre_dict_modify(gui, scre, ddict):
+    '''
+
+    :param gui:
+    :param katalog:
+    :param isin_liste:
+    :return: isin_list_mod = katalog_isin_liste_modify(gui, katalog, isin_liste)
+    '''
+    title = f"Von screen definition: {scre} katlog/sigdet/tab/plotdef-dict editieren"
+    scre_dict_mod = gui.modify_variable(ddict, title)
+
+    return scre_dict_mod
 # end def
 def scre_dict_abfrage(gui, ddict, title = None,abfrage_liste=None):
     """

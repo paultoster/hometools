@@ -14,7 +14,7 @@ import wp_screen.wp_screen_tab as wp_screen_tab
 
 
 import tools.hfkt_def as hdef
-import tools.hfkt_pickle as hfkt_pickle
+import tools.sgui as sgui
 # import tools.hfkt_tvar as htvar
 # import tools.hfkt_type as htype
 
@@ -41,17 +41,33 @@ def reset_status():
     INFOTEXT = ""
 # end def
 
-def tab_command(rd):
+def tab_command(rd,flagselect=False):
 
 
     auswahl_title = "Tabellen-Namen editieren"
-    abfrage_liste = ["edit(tabelle)","add", "delete", "rename","hilfe","ende"]
-    i_edit = 0
-    i_add = 1
-    i_delete = 2
-    i_rename = 3
-    i_hilfe = 4
-    i_ende = 5
+    if flagselect:
+        abfrage_liste = ["select","edit(tabelle)","modify","add", "delete", "rename","copy","hilfe","ende"]
+        i_select = 0
+        i_edit = 1
+        i_modify = 2
+        i_add = 3
+        i_delete = 4
+        i_rename = 5
+        i_copy = 6
+        index_hilfe = 7
+        i_ende = 8
+    else:
+        abfrage_liste = ["edit(tabelle)","modify","add", "delete", "rename","copy","hilfe","ende"]
+        i_select = 110
+        i_edit = 0
+        i_modify = 1
+        i_add = 2
+        i_delete = 3
+        i_rename = 4
+        i_copy = 5
+        index_hilfe = 6
+        i_ende = 7
+    # end if
 
     runflag = True
 
@@ -63,8 +79,20 @@ def tab_command(rd):
         (index, indexAbfrage) = wp_screen_gui.listen_abfrage(rd.gui, auswahl_liste, auswahl_title, abfrage_liste)
 
         if (indexAbfrage < 0) or (indexAbfrage == i_ende):
+
             runflag = False
+
+        elif indexAbfrage == i_select:
+
+            if (index < 0) or (index >= n_auswahl_liste):
+                rd.log.write_err("tab_command select: index out of range or not set", screen=rd.par.LOG_SCREEN_OUT)
+            else:
+                tab = rd.tab["tab_liste"][index]
+                return tab
+            # end if
+
         elif indexAbfrage == i_edit:
+
             if (index < 0) or (index >= n_auswahl_liste):
                 rd.log.write_err("tab_command edit: index out of range or not set", screen=rd.par.LOG_SCREEN_OUT)
             else:
@@ -72,24 +100,47 @@ def tab_command(rd):
                 if get_status() != hdef.OKAY:
                     runflag = False
             # end if
+        elif indexAbfrage == i_modify:
+
+            if (index < 0) or (index >= n_auswahl_liste):
+                rd.log.write_err("tab_command modify: index out of range or not set", screen=rd.par.LOG_SCREEN_OUT)
+            else:
+                tab_edit_modify(rd,index)
+                if get_status() != hdef.OKAY:
+                    return None
+                # end if
+            # end if
+
         elif indexAbfrage == i_add:
+
             tab_add(rd)
+
         elif indexAbfrage == i_delete:
+
             if (index < 0) or (index >= n_auswahl_liste):
                 rd.log.write_err("tab_command delete: index out of range or not set", screen=rd.par.LOG_SCREEN_OUT)
             else:
                 tab_del(rd, index)
             # end if
+
         elif indexAbfrage == i_rename:
+
             if (index < 0) or (index >= n_auswahl_liste):
                 rd.log.write_err("tab_command rename: index out of range or not set", screen=rd.par.LOG_SCREEN_OUT)
             else:
                 tab_rename(rd, index)
             # end if
+        elif indexAbfrage == i_copy:
+
+            if (index < 0) or (index >= n_auswahl_liste):
+                rd.log.write_err("tab_command copy: index out of range or not set", screen=rd.par.LOG_SCREEN_OUT)
+            else:
+                tab_copy(rd, index)
+            # end if
         else: # index_abfrage == i_hilfe
             tab_edit_hilfe(rd)
     # end while
-    return
+    return None
 # end def
 def tab_add(rd):
     """
@@ -131,9 +182,12 @@ def tab_del(rd,index):
 # end def
 def tab_rename(rd, index):
 
+    global STATUS, ERRTEXT
+
+    tab_old = rd.tab["tab_liste"][index]
     liste_abfrage = ["tabname"]
     title = "Umbenennen Tabellen-Name "
-    liste_vorgabe = [rd.tab["tab_liste"][index]]
+    liste_vorgabe = [tab_old]
     (liste_ergebnis, status) = wp_screen_gui.eingabe_n_zeilen(rd.gui, liste_abfrage,
                                                               liste_vorgabe=liste_vorgabe, title=title)
 
@@ -145,20 +199,58 @@ def tab_rename(rd, index):
     tab = "".join(text.split()).replace(" ", "")
 
     if tab != rd.tab["tab_liste"][index]:
-        rd.tab["tab_liste"][index] = tab
-        rd.tab["tab_liste_jsonobj"].save(rd.tab["tab_liste"])
+        wp_screen_tab.rename_tab_tab_dict(rd, tab_old, tab)
+        if wp_screen_tab.get_status() != hdef.OKAY:
+            STATUS = wp_screen_tab.get_status()
+            ERRTEXT = wp_screen_tab.get_errtext()
+            wp_screen_tab.reset_status()
+            return
+        # end if
+
     # end if
     return
 # end def
+def tab_copy(rd, index):
+
+    tab_old = rd.tab["tab_liste"][index]
+    liste_abfrage = ["newtabname"]
+    liste_vorgabe = [tab_old]
+    title = "Copy Tab-Name "
+    (liste_ergebnis, status) = wp_screen_gui.eingabe_n_zeilen(rd.gui, liste_abfrage,
+                                                              liste_vorgabe=liste_vorgabe, title=title)
+    if (status != hdef.OKAY) or (liste_ergebnis == []):
+        return None
+
+    text = liste_ergebnis[0]
+    # entfernt Leerzeichen, Tabulator (\t), Zeilenumbrüche (\n), geschützte Leerzeichen (\xa0)
+    tab_new = "".join(text.split()).replace(" ", "")
+
+    if tab_new in rd.tab["tab_liste"]:
+        t = f"copyname: {tab_new}  ist bereits in Liste {rd.tab["tab_liste"]} "
+        rd.log.write_err(t, screen=rd.par.LOG_SCREEN_OUT)
+        sgui.anzeige_text(t, textcolor='red')
+    else:
+        wp_screen_tab.copy_tab_tab_dict(rd, tab_old, tab_new)
+
+
+    # end if
+
+# end def
+
 def tab_edit_command(rd, index):
+
+    global STATUS, ERRTEXT
 
     rd.tab["tab"] = rd.tab["tab_liste"][index]
 
     wp_screen_tab.tab_dict_read(rd)
 
-    if get_status() != hdef.OKAY:
+    if wp_screen_tab.get_status() != hdef.OKAY:
+        STATUS = wp_screen_tab.get_status()
+        ERRTEXT = wp_screen_tab.get_errtext()
+        wp_screen_tab.reset_status()
         return
-
+    # end if
 
     abfrage_liste = ["update(value)","modiy(dict)", "add(var)", "delete(var)","hilfe","end"]
 
@@ -184,7 +276,7 @@ def tab_edit_command(rd, index):
                                                                               title=title,
                                                                               abfrage_liste=abfrage_liste)
         if (wp_screen_gui.get_status() != hdef.OK):
-            global STATUS, ERRTEXT
+
             STATUS = wp_screen_gui.get_status()
             ERRTEXT = wp_screen_gui.get_errtext()
             wp_screen_gui.reset_status()
@@ -211,7 +303,7 @@ def tab_edit_command(rd, index):
             # end if
         elif index_abfrage == index_modify:
 
-            tab_edit_modify(rd)
+            tab_edit_modify(rd,index)
             if get_status() != hdef.OKAY:
                 return
             # end if
@@ -263,12 +355,17 @@ def tab_edit_update(rd, ddict_mod,changed_key_liste):
 
     return
 # end def
-def tab_edit_modify(rd):
+def tab_edit_modify(rd,index):
     """
 
     :param rd:
     :return:
     """
+    rd.tab["tab"] = rd.tab["tab_liste"][index]
+
+    wp_screen_tab.tab_dict_read(rd)
+
+
     dict_mod = wp_screen_gui.tab_dict_modify(rd.gui,
                                                    rd.tab["tab"],
                                                    rd.tab["tab_dict"])
@@ -368,40 +465,40 @@ def tab_edit_hilfe(rd):
     wp_screen_gui.anzeige_text(rd.gui, infotext, "Hilfe syntax tab")
     return
 # end def
-def get_tab_auswahl(rd):
-
-    wp_screen_tab.tab_set(rd)
-
-    if wp_screen_tab.get_status() != hdef.OKAY:
-        global STATUS, ERRTEXT
-        STATUS = wp_screen_tab.get_status()
-        ERRTEXT = wp_screen_tab.get_errtext()
-        wp_screen_tab.reset_status()
-        return None
-    # end if
-
-    abfrage_liste = ["select", "show", "ende"]
-
-    while True:
-        (index, indexAbfrage) = wp_screen_gui.listen_abfrage(rd.gui,
-                                                             rd.tab["tab_liste"],
-                                                             auswahl_title="Auswahl Tabellen-Set",
-                                                             abfrage_liste=abfrage_liste)
-
-        if (index < 0) or (indexAbfrage == 2):
-            return None
-        elif indexAbfrage == 0:
-            if index >= 0:
-                tab = rd.tab["tab_liste"][index]
-                return tab
-            # end if
-        else:
-            if index >= 0:
-                tab = rd.tab["tab_liste"][index]
-                tab_dict = wp_screen_tab.get_tab_dict(rd, tab)
-                texteingabe = json.dumps(tab_dict, indent=2)
-                wp_screen_gui.anzeige_text(rd.gui, texteingabe, title=None, textcolor='black')
-            # end if
-        # end if
-    # end while
-# end def
+# def get_tab_auswahl(rd):
+#
+#     wp_screen_tab.tab_set(rd)
+#
+#     if wp_screen_tab.get_status() != hdef.OKAY:
+#         global STATUS, ERRTEXT
+#         STATUS = wp_screen_tab.get_status()
+#         ERRTEXT = wp_screen_tab.get_errtext()
+#         wp_screen_tab.reset_status()
+#         return None
+#     # end if
+#
+#     abfrage_liste = ["select", "show", "ende"]
+#
+#     while True:
+#         (index, indexAbfrage) = wp_screen_gui.listen_abfrage(rd.gui,
+#                                                              rd.tab["tab_liste"],
+#                                                              auswahl_title="Auswahl Tabellen-Set",
+#                                                              abfrage_liste=abfrage_liste)
+#
+#         if (index < 0) or (indexAbfrage == 2):
+#             return None
+#         elif indexAbfrage == 0:
+#             if index >= 0:
+#                 tab = rd.tab["tab_liste"][index]
+#                 return tab
+#             # end if
+#         else:
+#             if index >= 0:
+#                 tab = rd.tab["tab_liste"][index]
+#                 tab_dict = wp_screen_tab.get_tab_dict(rd, tab)
+#                 texteingabe = json.dumps(tab_dict, indent=2)
+#                 wp_screen_gui.anzeige_text(rd.gui, texteingabe, title=None, textcolor='black')
+#             # end if
+#         # end if
+#     # end while
+# # end def

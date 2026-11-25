@@ -10,11 +10,11 @@ if (tools_path not in sys.path):
 # import wp_screen.wp_screen_gui as wp_screen_gui
 import wp_screen.wp_screen_tab_check as wp_screen_tab_check
 import wp_screen.wp_screen_tab_command as wp_screen_tab_command
+import wp_screen.wp_screen_scre as wp_screen_scre
 
 import tools.hfkt_def as hdef
 import tools.hfkt_io as hio
-
-# import tools.hfkt_tvar as htvar
+import tools.hfkt_file_path as hfp
 # import tools.hfkt_type as htype
 
 STATUS   = hdef.OKAY
@@ -226,5 +226,61 @@ def modify_dict(rd, dict_mod):
     # end if
 
     return
+# end def
+def rename_tab_tab_dict(rd, tab_old, tab_new):
+
+    # Hole dict von sigset_from
+    # ------------------------
+    rd.tab["tab"] = tab_old
+    tab_dict_read(rd)
+    if STATUS != hdef.OKAY:
+        return
+
+    tab_jsonobj_old = copy.copy(rd.tab["tab_dict_jsonobj"])
+
+    # copy sigset
+    copy_tab_tab_dict(rd, tab_old, tab_new)
+    if STATUS != hdef.OKAY:
+        return
+
+    # delete old tabdict and tab and file
+    del_tabname(rd, tab_old)
+    old_file_name = tab_jsonobj_old.get_filename()
+    del tab_jsonobj_old
+    hfp.remove_file(old_file_name)
+
+    wp_screen_scre.rename_items(rd, rd.par.SCRE_TAB, tab_old, tab_new)
+
+    return
+# end def
+def copy_tab_tab_dict(rd, tab_from, tab_to):
+
+    # Hole dict von tab_from
+    # ------------------------
+    rd.tab["tab"] = tab_from
+    tab_dict_read(rd)
+    if STATUS != hdef.OKAY:
+        return
+
+    # Kopiere dict
+    # -------------
+    tab_dict_to = copy.copy(rd.tab["tab_dict"])
+
+    # Leg neues dict-File an und hole leeres dict
+    # --------------------------------------------
+    rd.tab["tab"] = add_tabname(rd, tab_to)
+    tab_dict_read(rd)
+
+    # Kopiere dict
+    # -------------
+    rd.tab["tab_dict"] = tab_dict_to
+
+    # Speichere dict
+    # ---------------
+    rd.tab["tab_dict_jsonobj"].save(tab_dict_to)
+
+    return
+
+
 # end def
 

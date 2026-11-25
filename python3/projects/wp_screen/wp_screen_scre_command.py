@@ -9,12 +9,18 @@ if (tools_path not in sys.path):
 # endif
 
 import wp_screen.wp_screen_gui as wp_screen_gui
+import wp_screen.wp_screen_katalog as wp_screen_katalog
 import wp_screen.wp_screen_katalog_command as wp_screen_katalog_command
 import wp_screen.wp_screen_sigset as wp_screen_sigset
 import wp_screen.wp_screen_sigset_command as wp_screen_sigset_command
+import wp_screen.wp_screen_sigset_check as wp_screen_sigset_check
 import wp_screen.wp_screen_tab as wp_screen_tab
+import wp_screen.wp_screen_tab_check as wp_screen_tab_check
 import wp_screen.wp_screen_tab_command as wp_screen_tab_command
+import wp_screen.wp_screen_plotdef as wp_screen_plotdef
 import wp_screen.wp_screen_plotdef_command as wp_screen_plotdef_command
+import wp_screen.wp_screen_plotdef_check as wp_screen_plotdef_check
+
 # import wp_screen_scre_build_signal
 # import wp_screen_scre_build_fmttab
 import wp_screen.wp_screen_scre as wp_screen_scre
@@ -54,14 +60,16 @@ def scre_command(rd):
 
 
     auswahl_title = "Screen-Namen editieren"
-    abfrage_liste = ["edit(values)","add", "delete", "rename","copy","build","ende"]
+    abfrage_liste = ["edit(values)","add", "delete", "rename","copy","modify","build","rebuild","ende"]
     i_edit = 0
     i_add = 1
     i_delete = 2
     i_rename = 3
     i_copy = 4
-    i_build = 5
-    i_ende = 6
+    i_modify = 5
+    i_build = 6
+    i_rebuild = 7
+    i_ende = 8
 
     runflag = True
 
@@ -116,7 +124,26 @@ def scre_command(rd):
             else:
                 scre_copy(rd, index)
             # end if
-        else: # indexAbfrage == i_build:
+        elif indexAbfrage == i_modify:
+            if (index < 0) or (index >= n_auswahl_liste):
+                t = "scre_command modify: index out of range or not set"
+                rd.log.write_err(t, screen=rd.par.LOG_SCREEN_OUT)
+                sgui.anzeige_text(t, textcolor='orange')
+            else:
+                scre_modify(rd, index)
+
+                if STATUS != hdef.OKAY:
+                    t = f"scre_command modify: Error in scre_modify \n errtext = {ERRTEXT}"
+                    rd.log.write_err(t, screen=rd.par.LOG_SCREEN_OUT)
+                    sgui.anzeige_text(t, textcolor='red')
+                    reset_status()
+                    runflag = True
+                else:
+                    runflag = False
+                # end if
+            # end if
+
+        elif indexAbfrage == i_build:
 
             if (index < 0) or (index >= n_auswahl_liste):
                 t = "scre_command build: index out of range or not set"
@@ -125,7 +152,7 @@ def scre_command(rd):
             else:
 
 
-                scre_show_screen(rd,index)
+                scre_show_screen(rd,index,False)
 
 
                 if STATUS != hdef.OKAY:
@@ -138,6 +165,29 @@ def scre_command(rd):
                     runflag = False
                 # end if
 
+
+        else: # indexAbfrage == i_rebuild:
+
+            if (index < 0) or (index >= n_auswahl_liste):
+                t = "scre_command build: index out of range or not set"
+                rd.log.write_err(t, screen=rd.par.LOG_SCREEN_OUT)
+                sgui.anzeige_text(t, textcolor='orange')
+            else:
+
+
+                scre_show_screen(rd,index,True)
+
+
+                if STATUS != hdef.OKAY:
+                    t = f"scre_command build: Error in scre_show_screen \n errtext = {ERRTEXT}"
+                    rd.log.write_err(t, screen=rd.par.LOG_SCREEN_OUT)
+                    sgui.anzeige_text(t, textcolor='red')
+                    reset_status()
+                    runflag = True
+                else:
+                    runflag = False
+                # end if
+        # end if
     # end while
     return
 # end def
@@ -212,7 +262,7 @@ def scre_edit_command(rd, index):
         elif (index_abfrage == index_katalog):
 
 
-            katalog = wp_screen_katalog_command.get_katalog_auswahl(rd)
+            katalog = wp_screen_katalog_command.katalog_command(rd,True)
 
             if wp_screen_katalog_command.get_status() != hdef.OKAY:
                 STATUS = wp_screen_katalog_command.get_status()
@@ -230,7 +280,7 @@ def scre_edit_command(rd, index):
             # end if
         elif index_abfrage == index_sigset:
 
-            sigset = wp_screen_sigset_command.get_sigset_auswahl(rd)
+            sigset = wp_screen_sigset_command.sigset_command(rd,True)
 
             if wp_screen_sigset.get_status() != hdef.OKAY:
                 STATUS = wp_screen_sigset.get_status()
@@ -248,7 +298,7 @@ def scre_edit_command(rd, index):
             # end if
         elif index_abfrage == index_tab:
 
-            tab = wp_screen_tab_command.get_tab_auswahl(rd)
+            tab = wp_screen_tab_command.tab_command(rd,True)
 
             if wp_screen_tab.get_status() != hdef.OKAY:
                 STATUS = wp_screen_tab.get_status()
@@ -267,7 +317,7 @@ def scre_edit_command(rd, index):
 
         elif index_abfrage == index_plotdef:
 
-            plotdef = wp_screen_plotdef_command.get_plotdef_auswahl(rd)
+            plotdef = wp_screen_plotdef_command.plotdef_command(rd,True)
 
             if wp_screen_plotdef_command.get_status() != hdef.OKAY:
                 STATUS = wp_screen_plotdef_command.get_status()
@@ -385,8 +435,134 @@ def scre_copy(rd, index):
         # end if
     return
 
+def scre_modify(rd, index):
 
-def scre_show_screen(rd,index):
+    global STATUS, ERRTEXT
+    # print out
+    l = "-"*100
+    r = "\n"
+    linie = r+l+r
+    t1 = wp_screen_sigset_check.hilfe(rd)
+    t2 = wp_screen_tab_check.hilfe(rd)
+    t3 = wp_screen_plotdef_check.hilfe(rd)
+
+    filename = os.path.join(rd.ini["store_path"],rd.ini["hilfe_text_filename"])
+    okay = hio.write_ascii(filename, l + r + t1 + linie + t2 + linie + t3 + linie)
+
+    if okay:
+        os.startfile(filename)
+    # end if
+
+    rd.scre["scre"] = rd.scre["scre_liste"][index]
+
+    wp_screen_scre.scre_dict_read(rd)
+
+    rd.kat["katalog"] = rd.scre["scre_dict"][rd.par.SCRE_KATALOG]
+    rd.sig["sigset"] = rd.scre["scre_dict"][rd.par.SCRE_SIGSET]
+    rd.tab["tab"] = rd.scre["scre_dict"][rd.par.SCRE_TAB]
+    rd.plot["plotdef"] = rd.scre["scre_dict"][rd.par.SCRE_PLOTDEF]
+
+    # rd.kat["katalog_gruppe_isin_dict"]
+    if len(rd.kat["katalog"]):
+        katalog_dict = wp_screen_katalog.get_katalog_dict(rd, rd.kat["katalog"])
+    else:
+        katalog_dict = {}
+    # end if
+
+    # rd.sig["sigset_dict"]
+    if len(rd.sig["sigset"]):
+        sigset_dict = wp_screen_sigset.get_sigset_dict(rd, rd.sig["sigset"])
+    else:
+        sigset_dict = {}
+    # end if
+
+    # rd.tab["tab_dict"]
+    if len(rd.tab["tab"]):
+        tab_dict = wp_screen_tab.get_tab_dict(rd, rd.tab["tab"])
+    else:
+        tab_dict = {}
+    # end if
+
+    # rd.plot["plotdef_dict"]
+    if len(rd.plot["plotdef"]):
+        plotdef_dict = wp_screen_plotdef.get_plotdef_dict(rd, rd.plot["plotdef"])
+    else:
+        plotdef_dict = {}
+    # end if
+
+    ddict_to_modify = {"katalog_dict": katalog_dict,"sigset_dict":sigset_dict,"tab_dict":tab_dict,"plotdef_dict":plotdef_dict}
+
+    ddict_change = wp_screen_gui.scre_dict_modify(rd.gui, rd.scre["scre"], ddict_to_modify)
+
+    if ddict_change["katalog_dict"] != katalog_dict:
+        flag = wp_screen_gui.janein_abfrage(rd.gui,
+                                            f"Soll wirklich der katlog geändert werden werden?",
+                                            "ja/nein")
+
+        if flag:
+            wp_screen_katalog.modify_gruppe_isin_dict(rd, ddict_change["katalog_dict"])
+            if wp_screen_katalog.get_status() != hdef.OKAY:
+                STATUS = hdef.NOT_OKAY
+                ERRTEXT = f"wp_screen_katalog.modify_gruppe_isin_dict(): Fehler {wp_screen_katalog.get_errtext()}"
+                wp_screen_katalog.reset_status()
+                return
+            # end if
+        # end if
+    # end def
+
+    if ddict_change["sigset_dict"] != sigset_dict:
+        flag = wp_screen_gui.janein_abfrage(rd.gui,
+                                            f"Soll wirklich das sigset_dict geändert werden werden?",
+                                            "ja/nein")
+
+        if flag:
+            wp_screen_sigset.modify_dict(rd, ddict_change["sigset_dict"])
+            if wp_screen_sigset.get_status() != hdef.OKAY:
+                STATUS = hdef.NOT_OKAY
+                ERRTEXT = f"wp_screen_sigset.modify_dict(): Fehler {wp_screen_sigset.get_errtext()}"
+                wp_screen_sigset.reset_status()
+                return
+            # end if
+        # end if
+    # end def
+
+    if ddict_change["tab_dict"] != tab_dict:
+        flag = wp_screen_gui.janein_abfrage(rd.gui,
+                                            f"Soll wirklich das tab_dict geändert werden werden?",
+                                            "ja/nein")
+
+        if flag:
+            wp_screen_tab.modify_dict(rd, ddict_change["tab_dict"])
+            if wp_screen_tab.get_status() != hdef.OKAY:
+                STATUS = hdef.NOT_OKAY
+                ERRTEXT = f"wp_screen_tab.modify_dict(): Fehler {wp_screen_tab.get_errtext()}"
+                wp_screen_tab.reset_status()
+                return
+            # end if
+        # end if
+    # end def
+
+    if ddict_change["plotdef_dict"] != plotdef_dict:
+        flag = wp_screen_gui.janein_abfrage(rd.gui,
+                                            f"Soll wirklich das plotdef_dict geändert werden werden?",
+                                            "ja/nein")
+
+        if flag:
+            wp_screen_plotdef.modify_dict(rd, ddict_change["plotdef_dict"])
+            if wp_screen_plotdef.get_status() != hdef.OKAY:
+                STATUS = hdef.NOT_OKAY
+                ERRTEXT = f"wp_screen_plotdef.modify_dict(): Fehler {wp_screen_plotdef.get_errtext()}"
+                wp_screen_plotdef.reset_status()
+                return
+            # end if
+        # end if
+    # end def
+
+    return
+# end if
+def scre_show_screen(rd,
+                     index,
+                     build_always_new_sigset=False):
     """
     :param rd:
     :param index:
@@ -410,7 +586,7 @@ def scre_show_screen(rd,index):
         return
 
     # 1. build alll signals
-    wp_screen_scre.scre_build_sigset(rd, rd.scre["scre"], rd.scre["scre_dict"])
+    wp_screen_scre.scre_build_sigset(rd, rd.scre["scre"], rd.scre["scre_dict"],build_always_new_sigset=build_always_new_sigset)
     if wp_screen_scre.get_status() != hdef.OKAY:
         STATUS = hdef.NOT_OKAY
         ERRTEXT = f"scre_show_screen build: Error in scre_build_sigset \n errtext = {wp_screen_scre.get_errtext()}"

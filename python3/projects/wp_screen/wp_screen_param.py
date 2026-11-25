@@ -12,7 +12,8 @@ class Param:
                             ("scre_dataclass_pre_file_name", "str", "str", "scre_dataclass_"),
                             ("plotdef_liste_file_name", "str", "str", "plotdef_liste"),
                             ("plotdef_dict_pre_file_name", "str", "str", "plotdef_dict_"),
-                            ("ezbzins_dataclass_file_name", "str", "str", "ezbzins_dataclass")
+                            ("ezbzins_dataclass_file_name", "str", "str", "ezbzins_dataclass"),
+                            ("hilfe_text_filename", "str", "str", "screen_hilfe_text.txt")
                             ]
 
     LOG_SCREEN_OUT = 1
@@ -33,6 +34,7 @@ class Param:
     SIG_2PAR_MAX = "max"
     SIG_2PAR_MIN = "min"
     SIG_2PAR_PERFORMANCE = "performance"
+    SIG_2PAR_LOGPERFORMANCE = "logperformance"
     SIG_3PAR_FILTFILT = "filtfilt"
     SIG_3PAR_VERGLEICH = "vergleich"
     SIG_NPAR_BEDINGUNG = "bedingung"
@@ -58,12 +60,13 @@ class Param:
     SIG_TYPE_2PAR_MAX = 14
     SIG_TYPE_2PAR_MIN = 15
     SIG_TYPE_2PAR_PERFORMANCE = 16
-    SIG_TYPE_3PAR_VERGLEICH = 17
-    SIG_TYPE_3PAR_FILTFILT = 18
-    SIG_TYPE_NPAR_BEDINGUNG = 19
-    SIG_TYPE_NPAR_BEDINGUNGNAND = 20
-    SIG_TYPE_NPAR_BEDINGUNGOR = 21
-    SIG_TYPE_NPAR_MINDISTGMMA = 22
+    SIG_TYPE_2PAR_LOGPERFORMANCE = 17
+    SIG_TYPE_3PAR_VERGLEICH = 18
+    SIG_TYPE_3PAR_FILTFILT = 19
+    SIG_TYPE_NPAR_BEDINGUNG = 20
+    SIG_TYPE_NPAR_BEDINGUNGNAND = 21
+    SIG_TYPE_NPAR_BEDINGUNGOR = 22
+    SIG_TYPE_NPAR_MINDISTGMMA = 23
 
     SIG_STORE_DATUM = "Datum"
     SIG_STORE_GRAD  = "grad"

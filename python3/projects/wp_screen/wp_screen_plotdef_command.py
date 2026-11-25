@@ -13,7 +13,7 @@ import wp_screen.wp_screen_plotdef as wp_screen_plotdef
 import wp_screen.wp_screen_plotdef_check as wp_screen_plotdef_check
 
 import tools.hfkt_def as hdef
-# import tools.hfkt_pickle as hfkt_pickle
+import tools.sgui as sgui
 # import tools.hfkt_tvar as htvar
 # import tools.hfkt_type as htype
 
@@ -39,17 +39,33 @@ def reset_status():
     ERRTEXT = ""
     INFOTEXT = ""
 # end def
-def plotdef_command(rd):
+def plotdef_command(rd,flagselect=False):
 
 
     auswahl_title = "Plotdef-Namen editieren"
-    abfrage_liste = ["edit(plotdef)","add", "delete", "rename","hilfe","ende"]
-    i_edit = 0
-    i_add = 1
-    i_delete = 2
-    i_rename = 3
-    i_hilfe = 4
-    i_ende = 5
+    if flagselect:
+        abfrage_liste = ["select","edit(plotdef)","modify","add", "delete", "rename","copy","hilfe","ende"]
+        i_select = 0
+        i_edit = 1
+        i_modify = 2
+        i_add = 3
+        i_delete = 4
+        i_rename = 5
+        i_copy = 6
+        index_hilfe = 7
+        i_ende = 8
+    else:
+        abfrage_liste = ["edit(plotdef)","modify","add", "delete", "rename","copy","hilfe","ende"]
+        i_select = 110
+        i_edit = 0
+        i_modify = 1
+        i_add = 2
+        i_delete = 3
+        i_rename = 4
+        i_copy = 5
+        index_hilfe = 6
+        i_ende = 7
+    # end if
 
     runflag = True
 
@@ -61,8 +77,20 @@ def plotdef_command(rd):
         (index, indexAbfrage) = wp_screen_gui.listen_abfrage(rd.gui, auswahl_liste, auswahl_title, abfrage_liste)
 
         if (indexAbfrage < 0) or (indexAbfrage == i_ende):
+
             runflag = False
+
+        elif indexAbfrage == i_select:
+
+            if (index < 0) or (index >= n_auswahl_liste):
+                rd.log.write_err("plotdef_command select: index out of range or not set", screen=rd.par.LOG_SCREEN_OUT)
+            else:
+                plotdef = rd.plot["plotdef_liste"][index]
+                return plotdef
+            # end if
+
         elif indexAbfrage == i_edit:
+
             if (index < 0) or (index >= n_auswahl_liste):
                 rd.log.write_err("plotdef_command edit: index out of range or not set", screen=rd.par.LOG_SCREEN_OUT)
             else:
@@ -70,24 +98,50 @@ def plotdef_command(rd):
                 if get_status() != hdef.OKAY:
                     runflag = False
             # end if
+        elif indexAbfrage == i_modify:
+
+            if (index < 0) or (index >= n_auswahl_liste):
+                rd.log.write_err("plotdef_command modify: index out of range or not set", screen=rd.par.LOG_SCREEN_OUT)
+            else:
+                plotdef_edit_modify(rd,index)
+                if get_status() != hdef.OKAY:
+                    return None
+                # end if
+            # end if
+
         elif indexAbfrage == i_add:
+
             plotdef_add(rd)
+
         elif indexAbfrage == i_delete:
+
             if (index < 0) or (index >= n_auswahl_liste):
                 rd.log.write_err("plotdef_command delete: index out of range or not set", screen=rd.par.LOG_SCREEN_OUT)
             else:
                 plotdef_del(rd, index)
             # end if
+
         elif indexAbfrage == i_rename:
+
             if (index < 0) or (index >= n_auswahl_liste):
                 rd.log.write_err("plotdef_command rename: index out of range or not set", screen=rd.par.LOG_SCREEN_OUT)
             else:
                 plotdef_rename(rd, index)
             # end if
+
+        elif indexAbfrage == i_copy:
+
+            if (index < 0) or (index >= n_auswahl_liste):
+                rd.log.write_err("plotdef_command copy: index out of range or not set", screen=rd.par.LOG_SCREEN_OUT)
+            else:
+                plotdef_copy(rd, index)
+            # end if
+
         else: # index_abfrage == i_hilfe
+
             plotdef_edit_hilfe(rd)
     # end while
-    return
+    return None
 # end def
 def plotdef_add(rd):
     """
@@ -96,28 +150,19 @@ def plotdef_add(rd):
     :return: plotdef_add(rd)
     """
 
-    liste_abfrage = ["plotdefname"]
-    title = "neuem Plotdef-Set-Name eingeben"
-    (liste_ergebnis, status) = wp_screen_gui.eingabe_n_zeilen(rd.gui, liste_abfrage,
-                                                              liste_vorgabe=None, title=title)
+    plotdefname = None
+    while plotdefname is None:
+        liste_abfrage = ["plotdefname"]
+        title = "neuem Plotdef-Set-Name eingeben"
+        (liste_ergebnis, status) = wp_screen_gui.eingabe_n_zeilen(rd.gui, liste_abfrage,
+                                                                  liste_vorgabe=None, title=title)
 
-    if (status != hdef.OKAY) or (liste_ergebnis == []):
-        return
+        if (status != hdef.OKAY) or (liste_ergebnis == []):
+            return
 
-    text = liste_ergebnis[0]
-    # entfernt Leerzeichen, Tabulator (\t), Zeilenumbrüche (\n), geschützte Leerzeichen (\xa0)
-    plotdefname = "".join(text.split()).replace(" ", "")
+        text = liste_ergebnis[0]
 
-    if plotdefname not in rd.plot["plotdef_liste"]:
-        rd.log.write_info(f"{plotdefname = } wurde der plotdef_liste hinzugefügt")
-    else:
-        rd.log.write_info(f"{plotdefname = } gibt es schon in Liste")
-        return
-    # end if
-
-    rd.plot["plotdef_liste"].append(plotdefname)
-
-    rd.plot["plotdef_liste_jsonobj"].save(rd.plot["plotdef_liste"])
+        plotdefname = wp_screen_plotdef.add_plotdef_name(rd,text)
 
     return
 # end def
@@ -140,9 +185,12 @@ def plotdef_del(rd,index):
 # end def
 def plotdef_rename(rd, index):
 
+    global STATUS, ERRTEXT
+
+    plotdef_old = rd.plot["plotdef_liste"][index]
     liste_abfrage = ["plotdefname"]
     title = "Umbenennen Plotdef-Set-Name "
-    liste_vorgabe = [rd.plot["plotdef_liste"][index]]
+    liste_vorgabe = [plotdef_old]
     (liste_ergebnis, status) = wp_screen_gui.eingabe_n_zeilen(rd.gui, liste_abfrage,
                                                               liste_vorgabe=liste_vorgabe, title=title)
 
@@ -154,19 +202,58 @@ def plotdef_rename(rd, index):
     plotdef = "".join(text.split()).replace(" ", "")
 
     if plotdef != rd.plot["plotdef_liste"][index]:
-        rd.plot["plotdef_liste"][index] = plotdef
-        rd.plot["plotdef_liste_jsonobj"].save(rd.plot["plotdef_liste"])
+
+        wp_screen_plotdef.rename_plotdef_plotdef_dict(rd,plotdef_old, plotdef)
+        if wp_screen_plotdef.get_status() != hdef.OKAY:
+            STATUS = wp_screen_plotdef.get_status()
+            ERRTEXT = wp_screen_plotdef.get_errtext()
+            wp_screen_plotdef.reset_status()
+            return
+        # end if
+
     # end if
     return
 # end def
+def plotdef_copy(rd, index):
+
+    plotdef_old = rd.plot["plotdef_liste"][index]
+    liste_abfrage = ["newplotdefname"]
+    liste_vorgabe = [plotdef_old]
+    title = "Copy Plotdef-Name "
+    (liste_ergebnis, status) = wp_screen_gui.eingabe_n_zeilen(rd.gui, liste_abfrage,
+                                                              liste_vorgabe=liste_vorgabe, title=title)
+    if (status != hdef.OKAY) or (liste_ergebnis == []):
+        return None
+
+    text = liste_ergebnis[0]
+    # entfernt Leerzeichen, Tabulator (\t), Zeilenumbrüche (\n), geschützte Leerzeichen (\xa0)
+    plotdef_new = "".join(text.split()).replace(" ", "")
+
+    if plotdef_new in rd.plot["plotdef_liste"]:
+        t = f"copyname: {plotdef_new}  ist bereits in Liste {rd.plot["plotdef_liste"]} "
+        rd.log.write_err(t, screen=rd.par.LOG_SCREEN_OUT)
+        sgui.anzeige_text(t, textcolor='red')
+    else:
+        wp_screen_plotdef.copy_plotdef_plotdef_dict(rd, plotdef_old, plotdef_new)
+
+
+    # end if
+
+# end def
+
 def plotdef_edit_command(rd, index):
+
+    global STATUS, ERRTEXT
 
     rd.plot["plotdef"] = rd.plot["plotdef_liste"][index]
 
     wp_screen_plotdef.plotdef_dict_read(rd)
-
-    if get_status() != hdef.OKAY:
+    if wp_screen_plotdef.get_status() != hdef.OKAY:
+        STATUS = wp_screen_plotdef.get_status()
+        ERRTEXT = wp_screen_plotdef.get_errtext()
+        wp_screen_plotdef.reset_status()
         return
+    # end if
 
 
     abfrage_liste = ["update(value)","modiy(dict)", "add(var)", "delete(var)","hilfe","end"]
@@ -193,7 +280,7 @@ def plotdef_edit_command(rd, index):
                                                                               title=title,
                                                                               abfrage_liste=abfrage_liste)
         if (wp_screen_gui.get_status() != hdef.OK):
-            global STATUS, ERRTEXT
+
             STATUS = wp_screen_gui.get_status()
             ERRTEXT = wp_screen_gui.get_errtext()
             wp_screen_gui.reset_status()
@@ -220,7 +307,7 @@ def plotdef_edit_command(rd, index):
             # end if
         elif index_abfrage == index_modify:
 
-            plotdef_edit_modify(rd)
+            plotdef_edit_modify(rd,index)
             if get_status() != hdef.OKAY:
                 return
             # end if
@@ -269,7 +356,7 @@ def plotdef_edit_update(rd, ddict_mod,changed_key_liste):
 
     return
 # end def
-def plotdef_edit_modify(rd):
+def plotdef_edit_modify(rd,index):
     """
 
     :param rd:
@@ -277,6 +364,10 @@ def plotdef_edit_modify(rd):
     """
 
     global INFOTEXT, STATUS, ERRTEXT
+
+    rd.plot["plotdef"] = rd.plot["plotdef_liste"][index]
+
+    wp_screen_plotdef.plotdef_dict_read(rd)
 
     dict_mod = wp_screen_gui.plotdef_dict_modify(rd.gui,
                                                    rd.plot["plotdef"],
@@ -379,46 +470,46 @@ def plotdef_edit_delete(rd):
     # end if
     return
 # end def
-def get_plotdef_auswahl(rd):
-
-    wp_screen_plotdef.plotdef_set(rd)
-
-    if wp_screen_plotdef.get_status() != hdef.OKAY:
-        global STATUS, ERRTEXT
-        STATUS = wp_screen_plotdef.get_status()
-        ERRTEXT = wp_screen_plotdef.get_errtext()
-        wp_screen_plotdef.reset_status()
-        return None
-    # end if
-
-    abfrage_liste = ["select", "show", "ende"]
-
-    while True:
-
-        (index, indexAbfrage) = wp_screen_gui.listen_abfrage(rd.gui,
-                                                             rd.plot["plotdef_liste"],
-                                                             auswahl_title="Auswahl Plotdef-Set",
-                                                             abfrage_liste=abfrage_liste)
-
-        if (index < 0) or (indexAbfrage == 2):
-            return None
-        elif indexAbfrage == 0:
-            if index >= 0:
-                plotdef = rd.plot["plotdef_liste"][index]
-                return plotdef
-            # end if
-        else:
-            if index >= 0:
-                plotdef = rd.plot["plotdef_liste"][index]
-                plotdef_dict = wp_screen_plotdef.get_plotdef_dict(rd, plotdef)
-                texteingabe = json.dumps(plotdef_dict, indent=2)
-                wp_screen_gui.anzeige_text(rd.gui, texteingabe, title=None, textcolor='black')
-            # end if
-        # end if
-    # end while
-
-
-# end def
+# def get_plotdef_auswahl(rd):
+#
+#     wp_screen_plotdef.plotdef_set(rd)
+#
+#     if wp_screen_plotdef.get_status() != hdef.OKAY:
+#         global STATUS, ERRTEXT
+#         STATUS = wp_screen_plotdef.get_status()
+#         ERRTEXT = wp_screen_plotdef.get_errtext()
+#         wp_screen_plotdef.reset_status()
+#         return None
+#     # end if
+#
+#     abfrage_liste = ["select", "show", "ende"]
+#
+#     while True:
+#
+#         (index, indexAbfrage) = wp_screen_gui.listen_abfrage(rd.gui,
+#                                                              rd.plot["plotdef_liste"],
+#                                                              auswahl_title="Auswahl Plotdef-Set",
+#                                                              abfrage_liste=abfrage_liste)
+#
+#         if (index < 0) or (indexAbfrage == 2):
+#             return None
+#         elif indexAbfrage == 0:
+#             if index >= 0:
+#                 plotdef = rd.plot["plotdef_liste"][index]
+#                 return plotdef
+#             # end if
+#         else:
+#             if index >= 0:
+#                 plotdef = rd.plot["plotdef_liste"][index]
+#                 plotdef_dict = wp_screen_plotdef.get_plotdef_dict(rd, plotdef)
+#                 texteingabe = json.dumps(plotdef_dict, indent=2)
+#                 wp_screen_gui.anzeige_text(rd.gui, texteingabe, title=None, textcolor='black')
+#             # end if
+#         # end if
+#     # end while
+#
+#
+# # end def
 
 def plotdef_edit_hilfe(rd):
     """

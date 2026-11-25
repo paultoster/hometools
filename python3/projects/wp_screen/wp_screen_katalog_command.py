@@ -40,49 +40,193 @@ def reset_status():
     ERRTEXT = ""
     INFOTEXT = ""
 # end def
-def get_katalog_auswahl(rd):
-    global STATUS, ERRTEXT
-    wp_screen_katalog.katalog_set(rd)
+# def get_katalog_auswahl(rd):
+#     global STATUS, ERRTEXT
+#     wp_screen_katalog.katalog_set(rd)
+#
+#     if wp_screen_katalog.get_status() != hdef.OKAY:
+#
+#         STATUS = wp_screen_katalog.get_status()
+#         ERRTEXT = wp_screen_katalog.get_errtext()
+#         wp_screen_katalog.reset_status()
+#         return None
+#     # end if
+#
+#     abfrage_liste = ["select","show","copy","modify(dict)","ende"]
+#
+#     i_select = 0
+#     i_show = 1
+#     i_copy = 2
+#     i_modify = 3
+#     i_ende = 4
+#
+#     while True:
+#
+#         (index, indexAbfrage) = wp_screen_gui.listen_abfrage(rd.gui, rd.kat["katalog_liste"],
+#                                                              auswahl_title="Auswahl Katalog",
+#                                                              abfrage_liste=abfrage_liste)
+#
+#
+#         if (index < 0) or (indexAbfrage == i_ende):
+#             return None
+#         elif indexAbfrage == i_select:
+#             if index >= 0:
+#                 katalog = rd.kat["katalog_liste"][index]
+#                 return katalog
+#             # end if
+#         elif indexAbfrage == i_show:
+#             if index >= 0:
+#                 katalog = rd.kat["katalog_liste"][index]
+#                 katalog_dict = wp_screen_katalog.get_katalog_gruppe_isin_dict(rd, katalog)
+#                 texteingabe = json.dumps(katalog_dict, indent=2)
+#                 wp_screen_gui.anzeige_text(rd.gui, texteingabe, title=None, textcolor='black')
+#             # end if
+#         elif indexAbfrage == i_copy:
+#             if index >= 0:
+#                 katalog = rd.kat["katalog_liste"][index]
+#                 liste_abfrage = ["newkatalogname"]
+#                 liste_vorgabe = [katalog]
+#                 title = "Copy Katalog-Name "
+#                 (liste_ergebnis, status) = wp_screen_gui.eingabe_n_zeilen(rd.gui, liste_abfrage,
+#                                                                           liste_vorgabe=liste_vorgabe, title=title)
+#                 if (status != hdef.OKAY) or (liste_ergebnis == []):
+#                     return None
+#
+#                 text = liste_ergebnis[0]
+#                 # entfernt Leerzeichen, Tabulator (\t), Zeilenumbrüche (\n), geschützte Leerzeichen (\xa0)
+#                 katalog_new = "".join(text.split()).replace(" ", "")
+#
+#                 if katalog_new in rd.kat["katalog_liste"]:
+#                     t = f"copyname: {katalog_new}  ist bereits in Liste {rd.kat["katalog_liste"]} "
+#                     rd.log.write_err(t, screen=rd.par.LOG_SCREEN_OUT)
+#                     sgui.anzeige_text(t, textcolor='red')
+#                 else:
+#                     wp_screen_katalog.copy_katalog_katalog_dict(rd, katalog, katalog_new)
+#                 # end if
+#         else: # i_modify
+#             if index >= 0:
+#                 rd.kat["katalog"] = rd.kat["katalog_liste"][index]
+#                 wp_screen_katalog.katalog_gruppe_isin_dict_read(rd)
+#                 if wp_screen_katalog.get_status() != hdef.OKAY:
+#
+#                     STATUS = wp_screen_katalog.get_status()
+#                     ERRTEXT = wp_screen_katalog.get_errtext()
+#                     wp_screen_katalog.reset_status()
+#                     return None
+#                 # end if
+#
+#                 katalog_gruppe_isin_dict_modify(rd)
+#                 if get_status() != hdef.OKAY:
+#                     return None
+#                 # end if
+#             # end if
+#         # end if
+#     # end while
+# # end def
+def katalog_command(rd,flagselect=False):
 
-    if wp_screen_katalog.get_status() != hdef.OKAY:
+    global STATUS
+    global ERRTEXT
+    global INFOTEXT
 
-        STATUS = wp_screen_katalog.get_status()
-        ERRTEXT = wp_screen_katalog.get_errtext()
-        wp_screen_katalog.reset_status()
-        return None
+    auswahl_title = "Katalognamen editieren"
+    if flagselect:
+        abfrage_liste = ["select","edit(katalog)","modify","add", "delete", "rename","copy","hilfe","ende"]
+        i_select = 0
+        i_edit = 1
+        i_modify = 2
+        i_add = 3
+        i_delete = 4
+        i_rename = 5
+        i_copy = 6
+        index_hilfe = 7
+        i_ende = 8
+    else:
+        abfrage_liste = ["edit(katalog)","modify","add", "delete", "rename","copy","hilfe","ende"]
+        i_select = 110
+        i_edit = 0
+        i_modify = 1
+        i_add = 2
+        i_delete = 3
+        i_rename = 4
+        i_copy = 5
+        index_hilfe = 6
+        i_ende = 7
     # end if
 
-    abfrage_liste = ["select","show","copy","modify(dict)","ende"]
+    runflag = True
 
-    i_select = 0
-    i_show = 1
-    i_copy = 2
-    i_modify = 3
-    i_ende = 4
+    while runflag:
 
-    while True:
+        auswahl_liste = rd.kat["katalog_liste"]
+        n_auswahl_liste = len(auswahl_liste)
 
-        (index, indexAbfrage) = wp_screen_gui.listen_abfrage(rd.gui, rd.kat["katalog_liste"],
-                                                             auswahl_title="Auswahl Katalog",
-                                                             abfrage_liste=abfrage_liste)
+        (index, indexAbfrage) = wp_screen_gui.listen_abfrage(rd.gui, auswahl_liste, auswahl_title, abfrage_liste)
 
+        if (indexAbfrage < 0) or (indexAbfrage == i_ende):
 
-        if (index < 0) or (indexAbfrage == i_ende):
-            return None
+            runflag = False
+
         elif indexAbfrage == i_select:
-            if index >= 0:
+
+            if (index < 0) or (index >= n_auswahl_liste):
+                rd.log.write_err("katalog_command select: index out of range or not set", screen=rd.par.LOG_SCREEN_OUT)
+            else:
                 katalog = rd.kat["katalog_liste"][index]
                 return katalog
             # end if
-        elif indexAbfrage == i_show:
-            if index >= 0:
-                katalog = rd.kat["katalog_liste"][index]
-                katalog_dict = wp_screen_katalog.get_katalog_gruppe_isin_dict(rd, katalog)
-                texteingabe = json.dumps(katalog_dict, indent=2)
-                wp_screen_gui.anzeige_text(rd.gui, texteingabe, title=None, textcolor='black')
+
+        elif indexAbfrage == i_edit:
+
+            if (index < 0) or (index >= n_auswahl_liste):
+                rd.log.write_err("katalog_command edit: index out of range or not set", screen=rd.par.LOG_SCREEN_OUT)
+            else:
+                katalog_gruppe_isin_dict_edit_command(rd, index)
+                if get_status() != hdef.OKAY:
+                    runflag = False
             # end if
-        elif indexAbfrage == i_copy:
-            if index >= 0:
+        elif indexAbfrage == i_modify:
+            if (index < 0) or (index >= n_auswahl_liste):
+                rd.log.write_err("katalog_command modify: index out of range or not set", screen=rd.par.LOG_SCREEN_OUT)
+            else:
+                rd.kat["katalog"] = rd.kat["katalog_liste"][index]
+                wp_screen_katalog.katalog_gruppe_isin_dict_read(rd)
+                if wp_screen_katalog.get_status() != hdef.OKAY:
+
+                    STATUS = wp_screen_katalog.get_status()
+                    ERRTEXT = wp_screen_katalog.get_errtext()
+                    wp_screen_katalog.reset_status()
+                    return None
+                # end if
+
+                katalog_gruppe_isin_dict_modify(rd)
+                if get_status() != hdef.OKAY:
+                    return None
+                # end if
+            # end if
+
+        elif indexAbfrage == i_add:
+
+            katalog_command_add(rd)
+
+        elif indexAbfrage == i_delete:
+
+            if (index < 0) or (index >= n_auswahl_liste):
+                rd.log.write_err("katalog_command delete: index out of range or not set", screen=rd.par.LOG_SCREEN_OUT)
+            else:
+                katalog_command_del(rd, index)
+            # end if
+
+        elif indexAbfrage == i_rename:
+            if (index < 0) or (index >= n_auswahl_liste):
+                rd.log.write_err("katalog_command rename: index out of range or not set", screen=rd.par.LOG_SCREEN_OUT)
+            else:
+                katalog_command_rename(rd, index)
+            # end if
+        else:   # if indexAbfrage == i_copy:
+            if (index < 0) or (index >= n_auswahl_liste):
+                rd.log.write_err("katalog_command copy: index out of range or not set", screen=rd.par.LOG_SCREEN_OUT)
+            else:
                 katalog = rd.kat["katalog_liste"][index]
                 liste_abfrage = ["newkatalogname"]
                 liste_vorgabe = [katalog]
@@ -103,77 +247,8 @@ def get_katalog_auswahl(rd):
                 else:
                     wp_screen_katalog.copy_katalog_katalog_dict(rd, katalog, katalog_new)
                 # end if
-        else: # i_modify
-            if index >= 0:
-                rd.kat["katalog"] = rd.kat["katalog_liste"][index]
-                wp_screen_katalog.katalog_gruppe_isin_dict_read(rd)
-                if wp_screen_katalog.get_status() != hdef.OKAY:
-
-                    STATUS = wp_screen_katalog.get_status()
-                    ERRTEXT = wp_screen_katalog.get_errtext()
-                    wp_screen_katalog.reset_status()
-                    return None
-                # end if
-
-                katalog_gruppe_isin_dict_modify(rd)
-                if get_status() != hdef.OKAY:
-                    return None
-                # end if
-            # end if
-        # end if
     # end while
-# end def
-def katalog_command(rd):
-
-    global STATUS
-    global ERRTEXT
-    global INFOTEXT
-
-    auswahl_title = "Katalognamen editieren"
-    abfrage_liste = ["edit(wps)","add", "delete", "rename","ende"]
-    i_edit = 0
-    i_add = 1
-    i_delete = 2
-    i_rename = 3
-    i_ende = 4
-
-    runflag = True
-
-    while runflag:
-
-        auswahl_liste = rd.kat["katalog_liste"]
-        n_auswahl_liste = len(auswahl_liste)
-
-        (index, indexAbfrage) = wp_screen_gui.listen_abfrage(rd.gui, auswahl_liste, auswahl_title, abfrage_liste)
-
-        if (indexAbfrage < 0) or (indexAbfrage == i_ende):
-            runflag = False
-        elif indexAbfrage == i_edit:
-            if (index < 0) or (index >= n_auswahl_liste):
-                rd.log.write_err("katalog_command edit: index out of range or not set", screen=rd.par.LOG_SCREEN_OUT)
-            else:
-                katalog_gruppe_isin_dict_edit_command(rd, index)
-                if get_status() != hdef.OKAY:
-                    runflag = False
-            # end if
-        elif indexAbfrage == i_add:
-
-            katalog_command_add(rd)
-
-        elif indexAbfrage == i_delete:
-            if (index < 0) or (index >= n_auswahl_liste):
-                rd.log.write_err("katalog_command delete: index out of range or not set", screen=rd.par.LOG_SCREEN_OUT)
-            else:
-                katalog_command_del(rd, index)
-            # end if
-        else:  # if indexAbfrage == i_rename:
-            if (index < 0) or (index >= n_auswahl_liste):
-                rd.log.write_err("katalog_command rename: index out of range or not set", screen=rd.par.LOG_SCREEN_OUT)
-            else:
-                katalog_command_rename(rd, index)
-            # end if
-    # end while
-    return
+    return None
 # end def
 def katalog_command_add(rd):
     """
@@ -215,9 +290,10 @@ def katalog_command_del(rd,index):
 # end def
 def katalog_command_rename(rd, index):
 
+    katalog_old = rd.kat["katalog_liste"][index]
     liste_abfrage = ["katalogname"]
     title = "Umbenennen Katalognamen"
-    liste_vorgabe = [rd.kat["katalog_liste"][index]]
+    liste_vorgabe = [katalog_old]
     (liste_ergebnis, status) = wp_screen_gui.eingabe_n_zeilen(rd.gui, liste_abfrage,
                                                               liste_vorgabe=liste_vorgabe, title=title)
 
@@ -229,8 +305,9 @@ def katalog_command_rename(rd, index):
     katalog = "".join(text.split()).replace(" ", "")
 
     if katalog != rd.kat["katalog_liste"][index]:
-        rd.kat["katalog_liste"][index] = katalog
-        rd.kat["katalog_liste_jsonobj"].save(rd.kat["katalog_liste"])
+
+        wp_screen_katalog.rename_katalog_katalog_dict(rd, katalog_old, katalog)
+
     # end if
     return
 # end def

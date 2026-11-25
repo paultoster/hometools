@@ -220,23 +220,25 @@ def build_figure_dictionary(plotdef_werte_dict_list,max_subplot,nrows,isin,wp_na
         dict_data_liste = []
         for plotdef_werte_dict in plotdef_werte_dict_list:
             height_rows = 0
+            unit_label = ""
             if plotdef_werte_dict["subplot"] == isubplot:
                 dict_data = {}
                 dict_data["xdat"]      = plotdef_werte_dict["xdat"]
-                dict_data["y"]         = plotdef_werte_dict["y"]
+                dict_data["y"]         = plotdef_werte_dict["y"] * plotdef_werte_dict["fac"]
                 dict_data["color"]     = plotdef_werte_dict["color"]
                 dict_data["linewidth"] = plotdef_werte_dict["linewidth"]
                 dict_data["linestyle"] = plotdef_werte_dict["linestyle"]
                 dict_data["marker"]    = plotdef_werte_dict["marker"]
                 dict_data["label"]     = plotdef_werte_dict["plotsignal"]
                 dict_data_liste.append(dict_data)
-
+                if len(plotdef_werte_dict["unit"]) > 0:
+                    unit_label = plotdef_werte_dict["unit"]
                 height_rows = max(height_rows,plotdef_werte_dict["height_rows"])
             # end if
         # end for
         dict_subplot = {}
         dict_subplot["xlabel"]      = "date"
-        dict_subplot["ylabel"]      = "€"
+        dict_subplot["ylabel"]      = unit_label
         dict_subplot["height_rows"] = height_rows
         dict_subplot["data_list"]   = dict_data_liste
         dict_subplot["legend"]      = "best"

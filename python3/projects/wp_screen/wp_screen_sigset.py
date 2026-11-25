@@ -10,9 +10,11 @@ if (tools_path not in sys.path):
 # import wp_screen.wp_screen_gui as wp_screen_gui
 import wp_screen.wp_screen_sigset_check as wp_screen_sigset_check
 import wp_screen.wp_screen_sigset_command as wp_screen_sigset_command
+import wp_screen.wp_screen_scre as wp_screen_scre
 
 import tools.hfkt_def as hdef
 import tools.hfkt_io as hio
+import tools.hfkt_file_path as hfp
 
 # import tools.hfkt_tvar as htvar
 # import tools.hfkt_type as htype
@@ -193,6 +195,34 @@ def del_sigsetname(rd,sigsetname):
         del rd.sig["sigset_liste"][index]
         rd.sig["sigset_liste_jsonobj"].save(rd.sig["sigset_liste"])
     # end if
+    return
+# end def
+def rename_sigset_sigset_dict(rd, sigset_old, sigset_new):
+
+    # Hole dict von sigset_from
+    # ------------------------
+    rd.sig["sigset"] = sigset_old
+    sigset_dict_read(rd)
+    if STATUS != hdef.OKAY:
+        return
+
+    sigset_jsonobj_old = copy.copy(rd.sig["sigset_dict_jsonobj"])
+
+    # copy sigset
+    copy_sigset_sigset_dict(rd, sigset_old, sigset_new)
+    if STATUS != hdef.OKAY:
+        return
+
+    # delete old sigsetname and sigset and file
+    del_sigsetname(rd, sigset_old)
+    old_file_name = sigset_jsonobj_old.get_filename()
+    del sigset_jsonobj_old
+    hfp.remove_file(old_file_name)
+
+    wp_screen_scre.rename_items(rd, rd.par.SCRE_SIGSET, sigset_old, sigset_new)
+
+
+
     return
 # end def
 def copy_sigset_sigset_dict(rd, sigset_from, sigset_to):
