@@ -193,7 +193,7 @@ def hilfe(rd):
                 val2 = f"Höhe des subplots: (default=1) 1,2,3, ... "
             case 3:
                 val1 = "SignalName(color=red)"
-                val2 = f"Farbe: (default='k') 'b', 'g', 'r', 'c', 'm', 'y', 'k', 'w', 'white', ... "
+                val2 = f"Farbe: (default='k') 'b', 'g', 'r', 'c', 'm', 'y', 'k', 'w', 'white','gray','slateblue','orange','brown','aquamarine','darkgreen','greenyellow','gold', ... "
             case 4:
                 val1 = "SignalName(linewidth=3)"
                 val2 = "Liniendicke (default=1)"

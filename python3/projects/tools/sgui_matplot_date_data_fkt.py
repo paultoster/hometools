@@ -491,6 +491,82 @@ def build_date_time_data_dict(data_dict,i):
 
     return (status, errtext, data_dict)
 # end def
+def split_x_y_text(text):
+    """
+    text = "x:100T;y:yminmax(1,200.,500.)" oder
+    text = "10.02.2025-10.06.2025;y:yminmax(1,200.,500.)" oder
+    text = "y:yminmax(1,200.,500.)"
+
+    Trennung x und y durch ";"
+    bei zwei anteilen erstes x, zweites y
+    bei einem Anteil ohne Kennung x und mit Kennung x: oder y: entsprechend
+
+    (xtext,ytext) = split_x_y_text(text)
+
+    """
+    liste = text.split(";")
+
+    xtext = None
+    ytext = None
+    for i,item in enumerate(liste):
+
+        if item[0:2].lower() == "x:":
+            xtext = item[2:]
+        elif item[0:2].lower() == "y:":
+            ytext = item[2:]
+        elif i == 0:
+            xtext = item
+        elif i == 1:
+            ytext = item
+        # end if
+    # end for
+
+    return (xtext,ytext)
+# end def
+
+def detect_yminmax(ytext):
+    """
+    ytext = "yminmax(1,200.,500.)|yminmax(2,1.,5.)"
+    
+    flag = True
+    isubplot = 0
+    ymin = 200.
+    ymax = 500.
+    restytext = yminmax(2,1.,5.)
+    
+    (flag,isubplot,ymin,ymax,restytext) = detect_yminmax(ytext)
+    """
+
+    flag, isubplot, ymin, ymax = False, -1, -1., -1.
+
+    i0 = ytext.find("yminmax")
+    if  i0 != -1:
+        i0 += len("yminmax")
+        item = ytext[i0:]
+        i0 = item.find("(")
+        i1 = item.find(")")
+        if (i0 > -1) and (i1 > i0) and (i0+1 != i1):
+
+            item = item[i0+1:i1]
+
+            liste2 = item.split(",")
+
+            if len(liste2) == 3:
+
+                flag = True
+                try:
+                    isubplot = int(liste2[0])-1
+                    ymin = float(liste2[1])
+                    ymax = float(liste2[2])
+                except:
+                    flag = False
+            # end if
+        # end if
+    # end if
+
+    return (flag,isubplot,ymin,ymax)
+# end def
+
 def detect_change_date_range(text,first_date_time,last_date_time):
     """
     (status, start_date_time,end_date_time) = detect_change_date_range(text,first_date_time,last_date_time)

@@ -494,6 +494,24 @@ def check_content_2par_tuple(par,fkt,par1,par2,signaldef_liste,werte_dict):
         werte_dict["par1"] = par1
         werte_dict["par2"] = abs(nint)
 
+    elif fkt == par.SIG_2PAR_ADD:
+
+        # par1: signal1, par2: aignal2
+        if par1 not in signaldef_liste:
+            INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({par1},{par2})\") ist erster Parameter signal = {par1} nicht davor definiert worden "
+            return hdef.NOT_OKAY
+        # end if
+
+        if par2 not in signaldef_liste:
+            INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({par1},{par2})\") ist erster Parameter signal = {par2} nicht davor definiert worden "
+            return hdef.NOT_OKAY
+        # end if
+
+
+        werte_dict["type"] = par.SIG_TYPE_2PAR_ADD
+        werte_dict["fkt"] = par.SIG_2PAR_ADD
+        werte_dict["par1"] = par1
+        werte_dict["par2"] = par2
     else:
 
         INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({par1},{par2})\") ist Parameter Funktion:{fkt} nicht definiert"
@@ -569,6 +587,30 @@ def  check_content_3par_tuple(par,fkt,par1,par2,par3,signaldef_liste, werte_dict
         werte_dict["par1"] = par1
         werte_dict["par2"] = par2
         werte_dict["par3"] = par3
+    elif fkt == par.SIG_3PAR_MULTIPLY:
+        # par1: signal1, par2: signal2 par3: fac
+        if par1 not in signaldef_liste:
+            INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({par1},{par2},{par3})\") ist erster Parameter signal = {par1} nicht davor definiert worden "
+            return hdef.NOT_OKAY
+        # end if
+        if par2 not in signaldef_liste:
+            INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({par1},{par2},{par3})\") ist zweite Parameter signal = {par2} nicht davor definiert worden "
+            return hdef.NOT_OKAY
+        # end if
+        if par3 not in signaldef_liste:
+
+            # Test fester Wert
+            try:
+                par3 = float(par3)
+            except:
+                INFOTEXT = f"Im sigset zeile:{ZEILE}, (Anweisung: \"={fkt}({par1},{par2},{par3})\") ist dritte Parameter signal = {par3} keine float und nicht davor definiert worden "
+                return hdef.NOT_OKAY
+        # end if
+        werte_dict["type"] = par.SIG_TYPE_3PAR_MULTIPLY
+        werte_dict["fkt"] = par.SIG_3PAR_MULTIPLY
+        werte_dict["par1"] = par1
+        werte_dict["par2"] = par2
+        werte_dict["par3"] = par3
     # end if
     return hdef.OKAY
 # end def
@@ -627,7 +669,7 @@ def hilfe(rd):
     """
     infotext = f"Hilfe für signalset\n\nSyntax: SignalName = Kontext, für Kontext kann stehen:\n\n"
 
-    for i in range(20):
+    for i in range(25):
         match i:
             case 0:
                 val1 = rd.par.SIG_NULL
@@ -669,21 +711,27 @@ def hilfe(rd):
                 val1 = f"{rd.par.SIG_2PAR_LOGPERFORMANCE}(signal,Anzahl/Tage)"
                 val2 = f"relative logarithmische Performance Berechnung für Signal (muss definiert sein) und im Abstand von Anzahl/Tage"
             case 13:
+                val1 = f"{rd.par.SIG_2PAR_ADD}(signal1,signal2)"
+                val2 = f"Adddieren von zwei Signale (müssen definiert sein)"
+            case 14:
                 val1 = f"{rd.par.SIG_3PAR_FILTFILT}(signal,N,Wn)"
                 val2 = f"Zero-Phasen-Butterworth-Filter auf das signal (muss definiert sein) N: Filterordnung, Wn: relative Grenzfrequenz (>0 und <1) (für leichtes smoothen N=2,Wn=0.3) "
-            case 14:
+            case 15:
                 val1 = f"{rd.par.SIG_3PAR_VERGLEICH}(signal1,>,signal2)"
                 val2 = f"Vergleich zweier Signale (müssen definiert sein) und Vorschrift (>,<,>=,<=,==,!=) Ergebnis: 0/1 pro Punkt"
-            case 15:
+            case 16:
+                val1 = f"{rd.par.SIG_3PAR_MULTIPLY}(signal1,signal2,fac)"
+                val2 = f"Multiplikation zweier Signale (müssen definiert sein) und Skalierung mit einem faktor"
+            case 17:
                 val1 = f"{rd.par.SIG_NPAR_BEDINGUNG}(signal1,signal2, ...)"
                 val2 = f"Vergleicht jedes Signal auf > null (müssen definiert sein und max 5) und verundet alle Ergebnisse, Ergebnis: 0/1 pro Punkt"
-            case 16:
+            case 18:
                 val1 = f"{rd.par.SIG_NPAR_BEDINGUNGNAND}(signal1,signal2, ...)"
                 val2 = f"Vergleicht jedes Signal auf > null (müssen definiert sein und max 5) und not-and alle Ergebnisse (d.h. wenn ein Ergebnis 0 => True), Ergebnis: 0/1 pro Punkt"
-            case 17:
+            case 19:
                 val1 = f"{rd.par.SIG_NPAR_BEDINGUNGOR}(signal1,signal2, ...)"
                 val2 = f"Vergleicht jedes Signal auf > null (müssen definiert sein und max 5) und verodert alle Ergebnisse, Ergebnis: 0/1 pro Punkt"
-            case 18:
+            case 20:
                 val1 = f"{rd.par.SIG_NPAR_MINDISTGMMA}(signal,n,EMAmin,deltaEMA)"
                 val2 = f"(Gruppy Multiple Moving Average) EMA auf das signal n: anzahl der EMAs, EMAmin: kleinste Zahl für EMA z.B. 3, deltaEMA: Abstand zum nächsten EMA z.B. 5, Ergebnis: kleinster Abstand postiv in Prozent, wenn alle geordnet steigen, bzw. negativ wenn alle geordnet fallen, ansonsten null "
 

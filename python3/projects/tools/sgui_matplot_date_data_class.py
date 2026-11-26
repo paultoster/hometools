@@ -179,30 +179,53 @@ class maplot_date_plot_class:
             # 1.10.2026-31.11.2026    :       Plotte den zeitbereich
             # 1.10.2026-200T          :       Plotte von 1.10.2026 200 Tage
             # 1.10.2026-2M            :       Plotte von 1.10.2026 2 Monate
-            self.axtextbox = fig.add_axes([0.3, 0.9, 0.5, 0.05])
+            self.axtextbox = fig.add_axes([0.5, 0.9, 0.5, 0.05])
 
-            self.textbox = TextBox(self.axtextbox,'Datum(nT,nM,J,M.J,T.M.J-T.M.J,T.M.J-nT,T.M.J-nM)',initial='')
+            self.textbox = TextBox(self.axtextbox,'x:nT(,nM,J,M.J,T.M.J-T.M.J,T.M.J-nT,T.M.J-nM);y:yminmax(1,-10,10)|yminmax(2,-1,1)',initial='')
             self.textbox.on_submit(self.callback_change)
 
         # end if
 
     def callback_change(self,event):
 
-        (status,start_date_time,end_date_time) = matplot_fkt.detect_change_date_range(event,
-                                                                                      self.plot_dict["first_date_time"],
-                                                                                      self.plot_dict["last_date_time"])
+        (xtext,ytext) = matplot_fkt.split_x_y_text(event)
 
-        if status == hdef.OKAY:
+        if xtext is not None:
 
-            start_date_time_np = np.datetime64(start_date_time).astype('datetime64[s]')
-            end_date_time_np = np.datetime64(end_date_time).astype('datetime64[s]')
+            (status,start_date_time,end_date_time) = matplot_fkt.detect_change_date_range(xtext,
+                                                                                          self.plot_dict["first_date_time"],
+                                                                                          self.plot_dict["last_date_time"])
 
-            for subplot_dict in self.plot_dict["subplot_list"]:
-                subplot_dict["ax"].set_xlim(start_date_time_np,end_date_time_np)
+            if (status == hdef.OKAY) and (start_date_time is not None) and (end_date_time is not None):
+
+                start_date_time_np = np.datetime64(start_date_time).astype('datetime64[s]')
+                end_date_time_np = np.datetime64(end_date_time).astype('datetime64[s]')
+
+                for subplot_dict in self.plot_dict["subplot_list"]:
+                    subplot_dict["ax"].set_xlim(start_date_time_np,end_date_time_np)
+                # end for
+                plt.draw()
+        # end if
+        if ytext is not None:
+
+            yliste = ytext.split("|")
+
+            for yytext in yliste:
+
+                (flag,isubplot,ymin,ymax) = matplot_fkt.detect_yminmax(yytext)
+
+                if flag and (isubplot >= 0) and (isubplot < len(self.plot_dict["subplot_list"])):
+
+                    subplot_dict = self.plot_dict["subplot_list"][isubplot]
+                    subplot_dict["ax"].set_ylim(ymin, ymax)
+                # end if
+
+                # end if
             # end for
-            plt.draw()
 
-        elif len(event) == 0:
+            plt.draw()
+        # end if
+        if len(event) == 0:
             for subplot_dict in self.plot_dict["subplot_list"]:
                 subplot_dict["ax"].relim()
                 subplot_dict["ax"].autoscale()
@@ -210,6 +233,8 @@ class maplot_date_plot_class:
 
             plt.draw()
         # end if
+
+
         return
     # end def
     def run(self):

@@ -36,6 +36,7 @@ def update(wb_obj,isin_liste):
         (status,errtext,infotext) = wp_base_price_volume.update(wb_obj,isin_liste)
     """
     infotext = ""
+    infotext_loop = ""
 
     # Get basic_info_dict in a list
     (status, errtext, isin_info_dict_liste) = wb_obj.get_basic_info(isin_liste)
@@ -53,8 +54,7 @@ def update(wb_obj,isin_liste):
             wp_dict = copy.copy(info_dict)
             wp_dict["i"] = i
             wp_dict["n"] = len(isin_info_dict_liste)
-            if wp_dict["isin"] == "LU1230136894":
-                a = 0
+
             (status, errtext, infotext,wp_dict) = update_isin(wb_obj,wp_dict)
             if status != hdef.OKAY:
                 return (status, errtext, infotext)
@@ -76,15 +76,17 @@ def update(wb_obj,isin_liste):
                 flag_okay = True
             # end if
             if not flag_okay:
-                status = hdef.NOT_OKAY
-                errtext = f"update: isin: {wp_dict["isin"]} is not proofed: {infotext}"
-                return (status, errtext, infotext)
+                if len(infotext_loop):
+                    infotext_loop = infotext_loop + "\n" + f"update: isin: {wp_dict["isin"]} is not proofed: {infotext}"
+                else:
+                    infotext_loop = f"update: isin: {wp_dict["isin"]} is not proofed: {infotext}"
+
             # end if
         # end for
 
     # end for
     wb_obj.log.write_info(tt)
-    return (status,errtext,infotext)
+    return (status,errtext,infotext_loop)
 # end if
 def update_isin(wb_obj,wp_dict):
     """

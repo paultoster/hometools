@@ -319,6 +319,35 @@ def vergleich(np_dat1_array,np1_array,vergleich,np_dat2_array,np2_array):
     # end if
     return (status,errtext,np_dat_array,np_array)
 # end def
+def add(np_array1, np_array2):
+
+    n1 = len(np_array1)
+    n2 = len(np_array2)
+
+    n = min(n1, n2)
+
+    np_add_array = np_array1.copy()[0:n]
+
+    for i in range(len(np_add_array)):
+        np_add_array[i] += np_array2[i]
+    # end for
+
+    return np_add_array
+# end def
+def multiply3(np1_array,np2_array,np3_array):
+
+    n1 = len(np1_array)
+    n2 = len(np2_array)
+    n3 = len(np3_array)
+
+    n = min(n1,n2,n3)
+
+    np_mult_array = np1_array.copy()[0:n]
+    np_mult_array *= np2_array[0:n]
+    np_mult_array *= np3_array[0:n]
+
+    return (hdef.OKAY, "", np_mult_array)
+# end def
 def bedingung(np_dat_array_liste,np_array_liste):
     """
     Bilde die gemeinsame Datumsbasis und vergleiche auf > 0/0.0 and-Bedingung
@@ -457,7 +486,7 @@ def bedingungor(np_dat_array_liste,np_array_liste):
 
     return (status,errtext,np_dat_array,np_bedignungor_array)
 # end def
-def mindistgmma( np_dat_array,nEMAs,EMAmin,deltaEMA ):
+def mindistgmma( np_dat_array,nEMAs,EMAmin,deltaEMA , factor):
     """
     (Gruppy Multiple Moving Average) EMA auf das signal n: anzahl der EMAs,
     EMAmin: kleinste Zahl für EMA z.B. 3, deltaEMA: Abstand zum nächsten EMA z.B. 5,
@@ -509,7 +538,7 @@ def mindistgmma( np_dat_array,nEMAs,EMAmin,deltaEMA ):
                 # endif
             # end if
         # end for
-        np_minditgmma_array[i] = delta_min / np_array_liste[nEMAs - 1][i]
+        np_minditgmma_array[i] = delta_min / np_array_liste[nEMAs - 1][i] * factor
     # end for
     return np_minditgmma_array
 # end def

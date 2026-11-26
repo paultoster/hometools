@@ -360,6 +360,24 @@ def get_2par_signal(rd, werte_dict, np_data_obj):
                 ERRTEXT = f"Der 2. Parameter von fkt: {rd.par.SIG_2PAR_PERFORMANCE}({signame},{points}) ist nicht bekannt"
                 return
             # end if
+
+        case rd.par.SIG_TYPE_2PAR_ADD:
+
+            signame1 = werte_dict["par1"]
+            signame2 = werte_dict["par2"]
+
+            (success_sub, np_add_array) = build_signal_add(rd, signame1, signame2, np_data_obj)
+            if STATUS != hdef.OKAY:
+                return
+
+            if success_sub:
+                np_data_obj.add_signal(np_add_array, werte_dict["signal"])
+                success = True
+            else:
+                STATUS = hdef.NOT_OKAY
+                ERRTEXT = f"Der 2. Parameter von fkt: {rd.par.SIG_2PAR_PERFORMANCE}({signame1},{signame2}) ist nicht bekannt"
+                return
+            # end if
     # end match
 
     if success:
@@ -414,6 +432,26 @@ def get_3par_signal(rd, werte_dict, np_data_obj):
             else:
                 STATUS = hdef.NOT_OKAY
                 ERRTEXT = f"Der 2. Parameter von fkt: {rd.par.SIG_2PAR_VERGLEICH}({signal1},{vergleich},{signal2}) ist nicht bekannt"
+                return (success, np_data_obj)
+            # end if
+        # SignalName4 = multiply(kurs1,kurs2,fac)                 Multiplikation zweier Kurswerte
+        case rd.par.SIG_TYPE_3PAR_MULTIPLY:
+
+            signal1 = werte_dict["par1"]
+            signal2 = werte_dict["par2"]
+            signal3 = werte_dict["par3"]
+
+            (success_sub, np_mult_array) = build_signal_multiply(rd, signal1, signal2, signal3, np_data_obj)
+
+            if STATUS != hdef.OKAY:
+                return (success, np_data_obj)
+
+            if success_sub:
+                np_data_obj.add_signal(np_mult_array, werte_dict["signal"])
+                success = True
+            else:
+                STATUS = hdef.NOT_OKAY
+                ERRTEXT = f"build_signal_multiply: {rd.par.SIG_3PAR_MULTIPLY}({signal1},{signal2},{signal3}) ist nicht möglich"
                 return (success, np_data_obj)
             # end if
     # end match
@@ -755,6 +793,34 @@ def build_signal_logperformance(rd, signame, points, np_data_obj):
     # end if
     return (success, np_performance_array)
 # end def
+def build_signal_add(rd, signame1, signame2, np_data_obj):
+    """
+        (success_sub, np_add_array) = build_signal_add(rd, signame1, signame2, np_data_obj)
+    """
+    global STATUS, ERRTEXT
+
+    success = False
+    np_add_array = None
+
+    if hasattr(np_data_obj, signame1) and hasattr(np_data_obj, signame2):
+
+        np_array1 = getattr(np_data_obj, signame1)
+        np_array2 = getattr(np_data_obj, signame2)
+        np_add_array = hnpfkt.add(np_array1, np_array2)
+        success = True
+    else:
+        STATUS = hdef.NOT_OKAY
+        ERRTEXT = ""
+        if not hasattr(np_data_obj, signame1):
+            ERRTEXT = ERRTEXT + f"Signal {signame1} nicht bekannt im erstellten Datensatz !!"
+        # end if
+        if not hasattr(np_data_obj, signame2):
+            ERRTEXT = ERRTEXT + f"Signal {signame2} nicht bekannt im erstellten Datensatz !!"
+        # end if
+        return (success, np_add_array)
+    # end if
+    return (success, np_add_array)
+# end def
 def build_signal_filtfilt( signame, N,Wn,np_data_obj):
     """
         (success_sub, np_filtfilt_array) = build_signal_filtfilt(rd, signal, N,Wn,np_data_obj)
@@ -825,6 +891,61 @@ def build_signal_vergleich(rd, signal1, vergleich,signal2,np_data_obj):
     # end if
 
     return (success, np_vergl_array)
+# end def
+def build_signal_multiply(rd, signal1, signal2,signal3,np_data_obj):
+    """
+    (success_sub, np_vergl_array) = build_signal_vergleich(rd, signal1, vergleich, signal2, np_data_obj)
+    """
+    global STATUS, ERRTEXT
+
+    success = False
+    np_vergl_array = None
+
+    if not hasattr(np_data_obj, signal1):
+        STATUS = hdef.NOT_OKAY
+        ERRTEXT = f"Signal {signal1} nicht bekannt im erstellten Datensatz !!"
+        return (success, np_vergl_array)
+    else:
+        np1_array     = getattr(np_data_obj, signal1)
+    # end if
+
+    if isinstance(signal2,float):
+        np2_array = np.ones(len(np1_array),np1_array.dtype)
+        np2_array *= signal2
+    else:
+        if not hasattr(np_data_obj, signal2):
+            STATUS = hdef.NOT_OKAY
+            ERRTEXT = f"Signal {signal2} nicht bekannt im erstellten Datensatz !!"
+            return (success, np_vergl_array)
+        else:
+            np2_array     = getattr(np_data_obj, signal2)
+        # end if
+    # end if
+
+    if isinstance(signal3,float):
+        np3_array = np.ones(len(np1_array),np1_array.dtype)
+        np3_array *= signal3
+    else:
+        if not hasattr(np_data_obj, signal3):
+            STATUS = hdef.NOT_OKAY
+            ERRTEXT = f"Signal {signal3} nicht bekannt im erstellten Datensatz !!"
+            return (success, np_vergl_array)
+        else:
+            np3_array     = getattr(np_data_obj, signal3)
+        # end if
+    # end if
+
+    (status,errtext,np_mult_array) = hnpfkt.multiply3(np1_array,np2_array,np3_array)
+
+    if status == hdef.NOT_OKAY:
+        STATUS = hdef.NOT_OKAY
+        ERRTEXT = errtext
+        return (success, np_vergl_array)
+    else:
+        success = True
+    # end if
+
+    return (success, np_mult_array)
 # end def
 def build_signal_bedingung(rd, signal_liste,np_data_obj):
     """
@@ -984,7 +1105,7 @@ def build_signal_mindistgmma(rd, signal,nEMAs,EMAmin,deltaEMA, np_data_obj):
     if deltaEMA < 1:
         deltaEMA = 1
     # end if
-    np_minditgmma_array = hnpfkt.mindistgmma( getattr(np_data_obj, signal),nEMAs,EMAmin,deltaEMA )
+    np_minditgmma_array = hnpfkt.mindistgmma( getattr(np_data_obj, signal),nEMAs,EMAmin,deltaEMA,500. )
 
     success = True
 
