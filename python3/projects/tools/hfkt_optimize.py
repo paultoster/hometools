@@ -421,6 +421,9 @@ class OptNlinNbegrenzt():
 
             if hasattr(self.opt, 'int_json_file'):
                 self.opt.int_jsonobj  = hio.DataJson(hfp.add_to_filebody("int_erg_lliste_",self.opt.int_json_file,""))
+                if self.opt.int_jsonobj.exist_file():
+                    self.put_in_old_results(self.opt.int_jsonobj.read_and_get_data())
+                # end if
             else:
                 self.opt.int_jsonobj = None
             # end if
@@ -1618,6 +1621,28 @@ class OptNlinNbegrenzt():
 
         return (xs,intx_liste)
     # end def
+    def put_in_old_results(self,old_erg_lliste):
+
+        for old_erg_list in old_erg_lliste:
+            if len(old_erg_list) == self.opt.n+1:
+
+                # suche in Liste, ob bereits vorhanden
+                flag_not_found = True
+                for int_erg_list in self.opt.int_erg_lliste:
+                    if int_erg_list[0:self.opt.n] == old_erg_list[0:self.opt.n]:
+                        flag_not_found = False
+                        break
+                    # end if
+                # end for
+                if flag_not_found:
+                    self.log.write_info(f"put_in_old_results: add to int_erg_lliste: {old_erg_list}")
+                    self.opt.int_erg_lliste.append(old_erg_list)
+                # end if
+            # end if
+        # end for
+        return
+    # end def
+    self.put_in_old_results(self.opt.int_jsonobj.read_and_get_data())
     def search_in_old_results(self,intx_liste):
         flag = False
         f = None

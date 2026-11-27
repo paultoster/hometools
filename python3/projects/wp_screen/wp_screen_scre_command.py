@@ -1,5 +1,5 @@
 
-import os, sys, copy, time
+import os, sys, copy, time, datetime
 
 
 t_path, _ = os.path.split(__file__)
@@ -700,7 +700,7 @@ def scre_show_screen(rd,
                 color_table.append(color_liste)
             # end for
 
-            excel_filename = os.path.join(rd.ini["store_path"],rd.scre["scre"] + '.xlsx')
+            excel_filename = os.path.join(rd.ini["store_path"],rd.scre["scre"] + '_' + datetime.datetime.now().strftime("%Y%m%d_%H%M%S") + '.xlsx')
             status = hio.write_excel_file_ttable(excel_filename,rd.scre["ttable"],color_table)
 
             if status != hdef.OKAY:

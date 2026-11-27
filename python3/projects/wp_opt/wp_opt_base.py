@@ -1,6 +1,7 @@
 import os, sys
 import copy, random
 import datetime, time
+from operator import truediv
 
 # from win32comext.mapi.mapi import fnevCriticalError
 
@@ -305,6 +306,11 @@ class WPOpt:
         filename = build_json_file_name(self.ini["store_path"], "search",self.param_name,self.act_time_str)
         jsonobj = hio.DataJson(filename)
 
+        if jsonobj.exist_file():
+            found_lliste = jsonobj.read_and_get_data()
+        else:
+            found_lliste = []
+        # end if
         # Bilde Permutation von allen einzel listen
         search_lliste = hlist.build_permutation_llist_from_llist(xsearch_lliste,1)
 
@@ -312,12 +318,16 @@ class WPOpt:
 
         for i in range(n):
 
-            result = func(search_lliste[i][:-1])
+            if self.is_not_calculated(search_lliste,found_lliste,i):
 
-            search_lliste[i][-1] = result
+                result = func(search_lliste[i][:-1])
 
-            jsonobj.save(search_lliste)
+                search_lliste[i][-1] = result
 
+                jsonobj.save(search_lliste)
+            else:
+                search_lliste = jsonobj.read_and_get_data()
+            # end if
         # end ofr
         for i in reversed(range(n)):
             if search_lliste[i][-1] is None:
@@ -331,6 +341,30 @@ class WPOpt:
         sort_lliste = hlist.sort_list_of_list(search_lliste, index)
 
         return (sort_lliste[0][:-1],sort_lliste[0][-1])
+    # end def
+    def is_not_calculated(self,search_lliste,found_lliste,isearch):
+
+        if len(found_lliste) == 0:
+            return True
+        # end if
+
+        if len(search_lliste) != len(found_lliste):
+            return True
+        # end if
+
+        for i,search_list in enumerate(search_lliste):
+            if len(search_list) != len(found_lliste[i]):
+                return True
+            # end if
+        # end for
+
+        liste = found_lliste[isearch]
+
+        if liste[-1] is not None:
+            return False
+        # end if
+
+        return True
     # end def
     def search_by_optimize(self,func):
 
