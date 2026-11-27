@@ -303,14 +303,17 @@ class WPOpt:
 
         # Eine art Protokollfile erstellen
         #---------------------------------
-        filename = build_json_file_name(self.ini["store_path"], "search",self.param_name,self.act_time_str)
-        jsonobj = hio.DataJson(filename)
-
-        if jsonobj.exist_file():
+        old_filename = self.search_for_old_json_files(build_json_file_name(self.ini["store_path"], "search",self.param_name,""))
+        if old_filename != "":
+            jsonobj = hio.DataJson(old_filename)
             found_lliste = jsonobj.read_and_get_data()
+            del jsonobj
         else:
             found_lliste = []
         # end if
+        filename = build_json_file_name(self.ini["store_path"], "search",self.param_name,self.act_time_str)
+        jsonobj = hio.DataJson(filename)
+
         # Bilde Permutation von allen einzel listen
         search_lliste = hlist.build_permutation_llist_from_llist(xsearch_lliste,1)
 
@@ -323,11 +326,13 @@ class WPOpt:
                 result = func(search_lliste[i][:-1])
 
                 search_lliste[i][-1] = result
-
-                jsonobj.save(search_lliste)
             else:
-                search_lliste = jsonobj.read_and_get_data()
+                search_lliste[i][-1] = found_lliste[i][-1]
+                self.log.write_info(f"found_liste[{i}] used: {search_lliste[i]}")
             # end if
+
+            jsonobj.save(search_lliste)
+
         # end ofr
         for i in reversed(range(n)):
             if search_lliste[i][-1] is None:
@@ -342,6 +347,49 @@ class WPOpt:
 
         return (sort_lliste[0][:-1],sort_lliste[0][-1])
     # end def
+    def search_for_old_json_files(self,base_file_name):
+        """
+
+        :param base_file_name:
+        :return: old_filename = self.search_for_old_json_files(base_file_name)
+                 not found old_filename = ""
+        """
+        old_filename = ""
+
+        (path, fbody, extension) = hfp.get_pfe(base_file_name)
+
+        file_liste = hfp.get_liste_of_subdir_files(path, liste=[], search_ext=[extension])
+
+        file_liste_found = []
+        for file in file_liste:
+            if  file.find(fbody) != -1:
+                file_liste_found.append(file)
+            # end if
+        # end for
+        date_datetime = None
+        index = None
+        for i,file in enumerate(file_liste_found):
+            (path, body, extension) = hfp.get_pfe(file)
+
+            dat_str = body[len(fbody):]
+            try:
+                d1 = datetime.datetime.strptime(dat_str, "%Y%m%d_%H%M%S")
+                if date_datetime is None:
+                    date_datetime = d1
+                    index = i
+                elif d1 > date_datetime:
+                    date_datetime = d1
+                    index = i
+                # end if
+            except:
+                pass
+            # end try
+        # end for
+        if date_datetime is not None:
+            old_filename = file_liste_found[index]
+        # end if
+        return old_filename
+    # end if
     def is_not_calculated(self,search_lliste,found_lliste,isearch):
 
         if len(found_lliste) == 0:
@@ -396,6 +444,16 @@ class WPOpt:
         opt.beta = 0.75
         opt.x_int_def = x_int_def_liste
         opt.int_json_file = build_json_file_name(self.ini["store_path"], "opt",self.param_name,self.act_time_str)
+
+        old_filename = self.search_for_old_json_files(build_json_file_name(self.ini["store_path"], "int_erg_lliste_opt",self.param_name,""))
+        if old_filename != "":
+            jsonobj = hio.DataJson(old_filename)
+            found_lliste = jsonobj.read_and_get_data()
+            del jsonobj
+        else:
+            found_lliste = []
+        # end if
+        opt.found_lliste = found_lliste
         opt.f0 = f0
 
         obj = hopt.OptNlinNbegrenzt(self.log)

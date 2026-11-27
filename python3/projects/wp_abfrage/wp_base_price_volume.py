@@ -2,6 +2,7 @@
 import copy
 import os
 import sys
+import datetime
 
 import numpy as np
 
@@ -583,7 +584,7 @@ def proof_is_upgedated(wb_obj,wp_dict):
     """
     status = hdef.OKAY
     errtext = ""
-    halfrange = 12 * 60 * 60
+    #  halfrange = 12 * 60 * 60
 
 
     # Was ist der letzte aktuelle Handelsdatum
@@ -623,16 +624,20 @@ def proof_is_upgedated(wb_obj,wp_dict):
         wp_dict["start_dat"] = start_dat
         wp_dict["start_display_dat"] = start_display_dat
 
+        start_dateime_date = datetime.datetime.fromtimestamp(start_dat).date()
+        end_dateime_date = datetime.datetime.fromtimestamp(end_dat).date()
 
-        if end_dat >= start_dat + halfrange:
+        # Das start Datum, stellt das letzte Datum aus der Datei dar (last_dat)
+        # Wenn end_dat (letzter Handelstag) größer dem startdatum ist, dann fehlen Daten
+        if end_dateime_date > start_dateime_date:
 
             wp_dict["updated"] = False
             wp_dict["update_type"] = ""
             wp_dict["np_obj_new"] = None
         else:
             wp_dict["updated"] = True
-            wp_dict["update_type"] = "file"
-            wp_dict["np_obj_new"] = wp_dict["np_obj"]
+            # wp_dict["update_type"] = "file"
+            # wp_dict["np_obj_new"] = wp_dict["np_obj"]
         # end if
 
     # end if

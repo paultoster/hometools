@@ -421,11 +421,13 @@ class OptNlinNbegrenzt():
 
             if hasattr(self.opt, 'int_json_file'):
                 self.opt.int_jsonobj  = hio.DataJson(hfp.add_to_filebody("int_erg_lliste_",self.opt.int_json_file,""))
-                if self.opt.int_jsonobj.exist_file():
-                    self.put_in_old_results(self.opt.int_jsonobj.read_and_get_data())
-                # end if
             else:
                 self.opt.int_jsonobj = None
+            # end if
+
+            # bereits gerechnete Daten mit speichern
+            if hasattr(self.opt, 'found_lliste'):
+                self.put_in_old_results(self.opt.found_lliste)
             # end if
 
             if len(self.opt.x_int_def) != self.opt.n:
@@ -1624,6 +1626,7 @@ class OptNlinNbegrenzt():
     def put_in_old_results(self,old_erg_lliste):
 
         for old_erg_list in old_erg_lliste:
+            old_erg_list = old_erg_list[1:]  # Der Name wird weggenommen: "func"
             if len(old_erg_list) == self.opt.n+1:
 
                 # suche in Liste, ob bereits vorhanden
@@ -1642,7 +1645,6 @@ class OptNlinNbegrenzt():
         # end for
         return
     # end def
-    self.put_in_old_results(self.opt.int_jsonobj.read_and_get_data())
     def search_in_old_results(self,intx_liste):
         flag = False
         f = None
@@ -1657,6 +1659,7 @@ class OptNlinNbegrenzt():
             if count == self.opt.n:
                 flag = True
                 f = liste[-1]
+                self.log.write_info(f"search_in_old_results: Wert wurde übernommen liste:{liste}")
                 break
             # end if
         # end for
