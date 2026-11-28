@@ -1,5 +1,6 @@
 
 import os, sys, copy
+import datetime
 
 import numpy as np
 
@@ -24,7 +25,7 @@ import tools.hfkt_io as hio
 import tools.hfkt_np_fkt as hnpfkt
 import tools.hfkt_tvar as htvar
 # import tools.hfkt_type as htype
-
+import tools.sgui as sgui
 
 STATUS   = hdef.OKAY
 ERRTEXT  = ""
@@ -790,7 +791,50 @@ def rename_items(rd,key,old_name,new_name):
     # end for
     return
 # end def
+def build_table_excel_file(rd):
+    global STATUS, ERRTEXT, INFOTEXT
+    color_table = []
+    for irow,data_liste in enumerate(rd.scre["ttable"].table):
 
+        row_color_dict_liste = []
+        for ddict in rd.scre["color_dict_liste"]:
+            if ddict["row"] == irow:
+                row_color_dict_liste.append(ddict)
+            # end if
+        # end dfor
+
+        color_liste = []
+        for icol in range(len(data_liste)):
+
+            nflag = True
+            for ddict in row_color_dict_liste:
+                if ddict["col"] == icol:
+                    nflag = False
+                    color = sgui.get_tkinter_color_hexcode(ddict["bg"])
+                    break
+                # end if
+            # end ofr
+            if nflag:
+                color = '#ffffff' # white
+            # end if
+
+            color_liste.append(color)
+
+        # end ofr
+
+        color_table.append(color_liste)
+    # end for
+
+    excel_filename = os.path.join(rd.ini["store_path"],rd.scre["scre"] + '_' + datetime.datetime.now().strftime("%Y%m%d_%H%M%S") + '.xlsx')
+    status = hio.write_excel_file_ttable(excel_filename,rd.scre["ttable"],color_table)
+
+    if status != hdef.OKAY:
+        STATUS = hdef.NOT_OKAY
+        ERRTEXT = f"Excelfile: {excel_filename} konnte nicht erstellt werden"
+    # end if
+
+    return excel_filename
+# end def
 
 
 

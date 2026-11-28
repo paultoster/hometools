@@ -352,6 +352,10 @@ class WPScreen:
         # end if
         return
     # end def
+    def get_scre_liste(self):
+
+        return wp_screen_scre.get_scre_name_list(self)
+    # end def
     def add_scre_dict(self,screname,scredict):
         """
         add from extern a new tab, if exist overwrite
@@ -378,6 +382,10 @@ class WPScreen:
                           build_always_new_sigset=False,
                           no_scre_name=None):
         """
+        scre_name = None  welchen scre-Namen benutzen None: alle
+        end_dat = None  Enddatum, wenn aktuell dann None
+        build_always_new_sigset = False, sollen die Signale sigset neu gebildet werden
+        no_scre_name= None, welche scre-Names sollen nicht bearbeitet werden
 
         """
         if scre_name is None:
@@ -482,6 +490,96 @@ class WPScreen:
             return
         # end if
         return rawtable
+    # end def
+    def build_scre_table_and_colortable(self, scre_name,dat = -1,days_wp_exit = -1):
+
+        """
+        scre_name:  Name des ausgewählten sreens, muss hier angelegt sein
+        dat: Datum für Tabelle erstellen in secs
+        days_wp_exit: Anzahl Tage die der WP schon existieren soll
+        return (ttable,color_dict_liste) ) = self.build_scre_table_and_colortable(scre_name, dat)
+
+        """
+
+        wp_screen_scre.setup_scre_name(self,scre_name)
+
+        if wp_screen_scre.get_status() != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"Error wp_screen_base.setup_scre_name({scre_name}) errtext = {wp_screen_scre.get_errtext()}"
+            self.log.write_err(self.errtext, screen=self.par.LOG_SCREEN_OUT)
+            wp_screen_scre.reset_status()
+            return (None, None)
+        # end if
+
+        # build rawtable
+        wp_screen_scre.scre_build_rawtable(self, self.scre["scre_dict"],dat,days_wp_exit)
+
+        if wp_screen_scre.get_status() != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"Error wp_screen_base.scre_build_rawtable({scre_name}) errtext = {wp_screen_scre.get_errtext()}"
+            self.log.write_err(self.errtext, screen=self.par.LOG_SCREEN_OUT)
+            wp_screen_scre.reset_status()
+            return (None, None)
+        # end if
+
+        # build fmttable
+        wp_screen_scre.scre_build_fmttable(self, self.scre["scre_dict"])
+        if wp_screen_scre.get_status() != hdef.OKAY:
+            self.status = hdef.NOT_OKAY
+            self.errtext = f"scre_command build: Error in scre_build \n errtext = {wp_screen_scre.get_errtext()}"
+            wp_screen_scre.reset_status()
+            return (None, None)
+        # end if
+
+
+        return (self.scre["ttable"],self.scre["color_dict_liste"])
+    # end def
+    def build_scre_excel_table(self,
+                               scre_name = None,
+                               end_dat = None,
+                               build_always_new_sigset = False,
+                               no_scre_name = None):
+
+        self.execute_update_scre_sigset(self,
+                                        scre_name=scre_name,
+                                        end_dat=end_dat,
+                                        build_always_new_sigset=build_always_new_sigset,
+                                        no_scre_name=no_scre_name)
+
+        if scre_name is None:
+            scre_name_liste = [scre_name]
+        else:
+            scre_name_liste = self.get_scre_liste()
+        # end if
+
+        if end_dat is None:
+            dat = -1
+        else:
+            dat = end_dat
+        # end if
+
+        for scre_name in scre_name_liste:
+
+            (_,_) = self.build_scre_table_and_colortable(self, scre_name, dat=dat, days_wp_exit=-1)
+
+            if self.get_status() != hdef.OKAY:
+                self.errtext = f"build_scre_excel_table: Error in scre_table_build \n errtext = {self.get_errtext()}"
+                return
+            # end if
+
+            excel_filename = wp_screen_scre.build_table_excel_file(self)
+
+            if wp_screen_scre.get_status() != hdef.OKAY:
+                self.status = hdef.NOT_OKAY
+                self.errtext = f"build_scre_excel_table: Error in build_table_excel_file \n errtext = {wp_screen_scre.get_errtext()}"
+                wp_screen_scre.reset_status()
+                return
+            else:
+                self.log.write_info(f"Für scre-name: {scre_name} wurde excel-file: {excel_filename} erstellt")
+            # end if
+        # end for
+
+        return
     # end def
     def build_ezbzins_sigset(self):
         """

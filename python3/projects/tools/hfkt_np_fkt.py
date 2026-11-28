@@ -334,6 +334,39 @@ def add(np_array1, np_array2):
 
     return np_add_array
 # end def
+def grad(np_array: np.ndarray, npoints:int,grad_faktor:float):
+    """
+    gradient von aktuell zu npoints-Werte davor.
+    Bilde den relativen Anstieg bezogen auf den Mittelwert von y0 und y1 multipliziert mit grad_faktor
+    Mit dem Mittelwert bekommt man so eine relativer Anstieg, ansonsten wäre es € pro Einheit
+    damit wird es auf einen anderen Zeitraum gerechnet (Tageschart, grad_faktor = 252 => Jahres Anstieg relativ )
+    :param np_array:
+    :param npoints:
+    :return: np_performance_array
+    """
+    np_grad_array = np.zeros(np_array.shape)
+    n = len(np_array)
+    npoints = max(npoints,1) + 1  # Input minimal npoints=1 d.h. ein Tag zurück
+
+    for i in  range(n):
+
+        if i == 0:
+
+            grad = 0.0
+        else:
+
+            ny = min(npoints,i+1)
+
+            y0 = np_array[i-ny+1]
+            y1 = np_array[i]
+            ym = (y0+y1)/2.
+            grad = (y1 - y0) / float(ny-1) / ym * grad_faktor
+        # end if
+
+        np_grad_array[i] = grad
+    # end for
+    return np_grad_array
+# end def
 def multiply3(np1_array,np2_array,np3_array):
 
     n1 = len(np1_array)

@@ -618,18 +618,26 @@ class WPKonto:
 
             delta_summe_c = umsatz_c - verrechnung_summe_c
 
-            isin_anzahl_dict = self.sucheWPsImDepotZumVerkauf(delta_summe_c,anlage_summe_c)
+            if self.Parobj.KeinEinzelAktienverkauf:
 
-            for isin in isin_anzahl_dict.keys():
+                delta_anlagen_summe_c = anlage_summe_c - delta_summe_c
+                (anzahl, umsatz_c) = self.KontoDepot.pruefeKauf(delta_anlagen_summe_c, kurs)
 
-                self.verkaufeAusDepot(isin, self.DataObj.WPISINKursDict[isin], isin_anzahl_dict[isin])
+            else:
 
-                verrechnung_summe_c = self.KontoVerrechnung.GetSumme()
+                isin_anzahl_dict = self.sucheWPsImDepotZumVerkauf(delta_summe_c,anlage_summe_c)
 
-                if verrechnung_summe_c >= umsatz_c:
-                    break
-                # end if
-            # end for
+                for isin in isin_anzahl_dict.keys():
+
+                    self.verkaufeAusDepot(isin, self.DataObj.WPISINKursDict[isin], isin_anzahl_dict[isin])
+
+                    verrechnung_summe_c = self.KontoVerrechnung.GetSumme()
+
+                    if verrechnung_summe_c >= umsatz_c:
+                        break
+                    # end if
+                # end for
+            # end if
         # end if
 
         # Kauf des WP aus Verrechnung in Depot

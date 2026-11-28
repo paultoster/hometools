@@ -38,6 +38,7 @@ PARAM_LLIST = [
 ("ParameterVariation",      "Beschreibung  (parallel, format)",{"wert":["parallel"]}),
 ("WPBuildSigSetNew",        "Soll immer eine neue DatenBasis geniert werden (zeitaufwendig)  (True/False, bool)", {"type": "bool"}),
 ("BildeAusgabe",            "Soll die ausgabe geniert werden geniert werden (zeitaufwendig)  (True/False, bool)", {"type": "bool"}),
+("KeinEinzelAktienverkauf", "Es sollen keine Einzelaktienverkauf zum Ausgleich für andere Kaüfe gemacht werden   (True/False, bool)", {"type": "bool"}),
 ("GewichtungZinsMax",       "Gewichtung von zins_mean für den Fehler, max_drawdown wird (1-GewichtungZinsMax) gewichtet  (0.5,float)", {"type": "float","max":1.0,"min":0.0}),
 ("InvestMaxStartwert",      "Es soll nur bis maximal der Startkapitalhöhe entspr. der Aufteilung investiert werden (True/False, bool)", {"type": "bool"},False),
 ]

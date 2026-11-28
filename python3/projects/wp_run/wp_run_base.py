@@ -97,7 +97,16 @@ class WPRun:
         if self.yamlobj.exist_file():
             self.yaml_dict = self.yamlobj.read_and_get_data()
         else:
-            self.yaml_dict = {}
+            self.yaml_dict = {"UpdateTag": "Do",
+                              "UpdateWP": False,
+                              "UpdateScreen": False,
+                              "UpdateScreenExcel":False
+                              "UpdateSave": False,
+                              "ScreDoNotBuild":[],
+                              "LastUpdate": "01.01.2100",
+                              "ShutdownAtEnd": False,
+                              "ShutdownBeforeHour": 0,
+                              "TriggerAlways": False}
         # end if
 
         return
@@ -150,9 +159,18 @@ class WPRun:
                 self.wpscrefunc.reset_status()
             # end if
 
-            if self.yaml_dict["UpdateScreen"] and trigger: #
+            if (self.yaml_dict["UpdateScreen"] or self.yaml_dict["UpdateScreenExcel"]) and trigger: #
 
-                self.wpscrefunc.execute_update_scre_sigset(no_scre_name=self.yaml_dict["ScreDoNotBuild"])
+                if self.yaml_dict["UpdateScreenExcel"]:
+
+                    self.wpscrefunc.build_scre_excel_table(scre_name=None,
+                                                           end_dat=None,
+                                                           build_always_new_sigset=False,
+                                                           no_scre_name=self.yaml_dict["ScreDoNotBuild"])
+                else:
+
+                    self.wpscrefunc.execute_update_scre_sigset(no_scre_name=self.yaml_dict["ScreDoNotBuild"])
+                # end if
 
                 if len(self.wpscrefunc.get_infotext()):
                     self.infotext = f"Info run_WP_Screen() \n infotext = {self.wpscrefunc.get_infotext()}"
@@ -166,11 +184,18 @@ class WPRun:
                     self.log.write_err(self.errtext)
                 # end if
                 self.wpscrefunc.reset_status()
+
             # end if
 
             if trigger:
+                # read again
+                if self.yamlobj.exist_file():
+                    self.yaml_dict = self.yamlobj.read_and_get_data()
+                # end if
                 self.yaml_dict["LastUpdate"] = self.act_time_datetime.strftime("%d.%m.%Y")
-
+                self.yamlobj.save(self.yaml_dict)
+            # end if
+            
             if self.yaml_dict["UpdateSave"]:
                 self.backupData()
             # end if
@@ -184,16 +209,12 @@ class WPRun:
         """
         trigger = False
 
-
-        yamlsdobj = hio.DataYaml(self.ini["steuer_file_name"])
-
-        if yamlsdobj.exist_file():
-            yamlsd_dict = yamlsdobj.read_and_get_data()
-        else:
-            yamlsd_dict = {"TriggerAlways": False}
+        # read again
+        if self.yamlobj.exist_file():
+            self.yaml_dict = self.yamlobj.read_and_get_data()
         # end if
 
-        if yamlsd_dict.get("TriggerAlways"):
+        if self.yaml_dict.get("TriggerAlways"):
             return  True
         # end if
 
@@ -225,27 +246,16 @@ class WPRun:
     def run_Shutdown(self):
 
 
-        yamlsdobj = hio.DataYaml(self.ini["steuer_file_name"])
-
-        if yamlsdobj.exist_file():
-            yamlsd_dict = yamlsdobj.read_and_get_data()
-            if "ShutdownAtEnd" not in yamlsd_dict.keys():
-                yamlsd_dict["ShutdownAtEnd"] = False
-            # end if
-            if "ShutdownBeforeHour" not in yamlsd_dict.keys():
-                yamlsd_dict["ShutdownBeforeHour"] = 0
-            # end if
-        else:
-            yamlsd_dict = {"ShutdownAtEnd":False,"ShutdownBeforeHour":0}
+        # read again
+        if self.yamlobj.exist_file():
+            self.yaml_dict = self.yamlobj.read_and_get_data()
         # end if
 
-
-
-        self.log.write_info(f"ShutdownAtEnd: {yamlsd_dict["ShutdownAtEnd"]}", screen=1)
-        self.log.write_info(f"ShutdownBeforeHour: {yamlsd_dict["ShutdownBeforeHour"]}", screen=1)
+        self.log.write_info(f"ShutdownAtEnd: {self.yamlobj["ShutdownAtEnd"]}", screen=1)
+        self.log.write_info(f"ShutdownBeforeHour: {self.yamlobj["ShutdownBeforeHour"]}", screen=1)
         self.log.write_info(f"ActTimeHour: {self.act_time_datetime.hour}", screen=1)
 
-        if yamlsd_dict["ShutdownAtEnd"] and (self.act_time_datetime.hour < yamlsd_dict["ShutdownBeforeHour"]):
+        if self.yamlobj["ShutdownAtEnd"] and (self.act_time_datetime.hour < self.yamlobj["ShutdownBeforeHour"]):
 
             self.last()
 

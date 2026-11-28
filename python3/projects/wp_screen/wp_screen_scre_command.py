@@ -668,48 +668,19 @@ def scre_show_screen(rd,
             print(rd.scre["ttable"].n)
             print(rd.scre["color_dict_liste"])
 
-            color_table = []
-            for irow,data_liste in enumerate(rd.scre["ttable"].table):
+            excel_filename = wp_screen_scre.build_table_excel_file(rd)
 
-                row_color_dict_liste = []
-                for ddict in rd.scre["color_dict_liste"]:
-                    if ddict["row"] == irow:
-                        row_color_dict_liste.append(ddict)
-                    # end if
-                # end dfor
 
-                color_liste = []
-                for icol in range(len(data_liste)):
-
-                    nflag = True
-                    for ddict in row_color_dict_liste:
-                        if ddict["col"] == icol:
-                            nflag = False
-                            color = sgui.get_tkinter_color_hexcode(ddict["bg"])
-                            break
-                        # end if
-                    # end ofr
-                    if nflag:
-                        color = '#ffffff' # white
-                    # end if
-
-                    color_liste.append(color)
-
-                # end ofr
-
-                color_table.append(color_liste)
-            # end for
-
-            excel_filename = os.path.join(rd.ini["store_path"],rd.scre["scre"] + '_' + datetime.datetime.now().strftime("%Y%m%d_%H%M%S") + '.xlsx')
-            status = hio.write_excel_file_ttable(excel_filename,rd.scre["ttable"],color_table)
-
-            if status != hdef.OKAY:
-                STATUS = hdef.NOT_OKAY
-                ERRTEXT = f"Excelfile: {excel_filename} konnte nicht erstellt werden"
+            if wp_screen_scre_plot.get_status() != hdef.OKAY:
+                STATUS = wp_screen_scre_plot.get_status()
+                ERRTEXT = wp_screen_scre_plot.get_errtext()
+                wp_screen_scre_plot.reset_status()
                 runflag = False
             else:
                 runflag = True
                 os.startfile(excel_filename)
+
+            # end if
         # end if
     # end while
     return

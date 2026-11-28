@@ -1142,7 +1142,7 @@ class WPErg:
         mdobj.add_paragraph("---")
         # Plots von WPs
         rows = []
-        headers = ["isin","grup","name","deals","umsatz","tage"]
+        headers = ["isin","grup","name","deals","umsatz nettot","tage"]
 
 
         for i,isin in np.ndenumerate(np_data_obj.np_depot_wp_isin_array):
@@ -1200,7 +1200,7 @@ class WPErg:
             np_relvkmax_array   = getattr(np_data_obj, name_relvkmax_array)
             np_umsatz_array     = getattr(np_data_obj, name_umsatz_array)
 
-            headers = ["Kaufdatum", "Verkaufdatum","Tage","RelVK","RelVKMax","Umsatz"]
+            headers = ["Kaufdatum", "Verkaufdatum","Tage","RelVK","RelVKMax","Umsatz netto"]
 
             rows = []
 

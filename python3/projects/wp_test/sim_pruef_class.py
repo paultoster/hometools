@@ -41,8 +41,8 @@ class WPPruef:
 
             self.WPscreDictListObj = copy.deepcopy(self.DataObj.WPScreDictListObj)
 
-            # if self.DataObj.AktDat_datetime == datetime.datetime(2020, 8, 13, 0, 0):
-            #     a = 0
+            if self.DataObj.AktDat_datetime >= datetime.datetime(2025, 1, 30, 0, 0):
+                 a = 0
 
             self.pruefe_verkauf()
             if self.Parobj.status != hdef.OKAY:
@@ -96,13 +96,14 @@ class WPPruef:
         # Verkaufen und aus liste löschen
         for index in verkaufs_index_liste:
 
-
+            # Hier wird aktiv verkauft
             self.KontoObj.verkaufeAusDepot(self.WPscreDictListObj.get_value(index,"ISIN"),
                                            self.WPscreDictListObj.get_value(index,"KURS"),
                                            anzahl = None)
             if self.Parobj.status != hdef.OKAY:
                 return
         # end for
+
         for index in reversed(verkaufs_index_liste):
             self.WPscreDictListObj.erase_dict_by_index(index)
         # end for
@@ -114,8 +115,12 @@ class WPPruef:
         :return:
         """
 
+        # List nach dem Verkauf, was bleibt noch
         liste_isin_im_depot = self.KontoObj.bildeAktivesDepotISINListe()
+
+        # Anzahl der Gruppen
         gruppen_liste = list(self.Parobj.ScreKat.keys())
+
         depot_gruppen_isin_dict = {}
         depot_gruppen_anzahl_dict = {}
         # Die Depot isin Depot Gruppen-Dict merken
